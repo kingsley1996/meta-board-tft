@@ -1,0 +1,62 @@
+{
+  "home": {
+    "nav": "[data-section=\"nav\"]",
+    "hero": "[data-section=\"hero\"]",
+    "features": "[data-section=\"features\"]",
+    "promo": "[data-section=\"promo\"]",
+    "footer": "[data-section=\"footer\"]"
+  },
+  "comps": {
+    "nav": "[data-section=\"nav\"]",
+    "page-head": "[data-section=\"page-head\"]",
+    "tierlist": "[data-section=\"tierlist\"]",
+    "footer": "[data-section=\"footer\"]"
+  },
+  "comp-detail": {
+    "nav": "[data-section=\"nav\"]",
+    "page-head": "[data-section=\"page-head\"]",
+    "tierlist": "[data-section=\"tierlist\"]",
+    "comp-panel": "[data-section=\"comp-panel\"]",
+    "footer": "[data-section=\"footer\"]"
+  },
+  "items": {
+    "nav": "[data-section=\"nav\"]",
+    "page-head": "[data-section=\"page-head\"]",
+    "tierboard": "[data-section=\"tierboard\"]",
+    "footer": "[data-section=\"footer\"]"
+  },
+  "augments": {
+    "nav": "[data-section=\"nav\"]",
+    "page-head": "[data-section=\"page-head\"]",
+    "tierboard": "[data-section=\"tierboard\"]",
+    "footer": "[data-section=\"footer\"]"
+  },
+  "guides": {
+    "nav": "[data-section=\"nav\"]",
+    "guide-hero": "[data-section=\"guide-hero\"]",
+    "guide-list": "[data-section=\"guide-list\"]",
+    "footer": "[data-section=\"footer\"]"
+  },
+  "guide-article": {
+    "nav": "[data-section=\"nav\"]",
+    "article": "[data-section=\"article\"]",
+    "related": "[data-section=\"related\"]",
+    "footer": "[data-section=\"footer\"]"
+  },
+  "learn-champions": {
+    "nav": "[data-section=\"nav\"]",
+    "page-head": "[data-section=\"page-head\"]",
+    "champ-grid": "[data-section=\"champ-grid\"]",
+    "footer": "[data-section=\"footer\"]"
+  },
+  "media": {
+    "nav": "[data-section=\"nav\"]",
+    "hero-panel": "[data-section=\"hero-panel\"]",
+    "footer": "[data-section=\"footer\"]"
+  },
+  "legal": {
+    "nav": "[data-section=\"nav\"]",
+    "prose": "[data-section=\"prose\"]",
+    "footer": "[data-section=\"footer\"]"
+  }
+}

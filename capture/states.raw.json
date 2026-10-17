@@ -1,0 +1,260 @@
+{
+  "home": {
+    "featureCard": {
+      "before": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(255, 255, 255)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "0px",
+        "height": "32px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      },
+      "after": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(255, 255, 255)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "0px",
+        "height": "32px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      },
+      "afterImg": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(255, 255, 255)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "0.8",
+        "padding": "0px",
+        "height": "486.875px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0.3s",
+        "transitionTimingFunction": "ease"
+      }
+    },
+    "ctaButton": {
+      "before": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(255, 255, 255)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "4px 20px",
+        "height": "32px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      },
+      "after": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(255, 255, 255)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "4px 20px",
+        "height": "32px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      }
+    },
+    "scrolledNav": {
+      "before": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(52, 56, 60)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "0px 24px",
+        "height": "63px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      },
+      "after": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(52, 56, 60)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "0px 24px",
+        "height": "63px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      },
+      "stickyTop": {
+        "top": 0,
+        "position": "sticky",
+        "height": 63
+      }
+    }
+  },
+  "comps": {
+    "navDropdown": {
+      "closedText": "Tierlist\nComps\nItems\nAugments\nGuides\nStudy Hall\nTools\nBuilder\nTierlist Maker\nSet 18 Info\nAcademy+\nOverlay",
+      "openText": "Tierlist\nComps\nItems\nAugments\nGuides\nStudy Hall\nTools\nBuilder\nTierlist Maker\nSet 18 Info\nAcademy+\nOverlay",
+      "menuBoxes": [
+        {
+          "tag": "DIV",
+          "class": "relative flex w-fit",
+          "h": 32,
+          "text": "Tierlist | Comps | Items | Augments | Guides | Study Hall | Tools | Builder | Tierlist Maker | Set 18 Info | Academy+ | Overlay"
+        },
+        {
+          "tag": "DIV",
+          "class": "group relative z-4 items-center justify-center mix-blend-difference",
+          "h": 32,
+          "text": "Tierlist"
+        },
+        {
+          "tag": "DIV",
+          "class": "smooth-100 absolute top-full left-1/2 h-fit w-fit origin-top -translate-x-1/2 pt",
+          "h": 128,
+          "text": "Comps | Items | Augments"
+        },
+        {
+          "tag": "DIV",
+          "class": "border-surface-new-border bg-surface-new top-full flex w-fit flex-col items-cent",
+          "h": 120,
+          "text": "Comps | Items | Augments"
+        },
+        {
+          "tag": "DIV",
+          "class": "text-surface-new-text hover:text-primary-500 smooth-100 w-full px-6 py-2 text-sm",
+          "h": 36,
+          "text": "Comps"
+        },
+        {
+          "tag": "DIV",
+          "class": "text-surface-new-text hover:text-primary-500 smooth-100 w-full px-6 py-2 text-sm",
+          "h": 36,
+          "text": "Items"
+        },
+        {
+          "tag": "DIV",
+          "class": "text-surface-new-text hover:text-primary-500 smooth-100 w-full px-6 py-2 text-sm",
+          "h": 36,
+          "text": "Augments"
+        },
+        {
+          "tag": "DIV",
+          "class": "group relative z-4 items-center justify-center",
+          "h": 32,
+          "text": "Guides"
+        },
+        {
+          "tag": "DIV",
+          "class": "group relative z-4 items-center justify-center",
+          "h": 32,
+          "text": "Study Hall"
+        },
+        {
+          "tag": "DIV",
+          "class": "group relative z-4 items-center justify-center",
+          "h": 32,
+          "text": "Tools"
+        },
+        {
+          "tag": "DIV",
+          "class": "smooth-100 absolute top-full left-1/2 h-fit w-fit origin-top -translate-x-1/2 pt",
+          "h": 92,
+          "text": "Builder | Tierlist Maker"
+        },
+        {
+          "tag": "DIV",
+          "class": "border-surface-new-border bg-surface-new top-full flex w-fit flex-col items-cent",
+          "h": 84,
+          "text": "Builder | Tierlist Maker"
+        }
+      ]
+    },
+    "hexagon": {
+      "before": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(255, 255, 255)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "0px",
+        "height": "41.5px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      },
+      "after": {
+        "color": "rgb(255, 255, 255)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(255, 255, 255)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "0px",
+        "height": "41.5px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      },
+      "tooltip": [
+        "Azir Rammus"
+      ]
+    },
+    "searchInput": {
+      "before": {
+        "color": "rgb(242, 242, 242)",
+        "backgroundColor": "rgb(18, 20, 23)",
+        "borderColor": "rgb(52, 56, 60)",
+        "boxShadow": "none",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "4px 16px",
+        "height": "36px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      },
+      "after": {
+        "color": "rgb(242, 242, 242)",
+        "backgroundColor": "rgb(18, 20, 23)",
+        "borderColor": "rgb(84, 86, 87)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(255, 255, 255) 0px 0px 0px 0px, rgb(28, 100, 242) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+        "transform": "none",
+        "opacity": "1",
+        "padding": "4px 16px",
+        "height": "36px",
+        "textDecorationLine": "none",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "transitionTimingFunction": "ease"
+      }
+    },
+    "tabs": {
+      "before": "/tierlist/comps | COMPS\n\nTIERLIST",
+      "after": "/tierlist/comps | COMPS\n\nTIERLIST"
+    }
+  }
+}

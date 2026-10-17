@@ -1,0 +1,46 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+export function CompDeleteButton({ slug, title }: { slug: string; title: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function remove() {
+    if (!window.confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    setBusy(true);
+    const res = await fetch(`/api/admin/comps/${slug}`, { method: 'DELETE' });
+    setBusy(false);
+    if (res.ok) router.refresh();
+    else window.alert('Delete failed — check the console for details.');
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={remove}
+      disabled={busy}
+      className="smooth rounded-full border border-line px-3 py-1 text-xs font-semibold text-tier-s hover:border-tier-s disabled:opacity-50"
+    >
+      {busy ? 'Deleting…' : 'Delete'}
+    </button>
+  );
+}
+
+export function AdminLogout() {
+  const router = useRouter();
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        await fetch('/api/admin/login', { method: 'DELETE' });
+        router.push('/admin/login');
+        router.refresh();
+      }}
+      className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+    >
+      Log out
+    </button>
+  );
+}

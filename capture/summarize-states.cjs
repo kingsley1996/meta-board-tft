@@ -1,0 +1,18 @@
+const r = require('../capture/states.raw.json');
+const brief = (o) => o ? Object.fromEntries(Object.entries(o).filter(([k, v]) => typeof v === 'string' && v !== 'none' && v !== 'rgba(0, 0, 0, 0)' && v !== 'normal')) : o;
+console.log('featureCard before:', JSON.stringify(brief(r.home?.featureCard?.before)));
+console.log('featureCard after :', JSON.stringify(brief(r.home?.featureCard?.after)));
+console.log('featureCard img after:', JSON.stringify(brief(r.home?.featureCard?.afterImg)));
+console.log('cta before:', JSON.stringify(brief(r.home?.ctaButton?.before)));
+console.log('cta after :', JSON.stringify(brief(r.home?.ctaButton?.after)));
+console.log('sticky:', JSON.stringify(r.home?.scrolledNav?.stickyTop));
+console.log('nav before:', JSON.stringify(brief(r.home?.scrolledNav?.before)));
+console.log('nav after :', JSON.stringify(brief(r.home?.scrolledNav?.after)));
+console.log('dropdown added chars:', (r.comps?.navDropdown?.openText || '').length - (r.comps?.navDropdown?.closedText || '').length);
+console.log('menuBoxes:', JSON.stringify(r.comps?.navDropdown?.menuBoxes?.slice(0, 6), null, 1).slice(0, 900));
+console.log('hex before:', JSON.stringify(brief(r.comps?.hexagon?.before)));
+console.log('hex after :', JSON.stringify(brief(r.comps?.hexagon?.after)));
+console.log('tooltip:', JSON.stringify(r.comps?.hexagon?.tooltip));
+console.log('search before:', JSON.stringify(brief(r.comps?.searchInput?.before)));
+console.log('search after :', JSON.stringify(brief(r.comps?.searchInput?.after)));
+console.log('tabs:', r.comps?.tabs?.before, '==>', r.comps?.tabs?.after);

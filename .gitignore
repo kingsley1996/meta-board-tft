@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+build/
+next-env.d.ts
+
+# env — never commit secrets (ADMIN_PASSWORD, REFRESH_TOKEN)
+.env*
+!.env.example
+
+# icon downloads — regenerate with `npm run fetch-data` (lib/tft.json is tracked; it's small and the build imports it)
+public/tft/
+scripts/.cache/
+
+# capture artefacts (source-site screenshots and rebuild output are large)
+capture/source/
+capture/rebuild/
+
+# misc
+*.tsbuildinfo
+.DS_Store
+coverage/
+*.log
