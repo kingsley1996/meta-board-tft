@@ -13,8 +13,8 @@ Acceptance test for this lane: user review + side-by-side confirming brand diffe
 | Tier list (items) | `capture/source/items` | `/tierlist/items` | same shell, 12 items |
 | Tier list (augments) | `capture/source/augments` | `/tierlist/augments` | same shell, 12 augments |
 | Comp detail | `capture/source/comp-detail` | `/tierlist/comps/ahri-spellweaver` | expanded-in-place panel: sidebar (active trait badges — icon + count on the active tier's colour: bronze/silver/unique/gold/prismatic, inactive traits hidden; augments; priority) + final board, early units, item priority, positioning grid, alt builds, tips, stage 2/3/4 |
-| Guides index | `capture/source/guides` | `/guides` | featured hero card + category chips (static) + guide cards |
-| Guide article | `capture/source/guide-article` | `/guides/economy-first-stage-2` | prose column + related row; placeholder article text for the owner to replace |
+| Guides index | `capture/source/guides` | `/guides` | featured hero card + category chips (static) + guide cards; content comes from Postgres via `/admin/guides` |
+| Guide article | `capture/source/guide-article` | `/guides/economy-first-stage-2` | prose column + related row; six authored guides (economy, slams, rolling, positioning, tier-reading, augments) with vi translations |
 | Champions grid | `capture/source/learn-champions` | `/learn/champions` | filter chips (static) + auto-fill grid |
 | Media page | `capture/source/studyhall` | `/media` | layout pattern only; no YouTube/Spotify embeds (third-party) — placeholder player panel |
 | Legal prose | `capture/source/legal` | `/legal/privacy`, `/legal/terms` | plus `/about` |
@@ -54,22 +54,26 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 - `GET /api/comps` — all comps read from Postgres, enriched with unit cost + icon and item/augment icons, plus computed **active traits** (counts from board unit traits; activation thresholds/styles from the `traits` table, populated from CommunityDragon effects: 1 bronze / 3 silver / 4 unique / 5 gold / 6 prismatic). `GET /api/comps/:slug` — one comp, 404 if absent.
 - `GET /api/tft/set` — full set payload from Postgres.
 - `POST /api/tft/refresh` — `Authorization: Bearer $REFRESH_TOKEN` (`server/.env`; 503 if unset, 401 on mismatch). Re-fetches CommunityDragon and replaces the game tables in one transaction; comps are untouched.
-- Admin: `POST /api/admin/comps` (201/400/409), `PUT|DELETE /api/admin/comps/:slug` (404 on unknown), `POST|DELETE /api/admin/login`. `comps.trend` (`up`/`down`/null) is editable in the form and returned by the API.
+- `GET /api/guides` / `GET /api/guides/:slug` — guides from Postgres (same `?lang=` rule as comps; the response also carries the raw English `titleEn` / `excerptEn` / `sectionsEn` for the admin editor prefill).
+- Admin: `POST /api/admin/comps` (201/400/409), `PUT|DELETE /api/admin/comps/:slug` (404 on unknown), `POST /api/admin/guides` (201/400/409), `PUT|DELETE /api/admin/guides/:slug`, `POST|DELETE /api/admin/login`. `comps.trend` (`up`/`down`/null) is editable in the form and returned by the API. Guide validation: slug format (immutable on PUT), ISO `publishedOn` (`YYYY-MM-DD`), non-empty title/excerpt/author, sections with heading + body (bullets optional); `featured` flips the index hero.
 - Auth: login sets an httpOnly `mb_admin` cookie (sha256 of `metaboard:<password>`, 12h). Every `/api/admin/*` route is guarded by the backend itself; the Next `middleware.ts` additionally checks the same cookie formula so admin pages redirect to login before rendering. **Keep `ADMIN_PASSWORD` identical in `.env.local` and `server/.env`.**
 - Server-side validation on writes (queries game tables): slug format (immutable on PUT), tier/style/difficulty enums, 3-12 units that exist, carry among units, existing items/augments, exactly 3 stage texts. Units accept plain names or `{name, row, col, stars, items}` — coords must be on the 4x7 board (row 0-3, col 0-6), one unit per hex, up to 3 existing items, stars 1-3.
 - `comp_units` stores `row`/`col`/`stars` + `items text[]`; responses enrich units (cost, icon, item icons) and legacy null positions render via a fallback layout.
-- The Next server components call `backendJson()` (`lib/backend.ts`, `BACKEND_URL`, default `http://127.0.0.1:4000`) for the admin list, edit form and comp detail page. The comps explorer (client) fetches `/api/comps` through the proxy.
+- The Next server components call `backendJson()` (`lib/backend.ts`, `BACKEND_URL`, default `http://127.0.0.1:4000`) for the admin lists, edit forms, comp detail and guide pages. The comps explorer (client) fetches `/api/comps` through the proxy.
 
 ## Admin dashboard
 
-- `/admin` — list comps with tier counts; create, edit and delete. `/admin/login` asks for `ADMIN_PASSWORD`. The edit form's **board editor** places units on a 4x7 hex board: pick a champion, click a hex (or drag), click a unit to set stars (1-3), attach up to 3 items, mark the carry, remove; drag to move or swap. Unit lists without coordinates are auto-laid out on load.
+- Shell: `app/admin/layout.tsx` is the bare html/body root; the `app/admin/(shell)` route group adds the sidebar chrome (Overview / Comps / Guides, View site, Log out). `/admin/login` stays outside the group. Shared kit in `components/admin/ui.tsx` (`AdminPageHeader`, `AdminTable`, `AdminStat`, button/input classes).
+- `/admin` — overview: comp/guide/patch stat cards plus the six newest comps and four newest guides (Edit links). `/admin/comps` — full comps table (tier, style, carry, units, playstyle) with Edit / View / Delete and New comp. `/admin/guides` — guides table (tags, author, date, featured) with the same actions. `/admin/login` asks for `ADMIN_PASSWORD`. The comp edit form's **board editor** places units on a 4x7 hex board: pick a champion, click a hex (or drag), click a unit to set stars (1-3), attach up to 3 items, mark the carry, remove; drag to move or swap. Unit lists without coordinates are auto-laid out on load.
+- Guide editor (`components/admin/guide-form.tsx`): title/slug (auto-slug from title until touched), author, ISO date, excerpt, comma-separated tag keys, featured flag, and a repeatable sections editor (heading/body/bullets — one paragraph or bullet per line — with vi counterparts per section, plus move/remove/add). `publishedOn` defaults to the local calendar date.
+- Comp and guide forms both carry an optional **Vietnamese** block; prefill on edit comes from a second `?lang=vi` fetch and only values that differ from English are shown (empty field = fall back to English / keep existing vi on save).
 - Board visuals (`components/hex-board.tsx` + `.hex-board-*` in `app/globals.css`): flat borderless grey hexes (`#202122`) on a near-black frame (`#0A0D0E`), regular pointy-top hexagons (2/√3 aspect), staggered rows, cell size scales with the container width. Shared by the admin editor and the public "Positioning example" panel.
 - Item and augment avatars are rounded squares, not hexes: `ItemTile` (frame colored by the item's tier from the authored item tier list; grey when unranked) and `AugmentTile` (bare rounded image, no frame) in `components/ui.tsx`. Used by the comp panel, admin editor (palette/slots/unit minis), and the items/augments tier list pages. Champion hexes (`UnitHex`) use a scaled inner hexagon so the cost frame keeps an even width over the pointed top.
 - Hover detail cards (`components/hover-card.tsx` + `lib/tips.ts`): a single delegated layer (mounted in the root layout) reads `data-tip="kind:name"` on any tile and shows a floating card — champion (traits, cost dots, ability icon + mana + keyword definitions), item (description + build path with component icons), augment (rarity badge + description), trait (resolved per-breakpoint rows on tier colours + flavour text). Because it keys off the attribute, it covers server- and client-rendered tiles alike (tier lists, comp panel, champions grid). Card data comes from `lib/tft.json`; unknown names simply show nothing.
 - Comp context on champion cards: `UnitTile` wraps the hex in an element carrying `data-tip-traits` (this unit's trait counts in the comp) and `data-tip-items` (the comp's item priority); the hover layer reads them via `closest()` and the champion card shows the counts on the trait rows plus an "Item priority" block. Applies on the comp detail page (final board + positioning), not on context-free tier-list tiles.
 - Writes go to Postgres through the backend. Changes appear immediately: the comp detail page is `force-dynamic` (fetches the backend per request) and the tier list fetches `/api/comps` client-side. No rebuild needed; static pages are unaffected.
 - Single-admin by design (one shared password, no users/roles). Swap in an auth library before exposing this beyond localhost or adding a second editor.
-- `npm run seed` (in `server/`) resets comps to `server/seed/comps.json` — it wipes comps created via the admin UI.
+- `npm run seed` (in `server/`) resets comps to `server/seed/comps.json` and guides to `server/seed/guides.ts` — it wipes comps and guides created via the admin UI.
 
 ## Behaviour checks (rebuild)
 
@@ -86,9 +90,9 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 - Public pages live under `/<locale>` (`/en/...`, `/vi/...`); bare `/` redirects via `Accept-Language` (middleware), unknown prefixes redirect to `/en`. Admin stays unprefixed and English-only.
 - UI copy: `lib/messages.ts` (`vi` is typed against `en`, a missing key fails the build). Language switcher keeps the current path.
 - Game data: vi names/descriptions come from CommunityDragon `tft/vi_vn.json` + LCU `global/vi_vn/v1/tfttraits.json` → `lib/tft.json` (`nameVi`/`descVi`/`keywordsVi`/`breakpointsVi`), resolved by `lib/tips.ts`. Lookup keys stay English everywhere (`data-tip`, DB rows).
-- Authored content: guides live in `lib/data.ts` as `guidesByLang` (vi bodies typed against the same `Guide` shape, vi tag labels via `guideTag`); legal bodies in `lib/messages.ts` (`legal.privacy` / `legal.terms`); item/augment tier notes are per-locale on each `TierItem`.
-- Comp game plans: `comps.playstyle_vi`, `comps.tips_vi` and `comp_stages.text_vi` columns, served by `GET /api/comps?lang=vi` / `/api/comps/:slug?lang=vi` (EN fallback per field; stage labels render "Giai đoạn N"). vi text is seed-managed (`server/seed/comps.json` → `playstyleVi` / `tipsVi` / stage `textVi`); the admin editor stays English and a save keeps existing vi text (stages upsert rather than delete+insert).
-- Check: `node capture/board-e2e.mjs` covers the vi redirect + vi tier list/page chrome; `capture/tip-shot.mjs` shoots en + vi hover cards; `capture/vi-shots.mjs` shoots vi comp detail, guides and legal.
+- Authored content: guides live in Postgres (edited at `/admin/guides`, seeded from `server/seed/guides.ts`; `title_vi` / `excerpt_vi` / `sections_vi` columns, EN fallback per field). The public guides pages are `force-dynamic` and render `guideTag`-localized chips (`lib/data.ts` keeps the tag label map). Legal bodies in `lib/messages.ts` (`legal.privacy` / `legal.terms`); item/augment tier notes are per-locale on each `TierItem`.
+- Comp and guide vi text: each field falls back to English when empty; comp stage labels render "Giai đoạn N". vi lives in dedicated columns (`comps.playstyle_vi`, `comps.tips_vi`, `comp_stages.text_vi`; guide `*_vi`), is seeded from `server/seed/` and is editable in the admin forms — an English-only save from an older flow keeps existing vi (upserts, never delete+insert).
+- Check: `node capture/board-e2e.mjs` covers the admin sidebar, comp create via board editor, guide create/edit/delete (incl. vi surviving an English edit), the vi redirect, vi tier list chrome and vi guides index; `capture/tip-shot.mjs` shoots en + vi hover cards; `capture/vi-shots.mjs` shoots vi comp detail, guides and legal.
 
 ## Known deviations (deliberate)
 
@@ -105,7 +109,7 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 - Wire real YouTube/Spotify embeds on `/media` if desired.
 - Add real social links in `lib/data.ts` (`socials`) and a real favicon if `app/icon.svg` is not wanted.
 - Champion/item imagery is Riot game data (CommunityDragon); confirm it fits your Riot Games third-party policy before public launch.
-- vi comp game plans are seed-managed: edit `server/seed/comps.json` (then `npm run seed`) or add vi inputs to the admin editor; admin saves only touch English.
+- vi copy for comps and guides is editable in the admin forms (optional "Vietnamese" block); a fresh `npm run seed` replaces all comps and guides — including vi — from `server/seed/`.
 
 ## Run
 

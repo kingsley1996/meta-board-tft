@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Chip, CtaLink } from '@/components/ui';
-import { guideTag, guidesByLang } from '@/lib/data';
+import type { GuidesResponse } from '@/lib/api';
+import { backendJson } from '@/lib/backend';
+import { guideTag } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
   const { lang } = await params;
@@ -15,7 +19,10 @@ const tags = ['Fundamentals', 'Economy', 'Items', 'Positioning', 'Augments', 'Me
 export default async function GuidesPage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
   const t = messages[lang].guides;
-  const guides = guidesByLang[lang];
+  const data = await backendJson<GuidesResponse>(`/api/guides?lang=${lang}`);
+  if (!data) throw new Error('backend is unreachable');
+  const guides = data.guides;
+  if (!guides.length) throw new Error('no guides in the store');
   const featured = guides.find((guide) => guide.featured) ?? guides[0];
   const rest = guides.filter((guide) => guide.slug !== featured.slug);
 

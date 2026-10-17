@@ -31,16 +31,19 @@ await page.goto(`${BASE}/admin/login`);
 await page.fill('input[type="password"]', PASSWORD);
 await page.click('button[type="submit"]');
 await page.waitForURL(/\/admin$/, { timeout: 15000 });
+await page.waitForSelector('[data-section="admin-sidebar"]', { timeout: 15000 });
+check('admin shell sidebar renders', (await page.locator('[data-section="admin-sidebar"] nav a').count()) === 3);
+await page.screenshot({ path: `${OUT}/admin-overview.png`, fullPage: true });
 
 // New comp through the board editor
 await page.goto(`${BASE}/admin/comps/new`);
-await page.getByLabel('Title').fill('Board Test');
+await page.getByLabel('Title', { exact: true }).fill('Board Test');
 await page.getByLabel('Playstyle (one line)').fill('E2E board run');
 await page.getByLabel('Early units').fill('Ahri');
 await page.getByLabel('Item priority (one per line)').fill('Blue Buff');
 await page.getByLabel('Augments (one per line)').fill('Cybernetic Uplink');
-await page.getByLabel('Tips').fill('E2E board test comp.');
-for (const stage of ['Stage 2', 'Stage 3', 'Stage 4']) await page.getByLabel(stage).fill('E2E stage text.');
+await page.getByLabel('Tips', { exact: true }).fill('E2E board test comp.');
+for (const stage of ['Stage 2', 'Stage 3', 'Stage 4']) await page.getByLabel(stage, { exact: true }).fill('E2E stage text.');
 
 await page.locator('button[title="Ahri"]').first().click();
 await page.click('button[aria-label="Place at row 2 column 4"]');
@@ -62,7 +65,7 @@ await page.screenshot({ path: `${OUT}/admin-editor.png`, fullPage: true });
 
 // Save
 await page.getByRole('button', { name: 'Create comp' }).click();
-await page.waitForURL(/\/admin$/, { timeout: 15000 });
+await page.waitForURL(/\/admin\/comps$/, { timeout: 15000 });
 
 const saved = await page.request.get(`${BASE}/api/comps/board-test`);
 check('created comp fetchable', saved.status() === 200);
@@ -77,6 +80,51 @@ await page.goto(`${BASE}/en/tierlist/comps/board-test`);
 await page.waitForSelector('.hex-board', { timeout: 15000 });
 await page.screenshot({ path: `${OUT}/public-board-test.png`, fullPage: true });
 
+// Guides: list shows seeded guides, then create → article → edit (vi survives) → delete
+await page.goto(`${BASE}/admin/guides`);
+await page.waitForSelector('table', { timeout: 15000 });
+check('guides table lists seeded guides', (await page.getByText('Economy first').count()) > 0);
+await page.screenshot({ path: `${OUT}/admin-guides.png`, fullPage: true });
+
+await page.goto(`${BASE}/admin/guides/new`);
+await page.getByLabel('Title', { exact: true }).fill('E2E Guide');
+await page.getByLabel('Author').fill('E2E Bot');
+await page.getByLabel('Excerpt (one or two lines, shown on cards)').fill('Created by the end-to-end test.');
+await page.getByLabel('Tags (comma separated, English keys)').fill('Meta');
+await page.getByLabel('Heading (en)').fill('First heading');
+await page.getByLabel('Body — one paragraph per line (en)').fill('First paragraph.\nSecond paragraph.');
+await page.getByLabel('Bullets — one per line (en, optional)').fill('Bullet one');
+await page.getByLabel('Title (vi)').fill('Bài E2E');
+await page.getByLabel('Heading (vi)').fill('Tiêu đề một');
+await page.getByLabel('Body — one paragraph per line (vi)').fill('Đoạn một.');
+await page.screenshot({ path: `${OUT}/admin-guide-form.png`, fullPage: true });
+await page.getByRole('button', { name: 'Create guide' }).click();
+await page.waitForURL(/\/admin\/guides$/, { timeout: 15000 });
+
+const guideRes = await page.request.get(`${BASE}/api/guides/e2e-guide`);
+check('created guide fetchable', guideRes.status() === 200);
+const guide = await guideRes.json();
+check('guide sections saved', guide.sections?.[0]?.body?.length === 2 && guide.sections?.[0]?.list?.[0] === 'Bullet one');
+const guideVi = await (await page.request.get(`${BASE}/api/guides/e2e-guide?lang=vi`)).json();
+check(`guide vi title served (${guideVi.title})`, guideVi.title === 'Bài E2E');
+
+await page.goto(`${BASE}/en/guides/e2e-guide`);
+await page.waitForSelector('[data-section="article"]', { timeout: 15000 });
+check('public guide article renders', (await page.getByText('First paragraph.').count()) > 0);
+
+await page.goto(`${BASE}/admin/guides/e2e-guide/edit`);
+await page.getByLabel('Title', { exact: true }).fill('E2E Guide edited');
+await page.getByRole('button', { name: 'Save changes' }).click();
+await page.waitForURL(/\/admin\/guides$/, { timeout: 15000 });
+const editedGuide = await (await page.request.get(`${BASE}/api/guides/e2e-guide`)).json();
+check(`guide edit saved (${editedGuide.title})`, editedGuide.title === 'E2E Guide edited');
+const editedVi = await (await page.request.get(`${BASE}/api/guides/e2e-guide?lang=vi`)).json();
+check(`vi title survives english edit (${editedVi.title})`, editedVi.title === 'Bài E2E');
+
+const delGuide = await page.request.delete(`${BASE}/api/admin/guides/e2e-guide`);
+check(`guide cleanup delete (${delGuide.status()})`, delGuide.status() === 200);
+check('deleted guide 404', (await page.request.get(`${BASE}/api/guides/e2e-guide`)).status() === 404);
+
 // i18n: root picks Vietnamese from Accept-Language; vi pages render localized chrome.
 const viContext = await browser.newContext({ locale: 'vi-VN', extraHTTPHeaders: { 'Accept-Language': 'vi-VN,vi;q=0.9' } });
 const viPage = await viContext.newPage();
@@ -89,6 +137,9 @@ check('vi tier list chrome ("Tìm đội hình")', (await viPage.getByPlaceholde
 await viPage.goto(`${BASE}/vi/tierlist/items`);
 await viPage.waitForSelector('[data-section="tierboard"]', { timeout: 15000 });
 check('vi item names on page ("Vô Cực Kiếm")', (await viPage.getByText('Vô Cực Kiếm').count()) > 0);
+await viPage.goto(`${BASE}/vi/guides`);
+await viPage.waitForSelector('[data-section="guide-hero"]', { timeout: 15000 });
+check('vi guides index serves DB translations', (await viPage.getByText('Kinh tế trước tiên').count()) > 0);
 await viContext.close();
 
 // Cleanup

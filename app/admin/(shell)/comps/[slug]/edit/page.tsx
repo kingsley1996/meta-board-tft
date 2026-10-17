@@ -10,8 +10,13 @@ export const dynamic = 'force-dynamic';
 
 export default async function EditCompPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const apiComp = await backendJson<ApiComp>(`/api/comps/${slug}`);
+  const [apiComp, viComp] = await Promise.all([
+    backendJson<ApiComp>(`/api/comps/${slug}`),
+    backendJson<ApiComp>(`/api/comps/${slug}?lang=vi`),
+  ]);
   if (!apiComp) notFound();
+  // ?lang=vi falls back to English per field; only prefill values that differ.
+  const keep = (value?: string | null, fallback?: string) => (value && value !== fallback ? value : '');
   const comp: CompFormComp = {
     slug: apiComp.slug,
     title: apiComp.title,
@@ -34,12 +39,17 @@ export default async function EditCompPage({ params }: { params: Promise<{ slug:
     tips: apiComp.tips,
     stages: apiComp.stages,
     alt: apiComp.alt.map((unit) => unit.name),
+    playstyleVi: keep(viComp?.playstyle, apiComp.playstyle),
+    tipsVi: keep(viComp?.tips, apiComp.tips),
+    stagesVi: apiComp.stages.map((stage, index) => keep(viComp?.stages?.[index]?.text, stage.text)),
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
       <div className="flex flex-col gap-1">
-        <Link href="/admin" className="text-xs font-semibold text-brand-soft hover:text-brand">← Back to admin</Link>
+        <Link href="/admin/comps" className="text-xs font-semibold text-brand-soft hover:text-brand">
+          ← Back to comps
+        </Link>
         <h1 className="font-display text-3xl font-bold uppercase tracking-tight text-fog">Edit · {comp.title}</h1>
       </div>
       <CompForm
@@ -48,6 +58,6 @@ export default async function EditCompPage({ params }: { params: Promise<{ slug:
         items={itemOptions}
         augmentNames={tft.augments.map((augment) => augment.name)}
       />
-    </div>
+    </>
   );
 }
