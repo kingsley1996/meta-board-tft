@@ -6,7 +6,12 @@ import { join, dirname } from 'node:path';
 
 const CDRAGON = 'https://raw.communitydragon.org/latest/cdragon/tft/en_us.json';
 const GAME_BASE = 'https://raw.communitydragon.org/latest/game/';
+// The LCU export carries resolved trait tooltips (per-breakpoint rows with
+// constants) and the LoL ability list used as ability-icon fallback.
+const LCU_BASE = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default';
+const LCU_TRAITS = `${LCU_BASE}/v1/tfttraits.json`;
 const CACHE = 'scripts/.cache/tft-en_us.json';
+const LOLD_CACHE = 'scripts/.cache/loldd';
 const OUT_JSON = 'lib/tft.json';
 const OUT_ICONS = 'public/tft';
 const CONCURRENCY = 12;
@@ -46,14 +51,17 @@ async function loadRaw() {
   return JSON.parse(text);
 }
 
+const number = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? String(Math.round(parsed * 100) / 100) : String(value);
+};
+
 function cleanDesc(desc, effects) {
-  const number = (value) => {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? String(Math.round(parsed * 100) / 100) : String(value);
-  };
   return (desc ?? '')
+
     .replace(/<br\s*\/?>/gi, ' ')
-    .replace(/\\n/g, ' ')
+    .replace(/\\[rn]+/g, ' ')
+    .replace(/\r/g, ' ')
     .replace(/<\/?[a-zA-Z][^>]*>/g, '')
     .replace(/%i:[^%]*%/g, '')
     .replace(/@(\S[^@]*?)@/g, (_, key) => {
@@ -78,6 +86,67 @@ function abilityEffects(variables) {
   }
   return out;
 }
+
+const STYLE_NAMES = { kBronze: 'bronze', kSilver: 'silver', kGold: 'gold', kPrismatic: 'prismatic', kUnique: 'unique' };
+
+function resolveVars(text, constants) {
+  return text
+    .replace(/%i:[^%]*%/g, '')
+    .replace(/@(\S[^@]*?)@/g, (_, key) => {
+      const name = key.includes(':') ? key.split(':').pop() : key;
+      const multiplied = name.match(/^(.+?)\s*\*\s*(\d+(?:\.\d+)?)$/);
+      const base = multiplied ? multiplied[1] : name;
+      const value = constants[base];
+      if (value == null || value === '') return '';
+      return number(Number(value) * (multiplied ? Number(multiplied[2]) : 1));
+    })
+    .replace(/\{\{[^}]*\}\}/g, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/ ([,.;%)\u00a0])/g, '$1')
+    .trim();
+}
+
+const constantMap = (sets) => Object.fromEntries((sets ?? []).flatMap((set) => set.constants ?? []).map((c) => [c.name, c.value]));
+
+function traitBreakpoints(entry) {
+  const rows = [...(entry.tooltip_text ?? '').matchAll(/<row>([\s\S]*?)<\/row>/gi)].map((m) => m[1]);
+  const innate = constantMap(entry.innate_trait_sets);
+  const sets = entry.conditional_trait_sets ?? [];
+  return sets
+    .filter((set) => set.min_units != null)
+    .map((set, i) => ({
+      minUnits: set.min_units,
+      style: STYLE_NAMES[set.style_name] ?? null,
+      text: rows[i] ? resolveVars(rows[i], { ...innate, ...constantMap([set]), MinUnits: set.min_units, MaxUnits: set.max_units }) : '',
+    }));
+}
+
+function traitFlavor(entry) {
+  const text = entry.tooltip_text ?? '';
+  const flavor = (text.match(/<row>/i) ? text.split(/<row>/i)[0] : text).split('<br>')[0] ?? '';
+  return resolveVars(flavor, { ...constantMap(entry.conditional_trait_sets), ...constantMap(entry.innate_trait_sets) });
+}
+
+function harvestKeywords(text, defs) {
+  const add = (rawName, rawValue) => {
+    const name = rawName.replace(/<[^>]*>/g, '').trim().replace(/\.$/, '');
+    const value = rawValue.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().replace(/\.$/, '');
+    // Real definitions read like "Reduces healing received."; anything short,
+    // placeholder-laden or oddly named is a dynamic value line, not a def.
+    if (!/^[A-Za-z][A-Za-z' -]{1,23}$/.test(name) || value.length < 12 || value.length > 140) return;
+    if (/[@{}]|%i:/.test(value)) return;
+    if (!defs[name]) defs[name] = `${value}.`;
+  };
+  for (const m of (text ?? '').matchAll(/<tftbold>(.*?)<\/tftbold>:\s*([^<]+)/gi)) add(m[1], m[2]);
+  for (const m of (text ?? '').matchAll(/<rules>([\s\S]*?)<\/rules>/gi)) {
+    const kv = m[1].match(/^\s*([^:<]{2,32}):\s*([\s\S]+?)\s*$/);
+    if (kv) add(kv[1], kv[2]);
+  }
+}
+
+const abilityKeywordNames = (desc) =>
+  [...new Set([...(desc ?? '').matchAll(/<(?:Keyword|TFTKeyword)>(.*?)<\//gi)].map((m) => m[1].trim()))];
 
 function pickSet(data) {
   const max = Math.max(...data.setData.map((entry) => entry.number));
@@ -122,15 +191,24 @@ const set = pickSet(raw);
 const itemsByName = new Map(raw.items.map((item) => [item.apiName, item]));
 console.log(`set ${set.number} (${set.mutator}): ${set.champions.length} champions, ${set.traits.length} traits`);
 
+let lcuTraits = new Map();
+try {
+  const list = await (await fetchWithRetry(LCU_TRAITS, 2)).json();
+  for (const entry of list) if (entry.set === `TFTSet${set.number}`) lcuTraits.set(entry.display_name, entry);
+  console.log(`lcu traits: ${lcuTraits.size} for set ${set.number}`);
+} catch (error) {
+  console.warn(`lcu traits fetch failed (${error.message}); trait tooltips fall back to cdragon flavour only`);
+}
+
 const traits = set.traits.map((trait) => {
   const effects = (trait.effects ?? []).filter((effect) => effect.minUnits != null && effect.style != null);
+  const lcu = lcuTraits.get(trait.name);
   return {
     apiName: trait.apiName,
     slug: slugify(trait.apiName),
     name: trait.name,
-    // Breakpoint rows hold @MinUnits@ placeholders we cannot resolve here, so
-    // keep the flavour line only; thresholds/styles carry the tier data.
-    desc: cleanDesc((trait.desc ?? '').split(/<row>/i)[0], {}),
+    desc: lcu ? traitFlavor(lcu) : cleanDesc((trait.desc ?? '').split(/<row>/i)[0], {}),
+    breakpoints: lcu ? traitBreakpoints(lcu) : [],
     thresholds: effects.map((effect) => effect.minUnits),
     styles: effects.map((effect) => effect.style),
     iconSrc: trait.icon ? GAME_BASE + trait.icon.replace(/\.tex$/i, '.png') : null,
@@ -143,7 +221,10 @@ const champions = set.champions
     const ability = c.ability && c.ability.name && c.ability.name !== 'None'
       ? {
           name: c.ability.name,
-          desc: cleanDesc(c.ability.desc, abilityEffects(c.ability.variables)),
+          // <rules> blocks are keyword definitions; the card renders them from
+          // the harvested map instead of inline text.
+          desc: cleanDesc((c.ability.desc ?? '').replace(/<rules>[\s\S]*?<\/rules>/gi, ' '), abilityEffects(c.ability.variables)),
+          keywords: abilityKeywordNames(c.ability.desc),
           iconSrc: c.ability.icon && c.ability.icon !== 'None' ? GAME_BASE + c.ability.icon.replace(/\.tex$/i, '.png') : null,
         }
       : null;
@@ -185,6 +266,13 @@ const items = [...itemByName.values()].map((item) => ({
   iconSrc: item.icon ? GAME_BASE + item.icon.replace(/\.tex$/i, '.png') : null,
 }));
 
+const keywordDefs = {};
+for (const item of itemByName.values()) harvestKeywords(item.desc, keywordDefs);
+for (const champion of set.champions) harvestKeywords(champion.ability?.desc, keywordDefs);
+for (const trait of set.traits) harvestKeywords(trait.desc, keywordDefs);
+for (const entry of lcuTraits.values()) harvestKeywords(entry.tooltip_text, keywordDefs);
+console.log(`keyword definitions: ${Object.keys(keywordDefs).length}`);
+
 const setAugmentIds = new Set(set.augments);
 const seenAugmentIds = new Set();
 const augments = raw.items
@@ -207,6 +295,46 @@ try {
   patch = versions[0];
 } catch {
   console.warn('could not fetch patch version, keeping "latest"');
+}
+
+// Ability icons: the set-18 cdragon dump only ships an icon for a handful of
+// units, so fall back to the LoL ability (LCU export) whose name matches the
+// TFT ability name. Coverage is partial by nature (remixed/monster abilities).
+{
+  const norm = (value) => (value ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const readCache = async (file, url) => {
+    if (existsSync(file)) return JSON.parse(await readFile(file, 'utf8'));
+    const data = await (await fetchWithRetry(url, 2)).json();
+    await mkdir(dirname(file), { recursive: true });
+    await writeFile(file, JSON.stringify(data));
+    return data;
+  };
+  try {
+    const summary = await readCache(join(LOLD_CACHE, 'lcu-champion-summary.json'), `${LCU_BASE}/v1/champion-summary.json`);
+    const idByName = new Map(summary.filter((entry) => entry.id > 0).map((entry) => [norm(entry.name), entry.id]));
+    const missing = champions.filter((c) => c.ability && !c.ability.iconSrc);
+    let matched = 0;
+    await pool(missing, 8, async (champion) => {
+      const id = idByName.get(norm(champion.name));
+      if (!id) return;
+      try {
+        const detail = await readCache(join(LOLD_CACHE, `lcu-champion-${id}.json`), `${LCU_BASE}/v1/champions/${id}.json`);
+        const target = norm(champion.ability.name);
+        const spell = (detail.spells ?? []).find((s) => norm(s.name) === target)
+          ?? (detail.spells ?? []).find((s) => s.name.includes(' / ') && s.name.split(' / ').some((part) => norm(part) === target));
+        const passive = !spell && norm(detail.passive?.name) === target ? detail.passive : null;
+        const iconPath = spell?.abilityIconPath ?? passive?.abilityIconPath;
+        if (!iconPath) return;
+        champion.ability.iconSrc = LCU_BASE + iconPath.replace(/^\/lol-game-data\/assets(\/ASSETS)?/i, '/assets').toLowerCase();
+        matched += 1;
+      } catch (error) {
+        console.warn(`  lcu detail miss ${id}: ${error.message}`);
+      }
+    });
+    console.log(`ability icons matched from lcu abilities: ${matched}/${missing.length}`);
+  } catch (error) {
+    console.warn(`lcu ability matching unavailable: ${error.message}`);
+  }
 }
 
 const jobs = [
@@ -237,16 +365,25 @@ const output = {
   champions: champions.map(({ iconSrc, ability, ...c }) => ({
     ...c,
     icon: c.icon ?? null,
-    ability: ability ? { name: ability.name, desc: ability.desc, icon: ability.icon ?? null } : null,
+    ability: ability
+      ? { name: ability.name, desc: ability.desc, keywords: ability.keywords, icon: ability.icon ?? null }
+      : null,
   })),
+  keywords: Object.fromEntries(Object.entries(keywordDefs).sort(([a], [b]) => a.localeCompare(b))),
   items: items.map(({ iconSrc, ...i }) => ({ ...i, icon: i.icon ?? null })),
   augments: augments.map(({ iconSrc, ...a }) => ({ ...a, icon: a.icon ?? null })),
 };
 
 await writeFile(OUT_JSON, JSON.stringify(output));
 const missing = [...champions, ...traits, ...items, ...augments].filter((e) => !e.icon).length;
+const abilities = champions.filter((c) => c.ability);
 console.log(
   `wrote ${OUT_JSON}: ${champions.length} champions, ${traits.length} traits, ${items.length} items, ${augments.length} augments` +
     (missing ? `, ${missing} icons missing` : ', all icons present')
+);
+console.log(
+  `ability icons: ${abilities.filter((c) => c.ability.icon).length}/${abilities.length}, ` +
+    `trait breakpoints: ${traits.filter((t) => t.breakpoints.length).length}/${traits.length}, ` +
+    `keyword defs: ${Object.keys(keywordDefs).length}`
 );
 console.log(`patch ${patch}, set ${set.number}`);

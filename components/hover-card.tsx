@@ -1,10 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { augmentRarity, getTip, traitStyleColors, type TipData } from '@/lib/tips';
+import { augmentRarity, getTip, iconFor, keywordDefs, traitStyleColorByName, traitStyleColors, type TipData } from '@/lib/tips';
 import { CostDots } from './ui';
 
-function ChampionCard({ tip }: { tip: Extract<TipData, { kind: 'champion' }> }) {
+// Optional comp context attached by the wrapper element via data-tip-traits /
+// data-tip-items (e.g. "Spellweaver:6,Blossom:4" + "Blue Buff|Rabadon's Deathcap").
+type TipContext = { counts?: Record<string, number>; items?: string[] };
+
+function ChampionCard({ tip, context }: { tip: Extract<TipData, { kind: 'champion' }>; context?: TipContext }) {
+  const defs = tip.ability ? tip.ability.keywords.filter((keyword) => keywordDefs[keyword]) : [];
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
@@ -16,6 +21,7 @@ function ChampionCard({ tip }: { tip: Extract<TipData, { kind: 'champion' }> }) 
           <div key={trait.name} className="flex items-center gap-1.5 text-xs font-semibold text-mist">
             {trait.icon ? <img src={trait.icon} alt="" draggable={false} className="h-4 w-4 object-contain brightness-0 invert opacity-70" /> : null}
             <span className="uppercase tracking-wide">{trait.name}</span>
+            {context?.counts?.[trait.name] ? <span className="ml-auto text-fog">{context.counts[trait.name]}</span> : null}
           </div>
         ))}
       </div>
@@ -28,6 +34,27 @@ function ChampionCard({ tip }: { tip: Extract<TipData, { kind: 'champion' }> }) 
               {tip.mana ? <span className="shrink-0 text-xs font-semibold whitespace-nowrap text-brand-soft">{tip.mana.start} / {tip.mana.max}</span> : null}
             </div>
             <p className="mt-1 text-xs leading-relaxed text-mist">{tip.ability.desc}</p>
+            {defs.map((keyword) => (
+              <p key={keyword} className="mt-1 text-xs leading-relaxed text-mist">
+                <span className="font-semibold text-fog">{keyword}:</span> {keywordDefs[keyword]}
+              </p>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      {context?.items?.length ? (
+        <div className="mt-2 border-t border-line pt-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-mist">Item priority</p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {context.items.map((item) => {
+              const icon = iconFor(item);
+              return (
+                <span key={item} className="flex items-center gap-1.5 rounded-md border border-line bg-util py-0.5 pr-2 pl-0.5 text-xs font-semibold text-fog">
+                  {icon ? <img src={icon} alt="" draggable={false} className="h-5 w-5 rounded-[22%]" /> : null}
+                  {item}
+                </span>
+              );
+            })}
           </div>
         </div>
       ) : null}
@@ -81,7 +108,21 @@ function TraitCard({ tip }: { tip: Extract<TipData, { kind: 'trait' }> }) {
         {tip.icon ? <img src={tip.icon} alt="" draggable={false} className="h-6 w-6 object-contain brightness-0 invert opacity-80" /> : null}
         <span className="font-display text-base font-bold tracking-tight text-fog">{tip.name}</span>
       </div>
-      {tip.thresholds.length ? (
+      {tip.breakpoints.length ? (
+        <div className="mt-2 flex flex-col gap-1.5">
+          {tip.breakpoints.map((breakpoint) => (
+            <div key={breakpoint.minUnits} className="flex items-start gap-2">
+              <span
+                className="mt-px flex h-5 min-w-5 shrink-0 items-center justify-center rounded px-1 text-[11px] font-bold text-black/75"
+                style={{ background: traitStyleColorByName[breakpoint.style ?? ''] ?? traitStyleColors[3] }}
+              >
+                {breakpoint.minUnits}
+              </span>
+              {breakpoint.text ? <p className="text-xs leading-snug text-mist">{breakpoint.text.replace(/^\(\d+\)\s*/, '')}</p> : null}
+            </div>
+          ))}
+        </div>
+      ) : tip.thresholds.length ? (
         <div className="mt-2 flex gap-1.5">
           {tip.thresholds.map((threshold, index) => (
             <span
@@ -99,14 +140,14 @@ function TraitCard({ tip }: { tip: Extract<TipData, { kind: 'trait' }> }) {
   );
 }
 
-function Card({ tip }: { tip: TipData }) {
-  if (tip.kind === 'champion') return <ChampionCard tip={tip} />;
+function Card({ tip, context }: { tip: TipData; context?: TipContext }) {
+  if (tip.kind === 'champion') return <ChampionCard tip={tip} context={context} />;
   if (tip.kind === 'item') return <ItemCard tip={tip} />;
   if (tip.kind === 'augment') return <AugmentCard tip={tip} />;
   return <TraitCard tip={tip} />;
 }
 
-type Hover = { tip: TipData; rect: { top: number; right: number; bottom: number; left: number } };
+type Hover = { tip: TipData; rect: { top: number; right: number; bottom: number; left: number }; context?: TipContext };
 
 // One delegated layer for the whole app: any element with data-tip="kind:name"
 // gets a detail card on hover (champion / item / augment / trait).
@@ -117,6 +158,19 @@ export function HoverCardLayer() {
 
   useEffect(() => {
     const resolve = (target: EventTarget | null) => (target instanceof Element ? (target.closest('[data-tip]') as HTMLElement | null) : null);
+    const readContext = (el: HTMLElement): TipContext | undefined => {
+      const host = el.closest('[data-tip-traits], [data-tip-items]') as HTMLElement | null;
+      if (!host) return undefined;
+      const counts: Record<string, number> = {};
+      for (const pair of (host.dataset.tipTraits ?? '').split(',')) {
+        const separator = pair.lastIndexOf(':');
+        if (separator < 1) continue;
+        const count = Number(pair.slice(separator + 1));
+        if (count > 0) counts[pair.slice(0, separator).trim()] = count;
+      }
+      const items = (host.dataset.tipItems ?? '').split('|').map((part) => part.trim()).filter(Boolean);
+      return { counts: Object.keys(counts).length ? counts : undefined, items: items.length ? items : undefined };
+    };
     const clear = () => {
       if (timer.current) clearTimeout(timer.current);
       timer.current = null;
@@ -129,8 +183,9 @@ export function HoverCardLayer() {
       const tip = getTip(kind, rest.join(':'));
       clear();
       if (!tip) return;
+      const context = readContext(el);
       const box = el.getBoundingClientRect();
-      timer.current = setTimeout(() => setHover({ tip, rect: { top: box.top, right: box.right, bottom: box.bottom, left: box.left } }), 120);
+      timer.current = setTimeout(() => setHover({ tip, rect: { top: box.top, right: box.right, bottom: box.bottom, left: box.left }, context }), 120);
     };
     const out = (event: PointerEvent) => {
       const el = resolve(event.target);
@@ -159,7 +214,7 @@ export function HoverCardLayer() {
   }, []);
 
   if (!hover) return null;
-  const { tip, rect } = hover;
+  const { tip, rect, context } = hover;
   const width = 340;
   const gap = 12;
   const margin = 8;
@@ -173,7 +228,7 @@ export function HoverCardLayer() {
       className="pointer-events-none fixed z-50 max-h-[calc(100vh-16px)] w-[340px] overflow-hidden rounded-xl border border-line bg-panel px-3.5 py-3 shadow-[0_12px_32px_rgba(0,0,0,0.55)]"
       style={{ left, ...anchor }}
     >
-      <Card tip={tip} />
+      <Card tip={tip} context={context} />
     </div>
   );
 }
