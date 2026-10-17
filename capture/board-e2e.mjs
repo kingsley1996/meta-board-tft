@@ -60,10 +60,21 @@ await page.goto(`${BASE}/admin/comps/new`);
 await page.getByLabel('Title', { exact: true }).fill('Board Test');
 await page.getByLabel('Playstyle (one line)').fill('E2E board run');
 await page.getByLabel('Early units').fill('Ahri');
-await page.getByLabel('Item priority (one per line)').fill('Blue Buff');
-await page.getByLabel('Augments (one per line)').fill('Cybernetic Uplink');
+await page.locator('[data-pick="Ahri"]').click();
+await page.getByLabel('Item priority').fill('Blue Buff');
+await page.locator('[data-pick="Blue Buff"]').click();
+await page.getByLabel('Augments').fill('Cybernetic Uplink');
+await page.locator('[data-pick="Cybernetic Uplink"]').click();
 await page.getByLabel('Tips', { exact: true }).fill('E2E board test comp.');
 for (const stage of ['Stage 2', 'Stage 3', 'Stage 4']) await page.getByLabel(stage, { exact: true }).fill('E2E stage text.');
+
+// Palette trait filter narrows the champion grid
+const paletteBefore = await page.locator('button[title]').count();
+await page.getByLabel('Filter by trait').selectOption('Vanguard');
+const paletteAfter = await page.locator('button[title]').count();
+check(`trait filter narrows palette (${paletteBefore} → ${paletteAfter})`, paletteAfter > 0 && paletteAfter < paletteBefore);
+check('trait filter keeps Hecarim', (await page.locator('button[title="Hecarim"]').count()) === 1);
+await page.getByLabel('Filter by trait').selectOption('');
 
 await page.locator('button[title="Ahri"]').first().click();
 await page.click('button[aria-label="Place at row 2 column 4"]');

@@ -129,18 +129,21 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
 
   const alt = list(raw.alt);
 
+  // Tips and stage texts are optional.
   const tips = str(raw.tips);
-  if (!tips) return fail('tips text is required');
   const tipsVi = str(raw.tipsVi) || null;
 
   // Accepts ["text", ...] (admin form / API) and [{ stage, text, textVi? }, ...] (stored shape).
-  const stageTexts = (Array.isArray(raw.stages) ? raw.stages : [])
-    .map((entry) => (typeof entry === 'string' ? entry.trim() : str((entry as Record<string, unknown> | null)?.text)))
-    .filter(Boolean);
-  if (stageTexts.length !== 3) return fail('exactly 3 stage texts are required (stages 2, 3, 4)');
-  const stageTextsVi = (Array.isArray(raw.stages) ? raw.stages : []).map((entry) =>
-    typeof entry === 'object' && entry ? str((entry as Record<string, unknown>).textVi) || null : null
-  );
+  // Empty slots are skipped, but stage numbers keep their slot (index 0 → stage 2).
+  const stageEntries = Array.isArray(raw.stages) ? raw.stages : [];
+  if (stageEntries.length > 3) return fail('at most 3 stage texts (stages 2, 3, 4)');
+  const stages = stageEntries
+    .map((entry, index) => ({
+      stage: `Stage ${index + 2}`,
+      text: typeof entry === 'string' ? entry.trim() : str((entry as Record<string, unknown> | null)?.text),
+      textVi: typeof entry === 'object' && entry ? str((entry as Record<string, unknown>).textVi) || null : null,
+    }))
+    .filter((stage) => stage.text);
 
   const known = await nameSets();
   const unknownUnit = [...unitNames, ...early, ...alt].find((name) => !known.champions.has(name));
@@ -170,7 +173,7 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
       augments,
       tips,
       tipsVi,
-      stages: stageTexts.map((text, index) => ({ stage: `Stage ${index + 2}`, text, textVi: stageTextsVi[index] ?? null })),
+      stages,
       alt,
     },
   };
@@ -214,6 +217,9 @@ export async function writeComp(comp: CompInput): Promise<void> {
     await insertNamed('comp_items', comp.items);
     await insertNamed('comp_augments', comp.augments);
     // Stages upsert instead of delete+insert so an admin save keeps the vi text.
+    // Slots emptied in the editor are dropped (stage numbers are kept per slot).
+    const stageNumbers = comp.stages.map((stage) => Number(stage.stage.replace(/\D+/g, '')));
+    await client.query('DELETE FROM comp_stages WHERE comp_slug = $1 AND stage <> ALL($2::int[])', [comp.slug, stageNumbers]);
     for (const stage of comp.stages) {
       await client.query(
         `INSERT INTO comp_stages (comp_slug, stage, text, text_vi) VALUES ($1, $2, $3, $4)

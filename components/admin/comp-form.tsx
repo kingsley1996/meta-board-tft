@@ -7,8 +7,97 @@ import { BoardEditor, type BoardUnit, type ChampionOption, type ItemOption } fro
 const inputCls =
   'smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none';
 
-const lines = (value: string) => value.split(/[\n,]+/).map((part) => part.trim()).filter(Boolean);
 const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+type PickOption = { name: string; icon?: string | null };
+
+// Search-and-click pick list: type to filter, click (or Enter) to add, ✕ to remove.
+function EntityList({
+  label,
+  options,
+  values,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  options: PickOption[];
+  values: string[];
+  onChange: (values: string[]) => void;
+  placeholder: string;
+}) {
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const selected = new Set(values);
+  const needle = query.trim().toLowerCase();
+  const matches = options.filter((option) => option.name.toLowerCase().includes(needle) && !selected.has(option.name)).slice(0, 60);
+
+  const add = (name: string) => {
+    onChange([...values, name]);
+    setQuery('');
+  };
+  const remove = (name: string) => onChange(values.filter((value) => value !== name));
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="relative flex flex-col gap-1 text-sm font-semibold text-mist">
+        {label}
+        <input
+          className={inputCls}
+          value={query}
+          placeholder={placeholder}
+          onChange={(event) => setQuery(event.target.value)}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && matches.length) {
+              event.preventDefault();
+              add(matches[0].name);
+            }
+          }}
+        />
+        {open ? (
+          <div className="absolute top-full right-0 left-0 z-20 mt-1 max-h-52 overflow-y-auto rounded-lg border border-line bg-panel shadow-lg">
+            {matches.length ? (
+              matches.map((option) => (
+                <button
+                  key={option.name}
+                  type="button"
+                  data-pick={option.name}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    add(option.name);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm font-medium text-fog hover:bg-util"
+                >
+                  {option.icon ? <img src={option.icon} alt="" className="h-5 w-5 rounded" /> : null}
+                  {option.name}
+                </button>
+              ))
+            ) : (
+              <p className="px-3 py-2 text-xs font-medium text-mist">No match for “{query}”.</p>
+            )}
+          </div>
+        ) : null}
+      </label>
+      {values.length ? (
+        <div className="flex flex-wrap gap-1.5">
+          {values.map((value) => {
+            const option = options.find((entry) => entry.name === value);
+            return (
+              <span key={value} className="flex items-center gap-1.5 rounded-full border border-line bg-page py-0.5 pr-1.5 pl-1 text-xs font-semibold text-fog">
+                {option?.icon ? <img src={option.icon} alt="" className="h-4 w-4 rounded" /> : null}
+                {value}
+                <button type="button" onClick={() => remove(value)} aria-label={`Remove ${value}`} className="smooth text-mist hover:text-tier-s">
+                  ✕
+                </button>
+              </span>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 type IncomingUnit = {
   name: string;
@@ -89,8 +178,8 @@ export function CompForm({
   const [slugTouched, setSlugTouched] = useState(Boolean(comp));
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const championNames = champions.map((champion) => champion.name);
-  const itemNames = items.map((item) => item.name);
+  // tft.json lists rarity/set variants with the same display name — dedupe.
+  const augmentOptions = [...new Set(augmentNames)].map((name) => ({ name }));
   const [form, setForm] = useState({
     title: comp?.title ?? '',
     slug: comp?.slug ?? '',
@@ -100,11 +189,11 @@ export function CompForm({
     trend: comp?.trend ?? '',
     playstyle: comp?.playstyle ?? '',
     units: layoutBoard(comp?.units ?? []),
-    early: (comp?.early ?? []).join('\n'),
+    early: comp?.early ?? [],
     carry: comp?.carry ?? '',
-    items: (comp?.items ?? []).join('\n'),
-    augments: (comp?.augments ?? []).join('\n'),
-    alt: (comp?.alt ?? []).join(', '),
+    items: comp?.items ?? [],
+    augments: comp?.augments ?? [],
+    alt: comp?.alt ?? [],
     tips: comp?.tips ?? '',
     stage2: comp?.stages?.[0]?.text ?? '',
     stage3: comp?.stages?.[1]?.text ?? '',
@@ -152,11 +241,11 @@ export function CompForm({
         stars: unit.stars,
         items: unit.items,
       })),
-      early: lines(form.early),
+      early: form.early,
       carry: form.carry,
-      items: lines(form.items),
-      augments: lines(form.augments),
-      alt: lines(form.alt),
+      items: form.items,
+      augments: form.augments,
+      alt: form.alt,
       tips: form.tips,
       stages: [
         { text: form.stage2, textVi: form.stage2Vi },
@@ -183,16 +272,6 @@ export function CompForm({
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-5">
-      <datalist id="champion-names">
-        {championNames.map((name) => <option key={name} value={name} />)}
-      </datalist>
-      <datalist id="item-names">
-        {itemNames.map((name) => <option key={name} value={name} />)}
-      </datalist>
-      <datalist id="augment-names">
-        {augmentNames.map((name) => <option key={name} value={name} />)}
-      </datalist>
-
       <div className="grid gap-4 rounded-xl border border-line bg-panel p-5 md:grid-cols-2">
         <Field label="Title">
           <input className={inputCls} value={form.title} onChange={set('title')} required />
@@ -248,24 +327,53 @@ export function CompForm({
       </div>
 
       <div className="grid gap-4 rounded-xl border border-line bg-panel p-5 md:grid-cols-2">
-        <Field label="Early units">
-          <textarea className={`${inputCls} min-h-24`} value={form.early} onChange={set('early')} />
-        </Field>
-        <Field label="Carry (must be one of the board units)">
-          <input className={inputCls} list="champion-names" value={form.carry} onChange={set('carry')} required />
-        </Field>
-        <Field label="Alt builds (flex carries)">
-          <input className={inputCls} list="champion-names" value={form.alt} onChange={set('alt')} />
-        </Field>
-        <Field label="Item priority (one per line)">
-          <textarea className={`${inputCls} min-h-24`} value={form.items} onChange={set('items')} />
-        </Field>
-        <Field label="Augments (one per line)">
-          <textarea className={`${inputCls} min-h-24`} value={form.augments} onChange={set('augments')} />
-        </Field>
+        <EntityList
+          label="Early units (at least one)"
+          options={champions}
+          values={form.early}
+          onChange={(values) => setForm((current) => ({ ...current, early: values }))}
+          placeholder="Type to search champions…"
+        />
+        <div className="flex flex-col gap-4">
+          <Field label="Carry (must be one of the board units)">
+            <select className={inputCls} value={form.carry} onChange={set('carry')} required>
+              <option value="">— pick a unit placed on the board —</option>
+              {form.units.map((unit) => (
+                <option key={unit.name} value={unit.name}>
+                  {unit.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <EntityList
+            label="Alt builds (flex carries)"
+            options={champions}
+            values={form.alt}
+            onChange={(values) => setForm((current) => ({ ...current, alt: values }))}
+            placeholder="Type to search champions…"
+          />
+        </div>
+        <EntityList
+          label="Item priority (at least one)"
+          options={items}
+          values={form.items}
+          onChange={(values) => setForm((current) => ({ ...current, items: values }))}
+          placeholder="Type to search items…"
+        />
+        <EntityList
+          label="Augments (at least one)"
+          options={augmentOptions}
+          values={form.augments}
+          onChange={(values) => setForm((current) => ({ ...current, augments: values }))}
+          placeholder="Type to search augments…"
+        />
       </div>
 
       <div className="grid gap-4 rounded-xl border border-line bg-panel p-5">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-semibold text-mist">Plan (optional)</p>
+          <p className="text-xs text-mist">Tips and stage texts are optional — leave a stage empty to omit it (stage numbering stays 2/3/4).</p>
+        </div>
         <Field label="Tips">
           <textarea className={`${inputCls} min-h-20`} value={form.tips} onChange={set('tips')} />
         </Field>
