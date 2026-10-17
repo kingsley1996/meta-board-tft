@@ -2,17 +2,17 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Chip } from '@/components/ui';
-import { guideTag, guidesByLang } from '@/lib/data';
-import { locales, type Lang } from '@/lib/i18n';
+import type { ApiGuide, GuidesResponse } from '@/lib/api';
+import { backendJson } from '@/lib/backend';
+import { guideTag } from '@/lib/data';
+import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
-export function generateStaticParams() {
-  return locales.flatMap((lang) => guidesByLang.en.map((guide) => ({ lang, slug: guide.slug })));
-}
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang; slug: string }> }): Promise<Metadata> {
   const { lang, slug } = await params;
-  const guide = guidesByLang[lang].find((candidate) => candidate.slug === slug);
+  const guide = await backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`);
   if (!guide) return {};
   return { title: guide.title, description: guide.excerpt };
 }
@@ -20,10 +20,12 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 export default async function GuideArticlePage({ params }: { params: Promise<{ lang: Lang; slug: string }> }) {
   const { lang, slug } = await params;
   const t = messages[lang].guides;
-  const guides = guidesByLang[lang];
-  const guide = guides.find((candidate) => candidate.slug === slug);
+  const [guide, list] = await Promise.all([
+    backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`),
+    backendJson<GuidesResponse>(`/api/guides?lang=${lang}`),
+  ]);
   if (!guide) notFound();
-  const related = guides.filter((candidate) => candidate.slug !== guide.slug).slice(0, 3);
+  const related = (list?.guides ?? []).filter((candidate) => candidate.slug !== guide.slug).slice(0, 3);
 
   return (
     <div className="flex flex-col gap-10">

@@ -34,6 +34,9 @@ export type CompFormComp = {
   tips: string;
   stages: { stage: string; text: string }[];
   alt: string[];
+  playstyleVi?: string;
+  tipsVi?: string;
+  stagesVi?: string[];
 };
 
 // Units without coordinates (older comps) fill the board front rows left to right.
@@ -106,6 +109,11 @@ export function CompForm({
     stage2: comp?.stages?.[0]?.text ?? '',
     stage3: comp?.stages?.[1]?.text ?? '',
     stage4: comp?.stages?.[2]?.text ?? '',
+    playstyleVi: comp?.playstyleVi ?? '',
+    tipsVi: comp?.tipsVi ?? '',
+    stage2Vi: comp?.stagesVi?.[0] ?? '',
+    stage3Vi: comp?.stagesVi?.[1] ?? '',
+    stage4Vi: comp?.stagesVi?.[2] ?? '',
   });
 
   const set = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -150,7 +158,13 @@ export function CompForm({
       augments: lines(form.augments),
       alt: lines(form.alt),
       tips: form.tips,
-      stages: [form.stage2, form.stage3, form.stage4],
+      stages: [
+        { text: form.stage2, textVi: form.stage2Vi },
+        { text: form.stage3, textVi: form.stage3Vi },
+        { text: form.stage4, textVi: form.stage4Vi },
+      ],
+      playstyleVi: form.playstyleVi || null,
+      tipsVi: form.tipsVi || null,
     };
     const res = await fetch(comp ? `/api/admin/comps/${comp.slug}` : '/api/admin/comps', {
       method: comp ? 'PUT' : 'POST',
@@ -163,7 +177,7 @@ export function CompForm({
       setError(body.error ?? `Save failed (${res.status})`);
       return;
     }
-    router.push('/admin');
+    router.push('/admin/comps');
     router.refresh();
   }
 
@@ -268,6 +282,30 @@ export function CompForm({
         </div>
       </div>
 
+      <div className="grid gap-4 rounded-xl border border-line bg-panel p-5">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-semibold text-mist">Vietnamese (optional)</p>
+          <p className="text-xs text-mist">Shown on /vi pages. Leave a field empty to fall back to the English text. Seeded translations survive admin saves unless you change them here.</p>
+        </div>
+        <Field label="Playstyle (vi)">
+          <input className={inputCls} value={form.playstyleVi} onChange={set('playstyleVi')} />
+        </Field>
+        <Field label="Tips (vi)">
+          <textarea className={`${inputCls} min-h-20`} value={form.tipsVi} onChange={set('tipsVi')} />
+        </Field>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Field label="Stage 2 (vi)">
+            <textarea className={`${inputCls} min-h-24`} value={form.stage2Vi} onChange={set('stage2Vi')} />
+          </Field>
+          <Field label="Stage 3 (vi)">
+            <textarea className={`${inputCls} min-h-24`} value={form.stage3Vi} onChange={set('stage3Vi')} />
+          </Field>
+          <Field label="Stage 4 (vi)">
+            <textarea className={`${inputCls} min-h-24`} value={form.stage4Vi} onChange={set('stage4Vi')} />
+          </Field>
+        </div>
+      </div>
+
       {error ? (
         <p className="rounded-xl border border-tier-s/50 bg-panel px-4 py-3 text-sm text-tier-s">{error}</p>
       ) : null}
@@ -282,7 +320,7 @@ export function CompForm({
         </button>
         <button
           type="button"
-          onClick={() => router.push('/admin')}
+          onClick={() => router.push('/admin/comps')}
           className="smooth rounded-full border border-line bg-panel px-5 py-2 text-sm font-semibold text-mist hover:border-brand-soft hover:text-fog"
         >
           Cancel

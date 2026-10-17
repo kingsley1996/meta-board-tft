@@ -37,6 +37,23 @@ export type CompsResponse = {
   comps: ApiComp[];
 };
 
+export type ApiGuideSection = { heading: string; body: string[]; list?: string[] };
+
+export type ApiGuide = {
+  slug: string;
+  author: string;
+  authorSlug: string;
+  date: string;
+  publishedOn: string;
+  title: string;
+  excerpt: string;
+  tags: string[];
+  featured: boolean;
+  sections: ApiGuideSection[];
+};
+
+export type GuidesResponse = { guides: ApiGuide[] };
+
 export async function fetchComps(lang: Lang): Promise<CompsResponse> {
   const res = await fetch(`/api/comps?lang=${lang}`);
   if (!res.ok) throw new Error(`API responded ${res.status}`);

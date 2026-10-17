@@ -31,8 +31,10 @@ function LoginForm() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-col gap-6 pt-10">
-      <h1 className="text-center font-display text-3xl font-bold uppercase tracking-tight text-fog">Admin</h1>
+    <div className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center gap-6 px-6 pb-16">
+      <h1 className="text-center font-display text-3xl font-bold uppercase tracking-tight text-fog">
+        MetaBoard <span className="text-brand-soft">Admin</span>
+      </h1>
       <Panel className="p-6">
         <form onSubmit={submit} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1 text-sm font-semibold text-mist">

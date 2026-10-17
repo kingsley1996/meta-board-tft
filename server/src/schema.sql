@@ -109,3 +109,25 @@ CREATE TABLE IF NOT EXISTS comp_stages (
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS playstyle_vi text;
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS tips_vi text;
 ALTER TABLE comp_stages ADD COLUMN IF NOT EXISTS text_vi text;
+
+-- Guides: authored articles edited through /admin/guides. published_on is an
+-- ISO date string (YYYY-MM-DD); sections is [{ heading, body: [], list?: [] }].
+CREATE TABLE IF NOT EXISTS guides (
+  slug text PRIMARY KEY,
+  author text NOT NULL,
+  author_slug text NOT NULL,
+  published_on text NOT NULL CHECK (published_on ~ '^\d{4}-\d{2}-\d{2}$'),
+  title text NOT NULL,
+  excerpt text NOT NULL,
+  tags text[] NOT NULL DEFAULT '{}',
+  featured boolean NOT NULL DEFAULT false,
+  sections jsonb NOT NULL DEFAULT '[]',
+  title_vi text,
+  excerpt_vi text,
+  sections_vi jsonb,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE guides ADD COLUMN IF NOT EXISTS title_vi text;
+ALTER TABLE guides ADD COLUMN IF NOT EXISTS excerpt_vi text;
+ALTER TABLE guides ADD COLUMN IF NOT EXISTS sections_vi jsonb;

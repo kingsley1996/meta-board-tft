@@ -6,6 +6,8 @@ import { join } from 'node:path';
 import { pool } from '../src/db.ts';
 import { syncTft } from '../src/tft.ts';
 import { validateCompPayload, writeComp } from '../src/comps.ts';
+import { validateGuidePayload, writeGuide } from '../src/guides.ts';
+import { guideSeeds } from './guides.ts';
 
 const here = import.meta.dirname;
 
@@ -28,5 +30,18 @@ for (const raw of seedComps) {
   seeded += 1;
 }
 console.log(`seeded ${seeded}/${seedComps.length} comps from seed/comps.json (existing comps replaced)`);
+
+await pool.query('DELETE FROM guides');
+let seededGuides = 0;
+for (const raw of guideSeeds) {
+  const result = await validateGuidePayload(raw);
+  if ('error' in result) {
+    console.error(`skipped guide ${raw.slug}: ${result.error}`);
+    continue;
+  }
+  await writeGuide(result.guide);
+  seededGuides += 1;
+}
+console.log(`seeded ${seededGuides}/${guideSeeds.length} guides from seed/guides.ts (existing guides replaced)`);
 
 await pool.end();

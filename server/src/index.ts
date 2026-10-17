@@ -4,6 +4,7 @@ import { pool, getMeta } from './db.ts';
 import { ADMIN_COOKIE, adminToken, cookieValue, tokensMatch } from './auth.ts';
 import { syncTft } from './tft.ts';
 import { compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
+import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -28,6 +29,16 @@ app.get('/api/comps/:slug', async (req, res) => {
   const [comp] = await listComps(req.params.slug, readLang(req.query.lang));
   if (!comp) return res.status(404).json({ error: `no comp with slug "${req.params.slug}"` });
   res.json(comp);
+});
+
+app.get('/api/guides', async (req, res) => {
+  res.json({ guides: await listGuides(readLang(req.query.lang)) });
+});
+
+app.get('/api/guides/:slug', async (req, res) => {
+  const [guide] = await listGuides(readLang(req.query.lang), req.params.slug);
+  if (!guide) return res.status(404).json({ error: `no guide with slug "${req.params.slug}"` });
+  res.json(guide);
 });
 
 app.get('/api/tft/set', async (_req, res) => {
@@ -104,6 +115,33 @@ app.put('/api/admin/comps/:slug', async (req, res) => {
 app.delete('/api/admin/comps/:slug', async (req, res) => {
   if (!(await deleteComp(req.params.slug))) {
     return res.status(404).json({ error: `no comp with slug "${req.params.slug}"` });
+  }
+  res.json({ ok: true });
+});
+
+app.post('/api/admin/guides', async (req, res) => {
+  const result = await validateGuidePayload(req.body);
+  if ('error' in result) return res.status(400).json({ error: result.error });
+  if (await guideExists(result.guide.slug)) {
+    return res.status(409).json({ error: `slug "${result.guide.slug}" already exists` });
+  }
+  await writeGuide(result.guide);
+  res.status(201).json({ ok: true, guide: result.guide });
+});
+
+app.put('/api/admin/guides/:slug', async (req, res) => {
+  const result = await validateGuidePayload(req.body, req.params.slug);
+  if ('error' in result) return res.status(400).json({ error: result.error });
+  if (!(await guideExists(req.params.slug))) {
+    return res.status(404).json({ error: `no guide with slug "${req.params.slug}"` });
+  }
+  await writeGuide(result.guide);
+  res.json({ ok: true, guide: result.guide });
+});
+
+app.delete('/api/admin/guides/:slug', async (req, res) => {
+  if (!(await deleteGuide(req.params.slug))) {
+    return res.status(404).json({ error: `no guide with slug "${req.params.slug}"` });
   }
   res.json({ ok: true });
 });

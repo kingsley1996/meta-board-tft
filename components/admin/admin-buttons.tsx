@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export function CompDeleteButton({ slug, title }: { slug: string; title: string }) {
+function DeleteButton({ kind, slug, title }: { kind: 'comps' | 'guides'; slug: string; title: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
   async function remove() {
     if (!window.confirm(`Delete "${title}"? This cannot be undone.`)) return;
     setBusy(true);
-    const res = await fetch(`/api/admin/comps/${slug}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/${kind}/${slug}`, { method: 'DELETE' });
     setBusy(false);
     if (res.ok) router.refresh();
     else window.alert('Delete failed — check the console for details.');
@@ -26,6 +26,14 @@ export function CompDeleteButton({ slug, title }: { slug: string; title: string 
       {busy ? 'Deleting…' : 'Delete'}
     </button>
   );
+}
+
+export function CompDeleteButton({ slug, title }: { slug: string; title: string }) {
+  return <DeleteButton kind="comps" slug={slug} title={title} />;
+}
+
+export function GuideDeleteButton({ slug, title }: { slug: string; title: string }) {
+  return <DeleteButton kind="guides" slug={slug} title={title} />;
 }
 
 export function AdminLogout() {
