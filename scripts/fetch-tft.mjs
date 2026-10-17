@@ -5,12 +5,15 @@ import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 
 const CDRAGON = 'https://raw.communitydragon.org/latest/cdragon/tft/en_us.json';
+const CDRAGON_VI = 'https://raw.communitydragon.org/latest/cdragon/tft/vi_vn.json';
 const GAME_BASE = 'https://raw.communitydragon.org/latest/game/';
 // The LCU export carries resolved trait tooltips (per-breakpoint rows with
 // constants) and the LoL ability list used as ability-icon fallback.
 const LCU_BASE = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default';
 const LCU_TRAITS = `${LCU_BASE}/v1/tfttraits.json`;
+const LCU_TRAITS_VI = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/vi_vn/v1/tfttraits.json';
 const CACHE = 'scripts/.cache/tft-en_us.json';
+const CACHE_VI = 'scripts/.cache/tft-vi_vn.json';
 const LOLD_CACHE = 'scripts/.cache/loldd';
 const OUT_JSON = 'lib/tft.json';
 const OUT_ICONS = 'public/tft';
@@ -35,19 +38,18 @@ async function fetchWithRetry(url, tries = 3) {
   }
 }
 
-async function loadRaw() {
-  if (existsSync(CACHE)) {
-    const age = (await stat(CACHE)).mtimeMs;
+async function loadRaw(url = CDRAGON, cache = CACHE) {
+  if (existsSync(cache)) {
+    const age = (await stat(cache)).mtimeMs;
     if (Date.now() - age < 12 * 3600 * 1000) {
-      console.log('using cached cdragon dump');
-      return JSON.parse(await readFile(CACHE, 'utf8'));
+      console.log(`using cached ${cache}`);
+      return JSON.parse(await readFile(cache, 'utf8'));
     }
   }
-  console.log('downloading cdragon dump...');
-  const res = await fetchWithRetry(CDRAGON);
-  const text = await res.text();
-  await mkdir(dirname(CACHE), { recursive: true });
-  await writeFile(CACHE, text);
+  console.log(`downloading ${url}...`);
+  const text = await (await fetchWithRetry(url)).text();
+  await mkdir(dirname(cache), { recursive: true });
+  await writeFile(cache, text);
   return JSON.parse(text);
 }
 
@@ -134,7 +136,7 @@ function harvestKeywords(text, defs) {
     const value = rawValue.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().replace(/\.$/, '');
     // Real definitions read like "Reduces healing received."; anything short,
     // placeholder-laden or oddly named is a dynamic value line, not a def.
-    if (!/^[A-Za-z][A-Za-z' -]{1,23}$/.test(name) || value.length < 12 || value.length > 140) return;
+    if (!/^[\p{L}][\p{L}' -]{1,23}$/u.test(name) || value.length < 12 || value.length > 140) return;
     if (/[@{}]|%i:/.test(value)) return;
     if (!defs[name]) defs[name] = `${value}.`;
   };
@@ -191,7 +193,25 @@ const set = pickSet(raw);
 const itemsByName = new Map(raw.items.map((item) => [item.apiName, item]));
 console.log(`set ${set.number} (${set.mutator}): ${set.champions.length} champions, ${set.traits.length} traits`);
 
+// Vietnamese locale shares apiNames with en_us, so every entity can carry its
+// vi name/description alongside the English one (English stays the lookup key).
+let viChampions = new Map();
+let viTraits = new Map();
+let viItems = new Map();
+let setVi = { champions: [], traits: [] };
+try {
+  const rawVi = await loadRaw(CDRAGON_VI, CACHE_VI);
+  setVi = pickSet(rawVi);
+  viChampions = new Map(setVi.champions.map((champion) => [champion.apiName, champion]));
+  viTraits = new Map(setVi.traits.map((trait) => [trait.apiName, trait]));
+  viItems = new Map(rawVi.items.map((item) => [item.apiName, item]));
+  console.log(`vi_vn: ${viChampions.size} champions, ${viTraits.size} traits, ${viItems.size} items`);
+} catch (error) {
+  console.warn(`vi_vn data unavailable (${error.message}); output will be English-only`);
+}
+
 let lcuTraits = new Map();
+let lcuTraitsVi = new Map();
 try {
   const list = await (await fetchWithRetry(LCU_TRAITS, 2)).json();
   for (const entry of list) if (entry.set === `TFTSet${set.number}`) lcuTraits.set(entry.display_name, entry);
@@ -199,16 +219,27 @@ try {
 } catch (error) {
   console.warn(`lcu traits fetch failed (${error.message}); trait tooltips fall back to cdragon flavour only`);
 }
+try {
+  const list = await (await fetchWithRetry(LCU_TRAITS_VI, 2)).json();
+  for (const entry of list) if (entry.set === `TFTSet${set.number}`) lcuTraitsVi.set(entry.trait_id, entry);
+} catch (error) {
+  console.warn(`lcu vi traits fetch failed (${error.message})`);
+}
 
 const traits = set.traits.map((trait) => {
   const effects = (trait.effects ?? []).filter((effect) => effect.minUnits != null && effect.style != null);
   const lcu = lcuTraits.get(trait.name);
+  const lcuVi = lcuTraitsVi.get(trait.apiName);
+  const vi = viTraits.get(trait.apiName);
   return {
     apiName: trait.apiName,
     slug: slugify(trait.apiName),
     name: trait.name,
     desc: lcu ? traitFlavor(lcu) : cleanDesc((trait.desc ?? '').split(/<row>/i)[0], {}),
     breakpoints: lcu ? traitBreakpoints(lcu) : [],
+    nameVi: vi?.name ?? null,
+    descVi: lcuVi ? traitFlavor(lcuVi) : vi ? cleanDesc((vi.desc ?? '').split(/<row>/i)[0], {}) : null,
+    breakpointsVi: lcuVi ? traitBreakpoints(lcuVi) : [],
     thresholds: effects.map((effect) => effect.minUnits),
     styles: effects.map((effect) => effect.style),
     iconSrc: trait.icon ? GAME_BASE + trait.icon.replace(/\.tex$/i, '.png') : null,
@@ -218,6 +249,7 @@ const traits = set.traits.map((trait) => {
 const champions = set.champions
   .filter((c) => c.cost >= 1 && c.cost <= 5 && c.traits.length > 0 && !/^Lux \(/.test(c.name))
   .map((c) => {
+    const vi = viChampions.get(c.apiName);
     const ability = c.ability && c.ability.name && c.ability.name !== 'None'
       ? {
           name: c.ability.name,
@@ -225,6 +257,11 @@ const champions = set.champions
           // the harvested map instead of inline text.
           desc: cleanDesc((c.ability.desc ?? '').replace(/<rules>[\s\S]*?<\/rules>/gi, ' '), abilityEffects(c.ability.variables)),
           keywords: abilityKeywordNames(c.ability.desc),
+          nameVi: vi?.ability?.name ?? null,
+          descVi: vi?.ability
+            ? cleanDesc((vi.ability.desc ?? '').replace(/<rules>[\s\S]*?<\/rules>/gi, ' '), abilityEffects(vi.ability.variables))
+            : null,
+          keywordsVi: abilityKeywordNames(vi?.ability?.desc),
           iconSrc: c.ability.icon && c.ability.icon !== 'None' ? GAME_BASE + c.ability.icon.replace(/\.tex$/i, '.png') : null,
         }
       : null;
@@ -232,8 +269,10 @@ const champions = set.champions
       apiName: c.apiName,
       slug: slugify(c.apiName),
       name: c.name,
+      nameVi: vi?.name ?? null,
       cost: c.cost,
       traits: c.traits,
+      traitsVi: vi?.traits ?? null,
       iconSrc: c.squareIcon ? GAME_BASE + c.squareIcon.replace(/\.tex$/i, '.png') : null,
       ability,
       mana: c.stats?.mana ? { start: c.stats.initialMana ?? 0, max: c.stats.mana } : null,
@@ -257,21 +296,32 @@ for (const item of raw.items) {
   const current = itemByName.get(key);
   if (!current || itemScore(item) > itemScore(current)) itemByName.set(key, item);
 }
-const items = [...itemByName.values()].map((item) => ({
-  apiName: item.apiName,
-  slug: slugify(item.apiName),
-  name: item.name,
-  desc: cleanDesc(item.desc, item.effects),
-  composition: item.composition.map((id) => itemsByName.get(id)?.name ?? id),
-  iconSrc: item.icon ? GAME_BASE + item.icon.replace(/\.tex$/i, '.png') : null,
-}));
+const items = [...itemByName.values()].map((item) => {
+  const vi = viItems.get(item.apiName);
+  return {
+    apiName: item.apiName,
+    slug: slugify(item.apiName),
+    name: item.name,
+    desc: cleanDesc(item.desc, item.effects),
+    composition: item.composition.map((id) => itemsByName.get(id)?.name ?? id),
+    nameVi: vi?.name ?? null,
+    descVi: cleanDesc(vi?.desc, vi?.effects),
+    compositionVi: vi?.composition?.length ? vi.composition.map((id) => viItems.get(id)?.name ?? itemsByName.get(id)?.name ?? id) : null,
+    iconSrc: item.icon ? GAME_BASE + item.icon.replace(/\.tex$/i, '.png') : null,
+  };
+});
 
 const keywordDefs = {};
 for (const item of itemByName.values()) harvestKeywords(item.desc, keywordDefs);
 for (const champion of set.champions) harvestKeywords(champion.ability?.desc, keywordDefs);
 for (const trait of set.traits) harvestKeywords(trait.desc, keywordDefs);
 for (const entry of lcuTraits.values()) harvestKeywords(entry.tooltip_text, keywordDefs);
-console.log(`keyword definitions: ${Object.keys(keywordDefs).length}`);
+const keywordDefsVi = {};
+for (const item of itemByName.values()) harvestKeywords(viItems.get(item.apiName)?.desc, keywordDefsVi);
+for (const champion of setVi.champions) harvestKeywords(champion.ability?.desc, keywordDefsVi);
+for (const trait of setVi.traits) harvestKeywords(trait.desc, keywordDefsVi);
+for (const entry of lcuTraitsVi.values()) harvestKeywords(entry.tooltip_text, keywordDefsVi);
+console.log(`keyword definitions: en ${Object.keys(keywordDefs).length}, vi ${Object.keys(keywordDefsVi).length}`);
 
 const setAugmentIds = new Set(set.augments);
 const seenAugmentIds = new Set();
@@ -279,11 +329,14 @@ const augments = raw.items
   .filter((item) => setAugmentIds.has(item.apiName) && item.isAugment && !seenAugmentIds.has(item.apiName) && seenAugmentIds.add(item.apiName))
   .map((aug) => {
     const rarities = aug.tags.map((tag) => RARITY_TAGS[tag]).filter(Boolean);
+    const vi = viItems.get(aug.apiName);
     return {
       apiName: aug.apiName,
       slug: slugify(aug.apiName),
       name: aug.name,
       desc: cleanDesc(aug.desc, aug.effects),
+      nameVi: vi?.name ?? null,
+      descVi: cleanDesc(vi?.desc, vi?.effects),
       rarity: rarities.length ? Math.max(...rarities) : null,
       iconSrc: aug.icon ? GAME_BASE + aug.icon.replace(/\.tex$/i, '.png') : null,
     };
@@ -366,10 +419,21 @@ const output = {
     ...c,
     icon: c.icon ?? null,
     ability: ability
-      ? { name: ability.name, desc: ability.desc, keywords: ability.keywords, icon: ability.icon ?? null }
+      ? {
+          name: ability.name,
+          desc: ability.desc,
+          keywords: ability.keywords,
+          nameVi: ability.nameVi,
+          descVi: ability.descVi,
+          keywordsVi: ability.keywordsVi,
+          icon: ability.icon ?? null,
+        }
       : null,
   })),
-  keywords: Object.fromEntries(Object.entries(keywordDefs).sort(([a], [b]) => a.localeCompare(b))),
+  keywords: {
+    en: Object.fromEntries(Object.entries(keywordDefs).sort(([a], [b]) => a.localeCompare(b))),
+    vi: Object.fromEntries(Object.entries(keywordDefsVi).sort(([a], [b]) => a.localeCompare(b))),
+  },
   items: items.map(({ iconSrc, ...i }) => ({ ...i, icon: i.icon ?? null })),
   augments: augments.map(({ iconSrc, ...a }) => ({ ...a, icon: a.icon ?? null })),
 };

@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { socials } from '@/lib/data';
+import type { Lang } from '@/lib/i18n';
+import { messages } from '@/lib/messages';
 
-export function Footer() {
+export function Footer({ lang }: { lang: Lang }) {
+  const t = messages[lang].footer;
   return (
     <footer data-section="footer" className="mt-auto flex w-full flex-col items-center gap-3 px-6 pt-10 pb-6 text-center">
       <div className="flex items-center gap-4 text-sm font-semibold">
@@ -10,14 +13,11 @@ export function Footer() {
         ))}
       </div>
       <div className="flex items-center gap-4 text-xs text-mist">
-        <Link href="/legal/privacy" className="smooth hover:text-fog">Privacy Policy</Link>
-        <Link href="/legal/terms" className="smooth hover:text-fog">Terms of Use</Link>
-        <Link href="/about" className="smooth hover:text-fog">About</Link>
+        <Link href={`/${lang}/legal/privacy`} className="smooth hover:text-fog">{t.privacy}</Link>
+        <Link href={`/${lang}/legal/terms`} className="smooth hover:text-fog">{t.terms}</Link>
+        <Link href={`/${lang}/about`} className="smooth hover:text-fog">{t.about}</Link>
       </div>
-      <p className="max-w-[640px] text-xs leading-relaxed text-mist">
-        &copy; 2026 MetaBoard. MetaBoard is an independent companion and is not affiliated with or endorsed by Riot Games.
-        Teamfight Tactics is a trademark of Riot Games, Inc.
-      </p>
+      <p className="max-w-[640px] text-xs leading-relaxed text-mist">{t.disclaimer}</p>
     </footer>
   );
 }

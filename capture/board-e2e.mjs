@@ -20,7 +20,7 @@ const check = (label, ok) => {
 page.on('pageerror', (error) => failures.push(`pageerror: ${error.message}`));
 
 // Public comp page: positioned board with stars + items
-await page.goto(`${BASE}/tierlist/comps/ahri-spellweaver`);
+await page.goto(`${BASE}/en/tierlist/comps/ahri-spellweaver`);
 await page.waitForSelector('.hex-board', { timeout: 15000 });
 const boardCells = await page.locator('.hex-board .hex-board-cell').count();
 check(`public board renders 28 cells (got ${boardCells})`, boardCells === 28);
@@ -73,9 +73,23 @@ check(`stars saved (${unit.stars})`, unit.stars === 3);
 check(`items saved (${JSON.stringify(unit.items?.map?.((i) => i.name ?? i))})`, JSON.stringify(unit.items?.map?.((i) => i.name ?? i)) === '["Blue Buff"]');
 check(`carry saved (${comp.carry?.name})`, comp.carry?.name === 'Ahri');
 
-await page.goto(`${BASE}/tierlist/comps/board-test`);
+await page.goto(`${BASE}/en/tierlist/comps/board-test`);
 await page.waitForSelector('.hex-board', { timeout: 15000 });
 await page.screenshot({ path: `${OUT}/public-board-test.png`, fullPage: true });
+
+// i18n: root picks Vietnamese from Accept-Language; vi pages render localized chrome.
+const viContext = await browser.newContext({ locale: 'vi-VN', extraHTTPHeaders: { 'Accept-Language': 'vi-VN,vi;q=0.9' } });
+const viPage = await viContext.newPage();
+await viPage.goto(`${BASE}/`);
+await viPage.waitForURL(/\/vi(\/|$)/, { timeout: 15000 });
+check(`root redirects vi visitors (${viPage.url()})`, viPage.url().endsWith('/vi'));
+await viPage.goto(`${BASE}/vi/tierlist/comps`);
+await viPage.waitForSelector('[data-section="tierlist"]', { timeout: 15000 });
+check('vi tier list chrome ("Tìm đội hình")', (await viPage.getByPlaceholder('Tìm đội hình').count()) === 1);
+await viPage.goto(`${BASE}/vi/tierlist/items`);
+await viPage.waitForSelector('[data-section="tierboard"]', { timeout: 15000 });
+check('vi item names on page ("Vô Cực Kiếm")', (await viPage.getByText('Vô Cực Kiếm').count()) > 0);
+await viContext.close();
 
 // Cleanup
 const del = await page.request.delete(`${BASE}/api/admin/comps/board-test`);

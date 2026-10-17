@@ -81,6 +81,14 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 - Board editor end-to-end (`node capture/board-e2e.mjs`, needs both servers; reads `ADMIN_PASSWORD` from the gitignored `server/.env`): login → place 3 champions on the hex board → stars/items/carry → save → create fetched from the API with positions intact → public board renders 28 cells → delete. All checks pass; test comp is removed afterwards.
 - Hover cards screenshot-verified (`node capture/tip-shot.mjs`): champion card on the comps tier list, item card (description + build path) on the items tier list, augment card on the augments tier list, trait card (resolved breakpoint rows) and comp-panel item card on the comp detail page, champion card in comp context (trait counts + item priority + ability icon, `Sett` on the Ahri Spellweaver page), champion card with keyword definitions (`Cinderling` on the Sentinel Riftbeast page).
 
+## Languages (en / vi)
+
+- Public pages live under `/<locale>` (`/en/...`, `/vi/...`); bare `/` redirects via `Accept-Language` (middleware), unknown prefixes redirect to `/en`. Admin stays unprefixed and English-only.
+- UI copy: `lib/messages.ts` (`vi` is typed against `en`, a missing key fails the build). Language switcher keeps the current path.
+- Game data: vi names/descriptions come from CommunityDragon `tft/vi_vn.json` + LCU `global/vi_vn/v1/tfttraits.json` → `lib/tft.json` (`nameVi`/`descVi`/`keywordsVi`/`breakpointsVi`), resolved by `lib/tips.ts`. Lookup keys stay English everywhere (`data-tip`, DB rows).
+- Scope cuts this round: guide and legal article bodies stay English; comp DB content (title/playstyle/tips/stages) stays English. Item/augment tier notes are authored in both languages (`lib/data.ts`).
+- Check: `node capture/board-e2e.mjs` covers the vi redirect + vi tier list/page chrome; `capture/tip-shot.mjs` shoots en + vi hover cards.
+
 ## Known deviations (deliberate)
 
 - All imagery is CSS placeholder art; Riot Games assets are not used or hotlinked. Owner supplies licensed art.
@@ -111,6 +119,7 @@ cd server && npm install && npm run seed && npm run dev
 npm install && npm run dev
 npm run build && npm run start   # production preview on :4173
 
+curl http://localhost:4173/en/tierlist/comps                  # public site (vi at /vi/...)
 curl http://localhost:4173/api/comps                          # through the Next proxy
 curl http://localhost:4000/api/comps                          # direct to the backend
 curl -X POST -H "Authorization: Bearer $REFRESH_TOKEN" http://localhost:4000/api/tft/refresh   # REFRESH_TOKEN in server/.env

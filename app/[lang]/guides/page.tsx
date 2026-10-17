@@ -2,15 +2,19 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Chip, CtaLink } from '@/components/ui';
 import { guides } from '@/lib/data';
+import type { Lang } from '@/lib/i18n';
+import { messages } from '@/lib/messages';
 
-export const metadata: Metadata = {
-  title: 'Guides',
-  description: 'Fundamentals, economy, positioning and meta reads from MetaBoard coaches.',
-};
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params;
+  return { title: messages[lang].meta.guides.title, description: messages[lang].meta.guides.description };
+}
 
 const tags = ['All', 'Fundamentals', 'Economy', 'Items', 'Positioning', 'Augments', 'Meta'];
 
-export default function GuidesPage() {
+export default async function GuidesPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params;
+  const t = messages[lang].guides;
   const featured = guides.find((guide) => guide.featured) ?? guides[0];
   const rest = guides.filter((guide) => guide.slug !== featured.slug);
 
@@ -24,7 +28,7 @@ export default function GuidesPage() {
           <h2 className="font-display text-3xl leading-tight font-bold tracking-tight text-fog md:text-4xl">{featured.title}</h2>
           <p className="text-sm leading-relaxed text-mist">{featured.excerpt}</p>
           <p className="text-xs font-semibold text-mist">{featured.author} &middot; {featured.date}</p>
-          <CtaLink href={`/guides/${featured.slug}`}>Read the guide</CtaLink>
+          <CtaLink href={`/${lang}/guides/${featured.slug}`}>{t.readTheGuide}</CtaLink>
         </div>
         <div className="relative min-h-[200px] overflow-hidden rounded-lg border border-line bg-gradient-to-br from-brand/25 via-panel to-panel">
           <span className="hex absolute top-8 left-10 h-28 w-24 rotate-12 bg-fog/5" />
@@ -43,7 +47,7 @@ export default function GuidesPage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rest.map((guide) => (
-            <Link key={guide.slug} href={`/guides/${guide.slug}`} className="group flex flex-col overflow-hidden rounded-xl border border-line bg-panel">
+            <Link key={guide.slug} href={`/${lang}/guides/${guide.slug}`} className="group flex flex-col overflow-hidden rounded-xl border border-line bg-panel">
               <div className="relative h-32 bg-gradient-to-br from-util via-panel to-panel">
                 <span className="hex absolute top-6 left-6 h-20 w-16 bg-fog/5 transition-transform group-hover:scale-110" />
               </div>

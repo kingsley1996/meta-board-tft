@@ -1,28 +1,38 @@
 import Link from 'next/link';
 import { patch } from '@/lib/data';
+import type { Lang } from '@/lib/i18n';
+import { messages } from '@/lib/messages';
+import { LangSwitch } from './lang-switch';
 
-const dropdowns = [
-  { label: 'Comps', items: [{ label: 'Comp Rankings', href: '/tierlist/comps' }, { label: 'Item Rankings', href: '/tierlist/items' }, { label: 'Augment Rankings', href: '/tierlist/augments' }] },
-];
+export function Nav({ lang }: { lang: Lang }) {
+  const t = messages[lang].nav;
+  const dropdowns = [
+    {
+      label: t.comps,
+      items: [
+        { label: t.compRankings, href: `/${lang}/tierlist/comps` },
+        { label: t.itemRankings, href: `/${lang}/tierlist/items` },
+        { label: t.augmentRankings, href: `/${lang}/tierlist/augments` },
+      ],
+    },
+  ];
+  const links = [
+    { label: t.guides, href: `/${lang}/guides` },
+    { label: t.media, href: `/${lang}/media` },
+    { label: t.champions, href: `/${lang}/learn/champions` },
+  ];
 
-const links = [
-  { label: 'Guides', href: '/guides' },
-  { label: 'Media', href: '/media' },
-  { label: 'Champions', href: '/learn/champions' },
-];
-
-export function Nav() {
   return (
     <header data-section="nav" className="sticky top-0 z-40 border-b border-line bg-page/95 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-[1536px] items-center justify-between gap-2 px-6">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2" aria-label="MetaBoard home">
+          <Link href={`/${lang}`} className="flex items-center gap-2" aria-label={t.homeAria}>
             <span className="hex flex h-8 w-8 items-center justify-center bg-brand">
               <span className="hex flex h-full w-full items-center justify-center bg-panel font-display text-sm font-bold text-brand-soft">M</span>
             </span>
             <span className="font-display text-xl font-bold tracking-tight text-fog">MetaBoard</span>
           </Link>
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+          <nav className="hidden items-center gap-1 md:flex" aria-label={t.mainAria}>
             {dropdowns.map((dropdown) => (
               <div key={dropdown.label} className="group relative">
                 <button type="button" className="smooth flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold text-fog group-hover:text-brand-soft">
@@ -47,9 +57,12 @@ export function Nav() {
             ))}
           </nav>
         </div>
-        <span className="rounded-full border border-line bg-panel px-4 py-1.5 text-sm font-semibold text-mist">
-          Patch <span className="text-fog">{patch.version}</span>
-        </span>
+        <div className="flex items-center gap-2">
+          <LangSwitch lang={lang} />
+          <span className="rounded-full border border-line bg-panel px-4 py-1.5 text-sm font-semibold text-mist">
+            {t.patch} <span className="text-fog">{patch.version}</span>
+          </span>
+        </div>
       </div>
     </header>
   );
