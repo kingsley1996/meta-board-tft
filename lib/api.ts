@@ -1,0 +1,43 @@
+import type { Tier } from './tiers';
+
+export type ApiUnit = {
+  name: string;
+  cost: number;
+  icon: string | null;
+  row: number | null;
+  col: number | null;
+  stars: number | null;
+  items: { name: string; icon: string | null }[];
+};
+export type ApiIcon = { name: string; icon: string | null };
+
+export type ApiComp = {
+  slug: string;
+  title: string;
+  tier: Tier;
+  style: string;
+  difficulty: number;
+  trend: 'up' | 'down' | null;
+  playstyle: string;
+  units: ApiUnit[];
+  traits: { name: string; count: number; thresholds: number[]; styles: number[]; icon: string | null }[];
+  early: ApiUnit[];
+  carry: ApiUnit;
+  items: ApiIcon[];
+  augments: ApiIcon[];
+  tips: string;
+  stages: { stage: string; text: string }[];
+  alt: ApiUnit[];
+};
+
+export type CompsResponse = {
+  patch: { version: string; updated: string };
+  set: number;
+  comps: ApiComp[];
+};
+
+export async function fetchComps(): Promise<CompsResponse> {
+  const res = await fetch('/api/comps');
+  if (!res.ok) throw new Error(`API responded ${res.status}`);
+  return res.json();
+}

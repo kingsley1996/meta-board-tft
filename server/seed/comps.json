@@ -1,0 +1,750 @@
+[
+  {
+    "slug": "ahri-spellweaver",
+    "title": "Ahri Spellweaver",
+    "tier": "S",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "playstyle": "Fast 8 Ability Power cap",
+    "units": [
+      {
+        "name": "Sett",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Rakan",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Elise",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Cassiopeia",
+        "row": 1,
+        "col": 4,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "LeBlanc",
+        "row": 2,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Karma",
+        "row": 2,
+        "col": 4,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Ahri",
+        "row": 3,
+        "col": 3,
+        "stars": 3,
+        "items": [
+          "Blue Buff",
+          "Rabadon's Deathcap",
+          "Archangel's Staff"
+        ]
+      },
+      {
+        "name": "Alune",
+        "row": 3,
+        "col": 4,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Karma",
+      "LeBlanc",
+      "Rakan"
+    ],
+    "carry": "Ahri",
+    "items": [
+      "Blue Buff",
+      "Rabadon's Deathcap",
+      "Archangel's Staff"
+    ],
+    "augments": [
+      "Cybernetic Uplink",
+      "Hedge Fund",
+      "Big Grab Bag",
+      "Comeback Story"
+    ],
+    "tips": "Push 8 on 4-2 with a Karma item holder, then roll for Ahri and Alune. Spellweaver 4 plus a Rakan frontline carries the mid game.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Play Karma with Blue Buff behind any Vanguard. A loss streak is fine — protect HP above 70."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Add LeBlanc and Cassiopeia at 7 for Spellweaver 4. Do not roll below 40 gold."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level 8 on 4-2, hit Ahri 2 and Alune, then cap with Elise and Sett for frontline."
+      }
+    ],
+    "alt": [
+      "Karma",
+      "Cassiopeia"
+    ],
+    "trend": "up"
+  },
+  {
+    "slug": "ashe-blossom",
+    "title": "Ashe Blossom",
+    "tier": "S",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "playstyle": "Blossom fast 8 into a legendary carry",
+    "units": [
+      "Ashe",
+      "Sett",
+      "Master Yi",
+      "Yunara",
+      "Yorick",
+      "Karma",
+      "Gnar",
+      "Caitlyn"
+    ],
+    "early": [
+      "Yorick",
+      "Karma",
+      "Caitlyn"
+    ],
+    "carry": "Ashe",
+    "items": [
+      "Guinsoo's Rageblade",
+      "Infinity Edge",
+      "Last Whisper"
+    ],
+    "augments": [
+      "Golden Gamble",
+      "Buried Treasures",
+      "Big Grab Bag",
+      "Best Friends I"
+    ],
+    "tips": "Blossom gets stronger with every round. Play the cheapest Blossom board you can win with, then cash out on 5-1 for Ashe 2.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Open Yorick with Guinsoo's and keep every Blossom you see."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Master Yi and Yunara hold the line while you bank to 50."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level 8 at 4-5, then level 9 by 5-2 and hand the board to Ashe."
+      }
+    ],
+    "alt": [
+      "Master Yi",
+      "Yunara"
+    ]
+  },
+  {
+    "slug": "amumu-inferno",
+    "title": "Amumu Inferno",
+    "tier": "A",
+    "style": "Tempo",
+    "difficulty": 1,
+    "playstyle": "Tempo frontline with Inferno burn",
+    "units": [
+      "Amumu",
+      "Kennen",
+      "Akali",
+      "Varus",
+      "Shen",
+      "Vi",
+      "Sejuani",
+      "Morgana"
+    ],
+    "early": [
+      "Akali",
+      "Varus",
+      "Shen"
+    ],
+    "carry": "Amumu",
+    "items": [
+      "Sunfire Cape",
+      "Ionic Spark",
+      "Morellonomicon"
+    ],
+    "augments": [
+      "Corrosion",
+      "Comeback Story",
+      "Augmented Power",
+      "Component Buffet"
+    ],
+    "tips": "Amumu with Sunfire and Ionic Spark burns through every slow board. Roll on 7 at 3-5 to stabilise, then push 8 for Kennen.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Akali and Varus hold damage items while Shen tanks."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Inferno 4 online at 3-5 is your power spike — roll to hit Amumu 2."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Add Kennen at 8 and position Amumu on the enemy carry side."
+      }
+    ],
+    "alt": [
+      "Kennen"
+    ]
+  },
+  {
+    "slug": "ezreal-elderwood",
+    "title": "Ezreal Elderwood",
+    "tier": "A",
+    "style": "Tempo",
+    "difficulty": 2,
+    "playstyle": "Elderwood tempo into Ezreal 2",
+    "units": [
+      "Ezreal",
+      "Gnar",
+      "Ornn",
+      "Alistar",
+      "Hecarim",
+      "Xayah",
+      "LeBlanc",
+      "Rakan"
+    ],
+    "early": [
+      "Xayah",
+      "Ornn",
+      "Alistar"
+    ],
+    "carry": "Ezreal",
+    "items": [
+      "Deathblade",
+      "Giant Slayer",
+      "Infinity Edge"
+    ],
+    "augments": [
+      "Backup Bows",
+      "Hard Commit",
+      "Big Grab Bag",
+      "Branching Out"
+    ],
+    "tips": "Elderwood stacks buff the whole board, not just the carry. Keep Gnar and Ornn alive and let Ezreal do the rest.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Open Xayah with Deathblade; Ornn holds the frontline."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Elderwood 4 by 3-2 keeps you healthy through the mid game."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level 8, hit Ezreal 2 and add Gnar for the frontline cap."
+      }
+    ],
+    "alt": [
+      "Xayah"
+    ],
+    "trend": "down"
+  },
+  {
+    "slug": "cassiopeia-coven",
+    "title": "Cassiopeia Coven",
+    "tier": "A",
+    "style": "Flex",
+    "difficulty": 2,
+    "playstyle": "Flex AP with Coven essence",
+    "units": [
+      "Cassiopeia",
+      "Morgana",
+      "Elise",
+      "Camille",
+      "Caitlyn",
+      "Veigar",
+      "Ahri",
+      "Rakan"
+    ],
+    "early": [
+      "Camille",
+      "Caitlyn",
+      "Elise"
+    ],
+    "carry": "Cassiopeia",
+    "items": [
+      "Blue Buff",
+      "Jeweled Gauntlet",
+      "Rabadon's Deathcap"
+    ],
+    "augments": [
+      "Cybernetic Uplink",
+      "Called Shot",
+      "Celestial Blessing I",
+      "Corrosion"
+    ],
+    "tips": "Coven snowballs from essence stacks — fight early and often. Cassiopeia with Blue Buff and Jeweled Gauntlet melts single targets.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Camille and Elise give you Coven 2 plus a real frontline."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Cassiopeia 2 by 3-2; take every Coven essence you can."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Add Morgana and Ahri at 8 for the damage cap."
+      }
+    ],
+    "alt": [
+      "Morgana"
+    ],
+    "trend": "down"
+  },
+  {
+    "slug": "tristana-sprykin-reroll",
+    "title": "Tristana Sprykin Reroll",
+    "tier": "B",
+    "style": "Reroll",
+    "difficulty": 2,
+    "playstyle": "3-cost reroll on Sprykin tempo",
+    "units": [
+      "Tristana",
+      "Rammus",
+      "Teemo",
+      "Kobuko",
+      "Veigar",
+      "Gnar",
+      "Caitlyn"
+    ],
+    "early": [
+      "Tristana",
+      "Kobuko",
+      "Teemo"
+    ],
+    "carry": "Tristana",
+    "items": [
+      "Guinsoo's Rageblade",
+      "Red Buff",
+      "Infinity Edge"
+    ],
+    "augments": [
+      "Climb The Ladder I",
+      "Champ Delivery",
+      "Best Friends I",
+      "Band of Thieves"
+    ],
+    "tips": "Slow-roll on 7 for Tristana 3. Sprykin riders keep the board stable while you dig.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Kobuko and Teemo hold items; play your upgraded pairs."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Roll above 50 every round once Tristana is contested-free."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Tristana 3 ends lobbies; Gnar is the bonus cap at 8."
+      }
+    ],
+    "alt": [
+      "Gnar"
+    ],
+    "trend": "up"
+  },
+  {
+    "slug": "sentinel-riftbeast",
+    "title": "Sentinel Riftbeast",
+    "tier": "B",
+    "style": "Tempo",
+    "difficulty": 1,
+    "playstyle": "Riftbeast frontline tempo",
+    "units": [
+      "Sentinel",
+      "Krug",
+      "Gromp",
+      "Scuttlecrab",
+      "Brambleback",
+      "Murkwolf",
+      "Pebbles",
+      "Cinderling"
+    ],
+    "early": [
+      "Cinderling",
+      "Pebbles",
+      "Gromp"
+    ],
+    "carry": "Sentinel",
+    "items": [
+      "Warmog's Armor",
+      "Bramble Vest",
+      "Dragon's Claw"
+    ],
+    "augments": [
+      "Big Friend I",
+      "Component Buffet",
+      "Dummify",
+      "Corrosion"
+    ],
+    "tips": "Riftbeasts trade bodies for time and Sentinel converts that time into rounds. Great against burst lobbies.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Cinderling and Pebbles carry the early damage; keep every Riftbeast."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Brambleback joins the front — take the Alpha Mark upgrade."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Sentinel 2 with Warmog's anchors the board through stage 5."
+      }
+    ],
+    "alt": [
+      "Brambleback"
+    ]
+  },
+  {
+    "slug": "aphelios-lunar",
+    "title": "Aphelios Lunar",
+    "tier": "B",
+    "style": "Flex",
+    "difficulty": 2,
+    "playstyle": "Flex between Lunar and Rapidfire",
+    "units": [
+      "Aphelios",
+      "Alune",
+      "Diana",
+      "Hecarim",
+      "Taric",
+      "Kayle",
+      "Xayah",
+      "Rakan"
+    ],
+    "early": [
+      "Kayle",
+      "Diana",
+      "Rakan"
+    ],
+    "carry": "Aphelios",
+    "items": [
+      "Guinsoo's Rageblade",
+      "Bloodthirster",
+      "Last Whisper"
+    ],
+    "augments": [
+      "Component Heist",
+      "Backup Bows",
+      "Caretaker's Ally",
+      "Called Shot"
+    ],
+    "tips": "Aphelios wants attack speed above all. Alune and Diana keep Lunar online while you stack items.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Kayle with Guinsoo's and a Taric front."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Lunar 2 by 3-2; stay contest-free and bank to 50."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level 8 for Aphelios 2; flex Rapidfire if bows keep dropping."
+      }
+    ],
+    "alt": [
+      "Kayle"
+    ]
+  },
+  {
+    "slug": "azir-blackthorn",
+    "title": "Azir Blackthorn",
+    "tier": "C",
+    "style": "Reroll",
+    "difficulty": 2,
+    "playstyle": "Blackthorn Summoner reroll",
+    "units": [
+      "Azir",
+      "Yorick",
+      "Zyra",
+      "Warwick",
+      "Rek'Sai",
+      "Veigar",
+      "Malphite"
+    ],
+    "early": [
+      "Rek'Sai",
+      "Veigar",
+      "Warwick"
+    ],
+    "carry": "Azir",
+    "items": [
+      "Nashor's Tooth",
+      "Guinsoo's Rageblade",
+      "Quicksilver"
+    ],
+    "augments": [
+      "Continuous Conjuration",
+      "Crafted Crafting",
+      "Component Buffet",
+      "Capital Gains I"
+    ],
+    "tips": "The Blackthorn sacrifice trades one slot for a board-wide buff. Azir turns that value into soldiers.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Rek'Sai and Warwick open while you find Azir."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Azir 2 on 4-1 with Nashor's Tooth; Zyra adds the second summoner."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Malphite and Yorick close the board — Blackthorn hex the carry corner."
+      }
+    ],
+    "alt": [
+      "Zyra"
+    ]
+  },
+  {
+    "slug": "kayle-solar",
+    "title": "Kayle Solar",
+    "tier": "C",
+    "style": "Tempo",
+    "difficulty": 1,
+    "playstyle": "Solar tempo with a Rapidfire carry",
+    "units": [
+      "Kayle",
+      "Leona",
+      "Sejuani",
+      "Taric",
+      "Rakan",
+      "Diana",
+      "Aphelios",
+      "Alune"
+    ],
+    "early": [
+      "Leona",
+      "Kayle",
+      "Sejuani"
+    ],
+    "carry": "Kayle",
+    "items": [
+      "Guinsoo's Rageblade",
+      "Deathblade",
+      "Quicksilver"
+    ],
+    "augments": [
+      "Chosen of the Sun",
+      "Backup Bows",
+      "Best Friends I",
+      "Celestial Blessing I"
+    ],
+    "tips": "Solar shields make Kayle nearly untouchable through the mid game. Transition to Aphelios if the lobby stacks armour.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Leona frontline, Kayle with items behind."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Solar 2 by 3-2 and steady streaks."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Taric 2 and Alune complete the shell at 8."
+      }
+    ],
+    "alt": [
+      "Aphelios"
+    ]
+  },
+  {
+    "slug": "sivir-primal",
+    "title": "Sivir Primal",
+    "tier": "C",
+    "style": "Flex",
+    "difficulty": 2,
+    "playstyle": "Primal flex into Hunters",
+    "units": [
+      "Sivir",
+      "Nidalee",
+      "Vi",
+      "Caitlyn",
+      "Tristana",
+      "Rammus",
+      "Maokai",
+      "Ashe"
+    ],
+    "early": [
+      "Caitlyn",
+      "Tristana",
+      "Vi"
+    ],
+    "carry": "Sivir",
+    "items": [
+      "Deathblade",
+      "Red Buff",
+      "Last Whisper"
+    ],
+    "augments": [
+      "Carve a Path",
+      "Branching Out",
+      "Called Shot",
+      "Efficient Shopper"
+    ],
+    "tips": "Take the Primal blessing that matches your components — the sword blessing with Sivir carry is the default.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Caitlyn or Tristana hold bow components early."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Vi frontline with Nidalee and Sivir online by 4-1."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Maokai and Ashe cap the board; keep Sivir behind the second line."
+      }
+    ],
+    "alt": [
+      "Ashe"
+    ],
+    "trend": "up"
+  },
+  {
+    "slug": "elder-dragon-apex",
+    "title": "Elder Dragon Apex",
+    "tier": "X",
+    "style": "Fast 8",
+    "difficulty": 3,
+    "playstyle": "High-roll Apex Predator board",
+    "units": [
+      "Elder Dragon",
+      "Gromp",
+      "Brambleback",
+      "Sentinel",
+      "Krug",
+      "Gnar",
+      "Sett",
+      "Maokai"
+    ],
+    "early": [
+      "Cinderling",
+      "Pebbles",
+      "Gromp"
+    ],
+    "carry": "Elder Dragon",
+    "items": [
+      "Deathblade",
+      "Bloodthirster",
+      "Titan's Resolve"
+    ],
+    "augments": [
+      "Call to Chaos",
+      "Final Ascension",
+      "Golden Gamble",
+      "Comeback Story"
+    ],
+    "tips": "Only play from a strong stage 2. Elder Dragon takes two team slots — every other unit must earn its place.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Play your strongest board; you need streak gold to afford the cap."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Collect Riftbeasts from every carousel."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Elder Dragon at level 9 with Gnar and Sentinel as the shell."
+      }
+    ],
+    "alt": [
+      "Brambleback"
+    ],
+    "trend": "up"
+  },
+  {
+    "slug": "draven-bounty",
+    "title": "Draven Bounty",
+    "tier": "X",
+    "style": "Tempo",
+    "difficulty": 3,
+    "playstyle": "Tempo into Bounty Seeker",
+    "units": [
+      "Draven",
+      "Rakan",
+      "Elise",
+      "Diana",
+      "Hecarim",
+      "Taric",
+      "Karma",
+      "LeBlanc"
+    ],
+    "early": [
+      "Rakan",
+      "Elise",
+      "Karma"
+    ],
+    "carry": "Draven",
+    "items": [
+      "Deathblade",
+      "Infinity Edge",
+      "Bloodthirster"
+    ],
+    "augments": [
+      "Cursed Crown",
+      "Band of Thieves II",
+      "Hard Commit",
+      "Big Grab Bag"
+    ],
+    "tips": "Draven pays out if you keep him alive — position him on the second line and take every combat augment.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Rakan and Elise front; any AD holder banks components."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Stabilise at 7 with Taric and Diana and keep the streak alive."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Draven at 8 — finish the bounty and cap with Karma."
+      }
+    ],
+    "alt": [
+      "Karma"
+    ],
+    "trend": "down"
+  }
+]

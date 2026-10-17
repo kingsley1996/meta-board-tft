@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  --color-page: #0b0e14;
+  --color-panel: #121722;
+  --color-util: #1b2130;
+  --color-line: #2a3245;
+  --color-fog: #eef1f8;
+  --color-mist: #9aa7c2;
+  --color-brand: #7c5cff;
+  --color-brand-hot: #6a45ff;
+  --color-brand-deep: #5732d6;
+  --color-brand-soft: #b9a8ff;
+
+  --color-tier-s: #ff5470;
+  --color-tier-a: #ff9f43;
+  --color-tier-b: #ffd43b;
+  --color-tier-c: #69db7c;
+  --color-tier-x: #4dd0c9;
+
+  --color-cost-1: #94a3b8;
+  --color-cost-2: #4ade80;
+  --color-cost-3: #38bdf8;
+  --color-cost-4: #c084fc;
+  --color-cost-5: #fbbf24;
+
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-fog);
+  font-family: var(--font-body);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-soft);
+  outline-offset: 2px;
+}
+
+@utility hex {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* TFT board: flat dark background, borderless grey hexes, staggered honeycomb
+   rows. Cells scale with the container width; --hex-h keeps the hexagon regular
+   (2/sqrt(3) aspect). */
+.hex-board-frame {
+  container-type: inline-size;
+  --hex-w: min(calc((100cqw - 24px) / 7.6), 56px);
+  --hex-h: calc(var(--hex-w) * 1.1547);
+  background: #0a0d0e;
+  border-radius: 12px;
+  padding: 14px 12px;
+}
+
+.hex-board {
+  width: fit-content;
+  margin-inline: auto;
+}
+
+.hex-board-row {
+  display: flex;
+}
+
+.hex-board-row:nth-child(even) {
+  margin-left: calc(var(--hex-w) / 2);
+}
+
+.hex-board-row + .hex-board-row {
+  margin-top: calc(var(--hex-h) * -0.25);
+}
+
+.hex-board-cell {
+  position: relative;
+  width: var(--hex-w);
+  height: var(--hex-h);
+}
+
+.hex-board-face {
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: #202122;
+}
+
+@utility smooth {
+  transition: all 0.15s ease;
+}

@@ -1,0 +1,12 @@
+[
+  { "name": "home", "url": "/" },
+  { "name": "comps", "url": "/tierlist/comps" },
+  { "name": "comp-detail", "url": "/tierlist/comps/ahri-spellweaver" },
+  { "name": "items", "url": "/tierlist/items" },
+  { "name": "augments", "url": "/tierlist/augments" },
+  { "name": "guides", "url": "/guides" },
+  { "name": "guide-article", "url": "/guides/economy-first-stage-2" },
+  { "name": "learn-champions", "url": "/learn/champions" },
+  { "name": "media", "url": "/media" },
+  { "name": "legal", "url": "/legal/privacy" }
+]

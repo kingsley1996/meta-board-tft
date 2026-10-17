@@ -1,0 +1,67 @@
+{
+  "home": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "hero-logo": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > header:nth-child(1)",
+    "hero-title": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2)",
+    "hero-sub": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > p:nth-child(3)",
+    "cta": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(4)",
+    "features": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(5)",
+    "promo": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(6)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(2)"
+  },
+  "comps": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "page-head": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
+    "tierlist": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3)"
+  },
+  "comp-detail": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "page-head": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
+    "tierlist": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2)",
+    "detail-panel": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(4)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3)"
+  },
+  "items": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "page-head": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
+    "tierboard": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2)",
+    "carousel": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(4)"
+  },
+  "augments": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "page-head": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
+    "tierboard": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2)",
+    "carousel": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(4)"
+  },
+  "guides": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "guide-hero": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
+    "guide-list": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3)"
+  },
+  "guide-article": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "article": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1)",
+    "related": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(2)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(4)"
+  },
+  "learn-champions": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "page-head": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)",
+    "champ-grid": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3)"
+  },
+  "studyhall": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "hero-panel": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(3)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(5)"
+  },
+  "legal": {
+    "nav": "body > div:nth-child(1) > div:nth-child(2)",
+    "prose": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1)",
+    "footer": "body > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3)"
+  }
+}

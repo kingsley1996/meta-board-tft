@@ -1,0 +1,16 @@
+import { chromium } from 'playwright';
+const BASE = 'http://localhost:4173';
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1400, height: 1000 }, deviceScaleFactor: 2 });
+await page.goto(`${BASE}/tierlist/comps`);
+await page.waitForSelector('[data-section="tierlist"]');
+await page.waitForTimeout(600);
+const tl = page.locator('[data-section="tierlist"]');
+const tb = await tl.boundingBox();
+await page.screenshot({ path: '/tmp/board-shots/v6-rows.png', clip: { x: tb.x, y: tb.y, width: Math.min(tb.width, 900), height: 300 } });
+await page.goto(`${BASE}/tierlist/comps/ahri-spellweaver`);
+await page.waitForSelector('.hex-board');
+const finalPanel = page.locator('p:text-is("Final board")').first();
+const fb = await finalPanel.boundingBox();
+await page.screenshot({ path: '/tmp/board-shots/v6-final.png', clip: { x: fb.x - 20, y: fb.y - 10, width: 700, height: 180 } });
+await browser.close();

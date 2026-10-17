@@ -1,0 +1,12 @@
+[
+  { "name": "home", "url": "https://tftacademy.com/" },
+  { "name": "comps", "url": "https://tftacademy.com/tierlist/comps" },
+  { "name": "comp-detail", "url": "https://tftacademy.com/tierlist/comps/set-18-solar-kayle" },
+  { "name": "items", "url": "https://tftacademy.com/tierlist/items" },
+  { "name": "augments", "url": "https://tftacademy.com/tierlist/augments" },
+  { "name": "guides", "url": "https://tftacademy.com/guides" },
+  { "name": "guide-article", "url": "https://tftacademy.com/guides/frodan/tft-fundamentals-pillar-1-economy" },
+  { "name": "learn-champions", "url": "https://tftacademy.com/learn/champions" },
+  { "name": "studyhall", "url": "https://tftacademy.com/studyhall" },
+  { "name": "legal", "url": "https://tftacademy.com/policies/privacy-policy" }
+]
