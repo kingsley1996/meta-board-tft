@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type { Tier } from '@/lib/tiers';
+import type { Lang } from '@/lib/i18n';
+import { messages } from '@/lib/messages';
 
 export const tierColor: Record<Tier, string> = {
   S: 'var(--color-tier-s)',
@@ -12,14 +14,15 @@ export const tierColor: Record<Tier, string> = {
 
 const costBg: Record<number, string> = { 1: 'bg-cost-1', 2: 'bg-cost-2', 3: 'bg-cost-3', 4: 'bg-cost-4', 5: 'bg-cost-5' };
 
-export function TierTabs({ current }: { current: 'comps' | 'items' | 'augments' }) {
+export function TierTabs({ current, lang }: { current: 'comps' | 'items' | 'augments'; lang: Lang }) {
+  const t = messages[lang].tierTabs;
   const tabs = [
-    { key: 'comps', label: 'Comps', href: '/tierlist/comps' },
-    { key: 'items', label: 'Items', href: '/tierlist/items' },
-    { key: 'augments', label: 'Augments', href: '/tierlist/augments' },
+    { key: 'comps', label: t.comps, href: `/${lang}/tierlist/comps` },
+    { key: 'items', label: t.items, href: `/${lang}/tierlist/items` },
+    { key: 'augments', label: t.augments, href: `/${lang}/tierlist/augments` },
   ];
   return (
-    <nav className="flex items-center gap-1 border-b border-line" aria-label="Tier list sections">
+    <nav className="flex items-center gap-1 border-b border-line" aria-label={t.aria}>
       {tabs.map((tab) => (
         <Link
           key={tab.key}

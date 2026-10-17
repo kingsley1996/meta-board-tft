@@ -14,12 +14,12 @@ async function shot(url, selector, file, nth = 0) {
   console.log(file, 'ok');
 }
 
-await shot('http://localhost:4173/tierlist/comps', '[data-tip^="champion:"]', '/tmp/tip-champ.png');
-await shot('http://localhost:4173/tierlist/items', '[data-tip^="item:"]', '/tmp/tip-item.png');
-await shot('http://localhost:4173/tierlist/augments', '[data-tip^="augment:"]', '/tmp/tip-augment.png');
+await shot('http://localhost:4173/en/tierlist/comps', '[data-tip^="champion:"]', '/tmp/tip-champ.png');
+await shot('http://localhost:4173/en/tierlist/items', '[data-tip^="item:"]', '/tmp/tip-item.png');
+await shot('http://localhost:4173/en/tierlist/augments', '[data-tip^="augment:"]', '/tmp/tip-augment.png');
 
-await page.goto('http://localhost:4173/tierlist/comps', { waitUntil: 'networkidle' });
-const href = await page.locator('a[href^="/tierlist/comps/"]').first().getAttribute('href');
+await page.goto('http://localhost:4173/en/tierlist/comps', { waitUntil: 'networkidle' });
+const href = await page.locator('a[href^="/en/tierlist/comps/"]').first().getAttribute('href');
 await page.goto(`http://localhost:4173${href}`, { waitUntil: 'networkidle' });
 await page.locator('[data-tip^="trait:"]').first().hover();
 await page.waitForTimeout(400);
@@ -33,6 +33,10 @@ console.log('comp-item ok');
 // Champion with a matched ability icon inside a comp context (counts + items).
 await shot(`http://localhost:4173${href}`, '[data-section="comp-panel"] [data-tip="champion:Sett"]', '/tmp/tip-champ-context.png');
 // Champion whose ability text has keyword definitions (Wound/Burn).
-await shot('http://localhost:4173/tierlist/comps/sentinel-riftbeast', '[data-tip="champion:Cinderling"]', '/tmp/tip-champ-keywords.png');
+await shot('http://localhost:4173/en/tierlist/comps/sentinel-riftbeast', '[data-tip="champion:Cinderling"]', '/tmp/tip-champ-keywords.png');
+
+// Vietnamese: keyword defs + localized names ("Vết Thương Sâu") and item priority chips.
+await shot('http://localhost:4173/vi/tierlist/comps/sentinel-riftbeast', '[data-tip="champion:Cinderling"]', '/tmp/tip-champ-keywords-vi.png');
+await shot(`http://localhost:4173${href.replace('/en/', '/vi/')}`, '[data-section="comp-panel"] [data-tip="champion:Sett"]', '/tmp/tip-champ-context-vi.png');
 
 await browser.close();

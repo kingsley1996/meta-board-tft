@@ -1,15 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { augmentRarity, getTip, iconFor, keywordDefs, traitStyleColorByName, traitStyleColors, type TipData } from '@/lib/tips';
+import type { Lang } from '@/lib/i18n';
+import { messages } from '@/lib/messages';
+import { augmentRarity, getTip, iconFor, itemName, keywordsFor, traitStyleColorByName, traitStyleColors, type TipData } from '@/lib/tips';
 import { CostDots } from './ui';
 
 // Optional comp context attached by the wrapper element via data-tip-traits /
 // data-tip-items (e.g. "Spellweaver:6,Blossom:4" + "Blue Buff|Rabadon's Deathcap").
 type TipContext = { counts?: Record<string, number>; items?: string[] };
 
-function ChampionCard({ tip, context }: { tip: Extract<TipData, { kind: 'champion' }>; context?: TipContext }) {
-  const defs = tip.ability ? tip.ability.keywords.filter((keyword) => keywordDefs[keyword]) : [];
+function ChampionCard({ tip, context, lang }: { tip: Extract<TipData, { kind: 'champion' }>; context?: TipContext; lang: Lang }) {
+  const defs = keywordsFor(lang);
+  const keywordDefs = tip.ability ? tip.ability.keywords.filter((keyword) => defs[keyword]) : [];
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
@@ -21,7 +24,7 @@ function ChampionCard({ tip, context }: { tip: Extract<TipData, { kind: 'champio
           <div key={trait.name} className="flex items-center gap-1.5 text-xs font-semibold text-mist">
             {trait.icon ? <img src={trait.icon} alt="" draggable={false} className="h-4 w-4 object-contain brightness-0 invert opacity-70" /> : null}
             <span className="uppercase tracking-wide">{trait.name}</span>
-            {context?.counts?.[trait.name] ? <span className="ml-auto text-fog">{context.counts[trait.name]}</span> : null}
+            {context?.counts?.[trait.key] ? <span className="ml-auto text-fog">{context.counts[trait.key]}</span> : null}
           </div>
         ))}
       </div>
@@ -34,9 +37,9 @@ function ChampionCard({ tip, context }: { tip: Extract<TipData, { kind: 'champio
               {tip.mana ? <span className="shrink-0 text-xs font-semibold whitespace-nowrap text-brand-soft">{tip.mana.start} / {tip.mana.max}</span> : null}
             </div>
             <p className="mt-1 text-xs leading-relaxed text-mist">{tip.ability.desc}</p>
-            {defs.map((keyword) => (
+            {keywordDefs.map((keyword) => (
               <p key={keyword} className="mt-1 text-xs leading-relaxed text-mist">
-                <span className="font-semibold text-fog">{keyword}:</span> {keywordDefs[keyword]}
+                <span className="font-semibold text-fog">{keyword}:</span> {defs[keyword]}
               </p>
             ))}
           </div>
@@ -44,14 +47,14 @@ function ChampionCard({ tip, context }: { tip: Extract<TipData, { kind: 'champio
       ) : null}
       {context?.items?.length ? (
         <div className="mt-2 border-t border-line pt-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-mist">Item priority</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-mist">{messages[lang].hover.itemPriority}</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {context.items.map((item) => {
               const icon = iconFor(item);
               return (
                 <span key={item} className="flex items-center gap-1.5 rounded-md border border-line bg-util py-0.5 pr-2 pl-0.5 text-xs font-semibold text-fog">
                   {icon ? <img src={icon} alt="" draggable={false} className="h-5 w-5 rounded-[22%]" /> : null}
-                  {item}
+                  {itemName(item, lang)}
                 </span>
               );
             })}
@@ -62,14 +65,14 @@ function ChampionCard({ tip, context }: { tip: Extract<TipData, { kind: 'champio
   );
 }
 
-function ItemCard({ tip }: { tip: Extract<TipData, { kind: 'item' }> }) {
+function ItemCard({ tip, lang }: { tip: Extract<TipData, { kind: 'item' }>; lang: Lang }) {
   return (
     <div>
       <span className="text-sm font-bold text-fog">{tip.name}</span>
       <p className="mt-1 text-xs leading-relaxed text-mist">{tip.desc}</p>
       {tip.composition.length ? (
         <div className="mt-2 border-t border-line pt-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-mist">Builds from</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-mist">{messages[lang].hover.buildsFrom}</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {tip.composition.map((part) => (
               <span key={part.name} className="flex items-center gap-1.5 rounded-md border border-line bg-util py-0.5 pr-2 pl-0.5 text-xs font-semibold text-fog">
@@ -84,7 +87,7 @@ function ItemCard({ tip }: { tip: Extract<TipData, { kind: 'item' }> }) {
   );
 }
 
-function AugmentCard({ tip }: { tip: Extract<TipData, { kind: 'augment' }> }) {
+function AugmentCard({ tip, lang }: { tip: Extract<TipData, { kind: 'augment' }>; lang: Lang }) {
   const rarity = tip.rarity ? augmentRarity[tip.rarity] : null;
   return (
     <div>
@@ -92,7 +95,7 @@ function AugmentCard({ tip }: { tip: Extract<TipData, { kind: 'augment' }> }) {
         <span className="text-sm font-bold text-fog">{tip.name}</span>
         {rarity ? (
           <span className="rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-black/75" style={{ background: rarity.color }}>
-            {rarity.label}
+            {rarity.label[lang]}
           </span>
         ) : null}
       </div>
@@ -140,10 +143,10 @@ function TraitCard({ tip }: { tip: Extract<TipData, { kind: 'trait' }> }) {
   );
 }
 
-function Card({ tip, context }: { tip: TipData; context?: TipContext }) {
-  if (tip.kind === 'champion') return <ChampionCard tip={tip} context={context} />;
-  if (tip.kind === 'item') return <ItemCard tip={tip} />;
-  if (tip.kind === 'augment') return <AugmentCard tip={tip} />;
+function Card({ tip, context, lang }: { tip: TipData; context?: TipContext; lang: Lang }) {
+  if (tip.kind === 'champion') return <ChampionCard tip={tip} context={context} lang={lang} />;
+  if (tip.kind === 'item') return <ItemCard tip={tip} lang={lang} />;
+  if (tip.kind === 'augment') return <AugmentCard tip={tip} lang={lang} />;
   return <TraitCard tip={tip} />;
 }
 
@@ -151,7 +154,7 @@ type Hover = { tip: TipData; rect: { top: number; right: number; bottom: number;
 
 // One delegated layer for the whole app: any element with data-tip="kind:name"
 // gets a detail card on hover (champion / item / augment / trait).
-export function HoverCardLayer() {
+export function HoverCardLayer({ lang }: { lang: Lang }) {
   const [hover, setHover] = useState<Hover | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const active = useRef<HTMLElement | null>(null);
@@ -180,7 +183,7 @@ export function HoverCardLayer() {
       if (!el || el === active.current) return;
       active.current = el;
       const [kind, ...rest] = (el.dataset.tip ?? '').split(':');
-      const tip = getTip(kind, rest.join(':'));
+      const tip = getTip(kind, rest.join(':'), lang);
       clear();
       if (!tip) return;
       const context = readContext(el);
@@ -211,7 +214,7 @@ export function HoverCardLayer() {
       document.removeEventListener('pointerdown', hide, true);
       clear();
     };
-  }, []);
+  }, [lang]);
 
   if (!hover) return null;
   const { tip, rect, context } = hover;
@@ -228,7 +231,7 @@ export function HoverCardLayer() {
       className="pointer-events-none fixed z-50 max-h-[calc(100vh-16px)] w-[340px] overflow-hidden rounded-xl border border-line bg-panel px-3.5 py-3 shadow-[0_12px_32px_rgba(0,0,0,0.55)]"
       style={{ left, ...anchor }}
     >
-      <Card tip={tip} context={context} />
+      <Card tip={tip} context={context} lang={lang} />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
 import type { ApiComp, ApiUnit } from '@/lib/api';
 import { itemTierByName, units } from '@/lib/data';
+import type { Lang } from '@/lib/i18n';
+import { messages } from '@/lib/messages';
 import { traitStyleColors } from '@/lib/tips';
 import { HexBoard } from './hex-board';
 import { AugmentTile, Chip, CostDots, ItemTile, Panel, UnitHex } from './ui';
@@ -81,7 +83,8 @@ function TraitChip({ trait }: { trait: ApiComp['traits'][number] }) {
   );
 }
 
-export function CompPanel({ comp }: { comp: ApiComp }) {
+export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
+  const t = messages[lang].compPanel;
   return (
     <div data-section="comp-panel" className="grid gap-4 rounded-xl border border-line bg-page p-4 lg:grid-cols-[300px_1fr]">
       <aside className="flex flex-col gap-4 rounded-lg border border-line bg-panel p-4">
@@ -91,19 +94,19 @@ export function CompPanel({ comp }: { comp: ApiComp }) {
         </div>
         <div className="flex flex-wrap gap-1.5">
           <Chip>{comp.style}</Chip>
-          <Chip>Difficulty <CostDots cost={comp.difficulty} /></Chip>
-          <Chip>{comp.units.length} units</Chip>
+          <Chip>{t.difficulty} <CostDots cost={comp.difficulty} /></Chip>
+          <Chip>{comp.units.length} {t.units}</Chip>
         </div>
         {comp.traits?.length ? (
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">Active traits</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.activeTraits}</p>
             <div className="flex flex-wrap gap-1.5">
               {comp.traits.map((trait) => <TraitChip key={trait.name} trait={trait} />)}
             </div>
           </div>
         ) : null}
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">Augments</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.augments}</p>
           <div className="grid grid-cols-4 gap-2">
             {comp.augments.slice(0, 8).map((augment) => (
               <AugmentTile key={augment.name} name={augment.name} icon={augment.icon} size={44} />
@@ -111,15 +114,15 @@ export function CompPanel({ comp }: { comp: ApiComp }) {
           </div>
         </div>
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">Augment priority</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.augmentPriority}</p>
           <div className="flex items-center gap-1 text-xs font-semibold text-mist">
-            <span className="text-brand-soft">Economy</span> {'\u2192'} <span className="text-brand-soft">Items</span> {'\u2192'} <span className="text-brand-soft">Combat</span>
+            <span className="text-brand-soft">{t.economy}</span> {'\u2192'} <span className="text-brand-soft">{t.items}</span> {'\u2192'} <span className="text-brand-soft">{t.combat}</span>
           </div>
         </div>
       </aside>
       <div className="flex flex-col gap-4">
         <Panel className="p-4">
-          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">Final board</p>
+          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.finalBoard}</p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
             {comp.units.map((unit) => (
               <UnitTile key={unit.name} unit={unit} size={54} context={unitTipContext(comp, unit)} />
@@ -128,7 +131,7 @@ export function CompPanel({ comp }: { comp: ApiComp }) {
         </Panel>
         <div className="grid gap-4 md:grid-cols-2">
           <Panel className="p-4">
-            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">Early units</p>
+            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.earlyUnits}</p>
             <div className="flex flex-wrap items-center justify-center gap-2">
               {comp.early.map((unit) => (
                 <UnitHex key={unit.name} name={unit.name} cost={unit.cost} icon={unit.icon} size={48} />
@@ -136,7 +139,7 @@ export function CompPanel({ comp }: { comp: ApiComp }) {
             </div>
           </Panel>
           <Panel className="p-4">
-            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">Item priority</p>
+            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.itemPriority}</p>
             <div className="flex flex-wrap items-center justify-center gap-2">
               {comp.items.map((item, index) => (
                 <Fragment key={item.name}>
@@ -149,11 +152,11 @@ export function CompPanel({ comp }: { comp: ApiComp }) {
         </div>
         <div className="grid gap-4 md:grid-cols-[1fr_200px]">
           <Panel className="p-4">
-            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">Positioning example</p>
+            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.positioning}</p>
             <PositioningBoard comp={comp} />
           </Panel>
           <Panel className="flex flex-col items-start gap-3 p-4">
-            <p className="w-full text-center text-xs font-semibold uppercase tracking-wide text-mist">Alt builds</p>
+            <p className="w-full text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.altBuilds}</p>
             <div className="flex flex-wrap items-center justify-center gap-2 self-center pt-2">
               {(comp.alt.length ? comp.alt : [comp.carry]).map((unit) => (
                 <UnitHex key={unit.name} name={unit.name} cost={unit.cost} icon={unit.icon} size={44} />
@@ -163,7 +166,7 @@ export function CompPanel({ comp }: { comp: ApiComp }) {
         </div>
         <Panel className="p-4">
           <p className="mb-2 flex justify-center">
-            <span className="rounded-full border border-line bg-util px-4 py-1 text-xs font-semibold text-fog">Tips</span>
+            <span className="rounded-full border border-line bg-util px-4 py-1 text-xs font-semibold text-fog">{t.tips}</span>
           </p>
           <p className="text-center text-sm leading-relaxed text-mist">{comp.tips}</p>
         </Panel>
