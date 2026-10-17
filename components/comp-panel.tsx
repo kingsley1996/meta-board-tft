@@ -164,22 +164,26 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
             </div>
           </Panel>
         </div>
-        <Panel className="p-4">
-          <p className="mb-2 flex justify-center">
-            <span className="rounded-full border border-line bg-util px-4 py-1 text-xs font-semibold text-fog">{t.tips}</span>
-          </p>
-          <p className="text-center text-sm leading-relaxed text-mist">{comp.tips}</p>
-        </Panel>
-        <div className="grid gap-4 md:grid-cols-3">
-          {comp.stages.map((stage) => (
-            <Panel key={stage.stage} className="p-4">
-              <p className="mb-2 flex justify-center">
-                <span className="rounded-full border border-line bg-util px-3 py-0.5 text-xs font-semibold text-fog">{stage.stage}</span>
-              </p>
-              <p className="text-sm leading-relaxed text-mist">{stage.text}</p>
-            </Panel>
-          ))}
-        </div>
+        {comp.tips ? (
+          <Panel className="p-4">
+            <p className="mb-2 flex justify-center">
+              <span className="rounded-full border border-line bg-util px-4 py-1 text-xs font-semibold text-fog">{t.tips}</span>
+            </p>
+            <p className="text-center text-sm leading-relaxed text-mist">{comp.tips}</p>
+          </Panel>
+        ) : null}
+        {comp.stages.length ? (
+          <div className="grid gap-4 md:grid-cols-3">
+            {comp.stages.map((stage) => (
+              <Panel key={stage.stage} className="p-4">
+                <p className="mb-2 flex justify-center">
+                  <span className="rounded-full border border-line bg-util px-3 py-0.5 text-xs font-semibold text-fog">{stage.stage}</span>
+                </p>
+                <p className="text-sm leading-relaxed text-mist">{stage.text}</p>
+              </Panel>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   );

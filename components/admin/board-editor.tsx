@@ -12,7 +12,7 @@ export type BoardUnit = {
   stars: number | null;
   items: string[];
 };
-export type ChampionOption = { name: string; cost: number; icon: string | null };
+export type ChampionOption = { name: string; cost: number; icon: string | null; traits?: string[] };
 export type ItemOption = { name: string; icon: string | null; tier: Tier | null };
 
 const MAX_ITEMS = 3;
@@ -90,6 +90,7 @@ export function BoardEditor({
   const [pending, setPending] = useState('');
   const [selectedName, setSelectedName] = useState('');
   const [championSearch, setChampionSearch] = useState('');
+  const [championTrait, setChampionTrait] = useState('');
   const [itemSearch, setItemSearch] = useState('');
   const [activeSlot, setActiveSlot] = useState(0);
 
@@ -145,8 +146,11 @@ export function BoardEditor({
     }
   };
 
-  const visibleChampions = champions.filter((champion) =>
-    champion.name.toLowerCase().includes(championSearch.trim().toLowerCase())
+  const traitOptions = [...new Set(champions.flatMap((champion) => champion.traits ?? []))].sort();
+  const visibleChampions = champions.filter(
+    (champion) =>
+      champion.name.toLowerCase().includes(championSearch.trim().toLowerCase()) &&
+      (!championTrait || champion.traits?.includes(championTrait))
   );
   const visibleItems = items.filter((item) => item.name.toLowerCase().includes(itemSearch.trim().toLowerCase()));
 
@@ -159,7 +163,21 @@ export function BoardEditor({
           value={championSearch}
           onChange={(event) => setChampionSearch(event.target.value)}
         />
+        <select
+          aria-label="Filter by trait"
+          className="smooth w-full rounded-lg border border-line bg-page px-2 py-1.5 text-xs font-semibold text-fog focus:border-brand-soft focus:outline-none"
+          value={championTrait}
+          onChange={(event) => setChampionTrait(event.target.value)}
+        >
+          <option value="">All traits</option>
+          {traitOptions.map((trait) => (
+            <option key={trait} value={trait}>
+              {trait}
+            </option>
+          ))}
+        </select>
         <div className="grid max-h-[380px] grid-cols-5 gap-1.5 overflow-y-auto pr-1">
+          {!visibleChampions.length ? <p className="col-span-5 text-xs text-mist">No champion matches the filter.</p> : null}
           {visibleChampions.map((champion) => {
             const onBoard = placed.has(champion.name);
             const isPending = pending === champion.name;
