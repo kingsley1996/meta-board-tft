@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { fetchComps, type ApiComp, type CompsResponse } from '@/lib/api';
 import { tierRank } from '@/lib/tiers';
@@ -9,19 +9,29 @@ import { messages } from '@/lib/messages';
 import { tierColor, TierChip, TierTabs, UnitHex } from './ui';
 import { CompPanel } from './comp-panel';
 
+// Tier list ⇄ comp detail are separate routes rendering the same explorer;
+// caching the payload keeps the list on screen during the client-side hop
+// (no loading collapse, no scroll clamp). Refetched on every mount.
+const cache: Partial<Record<Lang, CompsResponse>> = {};
+
+// useLayoutEffect while hydrating in the browser, useEffect during SSR.
+const useScrollEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
 export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lang }) {
   const t = messages[lang].explorer;
-  const [data, setData] = useState<CompsResponse | null>(null);
+  const [data, setData] = useState<CompsResponse | null>(() => cache[lang] ?? null);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState('');
   const [style, setStyle] = useState('All');
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let live = true;
     setError('');
     fetchComps(lang)
       .then((payload) => {
+        cache[lang] = payload;
         if (live) setData(payload);
       })
       .catch((reason) => {
@@ -31,6 +41,11 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
       live = false;
     };
   }, [attempt, lang]);
+
+  // Bring the expanded comp panel into view (and skip Next's scroll-to-top).
+  useScrollEffect(() => {
+    if (openSlug && data) panelRef.current?.scrollIntoView({ block: 'start' });
+  }, [openSlug, data]);
 
   const comps = data?.comps ?? [];
   const styles = ['All', ...new Set(comps.map((comp) => comp.style))];
@@ -97,7 +112,7 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
                     ))}
                   </div>
                   {openComp ? (
-                    <div className="mt-4">
+                    <div ref={panelRef} className="mt-4 scroll-mt-20">
                       <CompPanel comp={openComp} lang={lang} />
                     </div>
                   ) : null}
@@ -124,6 +139,7 @@ function CompCluster({ comp, active, lang }: { comp: ApiComp; active: boolean; l
   return (
     <Link
       href={`/${lang}/tierlist/comps/${comp.slug}`}
+      scroll={false}
       aria-label={`${comp.title} (${comp.style})${trend ? ` — ${trend.label}` : ''}`}
       className={`flex items-center gap-3 rounded-lg p-2 ${active ? 'bg-util ring-1 ring-brand-soft' : 'smooth hover:bg-util'}`}
     >
