@@ -30,4 +30,9 @@ await page.waitForTimeout(400);
 await page.screenshot({ path: '/tmp/tip-comp-item.png' });
 console.log('comp-item ok');
 
+// Champion with a matched ability icon inside a comp context (counts + items).
+await shot(`http://localhost:4173${href}`, '[data-section="comp-panel"] [data-tip="champion:Sett"]', '/tmp/tip-champ-context.png');
+// Champion whose ability text has keyword definitions (Wound/Burn).
+await shot('http://localhost:4173/tierlist/comps/sentinel-riftbeast', '[data-tip="champion:Cinderling"]', '/tmp/tip-champ-keywords.png');
+
 await browser.close();

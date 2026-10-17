@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import type { ApiComp, ApiUnit } from '@/lib/api';
-import { itemTierByName } from '@/lib/data';
+import { itemTierByName, units } from '@/lib/data';
 import { traitStyleColors } from '@/lib/tips';
 import { HexBoard } from './hex-board';
 import { AugmentTile, Chip, CostDots, ItemTile, Panel, UnitHex } from './ui';
@@ -8,9 +8,24 @@ import { AugmentTile, Chip, CostDots, ItemTile, Panel, UnitHex } from './ui';
 // Fallback hexes (row-major index) for comps saved before the board editor existed.
 const fallbackCells = [3, 9, 10, 17, 23, 24, 30];
 
-function UnitTile({ unit, size = 54, fill = false }: { unit: ApiUnit; size?: number; fill?: boolean }) {
+// Comp context for the hover card: trait counts for this unit + the comp's
+// item priority, read by HoverCardLayer via data-tip-traits / data-tip-items.
+function unitTipContext(comp: ApiComp, unit: ApiUnit) {
+  const counts = new Map(comp.traits.map((trait) => [trait.name, trait.count]));
+  const traits = (units.find((entry) => entry.name === unit.name)?.traits ?? [])
+    .filter((name) => (counts.get(name) ?? 0) > 0)
+    .map((name) => `${name}:${counts.get(name)}`)
+    .join(',');
+  return { traits, items: comp.items.map((item) => item.name).join('|') };
+}
+
+function UnitTile({ unit, size = 54, fill = false, context }: { unit: ApiUnit; size?: number; fill?: boolean; context?: { traits: string; items: string } }) {
   return (
-    <div className={fill ? 'absolute inset-[2px]' : 'relative shrink-0'}>
+    <div
+      data-tip-traits={context?.traits || undefined}
+      data-tip-items={context?.items || undefined}
+      className={fill ? 'absolute inset-[2px]' : 'relative shrink-0'}
+    >
       <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} size={size} fill={fill} stars={unit.stars ?? undefined} />
       {unit.items.length ? (
         <span className="absolute right-0 -bottom-1 flex gap-[2px]">
@@ -40,7 +55,7 @@ function PositioningBoard({ comp }: { comp: ApiComp }) {
     <HexBoard
       renderCell={(row, col) => {
         const unit = cells.get(`${row}:${col}`);
-        return unit ? <UnitTile unit={unit} fill /> : null;
+        return unit ? <UnitTile unit={unit} fill context={unitTipContext(comp, unit)} /> : null;
       }}
     />
   );
@@ -107,7 +122,7 @@ export function CompPanel({ comp }: { comp: ApiComp }) {
           <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">Final board</p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
             {comp.units.map((unit) => (
-              <UnitTile key={unit.name} unit={unit} size={54} />
+              <UnitTile key={unit.name} unit={unit} size={54} context={unitTipContext(comp, unit)} />
             ))}
           </div>
         </Panel>
