@@ -2,17 +2,17 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Chip } from '@/components/ui';
-import { guides } from '@/lib/data';
+import { guideTag, guidesByLang } from '@/lib/data';
 import { locales, type Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
 export function generateStaticParams() {
-  return locales.flatMap((lang) => guides.map((guide) => ({ lang, slug: guide.slug })));
+  return locales.flatMap((lang) => guidesByLang.en.map((guide) => ({ lang, slug: guide.slug })));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang; slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const guide = guides.find((candidate) => candidate.slug === slug);
+  const { lang, slug } = await params;
+  const guide = guidesByLang[lang].find((candidate) => candidate.slug === slug);
   if (!guide) return {};
   return { title: guide.title, description: guide.excerpt };
 }
@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 export default async function GuideArticlePage({ params }: { params: Promise<{ lang: Lang; slug: string }> }) {
   const { lang, slug } = await params;
   const t = messages[lang].guides;
+  const guides = guidesByLang[lang];
   const guide = guides.find((candidate) => candidate.slug === slug);
   if (!guide) notFound();
   const related = guides.filter((candidate) => candidate.slug !== guide.slug).slice(0, 3);
@@ -29,7 +30,7 @@ export default async function GuideArticlePage({ params }: { params: Promise<{ l
       <article data-section="article" className="mx-auto mt-4 flex w-full max-w-[900px] flex-col gap-6">
         <div className="flex flex-col gap-3">
           <div className="flex gap-2">
-            {guide.tags.map((tag) => <Chip key={tag}>{tag}</Chip>)}
+            {guide.tags.map((tag) => <Chip key={tag}>{guideTag(tag, lang)}</Chip>)}
           </div>
           <h1 className="font-display text-4xl leading-tight font-bold tracking-tight text-fog md:text-5xl">{guide.title}</h1>
           <p className="text-sm font-semibold text-mist">{t.by} {guide.author} &middot; {guide.date}</p>

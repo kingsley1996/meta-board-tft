@@ -19,13 +19,15 @@ export type CompInput = {
   difficulty: number;
   trend: string | null;
   playstyle: string;
+  playstyleVi: string | null;
   units: BoardUnit[];
   early: string[];
   carry: string;
   items: string[];
   augments: string[];
   tips: string;
-  stages: { stage: string; text: string }[];
+  tipsVi: string | null;
+  stages: { stage: string; text: string; textVi: string | null }[];
   alt: string[];
 };
 
@@ -68,6 +70,7 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
 
   const playstyle = str(raw.playstyle);
   if (!playstyle) return fail('playstyle is required');
+  const playstyleVi = str(raw.playstyleVi) || null;
 
   // Units accept "Name" or { name, row, col, stars, items } — positions are
   // optional hex coordinates (0-3 rows, 0-6 cols), stars 1-3, items up to 3.
@@ -128,12 +131,16 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
 
   const tips = str(raw.tips);
   if (!tips) return fail('tips text is required');
+  const tipsVi = str(raw.tipsVi) || null;
 
-  // Accepts ["text", ...] (admin form / API) and [{ stage, text }, ...] (stored shape).
+  // Accepts ["text", ...] (admin form / API) and [{ stage, text, textVi? }, ...] (stored shape).
   const stageTexts = (Array.isArray(raw.stages) ? raw.stages : [])
     .map((entry) => (typeof entry === 'string' ? entry.trim() : str((entry as Record<string, unknown> | null)?.text)))
     .filter(Boolean);
   if (stageTexts.length !== 3) return fail('exactly 3 stage texts are required (stages 2, 3, 4)');
+  const stageTextsVi = (Array.isArray(raw.stages) ? raw.stages : []).map((entry) =>
+    typeof entry === 'object' && entry ? str((entry as Record<string, unknown>).textVi) || null : null
+  );
 
   const known = await nameSets();
   const unknownUnit = [...unitNames, ...early, ...alt].find((name) => !known.champions.has(name));
@@ -155,13 +162,15 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
       difficulty,
       trend: trend || null,
       playstyle,
+      playstyleVi,
       units,
       early,
       carry,
       items,
       augments,
       tips,
-      stages: stageTexts.map((text, index) => ({ stage: `Stage ${index + 2}`, text })),
+      tipsVi,
+      stages: stageTexts.map((text, index) => ({ stage: `Stage ${index + 2}`, text, textVi: stageTextsVi[index] ?? null })),
       alt,
     },
   };
@@ -172,15 +181,15 @@ export async function writeComp(comp: CompInput): Promise<void> {
   try {
     await client.query('BEGIN');
     await client.query(
-      `INSERT INTO comps (slug, title, tier, style, difficulty, trend, playstyle, carry, tips)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `INSERT INTO comps (slug, title, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, tips, tips_vi)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, tier = EXCLUDED.tier, style = EXCLUDED.style,
          difficulty = EXCLUDED.difficulty, trend = EXCLUDED.trend, playstyle = EXCLUDED.playstyle,
          carry = EXCLUDED.carry, tips = EXCLUDED.tips, updated_at = now()`,
-      [comp.slug, comp.title, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.carry, comp.tips]
+      [comp.slug, comp.title, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.tips, comp.tipsVi]
     );
-    for (const table of ['comp_units', 'comp_items', 'comp_augments', 'comp_stages']) {
+    for (const table of ['comp_units', 'comp_items', 'comp_augments']) {
       await client.query(`DELETE FROM ${table} WHERE comp_slug = $1`, [comp.slug]);
     }
     const insertNamed = async (table: string, names: string[]) => {
@@ -204,8 +213,13 @@ export async function writeComp(comp: CompInput): Promise<void> {
     await insertUnits(comp.alt, 'alt');
     await insertNamed('comp_items', comp.items);
     await insertNamed('comp_augments', comp.augments);
+    // Stages upsert instead of delete+insert so an admin save keeps the vi text.
     for (const stage of comp.stages) {
-      await client.query('INSERT INTO comp_stages (comp_slug, stage, text) VALUES ($1, $2, $3)', [comp.slug, Number(stage.stage.replace(/\D+/g, '')), stage.text]);
+      await client.query(
+        `INSERT INTO comp_stages (comp_slug, stage, text, text_vi) VALUES ($1, $2, $3, $4)
+         ON CONFLICT (comp_slug, stage) DO UPDATE SET text = EXCLUDED.text`,
+        [comp.slug, Number(stage.stage.replace(/\D+/g, '')), stage.text, stage.textVi]
+      );
     }
     await client.query('COMMIT');
   } catch (error) {
@@ -226,7 +240,8 @@ export async function deleteComp(slug: string): Promise<boolean> {
   return (rowCount ?? 0) > 0;
 }
 
-export async function listComps(slug?: string): Promise<any[]> {
+export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en'): Promise<any[]> {
+  const vi = lang === 'vi';
   const comps = await pool.query(
     slug ? 'SELECT * FROM comps WHERE slug = $1' : 'SELECT * FROM comps ORDER BY created_at, slug',
     slug ? [slug] : []
@@ -238,7 +253,7 @@ export async function listComps(slug?: string): Promise<any[]> {
     pool.query('SELECT comp_slug, role, name, row, col, stars, items FROM comp_units WHERE comp_slug = ANY($1) ORDER BY comp_slug, role, position', [slugs]),
     pool.query('SELECT comp_slug, name FROM comp_items WHERE comp_slug = ANY($1) ORDER BY comp_slug, position', [slugs]),
     pool.query('SELECT comp_slug, name FROM comp_augments WHERE comp_slug = ANY($1) ORDER BY comp_slug, position', [slugs]),
-    pool.query('SELECT comp_slug, stage, text FROM comp_stages WHERE comp_slug = ANY($1) ORDER BY comp_slug, stage', [slugs]),
+    pool.query('SELECT comp_slug, stage, text, text_vi FROM comp_stages WHERE comp_slug = ANY($1) ORDER BY comp_slug, stage', [slugs]),
     pool.query('SELECT name, cost, icon, traits FROM champions'),
     pool.query('SELECT name, thresholds, styles, icon FROM traits'),
     pool.query('SELECT name, icon FROM items'),
@@ -306,15 +321,18 @@ export async function listComps(slug?: string): Promise<any[]> {
       style: row.style,
       difficulty: row.difficulty,
       trend: row.trend ?? null,
-      playstyle: row.playstyle,
+      playstyle: vi && row.playstyle_vi ? row.playstyle_vi : row.playstyle,
       units: role('board'),
       traits: compTraits(compUnits.filter((entry) => entry.role === 'board').map((entry) => entry.name)),
       early: role('early'),
       carry: unit({ name: row.carry }),
       items: (itemsBySlug.get(row.slug) ?? []).map((entry) => icon(entry.name, itemIconByName)),
       augments: (augmentsBySlug.get(row.slug) ?? []).map((entry) => icon(entry.name, augmentIconByName)),
-      tips: row.tips,
-      stages: (stagesBySlug.get(row.slug) ?? []).map((entry) => ({ stage: `Stage ${entry.stage}`, text: entry.text })),
+      tips: vi && row.tips_vi ? row.tips_vi : row.tips,
+      stages: (stagesBySlug.get(row.slug) ?? []).map((entry) => ({
+        stage: vi ? `Giai đoạn ${entry.stage}` : `Stage ${entry.stage}`,
+        text: vi && entry.text_vi ? entry.text_vi : entry.text,
+      })),
       alt: role('alt'),
     };
   });

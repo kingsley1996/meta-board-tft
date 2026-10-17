@@ -20,7 +20,7 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
   useEffect(() => {
     let live = true;
     setError('');
-    fetchComps()
+    fetchComps(lang)
       .then((payload) => {
         if (live) setData(payload);
       })
@@ -30,7 +30,7 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
     return () => {
       live = false;
     };
-  }, [attempt]);
+  }, [attempt, lang]);
 
   const comps = data?.comps ?? [];
   const styles = ['All', ...new Set(comps.map((comp) => comp.style))];

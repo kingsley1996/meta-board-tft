@@ -89,22 +89,27 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Play Karma with Blue Buff behind any Vanguard. A loss streak is fine — protect HP above 70."
+        "text": "Play Karma with Blue Buff behind any Vanguard. A loss streak is fine — protect HP above 70.",
+        "textVi": "Chơi Karma với Bùa Xanh sau bất kỳ Tiên Phong nào. Chuỗi thua không sao — giữ Máu trên 70."
       },
       {
         "stage": "Stage 3",
-        "text": "Add LeBlanc and Cassiopeia at 7 for Spellweaver 4. Do not roll below 40 gold."
+        "text": "Add LeBlanc and Cassiopeia at 7 for Spellweaver 4. Do not roll below 40 gold.",
+        "textVi": "Thêm LeBlanc và Cassiopeia ở 7 để có Thuật Sư 4. Không roll dưới 40 vàng."
       },
       {
         "stage": "Stage 4",
-        "text": "Level 8 on 4-2, hit Ahri 2 and Alune, then cap with Elise and Sett for frontline."
+        "text": "Level 8 on 4-2, hit Ahri 2 and Alune, then cap with Elise and Sett for frontline.",
+        "textVi": "Lên 8 ở 4-2, chốt Ahri 2 và Alune, rồi bù Elise và Sett cho tuyến trước."
       }
     ],
     "alt": [
       "Karma",
       "Cassiopeia"
     ],
-    "trend": "up"
+    "trend": "up",
+    "playstyleVi": "Fast 8 chốt Sức Mạnh Phép Thuật",
+    "tipsVi": "Đẩy 8 ở 4-2 với Karma giữ đồ, rồi roll tìm Ahri và Alune. Thuật Sư 4 cùng tuyến trước Rakan gánh giai đoạn giữa trận."
   },
   {
     "slug": "ashe-blossom",
@@ -144,21 +149,26 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Open Yorick with Guinsoo's and keep every Blossom you see."
+        "text": "Open Yorick with Guinsoo's and keep every Blossom you see.",
+        "textVi": "Mở Yorick với Cuồng Đao Guinsoo và giữ mọi Hoa Linh bạn thấy."
       },
       {
         "stage": "Stage 3",
-        "text": "Master Yi and Yunara hold the line while you bank to 50."
+        "text": "Master Yi and Yunara hold the line while you bank to 50.",
+        "textVi": "Master Yi và Yunara giữ tuyến trong khi bạn tích vàng về 50."
       },
       {
         "stage": "Stage 4",
-        "text": "Level 8 at 4-5, then level 9 by 5-2 and hand the board to Ashe."
+        "text": "Level 8 at 4-5, then level 9 by 5-2 and hand the board to Ashe.",
+        "textVi": "Lên 8 ở 4-5, lên 9 trước 5-2 và giao đội hình cho Ashe."
       }
     ],
     "alt": [
       "Master Yi",
       "Yunara"
-    ]
+    ],
+    "playstyleVi": "Fast 8 Hoa Linh với chủ lực huyền thoại",
+    "tipsVi": "Hoa Linh mạnh dần theo từng vòng. Chơi đội Hoa Linh rẻ nhất mà vẫn thắng được, rồi thu hoạch ở 5-1 để chốt Ashe 2."
   },
   {
     "slug": "amumu-inferno",
@@ -198,20 +208,25 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Akali and Varus hold damage items while Shen tanks."
+        "text": "Akali and Varus hold damage items while Shen tanks.",
+        "textVi": "Akali và Varus giữ đồ sát thương trong khi Shen tank."
       },
       {
         "stage": "Stage 3",
-        "text": "Inferno 4 online at 3-5 is your power spike — roll to hit Amumu 2."
+        "text": "Inferno 4 online at 3-5 is your power spike — roll to hit Amumu 2.",
+        "textVi": "Hỏa Ngục 4 online ở 3-5 là mốc sức mạnh — roll để chốt Amumu 2."
       },
       {
         "stage": "Stage 4",
-        "text": "Add Kennen at 8 and position Amumu on the enemy carry side."
+        "text": "Add Kennen at 8 and position Amumu on the enemy carry side.",
+        "textVi": "Thêm Kennen ở 8 và đặt Amumu về phía chủ lực địch."
       }
     ],
     "alt": [
       "Kennen"
-    ]
+    ],
+    "playstyleVi": "Tempo tuyến trước với Hỏa Ngục thiêu đốt",
+    "tipsVi": "Amumu với Áo Choàng Lửa và Nỏ Sét thiêu rụi mọi đội hình chậm. Roll ở 7 tại 3-5 để ổn định, rồi đẩy 8 tìm Kennen."
   },
   {
     "slug": "ezreal-elderwood",
@@ -251,21 +266,26 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Open Xayah with Deathblade; Ornn holds the frontline."
+        "text": "Open Xayah with Deathblade; Ornn holds the frontline.",
+        "textVi": "Mở Xayah với Kiếm Tử Thần; Ornn giữ tuyến trước."
       },
       {
         "stage": "Stage 3",
-        "text": "Elderwood 4 by 3-2 keeps you healthy through the mid game."
+        "text": "Elderwood 4 by 3-2 keeps you healthy through the mid game.",
+        "textVi": "Thần Rừng 4 trước 3-2 giữ bạn khỏe suốt giai đoạn giữa trận."
       },
       {
         "stage": "Stage 4",
-        "text": "Level 8, hit Ezreal 2 and add Gnar for the frontline cap."
+        "text": "Level 8, hit Ezreal 2 and add Gnar for the frontline cap.",
+        "textVi": "Lên 8, chốt Ezreal 2 và thêm Gnar cho tuyến trước."
       }
     ],
     "alt": [
       "Xayah"
     ],
-    "trend": "down"
+    "trend": "down",
+    "playstyleVi": "Tempo Thần Rừng chốt Ezreal 2",
+    "tipsVi": "Cộng dồn Thần Rừng buff cả đội hình, không chỉ chủ lực. Giữ Gnar và Ornn sống, phần còn lại để Ezreal lo."
   },
   {
     "slug": "cassiopeia-coven",
@@ -305,21 +325,26 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Camille and Elise give you Coven 2 plus a real frontline."
+        "text": "Camille and Elise give you Coven 2 plus a real frontline.",
+        "textVi": "Camille và Elise cho bạn Tiên Hắc Ám 2 cùng tuyến trước thật sự."
       },
       {
         "stage": "Stage 3",
-        "text": "Cassiopeia 2 by 3-2; take every Coven essence you can."
+        "text": "Cassiopeia 2 by 3-2; take every Coven essence you can.",
+        "textVi": "Cassiopeia 2 trước 3-2; nhận mọi tinh chất Tiên Hắc Ám có thể."
       },
       {
         "stage": "Stage 4",
-        "text": "Add Morgana and Ahri at 8 for the damage cap."
+        "text": "Add Morgana and Ahri at 8 for the damage cap.",
+        "textVi": "Thêm Morgana và Ahri ở 8 để tối đa sát thương."
       }
     ],
     "alt": [
       "Morgana"
     ],
-    "trend": "down"
+    "trend": "down",
+    "playstyleVi": "Flex sát thương phép với tinh chất Tiên Hắc Ám",
+    "tipsVi": "Tiên Hắc Ám snowball nhờ cộng dồn tinh chất — giao tranh sớm và liên tục. Cassiopeia với Bùa Xanh và Găng Bảo Thạch tan chảy mọi mục tiêu đơn."
   },
   {
     "slug": "tristana-sprykin-reroll",
@@ -358,21 +383,26 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Kobuko and Teemo hold items; play your upgraded pairs."
+        "text": "Kobuko and Teemo hold items; play your upgraded pairs.",
+        "textVi": "Kobuko và Teemo giữ đồ; chơi các cặp đã nâng cấp."
       },
       {
         "stage": "Stage 3",
-        "text": "Roll above 50 every round once Tristana is contested-free."
+        "text": "Roll above 50 every round once Tristana is contested-free.",
+        "textVi": "Roll trên 50 mỗi vòng một khi Tristana không còn bị tranh."
       },
       {
         "stage": "Stage 4",
-        "text": "Tristana 3 ends lobbies; Gnar is the bonus cap at 8."
+        "text": "Tristana 3 ends lobbies; Gnar is the bonus cap at 8.",
+        "textVi": "Tristana 3 kết thúc ván đấu; Gnar là mốc cộng thêm ở 8."
       }
     ],
     "alt": [
       "Gnar"
     ],
-    "trend": "up"
+    "trend": "up",
+    "playstyleVi": "Reroll tướng 3 vàng trên tempo Tinh Nghịch",
+    "tipsVi": "Slow-roll ở 7 tìm Tristana 3. Kỵ sĩ Tinh Nghịch giữ đội hình ổn định trong lúc bạn đào tướng."
   },
   {
     "slug": "sentinel-riftbeast",
@@ -412,20 +442,25 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Cinderling and Pebbles carry the early damage; keep every Riftbeast."
+        "text": "Cinderling and Pebbles carry the early damage; keep every Riftbeast.",
+        "textVi": "Mầm Non và Sỏi gánh sát thương đầu trận; giữ mọi Quái Rừng."
       },
       {
         "stage": "Stage 3",
-        "text": "Brambleback joins the front — take the Alpha Mark upgrade."
+        "text": "Brambleback joins the front — take the Alpha Mark upgrade.",
+        "textVi": "Bụi Gai Đỏ vào tuyến trước — chọn nâng cấp Dấu Alpha."
       },
       {
         "stage": "Stage 4",
-        "text": "Sentinel 2 with Warmog's anchors the board through stage 5."
+        "text": "Sentinel 2 with Warmog's anchors the board through stage 5.",
+        "textVi": "Sentinel 2 với Giáp Máu Warmog neo đội hình suốt giai đoạn 5."
       }
     ],
     "alt": [
       "Brambleback"
-    ]
+    ],
+    "playstyleVi": "Tempo tuyến trước với Quái Rừng",
+    "tipsVi": "Quái Rừng đổi thân xác lấy thời gian và Sentinel chuyển thời gian đó thành vòng thắng. Rất tốt trước các sảnh burst."
   },
   {
     "slug": "aphelios-lunar",
@@ -465,20 +500,25 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Kayle with Guinsoo's and a Taric front."
+        "text": "Kayle with Guinsoo's and a Taric front.",
+        "textVi": "Kayle với Cuồng Đao Guinsoo và Taric tuyến trước."
       },
       {
         "stage": "Stage 3",
-        "text": "Lunar 2 by 3-2; stay contest-free and bank to 50."
+        "text": "Lunar 2 by 3-2; stay contest-free and bank to 50.",
+        "textVi": "Mặt Trăng 2 trước 3-2; tránh bị tranh và tích về 50."
       },
       {
         "stage": "Stage 4",
-        "text": "Level 8 for Aphelios 2; flex Rapidfire if bows keep dropping."
+        "text": "Level 8 for Aphelios 2; flex Rapidfire if bows keep dropping.",
+        "textVi": "Lên 8 chốt Aphelios 2; chuyển Liên Kích nếu cung rơi liên tục."
       }
     ],
     "alt": [
       "Kayle"
-    ]
+    ],
+    "playstyleVi": "Flex giữa Mặt Trăng và Liên Kích",
+    "tipsVi": "Aphelios cần tốc độ đánh trên hết. Alune và Diana giữ Mặt Trăng hoạt động trong khi bạn xếp đồ."
   },
   {
     "slug": "azir-blackthorn",
@@ -517,20 +557,25 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Rek'Sai and Warwick open while you find Azir."
+        "text": "Rek'Sai and Warwick open while you find Azir.",
+        "textVi": "Rek'Sai và Warwick mở đầu trong lúc bạn tìm Azir."
       },
       {
         "stage": "Stage 3",
-        "text": "Azir 2 on 4-1 with Nashor's Tooth; Zyra adds the second summoner."
+        "text": "Azir 2 on 4-1 with Nashor's Tooth; Zyra adds the second summoner.",
+        "textVi": "Azir 2 ở 4-1 với Nanh Nashor; Zyra thêm triệu hồi thứ hai."
       },
       {
         "stage": "Stage 4",
-        "text": "Malphite and Yorick close the board — Blackthorn hex the carry corner."
+        "text": "Malphite and Yorick close the board — Blackthorn hex the carry corner.",
+        "textVi": "Malphite và Yorick khép đội hình — đặt ô Gai Đen ở góc chủ lực."
       }
     ],
     "alt": [
       "Zyra"
-    ]
+    ],
+    "playstyleVi": "Reroll Triệu Hồi Gai Đen",
+    "tipsVi": "Hiến tế Gai Đen đổi một ô lấy buff toàn đội. Azir biến giá trị đó thành lính."
   },
   {
     "slug": "kayle-solar",
@@ -570,20 +615,25 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Leona frontline, Kayle with items behind."
+        "text": "Leona frontline, Kayle with items behind.",
+        "textVi": "Leona tuyến trước, Kayle cầm đồ phía sau."
       },
       {
         "stage": "Stage 3",
-        "text": "Solar 2 by 3-2 and steady streaks."
+        "text": "Solar 2 by 3-2 and steady streaks.",
+        "textVi": "Mặt Trời 2 trước 3-2 và giữ chuỗi thắng ổn định."
       },
       {
         "stage": "Stage 4",
-        "text": "Taric 2 and Alune complete the shell at 8."
+        "text": "Taric 2 and Alune complete the shell at 8.",
+        "textVi": "Taric 2 và Alune hoàn thiện đội hình ở 8."
       }
     ],
     "alt": [
       "Aphelios"
-    ]
+    ],
+    "playstyleVi": "Tempo Mặt Trời với chủ lực Liên Kích",
+    "tipsVi": "Khiên Mặt Trời khiến Kayle gần như bất tử suốt giữa trận. Chuyển sang Aphelios nếu sảnh xếp nhiều giáp."
   },
   {
     "slug": "sivir-primal",
@@ -623,21 +673,26 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Caitlyn or Tristana hold bow components early."
+        "text": "Caitlyn or Tristana hold bow components early.",
+        "textVi": "Caitlyn hoặc Tristana giữ cung đầu trận."
       },
       {
         "stage": "Stage 3",
-        "text": "Vi frontline with Nidalee and Sivir online by 4-1."
+        "text": "Vi frontline with Nidalee and Sivir online by 4-1.",
+        "textVi": "Vi tuyến trước cùng Nidalee và Sivir online trước 4-1."
       },
       {
         "stage": "Stage 4",
-        "text": "Maokai and Ashe cap the board; keep Sivir behind the second line."
+        "text": "Maokai and Ashe cap the board; keep Sivir behind the second line.",
+        "textVi": "Maokai và Ashe khép đội hình; giữ Sivir sau tuyến hai."
       }
     ],
     "alt": [
       "Ashe"
     ],
-    "trend": "up"
+    "trend": "up",
+    "playstyleVi": "Flex Nguyên Sinh chuyển sang Thợ Săn",
+    "tipsVi": "Chọn lời chúc Nguyên Sinh khớp trang bị — lời chúc kiếm với Sivir chủ lực là mặc định."
   },
   {
     "slug": "elder-dragon-apex",
@@ -677,21 +732,26 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Play your strongest board; you need streak gold to afford the cap."
+        "text": "Play your strongest board; you need streak gold to afford the cap.",
+        "textVi": "Chơi đội mạnh nhất; bạn cần vàng chuỗi để đủ tiền chốt bài."
       },
       {
         "stage": "Stage 3",
-        "text": "Collect Riftbeasts from every carousel."
+        "text": "Collect Riftbeasts from every carousel.",
+        "textVi": "Thu mọi Quái Rừng từ vòng chọn tướng."
       },
       {
         "stage": "Stage 4",
-        "text": "Elder Dragon at level 9 with Gnar and Sentinel as the shell."
+        "text": "Elder Dragon at level 9 with Gnar and Sentinel as the shell.",
+        "textVi": "Rồng Ngàn Tuổi ở cấp 9 cùng Gnar và Sentinel làm khung."
       }
     ],
     "alt": [
       "Brambleback"
     ],
-    "trend": "up"
+    "trend": "up",
+    "playstyleVi": "Đội hình Bá Chủ high-roll",
+    "tipsVi": "Chỉ chơi khi giai đoạn 2 khỏe. Rồng Ngàn Tuổi chiếm hai ô — mọi tướng còn lại phải xứng chỗ."
   },
   {
     "slug": "draven-bounty",
@@ -731,20 +791,25 @@
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Rakan and Elise front; any AD holder banks components."
+        "text": "Rakan and Elise front; any AD holder banks components.",
+        "textVi": "Rakan và Elise tuyến trước; mọi tướng sát thương vật lý giữ trang bị."
       },
       {
         "stage": "Stage 3",
-        "text": "Stabilise at 7 with Taric and Diana and keep the streak alive."
+        "text": "Stabilise at 7 with Taric and Diana and keep the streak alive.",
+        "textVi": "Ổn định ở 7 với Taric và Diana và giữ chuỗi thắng."
       },
       {
         "stage": "Stage 4",
-        "text": "Draven at 8 — finish the bounty and cap with Karma."
+        "text": "Draven at 8 — finish the bounty and cap with Karma.",
+        "textVi": "Draven ở 8 — hoàn thành tiền thưởng và chốt đội với Karma."
       }
     ],
     "alt": [
       "Karma"
     ],
-    "trend": "down"
+    "trend": "down",
+    "playstyleVi": "Tempo chuyển Săn Thưởng",
+    "tipsVi": "Draven trả thưởng nếu bạn giữ hắn sống — đặt ở tuyến hai và chọn mọi nâng cấp giao tranh."
   }
 ]

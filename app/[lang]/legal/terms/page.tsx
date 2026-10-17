@@ -1,30 +1,23 @@
 import type { Metadata } from 'next';
 import { Prose, ProseSection } from '@/components/prose';
+import type { Lang } from '@/lib/i18n';
+import { messages } from '@/lib/messages';
 
-export const metadata: Metadata = { title: 'Terms of Use' };
+export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
+  const { lang } = await params;
+  return { title: messages[lang].legal.terms.title };
+}
 
-export default function TermsPage() {
+export default async function TermsPage({ params }: { params: Promise<{ lang: Lang }> }) {
+  const { lang } = await params;
+  const t = messages[lang];
   return (
-    <Prose title="Terms of Use" updated="October 2026">
-      <ProseSection heading="Using MetaBoard">
-        <p>
-          MetaBoard is a free reference for Teamfight Tactics players. Rankings are opinions derived from match
-          data; they are not guarantees of results.
-        </p>
-      </ProseSection>
-      <ProseSection heading="Content">
-        <p>
-          Guides, rankings and site copy are MetaBoard&apos;s own and may not be republished wholesale without
-          permission. Game names and mechanics belong to their respective owners; MetaBoard is not affiliated
-          with or endorsed by Riot Games.
-        </p>
-      </ProseSection>
-      <ProseSection heading="No warranty">
-        <p>
-          The site is provided as-is. We update rankings daily, but patches change fast and pages can be stale or
-          wrong. Verify anything tournament-critical yourself.
-        </p>
-      </ProseSection>
+    <Prose title={t.legal.terms.title} updated={`${t.patchBar.lastUpdated} ${t.legal.terms.updated}`}>
+      {t.legal.terms.sections.map((section) => (
+        <ProseSection key={section.heading} heading={section.heading}>
+          <p>{section.body}</p>
+        </ProseSection>
+      ))}
     </Prose>
   );
 }

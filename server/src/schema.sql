@@ -103,3 +103,9 @@ CREATE TABLE IF NOT EXISTS comp_stages (
   text text NOT NULL,
   PRIMARY KEY (comp_slug, stage)
 );
+
+-- Public-site translations. Editors write English; vi text is seed-managed and
+-- survives admin saves (see writeComp). Empty/absent vi falls back to English.
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS playstyle_vi text;
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS tips_vi text;
+ALTER TABLE comp_stages ADD COLUMN IF NOT EXISTS text_vi text;

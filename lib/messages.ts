@@ -96,6 +96,7 @@ const en = {
   items: { small: 'Item', big: 'Rankings', sub: 'What to slam and what to scrap. Hover any item for the one-line verdict.' },
   augments: { small: 'Augment', big: 'Rankings', sub: 'Tiered by board fit. The S-tier pick on paper is not always the S-tier pick for your board.' },
   guides: {
+    all: 'All',
     readTheGuide: 'Read the guide',
     keepReading: 'Keep reading',
     by: 'By',
@@ -135,6 +136,48 @@ const en = {
     headline: 'That board is not on the map.',
     body: 'The page moved with the meta. Try the comp rankings instead.',
     back: 'Back to comps',
+  },
+  legal: {
+    privacy: {
+      title: 'Privacy Policy',
+      updated: 'October 2026',
+      sections: [
+        {
+          heading: 'What we collect',
+          body: 'MetaBoard has no accounts and no sign-in. We collect aggregate, anonymous page statistics — which comp pages are opened and roughly from where — to decide what to rank next. No personal profile is built.',
+        },
+        {
+          heading: 'Cookies',
+          body: 'The site stores one local preference: your last visited tier list tab. It never leaves your browser and is not shared with anyone.',
+        },
+        {
+          heading: 'Third parties',
+          body: 'Embedded media on the Media page is loaded from third-party platforms only after you press play. Those platforms apply their own privacy policies from that point.',
+        },
+        {
+          heading: 'Contact',
+          body: 'Questions about this policy: privacy@metaboard.example (placeholder — the owner replaces this on launch).',
+        },
+      ],
+    },
+    terms: {
+      title: 'Terms of Use',
+      updated: 'October 2026',
+      sections: [
+        {
+          heading: 'Using MetaBoard',
+          body: 'MetaBoard is a free reference for Teamfight Tactics players. Rankings are opinions derived from match data; they are not guarantees of results.',
+        },
+        {
+          heading: 'Content',
+          body: "Guides, rankings and site copy are MetaBoard's own and may not be republished wholesale without permission. Game names and mechanics belong to their respective owners; MetaBoard is not affiliated with or endorsed by Riot Games.",
+        },
+        {
+          heading: 'No warranty',
+          body: 'The site is provided as-is. We update rankings daily, but patches change fast and pages can be stale or wrong. Verify anything tournament-critical yourself.',
+        },
+      ],
+    },
   },
 };
 
@@ -232,6 +275,7 @@ const vi: typeof en = {
   items: { small: 'Trang bị', big: 'Xếp hạng', sub: 'Nên ghép gì, bỏ gì. Di chuột lên từng trang bị để xem đánh giá nhanh.' },
   augments: { small: 'Nâng cấp', big: 'Xếp hạng', sub: 'Xếp hạng theo độ hợp đội hình. Lựa chọn S trên lý thuyết chưa chắc là S cho đội của bạn.' },
   guides: {
+    all: 'Tất cả',
     readTheGuide: 'Đọc bài',
     keepReading: 'Đọc tiếp',
     by: 'Bởi',
@@ -271,6 +315,48 @@ const vi: typeof en = {
     headline: 'Đội hình này không có trên bản đồ.',
     body: 'Trang đã chuyển theo meta. Thử xem bảng xếp hạng đội hình nhé.',
     back: 'Về bảng xếp hạng',
+  },
+  legal: {
+    privacy: {
+      title: 'Chính sách bảo mật',
+      updated: 'Tháng 10/2026',
+      sections: [
+        {
+          heading: 'Chúng tôi thu thập gì',
+          body: 'MetaBoard không có tài khoản và không đăng nhập. Chúng tôi chỉ thu thập thống kê truy cập ẩn danh, tổng hợp — trang đội hình nào được mở và đại khái từ đâu — để quyết định nội dung xếp hạng tiếp theo. Không có hồ sơ cá nhân nào được dựng lên.',
+        },
+        {
+          heading: 'Cookie',
+          body: 'Trang chỉ lưu một tùy chọn cục bộ: tab bảng xếp hạng bạn xem gần nhất. Nó không bao giờ rời khỏi trình duyệt và không được chia sẻ với ai.',
+        },
+        {
+          heading: 'Bên thứ ba',
+          body: 'Media nhúng ở trang Media chỉ được tải từ nền tảng bên thứ ba sau khi bạn bấm phát. Từ thời điểm đó, các nền tảng đó áp dụng chính sách bảo mật của riêng họ.',
+        },
+        {
+          heading: 'Liên hệ',
+          body: 'Thắc mắc về chính sách này: privacy@metaboard.example (placeholder — chủ site thay khi ra mắt).',
+        },
+      ],
+    },
+    terms: {
+      title: 'Điều khoản sử dụng',
+      updated: 'Tháng 10/2026',
+      sections: [
+        {
+          heading: 'Khi dùng MetaBoard',
+          body: 'MetaBoard là trang tham khảo miễn phí cho người chơi Đấu Trường Chân Lý. Xếp hạng là quan điểm rút ra từ dữ liệu trận đấu; không phải bảo đảm kết quả.',
+        },
+        {
+          heading: 'Nội dung',
+          body: 'Hướng dẫn, bảng xếp hạng và nội dung trang do MetaBoard sở hữu, không được đăng lại toàn bộ khi chưa có sự đồng ý. Tên game và cơ chế game thuộc về chủ sở hữu tương ứng; MetaBoard không liên kết và không được Riot Games bảo trợ.',
+        },
+        {
+          heading: 'Không bảo hành',
+          body: 'Trang được cung cấp nguyên trạng. Chúng tôi cập nhật xếp hạng hằng ngày, nhưng patch thay đổi nhanh và nội dung có thể cũ hoặc sai. Hãy tự kiểm chứng mọi thứ quan trọng với giải đấu.',
+        },
+      ],
+    },
   },
 };
 
