@@ -26,6 +26,23 @@ const boardCells = await page.locator('.hex-board .hex-board-cell').count();
 check(`public board renders 28 cells (got ${boardCells})`, boardCells === 28);
 await page.screenshot({ path: `${OUT}/public-comp.png`, fullPage: true });
 
+// Clicking a comp on the tier list opens the panel without jumping to the top
+await page.goto(`${BASE}/en/tierlist/comps`);
+await page.waitForSelector('[data-section="tierlist"]', { timeout: 15000 });
+const cluster = page.locator('a[href="/en/tierlist/comps/tristana-sprykin-reroll"]');
+await cluster.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+await page.waitForTimeout(100);
+const beforeY = await page.evaluate(() => window.scrollY);
+check(`pre-click scroll is mid-page (${beforeY})`, beforeY > 100);
+await cluster.click();
+await page.waitForURL(/\/en\/tierlist\/comps\/tristana-sprykin-reroll/, { timeout: 15000 });
+await page.waitForSelector('.hex-board', { timeout: 15000 });
+const afterY = await page.evaluate(() => window.scrollY);
+const boardTop = await page.locator('.hex-board').first().evaluate((el) => el.getBoundingClientRect().top);
+check(`comp click keeps page scrolled (before ${beforeY}, after ${afterY})`, afterY > 0);
+check(`expanded comp panel scrolled into view (board top ${Math.round(boardTop)})`, boardTop >= 0 && boardTop < 700);
+await page.screenshot({ path: `${OUT}/comp-click-scroll.png` });
+
 // Login
 await page.goto(`${BASE}/admin/login`);
 await page.fill('input[type="password"]', PASSWORD);
@@ -33,6 +50,9 @@ await page.click('button[type="submit"]');
 await page.waitForURL(/\/admin$/, { timeout: 15000 });
 await page.waitForSelector('[data-section="admin-sidebar"]', { timeout: 15000 });
 check('admin shell sidebar renders', (await page.locator('[data-section="admin-sidebar"] nav a').count()) === 3);
+// Clear leftovers from an earlier interrupted run so creates don't 409.
+await page.request.delete(`${BASE}/api/admin/comps/board-test`);
+await page.request.delete(`${BASE}/api/admin/guides/e2e-guide`);
 await page.screenshot({ path: `${OUT}/admin-overview.png`, fullPage: true });
 
 // New comp through the board editor
