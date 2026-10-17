@@ -86,8 +86,9 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 - Public pages live under `/<locale>` (`/en/...`, `/vi/...`); bare `/` redirects via `Accept-Language` (middleware), unknown prefixes redirect to `/en`. Admin stays unprefixed and English-only.
 - UI copy: `lib/messages.ts` (`vi` is typed against `en`, a missing key fails the build). Language switcher keeps the current path.
 - Game data: vi names/descriptions come from CommunityDragon `tft/vi_vn.json` + LCU `global/vi_vn/v1/tfttraits.json` → `lib/tft.json` (`nameVi`/`descVi`/`keywordsVi`/`breakpointsVi`), resolved by `lib/tips.ts`. Lookup keys stay English everywhere (`data-tip`, DB rows).
-- Scope cuts this round: guide and legal article bodies stay English; comp DB content (title/playstyle/tips/stages) stays English. Item/augment tier notes are authored in both languages (`lib/data.ts`).
-- Check: `node capture/board-e2e.mjs` covers the vi redirect + vi tier list/page chrome; `capture/tip-shot.mjs` shoots en + vi hover cards.
+- Authored content: guides live in `lib/data.ts` as `guidesByLang` (vi bodies typed against the same `Guide` shape, vi tag labels via `guideTag`); legal bodies in `lib/messages.ts` (`legal.privacy` / `legal.terms`); item/augment tier notes are per-locale on each `TierItem`.
+- Comp game plans: `comps.playstyle_vi`, `comps.tips_vi` and `comp_stages.text_vi` columns, served by `GET /api/comps?lang=vi` / `/api/comps/:slug?lang=vi` (EN fallback per field; stage labels render "Giai đoạn N"). vi text is seed-managed (`server/seed/comps.json` → `playstyleVi` / `tipsVi` / stage `textVi`); the admin editor stays English and a save keeps existing vi text (stages upsert rather than delete+insert).
+- Check: `node capture/board-e2e.mjs` covers the vi redirect + vi tier list/page chrome; `capture/tip-shot.mjs` shoots en + vi hover cards; `capture/vi-shots.mjs` shoots vi comp detail, guides and legal.
 
 ## Known deviations (deliberate)
 
@@ -104,6 +105,7 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 - Wire real YouTube/Spotify embeds on `/media` if desired.
 - Add real social links in `lib/data.ts` (`socials`) and a real favicon if `app/icon.svg` is not wanted.
 - Champion/item imagery is Riot game data (CommunityDragon); confirm it fits your Riot Games third-party policy before public launch.
+- vi comp game plans are seed-managed: edit `server/seed/comps.json` (then `npm run seed`) or add vi inputs to the admin editor; admin saves only touch English.
 
 ## Run
 

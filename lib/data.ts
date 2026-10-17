@@ -1,4 +1,5 @@
 import tft from './tft.json';
+import type { Lang } from './i18n';
 
 export type { Tier } from './tiers';
 export { tierRank } from './tiers';
@@ -220,6 +221,166 @@ export const guides: Guide[] = [
     ],
   },
 ];
+
+export const guidesVi: Guide[] = [
+  {
+    slug: 'economy-first-stage-2',
+    author: 'Vale',
+    authorSlug: 'vale',
+    date: '12/10/2026',
+    title: 'Kinh tế trước tiên: vì sao giai đoạn 2 quyết định giai đoạn 5',
+    excerpt: 'Lãi không phải con số để ngắm, mà là quyết định bạn đưa ra. Khung tư duy thực dụng cho mười vòng đầu.',
+    tags: ['Fundamentals', 'Economy'],
+    featured: true,
+    sections: [
+      {
+        heading: 'Hai đường cong',
+        body: [
+          'Mỗi giai đoạn 2 bạn đi một trong hai đường cong: đường chuỗi thắng hoặc đường lãi. Đường chuỗi đổi vàng lấy Máu và tempo. Đường lãi đổi Máu lấy vàng và độ linh hoạt.',
+          'Cả hai đều đúng. Thứ thua ván đấu là đi lạc giữa hai đường — thắng một vòng, thua vòng sau, và đến 3-1 mà chẳng có vàng chuỗi lẫn lãi.',
+        ],
+        list: [
+          'Chọn đường cong từ 2-1, không phải lúc vòng xoay.',
+          'Chuỗi chỉ đáng giữ nếu bạn giữ được cả 5 vòng.',
+          'Lãi tối đa ở 50 vàng; sau đó, vàng là để tiêu cho đường cong đã định tiêu.',
+        ],
+      },
+      {
+        heading: 'Vàng của giai đoạn 2 thực sự mua được gì',
+        body: [
+          'Vàng tích ở giai đoạn 2 chuyển thành cấp 8 ở 4-2 với hơn 30 vàng để roll. Đó là toàn bộ mục tiêu: đội hình hoàn chỉnh trước những người đánh nhau cả giai đoạn 2 hai vòng.',
+          'Nếu đội hình không đạt 4-2 ở cấp 8 với 30 vàng, giai đoạn 2 của bạn quá đắt. Đếm số vòng bạn lên cấp sớm — mỗi vòng tương đương một lần roll bị đẩy lùi.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'item-slam-decision',
+    author: 'Rook',
+    authorSlug: 'rook',
+    date: '08/10/2026',
+    title: 'Ghép trang bị: quyết định trong 8 giây',
+    excerpt: 'Bạn có tám giây ở vòng xoay và ba món đồ trong túi. Đây là thứ tự xử lý.',
+    tags: ['Items', 'Fundamentals'],
+    sections: [
+      {
+        heading: 'Thứ tự ghép',
+        body: ['Ghép đồ là chuyện lựa chọn thật, không phải món hoàn hảo. Một trang bị linh hoạt đã hoàn chỉnh trên chủ lực luôn thắng một mảnh hoàn hảo nằm dự bị.'],
+        list: ['Trang bị chủ lực ghép được ngay', 'Trang bị đỡ đòn ghép được ngay', 'Mảnh linh hoạt (kiếm, giáp gai)', 'Mảnh cho đội đang bị tranh'],
+      },
+      {
+        heading: 'Thuế xoay bài',
+        body: [
+          'Ghép đồ khóa lại một loại sát thương. Nếu sảnh có 5 người chơi phép và bạn ghép phép ở 2-2, bạn đang trả thuế xoay bài thay người khác.',
+          'Quan sát hai vòng PvP đầu. Nếu ba đội mở bằng Pháp Sư, cú ghép phép của bạn là một món quà. Kiếm hoặc giáp gai trước, phép sau.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'rolling-on-8-flowchart',
+    author: 'Nyx',
+    authorSlug: 'nyx',
+    date: '30/09/2026',
+    title: 'Roll ở 8: lưu đồ thật sự hiệu quả',
+    excerpt: 'Mọi câu trả lời cho "khi nào roll", rút gọn thành ba câu hỏi về Máu, vàng và sảnh đấu.',
+    tags: ['Decision making', 'Mid game'],
+    sections: [
+      {
+        heading: 'Ba câu hỏi',
+        body: ['Trước mọi lần roll, trả lời: Chờ thêm có ổn không? Đội hình cuối của tôi đã rõ chưa? Có ai khác đang mua tướng của tôi không?'],
+        list: [
+          'Ổn định + rõ bài + bị tranh: roll ngay.',
+          'Ổn định + rõ bài + không tranh: chờ thêm một giai đoạn.',
+          'Không ổn định: roll về 20 và ổn định, rồi gây dựng lại.',
+        ],
+      },
+      {
+        heading: 'Vì sao chờ thường sai khi dưới 40 Máu',
+        body: ['Người chơi giữ vàng như giữ Máu — như một cột điểm. Vàng chỉ là điểm khi bạn còn sống. Dưới 40 Máu, roll là nước đi đúng kể cả ở cấp 7 trong thế xấu.'],
+      },
+    ],
+  },
+  {
+    slug: 'frontline-positioning-5-minutes',
+    author: 'Juno',
+    authorSlug: 'juno',
+    date: '22/09/2026',
+    title: 'Xếp tuyến trước trong 5 phút',
+    excerpt: 'Tuyến trước là quyết định giao tranh diễn ra ở phía nào. Đừng đặt nó chính giữa nữa.',
+    tags: ['Positioning'],
+    sections: [
+      {
+        heading: 'Chọn một phía',
+        body: [
+          'Chủ lực nằm ở góc. Tuyến trước soi gương theo nó, dịch vào một ô, để giao tranh bắt đầu theo ý bạn. Tuyến giữa thua chủ lực góc; tuyến góc đổi bài tốt hơn cả hai.',
+        ],
+        list: ['Chủ lực vào góc trước, luôn luôn', 'Tuyến trước dịch một ô về giữa', 'Sát thủ đối diện chủ lực địch', 'Từ 4-3 trở đi, do thám lại mỗi vòng'],
+      },
+      {
+        heading: 'Quyền phủ quyết vòng cuối',
+        body: ['Hai vòng cuối, giao tranh chỉ còn một trận hỗn hợp. Xếp cho đội khắc chế bạn, không phải đội nhiều Máu nhất — đó mới là đội kết thúc ván của bạn.'],
+      },
+    ],
+  },
+  {
+    slug: 'read-a-tier-list',
+    author: 'Vale',
+    authorSlug: 'vale',
+    date: '15/09/2026',
+    title: 'Cách đọc bảng xếp hạng mà không sao chép',
+    excerpt: 'Bảng xếp hạng là bản đồ các đội bị tranh, không phải danh sách mua sắm. Ba cách dùng bảng của chúng tôi cho đúng.',
+    tags: ['Fundamentals', 'Meta'],
+    sections: [
+      {
+        heading: 'Thứ hạng nói về áp lực tranh bài',
+        body: ['Hạng S nghĩa là đội mạnh và sẽ bị tranh. Nếu hai người trong sảnh cùng mở đội S, người giỏi thứ ba đang chơi đội A — với một lần roll thoải mái.'],
+        list: ['Đếm số người tranh trước khi chốt', 'Hạng A không tranh > hạng S bị hai người tranh', 'Hạng X nghĩa là "mạnh khi không bị tranh", không phải "yếu"'],
+      },
+      {
+        heading: 'Mốc kiểm tra, không phải kế hoạch',
+        body: ['Coi mỗi hạng là một mốc: đội hình tôi có giống đội hình mẫu ở giai đoạn này chưa? Nếu chưa, sửa đội hình, đừng đuổi theo thứ hạng.'],
+      },
+    ],
+  },
+  {
+    slug: 'augment-tiers-when-s-tier-loses',
+    author: 'Rook',
+    authorSlug: 'rook',
+    date: '02/09/2026',
+    title: 'Xếp hạng nâng cấp: khi lựa chọn hạng S thua',
+    excerpt: 'Nâng cấp tốt nhất trên lý thuyết là cái đội hình bạn dùng được. Hướng dẫn về khoảng cách đó.',
+    tags: ['Augments'],
+    sections: [
+      {
+        heading: 'Hợp đội hình thắng thứ hạng',
+        body: ['Một nâng cấp kinh tế hạng S trên đội buộc phải thắng giai đoạn 3 là lựa chọn hạng C. Thứ hạng giả định đội hình trung tính; bạn chẳng bao giờ có đội trung tính.'],
+        list: ['Nâng cấp kinh tế cần đội ổn định', 'Nâng cấp giao tranh cần chủ lực để buff', 'Nâng cấp tộc hệ cần tộc online trước 3-2', 'Nâng cấp xoay bài cần dự bị linh hoạt'],
+      },
+      {
+        heading: 'Quy tắc 2 chọn 1',
+        body: ['Nếu hai nâng cấp đều hợp, chọn cái giữ ba vòng tới của bạn đơn giản. Bạn đang mua thời gian, không phải sức mạnh.'],
+      },
+    ],
+  },
+];
+
+export const guidesByLang: Record<Lang, Guide[]> = { en: guides, vi: guidesVi };
+
+// Guide tags stay English keys (they are authored on the guides themselves);
+// only the chip label is localized.
+const guideTags: Record<string, string> = {
+  Fundamentals: 'Kiến thức nền tảng',
+  Economy: 'Kinh tế',
+  Items: 'Trang bị',
+  Positioning: 'Xếp đội hình',
+  Augments: 'Nâng cấp',
+  Meta: 'Meta',
+  'Decision making': 'Ra quyết định',
+  'Mid game': 'Giữa trận',
+};
+
+export const guideTag = (name: string, lang: Lang) => (lang === 'vi' ? guideTags[name] ?? name : name);
 
 export const patch = { version: setInfo.patch, updated: 'via CommunityDragon' };
 

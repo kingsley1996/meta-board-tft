@@ -16,14 +16,16 @@ const bearerOk = (header: string | undefined, expected: string | undefined): boo
   return a.length === b.length && timingSafeEqual(a, b);
 };
 
-app.get('/api/comps', async (_req, res) => {
+const readLang = (value: unknown): 'en' | 'vi' => (value === 'vi' ? 'vi' : 'en');
+
+app.get('/api/comps', async (req, res) => {
   const meta = await getMeta();
-  const comps = await listComps();
+  const comps = await listComps(undefined, readLang(req.query.lang));
   res.json({ patch: { version: meta.patch ?? 'latest', updated: 'via CommunityDragon' }, set: Number(meta.set_number ?? 0), comps });
 });
 
 app.get('/api/comps/:slug', async (req, res) => {
-  const [comp] = await listComps(req.params.slug);
+  const [comp] = await listComps(req.params.slug, readLang(req.query.lang));
   if (!comp) return res.status(404).json({ error: `no comp with slug "${req.params.slug}"` });
   res.json(comp);
 });

@@ -4,7 +4,7 @@ export function Prose({ title, updated, children }: { title: string; updated?: s
   return (
     <article data-section="prose" className="mx-auto flex w-full max-w-[900px] flex-col gap-4 pt-4 pb-8 text-sm leading-relaxed text-mist">
       <h1 className="font-display text-4xl font-bold tracking-tight text-fog">{title}</h1>
-      {updated ? <p className="text-xs font-semibold uppercase tracking-wide">Last updated {updated}</p> : null}
+      {updated ? <p className="text-xs font-semibold uppercase tracking-wide">{updated}</p> : null}
       {children}
     </article>
   );

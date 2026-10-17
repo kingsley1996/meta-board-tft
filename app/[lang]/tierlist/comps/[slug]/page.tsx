@@ -12,8 +12,8 @@ import { messages } from '@/lib/messages';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang; slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const comp = await backendJson<ApiComp>(`/api/comps/${slug}`);
+  const { lang, slug } = await params;
+  const comp = await backendJson<ApiComp>(`/api/comps/${slug}?lang=${lang}`);
   if (!comp) return {};
   return {
     title: comp.title,
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 
 export default async function CompDetailPage({ params }: { params: Promise<{ lang: Lang; slug: string }> }) {
   const { lang, slug } = await params;
-  const comp = await backendJson<ApiComp>(`/api/comps/${slug}`);
+  const comp = await backendJson<ApiComp>(`/api/comps/${slug}?lang=${lang}`);
   if (!comp) notFound();
   const t = messages[lang].comps;
 

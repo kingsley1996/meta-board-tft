@@ -1,4 +1,5 @@
 import type { Tier } from './tiers';
+import type { Lang } from './i18n';
 
 export type ApiUnit = {
   name: string;
@@ -36,8 +37,8 @@ export type CompsResponse = {
   comps: ApiComp[];
 };
 
-export async function fetchComps(): Promise<CompsResponse> {
-  const res = await fetch('/api/comps');
+export async function fetchComps(lang: Lang): Promise<CompsResponse> {
+  const res = await fetch(`/api/comps?lang=${lang}`);
   if (!res.ok) throw new Error(`API responded ${res.status}`);
   return res.json();
 }
