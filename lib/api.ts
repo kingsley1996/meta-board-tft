@@ -19,6 +19,9 @@ export type ApiComp = {
   style: string;
   difficulty: number;
   trend: 'up' | 'down' | null;
+  votes: number;
+  views: number;
+  matchups: { slug: string; kind: 'good' | 'bad'; title: string; tier: string }[];
   playstyle: string;
   units: ApiUnit[];
   traits: { name: string; count: number; thresholds: number[]; styles: number[]; icon: string | null }[];
@@ -54,8 +57,8 @@ export type ApiGuide = {
 
 export type GuidesResponse = { guides: ApiGuide[] };
 
-export async function fetchComps(lang: Lang): Promise<CompsResponse> {
-  const res = await fetch(`/api/comps?lang=${lang}`);
+export async function fetchComps(lang: Lang, sort?: 'popular'): Promise<CompsResponse> {
+  const res = await fetch(`/api/comps?lang=${lang}${sort ? `&sort=${sort}` : ''}`);
   if (!res.ok) throw new Error(`API responded ${res.status}`);
   return res.json();
 }

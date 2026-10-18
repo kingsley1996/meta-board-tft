@@ -14,17 +14,22 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
   return { title: messages[lang].meta.guides.title, description: messages[lang].meta.guides.description };
 }
 
-const tags = ['Fundamentals', 'Economy', 'Items', 'Positioning', 'Augments', 'Meta'];
+// Tag order for the filter chips; unknown tags from the CMS are appended.
+const tagOrder = ['Fundamentals', 'Economy', 'Items', 'Positioning', 'Augments', 'Meta', 'Patch notes'];
 
-export default async function GuidesPage({ params }: { params: Promise<{ lang: Lang }> }) {
+export default async function GuidesPage({ params, searchParams }: { params: Promise<{ lang: Lang }>; searchParams: Promise<{ tag?: string }> }) {
   const { lang } = await params;
+  const { tag } = await searchParams;
   const t = messages[lang].guides;
   const data = await backendJson<GuidesResponse>(`/api/guides?lang=${lang}`);
   if (!data) throw new Error('backend is unreachable');
   const guides = data.guides;
   if (!guides.length) throw new Error('no guides in the store');
-  const featured = guides.find((guide) => guide.featured) ?? guides[0];
-  const rest = guides.filter((guide) => guide.slug !== featured.slug);
+  const tags = [...new Set([...tagOrder.filter((name) => guides.some((guide) => guide.tags.includes(name))), ...guides.flatMap((guide) => guide.tags)])];
+  const active = tag && tags.includes(tag) ? tag : '';
+  const listed = active ? guides.filter((guide) => guide.tags.includes(active)) : guides;
+  const featured = listed.find((guide) => guide.featured) ?? listed[0];
+  const rest = listed.filter((guide) => guide.slug !== featured?.slug);
 
   return (
     <div className="flex flex-col gap-8">
@@ -47,11 +52,20 @@ export default async function GuidesPage({ params }: { params: Promise<{ lang: L
 
       <div data-section="guide-list" className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full border border-brand-hot bg-brand-hot px-4 py-1.5 text-xs font-semibold text-white">{t.all}</span>
+          <Link
+            href={`/${lang}/guides`}
+            className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${active ? 'border-line bg-panel text-mist hover:border-brand-soft' : 'border-brand-hot bg-brand-hot text-white'}`}
+          >
+            {t.all}
+          </Link>
           {tags.map((tag) => (
-            <span key={tag} className="rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist">
+            <Link
+              key={tag}
+              href={`/${lang}/guides?tag=${encodeURIComponent(tag)}`}
+              className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${active === tag ? 'border-brand-hot bg-brand-hot text-white' : 'border-line bg-panel text-mist hover:border-brand-soft'}`}
+            >
               {guideTag(tag, lang)}
-            </span>
+            </Link>
           ))}
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

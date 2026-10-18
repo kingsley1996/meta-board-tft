@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { Tier } from '@/lib/tiers';
 import { HexBoard } from '@/components/hex-board';
-import { tierColor, UnitHex } from '@/components/ui';
+import { MiniItem, UnitHex } from '@/components/ui';
 
 export type BoardUnit = {
   name: string;
@@ -19,20 +19,6 @@ const MAX_ITEMS = 3;
 
 const cellKey = (row: number, col: number) => `${row}:${col}`;
 const sortBoard = (units: BoardUnit[]) => [...units].sort((a, b) => a.row - b.row || a.col - b.col);
-
-function MiniItem({ icon, name, tier, size = 20, dashed = false }: { icon?: string | null; name?: string; tier?: Tier | null; size?: number; dashed?: boolean }) {
-  if (dashed) {
-    return <span className="block shrink-0 rounded-[22%] border border-dashed border-line" style={{ width: size, height: size }} />;
-  }
-  return (
-    <span title={name} className="relative block shrink-0" style={{ width: size, height: size }}>
-      <span className="absolute inset-0 rounded-[22%]" style={{ background: tier ? tierColor[tier] : 'var(--color-line)' }} />
-      <span className="absolute overflow-hidden rounded-[16%] bg-panel" style={{ inset: Math.max(1, Math.round(size * 0.09)) }}>
-        {icon ? <img src={icon} alt="" draggable={false} className="h-full w-full object-cover" /> : null}
-      </span>
-    </span>
-  );
-}
 
 function ItemSlots({
   unit,

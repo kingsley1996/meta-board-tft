@@ -17,6 +17,34 @@ const check = (label, ok) => {
   if (!ok) failures.push(label);
 };
 
+// Turn a served comp back into the admin PUT payload shape.
+const toPayload = (comp, matchups = []) => ({
+  title: comp.title,
+  slug: comp.slug,
+  tier: comp.tier,
+  style: comp.style,
+  difficulty: comp.difficulty,
+  trend: comp.trend ?? null,
+  playstyle: comp.playstyle,
+  units: comp.units.map((unit) => ({
+    name: unit.name,
+    row: unit.row,
+    col: unit.col,
+    stars: unit.stars,
+    items: (unit.items ?? []).map((item) => item.name ?? item),
+  })),
+  early: comp.early.map((unit) => unit.name),
+  carry: comp.carry.name,
+  items: comp.items.map((item) => item.name),
+  augments: comp.augments.map((augment) => augment.name),
+  tips: comp.tips,
+  stages: comp.stages.map((stage) => ({ text: stage.text })),
+  alt: comp.alt.map((unit) => unit.name),
+  playstyleVi: null,
+  tipsVi: null,
+  matchups,
+});
+
 page.on('pageerror', (error) => failures.push(`pageerror: ${error.message}`));
 
 // Public comp page: positioned board with stars + items
@@ -25,6 +53,11 @@ await page.waitForSelector('.hex-board', { timeout: 15000 });
 const boardCells = await page.locator('.hex-board .hex-board-cell').count();
 check(`public board renders 28 cells (got ${boardCells})`, boardCells === 28);
 await page.screenshot({ path: `${OUT}/public-comp.png`, fullPage: true });
+
+// Vote button: one click per browser, disables itself
+const voteBtn = page.locator('button[aria-label="Mark this comp helpful"]');
+await voteBtn.click();
+check('vote button disables after voting', await voteBtn.isDisabled());
 
 // Clicking a comp on the tier list opens the panel without jumping to the top
 await page.goto(`${BASE}/en/tierlist/comps`);
@@ -49,7 +82,7 @@ await page.fill('input[type="password"]', PASSWORD);
 await page.click('button[type="submit"]');
 await page.waitForURL(/\/admin$/, { timeout: 15000 });
 await page.waitForSelector('[data-section="admin-sidebar"]', { timeout: 15000 });
-check('admin shell sidebar renders', (await page.locator('[data-section="admin-sidebar"] nav a').count()) === 3);
+check('admin shell sidebar renders', (await page.locator('[data-section="admin-sidebar"] nav a').count()) === 4);
 // Clear leftovers from an earlier interrupted run so creates don't 409.
 await page.request.delete(`${BASE}/api/admin/comps/board-test`);
 await page.request.delete(`${BASE}/api/admin/guides/e2e-guide`);
@@ -111,6 +144,24 @@ await page.goto(`${BASE}/en/tierlist/comps/board-test`);
 await page.waitForSelector('.hex-board', { timeout: 15000 });
 await page.screenshot({ path: `${OUT}/public-board-test.png`, fullPage: true });
 
+// Counters: attach a matchup through the API, check validation + public panel
+const boardTest = await (await page.request.get(`${BASE}/api/comps/board-test`)).json();
+const putMatchup = await page.request.put(`${BASE}/api/admin/comps/board-test`, {
+  data: toPayload(boardTest, [{ slug: 'ahri-spellweaver', kind: 'good' }]),
+});
+check(`matchup PUT accepted (${putMatchup.status()})`, putMatchup.status() === 200);
+const withMatchup = await (await page.request.get(`${BASE}/api/comps/board-test`)).json();
+check(`matchup resolved (${withMatchup.matchups?.[0]?.slug})`, withMatchup.matchups?.[0]?.slug === 'ahri-spellweaver' && typeof withMatchup.matchups[0].title === 'string');
+const selfMatchup = await page.request.put(`${BASE}/api/admin/comps/board-test`, {
+  data: toPayload(boardTest, [{ slug: 'board-test', kind: 'good' }]),
+});
+check(`self-matchup rejected (${selfMatchup.status()})`, selfMatchup.status() === 400);
+await page.goto(`${BASE}/en/tierlist/comps/board-test`);
+await page.waitForSelector('.hex-board', { timeout: 15000 });
+check('public panel shows matchup section', (await page.getByText('Strong against').count()) > 0);
+check('matchup links to the other comp', (await page.locator('a[href="/en/tierlist/comps/ahri-spellweaver"]').count()) > 0);
+await page.screenshot({ path: `${OUT}/comp-matchups.png`, fullPage: true });
+
 // Guides: list shows seeded guides, then create → article → edit (vi survives) → delete
 await page.goto(`${BASE}/admin/guides`);
 await page.waitForSelector('table', { timeout: 15000 });
@@ -155,6 +206,81 @@ check(`vi title survives english edit (${editedVi.title})`, editedVi.title === '
 const delGuide = await page.request.delete(`${BASE}/api/admin/guides/e2e-guide`);
 check(`guide cleanup delete (${delGuide.status()})`, delGuide.status() === 200);
 check('deleted guide 404', (await page.request.get(`${BASE}/api/guides/e2e-guide`)).status() === 404);
+
+// Database pages: champions index → detail, item + augment filters, tables
+await page.goto(`${BASE}/en/champions`);
+await page.waitForSelector('a[href="/en/champions/da-gromp18-ap"]', { timeout: 15000 });
+check('champions index links to detail', true);
+await page.goto(`${BASE}/en/champions/da-gromp18-ap`);
+await page.waitForSelector('[data-section="champion-comps"]', { timeout: 15000 });
+check('champion detail shows the name', (await page.getByText('Gromp', { exact: true }).count()) > 0);
+check('champion detail shows the ability panel', (await page.getByText('Ability').count()) > 0);
+await page.screenshot({ path: `${OUT}/champion-detail.png`, fullPage: true });
+
+await page.goto(`${BASE}/en/items?q=Infinity`);
+await page.waitForSelector('[data-section="item-grid"]', { timeout: 15000 });
+check('item search narrows the grid', (await page.locator('[data-section="item-grid"] > div').count()) < 10 && (await page.getByText('Infinity Edge').count()) > 0);
+await page.goto(`${BASE}/en/items?type=component`);
+await page.waitForSelector('[data-section="item-grid"]', { timeout: 15000 });
+check('component filter returns a smaller set', (await page.locator('[data-section="item-grid"] > div').count()) < 20);
+
+await page.goto(`${BASE}/en/augments?q=Cybernetic`);
+await page.waitForSelector('[data-section="augment-grid"]', { timeout: 15000 });
+check('augment search works', (await page.getByText('Cybernetic Uplink').count()) > 0);
+
+await page.goto(`${BASE}/en/tables`);
+await page.waitForSelector('table', { timeout: 15000 });
+check('tables render the shop odds', (await page.getByText('Shop odds by level').count()) > 0 && (await page.locator('table').first().locator('tbody tr').count()) === 11);
+await page.screenshot({ path: `${OUT}/tables.png`, fullPage: true });
+
+// Builder share link restores a board
+const payload = Buffer.from(JSON.stringify({ u: [['Ahri', 2, 4, 2, ['Blue Buff']]], c: 'Ahri' })).toString('base64url');
+await page.goto(`${BASE}/en/builder?b=${payload}`);
+await page.waitForSelector('.hex-board', { timeout: 15000 });
+check('builder share link restores the board', (await page.getByText('1/12 units').count()) === 1);
+
+// Tier maker: click a champion, click the S row
+await page.goto(`${BASE}/en/tier-maker`);
+await page.waitForSelector('[data-section="maker-pool"]', { timeout: 15000 });
+await page.locator('[data-section="maker-pool"] button[title="Ahri"]').click();
+await page.locator('[data-section="maker-tiers"] > div:first-child > div:nth-child(2)').click();
+check('tier maker ranks a champion into S', (await page.locator('button[title="Ahri — click to unrank"]').count()) === 1);
+await page.screenshot({ path: `${OUT}/tier-maker.png`, fullPage: true });
+
+// Quiz: pick a unit, get scored comps
+await page.goto(`${BASE}/en/quiz`);
+await page.waitForSelector('button:has-text("Ahri")', { timeout: 15000 });
+await page.locator('button:has-text("Ahri")').first().click();
+await page.getByRole('button', { name: 'Find comps' }).click();
+check('quiz returns a scored comp', (await page.locator('a[href="/en/tierlist/comps/ahri-spellweaver"]').count()) > 0);
+await page.screenshot({ path: `${OUT}/quiz.png`, fullPage: true });
+
+// Newsletter: validation, signup, admin list, cleanup
+check('invalid email rejected', (await page.request.post(`${BASE}/api/subscribe`, { data: { email: 'nope', lang: 'en' } })).status() === 400);
+check('valid email accepted', (await page.request.post(`${BASE}/api/subscribe`, { data: { email: 'e2e-sub@test.dev', lang: 'vi' } })).ok());
+await page.goto(`${BASE}/admin/subscribers`);
+await page.waitForSelector('table', { timeout: 15000 });
+check('admin subscribers list shows the signup', (await page.getByText('e2e-sub@test.dev').count()) > 0);
+await page.screenshot({ path: `${OUT}/admin-subscribers.png`, fullPage: true });
+check('subscriber cleanup delete', (await page.request.delete(`${BASE}/api/admin/subscribers/e2e-sub%40test.dev`)).status() === 204);
+
+// Admin comps table shows the community counters
+await page.goto(`${BASE}/admin/comps`);
+await page.waitForSelector('table', { timeout: 15000 });
+check('admin comps table has Votes + Views', (await page.getByText('Votes', { exact: true }).count()) > 0 && (await page.getByText('Views', { exact: true }).count()) > 0);
+
+// Guides tag filter
+await page.goto(`${BASE}/en/guides?tag=Economy`);
+await page.waitForSelector('[data-section="guide-hero"]', { timeout: 15000 });
+check('guide tag filter keeps matching guide', (await page.getByText('Economy first').count()) > 0);
+
+// SEO + PWA plumbing
+const sitemap = await (await page.request.get(`${BASE}/sitemap.xml`)).text();
+check('sitemap lists comps and champions', sitemap.includes('/en/tierlist/comps/ahri-spellweaver') && sitemap.includes('champions/da-gromp18-ap'));
+check('robots disallows /admin', (await (await page.request.get(`${BASE}/robots.txt`)).text()).includes('Disallow: /admin'));
+const manifest = await page.request.get(`${BASE}/manifest.webmanifest`);
+check('manifest is served', manifest.ok() && (await manifest.json()).name.includes('MetaBoard'));
+check('service worker is served', (await (await page.request.get(`${BASE}/sw.js`)).text()).includes('skipWaiting'));
 
 // i18n: root picks Vietnamese from Accept-Language; vi pages render localized chrome.
 const viContext = await browser.newContext({ locale: 'vi-VN', extraHTTPHeaders: { 'Accept-Language': 'vi-VN,vi;q=0.9' } });

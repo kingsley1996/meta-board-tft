@@ -52,6 +52,40 @@ export function iconFor(name: string): string | null {
   return iconByName[name] ?? null;
 }
 
+// Champion pages address champions by their stable tft.json slug.
+export const championSlugToName: Record<string, string> = Object.fromEntries(tft.champions.map((champion) => [champion.slug, champion.name]));
+export const championNameToSlug: Record<string, string> = Object.fromEntries(tft.champions.map((champion) => [champion.name, champion.slug]));
+
+export type ChampionDetail = {
+  name: string;
+  displayName: string;
+  cost: number;
+  icon: string | null;
+  traits: { key: string; name: string; icon: string | null }[];
+  mana: { start: number; max: number } | null;
+  ability: { name: string; desc: string; keywords: string[] } | null;
+};
+
+export function championDetail(name: string, lang: Lang): ChampionDetail | null {
+  const champion = championByName.get(name);
+  if (!champion) return null;
+  return {
+    name,
+    displayName: unitName(name, lang),
+    cost: champion.cost,
+    icon: champion.icon,
+    traits: champion.traits.map((trait) => ({ key: trait, name: traitName(trait, lang), icon: traitByName.get(trait)?.icon ?? null })),
+    mana: champion.mana,
+    ability: champion.ability
+      ? {
+          name: pick(lang, champion.ability.name, champion.ability.nameVi),
+          desc: pick(lang, champion.ability.desc, champion.ability.descVi),
+          keywords: pick(lang, champion.ability.keywords ?? [], champion.ability.keywordsVi ?? []),
+        }
+      : null,
+  };
+}
+
 export type TipData =
   | { kind: 'champion'; name: string; cost: number; traits: { key: string; name: string; icon: string | null }[]; ability: { name: string; desc: string; keywords: string[]; icon: string | null } | null; mana: { start: number; max: number } | null }
   | { kind: 'item'; name: string; desc: string; composition: NamedIcon[] }

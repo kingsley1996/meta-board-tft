@@ -1,10 +1,11 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import '../globals.css';
 import { Nav } from '@/components/nav';
 import { Footer } from '@/components/footer';
 import { HoverCardLayer } from '@/components/hover-card';
+import { PwaRegister } from '@/components/pwa-register';
 import { isLang, locales } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
@@ -14,6 +15,8 @@ const display = Space_Grotesk({ subsets: ['latin', 'vietnamese'], weight: ['500'
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
+
+export const viewport: Viewport = { themeColor: '#0b0e14' };
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
@@ -37,6 +40,7 @@ export default async function LangLayout({ children, params }: { children: React
           <Footer lang={lang} />
         </div>
         <HoverCardLayer lang={lang} />
+        <PwaRegister />
       </body>
     </html>
   );

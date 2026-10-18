@@ -101,6 +101,22 @@ export function ItemTile({ name, icon, tier, size = 44 }: { name: string; icon?:
   );
 }
 
+// Small item icon with a tier-coloured ring, shared by the admin board editor
+// and the public team builder.
+export function MiniItem({ icon, name, tier, size = 20, dashed = false }: { icon?: string | null; name?: string; tier?: Tier | null; size?: number; dashed?: boolean }) {
+  if (dashed) {
+    return <span className="block shrink-0 rounded-[22%] border border-dashed border-line" style={{ width: size, height: size }} />;
+  }
+  return (
+    <span title={name} className="relative block shrink-0" style={{ width: size, height: size }}>
+      <span className="absolute inset-0 rounded-[22%]" style={{ background: tier ? tierColor[tier] : 'var(--color-line)' }} />
+      <span className="absolute overflow-hidden rounded-[16%] bg-panel" style={{ inset: Math.max(1, Math.round(size * 0.09)) }}>
+        {icon ? <img src={icon} alt="" draggable={false} className="h-full w-full object-cover" /> : null}
+      </span>
+    </span>
+  );
+}
+
 export function AugmentTile({ name, icon, size = 44 }: { name: string; icon?: string | null; size?: number }) {
   return (
     <span data-tip={`augment:${name}`} className="relative block shrink-0 overflow-hidden rounded-[18%] bg-util" style={{ width: size, height: size }}>

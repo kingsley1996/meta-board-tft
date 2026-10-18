@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { tierColor } from '@/components/ui';
 import { BoardEditor, type BoardUnit, type ChampionOption, type ItemOption } from './board-editor';
 
 const inputCls =
@@ -123,6 +124,7 @@ export type CompFormComp = {
   tips: string;
   stages: { stage: string; text: string }[];
   alt: string[];
+  matchups: { slug: string; kind: 'good' | 'bad' }[];
   playstyleVi?: string;
   tipsVi?: string;
   stagesVi?: string[];
@@ -178,6 +180,16 @@ export function CompForm({
   const [slugTouched, setSlugTouched] = useState(Boolean(comp));
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [compOptions, setCompOptions] = useState<{ slug: string; title: string; tier: string }[]>([]);
+  const [matchSlug, setMatchSlug] = useState('');
+  const [matchKind, setMatchKind] = useState<'good' | 'bad'>('good');
+
+  useEffect(() => {
+    fetch('/api/comps')
+      .then((res) => res.json())
+      .then((body) => setCompOptions((body.comps ?? []).map((entry: { slug: string; title: string; tier: string }) => ({ slug: entry.slug, title: entry.title, tier: entry.tier }))))
+      .catch(() => {});
+  }, []);
   // tft.json lists rarity/set variants with the same display name — dedupe.
   const augmentOptions = [...new Set(augmentNames)].map((name) => ({ name }));
   const [form, setForm] = useState({
@@ -194,6 +206,7 @@ export function CompForm({
     items: comp?.items ?? [],
     augments: comp?.augments ?? [],
     alt: comp?.alt ?? [],
+    matchups: comp?.matchups ?? [],
     tips: comp?.tips ?? '',
     stage2: comp?.stages?.[0]?.text ?? '',
     stage3: comp?.stages?.[1]?.text ?? '',
@@ -246,6 +259,7 @@ export function CompForm({
       items: form.items,
       augments: form.augments,
       alt: form.alt,
+      matchups: form.matchups,
       tips: form.tips,
       stages: [
         { text: form.stage2, textVi: form.stage2Vi },
@@ -367,6 +381,71 @@ export function CompForm({
           onChange={(values) => setForm((current) => ({ ...current, augments: values }))}
           placeholder="Type to search augments…"
         />
+      </div>
+
+      <div className="grid gap-4 rounded-xl border border-line bg-panel p-5">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-semibold text-mist">Matchups (optional)</p>
+          <p className="text-xs text-mist">Strong = this comp beats them, weak = they beat this comp. Up to 6; shown on the public comp panel.</p>
+        </div>
+        <div className="flex flex-wrap items-end gap-3">
+          <Field label="Comp">
+            <select className={inputCls} value={matchSlug} onChange={(event) => setMatchSlug(event.target.value)}>
+              <option value="">— pick a comp —</option>
+              {compOptions
+                .filter((option) => option.slug !== form.slug && !form.matchups.some((entry) => entry.slug === option.slug))
+                .map((option) => (
+                  <option key={option.slug} value={option.slug}>
+                    {option.title} ({option.tier})
+                  </option>
+                ))}
+            </select>
+          </Field>
+          <Field label="Kind">
+            <select className={inputCls} value={matchKind} onChange={(event) => setMatchKind(event.target.value as 'good' | 'bad')}>
+              <option value="good">Strong against ▲</option>
+              <option value="bad">Weak against ▼</option>
+            </select>
+          </Field>
+          <button
+            type="button"
+            onClick={() => {
+              if (!matchSlug) return;
+              setForm((current) => ({
+                ...current,
+                matchups: [...current.matchups.filter((entry) => entry.slug !== matchSlug), { slug: matchSlug, kind: matchKind }].slice(0, 6),
+              }));
+              setMatchSlug('');
+            }}
+            className="smooth h-9 rounded-lg border border-line bg-page px-4 text-sm font-semibold text-fog hover:border-brand-soft"
+          >
+            Add
+          </button>
+        </div>
+        {form.matchups.length ? (
+          <div className="flex flex-wrap gap-1.5">
+            {form.matchups.map((entry) => {
+              const option = compOptions.find((candidate) => candidate.slug === entry.slug);
+              return (
+                <span
+                  key={entry.slug}
+                  className="flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-semibold text-fog"
+                  style={{ borderColor: entry.kind === 'good' ? tierColor.C : tierColor.S }}
+                >
+                  {entry.kind === 'good' ? '▲' : '▼'} {option?.title ?? entry.slug}
+                  <button
+                    type="button"
+                    aria-label={`Remove ${entry.slug}`}
+                    onClick={() => setForm((current) => ({ ...current, matchups: current.matchups.filter((candidate) => candidate.slug !== entry.slug) }))}
+                    className="smooth text-mist hover:text-tier-s"
+                  >
+                    ✕
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
 
       <div className="grid gap-4 rounded-xl border border-line bg-panel p-5">

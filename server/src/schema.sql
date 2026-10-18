@@ -58,6 +58,21 @@ DO $$ BEGIN
   ALTER TABLE comps ADD CONSTRAINT comps_trend_values CHECK (trend IN ('up', 'down'));
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
+-- Community signals: helpful votes (one per visitor) and anonymous view counts.
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS votes int NOT NULL DEFAULT 0;
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS views int NOT NULL DEFAULT 0;
+
+-- Counters: [{ slug, kind: 'good' | 'bad' }] — comps this one beats / loses to.
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS matchups jsonb NOT NULL DEFAULT '[]';
+
+-- Newsletter signups from the public footer. Sending is manual for now
+-- (export the list from /admin/subscribers).
+CREATE TABLE IF NOT EXISTS subscribers (
+  email text PRIMARY KEY,
+  lang text NOT NULL DEFAULT 'en',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS comp_units (
   comp_slug text NOT NULL REFERENCES comps (slug) ON DELETE CASCADE,
   role text NOT NULL CHECK (role IN ('board', 'early', 'alt')),
