@@ -29,18 +29,21 @@ export type CompInput = {
   tipsVi: string | null;
   stages: { stage: string; text: string; textVi: string | null }[];
   alt: string[];
+  matchups: { slug: string; kind: string }[];
 };
 
 async function nameSets() {
-  const [champions, items, augments] = await Promise.all([
+  const [champions, items, augments, comps] = await Promise.all([
     pool.query('SELECT name FROM champions'),
     pool.query('SELECT name FROM items'),
     pool.query('SELECT name FROM augments'),
+    pool.query('SELECT slug FROM comps'),
   ]);
   return {
     champions: new Set<string>(champions.rows.map((row) => row.name)),
     items: new Set<string>(items.rows.map((row) => row.name)),
     augments: new Set<string>(augments.rows.map((row) => row.name)),
+    comps: new Set<string>(comps.rows.map((row) => row.slug)),
   };
 }
 
@@ -129,6 +132,20 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
 
   const alt = list(raw.alt);
 
+  // Counters: [{ slug, kind: 'good' | 'bad' }], up to 6, other comps only.
+  const matchupEntries = Array.isArray(raw.matchups) ? raw.matchups : [];
+  if (matchupEntries.length > 6) return fail('at most 6 matchups');
+  const matchups = matchupEntries.map((entry) => {
+    const record = (entry ?? {}) as Record<string, unknown>;
+    return { slug: str(record.slug).toLowerCase(), kind: str(record.kind) };
+  });
+  for (const entry of matchups) {
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(entry.slug)) return fail(`invalid matchup slug: ${entry.slug || '(empty)'}`);
+    if (!['good', 'bad'].includes(entry.kind)) return fail('matchup kind must be good or bad');
+    if (entry.slug === slug) return fail('a comp cannot counter itself');
+  }
+  if (new Set(matchups.map((entry) => entry.slug)).size !== matchups.length) return fail('duplicate comps in matchups');
+
   // Tips and stage texts are optional.
   const tips = str(raw.tips);
   const tipsVi = str(raw.tipsVi) || null;
@@ -155,6 +172,8 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
   if (unknownUnitItem) return fail(`unknown item on ${unknownUnitItem[0]}: ${unknownUnitItem[1]}`);
   const unknownAugment = augments.find((name) => !known.augments.has(name));
   if (unknownAugment) return fail(`unknown augment: ${unknownAugment}`);
+  const unknownMatchup = matchups.find((entry) => !known.comps.has(entry.slug));
+  if (unknownMatchup) return fail(`unknown comp in matchups: ${unknownMatchup.slug}`);
 
   return {
     comp: {
@@ -175,6 +194,7 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
       tipsVi,
       stages,
       alt,
+      matchups,
     },
   };
 }
@@ -184,13 +204,13 @@ export async function writeComp(comp: CompInput): Promise<void> {
   try {
     await client.query('BEGIN');
     await client.query(
-      `INSERT INTO comps (slug, title, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, tips, tips_vi)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      `INSERT INTO comps (slug, title, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, tips, tips_vi, matchups)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, tier = EXCLUDED.tier, style = EXCLUDED.style,
          difficulty = EXCLUDED.difficulty, trend = EXCLUDED.trend, playstyle = EXCLUDED.playstyle,
-         carry = EXCLUDED.carry, tips = EXCLUDED.tips, updated_at = now()`,
-      [comp.slug, comp.title, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.tips, comp.tipsVi]
+         carry = EXCLUDED.carry, tips = EXCLUDED.tips, matchups = EXCLUDED.matchups, updated_at = now()`,
+      [comp.slug, comp.title, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.tips, comp.tipsVi, JSON.stringify(comp.matchups)]
     );
     for (const table of ['comp_units', 'comp_items', 'comp_augments']) {
       await client.query(`DELETE FROM ${table} WHERE comp_slug = $1`, [comp.slug]);
@@ -236,6 +256,12 @@ export async function writeComp(comp: CompInput): Promise<void> {
   }
 }
 
+// Community counters. Returns the new value, or null when the slug is unknown.
+export async function bumpComp(slug: string, field: 'votes' | 'views'): Promise<number | null> {
+  const { rows } = await pool.query(`UPDATE comps SET ${field} = ${field} + 1 WHERE slug = $1 RETURNING ${field}`, [slug]);
+  return rows.length ? (rows[0][field] as number) : null;
+}
+
 export async function compExists(slug: string): Promise<boolean> {
   const { rowCount } = await pool.query('SELECT 1 FROM comps WHERE slug = $1', [slug]);
   return (rowCount ?? 0) > 0;
@@ -246,10 +272,11 @@ export async function deleteComp(slug: string): Promise<boolean> {
   return (rowCount ?? 0) > 0;
 }
 
-export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en'): Promise<any[]> {
+export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en', sort?: string): Promise<any[]> {
   const vi = lang === 'vi';
+  const order = !slug && sort === 'popular' ? 'ORDER BY votes DESC, created_at, slug' : 'ORDER BY created_at, slug';
   const comps = await pool.query(
-    slug ? 'SELECT * FROM comps WHERE slug = $1' : 'SELECT * FROM comps ORDER BY created_at, slug',
+    slug ? 'SELECT * FROM comps WHERE slug = $1' : `SELECT * FROM comps ${order}`,
     slug ? [slug] : []
   );
   if (!comps.rows.length) return [];
@@ -274,6 +301,15 @@ export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en'): Promis
   );
   const itemIconByName = new Map<string, string | null>(itemIcons.rows.map((row) => [row.name, row.icon]));
   const augmentIconByName = new Map<string, string | null>(augmentIcons.rows.map((row) => [row.name, row.icon]));
+
+  // Resolve matchup slugs to titles/tiers; entries pointing at deleted comps are dropped.
+  const referenced = new Set<string>();
+  for (const row of comps.rows) for (const entry of row.matchups ?? []) referenced.add(entry.slug);
+  const matchupInfo = new Map<string, { title: string; tier: string }>(
+    referenced.size
+      ? (await pool.query('SELECT slug, title, tier FROM comps WHERE slug = ANY($1)', [[...referenced]])).rows.map((row) => [row.slug, { title: row.title, tier: row.tier }])
+      : []
+  );
 
   const group = (rows: any[], key: string) => {
     const map = new Map<string, any[]>();
@@ -327,6 +363,8 @@ export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en'): Promis
       style: row.style,
       difficulty: row.difficulty,
       trend: row.trend ?? null,
+      votes: row.votes ?? 0,
+      views: row.views ?? 0,
       playstyle: vi && row.playstyle_vi ? row.playstyle_vi : row.playstyle,
       units: role('board'),
       traits: compTraits(compUnits.filter((entry) => entry.role === 'board').map((entry) => entry.name)),
@@ -340,6 +378,10 @@ export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en'): Promis
         text: vi && entry.text_vi ? entry.text_vi : entry.text,
       })),
       alt: role('alt'),
+      matchups: (row.matchups ?? []).flatMap((entry: { slug: string; kind: string }) => {
+        const info = matchupInfo.get(entry.slug);
+        return info ? [{ slug: entry.slug, kind: entry.kind, title: info.title, tier: info.tier }] : [];
+      }),
     };
   });
 }

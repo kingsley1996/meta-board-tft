@@ -36,6 +36,31 @@ export function GuideDeleteButton({ slug, title }: { slug: string; title: string
   return <DeleteButton kind="guides" slug={slug} title={title} />;
 }
 
+export function SubscriberDeleteButton({ email }: { email: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function remove() {
+    if (!window.confirm(`Remove ${email}?`)) return;
+    setBusy(true);
+    const res = await fetch(`/api/admin/subscribers/${encodeURIComponent(email)}`, { method: 'DELETE' });
+    setBusy(false);
+    if (res.ok) router.refresh();
+    else window.alert('Delete failed — check the console for details.');
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={remove}
+      disabled={busy}
+      className="smooth rounded-full border border-line px-3 py-1 text-xs font-semibold text-tier-s hover:border-tier-s disabled:opacity-50"
+    >
+      {busy ? 'Removing…' : 'Remove'}
+    </button>
+  );
+}
+
 export function AdminLogout() {
   const router = useRouter();
   return (

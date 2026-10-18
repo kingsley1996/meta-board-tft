@@ -15,11 +15,27 @@ export function Nav({ lang }: { lang: Lang }) {
         { label: t.augmentRankings, href: `/${lang}/tierlist/augments` },
       ],
     },
+    {
+      label: t.database,
+      items: [
+        { label: t.champions, href: `/${lang}/champions` },
+        { label: t.items, href: `/${lang}/items` },
+        { label: t.augments, href: `/${lang}/augments` },
+        { label: t.tables, href: `/${lang}/tables` },
+      ],
+    },
+    {
+      label: t.tools,
+      items: [
+        { label: t.builder, href: `/${lang}/builder` },
+        { label: t.tierMaker, href: `/${lang}/tier-maker` },
+        { label: t.quiz, href: `/${lang}/quiz` },
+      ],
+    },
   ];
   const links = [
     { label: t.guides, href: `/${lang}/guides` },
     { label: t.media, href: `/${lang}/media` },
-    { label: t.champions, href: `/${lang}/learn/champions` },
   ];
 
   return (

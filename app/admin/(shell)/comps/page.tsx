@@ -27,7 +27,7 @@ export default async function AdminCompsPage() {
         </Link>
       </AdminPageHeader>
 
-      <AdminTable head={['Tier', 'Comp', 'Style', 'Carry', 'Units', 'Playstyle', '']}>
+      <AdminTable head={['Tier', 'Comp', 'Style', 'Carry', 'Units', 'Votes', 'Views', 'Playstyle', '']}>
         {comps.map((comp) => (
           <tr key={comp.slug}>
             <td>
@@ -42,6 +42,8 @@ export default async function AdminCompsPage() {
             <td className="text-mist">{comp.style}</td>
             <td className="text-mist">{comp.carry.name}</td>
             <td className="text-mist">{comp.units.length}</td>
+            <td className="text-mist">{comp.votes}</td>
+            <td className="text-mist">{comp.views}</td>
             <td>
               <Chip>{comp.playstyle}</Chip>
             </td>

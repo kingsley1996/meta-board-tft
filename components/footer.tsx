@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SubscribeForm } from '@/components/subscribe-form';
 import { socials } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
@@ -7,6 +8,10 @@ export function Footer({ lang }: { lang: Lang }) {
   const t = messages[lang].footer;
   return (
     <footer data-section="footer" className="mt-auto flex w-full flex-col items-center gap-3 px-6 pt-10 pb-6 text-center">
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.subscribe.title}</p>
+        <SubscribeForm lang={lang} />
+      </div>
       <div className="flex items-center gap-4 text-sm font-semibold">
         {socials.map((social) => (
           <a key={social.label} href={social.href} className="smooth text-mist hover:text-brand-soft">{social.label}</a>

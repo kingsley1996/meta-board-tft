@@ -3,7 +3,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { pool, getMeta } from './db.ts';
 import { ADMIN_COOKIE, adminToken, cookieValue, tokensMatch } from './auth.ts';
 import { syncTft } from './tft.ts';
-import { compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
+import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
 import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
 
 const app = express();
@@ -21,7 +21,8 @@ const readLang = (value: unknown): 'en' | 'vi' => (value === 'vi' ? 'vi' : 'en')
 
 app.get('/api/comps', async (req, res) => {
   const meta = await getMeta();
-  const comps = await listComps(undefined, readLang(req.query.lang));
+  const sort = req.query.sort === 'popular' ? 'popular' : undefined;
+  const comps = await listComps(undefined, readLang(req.query.lang), sort);
   res.json({ patch: { version: meta.patch ?? 'latest', updated: 'via CommunityDragon' }, set: Number(meta.set_number ?? 0), comps });
 });
 
@@ -30,6 +31,35 @@ app.get('/api/comps/:slug', async (req, res) => {
   if (!comp) return res.status(404).json({ error: `no comp with slug "${req.params.slug}"` });
   res.json(comp);
 });
+
+// One bump per visitor per comp, tracked in memory. ponytail: resets with the
+// process and does not survive multiple instances — add a table if it matters.
+const bumped = new Set<string>();
+
+function bumpOnce(kind: 'vote' | 'view', req: express.Request, res: express.Response) {
+  const slug = req.params.slug;
+  const key = `${kind}:${req.ip}:${slug}`;
+  const field = kind === 'vote' ? 'votes' : 'views';
+  if (bumped.has(key)) return res.json({ counted: false });
+  return bumpComp(slug, field as 'votes' | 'views').then((value) => {
+    if (value === null) return res.status(404).json({ error: `no comp with slug "${slug}"` });
+    bumped.add(key);
+    res.json({ counted: true, [field]: value });
+  });
+}
+
+app.post('/api/comps/:slug/vote', (req, res) => bumpOnce('vote', req, res));
+app.post('/api/comps/:slug/view', (req, res) => bumpOnce('view', req, res));
+
+app.post('/api/subscribe', async (req, res) => {
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const lang = req.body?.lang === 'vi' ? 'vi' : 'en';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return res.status(400).json({ error: 'invalid email' });
+  await pool.query('INSERT INTO subscribers (email, lang) VALUES ($1, $2) ON CONFLICT (email) DO NOTHING', [email, lang]);
+  res.json({ ok: true });
+});
+
+
 
 app.get('/api/guides', async (req, res) => {
   res.json({ guides: await listGuides(readLang(req.query.lang)) });
@@ -144,6 +174,17 @@ app.delete('/api/admin/guides/:slug', async (req, res) => {
     return res.status(404).json({ error: `no guide with slug "${req.params.slug}"` });
   }
   res.json({ ok: true });
+});
+
+app.get('/api/admin/subscribers', async (_req, res) => {
+  const { rows } = await pool.query('SELECT email, lang, created_at FROM subscribers ORDER BY created_at DESC');
+  res.json({ subscribers: rows });
+});
+
+app.delete('/api/admin/subscribers/:email', async (req, res) => {
+  const { rowCount } = await pool.query('DELETE FROM subscribers WHERE email = $1', [req.params.email]);
+  if (!rowCount) return res.status(404).json({ error: 'no such subscriber' });
+  res.status(204).end();
 });
 
 app.use('/api', (_req, res) => res.status(404).json({ error: 'not found' }));

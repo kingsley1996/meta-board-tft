@@ -76,6 +76,8 @@ const guideTags: Record<string, string> = {
   Positioning: 'Xếp đội hình',
   Augments: 'Nâng cấp',
   Meta: 'Meta',
+  'Patch notes': 'Cập nhật patch',
+  'Meta read': 'Đọc meta',
   'Decision making': 'Ra quyết định',
   'Mid game': 'Giữa trận',
 };

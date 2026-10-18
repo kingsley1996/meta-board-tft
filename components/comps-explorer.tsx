@@ -12,14 +12,19 @@ import { CompPanel } from './comp-panel';
 // Tier list ⇄ comp detail are separate routes rendering the same explorer;
 // caching the payload keeps the list on screen during the client-side hop
 // (no loading collapse, no scroll clamp). Refetched on every mount.
-const cache: Partial<Record<Lang, CompsResponse>> = {};
+const cache: Record<string, CompsResponse> = {};
+
+// Views are counted once per browser session per comp.
+const viewed = new Set<string>();
 
 // useLayoutEffect while hydrating in the browser, useEffect during SSR.
 const useScrollEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lang }) {
   const t = messages[lang].explorer;
-  const [data, setData] = useState<CompsResponse | null>(() => cache[lang] ?? null);
+  const [sort, setSort] = useState<'default' | 'popular'>('default');
+  const cacheKey = `${lang}:${sort}`;
+  const [data, setData] = useState<CompsResponse | null>(() => cache[cacheKey] ?? null);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState('');
@@ -29,9 +34,9 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
   useEffect(() => {
     let live = true;
     setError('');
-    fetchComps(lang)
+    fetchComps(lang, sort === 'popular' ? 'popular' : undefined)
       .then((payload) => {
-        cache[lang] = payload;
+        cache[cacheKey] = payload;
         if (live) setData(payload);
       })
       .catch((reason) => {
@@ -40,11 +45,17 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
     return () => {
       live = false;
     };
-  }, [attempt, lang]);
+  }, [attempt, lang, sort, cacheKey]);
 
   // Bring the expanded comp panel into view (and skip Next's scroll-to-top).
   useScrollEffect(() => {
     if (openSlug && data) panelRef.current?.scrollIntoView({ block: 'start' });
+  }, [openSlug, data]);
+
+  useEffect(() => {
+    if (!openSlug || !data || viewed.has(openSlug)) return;
+    viewed.add(openSlug);
+    fetch(`/api/comps/${openSlug}/view`, { method: 'POST' }).catch(() => {});
   }, [openSlug, data]);
 
   const comps = data?.comps ?? [];
@@ -75,6 +86,15 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
             {styles.map((option) => (
               <option key={option} value={option}>{option === 'All' ? t.style : option}</option>
             ))}
+          </select>
+          <select
+            value={sort}
+            onChange={(event) => setSort(event.target.value as 'default' | 'popular')}
+            aria-label={t.sort}
+            className="smooth h-9 rounded-lg border border-line bg-panel px-3 text-sm font-semibold text-fog focus:border-brand-soft focus:outline-none"
+          >
+            <option value="default">{t.sortDefault}</option>
+            <option value="popular">{t.sortPopular}</option>
           </select>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Fragment } from 'react';
 import type { ApiComp, ApiUnit } from '@/lib/api';
 import { itemTierByName, units } from '@/lib/data';
@@ -5,6 +6,7 @@ import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { traitStyleColors } from '@/lib/tips';
 import { HexBoard } from './hex-board';
+import { VoteButton } from './vote-button';
 import { AugmentTile, Chip, CostDots, ItemTile, Panel, UnitHex } from './ui';
 
 // Fallback hexes (row-major index) for comps saved before the board editor existed.
@@ -92,16 +94,45 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
           <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-fog">{comp.title}</h3>
           <p className="text-xs font-semibold uppercase tracking-wide text-brand-soft">{comp.playstyle}</p>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           <Chip>{comp.style}</Chip>
           <Chip>{t.difficulty} <CostDots cost={comp.difficulty} /></Chip>
           <Chip>{comp.units.length} {t.units}</Chip>
+          <VoteButton slug={comp.slug} votes={comp.votes} lang={lang} />
+          <Chip>{comp.views} {t.views}</Chip>
         </div>
         {comp.traits?.length ? (
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.activeTraits}</p>
             <div className="flex flex-wrap gap-1.5">
               {comp.traits.map((trait) => <TraitChip key={trait.name} trait={trait} />)}
+            </div>
+          </div>
+        ) : null}
+        {comp.matchups?.length ? (
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.matchups}</p>
+            <div className="flex flex-col gap-1.5">
+              {(['good', 'bad'] as const).map((kind) => {
+                const entries = comp.matchups.filter((entry) => entry.kind === kind);
+                if (!entries.length) return null;
+                return (
+                  <div key={kind} className="flex flex-wrap items-center gap-1.5">
+                    <span className={`text-xs font-bold ${kind === 'good' ? 'text-tier-c' : 'text-tier-s'}`}>
+                      {kind === 'good' ? t.matchupGood : t.matchupBad}
+                    </span>
+                    {entries.map((entry) => (
+                      <Link
+                        key={entry.slug}
+                        href={`/${lang}/tierlist/comps/${entry.slug}`}
+                        className="smooth rounded-md border border-line bg-util px-2 py-0.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+                      >
+                        {entry.title}
+                      </Link>
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
         ) : null}
