@@ -82,7 +82,7 @@ export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = fals
         </div>
       </div>
       {stars ? (
-        <span className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 text-[max(10px,calc(var(--hex-w,56px)*0.2))] leading-none tracking-tight text-tier-b drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+        <span className="pointer-events-none absolute -top-2 left-1/2 z-30 -translate-x-1/2 rounded-[5px] border border-black/30 bg-[#f5c542] px-1.5 py-[1px] text-[max(9px,calc(var(--hex-w,56px)*0.18))] leading-none tracking-[0.08em] text-[#201a0a] shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
           {'★'.repeat(Math.min(stars, 3))}
         </span>
       ) : null}
@@ -101,6 +101,28 @@ export function ItemTile({ name, icon, tier, size = 44 }: { name: string; icon?:
   );
 }
 
+export function ItemRanking({ items, size = 36, showTier = true }: { items: { name: string; icon?: string | null; tier?: Tier | null; note?: string }[]; size?: number; showTier?: boolean }) {
+  return (
+    <ol className="flex flex-col gap-1.5">
+      {items.map((item, index) => (
+        <li key={item.name} className="flex items-center gap-3 rounded-lg border border-line bg-ink/40 px-3 py-2">
+          <span className="w-5 shrink-0 text-center font-display text-sm font-bold text-mist">{index + 1}</span>
+          <ItemTile name={item.name} icon={item.icon} tier={item.tier} size={size} />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold text-fog">{item.name}</span>
+            {item.note ? <span className="block truncate text-[11px] text-mist">{item.note}</span> : null}
+          </span>
+          {showTier && item.tier ? (
+            <span className="shrink-0 rounded border px-1.5 py-0.5 font-display text-xs font-bold" style={{ borderColor: tierColor[item.tier], color: tierColor[item.tier] }}>
+              {item.tier}
+            </span>
+          ) : null}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 // Small item icon with a tier-coloured ring, shared by the admin board editor
 // and the public team builder.
 export function MiniItem({ icon, name, tier, size = 20, dashed = false }: { icon?: string | null; name?: string; tier?: Tier | null; size?: number; dashed?: boolean }) {
@@ -112,6 +134,18 @@ export function MiniItem({ icon, name, tier, size = 20, dashed = false }: { icon
       <span className="absolute inset-0 rounded-[22%]" style={{ background: tier ? tierColor[tier] : 'var(--color-line)' }} />
       <span className="absolute overflow-hidden rounded-[16%] bg-panel" style={{ inset: Math.max(1, Math.round(size * 0.09)) }}>
         {icon ? <img src={icon} alt="" draggable={false} className="h-full w-full object-cover" /> : null}
+      </span>
+    </span>
+  );
+}
+
+// Small pointy-top hex used for items sitting under a unit on the board.
+export function ItemHex({ name, icon, tier, size = 16, tip }: { name: string; icon?: string | null; tier?: Tier | null; size?: number; tip?: string }) {
+  return (
+    <span data-tip={tip} title={name} className="relative block shrink-0" style={{ width: size, height: Math.round(size * 1.1547) }}>
+      <span className="hex absolute inset-0" style={{ background: tier ? tierColor[tier] : 'var(--color-line)' }} />
+      <span className="hex absolute overflow-hidden bg-panel" style={{ inset: Math.max(1, Math.round(size * 0.12)) }}>
+        {icon ? <img src={icon} alt="" draggable={false} loading="lazy" className="h-full w-full object-cover" /> : null}
       </span>
     </span>
   );

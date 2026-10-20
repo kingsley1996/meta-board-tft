@@ -48,17 +48,18 @@ function ChampionCard({ tip, context, lang }: { tip: Extract<TipData, { kind: 'c
       {context?.items?.length ? (
         <div className="mt-2 border-t border-line pt-2">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-mist">{messages[lang].hover.itemPriority}</p>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {context.items.map((item) => {
+          <ol className="mt-1.5 flex flex-col gap-1">
+            {context.items.map((item, index) => {
               const icon = iconFor(item);
               return (
-                <span key={item} className="flex items-center gap-1.5 rounded-md border border-line bg-util py-0.5 pr-2 pl-0.5 text-xs font-semibold text-fog">
-                  {icon ? <img src={icon} alt="" draggable={false} className="h-5 w-5 rounded-[22%]" /> : null}
-                  {itemName(item, lang)}
-                </span>
+                <li key={item} className="flex items-center gap-2 text-xs font-semibold text-fog">
+                  <span className="w-4 shrink-0 text-center text-[10px] font-bold text-mist">{index + 1}</span>
+                  {icon ? <img src={icon} alt="" draggable={false} className="h-5 w-5 shrink-0 rounded-[22%]" /> : null}
+                  <span className="truncate">{itemName(item, lang)}</span>
+                </li>
               );
             })}
-          </div>
+          </ol>
         </div>
       ) : null}
     </div>

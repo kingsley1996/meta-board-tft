@@ -48,7 +48,8 @@ body {
    (2/sqrt(3) aspect). */
 .hex-board-frame {
   container-type: inline-size;
-  --hex-w: min(calc((100cqw - 24px) / 7.6), 56px);
+  --hex-gap: 8px;
+  --hex-w: min(calc((100cqw - 24px - var(--hex-gap) * 6) / 7.6), 56px);
   --hex-h: calc(var(--hex-w) * 1.1547);
   background: #0a0d0e;
   border-radius: 12px;
@@ -62,14 +63,15 @@ body {
 
 .hex-board-row {
   display: flex;
+  gap: var(--hex-gap);
 }
 
 .hex-board-row:nth-child(even) {
-  margin-left: calc(var(--hex-w) / 2);
+  margin-left: calc((var(--hex-w) + var(--hex-gap)) / 2);
 }
 
 .hex-board-row + .hex-board-row {
-  margin-top: calc(var(--hex-h) * -0.25);
+  margin-top: calc(var(--hex-h) * -0.25 + var(--hex-gap));
 }
 
 .hex-board-cell {

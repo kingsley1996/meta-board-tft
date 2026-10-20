@@ -1,13 +1,12 @@
 import Link from 'next/link';
-import { Fragment } from 'react';
 import type { ApiComp, ApiUnit } from '@/lib/api';
 import { itemTierByName, units } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
-import { traitStyleColors } from '@/lib/tips';
+import { championNameToSlug, traitStyleColors } from '@/lib/tips';
 import { HexBoard } from './hex-board';
 import { VoteButton } from './vote-button';
-import { AugmentTile, Chip, CostDots, ItemTile, Panel, UnitHex } from './ui';
+import { AugmentTile, Chip, CostDots, ItemHex, ItemRanking, Panel, UnitHex } from './ui';
 
 // Fallback hexes (row-major index) for comps saved before the board editor existed.
 const fallbackCells = [3, 9, 10, 17, 23, 24, 30];
@@ -32,9 +31,9 @@ function UnitTile({ unit, size = 54, fill = false, context }: { unit: ApiUnit; s
     >
       <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} size={size} fill={fill} stars={unit.stars ?? undefined} />
       {unit.items.length ? (
-        <span className="absolute right-0 -bottom-1 flex gap-[2px]">
+        <span className="absolute -bottom-0.5 left-1/2 z-20 flex -translate-x-1/2 gap-[2px]">
           {unit.items.slice(0, 3).map((item, index) => (
-            <ItemTile key={`${item.name}-${index}`} name={item.name} icon={item.icon} tier={itemTierByName[item.name]} size={16} />
+            <ItemHex key={`${item.name}-${index}`} name={item.name} icon={item.icon} tier={itemTierByName[item.name]} tip={`item:${item.name}`} size={16} />
           ))}
         </span>
       ) : null}
@@ -156,7 +155,9 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
           <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.finalBoard}</p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
             {comp.units.map((unit) => (
-              <UnitTile key={unit.name} unit={unit} size={54} context={unitTipContext(comp, unit)} />
+              <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth shrink-0">
+                <UnitTile unit={unit} size={54} context={unitTipContext(comp, unit)} />
+              </Link>
             ))}
           </div>
         </Panel>
@@ -165,20 +166,15 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.earlyUnits}</p>
             <div className="flex flex-wrap items-center justify-center gap-2">
               {comp.early.map((unit) => (
-                <UnitHex key={unit.name} name={unit.name} cost={unit.cost} icon={unit.icon} size={48} />
+                <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth shrink-0">
+                  <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} size={48} />
+                </Link>
               ))}
             </div>
           </Panel>
           <Panel className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.itemPriority}</p>
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {comp.items.map((item, index) => (
-                <Fragment key={item.name}>
-                  {index > 0 ? <span className="text-sm text-mist">{'\u2192'}</span> : null}
-                  <ItemTile name={item.name} icon={item.icon} tier={itemTierByName[item.name]} size={44} />
-                </Fragment>
-              ))}
-            </div>
+            <ItemRanking items={comp.items.map(({ name, icon }) => ({ name, icon }))} size={30} />
           </Panel>
         </div>
         <div className="grid gap-4 md:grid-cols-[1fr_200px]">
