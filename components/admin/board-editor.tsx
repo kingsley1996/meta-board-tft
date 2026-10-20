@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { Tier } from '@/lib/tiers';
 import { HexBoard } from '@/components/hex-board';
-import { MiniItem, UnitHex } from '@/components/ui';
+import { ItemHex, MiniItem, UnitHex } from '@/components/ui';
 
 export type BoardUnit = {
   name: string;
@@ -222,13 +222,13 @@ export function BoardEditor({
                     aria-label={unit.name}
                     className="hex absolute inset-[2px] cursor-grab"
                   />
-                  <span className="pointer-events-none absolute inset-[2px] z-10 block">
+                  <span className="pointer-events-none absolute inset-[2px] block">
                     <UnitHex name={unit.name} cost={champion.cost} icon={champion.icon} fill stars={unit.stars ?? undefined} />
                     {unit.items.length ? (
-                      <span className="absolute right-0 -bottom-1 z-10 flex gap-[1px]">
+                      <span className="absolute -bottom-0.5 left-1/2 z-20 flex -translate-x-1/2 gap-[2px]">
                         {unit.items.slice(0, MAX_ITEMS).map((name, index) => {
                           const option = items.find((item) => item.name === name);
-                          return <MiniItem key={`${name}-${index}`} icon={option?.icon} name={name} tier={option?.tier} size={14} />;
+                          return <ItemHex key={`${name}-${index}`} icon={option?.icon} name={name} tier={option?.tier} tip={`item:${name}`} size={16} />;
                         })}
                       </span>
                     ) : null}
