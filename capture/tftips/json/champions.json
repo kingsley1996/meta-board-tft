@@ -1,0 +1,1777 @@
+[
+ {
+  "id": "18_ahri",
+  "file": "champs_18_ahri.html",
+  "url": "/en/champs/18_ahri",
+  "name": "Ahri",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_ahri.avif",
+   "https://img.tftips.app/champ/lg/18_ahri.avif",
+   "https://img.tftips.app/champ/md/18_ahri.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_ahri.png?v=2",
+   "https://img.tftips.app/champ/sm/18_ahri.avif",
+   "https://img.tftips.app/champ/sm/18_amumu.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_vi.avif"
+  ],
+  "text": "TFTips - Ahri Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Ahri Magic Caster Blossom Spellweaver Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Spirit Bomb Mana 20 / 100 Launch a spirit bomb at the location within 4 hexes that has the most surrounding enemies. It deals 685 ( ) magic damage to enemies in a 3 hex radius, reduced by 21% per hex away from the epicenter. Skill Details Recommended Items Recommended Items High adoption High placement Comps with this Champion Comps with this Champion Morgana Ahri Patch History Patch History Patch 18.2 Launch a spirit bomb at the location within 4 hexes that has the most surrounding enemies. It deals 425 / 640 455 / 685 / 3500 ( ) magic damage to enemies in a 3 hex radius, reduced by 20% 21% per hex away from the epicenter. Damage : 640 685 [ 425 455 / 640 685 /3500] Patch 18.1d Launch a spirit bomb at the location within 4 hexes that has the most surrounding enemies. It deals 450 / 675 425 / 640 / 3500 ( ) magic damage to enemies in a 3 hex radius, reduced by 20% per hex away from the epicenter. Damage : 675 640 [ 450 425 / 675 640 /3500] Vi Amumu SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_akali",
+  "file": "champs_18_akali.html",
+  "url": "/en/champs/18_akali",
+  "name": "Akali",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_akali.avif",
+   "https://img.tftips.app/champ/lg/18_akali.avif",
+   "https://img.tftips.app/champ/md/18_akali.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_akali.png?v=2",
+   "https://img.tftips.app/champ/sm/18_akali.avif",
+   "https://img.tftips.app/champ/sm/18_camille.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif"
+  ],
+  "text": "TFTips - Akali Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Akali Inferno Adaptor Ravager Adaptor AD Form AP Form Attack Fighter Health Base AD Armor Range Magic Resist Attack Speed Skill (AD Form) Skill (AD Form) Kunai Strike Mana 0 / 25 Adaptor : Throw a volley of kunai at the target, dealing 235 ( ) physical damage. If the target is Burning , deal an additional 52 ( ) damage. Adaptor : If the Ability kills, cast it again. Skill Details Recommended Items(AD Form) Recommended Items(AD Form) High adoption High placement Comps with this Champion Comps with this Champion Akali Camille Reroll Primal Malphite Warwick Murkwolf Patch History Patch History Patch 18.2 Max Mana : 30 25 Camille SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_alistar",
+  "file": "champs_18_alistar.html",
+  "url": "/en/champs/18_alistar",
+  "name": "Alistar",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_alistar.avif",
+   "https://img.tftips.app/champ/lg/18_alistar.avif",
+   "https://img.tftips.app/champ/md/18_alistar.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_alistar.png?v=2",
+   "https://img.tftips.app/champ/sm/18_alistar.avif",
+   "https://img.tftips.app/champ/sm/18_caitlyn.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif",
+   "https://img.tftips.app/champ/sm/18_yorick.avif"
+  ],
+  "text": "TFTips - Alistar Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Alistar Magic Tank Elderwood Brawler Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Triumphant Roar Mana 30 / 90 Roar, restoring 437 ( ) Health, cleansing disables, and healing the two lowest percent Health allies for 105 ( ) . Then slam the current target, dealing 270 ( ) magic damage and Stunning them for 1.5 seconds. Skill Details Recommended Items Recommended Items High adoption High placement Comps with this Champion Comps with this Champion Veigar Reroll Patch History Patch History Patch 18.4b Roar, restoring 276 / 397 / 566 306 / 437 / 646 ( ) Health, cleansing disables, and healing the two lowest percent Health allies for 80 / 105 / 130 ( ) . Then slam the current target, dealing 100 / 150 / 225 180 / 270 / 420 ( ) magic damage and Stunning them for 1.5 seconds. Heal : 397 437 = 8% + 260 300 ( ) [ 200/260/320 230/300/400 ] Damage : 150 270 [ 100/150/225 180/270/420 ] Patch 18.4 Roar, restoring 306 / 437 / 646 276 / 397 / 566 ( ) Health, cleansing disables, and healing the two lowest percent Health allies for 80 / 105 / 130 ( ) . Then slam the current target, dealing 180 / 270 / 420 100 / 150 / 225 ( ) magic damage and Stunning them for 1.5 seconds. Heal : 437 397 = 8% + 300 260 ( ) [ 230/300/400 200/260/320 ] Damage : 270 150 [ 180/270/420 100/150/225 ] Patch 18.3 Roar, restoring 276 / 397 / 566 306 / 437 / 646 ( ) Health, cleansing disables, and healing the two lowest percent Health allies for 80 / 105 / 130 ( ) . Then slam the current target, dealing 100 / 150 / 225 180 / 270 / 420 ( ) magic damage and Stunning them for 1.5 seconds. Heal : 397 437 = 8% + 260 300 ( ) [ 200/260/320 230/300/400 ] Damage : 150 270 [ 100/150/225 180/270/420 ] Yorick Caitlyn SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_alune",
+  "file": "champs_18_alune.html",
+  "url": "/en/champs/18_alune",
+  "name": "Alune",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_alune.avif",
+   "https://img.tftips.app/champ/lg/18_alune.avif",
+   "https://img.tftips.app/champ/md/18_alune.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_alune.png?v=2",
+   "https://img.tftips.app/champ/sm/18_alune.avif",
+   "https://img.tftips.app/champ/sm/18_ashe.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Alune Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Alune Magic Caster Attuned Lunar Spellweaver Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Moonfall Mana 0 / 35 Rain 9 moonshards split among the 3 nearest enemies, dealing 83 ( ) magic damage each. If the moon is full, instead crash it onto the board, dealing 3600 ( ) magic damage split among all enemies. Skill Details Recommended Items Recommended Items Patch History Patch History Patch PBE Attack Speed : 0.80 0.85 6 % Rain 9 moonshards split among the 3 nearest enemies, dealing 55 / 83 58 / 88 / 500 ( ) magic damage each. If the moon is full, instead crash it onto the board, dealing 2350 / 3600 / 7500 ( ) magic damage split among all enemies. Damage : 83 88 [ 55 58 / 83 88 /500] Zyra Ashe SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_amumu",
+  "file": "champs_18_amumu.html",
+  "url": "/en/champs/18_amumu",
+  "name": "Amumu",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_amumu.avif",
+   "https://img.tftips.app/champ/lg/18_amumu.avif",
+   "https://img.tftips.app/champ/md/18_amumu.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_amumu.png?v=2",
+   "https://img.tftips.app/champ/sm/18_ahri.avif",
+   "https://img.tftips.app/champ/sm/18_amumu.avif",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Amumu Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Amumu Magic Tank Inferno Juggernaut Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Tantrum Mana 30 / 125 Passive: Every second, restore 59 ( ) Health and deal 18 ( ) magic damage to enemies within 1 hex. Active: Deal 150 ( ) magic damage to enemies within 2 hexes and Stun them for 1 seconds, increased to 2 seconds if the target is Burning . Burn: Deals a percent of the target’s max Health as true damage every second. Skill Details Recommended Items Recommended Items High adoption Worse placement Comps with this Champion Comps with this Champion Soraka Zyra Juggernaut Zyra Aphelios Nidalee Elder Dragon Draven Fast 9 Patch History Patch History Patch 18.1d Max Mana : 140 125 Passive: Every second, restore 29 / 52 33 / 59 / 212 ( ) Health and deal 12 / 18 / 150 ( ) magic damage to enemies within 1 hex. Active: Deal 100 / 150 / 2000 ( ) magic damage to enemies within 2 hexes and Stun them for 1 / 1 / 6 seconds, increased to 2 / 2 / 12 seconds if the target is Burning . Burn: Deals a percent of the target’s max Health as true damage every second. Ahri Aphelios SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_aphelios",
+  "file": "champs_18_aphelios.html",
+  "url": "/en/champs/18_aphelios",
+  "name": "Aphelios",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_aphelios.avif",
+   "https://img.tftips.app/champ/lg/18_aphelios.avif",
+   "https://img.tftips.app/champ/md/18_aphelios.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_aphelios.png?v=2",
+   "https://img.tftips.app/champ/sm/18_amumu.avif",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_brambleback.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif"
+  ],
+  "text": "TFTips - Aphelios Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Aphelios Attack Marksman Lunar Rapidfire Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Moonlight's Onslaught Mana 20 / 70 Equip Severum and swipe the target 5 ( ) times over 2 seconds, each dealing 105 ( ) physical damage. After the onslaught finishes, fire a blast that deals 735 ( ) physical damage split among all enemies in a 2 Hex radius. Skill Details Recommended Items Recommended Items High adoption Worse placement Comps with this Champion Comps with this Champion Aphelios Nidalee Kha'Zix Hecarim Amumu Brambleback SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_ashe",
+  "file": "champs_18_ashe.html",
+  "url": "/en/champs/18_ashe",
+  "name": "Ashe",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_ashe.avif",
+   "https://img.tftips.app/champ/lg/18_ashe.avif",
+   "https://img.tftips.app/champ/md/18_ashe.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_ashe.png?v=2",
+   "https://img.tftips.app/champ/sm/18_alune.avif",
+   "https://img.tftips.app/champ/sm/18_ashe.avif",
+   "https://img.tftips.app/champ/sm/18_draven.avif"
+  ],
+  "text": "TFTips - Ashe Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Ashe Attack Caster Blossom Hunter Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Spirit Rift Mana 0 / 80 Fire an arrow through the most enemies in a line that deals 700 ( ) physical damage, reduced by 80% per enemy hit (minimum 20%). If no enemies are hit refund 70% of mana spent. The arrow leaves a trail for 3 seconds that deals 17 ( ) + 1.5% max Health physical damage per second to enemies within and 20% Slows them. Slow: Reduce Attack Speed Skill Details Recommended Items Recommended Items High adoption Worse placement Patch History Patch History Patch PBE Fire an arrow through the most enemies in a line that deals 465 / 700 / 1000 ( ) physical damage, reduced by 80% / 80% / 40% per enemy hit (minimum 20%). If no enemies are hit refund 70% of mana spent. The arrow leaves a trail for 3 / 3 / 20 seconds that deals 11 / 17 13 / 19 / 220 ( ) + 1.5% / 1.5% / 10% max Health physical damage per second to enemies within and 20% Slows them. Slow: Reduce Attack Speed Rift Damage : 17 19 = 14 16 ( ) + 3 ( ) [ 9 11 / 14 16 /200] Patch 18.4 Starting Mana : 20 0 Fire an arrow through the most enemies in a line that deals 465 / 700 / 1000 ( ) physical damage, reduced by 80% / 80% / 40% per enemy hit (minimum 20%). If no enemies are hit refund 70% of mana spent . The arrow leaves a trail for 3 / 3 / 20 seconds that deals 11 / 17 / 220 ( ) + 2% / 3% 1.5% / 1.5% / 10% max Health physical damage per second to enemies within and 20% Slows them. Slow: Reduce Attack Speed Rift Max Health Damage : 3% 1.5% [ 2 1.5 / 3 1.5 /10] Patch 18.3b Fire an arrow through the most enemies in a line that deals 465 / 700 / 1000 ( ) physical damage, reduced by 80% / 80% / 40% per enemy hit (minimum 20%). The arrow leaves a trail for 4 / 4 3 / 3 / 20 seconds that deals 7 / 11 11 / 17 / 220 ( ) + 2% / 3% / 10% max Health physical damage per second to enemies within and 20% Slows them. Slow: Reduce Attack Speed Rift Damage : 11 17 = 8 14 ( ) + 3 ( ) [ 5 9 / 8 14 /200] Patch 18.3 Fire an arrow through the most enemies in a line that deals 465 / 700 / 1000 ( ) physical damage, reduced by 80% / 80% / 40% per enemy hit (minimum 20%). The arrow leaves a trail for 3 / 3 4 / 4 / 20 seconds that deals 11 / 17 7 / 11 / 220 ( ) + 2% / 3% / 10% max Health physical damage per second to enemies within and 20% Slows them. Slow: Reduce Attack Speed Rift Damage : 17 11 = 14 8 ( ) + 3 ( ) [ 9 5 / 14 8 /200] Patch 18.2b Fire an arrow through the most enemies in a line that deals 465 / 700 / 1000 ( ) physical damage, reduced by 80% / 80% / 40% per enemy hit (minimum 20%). The arrow leaves a trail for 4 / 4 3 / 3 / 20 seconds that deals 7 / 11 11 / 17 / 220 ( ) + 2% / 3% / 10% max Health physical damage per second to enemies within and 20% Slows them. Slow: Reduce Attack Speed Rift Damage : 11 17 = 8 14 ( ) + 3 ( ) [ 5 9 / 8 14 /200] Patch 18.2 Fire an arrow through the most enemies in a line that deals 440 / 660 465 / 700 / 1000 ( ) physical damage, reduced by 80% / 80% / 40% per enemy hit (minimum 20%). The arrow leaves a trail for 4 / 4 / 20 seconds that deals 7 / 11 / 220 ( ) + 2% / 3% / 10% max Health physical damage per second to enemies within and 20% Slows them. Slow: Reduce Attack Speed Damage : 660 700 [ 440 465 / 660 700 /1000] Alune Draven SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_azir",
+  "file": "champs_18_azir.html",
+  "url": "/en/champs/18_azir",
+  "name": "Azir",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_azir.avif",
+   "https://img.tftips.app/champ/lg/18_azir.avif",
+   "https://img.tftips.app/champ/md/18_azir.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_azir.png?v=2",
+   "https://img.tftips.app/champ/sm/18_azir.avif",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif",
+   "https://img.tftips.app/champ/sm/18_yunara.avif"
+  ],
+  "text": "TFTips - Azir Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Azir Magic Marksman Blackthorn Executioner Summoner Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Arise! Mana 0 / 35 Gain 150% Attack Speed and summon 2 soldiers for the next 6 attacks. These attacks are replaced by commands which direct each soldier to deal 69 ( ) magic damage per attack. Skill Details Recommended Items Recommended Items High adoption Worse placement High placement Comps with this Champion Comps with this Champion Soraka Zyra Azir Rammus Veigar Reroll Warwick Murkwolf Yunara Sejuani Patch History Patch History Patch PBE Gain 150% Attack Speed and summon 2 soldiers for the next 6 attacks. These attacks are replaced by commands which direct each soldier to deal 46 / 69 / 110 43 / 65 / 105 ( ) magic damage per attack. Damage : 69 65 [ 46/69/110 43/65/105 ] Patch 18.3 Gain 150% Attack Speed and summon 2 soldiers for the next 6 attacks. These attacks are replaced by commands which direct each soldier to deal 43 / 65 / 103 46 / 69 / 110 ( ) magic damage per attack. Damage : 65 69 [ 43/65/103 46/69/110 ] Patch 18.2 Gain 150% Attack Speed and summon 2 soldiers for the next 6 attacks. These attacks are replaced by commands which direct each soldier to deal 40 / 60 / 96 43 / 65 / 103 ( ) magic damage per attack. Damage : 60 65 [ 40/60/96 43/65/103 ] Yunara Cassiopeia SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_brambleback",
+  "file": "champs_18_brambleback.html",
+  "url": "/en/champs/18_brambleback",
+  "name": "Brambleback",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_brambleback.avif",
+   "https://img.tftips.app/champ/lg/18_brambleback.avif",
+   "https://img.tftips.app/champ/md/18_brambleback.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_brambleback.png?v=2",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_brambleback.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_ezreal.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif"
+  ],
+  "text": "TFTips - Brambleback Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Brambleback Attack Fighter Riftbeast Ravager Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Crimson Fury Mana 0 / 40 Passive: When the target dies, leap at the next target, dealing 205 ( ) physical damage. Active: Gain 100% Attack Damage for 8 seconds. During this time ignore 45% ( ) Armor. Red Buff: Attacks 1% Burn enemies and heal Brambleback for 4% max Health. Skill Details Recommended Items Recommended Items Worse placement Comps with this Champion Comps with this Champion Riftbeast Aphelios Nidalee Warwick Murkwolf Patch History Patch History Patch PBE Passive: When the target dies, leap at the next target, dealing 135 / 205 / 1000 ( ) physical damage. Active: Gain 100% / 100% / 300% Attack Damage for 8 seconds. During this time ignore 45% / 45% / 90% 50% / 50% / 95% ( ) Armor. Red Buff: Attacks 1% Burn enemies and heal Brambleback for 4% 5% max Health. Armor Ignore : 45% 50% [ 45/45/90 50/50/95 ] Patch 18.4 Passive: When the target dies, leap at the next target, dealing 155 / 235 135 / 205 / 1000 ( ) physical damage. Active: Gain 80% / 80% 100% / 100% / 300% Attack Damage for 8 seconds. During this time ignore 45% / 45% / 90% ( ) Armor. Red Buff: Attacks 1% Burn enemies and heal Brambleback for 4% max Health. Leap Damage : 235 205 [ 155 135 / 235 205 /1000] Bonus Attack Damage : 80% 100% [ 80 100 / 80 100 /300] Patch 18.2b Passive: When the target dies, leap at the next target, dealing 155 / 235 / 1000 ( ) physical damage. Active: Gain 80% / 80% / 300% Attack Damage for 8 seconds. During this time ignore 45% / 45% / 85% 90% ( ) Armor. Red Buff: Attacks 1% Burn enemies and heal Brambleback for 4% max Health. Armor Ignore : 45% [45/45/ 85 90 ] Patch 18.2 1-star Attack Damage : 115 120 4 % 2-star Attack Damage : 173 180 4 % 3-star Attack Damage : 259 270 4 % Passive: When the target dies, leap at the next target, dealing 170 / 255 / 600 155 / 235 / 1000 ( ) physical damage. Active: Gain 80% / 80% / 280% 300% Attack Damage for 8 seconds. During this time ignore 40% / 40% / 60% 45% / 45% / 85% ( ) Armor. Red Buff: Attacks 1% Burn enemies and heal Brambleback for 4% max Health. Leap Damage : 255 235 [ 170/255/600 155/235/1000 ] Bonus Attack Damage : 80% [80/80/ 280 300 ] Armor Ignore : 40% 45% [ 40/40/60 45/45/85 ] Aphelios Ezreal SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_caitlyn",
+  "file": "champs_18_caitlyn.html",
+  "url": "/en/champs/18_caitlyn",
+  "name": "Caitlyn",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_caitlyn.avif",
+   "https://img.tftips.app/champ/lg/18_caitlyn.avif",
+   "https://img.tftips.app/champ/md/18_caitlyn.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_caitlyn.png?v=2",
+   "https://img.tftips.app/champ/sm/18_alistar.avif",
+   "https://img.tftips.app/champ/sm/18_caitlyn.avif",
+   "https://img.tftips.app/champ/sm/18_elise.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif"
+  ],
+  "text": "TFTips - Caitlyn Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Caitlyn Attack Specialist Coven Hunter Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Headshot Mana 0 / 3 Passive: Every third attack is replaced with a Headshot that deals 315 ( ) physical damage. Skill Details Recommended Items Recommended Items High adoption Worse placement Comps with this Champion Comps with this Champion Caitlyn Scuttlecrab Primal Malphite Patch History Patch History Patch PBE Passive: Every third attack is replaced with a Headshot that deals 210 / 315 / 515 220 / 330 / 535 ( ) physical damage. Damage : 315 330 = 285 300 ( ) + 30 ( ) [ 190/285/470 200/300/490 ] Alistar Elise SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_camille",
+  "file": "champs_18_camille.html",
+  "url": "/en/champs/18_camille",
+  "name": "Camille",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_camille.avif",
+   "https://img.tftips.app/champ/lg/18_camille.avif",
+   "https://img.tftips.app/champ/md/18_camille.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_camille.png?v=2",
+   "https://img.tftips.app/champ/sm/18_akali.avif",
+   "https://img.tftips.app/champ/sm/18_camille.avif",
+   "https://img.tftips.app/champ/sm/18_cinderling.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif"
+  ],
+  "text": "TFTips - Camille Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Camille Attack Fighter Coven Ravager Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Defensive Sweep Mana 0 / 25 Slice the target for 240 ( ) physical damage and gain 90 Shield for 2 seconds. Skill Details Recommended Items Recommended Items High adoption High placement Comps with this Champion Comps with this Champion Akali Camille Reroll Primal Malphite Patch History Patch History Patch 18.4b Slice the target for 160 / 240 / 400 425 ( ) physical damage and gain 60 / 90 / 200 Shield for 2 seconds. Damage : 240 = 225 ( ) + 15 ( ) [150/225/ 375 400 ] Patch 18.3b Slice the target for 170 / 255 / 435 160 / 240 / 400 ( ) physical damage and gain 60 / 90 / 200 Shield for 2 seconds. Damage : 255 240 = 240 225 ( ) + 15 ( ) [ 160/240/410 150/225/375 ] Patch 18.3 Slice the target for 160 / 240 / 400 170 / 255 / 435 ( ) physical damage and gain 60 / 90 / 200 Shield for 2 seconds. Damage : 240 255 = 225 240 ( ) + 15 ( ) [ 150/225/375 160/240/410 ] Patch 18.2b Slice the target for 170 / 255 / 435 160 / 240 / 400 ( ) physical damage and gain 60 / 90 / 200 Shield for 2 seconds. Damage : 255 240 = 240 225 ( ) + 15 ( ) [ 160/240/410 150/225/375 ] Akali Cinderling SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_cassiopeia",
+  "file": "champs_18_cassiopeia.html",
+  "url": "/en/champs/18_cassiopeia",
+  "name": "Cassiopeia",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/lg/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/md/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_cassiopeia.png?v=2",
+   "https://img.tftips.app/champ/sm/18_azir.avif",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_diana.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Cassiopeia Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Cassiopeia Magic Caster Coven Spellweaver Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Noxious Blast Mana 0 / 30 Poison the target and the nearest non-poisoned enemy, dealing 630 ( ) magic damage over 15 seconds. Poisons stack. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Juggernaut Zyra Defender Cassiopeia Veigar Reroll Patch History Patch History Patch 18.3 Poison the target and the nearest non-poisoned enemy, dealing 400 / 600 / 950 420 / 630 / 1020 ( ) magic damage over 15 seconds. Poisons stack. Damage : 600 630 [ 400/600/950 420/630/1020 ] Patch 18.1d Poison the target and the nearest non-poisoned enemy, dealing 440 / 660 / 1050 400 / 600 / 950 ( ) magic damage over 15 seconds. Poisons stack. Damage : 660 600 [ 440/660/1050 400/600/950 ] Azir Diana SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_cinderling",
+  "file": "champs_18_cinderling.html",
+  "url": "/en/champs/18_cinderling",
+  "name": "Cinderling",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_cinderling.avif",
+   "https://img.tftips.app/champ/lg/18_cinderling.avif",
+   "https://img.tftips.app/champ/md/18_cinderling.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_cinderling.png?v=2",
+   "https://img.tftips.app/champ/sm/18_camille.avif",
+   "https://img.tftips.app/champ/sm/18_cinderling.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_karma.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif"
+  ],
+  "text": "TFTips - Cinderling Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Cinderling Attack Caster Riftbeast Hunter Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Razor Leaves Mana 0 / 50 Summon five razor-sharp leaves that converge on the current target, dealing a total of 510 ( ) physical damage and applying 20% Wound and 1% Burn for 4 seconds. Scarlet Buff: Cinderling gains 22% Attack Damage each cast. Wound: Reduces healing received. Burn: Deals a percent of the target’s max Health as true damage every second. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Riftbeast Morgana Ahri Primal Malphite Patch History Patch History Patch 18.1d 1-star Attack Damage : 45 40 11 % 2-star Attack Damage : 68 60 11 % 3-star Attack Damage : 101 90 11 % Summon five razor-sharp leaves that converge on the current target, dealing a total of 370 / 555 / 835 340 / 510 / 770 ( ) physical damage and applying 20% Wound and 1% Burn for 4 seconds. Scarlet Buff: Cinderling gains 22% Attack Damage each cast. Wound: Reduces healing received. Burn: Deals a percent of the target’s max Health as true damage every second. Damage : 555 510 = 510 465 ( ) + 45 ( ) [ 340/510/765 310/465/700 ] Camille Karma SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_diana",
+  "file": "champs_18_diana.html",
+  "url": "/en/champs/18_diana",
+  "name": "Diana",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_diana.avif",
+   "https://img.tftips.app/champ/lg/18_diana.avif",
+   "https://img.tftips.app/champ/md/18_diana.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_diana.png?v=2",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_diana.avif",
+   "https://img.tftips.app/champ/sm/18_fiddlesticks.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif"
+  ],
+  "text": "TFTips - Diana Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Diana Magic Fighter Lunar Ravager Vanguard Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Pale Barrier Mana 0 / 40 Gain 275 shield for 2 seconds and send out 6 moonlight orbs spread among enemies within 2 hexes, each dealing 115 ( ) magic damage. Skill Details Recommended Items Recommended Items High placement Comps with this Champion Comps with this Champion Aphelios Nidalee Kha'Zix Hecarim Warwick Murkwolf Patch History Patch History Patch 18.2 Gain 150 / 275 / 400 500 shield for 2 seconds and send out 6 moonlight orbs spread among enemies within 2 hexes, each dealing 70 / 105 / 170 75 / 115 / 180 ( ) magic damage. Damage : 105 115 [ 70/105/170 75/115/180 ] Shield : 275 [150/275/ 400 500 ] Cassiopeia Fiddlesticks SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_draven",
+  "file": "champs_18_draven.html",
+  "url": "/en/champs/18_draven",
+  "name": "Draven",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_draven.avif",
+   "https://img.tftips.app/champ/lg/18_draven.avif",
+   "https://img.tftips.app/champ/md/18_draven.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_draven.png?v=2",
+   "https://img.tftips.app/champ/sm/18_ashe.avif",
+   "https://img.tftips.app/champ/sm/18_draven.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif"
+  ],
+  "text": "TFTips - Draven Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Draven Attack Marksman Bounty Seeker Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Whirling Death Mana 0 / 110 Passive: Attacks target random enemies in range and apply a bleed that deals 225 ( ) physical damage over 12 seconds. Every attack has a 12% ( ) chance to deal 50% bonus physical damage and apply 2 bleeds instead. Active: Throw two giant axes towards the enemy with the most bleeds. Deal 150 ( ) physical damage to enemies hit and consume their bleed, instantly dealing the remaining damage. The axes then return, dealing 45 ( ) physical damage to enemies hit. If no enemies are hit refund 50% of mana spent. Skill Details Recommended Items Recommended Items High adoption Worse placement Comps with this Champion Comps with this Champion Elder Dragon Draven Fast 9 Patch History Patch History Patch 18.4 Passive: Attacks target random enemies in range and apply a bleed that deals 140 / 210 150 / 225 / 3000 ( ) physical damage over 12 seconds. Every attack has a 12% ( ) chance to deal 50% / 50% / 900% bonus physical damage and apply 2 bleeds instead. Active: Throw two giant axes towards the enemy with the most bleeds. Deal 100 / 150 / 400 ( ) physical damage to enemies hit and consume their bleed, instantly dealing the remaining damage. The axes then return, dealing 30 / 45 / 100 ( ) physical damage to enemies hit. If no enemies are hit refund 50% of mana spent . Bleed Damage : 210 225 [ 140 150 / 210 225 /3000] Patch 18.1d Attack Speed : 0.80 0.85 6 % Max Mana : 120 110 Ashe Elder Dragon SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_elderdragon",
+  "file": "champs_18_elderdragon.html",
+  "url": "/en/champs/18_elderdragon",
+  "name": "Elder Dragon",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_elderdragon.avif",
+   "https://img.tftips.app/champ/lg/18_elderdragon.avif",
+   "https://img.tftips.app/champ/md/18_elderdragon.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_elderdragon.png?v=2",
+   "https://img.tftips.app/champ/sm/18_draven.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_gnar.avif"
+  ],
+  "text": "TFTips - Elder Dragon Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Elder Dragon Attack Fighter Apex Predator Riftbeast Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Heat Without Equal Mana 20 / 60 Passive: Attacks deal 75% damage to enemies adjacent to the target. Active: Become invulnerable and fly into the air. On return, stun all enemies for 1.25 seconds, gain 15% Omnivamp, and Ignite them for 3 seconds. Ignited enemies take 2% max Health physical damage per second. Replace this ability with Flame Breath and immediately cast it. Flame Breath: Spew fire at the most enemies in a line through the target, dealing 465 ( ) physical damage, reduced by 20% for each enemy it passes through (minimum 20%.) Ignite those enemies for 3 seconds. Elder Dragon Buff: Damaging an enemy below 12% Health executes them. Skill Details Recommended Items Recommended Items High adoption High placement Comps with this Champion Comps with this Champion Elder Dragon Draven Fast 9 Patch History Patch History Patch 18.4 3-star Attack Damage : 281 282 Patch 18.1d 1-star Attack Damage : 115 125 9 % 2-star Attack Damage : 173 188 9 % 3-star Attack Damage : 259 281 9 % Draven Gnar SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_elderwood_golemsummon",
+  "file": "champs_18_elderwood_golemsummon.html",
+  "url": "/en/champs/18_elderwood_golemsummon",
+  "name": "Deepwood Protector",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_elderwood_golemsummon.avif",
+   "https://img.tftips.app/champ/lg/18_elderwood_golemsummon.avif",
+   "https://img.tftips.app/champ/md/18_elderwood_golemsummon.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_elderwood_golemsummon.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderwood_golemsummon.avif",
+   "https://img.tftips.app/champ/sm/18_elderwood_treesummon_lifeblossom.avif",
+   "https://img.tftips.app/champ/sm/18_taric.avif"
+  ],
+  "text": "TFTips - Deepwood Protector Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Deepwood Protector Magic Fighter Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Forest SMASH! Mana 20 / 60 Passive: When an Elderwood unit dies heal for 97 ( ) Health and gain 100% Attack Speed for 3 seconds. Active: Slam the ground, dealing 750 ( ) magic damage to the target and 375 ( ) magic damage to enemies within 2 hexes. Knock up and Stun the target for 0.5 seconds. Skill Details Patch History Patch History Patch PBE Armor : 70 65 7 % Magic Resist : 70 65 7 % Patch 18.4 Armor : 65 70 8 % Magic Resist : 65 70 8 % Max Mana : 70 60 Taric Lifebloom SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_elderwood_treesummon_lifeblossom",
+  "file": "champs_18_elderwood_treesummon_lifeblossom.html",
+  "url": "/en/champs/18_elderwood_treesummon_lifeblossom",
+  "name": "Lifebloom",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_elderwood_treesummon_lifeblossom.avif",
+   "https://img.tftips.app/champ/lg/18_elderwood_treesummon_lifeblossom.avif",
+   "https://img.tftips.app/champ/md/18_elderwood_treesummon_lifeblossom.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_elderwood_treesummon_lifeblossom.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderwood_golemsummon.avif",
+   "https://img.tftips.app/champ/sm/18_elderwood_treesummon_lifeblossom.avif",
+   "https://img.tftips.app/champ/sm/18_elderwood_treesummon_stonebarktree.avif",
+   "https://img.tftips.app/champ/sm/18_kayle.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif"
+  ],
+  "text": "TFTips - Lifebloom Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Lifebloom Magic Specialist Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Forest's Blessing Mana None Passive: After 4 seconds of combat grant Elderwood allies 15% Attack Damage and Ability Power. Every 4 seconds thereafter, grant an additional 5% Attack Damage and 5% Ability Power. Comps with this Champion Comps with this Champion Kha'Zix Hecarim Kayle Reroll Veigar Reroll Deepwood Protector Stonebark Tree SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_elderwood_treesummon_stonebarktree",
+  "file": "champs_18_elderwood_treesummon_stonebarktree.html",
+  "url": "/en/champs/18_elderwood_treesummon_stonebarktree",
+  "name": "Stonebark Tree",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_elderwood_treesummon_stonebarktree.avif",
+   "https://img.tftips.app/champ/lg/18_elderwood_treesummon_stonebarktree.avif",
+   "https://img.tftips.app/champ/md/18_elderwood_treesummon_stonebarktree.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_elderwood_treesummon_stonebarktree.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderwood_treesummon_lifeblossom.avif",
+   "https://img.tftips.app/champ/sm/18_elderwood_treesummon_stonebarktree.avif",
+   "https://img.tftips.app/champ/sm/18_kayle.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif"
+  ],
+  "text": "TFTips - Stonebark Tree Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Stonebark Tree Magic Tank Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Forest's Protection Mana None Passive: On death, Stun the nearest 3 enemies for 1.5 seconds. Comps with this Champion Comps with this Champion Kha'Zix Hecarim Kayle Reroll Veigar Reroll Lifebloom SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_elise",
+  "file": "champs_18_elise.html",
+  "url": "/en/champs/18_elise",
+  "name": "Elise",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_elise.avif",
+   "https://img.tftips.app/champ/lg/18_elise.avif",
+   "https://img.tftips.app/champ/md/18_elise.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_elise.png?v=2",
+   "https://img.tftips.app/champ/sm/18_caitlyn.avif",
+   "https://img.tftips.app/champ/sm/18_elise.avif",
+   "https://img.tftips.app/champ/sm/18_gromp.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif"
+  ],
+  "text": "TFTips - Elise Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Elise Magic Tank Coven Vanguard Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Spider Queen Mana 20 / 70 Transform into a spider and gain 475 max Health. Attacks while in Spider Form deal 50 ( ) bonus magic damage and heal for 90 ( ) . Subsequent casts grant 175% decaying Attack Speed for 4 seconds. Skill Details Recommended Items Recommended Items High adoption High placement Comps with this Champion Comps with this Champion Morgana Ahri Caitlyn Gromp SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_ezreal",
+  "file": "champs_18_ezreal.html",
+  "url": "/en/champs/18_ezreal",
+  "name": "Ezreal",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_ezreal.avif",
+   "https://img.tftips.app/champ/lg/18_ezreal.avif",
+   "https://img.tftips.app/champ/md/18_ezreal.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_ezreal.png?v=2",
+   "https://img.tftips.app/champ/sm/18_brambleback.avif",
+   "https://img.tftips.app/champ/sm/18_ezreal.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif",
+   "https://img.tftips.app/champ/sm/18_lillia.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif"
+  ],
+  "text": "TFTips - Ezreal Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Ezreal Attack Caster Elderwood Executioner Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Forest's Flurry Mana 0 / 30 Blink away from the current target, deal 405 ( ) physical damage to them, and gain 30% ( ) Attack Speed. Every 4th cast consumes the Attack Speed granted from Forest's Flurry and fires a blast through the largest group of enemies that deals 580 ( ) physical damage, reduced by 25% for each enemy it passes through (minimum 50%). Skill Details Recommended Items Recommended Items High adoption High placement Comps with this Champion Comps with this Champion Soraka Zyra Kha'Zix Hecarim Patch History Patch History Patch 18.4 Blink away from the current target, deal 250 / 375 270 / 405 / 1200 ( ) physical damage to them, and gain 30% / 30% / 100% ( ) Attack Speed. Every 4th cast consumes the Attack Speed granted from Nature's Wrath Forest's Flurry and fires a blast through the largest group of enemies that deals 385 / 580 / 2500 ( ) physical damage, reduced by 25% for each enemy it passes through (minimum 50%). Damage : 375 405 [ 250 270 / 375 405 /1200] Patch 18.2 Blink away from the current target, deal 235 / 355 250 / 375 / 1200 ( ) physical damage to them, and gain 30% / 30% / 100% ( ) Attack Speed. Every 4th cast consumes the Attack Speed granted from Nature's Wrath and fires a blast through the largest group of enemies that deals 385 / 580 / 2500 ( ) physical damage, reduced by 25% for each enemy it passes through (minimum 50%). Damage : 355 375 [ 235 250 / 355 375 /1200] Brambleback Lillia SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_fiddlesticks",
+  "file": "champs_18_fiddlesticks.html",
+  "url": "/en/champs/18_fiddlesticks",
+  "name": "Fiddlesticks",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_fiddlesticks.avif",
+   "https://img.tftips.app/champ/lg/18_fiddlesticks.avif",
+   "https://img.tftips.app/champ/md/18_fiddlesticks.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_fiddlesticks.png?v=2",
+   "https://img.tftips.app/champ/sm/18_azir.avif",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_diana.avif",
+   "https://img.tftips.app/champ/sm/18_fiddlesticks.avif",
+   "https://img.tftips.app/champ/sm/18_hecarim.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif"
+  ],
+  "text": "TFTips - Fiddlesticks Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Fiddlesticks Magic Tank Flora Fatalis Defender Spellweaver Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Harvest Mana 30 / 90 Reduce the Magic Resist of the 3 nearest enemies by 10 . Then drain life from them over 2 seconds, healing for 485 ( ) Health and dealing 105 ( ) magic damage to each over the duration. Skill Details Recommended Items Recommended Items Worse placement Comps with this Champion Comps with this Champion Soraka Zyra Kha'Zix Hecarim Azir Rammus Defender Cassiopeia Veigar Reroll Diana Hecarim SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_gnar",
+  "file": "champs_18_gnar.html",
+  "url": "/en/champs/18_gnar",
+  "name": "Gnar",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_gnar.avif",
+   "https://img.tftips.app/champ/lg/18_gnar.avif",
+   "https://img.tftips.app/champ/md/18_gnar.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_gnar.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_gnar.avif",
+   "https://img.tftips.app/champ/sm/18_ivern.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif"
+  ],
+  "text": "TFTips - Gnar Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Gnar Attack Specialist Elderwood Sprykin Brawler Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Rage Gene Mana 0 / 70 Passive: Gain 5 Rage per second and 5 Rage per attack. Active: Transform into Mega Gnar and leap into the largest group of enemies within 3 hexes. Then, deal 150 ( ) physical damage to enemies within 2 hexes, reduce their Armor and Magic Resist by 20 ( ) , and Stun them for 1 second. Mega Gnar gains 600 Health, and replaces his Ability with Grab n' Throw. Grab n' Throw: Throw the target at the farthest enemy, dealing 570 ( ) physical damage to them and 205 ( ) physical damage to enemies they pass through. If there's only 1 enemy left, throw them off the battlefield instead. Skill Details Recommended Items Recommended Items Comps with this Champion Comps with this Champion Tristana Rammus Patch History Patch History Patch 18.2 Passive: Gain 5 / 5 / 50 Rage per second and 5 / 5 / 20 Rage per attack. Active: Transform into Mega Gnar and leap into the largest group of enemies within 3 hexes. Then, deal 100 / 150 / 2000 ( ) physical damage to enemies within 2 / 2 / 10 hexes, reduce their Armor and Magic Resist by 15 / 20 / 100 250 ( ) , and Stun them for 1 / 1 / 15 second. Mega Gnar gains 400 / 600 / 10000 15000 Health, and replaces his Ability with Grab n' Throw. Grab n' Throw: Throw the target at the farthest enemy, dealing 380 / 570 / 9000 ( ) physical damage to them and 135 / 205 / 4500 ( ) physical damage to enemies they pass through. If there's only 1 enemy left, throw them off the battlefield instead. Resistance Reduction : 20 [15/20/ 100 250 ] Transform Health : 600 [400/600/ 10000 15000 ] Elder Dragon Ivern SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_gromp",
+  "file": "champs_18_gromp.html",
+  "url": "/en/champs/18_gromp",
+  "name": "Gromp",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_gromp.avif",
+   "https://img.tftips.app/champ/lg/18_gromp.avif",
+   "https://img.tftips.app/champ/md/18_gromp.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_gromp.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elise.avif",
+   "https://img.tftips.app/champ/sm/18_gromp.avif",
+   "https://img.tftips.app/champ/sm/18_kayle.avif"
+  ],
+  "text": "TFTips - Gromp Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Gromp Riftbeast Adaptor Adaptor AP Form AD Form Magic Caster Health Base AD Armor Range Magic Resist Attack Speed Skill (AP Form) Skill (AP Form) Belchy Bubble Mana 0 / 45 Adaptor : Belch a noxious bubble at the current target that explodes on the first enemy hit, dealing 340 ( ) magic damage. Enemies within a 1 hex radius of the explosion take 270 ( ) magic damage over 3 seconds. Adaptor : Heavily slows the target. Purple Buff: Every 5 seconds, Gromp gains 30% Ability Power. Skill Details Recommended Items(AP Form) Recommended Items(AP Form) High adoption High placement Patch History Patch History Patch 18.4b Adaptor : Belch a noxious bubble at the current target that explodes on the first enemy hit, dealing 225 / 340 / 535 ( ) magic damage. Enemies within a 1 hex radius of the explosion take 160 / 240 / 375 180 / 270 / 435 ( ) magic damage over 3 seconds. Adaptor : Heavily slows the target. Purple Buff: Every 5 seconds, Gromp gains 30% Ability Power. Area Damage : 240 270 [ 160/240/375 180/270/435 ] Patch 18.4 Adaptor : Belch a noxious bubble at the current target that explodes on the first enemy hit, dealing 225 / 340 / 535 ( ) magic damage. Enemies within a 1 hex radius of the explosion take 175 / 265 / 410 160 / 240 / 375 ( ) magic damage over 3 seconds. Adaptor : Heavily slows the target. Purple Buff: Every 5 seconds, Gromp gains 30% Ability Power. Area Damage : 265 240 [ 175/265/410 160/240/375 ] Patch 18.3 Adaptor : Belch a noxious bubble at the current target that explodes on the first enemy hit, dealing 225 / 340 / 535 ( ) magic damage. Enemies within a 1 hex radius of the explosion take 160 / 240 / 360 175 / 265 / 410 ( ) magic damage over 3 seconds. Adaptor : Heavily slows the target. Purple Buff: Every 5 seconds, Gromp gains 30% Ability Power. Area Damage : 240 265 [ 160/240/360 175/265/410 ] Elise Kayle SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_hecarim",
+  "file": "champs_18_hecarim.html",
+  "url": "/en/champs/18_hecarim",
+  "name": "Hecarim",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_hecarim.avif",
+   "https://img.tftips.app/champ/lg/18_hecarim.avif",
+   "https://img.tftips.app/champ/md/18_hecarim.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_hecarim.png?v=2",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_fiddlesticks.avif",
+   "https://img.tftips.app/champ/sm/18_hecarim.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif"
+  ],
+  "text": "TFTips - Hecarim Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Hecarim Magic Tank Elderwood Vanguard Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Spirit of Dread Mana 50 / 110 Gain 50 Armor and Magic Resist for 3 seconds and restore 475 ( ) Health over the duration. Launch spectral riders at the 3 nearest enemies, dealing 120 ( ) magic damage and Stunning them for 1.5 seconds. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Aphelios Nidalee Kha'Zix Hecarim Patch History Patch History Patch 18.4 Starting Mana : 30 50 Fiddlesticks Kha'Zix SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_ivern",
+  "file": "champs_18_ivern.html",
+  "url": "/en/champs/18_ivern",
+  "name": "Ivern",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_ivern.avif",
+   "https://img.tftips.app/champ/lg/18_ivern.avif",
+   "https://img.tftips.app/champ/md/18_ivern.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_ivern.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_gnar.avif",
+   "https://img.tftips.app/champ/sm/18_ivern.avif",
+   "https://img.tftips.app/champ/sm/18_kennen.avif"
+  ],
+  "text": "TFTips - Ivern Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Ivern Magic Caster Greenfather Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Triggerseed Mana 50 / 80 Passive: Shields from this Ability can critically strike with Precision . Active: Grant 2 allies 350 ( ) Shield and 15% Damage Amp for 6 seconds. Then deal 235 ( ) magic damage to enemies adjacent to them. After casting 6 times, also grant 100% stacking Attack Speed to targets. Skill Details Recommended Items Recommended Items High placement Comps with this Champion Comps with this Champion Elder Dragon Draven Fast 9 Patch History Patch History Patch 18.2 Passive: Shields from this Ability can critically strike with Precision . Active: Grant 2 / 2 / 10 allies 165 / 300 185 / 350 / 3000 ( ) Shield and 10% / 15% / 100% Damage Amp for 6 seconds. Then deal 140 / 210 155 / 235 / 2000 ( ) magic damage to enemies adjacent to them. After casting 6 times, also grant 100% stacking Attack Speed to targets. Shield Amount : 300 350 [ 165 185 / 300 350 /3000] Damage : 210 235 [ 140 155 / 210 235 /2000] Gnar Kennen SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_karma",
+  "file": "champs_18_karma.html",
+  "url": "/en/champs/18_karma",
+  "name": "Karma",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_karma.avif",
+   "https://img.tftips.app/champ/lg/18_karma.avif",
+   "https://img.tftips.app/champ/md/18_karma.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_karma.png?v=2",
+   "https://img.tftips.app/champ/sm/18_cinderling.avif",
+   "https://img.tftips.app/champ/sm/18_karma.avif",
+   "https://img.tftips.app/champ/sm/18_kobuko.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_yunara.avif"
+  ],
+  "text": "TFTips - Karma Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Karma Magic Caster Blossom Spellweaver Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Karmic Bond Mana 0 / 40 Tether the current target, dealing 420 ( ) magic damage over 1.5 seconds. Then release a burst of power around them, dealing 185 ( ) magic damage to all enemies in a 1 Hex radius and 30% Slowing them for 2 seconds. Slow: Reduce Attack Speed Skill Details Recommended Items Recommended Items High adoption Worse placement High placement Comps with this Champion Comps with this Champion Morgana Ahri Yunara Sejuani Patch History Patch History Patch 18.3 Tether the current target, dealing 280 / 420 / 630 ( ) magic damage over 1.5 seconds. Then release a burst of power around them, dealing 120 / 180 / 270 125 / 185 / 300 ( ) magic damage to all enemies in a 1 Hex radius and 30% Slowing them for 2 seconds. Slow: Reduce Attack Speed Burst Damage : 180 185 [ 120/180/270 125/185/300 ] Cinderling Kobuko SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_kayle",
+  "file": "champs_18_kayle.html",
+  "url": "/en/champs/18_kayle",
+  "name": "Kayle",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_kayle.avif",
+   "https://img.tftips.app/champ/lg/18_kayle.avif",
+   "https://img.tftips.app/champ/md/18_kayle.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_kayle.png?v=2",
+   "https://img.tftips.app/champ/sm/18_akali.avif",
+   "https://img.tftips.app/champ/sm/18_gromp.avif",
+   "https://img.tftips.app/champ/sm/18_kayle.avif",
+   "https://img.tftips.app/champ/sm/18_leblanc.avif",
+   "https://img.tftips.app/champ/sm/18_yunara.avif"
+  ],
+  "text": "TFTips - Kayle Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Kayle Magic Specialist Solar Rapidfire Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Solar Judgement Mana None Passive: Kayle ascends based on her star level, granting her stacking bonuses. 1st Ascension: Attacks deal 97 ( ) bonus magic damage. 2nd Ascension: Attacks 20% Shred enemies hit for 2 seconds. 3rd Ascension: Attacks fire waves, dealing 35 ( ) magic damage to all other units hit. 4th Ascension: Gain infinite range. Every 3rd wave is much larger. Shred: Reduce Magic Resist Skill Details Recommended Items Recommended Items High adoption High placement Comps with this Champion Comps with this Champion Kayle Reroll Akali Camille Reroll Yunara Sejuani Patch History Patch History Patch 18.4 Passive: Kayle ascends based on her star level, granting her stacking bonuses. 1st Ascension: Attacks deal 62 / 92 / 105 65 / 97 / 110 ( ) bonus magic damage. 2nd Ascension: Attacks 20% Shred enemies hit for 2 seconds. 3rd Ascension: Attacks fire waves, dealing 35 ( ) magic damage to all other units hit. 4th Ascension: Gain infinite range. Every 3rd wave is much larger. Shred: Reduce Magic Resist Damage : 92 97 [ 62/92/105 65/97/110 ] Patch 18.2 Passive: Kayle ascends based on her star level, granting her stacking bonuses. 1st Ascension: Attacks deal 56 / 84 / 98 62 / 92 / 105 ( ) bonus magic damage. 2nd Ascension: Attacks 20% Shred enemies hit for 2 seconds. 3rd Ascension: Attacks fire waves, dealing 40 35 ( ) magic damage to all other units hit. 4th Ascension: Gain infinite range. Every 3rd wave is much larger. Shred: Reduce Magic Resist Damage : 84 92 [ 56/84/98 62/92/105 ] Secondary Damage : 40 35 Gromp LeBlanc SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_kennen",
+  "file": "champs_18_kennen.html",
+  "url": "/en/champs/18_kennen",
+  "name": "Kennen",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_kennen.avif",
+   "https://img.tftips.app/champ/lg/18_kennen.avif",
+   "https://img.tftips.app/champ/md/18_kennen.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_kennen.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_ivern.avif",
+   "https://img.tftips.app/champ/sm/18_kennen.avif",
+   "https://img.tftips.app/champ/sm/18_lux.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif"
+  ],
+  "text": "TFTips - Kennen Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Kennen Magic Assassin Inferno Executioner Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Firestorm Mana 0 / 40 Charge up, gaining 15% Ability Power per Burning enemy. Then, gain 300 ( ) Shield for 2.5 seconds and rush through a nearby group of enemies, dealing 120 ( ) magic damage to each. After rushing, unleash a 2 Hex firestorm that deals a total of 715 ( ) magic damage split among all enemies hit over 2 seconds. Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Soraka Zyra Elder Dragon Draven Fast 9 Patch History Patch History Patch 18.4 Charge up, gaining 15% Ability Power per Burning enemy. Then, gain 250 / 350 230 / 300 / 3000 ( ) Shield for 2.5 seconds and rush through a nearby group of enemies, dealing 80 / 120 / 1500 ( ) magic damage to each. After rushing, unleash a 2 Hex firestorm that deals a total of 475 / 715 / 5000 ( ) magic damage split among all enemies hit over 2 seconds. Shield : 350 300 [ 250 230 / 350 300 /3000] Ivern Lux SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_khazix",
+  "file": "champs_18_khazix.html",
+  "url": "/en/champs/18_khazix",
+  "name": "Kha&#x27;Zix",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_khazix.avif",
+   "https://img.tftips.app/champ/lg/18_khazix.avif",
+   "https://img.tftips.app/champ/md/18_khazix.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_khazix.png?v=2",
+   "https://img.tftips.app/champ/sm/18_hecarim.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif",
+   "https://img.tftips.app/champ/sm/18_kogmaw.avif"
+  ],
+  "text": "TFTips - Kha'Zix Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Kha'Zix Magic Assassin Rival Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Taste Their Fear Mana 0 / 25 Leap to the farthest enemy within 3 Hexes, dealing 370 ( ) magic damage. If they have no adjacent allies, deal 410 ( ) magic damage instead and gain 10 mana. Skill Details Recommended Items Recommended Items High adoption Worse placement High placement Comps with this Champion Comps with this Champion Kha'Zix Hecarim Patch History Patch History Patch PBE Leap to the farthest enemy within 3 Hexes, dealing 265 / 370 / 535 250 / 345 / 500 ( ) magic damage. If they have no adjacent allies, deal 285 / 410 / 605 280 / 390 / 590 ( ) magic damage instead and gain 10 mana. Damage : 370 345 [ 265/370/535 250/345/500 ] Isolated Damage : 410 390 [ 285/410/605 280/390/590 ] Patch 18.3b Leap to the farthest enemy within 3 Hexes, dealing 285 / 400 / 580 265 / 370 / 535 ( ) magic damage. If they have no adjacent allies, deal 310 / 445 / 660 285 / 410 / 605 ( ) magic damage instead and gain 10 mana. Damage : 400 370 [ 285/400/580 265/370/535 ] Isolated Damage : 445 410 [ 310/445/660 285/410/605 ] Patch 18.2 1-star Attack Damage : 30 40 33 % 2-star Attack Damage : 45 60 33 % 3-star Attack Damage : 68 90 33 % Hecarim Kog'Maw SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_kobuko",
+  "file": "champs_18_kobuko.html",
+  "url": "/en/champs/18_kobuko",
+  "name": "Kobuko",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_kobuko.avif",
+   "https://img.tftips.app/champ/lg/18_kobuko.avif",
+   "https://img.tftips.app/champ/md/18_kobuko.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_kobuko.png?v=2",
+   "https://img.tftips.app/champ/sm/18_karma.avif",
+   "https://img.tftips.app/champ/sm/18_kobuko.avif",
+   "https://img.tftips.app/champ/sm/18_leona.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif"
+  ],
+  "text": "TFTips - Kobuko Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Kobuko Magic Tank Sprykin Brawler Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Dance of Life Mana 30 / 90 Restore 423 ( ) Health over 2 seconds. The next attack is replaced with a bash that deals 231 ( ) magic damage. Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Veigar Reroll Tristana Rammus Patch History Patch History Patch 18.4 Restore 314 / 403 / 619 334 / 423 / 639 ( ) Health over 2 seconds. The next attack is replaced with a bash that deals 140 / 231 / 377 ( ) magic damage. Heal : 403 423 = 7% + 315 335 ( ) [ 265/315/460 285/335/480 ] Karma Leona SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_kogmaw",
+  "file": "champs_18_kogmaw.html",
+  "url": "/en/champs/18_kogmaw",
+  "name": "Kog&#x27;Maw",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_kogmaw.avif",
+   "https://img.tftips.app/champ/lg/18_kogmaw.avif",
+   "https://img.tftips.app/champ/md/18_kogmaw.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_kogmaw.png?v=2",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif",
+   "https://img.tftips.app/champ/sm/18_kogmaw.avif",
+   "https://img.tftips.app/champ/sm/18_krug.avif",
+   "https://img.tftips.app/champ/sm/18_masteryi.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif"
+  ],
+  "text": "TFTips - Kog'Maw Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Kog'Maw Caustic Adaptor Invoker Adaptor AD Form AP Form Attack Caster Health Base AD Armor Range Magic Resist Attack Speed Skill (AD Form) Skill (AD Form) Raining Artillery Mana 15 / 55 Adaptor : Launch acid at the target and the other nearest enemy, dealing 250 ( ) physical damage. Enemies below 50% max Health take 350 ( ) physical damage instead. Adaptor : Damages enemies over time. Skill Details Recommended Items(AD Form) Recommended Items(AD Form) High adoption Comps with this Champion Comps with this Champion Aphelios Nidalee Master Yi Kog'Maw Primal Malphite Kha'Zix Krug SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_krug",
+  "file": "champs_18_krug.html",
+  "url": "/en/champs/18_krug",
+  "name": "Krug",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_krug.avif",
+   "https://img.tftips.app/champ/lg/18_krug.avif",
+   "https://img.tftips.app/champ/md/18_krug.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_krug.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_kogmaw.avif",
+   "https://img.tftips.app/champ/sm/18_krug.avif",
+   "https://img.tftips.app/champ/sm/18_mamabeak.avif",
+   "https://img.tftips.app/champ/sm/18_masteryi.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif"
+  ],
+  "text": "TFTips - Krug Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Krug Attack Tank Riftbeast Brawler Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Rock and Roll Mana 80 / 135 Passive: On death, split into two Kruglettes with 338 ( ) Health which immediately taunt, forcing enemies to attack them. Active: Gain 225 ( ) max Health, then roll into the target, dealing 358 ( ) damage. Slate Buff: On death, Krug and Kruglettes Shield allies for 8% max Health. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Riftbeast Morgana Ahri Master Yi Kog'Maw Primal Malphite Warwick Murkwolf Kog'Maw Mama Beak SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_leblanc",
+  "file": "champs_18_leblanc.html",
+  "url": "/en/champs/18_leblanc",
+  "name": "LeBlanc",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_leblanc.avif",
+   "https://img.tftips.app/champ/lg/18_leblanc.avif",
+   "https://img.tftips.app/champ/md/18_leblanc.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_leblanc.png?v=2",
+   "https://img.tftips.app/champ/sm/18_kayle.avif",
+   "https://img.tftips.app/champ/sm/18_leblanc.avif",
+   "https://img.tftips.app/champ/sm/18_murkwolf.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif",
+   "https://img.tftips.app/champ/sm/18_yunara.avif"
+  ],
+  "text": "TFTips - LeBlanc Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays LeBlanc Magic Caster Elderwood Spellweaver Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Mirror Image Mana 0 / 40 Passive: After player combat, your strongest LeBlanc has a 15% chance to create a copy of an ally on your board, increased by 4% per takedown. Active: Launch a mirror image at the current target, dealing 390 ( ) magic damage and 150 ( ) to adjacent enemies. Skill Details Recommended Items Recommended Items Comps with this Champion Comps with this Champion Kayle Reroll Veigar Reroll Yunara Sejuani Patch History Patch History Patch 18.3b Passive: After player combat, your strongest LeBlanc has a 10% / 15% / 40% 30% chance to create a copy of an ally on your board, increased by 4% per takedown. Active: Launch a mirror image at the current target, dealing 260 / 390 / 615 ( ) magic damage and 100 / 150 / 230 ( ) to adjacent enemies. Copy Chance : 15% [10/15/ 40 30 ] Patch 18.3 Passive: After player combat, your strongest LeBlanc has a 10% / 15% / 30% 40% chance to create a copy of an ally on your board, increased by 4% per takedown. Active: Launch a mirror image at the current target, dealing 260 / 390 / 615 ( ) magic damage and 100 / 150 / 230 ( ) to adjacent enemies. Copy Chance : 15% [10/15/ 30 40 ] Patch 18.2b Passive: After player combat, your strongest LeBlanc has a 10% / 15% / 40% 30% chance to create a copy of an ally on your board, increased by 4% per takedown. Active: Launch a mirror image at the current target, dealing 260 / 390 / 615 ( ) magic damage and 100 / 150 / 230 ( ) to adjacent enemies. Copy Chance : 15% [10/15/ 40 30 ] Patch 18.2 Passive: After player combat, your strongest LeBlanc has a 10% / 15% / 40% chance to create a copy of an ally on your board, increased by 4% per takedown. Active: Launch a mirror image at the current target, dealing 250 / 375 / 565 260 / 390 / 615 ( ) magic damage and 85 / 130 / 190 100 / 150 / 230 ( ) to adjacent enemies. Damage : 375 390 [ 250/375/565 260/390/615 ] Secondary Damage : 130 150 [ 85/130/190 100/150/230 ] Kayle Murkwolf SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_leona",
+  "file": "champs_18_leona.html",
+  "url": "/en/champs/18_leona",
+  "name": "Leona",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_leona.avif",
+   "https://img.tftips.app/champ/lg/18_leona.avif",
+   "https://img.tftips.app/champ/md/18_leona.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_leona.png?v=2",
+   "https://img.tftips.app/champ/sm/18_akali.avif",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_kayle.avif",
+   "https://img.tftips.app/champ/sm/18_kobuko.avif",
+   "https://img.tftips.app/champ/sm/18_leona.avif",
+   "https://img.tftips.app/champ/sm/18_ornn.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif",
+   "https://img.tftips.app/champ/sm/18_yunara.avif"
+  ],
+  "text": "TFTips - Leona Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Leona Magic Tank Solar Defender Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Shield Bash Mana 30 / 90 Passive: Start combat with 80 ( ) bonus Armor and Magic Resist that decays over 12 seconds. Active: Bash the current target, dealing 108 ( ) magic damage and Stunning them for 1.5 seconds. Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Defender Cassiopeia Kayle Reroll Akali Camille Reroll Primal Malphite Yunara Sejuani Patch History Patch History Patch 18.2 Max Mana : 100 90 Starting Mana : 40 30 Passive: Start combat with 60 / 70 / 80 80 / 100 ( ) bonus Armor and Magic Resist that decays over 12 seconds. Active: Bash the current target, dealing 60 / 108 / 162 ( ) magic damage and Stunning them for 1.5 seconds. Decaying Resists : 70 80 [60/ 70 80 / 80 100 ] Kobuko Ornn SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_lillia",
+  "file": "champs_18_lillia.html",
+  "url": "/en/champs/18_lillia",
+  "name": "Lillia",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_lillia.avif",
+   "https://img.tftips.app/champ/lg/18_lillia.avif",
+   "https://img.tftips.app/champ/md/18_lillia.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_lillia.png?v=2",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_ezreal.avif",
+   "https://img.tftips.app/champ/sm/18_lillia.avif",
+   "https://img.tftips.app/champ/sm/18_malphite.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif"
+  ],
+  "text": "TFTips - Lillia Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Lillia Magic Tank Fae Defender Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Lilting Lullaby Mana 40 / 140 Restore 525 ( ) Health and send 4 butterflies at nearby enemies. Enemies hit take 135 ( ) magic damage and Sleep for 1.75 seconds. If they take 1000 damage, they wake up and take an additional 10% max Health magic damage. Skill Details Recommended Items Recommended Items Worse placement Comps with this Champion Comps with this Champion Defender Cassiopeia Tristana Rammus Patch History Patch History Patch 18.3 Restore 325 / 475 350 / 525 / 800 ( ) Health and send 4 butterflies at nearby enemies. Enemies hit take 90 / 135 / 2000 ( ) magic damage and Sleep for 1.5 / 1.75 / 8 seconds. If they take 1000 damage, they wake up and take an additional 10% max Health magic damage. Heal : 475 525 [ 325 350 / 475 525 /800] Ezreal Malphite SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_lux",
+  "file": "champs_18_lux.html",
+  "url": "/en/champs/18_lux",
+  "name": "Lux",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_lux.avif",
+   "https://img.tftips.app/champ/lg/18_lux.avif",
+   "https://img.tftips.app/champ/md/18_lux.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_lux.png?v=2",
+   "https://img.tftips.app/champ/sm/18_kennen.avif",
+   "https://img.tftips.app/champ/sm/18_lux.avif",
+   "https://img.tftips.app/champ/sm/18_maokai.avif"
+  ],
+  "text": "TFTips - Lux Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Lux Magic Caster Avatar Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Final Spark Mana 20 / 70 Passive: On cast, all allies that share a trait with Lux gain 3 ( ) mana. Active: Fire a laser towards the most enemies in a line that deals 565 ( ) magic damage, reduced by 25% for each enemy hit (minimum 40%). Blackthorn Bonus: Stuns targets hit for 1 second. Blossom Bonus: The first target hit is dealt 10% bonus damage. Coven Bonus: Reduces the Armor and Magic Resist of targets hit by 8 for the rest of combat. Elderwood Bonus: Casts grant all allies 2.5% increased max Health for the rest of combat. Fae Bonus: Heals the lowest percent Health ally for 18% of ability damage dealt. Inferno Bonus: Restores 10 mana per takedown. Lunar Bonus: Applies 8% Vulnerable to enemies hit for 4 seconds. Vulnerable: Increases damage taken Primal Bonus: Gain 60% Attack Speed for 6 seconds after cast. Solar Bonus: Deal 15% bonus damage. For each unique 3-star champion fielded, deal an additional 12% bonus damage. Skill Details Recommended Items Recommended Items Worse placement Patch History Patch History Patch 18.2 Passive: On cast, all allies that share a trait with Lux gain 3 / 3 / 100 ( ) mana. Active: Fire a laser towards the most enemies in a line that deals 355 / 550 / 5000 375 / 565 / 6500 ( ) magic damage, reduced by 25% / 25% / 10% for each enemy hit (minimum 40%). Patch 18.1d Passive: On cast, all allies that share a trait with Lux gain 3 / 3 / 100 ( ) mana. Active: Fire a laser towards the most enemies in a line that deals 330 / 520 355 / 550 / 5000 ( ) magic damage, reduced by 25% / 25% / 10% for each enemy hit (minimum 40%). Kennen Maokai SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_malphite",
+  "file": "champs_18_malphite.html",
+  "url": "/en/champs/18_malphite",
+  "name": "Malphite",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_malphite.avif",
+   "https://img.tftips.app/champ/lg/18_malphite.avif",
+   "https://img.tftips.app/champ/md/18_malphite.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_malphite.png?v=2",
+   "https://img.tftips.app/champ/sm/18_lillia.avif",
+   "https://img.tftips.app/champ/sm/18_malphite.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif"
+  ],
+  "text": "TFTips - Malphite Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Malphite Magic Tank Blackthorn Monolith Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Petrified Bark Mana 30 / 80 Gain 850 ( ) Shield for 4 seconds and become petrified. When the shield breaks, unleash a wave of dark energy, dealing 123 ( ) magic damage to enemies within 2 hexes. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Soraka Zyra Veigar Reroll Primal Malphite Warwick Murkwolf Patch History Patch History Patch PBE Gain 700 / 850 735 / 885 / 2000 ( ) Shield for 4 seconds and become petrified. When the shield breaks, unleash a wave of dark energy, dealing 82 / 123 / 3399 ( ) magic damage to enemies within 2 / 2 / 3 hexes. Shield : 850 885 [ 700 735 / 850 885 /2000] Lillia Morgana SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_mamabeak",
+  "file": "champs_18_mamabeak.html",
+  "url": "/en/champs/18_mamabeak",
+  "name": "Mama Beak",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_mamabeak.avif",
+   "https://img.tftips.app/champ/lg/18_mamabeak.avif",
+   "https://img.tftips.app/champ/md/18_mamabeak.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_mamabeak.png?v=2",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_krug.avif",
+   "https://img.tftips.app/champ/sm/18_mamabeak.avif",
+   "https://img.tftips.app/champ/sm/18_masteryi.avif"
+  ],
+  "text": "TFTips - Mama Beak Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Mama Beak Attack Marksman Riftbeast Summoner Rapidfire Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Flock Family Mana 20 / 60 Summon 4 untargetable Tiny Beaks nearby for 5 ( ) seconds. Whenever Mama Beak attacks, Tiny Beaks attack the same enemy, dealing 33 ( ) physical damage. Orange Buff: Dealing physical damage reduces enemy Armor by 2 . Skill Details Recommended Items Recommended Items High adoption Worse placement High placement Comps with this Champion Comps with this Champion Aphelios Nidalee Patch History Patch History Patch PBE Summon 4 untargetable Tiny Beaks nearby for 5 ( ) seconds. Whenever Mama Beak attacks, Tiny Beaks attack the same enemy, dealing 22 / 33 / 52 20 / 30 / 50 ( ) physical damage. Orange Buff: Dealing physical damage reduces enemy Armor by 2 . Damage : 33 30 [ 22/33/52 20/30/50 ] Patch 18.4b 1-star Attack Damage : 55 60 9 % 2-star Attack Damage : 83 90 9 % 3-star Attack Damage : 124 135 9 % Patch 18.4 Summon 4 untargetable Tiny Beaks nearby for 5 ( ) seconds. Whenever Mama Beak attacks, Tiny Beaks attack the same enemy, dealing 22 / 33 / 48 52 ( ) physical damage. Orange Buff: Dealing physical damage reduces enemy Armor by 2 . Damage : 33 [22/33/ 48 52 ] Patch 18.2 1-star Attack Damage : 50 55 10 % 2-star Attack Damage : 75 83 10 % 3-star Attack Damage : 113 124 10 % Summon 4 untargetable Tiny Beaks nearby for 5 ( ) seconds. Whenever Mama Beak attacks, Tiny Beaks attack the same enemy, dealing 20 / 30 22 / 33 / 48 ( ) physical damage. Orange Buff: Dealing physical damage reduces enemy Armor by 2 . Damage : 30 33 [ 20 22 / 30 33 /48] Krug Master Yi SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_maokai",
+  "file": "champs_18_maokai.html",
+  "url": "/en/champs/18_maokai",
+  "name": "Maokai",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_maokai.avif",
+   "https://img.tftips.app/champ/lg/18_maokai.avif",
+   "https://img.tftips.app/champ/md/18_maokai.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_maokai.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_lux.avif",
+   "https://img.tftips.app/champ/sm/18_maokai.avif",
+   "https://img.tftips.app/champ/sm/18_taric.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Maokai Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Maokai Magic Tank Old Growth Juggernaut Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Sow the Seeds Mana 30 / 100 Passive: After every 650 damage blocked, a sapling jumps towards a nearby enemy and deals 145 ( ) magic damage. On death, 5 saplings jump out. Active: Deal 124 ( ) magic damage to target and restore 400 ( ) + 10% missing Health. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Juggernaut Zyra Elder Dragon Draven Fast 9 Patch History Patch History Patch 18.2b Max Mana : 90 100 Patch 18.2 Max Mana : 100 90 Starting Mana : 40 30 Lux Taric SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_masteryi",
+  "file": "champs_18_masteryi.html",
+  "url": "/en/champs/18_masteryi",
+  "name": "Master Yi",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_masteryi.avif",
+   "https://img.tftips.app/champ/lg/18_masteryi.avif",
+   "https://img.tftips.app/champ/md/18_masteryi.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_masteryi.png?v=2",
+   "https://img.tftips.app/champ/sm/18_mamabeak.avif",
+   "https://img.tftips.app/champ/sm/18_masteryi.avif",
+   "https://img.tftips.app/champ/sm/18_rammus.avif"
+  ],
+  "text": "TFTips - Master Yi Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Master Yi Blossom Adaptor Adaptor AD Form AP Form Attack Specialist Health Base AD Armor Range Magic Resist Attack Speed Skill (AD Form) Skill (AD Form) Wuju Style Mana 0 / 3 Passive: Every third attack is a Double Strike. On takedown, gain a burst of movement speed. Adaptor : Double Strikes grant 15% ( ) stacking Attack Speed. Adaptor : Double Strikes deal bonus damage and heal. Skill Details Recommended Items(AD Form) Recommended Items(AD Form) Worse placement High placement Comps with this Champion Comps with this Champion Master Yi Kog'Maw Patch History Patch History Patch PBE 1-star Attack Damage : 60 63 5 % 2-star Attack Damage : 90 95 5 % 3-star Attack Damage : 135 142 5 % Patch 18.2 1-star Attack Damage : 65 60 8 % 2-star Attack Damage : 98 90 8 % 3-star Attack Damage : 146 135 8 % Patch 18.1d Armor : 60 55 8 % Magic Resist : 60 55 8 % Mama Beak Rammus SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_morgana",
+  "file": "champs_18_morgana.html",
+  "url": "/en/champs/18_morgana",
+  "name": "Morgana",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_morgana.avif",
+   "https://img.tftips.app/champ/lg/18_morgana.avif",
+   "https://img.tftips.app/champ/md/18_morgana.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_morgana.png?v=2",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_malphite.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_nidalee.avif"
+  ],
+  "text": "TFTips - Morgana Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Morgana Magic Fighter Coven Invoker Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Withering Curse Mana 0 / 65 Passive: Gain 25% Omnivamp. Active: Fire a dark blast at 3 nearby enemies, dealing 90 ( ) magic damage to them and cursing them for 4 seconds. Then, spawn a 2 Hex withering zone for the same duration that deals 50 ( ) magic damage per second. Cursed enemies take 33 ( ) more damage per curse. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Morgana Ahri Aphelios Nidalee Elder Dragon Draven Fast 9 Patch History Patch History Patch PBE Passive: Gain 25% Omnivamp. Active: Fire a dark blast at 3 nearby enemies, dealing 60 / 90 70 / 105 / 500 ( ) magic damage to them and cursing them for 4 seconds. Then, spawn a 2 Hex withering zone for the same duration that deals 33 / 50 / 500 ( ) magic damage per second. Cursed enemies take 22 / 33 25 / 38 / 240 ( ) more damage per curse. Initial Damage : 90 105 [ 60 70 / 90 105 /500] Curse Bonus Damage : 33 38 [ 22 25 / 33 38 /240] Patch 18.1d Max Mana : 60 65 Malphite Nidalee SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_murkwolf",
+  "file": "champs_18_murkwolf.html",
+  "url": "/en/champs/18_murkwolf",
+  "name": "Murkwolf",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_murkwolf.avif",
+   "https://img.tftips.app/champ/lg/18_murkwolf.avif",
+   "https://img.tftips.app/champ/md/18_murkwolf.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_murkwolf.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_leblanc.avif",
+   "https://img.tftips.app/champ/sm/18_murkwolf.avif",
+   "https://img.tftips.app/champ/sm/18_scuttlecrab.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif"
+  ],
+  "text": "TFTips - Murkwolf Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Murkwolf Attack Assassin Riftbeast Ravager Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Rending Claws Mana 0 / 40 Leap to the lowest Health enemy within 3 Hexes and deal 180 ( ) physical damage. The next 2 attacks gain 175% Attack Speed and deal 100 ( ) bonus physical damage. Grey Buff: Gain Precision and 25% Critical Strike Chance, increased up to 75% based on missing Health. Skill Details Recommended Items Recommended Items Worse placement Comps with this Champion Comps with this Champion Riftbeast Warwick Murkwolf Patch History Patch History Patch 18.4b Leap to the lowest Health enemy within 3 Hexes and deal 120 / 180 / 270 ( ) physical damage. The next 2 attacks gain 175% Attack Speed and deal 60 / 90 / 135 65 / 100 / 160 ( ) bonus physical damage. Grey Buff: Gain Precision and 25% Critical Strike Chance, increased up to 75% based on missing Health. Empowered Damage : 90 100 [ 60/90/135 65/100/160 ] Patch 18.4 Leap to the lowest Health enemy within 3 Hexes and deal 120 / 180 / 270 ( ) physical damage. The next 2 attacks gain 175% Attack Speed and deal 65 / 100 / 160 60 / 90 / 135 ( ) bonus physical damage. Grey Buff: Gain Precision and 25% Critical Strike Chance, increased up to 75% based on missing Health. Empowered Damage : 100 90 [ 65/100/160 60/90/135 ] Patch 18.3 Leap to the lowest Health enemy within 3 Hexes and deal 120 / 180 / 270 ( ) physical damage. The next 2 attacks gain 175% Attack Speed and deal 60 / 90 / 135 65 / 100 / 160 ( ) bonus physical damage. Grey Buff: Gain Precision and 25% Critical Strike Chance, increased up to 75% based on missing Health. Empowered Damage : 90 100 [ 60/90/135 65/100/160 ] LeBlanc Scuttlecrab SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_nidalee",
+  "file": "champs_18_nidalee.html",
+  "url": "/en/champs/18_nidalee",
+  "name": "Nidalee",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_nidalee.avif",
+   "https://img.tftips.app/champ/lg/18_nidalee.avif",
+   "https://img.tftips.app/champ/md/18_nidalee.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_nidalee.png?v=2",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_masteryi.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_nidalee.avif",
+   "https://img.tftips.app/champ/sm/18_sentinel.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif"
+  ],
+  "text": "TFTips - Nidalee Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Nidalee Primal Adaptor Adaptor AP Form AD Form Magic Marksman Health Base AD Armor Range Magic Resist Attack Speed Skill (AP Form) Skill (AP Form) Javelin Toss Mana 0 / 45 Adaptor : Gain 150% Attack Speed for the next 3 attacks. These attacks are replaced with javelins that deal 275 ( ) magic damage. The 3rd attack instead targets the furthest enemy with the least items and deals 500 ( ) magic damage. Adaptor : Transform into a Melee cougar Assassin that swipes enemies. Skill Details Recommended Items(AP Form) Recommended Items(AP Form) High adoption Comps with this Champion Comps with this Champion Aphelios Nidalee Master Yi Kog'Maw Primal Malphite Patch History Patch History Patch 18.4 Adaptor : Gain 150% Attack Speed for the next 3 attacks. These attacks are replaced with javelins that deal 170 / 255 185 / 275 / 2000 ( ) magic damage. The 3rd attack instead targets the furthest enemy with the least items and deals 330 / 500 / 3000 ( ) magic damage. Adaptor : Transform into a Melee cougar Assassin that swipes enemies. Damage : 255 275 [ 170 185 / 255 275 /2000] Patch 18.3 Adaptor : Gain 150% Attack Speed for the next 3 attacks. These attacks are replaced with javelins that deal 170 / 255 / 2000 ( ) magic damage. The 3rd attack instead targets the furthest enemy with the least items and deals 300 / 450 330 / 500 / 3000 ( ) magic damage. Adaptor : Transform into a Melee cougar Assassin that swipes enemies. Final Damage : 450 500 [ 300 330 / 450 500 /3000] Patch 18.2 Adaptor : Gain 150% Attack Speed for the next 3 attacks. These attacks are replaced with javelins that deal 170 / 255 / 2000 ( ) magic damage. The 3rd attack instead targets the furthest enemy with the least items and deals 285 / 425 300 / 450 / 3000 ( ) magic damage. Adaptor : Transform into a Melee cougar Assassin that swipes enemies. Final Damage : 425 450 [ 285 300 / 425 450 /3000] Morgana Sentinel SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_ornn",
+  "file": "champs_18_ornn.html",
+  "url": "/en/champs/18_ornn",
+  "name": "Ornn",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_ornn.avif",
+   "https://img.tftips.app/champ/lg/18_ornn.avif",
+   "https://img.tftips.app/champ/md/18_ornn.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_ornn.png?v=2",
+   "https://img.tftips.app/champ/sm/18_akali.avif",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_kayle.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif",
+   "https://img.tftips.app/champ/sm/18_leona.avif",
+   "https://img.tftips.app/champ/sm/18_ornn.avif",
+   "https://img.tftips.app/champ/sm/18_pebbles.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif"
+  ],
+  "text": "TFTips - Ornn Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Ornn Magic Tank Elderwood Defender Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Bellows Breath Mana 40 / 100 Active: Gain 460 ( ) Shield for 4 seconds and deal 300 ( ) magic damage to enemies in a cone. Quest: Each player combat, Ornn stores damage blocked as Forge Power, increased by 85% at 3-star. Gain an Artifact Anvil each time he gains enough Forge Power. Skill Details Recommended Items Recommended Items High adoption High placement Comps with this Champion Comps with this Champion Kha'Zix Hecarim Defender Cassiopeia Kayle Reroll Akali Camille Reroll Veigar Reroll Primal Malphite Patch History Patch History Patch 18.3 Active: Gain 400 / 460 / 550 ( ) Shield for 4 seconds and deal 200 / 300 / 450 ( ) magic damage to enemies in a cone. Quest: Each player combat, Ornn stores damage blocked as Forge Power, doubled increased by 85% at 3-star. Gain an Artifact Anvil each time he gains enough Forge Power. Leona Pebbles SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_pebbles",
+  "file": "champs_18_pebbles.html",
+  "url": "/en/champs/18_pebbles",
+  "name": "Pebbles",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_pebbles.avif",
+   "https://img.tftips.app/champ/lg/18_pebbles.avif",
+   "https://img.tftips.app/champ/md/18_pebbles.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_pebbles.png?v=2",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_ornn.avif",
+   "https://img.tftips.app/champ/sm/18_pebbles.avif",
+   "https://img.tftips.app/champ/sm/18_rakan.avif"
+  ],
+  "text": "TFTips - Pebbles Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Pebbles Magic Caster Riftbeast Invoker Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Azure Laser Mana 30 / 70 Begin consuming 35% max Mana per second and channeling a laser on the target. Each second while casting, deal 240 ( ) magic damage to them and reduce their Magic Resist by 3. Teal Buff: Gain 2 Mana Regen for every 4 seconds channeled. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Riftbeast Morgana Ahri Ornn Rakan SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_rakan",
+  "file": "champs_18_rakan.html",
+  "url": "/en/champs/18_rakan",
+  "name": "Rakan",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_rakan.avif",
+   "https://img.tftips.app/champ/lg/18_rakan.avif",
+   "https://img.tftips.app/champ/md/18_rakan.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_rakan.png?v=2",
+   "https://img.tftips.app/champ/sm/18_caitlyn.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_kayle.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_pebbles.avif",
+   "https://img.tftips.app/champ/sm/18_rakan.avif",
+   "https://img.tftips.app/champ/sm/18_reksai.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif"
+  ],
+  "text": "TFTips - Rakan Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Rakan Magic Tank Fae Juggernaut Vanguard Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Entrancing Dance Mana 35 / 105 Gain 340 ( ) Shield for 4 seconds. Then grant the ally who has dealt the most damage this combat 100% ( ) decaying Attack Speed for 4 seconds. Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Riftbeast Morgana Ahri Juggernaut Zyra Kayle Reroll Caitlyn Scuttlecrab Tristana Rammus Patch History Patch History Patch 18.4 Gain 270 / 320 / 415 290 / 340 / 435 ( ) Shield for 4 seconds. Then grant the ally who has dealt the most damage this combat 90% / 100% / 130% ( ) decaying Attack Speed for 4 seconds. Shield : 320 340 [ 270/320/415 290/340/435 ] Pebbles Rek'Sai SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_rammus",
+  "file": "champs_18_rammus.html",
+  "url": "/en/champs/18_rammus",
+  "name": "Rammus",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_rammus.avif",
+   "https://img.tftips.app/champ/lg/18_rammus.avif",
+   "https://img.tftips.app/champ/md/18_rammus.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_rammus.png?v=2",
+   "https://img.tftips.app/champ/sm/18_azir.avif",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_masteryi.avif",
+   "https://img.tftips.app/champ/sm/18_rammus.avif",
+   "https://img.tftips.app/champ/sm/18_rengar.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif"
+  ],
+  "text": "TFTips - Rammus Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Rammus Attack Tank Sprykin Defender Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Defensive Ball Curl Mana 30 / 80 Taunt, forcing enemies to attack this champion. For 4 seconds, gain 550 ( ) Shield and 60 Armor and Magic Resist. When the Shield breaks, deal 75 ( ) physical damage to enemies in 2 Hexes. Skill Details Recommended Items Recommended Items High adoption Worse placement Comps with this Champion Comps with this Champion Azir Rammus Defender Cassiopeia Veigar Reroll Tristana Rammus Patch History Patch History Patch 18.4 Taunt, forcing enemies to attack this champion. For 4 seconds, gain 400 / 550 / 725 700 ( ) Shield and 60 Armor and Magic Resist. When the Shield breaks, deal 50 / 75 / 120 ( ) physical damage to enemies in 2 Hexes. Shield : 550 [400/550/ 725 700 ] Patch 18.3 Taunt, forcing enemies to attack this champion. For 4 seconds, gain 350 / 450 / 550 400 / 550 / 725 ( ) Shield and 60 Armor and Magic Resist. When the Shield breaks, deal 50 / 75 / 120 ( ) physical damage to enemies in 2 Hexes. Shield : 450 550 [ 350/450/550 400/550/725 ] Master Yi Rengar SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_reksai",
+  "file": "champs_18_reksai.html",
+  "url": "/en/champs/18_reksai",
+  "name": "Rek&#x27;Sai",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_reksai.avif",
+   "https://img.tftips.app/champ/lg/18_reksai.avif",
+   "https://img.tftips.app/champ/md/18_reksai.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_reksai.png?v=2",
+   "https://img.tftips.app/champ/sm/18_rakan.avif",
+   "https://img.tftips.app/champ/sm/18_reksai.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif",
+   "https://img.tftips.app/champ/sm/18_varus.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif"
+  ],
+  "text": "TFTips - Rek'Sai Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Rek'Sai Magic Tank Blackthorn Brawler Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Uproot Mana 40 / 100 Passive: Restore 27 ( ) Health each second, tripled for 3 seconds after casting. Active: Lunge out of the ground, Stunning adjacent enemies for 1 second and dealing 105 ( ) magic damage to them. Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Veigar Reroll Primal Malphite Warwick Murkwolf Rakan Varus SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_rengar",
+  "file": "champs_18_rengar.html",
+  "url": "/en/champs/18_rengar",
+  "name": "Rengar",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_rengar.avif",
+   "https://img.tftips.app/champ/lg/18_rengar.avif",
+   "https://img.tftips.app/champ/md/18_rengar.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_rengar.png?v=2",
+   "https://img.tftips.app/champ/sm/18_rammus.avif",
+   "https://img.tftips.app/champ/sm/18_rengar.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif"
+  ],
+  "text": "TFTips - Rengar Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Rengar Attack Fighter Rival Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Savagery Mana 10 / 50 Jump to the lowest percent Health enemy within 3 hexes and stab them, dealing 385 ( ) physical damage. Then heal for 90 ( ) , increased to up to 180 ( ) based on their missing Health. Skill Details Recommended Items Recommended Items High adoption High placement Patch History Patch History Patch 18.4 Jump to the lowest percent Health enemy within 3 hexes and stab them, dealing 255 / 385 / 615 650 ( ) physical damage. Then heal for 60 / 90 / 150 ( ) , increased to up to 120 / 180 / 300 ( ) based on their missing Health. Damage : 385 [255/385/ 615 650 ] Patch 18.2 Attack Speed : 0.80 0.75 6 % Rammus Tristana SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_scuttlecrab",
+  "file": "champs_18_scuttlecrab.html",
+  "url": "/en/champs/18_scuttlecrab",
+  "name": "Scuttlecrab",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_scuttlecrab.avif",
+   "https://img.tftips.app/champ/lg/18_scuttlecrab.avif",
+   "https://img.tftips.app/champ/md/18_scuttlecrab.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_scuttlecrab.png?v=2",
+   "https://img.tftips.app/champ/sm/18_caitlyn.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_murkwolf.avif",
+   "https://img.tftips.app/champ/sm/18_scuttlecrab.avif",
+   "https://img.tftips.app/champ/sm/18_sejuani.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Scuttlecrab Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Scuttlecrab Attack Tank Riftbeast Juggernaut Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Can You Dig It? Mana 40 / 100 Passive: Attacks are replaced by a dance that deals 75 ( ) physical damage to all adjacent enemies. Active: Burrow underground, gaining 15% Durability for 3 seconds and healing 400 ( ) over the duration. Green Buff: When allies fall below 50% Health, they restore 15% max Health. Skill Details Recommended Items Recommended Items High adoption Worse placement High placement Comps with this Champion Comps with this Champion Riftbeast Morgana Ahri Juggernaut Zyra Caitlyn Scuttlecrab Primal Malphite Murkwolf Sejuani SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_sejuani",
+  "file": "champs_18_sejuani.html",
+  "url": "/en/champs/18_sejuani",
+  "name": "Sejuani",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_sejuani.avif",
+   "https://img.tftips.app/champ/lg/18_sejuani.avif",
+   "https://img.tftips.app/champ/md/18_sejuani.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_sejuani.png?v=2",
+   "https://img.tftips.app/champ/sm/18_akali.avif",
+   "https://img.tftips.app/champ/sm/18_caitlyn.avif",
+   "https://img.tftips.app/champ/sm/18_kayle.avif",
+   "https://img.tftips.app/champ/sm/18_scuttlecrab.avif",
+   "https://img.tftips.app/champ/sm/18_sejuani.avif",
+   "https://img.tftips.app/champ/sm/18_shen.avif",
+   "https://img.tftips.app/champ/sm/18_yunara.avif"
+  ],
+  "text": "TFTips - Sejuani Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Sejuani Magic Tank Solar Juggernaut Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Sun's Wrath Mana 40 / 100 Gain 412 ( ) Shield for 4 seconds. Then cleave in a cone, dealing 135 ( ) magic damage and strike in a line, dealing 180 ( ) magic damage to enemies hit. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Kayle Reroll Akali Camille Reroll Caitlyn Scuttlecrab Yunara Sejuani Scuttlecrab Shen SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_sentinel",
+  "file": "champs_18_sentinel.html",
+  "url": "/en/champs/18_sentinel",
+  "name": "Sentinel",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_sentinel.avif",
+   "https://img.tftips.app/champ/lg/18_sentinel.avif",
+   "https://img.tftips.app/champ/md/18_sentinel.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_sentinel.png?v=2",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_nidalee.avif",
+   "https://img.tftips.app/champ/sm/18_sentinel.avif",
+   "https://img.tftips.app/champ/sm/18_sett.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif"
+  ],
+  "text": "TFTips - Sentinel Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Sentinel Magic Tank Riftbeast Vanguard Invoker Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Azure Shockwave Mana 60 / 150 Gain 684 ( ) Shield for 4 seconds. Slam the ground, sending a fissure in the direction of the most enemies. Enemies hit are briefly knocked up, take 150 ( ) magic damage, and are Mana Reaved for 10. Blue Buff: Each time Sentinel casts, allies gain 2 Mana Regen. Mana Reave: Increase the Mana cost of the next Ability cast. Skill Details Recommended Items Recommended Items Comps with this Champion Comps with this Champion Riftbeast Morgana Ahri Aphelios Nidalee Elder Dragon Draven Fast 9 Primal Malphite Patch History Patch History Patch PBE Gain 480 / 684 505 / 709 / 2521 ( ) Shield for 4 seconds. Slam the ground, sending a fissure in the direction of the most enemies. Enemies hit are briefly knocked up, take 100 / 150 / 3500 ( ) magic damage, and are Mana Reaved for 10. Blue Buff: Each time Sentinel casts, allies gain 2 Mana Regen. Mana Reave: Increase the Mana cost of the next Ability cast. Shield : 684 709 = 10% + 450 475 ( ) [ 350 375 / 450 475 /2000] Patch 18.2 Gain 530 / 734 480 / 684 / 2521 ( ) Shield for 4 seconds. Slam the ground, sending a fissure in the direction of the most enemies. Enemies hit are briefly knocked up, take 100 / 150 / 3500 ( ) magic damage, and are Mana Reaved for 10. Blue Buff: Each time Sentinel casts, allies gain 2 Mana Regen. Mana Reave: Increase the Mana cost of the next Ability cast. Shield : 734 684 = 10% + 500 450 ( ) [ 400 350 / 500 450 /2000] Nidalee Sett SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_sett",
+  "file": "champs_18_sett.html",
+  "url": "/en/champs/18_sett",
+  "name": "Sett",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_sett.avif",
+   "https://img.tftips.app/champ/lg/18_sett.avif",
+   "https://img.tftips.app/champ/md/18_sett.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_sett.png?v=2",
+   "https://img.tftips.app/champ/sm/18_masteryi.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_sentinel.avif",
+   "https://img.tftips.app/champ/sm/18_sett.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif"
+  ],
+  "text": "TFTips - Sett Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Sett Attack Tank Blossom Brawler Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Haymaker Mana 60 / 135 Passive: Upon falling below 40% max Health the first time each combat, gain 100 mana. Active: Wind up a big punch, rapidly healing for 534 ( ) before dealing 355 ( ) physical damage in a large cone. Skill Details Recommended Items Recommended Items High adoption Worse placement Comps with this Champion Comps with this Champion Morgana Ahri Master Yi Kog'Maw Patch History Patch History Patch PBE Passive: Upon falling below 40% max Health the first time each combat, gain 100 mana. Active: Wind up a big punch, rapidly healing for 369 / 534 394 / 559 / 2587 ( ) before dealing 222 / 355 / 5293 ( ) physical damage in a large cone. Heal : 534 559 = 12% + 275 300 ( ) [ 225 250 / 275 300 /2000] Sentinel Sivir SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_shen",
+  "file": "champs_18_shen.html",
+  "url": "/en/champs/18_shen",
+  "name": "Shen",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_shen.avif",
+   "https://img.tftips.app/champ/lg/18_shen.avif",
+   "https://img.tftips.app/champ/md/18_shen.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_shen.png?v=2",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_sejuani.avif",
+   "https://img.tftips.app/champ/sm/18_shen.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif",
+   "https://img.tftips.app/champ/sm/18_teemo.avif"
+  ],
+  "text": "TFTips - Shen Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Shen Magic Tank Inferno Defender Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Ki Barrier Mana 30 / 90 Grant 450 ( ) Shield to Shen and 300 ( ) Shield to a nearby damaged ally for 4 seconds. Both of their next 3 attacks gain 40% Attack Speed and deal 55 ( ) bonus magic damage. Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Soraka Zyra Defender Cassiopeia Patch History Patch History Patch 18.4 Grant 350 / 430 / 550 375 / 450 / 575 ( ) Shield to Shen and 200 / 275 / 375 225 / 300 / 400 ( ) Shield to a nearby damaged ally for 4 seconds. Both of their next 3 attacks gain 40% Attack Speed and deal 35 / 55 / 80 ( ) bonus magic damage. Self Shield : 430 450 [ 350/430/550 375/450/575 ] Ally Shield : 275 300 [ 200/275/375 225/300/400 ] Patch 18.2 Grant 325 / 400 / 500 350 / 430 / 550 ( ) Shield to Shen and 200 / 275 / 375 ( ) Shield to a nearby damaged ally for 4 seconds. Both of their next 3 attacks gain 40% Attack Speed and deal 35 / 55 / 80 ( ) bonus magic damage. Self Shield : 400 430 [ 325/400/500 350/430/550 ] Sejuani Teemo SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_sivir",
+  "file": "champs_18_sivir.html",
+  "url": "/en/champs/18_sivir",
+  "name": "Sivir",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_sivir.avif",
+   "https://img.tftips.app/champ/lg/18_sivir.avif",
+   "https://img.tftips.app/champ/md/18_sivir.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_sivir.png?v=2",
+   "https://img.tftips.app/champ/sm/18_caitlyn.avif",
+   "https://img.tftips.app/champ/sm/18_sett.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Sivir Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Sivir Attack Caster Primal Hunter Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Boomerang Blade Mana 0 / 40 Throw a large crossblade that deals 320 ( ) physical damage to the current target and bounces 8 times between nearby enemies, dealing 64 ( ) physical damage each bounce. When this kills an enemy, bounce 3 additional times. Skill Details Recommended Items Recommended Items High adoption Worse placement Comps with this Champion Comps with this Champion Juggernaut Zyra Caitlyn Scuttlecrab Primal Malphite Tristana Rammus Patch History Patch History Patch PBE Throw a large crossblade that deals 215 / 320 235 / 350 / 1150 ( ) physical damage to the current target and bounces 8 times between nearby enemies, dealing 43 / 64 42 / 63 / 460 ( ) physical damage each bounce. When this kills an enemy, bounce 3 / 3 / 6 additional times. Damage : 320 350 = 300 330 ( ) + 20 ( ) [ 200 220 / 300 330 /1050] Bounce Damage : 64 63 [ 43 42.3 / 64 63 /460] Patch 18.4 Throw a large crossblade that deals 205 / 305 215 / 320 / 1150 ( ) physical damage to the current target and bounces 8 times between nearby enemies, dealing 41 / 61 43 / 64 / 460 ( ) physical damage each bounce. When this kills an enemy, bounce 3 / 3 / 6 additional times. Damage : 305 320 = 285 300 ( ) + 20 ( ) [ 190 200 / 285 300 /1050] Bounce Damage : 61 64 [ 41 43 / 61 64 /460] Sett Soraka SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_soraka",
+  "file": "champs_18_soraka.html",
+  "url": "/en/champs/18_soraka",
+  "name": "Soraka",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_soraka.avif",
+   "https://img.tftips.app/champ/lg/18_soraka.avif",
+   "https://img.tftips.app/champ/md/18_soraka.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_soraka.png?v=2",
+   "https://img.tftips.app/champ/sm/18_azir.avif",
+   "https://img.tftips.app/champ/sm/18_cassiopeia.avif",
+   "https://img.tftips.app/champ/sm/18_khazix.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Soraka Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Soraka Magic Caster Flora Fatalis Executioner Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Starcall Mana 0 / 30 Call down a star on the current target, dealing 335 ( ) magic damage. If a star has previously fallen on them, call down 3 additional stars that each deal 150 ( ) magic damage. Skill Details Recommended Items Recommended Items Worse placement Comps with this Champion Comps with this Champion Soraka Zyra Kha'Zix Hecarim Azir Rammus Defender Cassiopeia Veigar Reroll Patch History Patch History Patch PBE Call down a star on the current target, dealing 225 / 335 235 / 355 / 1000 ( ) magic damage. If a star has previously fallen on them, call down 3 additional stars that each deal 100 / 150 110 / 165 / 1000 ( ) magic damage. Damage : 335 355 [ 225 235 / 335 355 /1000] Secondary Damage : 150 165 [ 100 110 / 150 165 /1000] Patch 18.1d Call down a star on the current target, dealing 190 / 285 225 / 335 / 1000 ( ) magic damage. If a star has previously fallen on them, call down 3 additional stars that each deal 100 / 150 / 1000 ( ) magic damage. Damage : 285 335 [ 190 225 / 285 335 /1000] Sivir Zyra SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_taric",
+  "file": "champs_18_taric.html",
+  "url": "/en/champs/18_taric",
+  "name": "Taric",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_taric.avif",
+   "https://img.tftips.app/champ/lg/18_taric.avif",
+   "https://img.tftips.app/champ/md/18_taric.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_taric.png?v=2",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_elderdragon.avif",
+   "https://img.tftips.app/champ/sm/18_elderwood_golemsummon.avif",
+   "https://img.tftips.app/champ/sm/18_maokai.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_taric.avif"
+  ],
+  "text": "TFTips - Taric Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Taric Magic Tank Emerald Aspect Vanguard Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Emerald Radiance Mana 0 / 65 Passive: The first time Taric or his paired ally drops below 50% Health, unleash emerald energy from both of them, granting 501 ( ) Shield to allies within 3 Hexes for 3 seconds. Active: Restore 450 ( ) Health. Taric and his paired ally deal 150 ( ) bonus magic damage on their next 2 attacks. Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Morgana Ahri Aphelios Nidalee Elder Dragon Draven Fast 9 Patch History Patch History Patch PBE Armor : 65 70 8 % Magic Resist : 65 70 8 % Passive: The first time Taric or his paired ally drops below 50% Health, unleash emerald energy from both of them, granting 270 / 501 / 19212 ( ) Shield to allies within 3 Hexes for 3 / 3 / 99 seconds. Active: Restore 275 / 450 / 3000 ( ) Health. Taric and his paired ally deal 100 / 150 130 / 200 / 1000 ( ) bonus magic damage on their next 2 attacks. Damage : 150 200 [ 100 130 / 150 200 /1000] Patch 18.3 Passive: The first time Taric or his paired ally drops below 50% Health, unleash emerald energy from both of them, granting 295 / 576 270 / 501 / 19212 ( ) Shield to allies within 3 Hexes for 3 / 3 / 99 seconds. Active: Restore 250 / 375 275 / 450 / 3000 ( ) Health. Taric and his paired ally deal 100 / 150 / 1000 ( ) bonus magic damage on their next 2 attacks. Shield : 576 501 = 15% + 225 150 [ 100 75 / 225 150 /10000] Heal : 375 450 [ 250 275 / 375 450 /3000] Patch 18.2 Passive: The first time Taric or his paired ally drops below 50% Health, unleash emerald energy from both of them, granting 305 / 584 295 / 576 / 19212 ( ) Shield to allies within 3 Hexes for 3 / 3 / 99 seconds. Active: Restore 200 / 300 250 / 375 / 3000 ( ) Health. Taric and his paired ally deal 100 / 150 / 1000 ( ) bonus magic damage on their next 2 attacks. Shield : 584 576 = 10% 15% + 350 225 [ 175 100 / 350 225 /10000] Heal : 300 375 [ 200 250 / 300 375 /3000] Maokai Deepwood Protector SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_teemo",
+  "file": "champs_18_teemo.html",
+  "url": "/en/champs/18_teemo",
+  "name": "Teemo",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_teemo.avif",
+   "https://img.tftips.app/champ/lg/18_teemo.avif",
+   "https://img.tftips.app/champ/md/18_teemo.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_teemo.png?v=2",
+   "https://img.tftips.app/champ/sm/18_azir.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_shen.avif",
+   "https://img.tftips.app/champ/sm/18_teemo.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif"
+  ],
+  "text": "TFTips - Teemo Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Teemo Magic Caster Sprykin Invoker Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Fungus Among Us Mana 0 / 50 Throw 2 clusters of mushrooms that deal 82 ( ) magic damage to the 3 nearest enemies. Then hurl a giant mushroom that deals 200 ( ) magic damage to the target. Each cast has a 12% chance to forage an extra mushroom that can be collected for bonus effects. Red: 1 Reroll Green: 1 Tactician Health Yellow: 2 XP Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Morgana Ahri Azir Rammus Patch History Patch History Patch 18.4 Throw 2 clusters of mushrooms that deal 55 / 82 / 130 155 ( ) magic damage to the 3 nearest enemies. Then hurl a giant mushroom that deals 135 / 200 / 310 ( ) magic damage to the target. Each cast has a 10% / 12% / 15% chance to forage an extra mushroom that can be collected for bonus effects. Red: 1 Reroll Green: 1 Tactician Health Yellow: 2 XP Damage : 82 [55/82/ 130 155 ] Patch 18.3b Throw 2 clusters of mushrooms that deal 60 / 90 / 135 55 / 82 / 130 ( ) magic damage to the 3 nearest enemies. Then hurl a giant mushroom that deals 135 / 200 / 310 ( ) magic damage to the target. Each cast has a 10% / 12% / 15% chance to forage an extra mushroom that can be collected for bonus effects. Red: 1 Reroll Green: 1 Tactician Health Yellow: 2 XP Damage : 90 82 [ 60/90/135 55/82/130 ] Patch 18.3 Throw 2 clusters of mushrooms that deal 55 / 82 / 130 60 / 90 / 135 ( ) magic damage to the 3 nearest enemies. Then hurl a giant mushroom that deals 135 / 200 / 310 ( ) magic damage to the target. Each cast has a 10% / 12% / 15% chance to forage an extra mushroom that can be collected for bonus effects. Red: 1 Reroll Green: 1 Tactician Health Yellow: 2 XP Damage : 82 90 [ 55/82/130 60/90/135 ] Patch 18.2b Throw 2 clusters of mushrooms that deal 60 / 90 / 135 55 / 82 / 130 ( ) magic damage to the 3 nearest enemies. Then hurl a giant mushroom that deals 135 / 200 / 310 ( ) magic damage to the target. Each cast has a 10% / 12% / 15% chance to forage an extra mushroom that can be collected for bonus effects. Red: 1 Reroll Green: 1 Tactician Health Yellow: 2 XP Damage : 90 82 [ 60/90/135 55/82/130 ] Shen Warwick SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_tristana",
+  "file": "champs_18_tristana.html",
+  "url": "/en/champs/18_tristana",
+  "name": "Tristana",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_tristana.avif",
+   "https://img.tftips.app/champ/lg/18_tristana.avif",
+   "https://img.tftips.app/champ/md/18_tristana.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_tristana.png?v=2",
+   "https://img.tftips.app/champ/sm/18_caitlyn.avif",
+   "https://img.tftips.app/champ/sm/18_rengar.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif",
+   "https://img.tftips.app/champ/sm/18_vi.avif"
+  ],
+  "text": "TFTips - Tristana Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Tristana Attack Marksman Fae Sprykin Hunter Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Explosive Charge Mana 0 / 60 Attach an explosive charge to the target that lasts 4 seconds. While active, gain infinite range and 60% ( ) Attack Speed. After the duration, the charge explodes and splits damage between all enemies within 2 hexes, dealing 265 ( ) physical damage + 15 ( ) for each attack while casting. If an enemy with an explosive charge on them dies, it attaches to Tristana's new target. Skill Details Recommended Items Recommended Items High adoption Worse placement Comps with this Champion Comps with this Champion Caitlyn Scuttlecrab Tristana Rammus Patch History Patch History Patch PBE Max Mana : 60 50 Attach an explosive charge to the target that lasts 4 seconds. While active, gain infinite range and 60% ( ) Attack Speed. After the duration, the charge explodes and splits damage between all enemies within 2 hexes, dealing 175 / 265 / 420 ( ) physical damage + 10 / 15 / 25 12 / 18 / 28 ( ) for each attack while casting. If an enemy with an explosive charge on them dies, it attaches to Tristana's new target. Bonus Damage Per Attack : 15 18 [ 10/15/25 12/18/28 ] Patch 18.4 Attach an explosive charge to the target that lasts 4 seconds. While active, gain infinite range and 60% ( ) Attack Speed. After the duration, the charge explodes and splits damage between all enemies within 2 hexes, dealing 160 / 240 / 385 175 / 265 / 420 ( ) physical damage + 10 / 15 / 25 ( ) for each attack while casting. If an enemy with an explosive charge on them dies, it attaches to Tristana's new target. Damage : 240 265 [ 160/240/385 175/265/420 ] Rengar Vi SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_varus",
+  "file": "champs_18_varus.html",
+  "url": "/en/champs/18_varus",
+  "name": "Varus",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_varus.avif",
+   "https://img.tftips.app/champ/lg/18_varus.avif",
+   "https://img.tftips.app/champ/md/18_varus.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_varus.png?v=2",
+   "https://img.tftips.app/champ/sm/18_akali.avif",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_reksai.avif",
+   "https://img.tftips.app/champ/sm/18_sivir.avif",
+   "https://img.tftips.app/champ/sm/18_varus.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif"
+  ],
+  "text": "TFTips - Varus Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Varus Attack Caster Inferno Rapidfire Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Piercing Arrow Mana 20 / 110 Wind up, then fire an arrow at the most enemies in line with the target. It deals 670 ( ) physical damage to enemies hit, reduced by 40% for each enemy it passes through (minimum 40%). Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Aphelios Nidalee Akali Camille Reroll Primal Malphite Patch History Patch History Patch 18.4b Max Mana : 120 110 Starting Mana : 30 20 Patch 18.4 Attack Speed : 0.70 0.75 7 % Patch 18.2 Wind up, then fire an arrow at the most enemies in line with the target. It deals 415 / 625 / 995 445 / 670 / 1070 ( ) physical damage to enemies hit, reduced by 40% for each enemy it passes through (minimum 40%). Damage : 625 670 = 580 625 ( ) + 45 ( ) [ 385/580/925 415/625/1000 ] Rek'Sai Veigar SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_veigar",
+  "file": "champs_18_veigar.html",
+  "url": "/en/champs/18_veigar",
+  "name": "Veigar",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_veigar.avif",
+   "https://img.tftips.app/champ/lg/18_veigar.avif",
+   "https://img.tftips.app/champ/md/18_veigar.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_veigar.png?v=2",
+   "https://img.tftips.app/champ/sm/18_azir.avif",
+   "https://img.tftips.app/champ/sm/18_varus.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif",
+   "https://img.tftips.app/champ/sm/18_xayah.avif"
+  ],
+  "text": "TFTips - Veigar Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Veigar Magic Caster Blackthorn Sprykin Spellweaver Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Primordial Burst Mana 0 / 30 Launch a giant blast at the target that deals 285 ( ) magic damage, increased to 430 ( ) if they're below 30% max Health. If they die, permanently gain 2% Ability Power. Skill Details Recommended Items Recommended Items High adoption Worse placement High placement Comps with this Champion Comps with this Champion Azir Rammus Veigar Reroll Patch History Patch History Patch 18.4 Launch a giant blast at the target that deals 200 / 300 / 450 190 / 285 / 430 ( ) magic damage, increased to 300 / 450 / 675 285 / 430 / 640 ( ) if they're below 30% max Health. If they die, permanently gain 2% Ability Power. Damage : 300 285 [ 200/300/450 190/285/430 ] Low Health Damage : 450 430 [ 300/450/675 285/430/640 ] Patch 18.3 Launch a giant blast at the target that deals 175 / 265 / 395 200 / 300 / 450 ( ) magic damage, increased to 265 / 400 / 595 300 / 450 / 675 ( ) if they're below 30% max Health. If they die, permanently gain 3% 2% Ability Power. Damage : 265 300 [ 175/265/395 200/300/450 ] Low Health Damage : 400 450 [ 265/400/595 300/450/675 ] Patch 18.2 Launch a giant blast at the target that deals 175 / 265 / 395 ( ) magic damage, increased to 265 / 400 / 595 ( ) if they're below 30% max Health. If they die, permanently gain 1.5% 3% Ability Power. Varus Xayah SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_vi",
+  "file": "champs_18_vi.html",
+  "url": "/en/champs/18_vi",
+  "name": "Vi",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_vi.avif",
+   "https://img.tftips.app/champ/lg/18_vi.avif",
+   "https://img.tftips.app/champ/md/18_vi.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_vi.png?v=2",
+   "https://img.tftips.app/champ/sm/18_ahri.avif",
+   "https://img.tftips.app/champ/sm/18_aphelios.avif",
+   "https://img.tftips.app/champ/sm/18_caitlyn.avif",
+   "https://img.tftips.app/champ/sm/18_masteryi.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif",
+   "https://img.tftips.app/champ/sm/18_vi.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Vi Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Vi Attack Tank Primal Juggernaut Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Furious Fists Mana 0 / 60 Passive: On attack, restore 40 ( ) Health. Active: Unleash a primal roar, restoring 265 ( ) Health. Then gain 100% Attack Speed, 15% Durability, and is unstoppable for 3 seconds. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Juggernaut Zyra Aphelios Nidalee Master Yi Kog'Maw Caitlyn Scuttlecrab Tristana Rammus Tristana Ahri SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_warwick",
+  "file": "champs_18_warwick.html",
+  "url": "/en/champs/18_warwick",
+  "name": "Warwick",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_warwick.avif",
+   "https://img.tftips.app/champ/lg/18_warwick.avif",
+   "https://img.tftips.app/champ/md/18_warwick.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_warwick.png?v=2",
+   "https://img.tftips.app/champ/sm/18_teemo.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif",
+   "https://img.tftips.app/champ/sm/18_yunara.avif"
+  ],
+  "text": "TFTips - Warwick Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Warwick Attack Fighter Blackthorn Ravager Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Jaws of The Beast Mana 0 / 40 Bite the current target, dealing 345 ( ) physical damage and healing for 25% ( ) of the damage dealt. Gain 20% Attack Speed for the rest of combat. Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Warwick Murkwolf Patch History Patch History Patch 18.4b Bite the current target, dealing 215 / 325 / 500 230 / 345 / 535 ( ) physical damage and healing for 20% 25% ( ) of the damage dealt. Gain 20% Attack Speed for the rest of combat. Damage : 325 345 [ 215/325/500 230/345/535 ] Heal : 20% 25% Patch 18.4 Bite the current target, dealing 230 / 345 / 535 215 / 325 / 500 ( ) physical damage and healing for 25% 20% ( ) of the damage dealt. Gain 20% Attack Speed for the rest of combat. Damage : 345 325 [ 230/345/535 215/325/500 ] Heal : 25% 20% Patch 18.3 Bite the current target, dealing 215 / 325 / 500 230 / 345 / 535 ( ) physical damage and healing for 20% 25% ( ) of the damage dealt. Gain 20% Attack Speed for the rest of combat. Damage : 325 345 [ 215/325/500 230/345/535 ] Heal : 20% 25% Patch 18.2 1-star Attack Damage : 40 45 13 % 2-star Attack Damage : 60 68 13 % 3-star Attack Damage : 90 101 13 % Teemo Yunara SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_xayah",
+  "file": "champs_18_xayah.html",
+  "url": "/en/champs/18_xayah",
+  "name": "Xayah",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_xayah.avif",
+   "https://img.tftips.app/champ/lg/18_xayah.avif",
+   "https://img.tftips.app/champ/md/18_xayah.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_xayah.png?v=2",
+   "https://img.tftips.app/champ/sm/18_kayle.avif",
+   "https://img.tftips.app/champ/sm/18_tristana.avif",
+   "https://img.tftips.app/champ/sm/18_veigar.avif",
+   "https://img.tftips.app/champ/sm/18_xayah.avif",
+   "https://img.tftips.app/champ/sm/18_yorick.avif"
+  ],
+  "text": "TFTips - Xayah Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Xayah Attack Marksman Elderwood Fae Rapidfire Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Deadly Plumage Mana 0 / 50 Gain 50% Attack Speed for the next 5 attacks. These attacks are replaced with feathers that deal 108 ( ) physical damage and reduce Armor by 2 ( ) . Skill Details Recommended Items Recommended Items High adoption Comps with this Champion Comps with this Champion Kayle Reroll Tristana Rammus Patch History Patch History Patch 18.4 Gain 50% Attack Speed for the next 5 attacks. These attacks are replaced with feathers that deal 68 / 102 / 155 73 / 108 / 165 ( ) physical damage and reduce Armor by 2 ( ) . Damage : 102 108 [ 68/102/155 73/108/165 ] Veigar Yorick SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_yorick",
+  "file": "champs_18_yorick.html",
+  "url": "/en/champs/18_yorick",
+  "name": "Yorick",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_yorick.avif",
+   "https://img.tftips.app/champ/lg/18_yorick.avif",
+   "https://img.tftips.app/champ/md/18_yorick.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_yorick.png?v=2",
+   "https://img.tftips.app/champ/sm/18_alistar.avif",
+   "https://img.tftips.app/champ/sm/18_masteryi.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif",
+   "https://img.tftips.app/champ/sm/18_xayah.avif",
+   "https://img.tftips.app/champ/sm/18_yorick.avif",
+   "https://img.tftips.app/champ/sm/18_yunara.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Yorick Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Yorick Attack Tank Blossom Juggernaut Summoner Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Last Rites Mana 50 / 110 Passive: On death, spawn a Spirit Walker with 634 ( ) max Health which immediately taunts, forcing enemies to attack it. Active: Restore 325 ( ) Health and strike the target, dealing 225 ( ) physical damage. Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Morgana Ahri Soraka Zyra Juggernaut Zyra Master Yi Kog'Maw Yunara Sejuani Xayah Alistar SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_yunara",
+  "file": "champs_18_yunara.html",
+  "url": "/en/champs/18_yunara",
+  "name": "Yunara",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_yunara.avif",
+   "https://img.tftips.app/champ/lg/18_yunara.avif",
+   "https://img.tftips.app/champ/md/18_yunara.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_yunara.png?v=2",
+   "https://img.tftips.app/champ/sm/18_azir.avif",
+   "https://img.tftips.app/champ/sm/18_morgana.avif",
+   "https://img.tftips.app/champ/sm/18_warwick.avif",
+   "https://img.tftips.app/champ/sm/18_yunara.avif"
+  ],
+  "text": "TFTips - Yunara Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Yunara Attack Caster Blossom Executioner Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Cultivation of Spirit Mana 0 / 35 Dash, then launch an orb at the current target that deals 255 ( ) physical damage and splits, dealing 89 ( ) physical damage to 2 nearby enemies. Skill Details Recommended Items Recommended Items High adoption High placement Comps with this Champion Comps with this Champion Morgana Ahri Yunara Sejuani Patch History Patch History Patch 18.2 Dash, then launch an orb at the current target that deals 160 / 240 / 360 170 / 255 / 395 ( ) physical damage and splits, dealing 56 / 84 / 126 59 / 89 / 138 ( ) physical damage to 2 nearby enemies. Damage : 240 255 = 225 240 ( ) + 15 ( ) [ 150/225/335 160/240/370 ] Secondary Damage : 84 89.25 [ 56/84/126 59.5/89.25/138.25 ] Warwick Azir SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ },
+ {
+  "id": "18_zyra",
+  "file": "champs_18_zyra.html",
+  "url": "/en/champs/18_zyra",
+  "name": "Zyra",
+  "svg_labels": [
+   "Health",
+   "Base AD",
+   "Armor",
+   "Range",
+   "Magic Resist",
+   "Attack Speed"
+  ],
+  "images": [
+   "https://img.tftips.app/champ/ability/18_zyra.avif",
+   "https://img.tftips.app/champ/lg/18_zyra.avif",
+   "https://img.tftips.app/champ/md/18_zyra.avif",
+   "https://img.tftips.app/champ/ogp-sm/18_zyra.png?v=2",
+   "https://img.tftips.app/champ/sm/18_alune.avif",
+   "https://img.tftips.app/champ/sm/18_azir.avif",
+   "https://img.tftips.app/champ/sm/18_soraka.avif",
+   "https://img.tftips.app/champ/sm/18_zyra.avif"
+  ],
+  "text": "TFTips - Zyra Champion Details 【Teamfight Tactics】 Skip to content Comp Tier List SET18 Tips Tools Team Builder Replays Zyra Magic Caster Thornmaiden Summoner Health Base AD Armor Range Magic Resist Attack Speed Skill Skill Rampant Growth Mana 0 / 45 Spawn 2 plants around the battlefield that attack the nearest enemy 10 times. Each attack deals 53 ( ) magic damage. Skill Details Recommended Items Recommended Items Worse placement High placement Comps with this Champion Comps with this Champion Soraka Zyra Juggernaut Zyra Azir Rammus Patch History Patch History Patch 18.2 Spawn 2 / 2 / 4 plants around the battlefield that attack the nearest enemy 10 times. Each attack deals 37 / 55 35 / 53 / 225 ( ) magic damage. Damage : 55 53 [ 37 35 / 55 53 /225] Soraka Alune SET18 Champions Traits Items Augments Wisps Encounters Patch Notes Tables SET18 Overview Tips Strategy Tips Glossary TFT Timeline Tacticians Game Info Player Shop Battle Stats Roles Items Augments Wisps Esports Events TPC Players Tools Shop Probability Tier List Cashout Calculator © 2023-2026 TFTips.app. TFTips.app isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. Privacy Policy Terms of Service English 日本語 English 简体中文 繁體中文 한국어 Tiếng Việt Español Português"
+ }
+]

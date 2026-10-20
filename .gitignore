@@ -19,6 +19,17 @@ scripts/.cache/
 capture/source/
 capture/rebuild/
 
+# tftips capture — raw SSR HTML is ~209MB and regenerable via the sitemap crawl;
+# the per-page json/ dirs duplicate the top-level structured files.
+capture/tftips/raw/
+capture/tftips/json/champions/
+capture/tftips/json/traits/
+capture/tftips/json/augs/
+capture/tftips/json/items/
+capture/tftips/json/comps/
+capture/tftips/json/pages/
+capture/tftips/assets-index/
+
 # misc
 *.tsbuildinfo
 .DS_Store
