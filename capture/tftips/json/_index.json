@@ -1,0 +1,4364 @@
+[
+ {
+  "file": "augs_18_advancedloan.html",
+  "title": "TFTips - Advanced Loan 【Teamfight Tactics】",
+  "description": "Gain 20 Gold. Your next augment is one tier lower.",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_advancedloanplus.html",
+  "title": "TFTips - Advanced Loan+ 【Teamfight Tactics】",
+  "description": "Gain 33 Gold. Your next augment is one tier lower.",
+  "text_len": 15954
+ },
+ {
+  "file": "augs_18_arcaneviktory.html",
+  "title": "TFTips - Arcane Viktor-y 【Teamfight Tactics】",
+  "description": "After 8 seconds of combat, stun the enemy team for 1.5 seconds. Repeat this after 18 seconds of combat.TFT Macao Open, 2024",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_ascension.html",
+  "title": "TFTips - Ascension 【Teamfight Tactics】",
+  "description": "After 12 seconds of combat, your units gain 35% Damage Amp.",
+  "text_len": 15949
+ },
+ {
+  "file": "augs_18_augmentedpower.html",
+  "title": "TFTips - Augmented Power 【Teamfight Tactics】",
+  "description": "Your next augment is one tier higher.",
+  "text_len": 8291
+ },
+ {
+  "file": "augs_18_backlineblueprint.html",
+  "title": "TFTips - Backline Blueprint 【Teamfight Tactics】",
+  "description": "Gain a 3-cost non-Tank champion and an Emblem that matches their class.",
+  "text_len": 15958
+ },
+ {
+  "file": "augs_18_backupbows.html",
+  "title": "TFTips - Backup Bows 【Teamfight Tactics】",
+  "description": "Gain a Recurve Bow. After your champions attack 1000 times, get 2 more.",
+  "text_len": 8287
+ },
+ {
+  "file": "augs_18_bandofthieves.html",
+  "title": "TFTips - Band of Thieves 【Teamfight Tactics】",
+  "description": "Gain 1 Thief's Gloves.",
+  "text_len": 8291
+ },
+ {
+  "file": "augs_18_bandofthievesii.html",
+  "title": "TFTips - Band of Thieves II 【Teamfight Tactics】",
+  "description": "Gain 2 Thief's Gloves. After 5 player combats, gain another.",
+  "text_len": 10127
+ },
+ {
+  "file": "augs_18_bandofthievesiiplus.html",
+  "title": "TFTips - Band of Thieves II+ 【Teamfight Tactics】",
+  "description": "Gain 2 Thief's Gloves. After 5 player combats, gain another.",
+  "text_len": 10128
+ },
+ {
+  "file": "augs_18_bandofthievesiiplusplus.html",
+  "title": "TFTips - Band of Thieves II++ 【Teamfight Tactics】",
+  "description": "Gain 2 Thief's Gloves. After 3 player combats, gain another.",
+  "text_len": 10129
+ },
+ {
+  "file": "augs_18_baronslair.html",
+  "title": "TFTips - Baron's Lair 【Teamfight Tactics】",
+  "description": "Gain a random Tank item. After 8 seconds of combat, your team gains 4% bonus Attack Damage and Ability Power every second for the rest of combat.TFT P",
+  "text_len": 10121
+ },
+ {
+  "file": "augs_18_beltoverflow.html",
+  "title": "TFTips - Belt Overflow 【Teamfight Tactics】",
+  "description": "Gain 4 Giant's Belts. Your Giant's Belts grant +85 bonus Health.",
+  "text_len": 10122
+ },
+ {
+  "file": "augs_18_biggrabbag.html",
+  "title": "TFTips - Big Grab Bag 【Teamfight Tactics】",
+  "description": "Gain 3 random components, 2 gold, and 1 Reforger.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_birthdaypresent.html",
+  "title": "TFTips - Birthday Present 【Teamfight Tactics】",
+  "description": "Gain a 2-star champion and 1 gold each time you level up. The champion's cost tier is your level minus 4 (max: 5-cost).",
+  "text_len": 10125
+ },
+ {
+  "file": "augs_18_birthdayreunion.html",
+  "title": "TFTips - Birthday Reunion 【Teamfight Tactics】",
+  "description": "Gain a random 2-star 2-cost champion. At Level 6, gain a random item component. At Level 9, gain a random 2-star 5-cost champion.Inkborn Fables Tactic",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_blackthorntraitaugment.html",
+  "title": "TFTips - Item Extraction 【Teamfight Tactics】",
+  "description": "The first 3 times you sacrifice a champion in the Blackthorn hex, gain a copy of a random component they're holding. Gain an Azir, Veigar, and a Rek'S",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_blossomtraitaugment.html",
+  "title": "TFTips - Blossom's Call 【Teamfight Tactics】",
+  "description": "When you buy a Wisp, gain a random Blossom champion based on the Wisp's cost. Gain a Yunara, a Yorick, and a Karma.",
+  "text_len": 15954
+ },
+ {
+  "file": "augs_18_bodyguardtraining.html",
+  "title": "TFTips - Bodyguard Training 【Teamfight Tactics】",
+  "description": "Allies gain 15 Armor and Magic Resist, increased by 2 per player level.Gizmos & Gadgets Championship, 2022",
+  "text_len": 15958
+ },
+ {
+  "file": "augs_18_bonusgift.html",
+  "title": "TFTips - Bonus Gifts 【Teamfight Tactics】",
+  "description": "Whenever you open a loot orb, you have a 25% chance to gain a gray loot orb. Gain 1 gray loot orbs.",
+  "text_len": 15951
+ },
+ {
+  "file": "augs_18_bonusgiftplus.html",
+  "title": "TFTips - Bonus Gifts+ 【Teamfight Tactics】",
+  "description": "Whenever you open a loot orb, you have a 25% chance to gain a gray loot orb. Gain 2 gray loot orbs.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_boosterpack.html",
+  "title": "TFTips - Booster Pack 【Teamfight Tactics】",
+  "description": "Gain 12 gold of random champions. (At least one 3-cost guaranteed!)",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_boosterpackplus.html",
+  "title": "TFTips - Booster Pack+ 【Teamfight Tactics】",
+  "description": "Gain 18 gold of random champions. (At least one 4-cost guaranteed!)",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_boosterpackplusplus.html",
+  "title": "TFTips - Booster Pack++ 【Teamfight Tactics】",
+  "description": "Gain 26 gold of random champions. (At least one 5-cost guaranteed!)",
+  "text_len": 15954
+ },
+ {
+  "file": "augs_18_boxinglessons.html",
+  "title": "TFTips - Boxing Lessons 【Teamfight Tactics】",
+  "description": "Your team gains 30 Health for each champion that starts combat in the front row.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_branchingout.html",
+  "title": "TFTips - Branching Out 【Teamfight Tactics】",
+  "description": "Gain a random Emblem.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_branchingoutplus.html",
+  "title": "TFTips - Branching Out+ 【Teamfight Tactics】",
+  "description": "Gain a random Emblem and a Reforger.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_bronzeforlifei.html",
+  "title": "TFTips - Bronze For Life I 【Teamfight Tactics】",
+  "description": "Your team gains 2.5% Damage Amp for each Bronze-tier trait.",
+  "text_len": 15957
+ },
+ {
+  "file": "augs_18_bronzeforlifeii.html",
+  "title": "TFTips - Bronze For Life II 【Teamfight Tactics】",
+  "description": "Your team gains 2.5% Damage Amp and 3 Armor and Magic Resist for each Bronze-tier trait.",
+  "text_len": 10127
+ },
+ {
+  "file": "augs_18_buildabud.html",
+  "title": "TFTips - Build A Bud 【Teamfight Tactics】",
+  "description": "Gain a random 3-star 1-cost champion. Gain 6 gold.",
+  "text_len": 10120
+ },
+ {
+  "file": "augs_18_buriedtreasuresiii.html",
+  "title": "TFTips - Buried Treasures III 【Teamfight Tactics】",
+  "description": "Gain a random item component now and at the start of the next 6 rounds.",
+  "text_len": 10129
+ },
+ {
+  "file": "augs_18_calculatedloss.html",
+  "title": "TFTips - Calculated Loss 【Teamfight Tactics】",
+  "description": "After losing your combat, gain 2 gold and a free Shop reroll.",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_calledshot.html",
+  "title": "TFTips - Called Shot 【Teamfight Tactics】",
+  "description": "Set your win streak to +4. Gain 4 gold.",
+  "text_len": 8287
+ },
+ {
+  "file": "augs_18_calltochaos.html",
+  "title": "TFTips - Call To Chaos 【Teamfight Tactics】",
+  "description": "Gain a powerful and random reward.",
+  "text_len": 10122
+ },
+ {
+  "file": "augs_18_capitalgainsi.html",
+  "title": "TFTips - Capital Gains I 【Teamfight Tactics】",
+  "description": "Store gold equal to the interest you earn. On 3-3, gain gold equal to 100% of the stored gold. Gain 1 gold now.",
+  "text_len": 8291
+ },
+ {
+  "file": "augs_18_capitalgainsii.html",
+  "title": "TFTips - Capital Gains II 【Teamfight Tactics】",
+  "description": "Store gold equal to the interest you earn. On 3-3, gain gold equal to 125% of the stored gold. Gain 3 gold now.",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_caretakersally.html",
+  "title": "TFTips - Caretaker's Ally 【Teamfight Tactics】",
+  "description": "Gain a random 2-cost champion now. Gain the same one again every time you level up.",
+  "text_len": 8292
+ },
+ {
+  "file": "augs_18_caretakersfavor.html",
+  "title": "TFTips - Caretaker's Favor 【Teamfight Tactics】",
+  "description": "Gain a component anvil when you reach level 5, 6, 7, and 8.Component anvils offer 4 choices.",
+  "text_len": 15957
+ },
+ {
+  "file": "augs_18_carveapath.html",
+  "title": "TFTips - Carve a Path 【Teamfight Tactics】",
+  "description": "Gain a B.F. Sword. After your champions deal 65000 physical damage, gain 2 more.",
+  "text_len": 8288
+ },
+ {
+  "file": "augs_18_celestialblessingi.html",
+  "title": "TFTips - Celestial Blessing I 【Teamfight Tactics】",
+  "description": "Your team gains 12% Omnivamp. Excess healing is converted to a shield up to 200 Health.",
+  "text_len": 8296
+ },
+ {
+  "file": "augs_18_celestialblessingii.html",
+  "title": "TFTips - Celestial Blessing II 【Teamfight Tactics】",
+  "description": "Your team gains 18% Omnivamp. Excess healing is converted to a shield up to 400 Health.",
+  "text_len": 15961
+ },
+ {
+  "file": "augs_18_celestialblessingiii.html",
+  "title": "TFTips - Celestial Blessing III 【Teamfight Tactics】",
+  "description": "Your team gains 25% Omnivamp. Excess healing is converted to a shield up to 1000 Health.",
+  "text_len": 10131
+ },
+ {
+  "file": "augs_18_challengersgrace.html",
+  "title": "TFTips - Challenger's Grace 【Teamfight Tactics】",
+  "description": "At the start of combat, allies gain 25% Attack Speed for 4 seconds. On takedown, allies dash to their next target and gain this bonus again.",
+  "text_len": 15958
+ },
+ {
+  "file": "augs_18_champdelivery.html",
+  "title": "TFTips - Champ Delivery 【Teamfight Tactics】",
+  "description": "Gain 3 2-cost champions. After 6 rounds, gain 3 more.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_champdeliveryplus.html",
+  "title": "TFTips - Champ Delivery+ 【Teamfight Tactics】",
+  "description": "Gain 3 3-cost champions. After 6 rounds, gain 3 more.",
+  "text_len": 8291
+ },
+ {
+  "file": "augs_18_champdeliveryplusplus.html",
+  "title": "TFTips - Champ Delivery++ 【Teamfight Tactics】",
+  "description": "Gain 3 4-cost champions. After 6 rounds, gain 3 more.",
+  "text_len": 8292
+ },
+ {
+  "file": "augs_18_clearmind.html",
+  "title": "TFTips - Clear Mind 【Teamfight Tactics】",
+  "description": "If there are no champions on your bench at the end of player combat, gain 3 XP.",
+  "text_len": 15950
+ },
+ {
+  "file": "augs_18_clockworkaccelerator.html",
+  "title": "TFTips - Clockwork Accelerator 【Teamfight Tactics】",
+  "description": "Your team gains 10% Attack Speed every 3 seconds in combat.",
+  "text_len": 15961
+ },
+ {
+  "file": "augs_18_clutteredmind.html",
+  "title": "TFTips - Cluttered Mind 【Teamfight Tactics】",
+  "description": "Gain 4 1-cost champions now. If your bench is full at the end of player combat, gain 3 XP.",
+  "text_len": 15954
+ },
+ {
+  "file": "augs_18_cognitiveoverload.html",
+  "title": "TFTips - Cognitive Overload 【Teamfight Tactics】",
+  "description": "Gain 7 gold, 1 2-star 1-cost champion, 1 2-cost champion, 2 3-cost champions, 1 XP, and 1 Shop reroll.",
+  "text_len": 15958
+ },
+ {
+  "file": "augs_18_cognitivetax.html",
+  "title": "TFTips - Cognitive Tax 【Teamfight Tactics】",
+  "description": "Gain 8 gold and 1 XP.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_cognitivetaxplus.html",
+  "title": "TFTips - Cognitive Tax+ 【Teamfight Tactics】",
+  "description": "Gain 12 gold and 3 XP.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_comebackstory.html",
+  "title": "TFTips - Comeback Story 【Teamfight Tactics】",
+  "description": "Your team gains 4 Health and 0.3% Attack Speed per missing player Health.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_commercecore.html",
+  "title": "TFTips - Commerce Core 【Teamfight Tactics】",
+  "description": "Gain 16 free Shop rerolls now and 3 every round for the rest of the game.",
+  "text_len": 10122
+ },
+ {
+  "file": "augs_18_componentquest.html",
+  "title": "TFTips - Component Quest 【Teamfight Tactics】",
+  "description": "Gain a random component and 1 gold. The next 7 times you win a player combat, gain a different random component. Afterwards, gain 1 gold.",
+  "text_len": 10124
+ },
+ {
+  "file": "augs_18_constructacompanion.html",
+  "title": "TFTips - Construct a Companion 【Teamfight Tactics】",
+  "description": "The next 1-cost champion you buy is 3-star. Gain 2 gold.",
+  "text_len": 15961
+ },
+ {
+  "file": "augs_18_cookingpot.html",
+  "title": "TFTips - Cooking Pot 【Teamfight Tactics】",
+  "description": "At the start of each turn, all allies holding a Frying Pan or Spatula item grant the nearest champion 60 permanent Health. Gain a Frying Pan.",
+  "text_len": 15951
+ },
+ {
+  "file": "augs_18_coronation.html",
+  "title": "TFTips - Coronation 【Teamfight Tactics】",
+  "description": "Gain a Tactician's Crown. Tactician's Crown, Cape, and Shield grant the holder 20% Attack Speed, 25% Attack Damage, and 30% Ability Power.",
+  "text_len": 10119
+ },
+ {
+  "file": "augs_18_corrosion.html",
+  "title": "TFTips - Corrosion 【Teamfight Tactics】",
+  "description": "Enemies in the first two rows lose 4 Armor and Magic Resist every 2 seconds.",
+  "text_len": 8285
+ },
+ {
+  "file": "augs_18_coventraitaugment.html",
+  "title": "TFTips - Coven Acolyte 【Teamfight Tactics】",
+  "description": "When you choose to continue gathering Coven essence, heal 2 Tactician health. Gain a Camille, an Elise, and a Caitlyn.",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_coventraitaugment_loottoap.html",
+  "title": "TFTips - Dark Ritual 【Teamfight Tactics】",
+  "description": "Converting Coven Essence to rewards grants Coven champions Ability Power instead of loot. Gain a Camille, an Elise, and a Caitlyn.",
+  "text_len": 15951
+ },
+ {
+  "file": "augs_18_craftedcrafting.html",
+  "title": "TFTips - Crafted Crafting 【Teamfight Tactics】",
+  "description": "Whenever you craft a completed item, gain 2 rerolls.",
+  "text_len": 8292
+ },
+ {
+  "file": "augs_18_crymeariver.html",
+  "title": "TFTips - Cry Me A River 【Teamfight Tactics】",
+  "description": "Gain a Tear of the Goddess. Your team gains 1 Mana Regen. After 12 seconds in combat, increase this to 4.",
+  "text_len": 15954
+ },
+ {
+  "file": "augs_18_cyberneticimplants_gold.html",
+  "title": "TFTips - Cybernetic Implants 【Teamfight Tactics】",
+  "description": "Your champions holding an item gain 100 Health and 15% Attack Damage. Gain a B.F. Sword.",
+  "text_len": 15959
+ },
+ {
+  "file": "augs_18_cyberneticuplink_gold.html",
+  "title": "TFTips - Cybernetic Uplink 【Teamfight Tactics】",
+  "description": "Your champions holding an item gain 100 Health and 2 Mana Regen. Gain a Tear of the Goddess.",
+  "text_len": 15957
+ },
+ {
+  "file": "augs_18_deadlierblades.html",
+  "title": "TFTips - Deadlier Blades 【Teamfight Tactics】",
+  "description": "Gain a Deathblade. Deathblades permanently gain 1% Attack Damage whenever their holders score a takedown.",
+  "text_len": 10124
+ },
+ {
+  "file": "augs_18_deadliercaps.html",
+  "title": "TFTips - Deadlier Caps 【Teamfight Tactics】",
+  "description": "Gain a Rabadon's Deathcap. Rabadon's Deathcaps grant 1 Mana Regen and permanently gain 1% Ability Power whenever their holders score a takedown.",
+  "text_len": 10122
+ },
+ {
+  "file": "augs_18_dummify.html",
+  "title": "TFTips - Dummify 【Teamfight Tactics】",
+  "description": "Lose all champions on your board and bench. Gain a Training Dummy with 60% of their combined health. The dummy gains 1150 Health per stage. Gain a ran",
+  "text_len": 8283
+ },
+ {
+  "file": "augs_18_duoqueue.html",
+  "title": "TFTips - Duo Queue 【Teamfight Tactics】",
+  "description": "Gain 2 random 5-cost champions and 2 copies of a random component.",
+  "text_len": 15949
+ },
+ {
+  "file": "augs_18_earlylearnings.html",
+  "title": "TFTips - Early Learnings 【Teamfight Tactics】",
+  "description": "Your team gains 3% Attack Damage & Ability Power. This increases by 1% after each player combat. 1-cost champions gain double.",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_elderwoodtraitaugment.html",
+  "title": "TFTips - Nature's Shelter 【Teamfight Tactics】",
+  "description": "Champions that start combat adjacent to an Elderwood plant gain 15% Attack Speed and heal 2% of their maximum Health every 2 seconds. Gain an Alistar,",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_electrochargei.html",
+  "title": "TFTips - Electrocharge I 【Teamfight Tactics】",
+  "description": "Every 4 attacks an ally takes, they deal 25-80 (based on current Stage) magic damage to nearby enemies (1 second cooldown).",
+  "text_len": 8291
+ },
+ {
+  "file": "augs_18_electrochargeii.html",
+  "title": "TFTips - Electrocharge II 【Teamfight Tactics】",
+  "description": "Every 4 attacks an ally takes, they deal 50-140 (based on current Stage) magic damage to nearby enemies (1 second cooldown).",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_epicrolldown.html",
+  "title": "TFTips - Epic Rolldown 【Teamfight Tactics】",
+  "description": "When you reach Level 8, gain 20 Shop rerolls.Runeterra Reforged Championship, 2023",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_epoch.html",
+  "title": "TFTips - Epoch 【Teamfight Tactics】",
+  "description": "Now, and at the start of every stage, gain 4 XP and 2 free rerolls.",
+  "text_len": 15945
+ },
+ {
+  "file": "augs_18_epochplus.html",
+  "title": "TFTips - Epoch+ 【Teamfight Tactics】",
+  "description": "Now, and at the start of every stage, gain 8 XP and 2 free rerolls.",
+  "text_len": 15946
+ },
+ {
+  "file": "augs_18_exclusivecustomization.html",
+  "title": "TFTips - Exclusive Customization 【Teamfight Tactics】",
+  "description": "Gain a Lucky Item Chest, a Magnetic Remover and 7 gold.",
+  "text_len": 15963
+ },
+ {
+  "file": "augs_18_expectedunexpectedness.html",
+  "title": "TFTips - Expected Unexpectedness 【Teamfight Tactics】",
+  "description": "Now and at the start of the next 2 stages, roll 3 dice. Gain various rewards based on their total.",
+  "text_len": 10132
+ },
+ {
+  "file": "augs_18_expedition.html",
+  "title": "TFTips - Expedition 【Teamfight Tactics】",
+  "description": "At the start of every round, lose the champion in the rightmost bench slot. After losing 33 gold of champions in this way, gain a powerful reward. Gai",
+  "text_len": 8286
+ },
+ {
+  "file": "augs_18_explosivegrowth.html",
+  "title": "TFTips - Explosive Growth 【Teamfight Tactics】",
+  "description": "Now and at the start of the next 3 rounds, gain 7 XP.",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_explosivegrowthplus.html",
+  "title": "TFTips - Explosive Growth+ 【Teamfight Tactics】",
+  "description": "Now and at the start of the next 3 rounds, gain 9 XP.",
+  "text_len": 15957
+ },
+ {
+  "file": "augs_18_extrabuckles.html",
+  "title": "TFTips - Extra Buckles 【Teamfight Tactics】",
+  "description": "Gain a Giant's Belt. After your champions take 75000 damage, get 2 more.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_faetraitaugment.html",
+  "title": "TFTips - Embiggen 【Teamfight Tactics】",
+  "description": "Fae pixies are now larger and grant 50% more Attack Damage and Ability Power. Fae champions gain 10% Attack Damage and Ability Power immediately. Gain",
+  "text_len": 15948
+ },
+ {
+  "file": "augs_18_feelinglucky.html",
+  "title": "TFTips - Feeling Lucky 【Teamfight Tactics】",
+  "description": "Gain 12 gold, then flip a coin. If heads, gain 4 more gold.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_findyourcenter.html",
+  "title": "TFTips - Find Your Center 【Teamfight Tactics】",
+  "description": "Your champion that starts combat in the center of the front row gains 15% Damage Amp and 25% max Health.",
+  "text_len": 8292
+ },
+ {
+  "file": "augs_18_flexible.html",
+  "title": "TFTips - Flexible 【Teamfight Tactics】",
+  "description": "Gain 1 random Emblem. At the start of every Stage, gain a random Emblem. Your team gains 30 Health for each Emblem they are holding.",
+  "text_len": 10117
+ },
+ {
+  "file": "augs_18_florafatalisaugment.html",
+  "title": "TFTips - Consuming Flora 【Teamfight Tactics】",
+  "description": "Gain a Flora Fatalis emblem. The champion holding the emblem gains 50% increased benefits from Flora Fatalis. Gain 3 gold.",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_flowingtears.html",
+  "title": "TFTips - Flowing Tears 【Teamfight Tactics】",
+  "description": "Gain a Tear of the Goddess. After your champions spend 6500 Mana, gain 2 more.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_focusedfire.html",
+  "title": "TFTips - Focused Fire 【Teamfight Tactics】",
+  "description": "Your team gains 10% Attack Damage. Every 5 seconds, they gain 5% more.",
+  "text_len": 8288
+ },
+ {
+  "file": "augs_18_forgeafriend.html",
+  "title": "TFTips - Forge A Friend 【Teamfight Tactics】",
+  "description": "The next 1-cost champion you buy is 3-star. Gain 5 gold.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_forgedinstrength.html",
+  "title": "TFTips - Forged In Strength 【Teamfight Tactics】",
+  "description": "Gain 1 random Artifact. When you drop below 35 Health, gain 1 more random Artifact, 1 random completed item, and 2 random components.Remix Rumble Cham",
+  "text_len": 10127
+ },
+ {
+  "file": "augs_18_fourcing.html",
+  "title": "TFTips - FOURcing 【Teamfight Tactics】",
+  "description": "Gain a random 4-cost champion. For each item equipped to that champion, your team gains 100 health.",
+  "text_len": 15948
+ },
+ {
+  "file": "augs_18_frontlinefoundation.html",
+  "title": "TFTips - Frontline Foundation 【Teamfight Tactics】",
+  "description": "Gain a 2-star 1-cost Tank champion and an Emblem that matches their class.",
+  "text_len": 15960
+ },
+ {
+  "file": "augs_18_futurefocused.html",
+  "title": "TFTips - Future Focused 【Teamfight Tactics】",
+  "description": "Your Tactician loses 20 Health, but after 5 player combats, gain 3 4-cost champions and 5 gold.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_gaingold.html",
+  "title": "TFTips - Gain 21 Gold 【Teamfight Tactics】",
+  "description": "Gain 21 gold.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_giantandmighty.html",
+  "title": "TFTips - Giant and Mighty 【Teamfight Tactics】",
+  "description": "Your team becomes large, gaining 225 Health and 10% max Health.",
+  "text_len": 10125
+ },
+ {
+  "file": "augs_18_gildedsteel.html",
+  "title": "TFTips - Gilded Steel 【Teamfight Tactics】",
+  "description": "Gain two 5-cost champions. If you field at least one 5-cost champion, your 1 to 4-cost champions gain 8% Durability.K.O. Coliseum Tactician's Crown, 2",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_glasscannon_gold.html",
+  "title": "TFTips - Glass Cannon II 【Teamfight Tactics】",
+  "description": "Allies that start combat in the back row begin combat at 80% Health but gain 25% Damage Amp.",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_glasscannon_silver.html",
+  "title": "TFTips - Glass Cannon I 【Teamfight Tactics】",
+  "description": "Allies that start combat in the back row begin combat at 80% Health but gain 16% Damage Amp.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_goinglong.html",
+  "title": "TFTips - Going Long 【Teamfight Tactics】",
+  "description": "You no longer gain interest. Gain 10 gold now. Gain 4 XP after every player combat.Interest is extra gold you gain per 10g saved.",
+  "text_len": 10119
+ },
+ {
+  "file": "augs_18_golddestiny.html",
+  "title": "TFTips - Gold Destiny 【Teamfight Tactics】",
+  "description": "Gain a random Gold Augment and 3 gold.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_golddestinyplus.html",
+  "title": "TFTips - Gold Destiny+ 【Teamfight Tactics】",
+  "description": "Gain a random Gold Augment and 5 gold.",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_goldenegg.html",
+  "title": "TFTips - The Golden Egg 【Teamfight Tactics】",
+  "description": "Gain a golden egg that hatches in 11 turns for a huge amount of loot. Winning player combat speeds up the hatch timer by an extra turn.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_goldengamble.html",
+  "title": "TFTips - Golden Gamble 【Teamfight Tactics】",
+  "description": "Gain 2 gold and flip a coin. If heads, gain a Radiant Lucky Item Chest. If tails, gain 2 Completed Item anvils.",
+  "text_len": 10122
+ },
+ {
+  "file": "augs_18_goldengambleplus.html",
+  "title": "TFTips - Golden Gamble+ 【Teamfight Tactics】",
+  "description": "Gain 3 gold and flip a coin. If heads, gain a Radiant Lucky Item Chest. If tails, gain 2 Completed Item anvils.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_goldengambleplusplus.html",
+  "title": "TFTips - Golden Gamble++ 【Teamfight Tactics】",
+  "description": "Gain 6 gold and flip a coin. If heads, gain a Radiant Lucky Item Chest. If tails, gain 2 Completed Item anvils.",
+  "text_len": 10124
+ },
+ {
+  "file": "augs_18_goodforsomethingi.html",
+  "title": "TFTips - Good For Something I 【Teamfight Tactics】",
+  "description": "Champions that aren't holding items have a 40% chance to drop 1 gold on death.",
+  "text_len": 8296
+ },
+ {
+  "file": "augs_18_grouphugi.html",
+  "title": "TFTips - Group Hug I 【Teamfight Tactics】",
+  "description": "Combat start: Champions grant other adjacent champions 7 Armor and Magic Resist. This effect stacks.",
+  "text_len": 8287
+ },
+ {
+  "file": "augs_18_grouphugii.html",
+  "title": "TFTips - Group Hug II 【Teamfight Tactics】",
+  "description": "Combat start: Champions grant other adjacent champions 10 Armor and Magic Resist. This effect stacks.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_hardbargain.html",
+  "title": "TFTips - Hard Bargain 【Teamfight Tactics】",
+  "description": "You cannot choose your Carousel rewards. Gain an additional 6 player health and 8 gold each carousel round.When you do not pick a Carousel Reward, you",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_hardcommit.html",
+  "title": "TFTips - Hard Commit 【Teamfight Tactics】",
+  "description": "Gain a random emblem. Now and at the start of each stage, gain a 1-star champion of that trait with a cost equal to the Stage (max 5) and 3 gold.",
+  "text_len": 10120
+ },
+ {
+  "file": "augs_18_healingorbsi.html",
+  "title": "TFTips - Healing Orbs I 【Teamfight Tactics】",
+  "description": "When an enemy dies, a nearby ally is healed for 250 Health.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_healingorbsii.html",
+  "title": "TFTips - Healing Orbs II 【Teamfight Tactics】",
+  "description": "When an enemy dies, a nearby ally is healed for 575 Health.",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_hedgefund.html",
+  "title": "TFTips - Hedge Fund 【Teamfight Tactics】",
+  "description": "Gain 22 gold. Your max interest is increased to 10.",
+  "text_len": 10119
+ },
+ {
+  "file": "augs_18_heroicgrabbag.html",
+  "title": "TFTips - Heroic Grab Bag 【Teamfight Tactics】",
+  "description": "Gain 2 Lesser Champion Duplicators. Gain 6 gold.",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_heroicgrabbagplus.html",
+  "title": "TFTips - Heroic Grab Bag+ 【Teamfight Tactics】",
+  "description": "Gain 2 Lesser Champion Duplicators. Gain 8 gold.",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_heroicgrabbagplusplus.html",
+  "title": "TFTips - Heroic Grab Bag++ 【Teamfight Tactics】",
+  "description": "Gain 2 Lesser Champion Duplicators. Gain 14 gold.",
+  "text_len": 15957
+ },
+ {
+  "file": "augs_18_holdtheline.html",
+  "title": "TFTips - Hold the Line 【Teamfight Tactics】",
+  "description": "Champions in your back 2 rows gain 11% Ability Power and 11% Attack Damage for each champion that starts combat in your front row.",
+  "text_len": 10122
+ },
+ {
+  "file": "augs_18_hustler.html",
+  "title": "TFTips - Hustler 【Teamfight Tactics】",
+  "description": "You no longer gain interest but gain 3 gold at the start of every player combat round. Gain 3 gold now.Interest is extra gold you gain per 10g saved.",
+  "text_len": 15947
+ },
+ {
+  "file": "augs_18_investedplus.html",
+  "title": "TFTips - Invested+ 【Teamfight Tactics】",
+  "description": "Gain 26 gold. At the start of each round, gain 1 Shop reroll for every 10 gold above 50 (max 80 gold).",
+  "text_len": 10118
+ },
+ {
+  "file": "augs_18_investedplusplus.html",
+  "title": "TFTips - Invested++ 【Teamfight Tactics】",
+  "description": "Gain 45 gold. At the start of each round, gain 1 Shop reroll for every 10 gold above 50 (max 80 gold).",
+  "text_len": 10119
+ },
+ {
+  "file": "augs_18_investmentstrategy.html",
+  "title": "TFTips - Investment Strategy II 【Teamfight Tactics】",
+  "description": "Your champions gain 12 permanent max health per interest you earn. Your max interest is increased by 2. Gain 10 gold now.",
+  "text_len": 10131
+ },
+ {
+  "file": "augs_18_investmentstrategyi.html",
+  "title": "TFTips - Investment Strategy I 【Teamfight Tactics】",
+  "description": "Your champions gain 9 permanent max health per interest you earn. Gain 6 gold now.",
+  "text_len": 15961
+ },
+ {
+  "file": "augs_18_ironassets.html",
+  "title": "TFTips - Iron Assets 【Teamfight Tactics】",
+  "description": "Gain a component anvil and 3 gold.",
+  "text_len": 8287
+ },
+ {
+  "file": "augs_18_itemgrabbag.html",
+  "title": "TFTips - Item Grab Bag I 【Teamfight Tactics】",
+  "description": "Gain 1 random completed item.",
+  "text_len": 8291
+ },
+ {
+  "file": "augs_18_itsmebaby.html",
+  "title": "TFTips - It's Me, Baby 【Teamfight Tactics】",
+  "description": "Gain a championship hex in the bottom right corner. The champion in it gains 15% Damage Amp and 15% Attack Speed, and drops 1 gold every 5 takedowns.L",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_jeweledlotus_i.html",
+  "title": "TFTips - Jeweled Lotus I 【Teamfight Tactics】",
+  "description": "Your team gains 15% Critical Strike Chance and Precision.Precision: Ability damage can critically strike. Additional Precision grants 10% Critical Str",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_jeweledlotus_ii.html",
+  "title": "TFTips - Jeweled Lotus II 【Teamfight Tactics】",
+  "description": "Your team gains 25% Critical Strike Chance, 10% Critical Strike Damage, and Precision.Precision: Ability damage can critically strike. Additional Prec",
+  "text_len": 10125
+ },
+ {
+  "file": "augs_18_kickstart.html",
+  "title": "TFTips - Kick Start 【Teamfight Tactics】",
+  "description": "Gain a random 2-star 2-cost champion and 1 gold.",
+  "text_len": 8286
+ },
+ {
+  "file": "augs_18_kingslayer.html",
+  "title": "TFTips - Kingslayer 【Teamfight Tactics】",
+  "description": "After winning player combat, gain 1 gold. If they had more health than you, gain 6 Gold instead. Gain 1 gold.",
+  "text_len": 8286
+ },
+ {
+  "file": "augs_18_lategamescaling.html",
+  "title": "TFTips - Late Game Scaling 【Teamfight Tactics】",
+  "description": "Gain 2 XP at the start of player combat rounds. Your 5-cost champions gain 12% Health and 12% Attack Speed.Cyber City Tactician's Crown, 2025",
+  "text_len": 15957
+ },
+ {
+  "file": "augs_18_lategamespecialist.html",
+  "title": "TFTips - Late Game Specialist 【Teamfight Tactics】",
+  "description": "When you reach Level 9, gain 27 gold.",
+  "text_len": 8296
+ },
+ {
+  "file": "augs_18_latentforge.html",
+  "title": "TFTips - Latent Forge 【Teamfight Tactics】",
+  "description": "After 8 player combats, gain an Artifact anvil.",
+  "text_len": 8288
+ },
+ {
+  "file": "augs_18_legionofthrees.html",
+  "title": "TFTips - Legion Of Threes 【Teamfight Tactics】",
+  "description": "Gain a random Emblem. Your 3-cost champions and all allies equipped with an Emblem gain 150 Health and 12% Attack Speed.Reckoning Championship, 2021",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_levelup.html",
+  "title": "TFTips - Level Up! 【Teamfight Tactics】",
+  "description": "When you buy XP, gain an additional 2. Gain 10 immediately.",
+  "text_len": 10118
+ },
+ {
+  "file": "augs_18_livingforge.html",
+  "title": "TFTips - Living Forge 【Teamfight Tactics】",
+  "description": "Gain an Artifact Anvil now and after every 10 player combats.",
+  "text_len": 10121
+ },
+ {
+  "file": "augs_18_loadeddice.html",
+  "title": "TFTips - Loaded Dice 【Teamfight Tactics】",
+  "description": "Your dice and coins are luckier.Roll a die and gain gold equal to the number rolled. Then flip a coin and gain 1 gold if you flip heads.",
+  "text_len": 8287
+ },
+ {
+  "file": "augs_18_luckygloves.html",
+  "title": "TFTips - Lucky Gloves 【Teamfight Tactics】",
+  "description": "Thief's Gloves will always give your champions ideal items. Gain 2 Sparring Gloves and 4 gold.",
+  "text_len": 10121
+ },
+ {
+  "file": "augs_18_luckyglovesplus.html",
+  "title": "TFTips - Lucky Gloves+ 【Teamfight Tactics】",
+  "description": "Thief's Gloves will always give your champions ideal items. Gain 2 Sparring Gloves now, then another after 4 player combats.",
+  "text_len": 10122
+ },
+ {
+  "file": "augs_18_lunartraitaugment.html",
+  "title": "TFTips - Sun and Moon 【Teamfight Tactics】",
+  "description": "Your Lunar champions gain 100 Health and 8% Damage Amp for each unique Solar champion fielded. Gain a Leona, a Kayle, and a Diana.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_lunartraitaugmentplus.html",
+  "title": "TFTips - Sun and Moon+ 【Teamfight Tactics】",
+  "description": "Your Lunar champions gain 100 Health and 8% Damage Amp for each unique Solar champion fielded. Gain a Leona, a Kayle, and an Aphelios.",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_luxaugmentii.html",
+  "title": "TFTips - Master of All Origins 【Teamfight Tactics】",
+  "description": "Open an armory and choose one of 3 traits. Gain a Lux with that trait and a Spear of Shojin.Traits on your board are more likely to appear in the armo",
+  "text_len": 10130
+ },
+ {
+  "file": "augs_18_luxurysubscription.html",
+  "title": "TFTips - Luxury Subscription 【Teamfight Tactics】",
+  "description": "Gain a package containing a 5-cost champion, a 2-star 1-cost champion, and 5 gold.At the start of the next 2 stages, gain the package again.",
+  "text_len": 10128
+ },
+ {
+  "file": "augs_18_magicroll.html",
+  "title": "TFTips - Magic Roll 【Teamfight Tactics】",
+  "description": "Roll 3 dice. Gain rewards based on their total.",
+  "text_len": 15950
+ },
+ {
+  "file": "augs_18_makeshiftarmori.html",
+  "title": "TFTips - Makeshift Armor I 【Teamfight Tactics】",
+  "description": "Champions without items equipped gain 30 Armor and Magic Resist.",
+  "text_len": 8293
+ },
+ {
+  "file": "augs_18_makeshiftarmorii.html",
+  "title": "TFTips - Makeshift Armor II 【Teamfight Tactics】",
+  "description": "Champions without items equipped gain 50 Armor and Magic Resist.",
+  "text_len": 15958
+ },
+ {
+  "file": "augs_18_maliciousmonetization.html",
+  "title": "TFTips - Malicious Monetization 【Teamfight Tactics】",
+  "description": "Gain 4 gold. For the next 2 rounds, enemy champions drop 2 gold when killed.",
+  "text_len": 15962
+ },
+ {
+  "file": "augs_18_maxbuild.html",
+  "title": "TFTips - Max Build 【Teamfight Tactics】",
+  "description": "Gain 10 free Shop rerolls. When you reach level 9, gain 3 free Shop rerolls and a Champion Duplicator.Galaxies Championship, 2020",
+  "text_len": 15949
+ },
+ {
+  "file": "augs_18_min_max.html",
+  "title": "TFTips - Min-Max 【Teamfight Tactics】",
+  "description": "Gain a Golden Item Remover, 4 random components, and 4 gold.",
+  "text_len": 10116
+ },
+ {
+  "file": "augs_18_missedconnections.html",
+  "title": "TFTips - Missed Connections 【Teamfight Tactics】",
+  "description": "Gain a copy of each 1-cost champion.",
+  "text_len": 8294
+ },
+ {
+  "file": "augs_18_moneyhungry_notbroken.html",
+  "title": "TFTips - Money Hungry 【Teamfight Tactics】",
+  "description": "Gain 7 gold now, then 7 gold at the start of every stage. Picking up gold makes your Tactician larger.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_moneyhungryplus.html",
+  "title": "TFTips - Money Hungry+ 【Teamfight Tactics】",
+  "description": "Gain 13 gold now, then 7 gold at the start of every stage. Picking up gold makes your Tactician larger.",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_moneymonsoon.html",
+  "title": "TFTips - Money Monsoon 【Teamfight Tactics】",
+  "description": "Gain 7 gold now and every round for the rest of the game.",
+  "text_len": 10122
+ },
+ {
+  "file": "augs_18_nestinganvils.html",
+  "title": "TFTips - Nesting Anvils 【Teamfight Tactics】",
+  "description": "Gain an Artifact Anvil. After you open it, gain a Component Anvil. After you open that, gain 4 gold.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_nestinganvilsplus.html",
+  "title": "TFTips - Nesting Anvils+ 【Teamfight Tactics】",
+  "description": "Gain an Artifact Anvil. After you open it, gain a Component Anvil. After you open that, gain 8 gold.",
+  "text_len": 10124
+ },
+ {
+  "file": "augs_18_noscoutnopivot.html",
+  "title": "TFTips - NO SCOUT NO PIVOT 【Teamfight Tactics】",
+  "description": "Champions that fight in player combat cannot be benched or sold. Your team gains 1% Health, and 1% Attack Damage and Ability Power after player combat",
+  "text_len": 15957
+ },
+ {
+  "file": "augs_18_onebufftwobuff.html",
+  "title": "TFTips - One Buff Two Buff 【Teamfight Tactics】",
+  "description": "Gain a Red Buff, a Blue Buff, and a Champion Duplicator.",
+  "text_len": 10126
+ },
+ {
+  "file": "augs_18_onestwosthree.html",
+  "title": "TFTips - Ones Two Three 【Teamfight Tactics】",
+  "description": "Gain 2 1-cost champions, 1 2-cost champion, and 1 3-cost champion.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_onetwofive.html",
+  "title": "TFTips - One, Two, Five! 【Teamfight Tactics】",
+  "description": "Gain 1 random component, 2 gold, and 1 random 5-cost champion.",
+  "text_len": 8291
+ },
+ {
+  "file": "augs_18_pandorasbench.html",
+  "title": "TFTips - Pandora's Bench 【Teamfight Tactics】",
+  "description": "At the start of every round, champions on the 3 rightmost bench slots transform into random champions of the same cost. Gain 4 gold.",
+  "text_len": 8291
+ },
+ {
+  "file": "augs_18_pandorasitemsi.html",
+  "title": "TFTips - Pandora's Items I 【Teamfight Tactics】",
+  "description": "Round start: items on your bench are randomized. Gain 1 random component.",
+  "text_len": 8293
+ },
+ {
+  "file": "augs_18_pandorasitemsii.html",
+  "title": "TFTips - Pandora's Items II 【Teamfight Tactics】",
+  "description": "Round start: items on your bench are randomized. Gain 2 random components and 4 gold.",
+  "text_len": 15958
+ },
+ {
+  "file": "augs_18_pandorasitemsiii.html",
+  "title": "TFTips - Pandora's Items III 【Teamfight Tactics】",
+  "description": "Round start: items on your bench are randomized. Gain 1 Radiant item.",
+  "text_len": 10128
+ },
+ {
+  "file": "augs_18_partialascension.html",
+  "title": "TFTips - Partial Ascension 【Teamfight Tactics】",
+  "description": "After 12 seconds of combat, your units gain 20% Damage Amp.",
+  "text_len": 8293
+ },
+ {
+  "file": "augs_18_patienceisavirtue.html",
+  "title": "TFTips - Patience Is A Virtue 【Teamfight Tactics】",
+  "description": "Gain 4 rerolls now. Each round, gain 1 free reroll if you did not buy a champion last round.",
+  "text_len": 8296
+ },
+ {
+  "file": "augs_18_patientstudy.html",
+  "title": "TFTips - Patient Study 【Teamfight Tactics】",
+  "description": "After player combat, gain 2 XP if you won or 3 XP if you lost.",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_pilfer.html",
+  "title": "TFTips - Pilfer 【Teamfight Tactics】",
+  "description": "Each round, gain a 1-star copy of the first champion you killed last combat. The first time you gain 21 gold worth of champions in this way, gain a Th",
+  "text_len": 15946
+ },
+ {
+  "file": "augs_18_plotarmor.html",
+  "title": "TFTips - Plot Armor 【Teamfight Tactics】",
+  "description": "Your team gains 8 Armor and Magic Resist. After falling below 50% Health, increase this to 40 for the rest of combat.",
+  "text_len": 15950
+ },
+ {
+  "file": "augs_18_portableforge.html",
+  "title": "TFTips - Portable Forge 【Teamfight Tactics】",
+  "description": "Choose 1 of 4 Artifacts. Artifacts are more powerful items with a unique effect.",
+  "text_len": 15954
+ },
+ {
+  "file": "augs_18_primalaugment_nidalee.html",
+  "title": "TFTips - Beast Within 【Teamfight Tactics】",
+  "description": "Primal grants an additional Blessing. Gain a Vi now and a Nidalee after 3 rounds.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_primalaugment_sivir.html",
+  "title": "TFTips - Beast Within 【Teamfight Tactics】",
+  "description": "Primal grants an additional Blessing. Gain a Vi now and a Sivir after 3 rounds.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_primalaugmentplus_nidalee.html",
+  "title": "TFTips - Beast Within+ 【Teamfight Tactics】",
+  "description": "Primal grants an additional Blessing. Gain a Vi and a Nidalee.",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_primalaugmentplus_sivir.html",
+  "title": "TFTips - Beast Within+ 【Teamfight Tactics】",
+  "description": "Primal grants an additional Blessing. Gain a Vi and a Sivir.",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_prismaticdestiny.html",
+  "title": "TFTips - Prismatic Destiny 【Teamfight Tactics】",
+  "description": "Gain a random Prismatic Augment and 4 gold.",
+  "text_len": 10126
+ },
+ {
+  "file": "augs_18_prismaticdestinyplus.html",
+  "title": "TFTips - Prismatic Destiny+ 【Teamfight Tactics】",
+  "description": "Gain a random Prismatic Augment and 7 gold.",
+  "text_len": 10127
+ },
+ {
+  "file": "augs_18_prismaticticket.html",
+  "title": "TFTips - Prismatic Ticket 【Teamfight Tactics】",
+  "description": "Each time your shop is rerolled you have a 45% chance to gain a free reroll.",
+  "text_len": 10125
+ },
+ {
+  "file": "augs_18_promisedprotection.html",
+  "title": "TFTips - Promised Protection 【Teamfight Tactics】",
+  "description": "Gain a Protector's Vow. Protector's Vow grants its holder 20% additional Mana from all sources and 200 max Health.",
+  "text_len": 15959
+ },
+ {
+  "file": "augs_18_quickstreaks.html",
+  "title": "TFTips - Quick Streaks 【Teamfight Tactics】",
+  "description": "You gain twice as much progress towards win and loss streaks. Gain 2 gold.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_radiantrascal.html",
+  "title": "TFTips - Radiant Rascal 【Teamfight Tactics】",
+  "description": "Gain a Radiant Thief's Gloves item. This equips 2 random Radiant items every round.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_radiantrelic.html",
+  "title": "TFTips - Radiant Relics 【Teamfight Tactics】",
+  "description": "Choose 1 of 5 Radiant Items. Gain a Magnetic Remover.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_recombobulator.html",
+  "title": "TFTips - Recombobulator 【Teamfight Tactics】",
+  "description": "Champions on your board permanently transform into random champions 1 cost tier higher (max 5). Gain 2 Magnetic Removers and 3 free rerolls.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_replication.html",
+  "title": "TFTips - Replication 【Teamfight Tactics】",
+  "description": "Choose 1 of 3 components. For the next 2 rounds, gain a copy of that component.",
+  "text_len": 15951
+ },
+ {
+  "file": "augs_18_residualmagic.html",
+  "title": "TFTips - Residual Magic 【Teamfight Tactics】",
+  "description": "Your team gains 60 Health. Each time you purchase a Wisp, increase this by 10.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_residualmagicplus.html",
+  "title": "TFTips - Residual Magic + 【Teamfight Tactics】",
+  "description": "Your team gains 75 Health. Each time you purchase a Wisp, increase this by 10.",
+  "text_len": 8292
+ },
+ {
+  "file": "augs_18_residualmagicplusplus.html",
+  "title": "TFTips - Residual Magic ++ 【Teamfight Tactics】",
+  "description": "Your team gains 90 Health. Each time you purchase a Wisp, increase this by 10.",
+  "text_len": 8293
+ },
+ {
+  "file": "augs_18_retribution.html",
+  "title": "TFTips - Retribution 【Teamfight Tactics】",
+  "description": "Gain 2 Hands of Justice. Allies equipped with Hand of Justice gain Precision and 15% Critical Strike Chance.Precision: Ability damage can critically s",
+  "text_len": 10120
+ },
+ {
+  "file": "augs_18_riftbeasttraitaugment.html",
+  "title": "TFTips - Omega Riftbeast 【Teamfight Tactics】",
+  "description": "You can now choose a second Alpha Riftbeast. Alpha Riftbeasts gain 10% max Health and 10% Attack Speed. Gain a Scuttlecrab, a Cinderling, and a Pebble",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_rivalsaugment.html",
+  "title": "TFTips - Unrivaled 【Teamfight Tactics】",
+  "description": "You can field Rengar and Kha'Zix together with no penalties, and they gain bonuses when the other casts. Gain a Rengar and a Kha'Zix.",
+  "text_len": 15949
+ },
+ {
+  "file": "augs_18_rollingfordays.html",
+  "title": "TFTips - Rolling For Days 【Teamfight Tactics】",
+  "description": "Gain 10 free Shop rerolls.",
+  "text_len": 8292
+ },
+ {
+  "file": "augs_18_salvagebin.html",
+  "title": "TFTips - Salvage Bin 【Teamfight Tactics】",
+  "description": "Gain 1 random completed item now, and 1 component after 8 player combats. Selling champions breaks completed items into components (excluding Tacticia",
+  "text_len": 15951
+ },
+ {
+  "file": "augs_18_salvagebinplus.html",
+  "title": "TFTips - Salvage Bin+ 【Teamfight Tactics】",
+  "description": "Gain 1 random completed item now, and 1 component after 4 player combats. Selling champions breaks completed items into components (excluding Tacticia",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_seraphimsstaff.html",
+  "title": "TFTips - Seraphim's Staff 【Teamfight Tactics】",
+  "description": "Gain an Archangel's Staff. Archangel's Staff grants 2 additional Mana Regen if its holder has 90% or more Ability Power.",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_shimmerscaleessence.html",
+  "title": "TFTips - Shimmerscale Essence 【Teamfight Tactics】",
+  "description": "Gain a Gambler's Blade. After 6 player combats, gain a Mogul's Mail.",
+  "text_len": 10129
+ },
+ {
+  "file": "augs_18_shoppingspree.html",
+  "title": "TFTips - Shopping Spree 【Teamfight Tactics】",
+  "description": "When you level up, gain a number of Shop refreshes equal to your level +1. Gain 6 gold.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_silverdestiny.html",
+  "title": "TFTips - Silver Destiny 【Teamfight Tactics】",
+  "description": "Gain a random Silver Augment and 2 gold.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_silverdestinyplus.html",
+  "title": "TFTips - Silver Destiny+ 【Teamfight Tactics】",
+  "description": "Gain a random Silver Augment and 4 gold.",
+  "text_len": 8291
+ },
+ {
+  "file": "augs_18_silverdestinyplusplus.html",
+  "title": "TFTips - Silver Destiny++ 【Teamfight Tactics】",
+  "description": "Gain a random Silver Augment and 7 gold.",
+  "text_len": 8292
+ },
+ {
+  "file": "augs_18_silverspoon.html",
+  "title": "TFTips - Silver Spoon 【Teamfight Tactics】",
+  "description": "Gain 10 XP.",
+  "text_len": 8288
+ },
+ {
+  "file": "augs_18_slammin.html",
+  "title": "TFTips - Slammin' 【Teamfight Tactics】",
+  "description": "Gain 3 gold. After each player combat, if there are no items on your bench (other than consumables), gain 2 XP.",
+  "text_len": 15948
+ },
+ {
+  "file": "augs_18_slamminplus.html",
+  "title": "TFTips - Slammin'+ 【Teamfight Tactics】",
+  "description": "Gain 4 gold and 10 XP now. After each player combat, if there are no items on your bench (other than consumables), gain 2 XP.",
+  "text_len": 15949
+ },
+ {
+  "file": "augs_18_sliceoflife.html",
+  "title": "TFTips - Slice of Life 【Teamfight Tactics】",
+  "description": "Twice per stage, gain a random champion. Its cost increases by Stage. This effect ends after receiving 1 5-cost champion.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_slightlymagicroll.html",
+  "title": "TFTips - Slightly Magic Roll 【Teamfight Tactics】",
+  "description": "Roll a die. Gain rewards based on the number rolled.",
+  "text_len": 8295
+ },
+ {
+  "file": "augs_18_smallgrabbag.html",
+  "title": "TFTips - Small Grab Bag 【Teamfight Tactics】",
+  "description": "Gain 2 random item components.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_solartraitaugment.html",
+  "title": "TFTips - Chosen of the Sun 【Teamfight Tactics】",
+  "description": "Gain a Leona, a Kayle, and a Sejuani. Leona gains 70 permanent max Health each round, increased by 10 for each unique 3-star champion fielded.",
+  "text_len": 8293
+ },
+ {
+  "file": "augs_18_sololeveling.html",
+  "title": "TFTips - Solo Leveling 【Teamfight Tactics】",
+  "description": "For the next 5 combats, your team size is 1, but the champion you field has massively increased stats. Gain 1 XP for every kill they get. Afterwards, ",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_soloplate.html",
+  "title": "TFTips - Solo Plate 【Teamfight Tactics】",
+  "description": "Gain a Gargoyle Stoneplate. Allies holding Gargoyle Stoneplate gain 17% max Health if they start combat alone in their row.",
+  "text_len": 15950
+ },
+ {
+  "file": "augs_18_soulawakening.html",
+  "title": "TFTips - Soul Awakening 【Teamfight Tactics】",
+  "description": "Combat start: Your team gains 1.5% Attack Damage and Ability Power per second for 10 seconds. At max stacks, deal 12% bonus true damage.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_speedydoublekill.html",
+  "title": "TFTips - Speedy Double Kill 【Teamfight Tactics】",
+  "description": "Gain a Guinsoo's Rageblade. When 2 players are eliminated, gain 40 gold.Fates Championship, 2021",
+  "text_len": 15958
+ },
+ {
+  "file": "augs_18_spiritofredemption.html",
+  "title": "TFTips - Spirit Of Redemption 【Teamfight Tactics】",
+  "description": "Gain a Spirit Visage. Every 5 seconds, Spirit Visage heals allies within 1 hex for 9% of their missing Health.",
+  "text_len": 15960
+ },
+ {
+  "file": "augs_18_spreadingroots.html",
+  "title": "TFTips - Spreading Roots 【Teamfight Tactics】",
+  "description": "Gain a random Emblems. After 3 combats, gain another.",
+  "text_len": 15955
+ },
+ {
+  "file": "augs_18_spreadingrootsplus.html",
+  "title": "TFTips - Spreading Roots+ 【Teamfight Tactics】",
+  "description": "Gain 2 random Emblems and 2 gold.",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_sprykinaugment.html",
+  "title": "TFTips - Small Furry Friend 【Teamfight Tactics】",
+  "description": "While Sprykin is active, gain a second BFF summon that is 45% as powerful. Gain a Teemo, a Veigar, and a Kobuko.",
+  "text_len": 15958
+ },
+ {
+  "file": "augs_18_staffsmith.html",
+  "title": "TFTips - Staffsmith 【Teamfight Tactics】",
+  "description": "Gain 2 random completed items that build from Needlessly Large Rod.",
+  "text_len": 15950
+ },
+ {
+  "file": "augs_18_standunited.html",
+  "title": "TFTips - Stand United 【Teamfight Tactics】",
+  "description": "Your units gain 1.5% Attack Damage and 1.5% Ability Power for each non-unique Trait active across your team.",
+  "text_len": 8288
+ },
+ {
+  "file": "augs_18_sweettreats.html",
+  "title": "TFTips - Sweet Treats 【Teamfight Tactics】",
+  "description": "Gain an Artifact anvil. Your team gains 16 Health for each item equipped on champions.",
+  "text_len": 10121
+ },
+ {
+  "file": "augs_18_swordoverflow.html",
+  "title": "TFTips - Sword Overflow 【Teamfight Tactics】",
+  "description": "Gain 4 BF Swords. Your BF Swords grant +4% Attack Speed.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_swordsmith.html",
+  "title": "TFTips - Swordsmith 【Teamfight Tactics】",
+  "description": "Gain 2 random completed items that build from B.F. Sword.",
+  "text_len": 15950
+ },
+ {
+  "file": "augs_18_tacticianskitchen.html",
+  "title": "TFTips - Tactician's Kitchen 【Teamfight Tactics】",
+  "description": "Gain a random Emblem. After 3 rounds, gain a Tactician's Cape.",
+  "text_len": 10128
+ },
+ {
+  "file": "augs_18_teambuilding.html",
+  "title": "TFTips - Team Building 【Teamfight Tactics】",
+  "description": "Gain a Lesser Champion Duplicator. Gain another after 5 player combats.This item allows you to copy a 3-cost or less champion.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_thegoldendragon.html",
+  "title": "TFTips - The Golden Dragon 【Teamfight Tactics】",
+  "description": "Gain a Mogul's Mail. Champions holding Mogul's Mail take up +1 team slot but gain 600 Health and 15% Durability.Mogul's Mail gives gold as well as com",
+  "text_len": 15957
+ },
+ {
+  "file": "augs_18_thetower.html",
+  "title": "TFTips - The Tower 【Teamfight Tactics】",
+  "description": "Gain a giant Training Dummy. Every 4 seconds, it zaps the 3 nearest enemies dealing 5% max Health true damage.",
+  "text_len": 8285
+ },
+ {
+  "file": "augs_18_thetraittree.html",
+  "title": "TFTips - The Trait Tree 【Teamfight Tactics】",
+  "description": "Gain 3 random Emblems and 2 gold.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_thetraittreeplus.html",
+  "title": "TFTips - The Trait Tree+ 【Teamfight Tactics】",
+  "description": "Gain 3 random Emblems, a Reforger, and 4 gold.",
+  "text_len": 10124
+ },
+ {
+  "file": "augs_18_timeskip.html",
+  "title": "TFTips - Time Skip 【Teamfight Tactics】",
+  "description": "Disable your Shop for the next 3 rounds. Then gain 32 XP.",
+  "text_len": 15949
+ },
+ {
+  "file": "augs_18_tonsofstatsi.html",
+  "title": "TFTips - Tons of Stats! 【Teamfight Tactics】",
+  "description": "Your team gains 44 Health, 4% Attack Damage, 4% Ability Power, 4 Armor, 4 Magic Resist, 4% Attack Speed, and 4 Mana.",
+  "text_len": 15954
+ },
+ {
+  "file": "augs_18_tonsofstatsii.html",
+  "title": "TFTips - TONS of Stats! 【Teamfight Tactics】",
+  "description": "Your team gains 88 Health, 8% Attack Damage, 8% Ability Power, 8 Armor, 8 Magic Resist, 8% Attack Speed, and 8 Mana.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_tradesector.html",
+  "title": "TFTips - Trade Sector 【Teamfight Tactics】",
+  "description": "Gain a Shop reroll every round. Gain 2 gold.",
+  "text_len": 15952
+ },
+ {
+  "file": "augs_18_tradesectorplus.html",
+  "title": "TFTips - Trade Sector+ 【Teamfight Tactics】",
+  "description": "Gain a Shop reroll every round. Gain 8 gold.",
+  "text_len": 15953
+ },
+ {
+  "file": "augs_18_traitladder.html",
+  "title": "TFTips - Trait Ladder 【Teamfight Tactics】",
+  "description": "Gain a random emblem. After fielding 2 non-unique traits in a player combat, gain a reward. Then increase the number of traits needed and the size of ",
+  "text_len": 10121
+ },
+ {
+  "file": "augs_18_twinguardians.html",
+  "title": "TFTips - Twin Guardians 【Teamfight Tactics】",
+  "description": "If you have exactly 2 allies in your first row, grant them 100 Health, 35 Armor, and 35 Magic Resist.",
+  "text_len": 8290
+ },
+ {
+  "file": "augs_18_upwardmobility.html",
+  "title": "TFTips - Upward Mobility 【Teamfight Tactics】",
+  "description": "Buying XP costs 1 less. Gain 2 Health and 2 Shop rerolls whenever you level up.",
+  "text_len": 10124
+ },
+ {
+  "file": "augs_18_urf.html",
+  "title": "TFTips - U.R.F 【Teamfight Tactics】",
+  "description": "Gain a Spatula. Champions holding Spatula or Frying Pan items gain 20% Attack Speed and 3 Mana Regen.",
+  "text_len": 15945
+ },
+ {
+  "file": "augs_18_urfsgrabbag.html",
+  "title": "TFTips - Urf's Grab Bag 【Teamfight Tactics】",
+  "description": "Gain 1 Spatula, 3 random components, and 5 gold.",
+  "text_len": 10123
+ },
+ {
+  "file": "augs_18_verticalityi.html",
+  "title": "TFTips - Verticality I 【Teamfight Tactics】",
+  "description": "Champions gain 1.5% Attack Damage, 1.5% Ability Power, 1.5 Armor, and 1.5 Magic Resist for each ally that shares a trait with them.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_verticalityii.html",
+  "title": "TFTips - Verticality II 【Teamfight Tactics】",
+  "description": "Champions gain 2.5% Attack Damage, 2.5% Ability Power, 2 Armor, and 2 Magic Resist for each ally that shares a trait with them.",
+  "text_len": 15954
+ },
+ {
+  "file": "augs_18_verticalityiii.html",
+  "title": "TFTips - Verticality III 【Teamfight Tactics】",
+  "description": "Champions gain 4% Attack Damage, 4% Ability Power, 3.5 Armor, and 3.5 Magic Resist for each ally that shares a trait with them.",
+  "text_len": 10124
+ },
+ {
+  "file": "augs_18_wandoverflow.html",
+  "title": "TFTips - Wand Overflow 【Teamfight Tactics】",
+  "description": "Gain 4 Needlessly Large Rods. Your Needlessly Large Rods grant +5% Attack Speed.",
+  "text_len": 10122
+ },
+ {
+  "file": "augs_18_warpath.html",
+  "title": "TFTips - Warpath 【Teamfight Tactics】",
+  "description": "Gain a 2-star 2-cost champion. After dealing 80 player damage, gain a chest of high cost champions and items.",
+  "text_len": 15947
+ },
+ {
+  "file": "augs_18_weighttheworth.html",
+  "title": "TFTips - Weight The Worth 【Teamfight Tactics】",
+  "description": "The first time you 3-star a champion, gain a copy of them each round for the rest of the game. 3-starring the same champion again grants additional co",
+  "text_len": 15956
+ },
+ {
+  "file": "augs_18_westicktogether.html",
+  "title": "TFTips - We Stick Together 【Teamfight Tactics】",
+  "description": "Gain a random Emblem and a completed item anvil. Allies that share a trait with that Emblem gain 30% Attack Speed. Into The Arcane Tactician's Crown, ",
+  "text_len": 10126
+ },
+ {
+  "file": "augs_18_wisprebateplus.html",
+  "title": "TFTips - Wisp Rebate+ 【Teamfight Tactics】",
+  "description": "Each time you purchase a Wisp, gain 2 gold. Gain 4 gold now.",
+  "text_len": 8288
+ },
+ {
+  "file": "augs_18_wisprebateplusplus.html",
+  "title": "TFTips - Wisp Rebate++ 【Teamfight Tactics】",
+  "description": "Each time you purchase a Wisp, gain 2 gold. Gain 8 gold now.",
+  "text_len": 8289
+ },
+ {
+  "file": "augs_18_worththewait.html",
+  "title": "TFTips - Worth the Wait 【Teamfight Tactics】",
+  "description": "Gain a random 1-cost champion. Gain another copy of them at the start of each round for the rest of the game.",
+  "text_len": 15954
+ },
+ {
+  "file": "augs_18_worththewaitii.html",
+  "title": "TFTips - Worth the Wait II 【Teamfight Tactics】",
+  "description": "Gain 2 copies of a random 2-cost champion. Gain another copy of them at the start of each round for the rest of the game.",
+  "text_len": 10126
+ },
+ {
+  "file": "augs_18_wovenmagic.html",
+  "title": "TFTips - Woven Magic 【Teamfight Tactics】",
+  "description": "Gain a random item component. Every 2200 Mana spent by your champions, grants an additional component.",
+  "text_len": 15951
+ },
+ {
+  "file": "augs_18_youngandwildandfree.html",
+  "title": "TFTips - Young and Wild and Free 【Teamfight Tactics】",
+  "description": "You can always move freely on Carousel rounds. Gain 5 gold.",
+  "text_len": 8299
+ },
+ {
+  "file": "augs_gold.html",
+  "title": "TFTips - Gold Augment List 【Teamfight Tactics】",
+  "description": "Augment list. View each augment effect and detailed specifications.",
+  "text_len": 15957
+ },
+ {
+  "file": "augs_prismatic.html",
+  "title": "TFTips - Prismatic Augment List 【Teamfight Tactics】",
+  "description": "Augment list. View each augment effect and detailed specifications.",
+  "text_len": 10131
+ },
+ {
+  "file": "augs_silver.html",
+  "title": "TFTips - Silver Augment List 【Teamfight Tactics】",
+  "description": "Augment list. View each augment effect and detailed specifications.",
+  "text_len": 8295
+ },
+ {
+  "file": "champs.html",
+  "title": "TFTips - Champions 【Teamfight Tactics】",
+  "description": "Champion list. View champion names, traits (synergies), roles, and more.",
+  "text_len": 21620
+ },
+ {
+  "file": "champs_18_ahri.html",
+  "title": "TFTips - Ahri Champion Details 【Teamfight Tactics】",
+  "description": "Ahri - View traits, skills, stats, and more.",
+  "text_len": 1862
+ },
+ {
+  "file": "champs_18_akali.html",
+  "title": "TFTips - Akali Champion Details 【Teamfight Tactics】",
+  "description": "Akali - View traits, skills, stats, and more.",
+  "text_len": 1431
+ },
+ {
+  "file": "champs_18_alistar.html",
+  "title": "TFTips - Alistar Champion Details 【Teamfight Tactics】",
+  "description": "Alistar - View traits, skills, stats, and more.",
+  "text_len": 2508
+ },
+ {
+  "file": "champs_18_alune.html",
+  "title": "TFTips - Alune Champion Details 【Teamfight Tactics】",
+  "description": "Alune - View traits, skills, stats, and more.",
+  "text_len": 1517
+ },
+ {
+  "file": "champs_18_amumu.html",
+  "title": "TFTips - Amumu Champion Details 【Teamfight Tactics】",
+  "description": "Amumu - View traits, skills, stats, and more.",
+  "text_len": 1887
+ },
+ {
+  "file": "champs_18_aphelios.html",
+  "title": "TFTips - Aphelios Champion Details 【Teamfight Tactics】",
+  "description": "Aphelios - View traits, skills, stats, and more.",
+  "text_len": 1344
+ },
+ {
+  "file": "champs_18_ashe.html",
+  "title": "TFTips - Ashe Champion Details 【Teamfight Tactics】",
+  "description": "Ashe - View traits, skills, stats, and more.",
+  "text_len": 4067
+ },
+ {
+  "file": "champs_18_azir.html",
+  "title": "TFTips - Azir Champion Details 【Teamfight Tactics】",
+  "description": "Azir - View traits, skills, stats, and more.",
+  "text_len": 2111
+ },
+ {
+  "file": "champs_18_brambleback.html",
+  "title": "TFTips - Brambleback Champion Details 【Teamfight Tactics】",
+  "description": "Brambleback - View traits, skills, stats, and more.",
+  "text_len": 3092
+ },
+ {
+  "file": "champs_18_caitlyn.html",
+  "title": "TFTips - Caitlyn Champion Details 【Teamfight Tactics】",
+  "description": "Caitlyn - View traits, skills, stats, and more.",
+  "text_len": 1421
+ },
+ {
+  "file": "champs_18_camille.html",
+  "title": "TFTips - Camille Champion Details 【Teamfight Tactics】",
+  "description": "Camille - View traits, skills, stats, and more.",
+  "text_len": 1982
+ },
+ {
+  "file": "champs_18_cassiopeia.html",
+  "title": "TFTips - Cassiopeia Champion Details 【Teamfight Tactics】",
+  "description": "Cassiopeia - View traits, skills, stats, and more.",
+  "text_len": 1656
+ },
+ {
+  "file": "champs_18_cinderling.html",
+  "title": "TFTips - Cinderling Champion Details 【Teamfight Tactics】",
+  "description": "Cinderling - View traits, skills, stats, and more.",
+  "text_len": 2004
+ },
+ {
+  "file": "champs_18_diana.html",
+  "title": "TFTips - Diana Champion Details 【Teamfight Tactics】",
+  "description": "Diana - View traits, skills, stats, and more.",
+  "text_len": 1540
+ },
+ {
+  "file": "champs_18_draven.html",
+  "title": "TFTips - Draven Champion Details 【Teamfight Tactics】",
+  "description": "Draven - View traits, skills, stats, and more.",
+  "text_len": 2330
+ },
+ {
+  "file": "champs_18_elderdragon.html",
+  "title": "TFTips - Elder Dragon Champion Details 【Teamfight Tactics】",
+  "description": "Elder Dragon - View traits, skills, stats, and more.",
+  "text_len": 1924
+ },
+ {
+  "file": "champs_18_elderwood_golemsummon.html",
+  "title": "TFTips - Deepwood Protector Champion Details 【Teamfight Tactics】",
+  "description": "Deepwood Protector - View traits, skills, stats, and more.",
+  "text_len": 1385
+ },
+ {
+  "file": "champs_18_elderwood_treesummon_lifeblossom.html",
+  "title": "TFTips - Lifebloom Champion Details 【Teamfight Tactics】",
+  "description": "Lifebloom - View traits, skills, stats, and more.",
+  "text_len": 1230
+ },
+ {
+  "file": "champs_18_elderwood_treesummon_stonebarktree.html",
+  "title": "TFTips - Stonebark Tree Champion Details 【Teamfight Tactics】",
+  "description": "Stonebark Tree - View traits, skills, stats, and more.",
+  "text_len": 1093
+ },
+ {
+  "file": "champs_18_elise.html",
+  "title": "TFTips - Elise Champion Details 【Teamfight Tactics】",
+  "description": "Elise - View traits, skills, stats, and more.",
+  "text_len": 1272
+ },
+ {
+  "file": "champs_18_ezreal.html",
+  "title": "TFTips - Ezreal Champion Details 【Teamfight Tactics】",
+  "description": "Ezreal - View traits, skills, stats, and more.",
+  "text_len": 2347
+ },
+ {
+  "file": "champs_18_fiddlesticks.html",
+  "title": "TFTips - Fiddlesticks Champion Details 【Teamfight Tactics】",
+  "description": "Fiddlesticks - View traits, skills, stats, and more.",
+  "text_len": 1339
+ },
+ {
+  "file": "champs_18_gnar.html",
+  "title": "TFTips - Gnar Champion Details 【Teamfight Tactics】",
+  "description": "Gnar - View traits, skills, stats, and more.",
+  "text_len": 2469
+ },
+ {
+  "file": "champs_18_gromp.html",
+  "title": "TFTips - Gromp Champion Details 【Teamfight Tactics】",
+  "description": "Gromp - View traits, skills, stats, and more.",
+  "text_len": 2646
+ },
+ {
+  "file": "champs_18_hecarim.html",
+  "title": "TFTips - Hecarim Champion Details 【Teamfight Tactics】",
+  "description": "Hecarim - View traits, skills, stats, and more.",
+  "text_len": 1365
+ },
+ {
+  "file": "champs_18_ivern.html",
+  "title": "TFTips - Ivern Champion Details 【Teamfight Tactics】",
+  "description": "Ivern - View traits, skills, stats, and more.",
+  "text_len": 1832
+ },
+ {
+  "file": "champs_18_karma.html",
+  "title": "TFTips - Karma Champion Details 【Teamfight Tactics】",
+  "description": "Karma - View traits, skills, stats, and more.",
+  "text_len": 1728
+ },
+ {
+  "file": "champs_18_kayle.html",
+  "title": "TFTips - Kayle Champion Details 【Teamfight Tactics】",
+  "description": "Kayle - View traits, skills, stats, and more.",
+  "text_len": 2448
+ },
+ {
+  "file": "champs_18_kennen.html",
+  "title": "TFTips - Kennen Champion Details 【Teamfight Tactics】",
+  "description": "Kennen - View traits, skills, stats, and more.",
+  "text_len": 1854
+ },
+ {
+  "file": "champs_18_khazix.html",
+  "title": "TFTips - Kha'Zix Champion Details 【Teamfight Tactics】",
+  "description": "Kha'Zix - View traits, skills, stats, and more.",
+  "text_len": 2046
+ },
+ {
+  "file": "champs_18_kobuko.html",
+  "title": "TFTips - Kobuko Champion Details 【Teamfight Tactics】",
+  "description": "Kobuko - View traits, skills, stats, and more.",
+  "text_len": 1462
+ },
+ {
+  "file": "champs_18_kogmaw.html",
+  "title": "TFTips - Kog'Maw Champion Details 【Teamfight Tactics】",
+  "description": "Kog'Maw - View traits, skills, stats, and more.",
+  "text_len": 1383
+ },
+ {
+  "file": "champs_18_krug.html",
+  "title": "TFTips - Krug Champion Details 【Teamfight Tactics】",
+  "description": "Krug - View traits, skills, stats, and more.",
+  "text_len": 1411
+ },
+ {
+  "file": "champs_18_leblanc.html",
+  "title": "TFTips - LeBlanc Champion Details 【Teamfight Tactics】",
+  "description": "LeBlanc - View traits, skills, stats, and more.",
+  "text_len": 2841
+ },
+ {
+  "file": "champs_18_leona.html",
+  "title": "TFTips - Leona Champion Details 【Teamfight Tactics】",
+  "description": "Leona - View traits, skills, stats, and more.",
+  "text_len": 1681
+ },
+ {
+  "file": "champs_18_lillia.html",
+  "title": "TFTips - Lillia Champion Details 【Teamfight Tactics】",
+  "description": "Lillia - View traits, skills, stats, and more.",
+  "text_len": 1660
+ },
+ {
+  "file": "champs_18_lux.html",
+  "title": "TFTips - Lux Champion Details 【Teamfight Tactics】",
+  "description": "Lux - View traits, skills, stats, and more.",
+  "text_len": 2471
+ },
+ {
+  "file": "champs_18_malphite.html",
+  "title": "TFTips - Malphite Champion Details 【Teamfight Tactics】",
+  "description": "Malphite - View traits, skills, stats, and more.",
+  "text_len": 1580
+ },
+ {
+  "file": "champs_18_mamabeak.html",
+  "title": "TFTips - Mama Beak Champion Details 【Teamfight Tactics】",
+  "description": "Mama Beak - View traits, skills, stats, and more.",
+  "text_len": 2424
+ },
+ {
+  "file": "champs_18_maokai.html",
+  "title": "TFTips - Maokai Champion Details 【Teamfight Tactics】",
+  "description": "Maokai - View traits, skills, stats, and more.",
+  "text_len": 1436
+ },
+ {
+  "file": "champs_18_masteryi.html",
+  "title": "TFTips - Master Yi Champion Details 【Teamfight Tactics】",
+  "description": "Master Yi - View traits, skills, stats, and more.",
+  "text_len": 1674
+ },
+ {
+  "file": "champs_18_morgana.html",
+  "title": "TFTips - Morgana Champion Details 【Teamfight Tactics】",
+  "description": "Morgana - View traits, skills, stats, and more.",
+  "text_len": 1915
+ },
+ {
+  "file": "champs_18_murkwolf.html",
+  "title": "TFTips - Murkwolf Champion Details 【Teamfight Tactics】",
+  "description": "Murkwolf - View traits, skills, stats, and more.",
+  "text_len": 2487
+ },
+ {
+  "file": "champs_18_nidalee.html",
+  "title": "TFTips - Nidalee Champion Details 【Teamfight Tactics】",
+  "description": "Nidalee - View traits, skills, stats, and more.",
+  "text_len": 2696
+ },
+ {
+  "file": "champs_18_ornn.html",
+  "title": "TFTips - Ornn Champion Details 【Teamfight Tactics】",
+  "description": "Ornn - View traits, skills, stats, and more.",
+  "text_len": 1747
+ },
+ {
+  "file": "champs_18_pebbles.html",
+  "title": "TFTips - Pebbles Champion Details 【Teamfight Tactics】",
+  "description": "Pebbles - View traits, skills, stats, and more.",
+  "text_len": 1311
+ },
+ {
+  "file": "champs_18_rakan.html",
+  "title": "TFTips - Rakan Champion Details 【Teamfight Tactics】",
+  "description": "Rakan - View traits, skills, stats, and more.",
+  "text_len": 1580
+ },
+ {
+  "file": "champs_18_rammus.html",
+  "title": "TFTips - Rammus Champion Details 【Teamfight Tactics】",
+  "description": "Rammus - View traits, skills, stats, and more.",
+  "text_len": 1902
+ },
+ {
+  "file": "champs_18_reksai.html",
+  "title": "TFTips - Rek'Sai Champion Details 【Teamfight Tactics】",
+  "description": "Rek'Sai - View traits, skills, stats, and more.",
+  "text_len": 1308
+ },
+ {
+  "file": "champs_18_rengar.html",
+  "title": "TFTips - Rengar Champion Details 【Teamfight Tactics】",
+  "description": "Rengar - View traits, skills, stats, and more.",
+  "text_len": 1527
+ },
+ {
+  "file": "champs_18_scuttlecrab.html",
+  "title": "TFTips - Scuttlecrab Champion Details 【Teamfight Tactics】",
+  "description": "Scuttlecrab - View traits, skills, stats, and more.",
+  "text_len": 1460
+ },
+ {
+  "file": "champs_18_sejuani.html",
+  "title": "TFTips - Sejuani Champion Details 【Teamfight Tactics】",
+  "description": "Sejuani - View traits, skills, stats, and more.",
+  "text_len": 1280
+ },
+ {
+  "file": "champs_18_sentinel.html",
+  "title": "TFTips - Sentinel Champion Details 【Teamfight Tactics】",
+  "description": "Sentinel - View traits, skills, stats, and more.",
+  "text_len": 2356
+ },
+ {
+  "file": "champs_18_sett.html",
+  "title": "TFTips - Sett Champion Details 【Teamfight Tactics】",
+  "description": "Sett - View traits, skills, stats, and more.",
+  "text_len": 1627
+ },
+ {
+  "file": "champs_18_shen.html",
+  "title": "TFTips - Shen Champion Details 【Teamfight Tactics】",
+  "description": "Shen - View traits, skills, stats, and more.",
+  "text_len": 1936
+ },
+ {
+  "file": "champs_18_sivir.html",
+  "title": "TFTips - Sivir Champion Details 【Teamfight Tactics】",
+  "description": "Sivir - View traits, skills, stats, and more.",
+  "text_len": 2176
+ },
+ {
+  "file": "champs_18_soraka.html",
+  "title": "TFTips - Soraka Champion Details 【Teamfight Tactics】",
+  "description": "Soraka - View traits, skills, stats, and more.",
+  "text_len": 1936
+ },
+ {
+  "file": "champs_18_taric.html",
+  "title": "TFTips - Taric Champion Details 【Teamfight Tactics】",
+  "description": "Taric - View traits, skills, stats, and more.",
+  "text_len": 2875
+ },
+ {
+  "file": "champs_18_teemo.html",
+  "title": "TFTips - Teemo Champion Details 【Teamfight Tactics】",
+  "description": "Teemo - View traits, skills, stats, and more.",
+  "text_len": 3029
+ },
+ {
+  "file": "champs_18_tristana.html",
+  "title": "TFTips - Tristana Champion Details 【Teamfight Tactics】",
+  "description": "Tristana - View traits, skills, stats, and more.",
+  "text_len": 2486
+ },
+ {
+  "file": "champs_18_varus.html",
+  "title": "TFTips - Varus Champion Details 【Teamfight Tactics】",
+  "description": "Varus - View traits, skills, stats, and more.",
+  "text_len": 1729
+ },
+ {
+  "file": "champs_18_veigar.html",
+  "title": "TFTips - Veigar Champion Details 【Teamfight Tactics】",
+  "description": "Veigar - View traits, skills, stats, and more.",
+  "text_len": 2213
+ },
+ {
+  "file": "champs_18_vi.html",
+  "title": "TFTips - Vi Champion Details 【Teamfight Tactics】",
+  "description": "Vi - View traits, skills, stats, and more.",
+  "text_len": 1312
+ },
+ {
+  "file": "champs_18_warwick.html",
+  "title": "TFTips - Warwick Champion Details 【Teamfight Tactics】",
+  "description": "Warwick - View traits, skills, stats, and more.",
+  "text_len": 2124
+ },
+ {
+  "file": "champs_18_xayah.html",
+  "title": "TFTips - Xayah Champion Details 【Teamfight Tactics】",
+  "description": "Xayah - View traits, skills, stats, and more.",
+  "text_len": 1498
+ },
+ {
+  "file": "champs_18_yorick.html",
+  "title": "TFTips - Yorick Champion Details 【Teamfight Tactics】",
+  "description": "Yorick - View traits, skills, stats, and more.",
+  "text_len": 1362
+ },
+ {
+  "file": "champs_18_yunara.html",
+  "title": "TFTips - Yunara Champion Details 【Teamfight Tactics】",
+  "description": "Yunara - View traits, skills, stats, and more.",
+  "text_len": 1620
+ },
+ {
+  "file": "champs_18_zyra.html",
+  "title": "TFTips - Zyra Champion Details 【Teamfight Tactics】",
+  "description": "Zyra - View traits, skills, stats, and more.",
+  "text_len": 1448
+ },
+ {
+  "file": "comps.html",
+  "title": "TFTips - SET18 Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "TFT SET18 comp guide by ZETA title. Each comp includes detailed explanations, playstyles, and item priorities.",
+  "text_len": 3567
+ },
+ {
+  "file": "comps_akali_camille.html",
+  "title": "TFTips - Akali Camille Reroll Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Akali Camille Reroll Comp Guide by ZETA title",
+  "text_len": 3064
+ },
+ {
+  "file": "comps_aphelios_nidalee.html",
+  "title": "TFTips - Aphelios Nidalee Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Aphelios Nidalee Comp Guide by ZETA title [Beginner Friendly]",
+  "text_len": 2721
+ },
+ {
+  "file": "comps_azir_rammus.html",
+  "title": "TFTips - Azir Rammus Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Azir Rammus Comp Guide by ZETA title",
+  "text_len": 2641
+ },
+ {
+  "file": "comps_caitlyn_bahr.html",
+  "title": "TFTips - Caitlyn Scuttlecrab Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Caitlyn Scuttlecrab Comp Guide by ZETA title [Beginner Friendly]",
+  "text_len": 2865
+ },
+ {
+  "file": "comps_defender_cassiopeia.html",
+  "title": "TFTips - Defender Cassiopeia Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Defender Cassiopeia Comp Guide by ZETA title [Beginner Friendly]",
+  "text_len": 2939
+ },
+ {
+  "file": "comps_elderdragon_draven_95.html",
+  "title": "TFTips - Elder Dragon Draven Fast 9 Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Elder Dragon Draven Fast 9 Comp Guide by ZETA title",
+  "text_len": 3601
+ },
+ {
+  "file": "comps_kayle_reroll.html",
+  "title": "TFTips - Kayle Reroll Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Kayle Reroll Comp Guide by ZETA title",
+  "text_len": 3164
+ },
+ {
+  "file": "comps_kha_zix_hecarim.html",
+  "title": "TFTips - Kha'Zix Hecarim Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Kha'Zix Hecarim Comp Guide by ZETA title",
+  "text_len": 3171
+ },
+ {
+  "file": "comps_masteryi_kogmaw.html",
+  "title": "TFTips - Master Yi Kog'Maw Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Master Yi Kog'Maw Comp Guide by ZETA title",
+  "text_len": 2912
+ },
+ {
+  "file": "comps_morgana_ahri.html",
+  "title": "TFTips - Morgana Ahri Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Morgana Ahri Comp Guide by ZETA title",
+  "text_len": 3427
+ },
+ {
+  "file": "comps_primal_malphite.html",
+  "title": "TFTips - Primal Malphite Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Primal Malphite Comp Guide by ZETA title",
+  "text_len": 2669
+ },
+ {
+  "file": "comps_riftbeast.html",
+  "title": "TFTips - Riftbeast Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Riftbeast Comp Guide by ZETA title [Beginner Friendly]",
+  "text_len": 2634
+ },
+ {
+  "file": "comps_soraka_zyra.html",
+  "title": "TFTips - Soraka Zyra Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Soraka Zyra Comp Guide by ZETA title",
+  "text_len": 3292
+ },
+ {
+  "file": "comps_tristana_rammus.html",
+  "title": "TFTips - Tristana Rammus Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Tristana Rammus Comp Guide by ZETA title",
+  "text_len": 2958
+ },
+ {
+  "file": "comps_veigar.html",
+  "title": "TFTips - Veigar Reroll Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Veigar Reroll Comp Guide by ZETA title [Beginner Friendly]",
+  "text_len": 3680
+ },
+ {
+  "file": "comps_warwick_murkwolf.html",
+  "title": "TFTips - Warwick Murkwolf Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Warwick Murkwolf Comp Guide by ZETA title [Beginner Friendly]",
+  "text_len": 2625
+ },
+ {
+  "file": "comps_yunara_sejuani.html",
+  "title": "TFTips - Yunara Sejuani Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Yunara Sejuani Comp Guide by ZETA title",
+  "text_len": 2873
+ },
+ {
+  "file": "comps_zyra_amumu.html",
+  "title": "TFTips - Juggernaut Zyra Comp Guide by ZETA title 【Teamfight Tactics】",
+  "description": "Juggernaut Zyra Comp Guide by ZETA title [Beginner Friendly]",
+  "text_len": 2531
+ },
+ {
+  "file": "daily_quiz.html",
+  "title": "TFTips - Daily Quiz 【Teamfight Tactics】",
+  "description": "Challenge yourself with a daily TFT knowledge quiz!",
+  "text_len": 994
+ },
+ {
+  "file": "encounters.html",
+  "title": "TFTips - Encounters 【Teamfight Tactics】",
+  "description": "Encounter list. View encounter names, effects, and detailed specifications.",
+  "text_len": 2503
+ },
+ {
+  "file": "equipment.html",
+  "title": "TFTips - Equipment Items 【Teamfight Tactics】",
+  "description": "TFT equipment items list. Sort by stats and filter by type.",
+  "text_len": 18166
+ },
+ {
+  "file": "home.html",
+  "title": "TFTips - TFT Strategy & Guides 【Teamfight Tactics】",
+  "description": "TFTips provides champion data, trait synergies, item builds, augment info, and TFT strategy guides.",
+  "text_len": 4290
+ },
+ {
+  "file": "items_18_emblemblackthorn.html",
+  "title": "TFTips - Blackthorn Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Blackthorn Emblem - The holder gains the Blackthorn trait.",
+  "text_len": 2510
+ },
+ {
+  "file": "items_18_emblemblossom.html",
+  "title": "TFTips - Blossom Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Blossom Emblem - The holder gains the Blossom trait.",
+  "text_len": 2501
+ },
+ {
+  "file": "items_18_emblembrawler.html",
+  "title": "TFTips - Brawler Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Brawler Emblem - The holder gains the Brawler trait. Attacks deal 2.5% of the holder's max Health as magic damage.",
+  "text_len": 2835
+ },
+ {
+  "file": "items_18_emblemcoven.html",
+  "title": "TFTips - Coven Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Coven Emblem - The holder gains the Coven trait.",
+  "text_len": 1076
+ },
+ {
+  "file": "items_18_emblemdefender.html",
+  "title": "TFTips - Defender Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Defender Emblem - The holder gains the Defender trait. Combat Start: Gain 6% Attack Speed for every ally that starts in the front row.",
+  "text_len": 1169
+ },
+ {
+  "file": "items_18_emblemelderwood.html",
+  "title": "TFTips - Elderwood Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Elderwood Emblem - The holder gains the Elderwood trait.",
+  "text_len": 2617
+ },
+ {
+  "file": "items_18_emblemexecutioner.html",
+  "title": "TFTips - Executioner Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Executioner Emblem - The holder gains the Executioner trait. Damage executes enemies below 8% of their max Health.",
+  "text_len": 2561
+ },
+ {
+  "file": "items_18_emblemfae.html",
+  "title": "TFTips - Fae Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Fae Emblem - The holder gains the Fae trait.",
+  "text_len": 2583
+ },
+ {
+  "file": "items_18_emblemflorafatalis.html",
+  "title": "TFTips - Flora Fatalis Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Flora Fatalis Emblem - The holder gains the Flora Fatalis trait.",
+  "text_len": 1104
+ },
+ {
+  "file": "items_18_emblemflorafatalisaugment.html",
+  "title": "TFTips - Flora Fatalis Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Flora Fatalis Emblem - The holder gains the Flora Fatalis trait. They gain 50% increased benefits from Flora Fatalis.",
+  "text_len": 1385
+ },
+ {
+  "file": "items_18_emblemhunter.html",
+  "title": "TFTips - Hunter Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Hunter Emblem - The holder gains the Hunter trait. Takedowns grant 15% Attack Damage.",
+  "text_len": 2662
+ },
+ {
+  "file": "items_18_embleminferno.html",
+  "title": "TFTips - Inferno Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Inferno Emblem - The holder gains the Inferno trait.",
+  "text_len": 2490
+ },
+ {
+  "file": "items_18_embleminvoker.html",
+  "title": "TFTips - Invoker Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Invoker Emblem - The holder gains the Invoker trait. On cast, gain Ability Power equal to 8% of Mana spent.",
+  "text_len": 2697
+ },
+ {
+  "file": "items_18_emblemjuggernaut.html",
+  "title": "TFTips - Juggernaut Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Juggernaut Emblem - The holder gains the Juggernaut trait. Gain 10 mana whenever a Juggernaut dies.",
+  "text_len": 1274
+ },
+ {
+  "file": "items_18_emblemlunar.html",
+  "title": "TFTips - Lunar Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Lunar Emblem - The holder gains the Lunar trait.",
+  "text_len": 2488
+ },
+ {
+  "file": "items_18_emblemprimal.html",
+  "title": "TFTips - Primal Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Primal Emblem - The holder gains the Primal trait.",
+  "text_len": 2553
+ },
+ {
+  "file": "items_18_emblemrapidfire.html",
+  "title": "TFTips - Rapidfire Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Rapidfire Emblem - The holder gains the Rapidfire trait. Attacks deal 1% of the target's max Health as true damage.",
+  "text_len": 2555
+ },
+ {
+  "file": "items_18_emblemslayer.html",
+  "title": "TFTips - Ravager Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Ravager Emblem - The holder gains the Ravager trait. Gain 3% Damage Amp per 300 Health restored.",
+  "text_len": 2549
+ },
+ {
+  "file": "items_18_emblemspellweaver.html",
+  "title": "TFTips - Spellweaver Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Spellweaver Emblem - The holder gains the Spellweaver trait. Gain 2 Mana whenever an ally casts their Ability.",
+  "text_len": 2551
+ },
+ {
+  "file": "items_18_emblemsprykin.html",
+  "title": "TFTips - Sprykin Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Sprykin Emblem - The holder gains the Sprykin trait.If the holder is riding the BFF, gain an additional 20% 15 15",
+  "text_len": 2763
+ },
+ {
+  "file": "items_18_emblemvanguard.html",
+  "title": "TFTips - Vanguard Emblem - Item Details 【Teamfight Tactics】",
+  "description": "Vanguard Emblem - The holder gains the Vanguard trait. If the holder survives 22 seconds in player combat, gain 1 player health.",
+  "text_len": 2970
+ },
+ {
+  "file": "items_abilitybooster18.html",
+  "title": "TFTips - Ability Power Booster - Item Details 【Teamfight Tactics】",
+  "description": "Ability Power Booster - Permanently grant 8% Ability Power. [Consumable - This item disappears when used.]",
+  "text_len": 1261
+ },
+ {
+  "file": "items_adaptivehelm.html",
+  "title": "TFTips - Adaptive Helm - Item Details 【Teamfight Tactics】",
+  "description": "Adaptive Helm - Gain an additional 15% Mana from all sources. The wearer gains an additional bonus based on their Role:Tanks and Fighters: Gain 30 Armor and Magic Re…",
+  "text_len": 3293
+ },
+ {
+  "file": "items_adaptivehelm_radiant.html",
+  "title": "TFTips - Radiant Adaptive Helm - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Adaptive Helm - Gain an additional 30% Mana from all sources. The wearer gains an additional bonus based on their Role:Tanks and Fighters: Gain 80 Armor and Magic Re…",
+  "text_len": 3438
+ },
+ {
+  "file": "items_archangelsstaff.html",
+  "title": "TFTips - Archangel's Staff - Item Details 【Teamfight Tactics】",
+  "description": "Archangel's Staff - Combat start: Gain 20% Ability Power every 5 seconds in combat.",
+  "text_len": 2757
+ },
+ {
+  "file": "items_archangelsstaffradiant.html",
+  "title": "TFTips - Radiant Archangel's Staff - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Archangel's Staff - Combat start: Gain 40% Ability Power every 5 seconds in combat.",
+  "text_len": 1839
+ },
+ {
+  "file": "items_armormrbooster18.html",
+  "title": "TFTips - Armor and Magic Resist Booster - Item Details 【Teamfight Tactics】",
+  "description": "Armor and Magic Resist Booster - Permanently grant 8 Armor and 8 Magic Resist. [Consumable - This item disappears when used.]",
+  "text_len": 1640
+ },
+ {
+  "file": "items_artifact_aegisofdawn.html",
+  "title": "TFTips - Aegis of Dawn - Item Details 【Teamfight Tactics】",
+  "description": "Aegis of Dawn - Every 2.5 seconds, steal 3 Armor from enemies within 1-hex and heal 15~50% of the holder's Armor.If Aegis of Dusk is also equipped, trigger this item…",
+  "text_len": 2132
+ },
+ {
+  "file": "items_artifact_aegisofdusk.html",
+  "title": "TFTips - Aegis of Dusk - Item Details 【Teamfight Tactics】",
+  "description": "Aegis of Dusk - Every 2.5 seconds, steal 3 Magic Resist from enemies within 1-hex and deal 15~50% of the holder's Magic Resist as magic damage.If Aegis of Dawn is al…",
+  "text_len": 2219
+ },
+ {
+  "file": "items_artifact_blightingjewel.html",
+  "title": "TFTips - Blighting Jewel - Item Details 【Teamfight Tactics】",
+  "description": "Blighting Jewel - Dealing magic damage reduces the target’s Magic Resist by 3. If their Magic Resist is 0, grant the holder 4 Mana instead.Ability damage can only trig…",
+  "text_len": 2555
+ },
+ {
+  "file": "items_artifact_dawncore.html",
+  "title": "TFTips - Dawncore - Item Details 【Teamfight Tactics】",
+  "description": "Dawncore - Reduce the holder's max Mana by 10. Subsequent spellcasts reduce max Mana by 5%, to a minimum of 15.",
+  "text_len": 1966
+ },
+ {
+  "file": "items_artifact_eternalpact.html",
+  "title": "TFTips - Eternal Pact - Item Details 【Teamfight Tactics】",
+  "description": "Eternal Pact - Combat start: Form a pact with the highest Health allied champion, If they die, gain 10 Mana regen and 40% Ability Power. When the ally uses their ab…",
+  "text_len": 2444
+ },
+ {
+  "file": "items_artifact_fishbones.html",
+  "title": "TFTips - Fishbones - Item Details 【Teamfight Tactics】",
+  "description": "Fishbones - The holder's attacks target random enemies. Gain +2 Attack Range.",
+  "text_len": 1821
+ },
+ {
+  "file": "items_artifact_forbiddenidol.html",
+  "title": "TFTips - Forbidden Idol - Item Details 【Teamfight Tactics】",
+  "description": "Forbidden Idol - Shields have 40% of their value converted to max Health instead.",
+  "text_len": 1485
+ },
+ {
+  "file": "items_artifact_gamblersblade.html",
+  "title": "TFTips - Gambler's Blade - Item Details 【Teamfight Tactics】",
+  "description": "Gambler's Blade - Grant 1% bonus Attack Speed per gold in your bank (up to 30 gold).Each attack has a 6% chance to drop 1 gold.Unique - only 1 per champion",
+  "text_len": 1904
+ },
+ {
+  "file": "items_artifact_goldcollector.html",
+  "title": "TFTips - Gold Collector - Item Details 【Teamfight Tactics】",
+  "description": "Gold Collector - Attacks and Abilities execute enemies below 12% of their maximum Health. Executions on champions have a 33% chance to drop 1 gold.Unique - only 1 per…",
+  "text_len": 2010
+ },
+ {
+  "file": "items_artifact_hellfirehatchet.html",
+  "title": "TFTips - Hellfire Hatchet - Item Details 【Teamfight Tactics】",
+  "description": "Hellfire Hatchet - Attacks deal 3% of the holder's max Health as bonus physical damage. For every 1% missing Health, gain 1.5% Attack Speed.",
+  "text_len": 1830
+ },
+ {
+  "file": "items_artifact_horizonfocus.html",
+  "title": "TFTips - Horizon Focus - Item Details 【Teamfight Tactics】",
+  "description": "Horizon Focus - Stunning an enemy causes lightning to strike them, dealing 30% of their max Health as magic damage.",
+  "text_len": 1626
+ },
+ {
+  "file": "items_artifact_hullcrusher.html",
+  "title": "TFTips - Hullcrusher - Item Details 【Teamfight Tactics】",
+  "description": "Hullcrusher - Combat Start: If there are no adjacent allies, gain 400 Health, 10% Attack Damage, and 10% Ability Power.",
+  "text_len": 1645
+ },
+ {
+  "file": "items_artifact_infinityforce.html",
+  "title": "TFTips - Infinity Force - Item Details 【Teamfight Tactics】",
+  "description": "Infinity Force - Tons of EVERYTHING!",
+  "text_len": 1495
+ },
+ {
+  "file": "items_artifact_lichbane.html",
+  "title": "TFTips - Lich Bane - Item Details 【Teamfight Tactics】",
+  "description": "Lich Bane - The holder’s first attack after each Ability cast deals 250~700 bonus magic damage.Damage increases based on Stage.",
+  "text_len": 1737
+ },
+ {
+  "file": "items_artifact_lightshieldcrest.html",
+  "title": "TFTips - Lightshield Crest - Item Details 【Teamfight Tactics】",
+  "description": "Lightshield Crest - Every 3 seconds, Shields the lowest percent Health ally for 70% of the holder’s combined Armor and Magic Resist for 5 seconds.On death grants this sh…",
+  "text_len": 1639
+ },
+ {
+  "file": "items_artifact_ludenstempest.html",
+  "title": "TFTips - Luden's Tempest - Item Details 【Teamfight Tactics】",
+  "description": "Luden's Tempest - 100% of overkill damage plus 130 is dealt as magic damage to the two enemies nearest the target.",
+  "text_len": 2052
+ },
+ {
+  "file": "items_artifact_manazane.html",
+  "title": "TFTips - Manazane - Item Details 【Teamfight Tactics】",
+  "description": "Manazane - After casting the first time in combat, gain 110 Mana over 5 seconds.",
+  "text_len": 1435
+ },
+ {
+  "file": "items_artifact_mittens.html",
+  "title": "TFTips - Mittens - Item Details 【Teamfight Tactics】",
+  "description": "Mittens - Shrinks the holder, granting them increased movement speed and immunity to Slow, Burn, and Wound.Slow: Reduces Attack Speed.Burn: Deals a percent of…",
+  "text_len": 1717
+ },
+ {
+  "file": "items_artifact_mogulsmail.html",
+  "title": "TFTips - Mogul's Mail - Item Details 【Teamfight Tactics】",
+  "description": "Mogul's Mail - Grants 1 Armor, 1 Magic Resist, and 5 Health when taking damage, stacking up to 35 times.At full stacks, grant 1 gold and continue gaining 1 gold eve…",
+  "text_len": 2298
+ },
+ {
+  "file": "items_artifact_navoriflickerblade.html",
+  "title": "TFTips - Flickerblades - Item Details 【Teamfight Tactics】",
+  "description": "Flickerblades - Attacks grant 4% stacking Attack Speed. Every 3 attacks also grant 2% Attack Damage and 2% Ability Power.",
+  "text_len": 2080
+ },
+ {
+  "file": "items_artifact_rapidfirecannon.html",
+  "title": "TFTips - Rapid Firecannon - Item Details 【Teamfight Tactics】",
+  "description": "Rapid Firecannon - Gain +1 Attack Range, increased by 1 whenever the holder kills an enemy.",
+  "text_len": 1695
+ },
+ {
+  "file": "items_artifact_seekersarmguard.html",
+  "title": "TFTips - Seeker's Armguard - Item Details 【Teamfight Tactics】",
+  "description": "Seeker's Armguard - Takedowns increase the holder’s Armor, Magic Resist, and Ability Power by 20.",
+  "text_len": 1659
+ },
+ {
+  "file": "items_artifact_silvermeredawn.html",
+  "title": "TFTips - Silvermere Dawn - Item Details 【Teamfight Tactics】",
+  "description": "Silvermere Dawn - Grants immunity to Stuns and the holder's attacks Stun the target for 0.8 seconds.The holder’s Attack Speed is locked at 0.5.",
+  "text_len": 1752
+ },
+ {
+  "file": "items_artifact_statikkshiv.html",
+  "title": "TFTips - Statikk Shiv - Item Details 【Teamfight Tactics】",
+  "description": "Statikk Shiv - Every 3rd attack deals 15 + 35% of the holder's Ability Power as additional magic damage to 6 enemies.",
+  "text_len": 1929
+ },
+ {
+  "file": "items_artifact_theindomitable.html",
+  "title": "TFTips - The Indomitable - Item Details 【Teamfight Tactics】",
+  "description": "The Indomitable - The holder's Move Speed is drastically reduced.Gain 15% max Health, become unstoppable, and pull the current target into melee range.",
+  "text_len": 1955
+ },
+ {
+  "file": "items_artifact_titanichydra.html",
+  "title": "TFTips - Titanic Hydra - Item Details 【Teamfight Tactics】",
+  "description": "Titanic Hydra - Attacks deal 2% of the holder's max Health plus 4% of their Attack Damage as bonus physical damage to the target and adjacent enemies.",
+  "text_len": 2059
+ },
+ {
+  "file": "items_artifact_voidgauntlet.html",
+  "title": "TFTips - Void Gauntlet - Item Details 【Teamfight Tactics】",
+  "description": "Void Gauntlet - Combat Start: Store 30% max Health and 2.5% more every second. On death, unleash the stored Health as magic damage split between enemies within 4 hex…",
+  "text_len": 1776
+ },
+ {
+  "file": "items_artifact_witsend.html",
+  "title": "TFTips - Wit's End - Item Details 【Teamfight Tactics】",
+  "description": "Wit's End - Attacks deal 25~100 bonus magic damage.Heals the holder for 25% of all magic damage dealt.Damage increases based on Stage.",
+  "text_len": 1951
+ },
+ {
+  "file": "items_artifact_zhonyasparadox.html",
+  "title": "TFTips - Zhonya's Paradox - Item Details 【Teamfight Tactics】",
+  "description": "Zhonya's Paradox - Once per combat at 40% Health, become invulnerable and untargetable for 3 seconds.Unique - only 1 per champion",
+  "text_len": 1555
+ },
+ {
+  "file": "items_attackbooster18.html",
+  "title": "TFTips - Attack Damage Booster - Item Details 【Teamfight Tactics】",
+  "description": "Attack Damage Booster - Permanently grant 8% Attack Damage. [Consumable - This item disappears when used.]",
+  "text_len": 1261
+ },
+ {
+  "file": "items_blastpotion18.html",
+  "title": "TFTips - Blast Potion - Item Details 【Teamfight Tactics】",
+  "description": "Blast Potion - After 8 seconds of combat, knock up enemies within 3 hexes for 1.75 seconds.[Single Use - This item is destroyed after activating in combat.]",
+  "text_len": 1303
+ },
+ {
+  "file": "items_blastpotion18_radiant.html",
+  "title": "TFTips - Radiant Blast Potion - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Blast Potion - After 8 seconds of combat, knock up enemies within 4 hexes for 2 seconds.[Single Use - This item is destroyed after activating in combat.]",
+  "text_len": 1316
+ },
+ {
+  "file": "items_bloodthirster.html",
+  "title": "TFTips - Bloodthirster - Item Details 【Teamfight Tactics】",
+  "description": "Bloodthirster - Once per combat at 50% Health, gain a 30% max Health Shield that lasts up to 5 seconds.",
+  "text_len": 2782
+ },
+ {
+  "file": "items_bloodthirsterradiant.html",
+  "title": "TFTips - Radiant Bloodthirster - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Bloodthirster - Once per combat at 50% Health, gain a 60% max Health Shield that lasts up to 5 seconds.",
+  "text_len": 2040
+ },
+ {
+  "file": "items_bluebuff.html",
+  "title": "TFTips - Blue Buff - Item Details 【Teamfight Tactics】",
+  "description": "Blue Buff - Gain 10% additional Attack Damage and Ability Power from all sources.",
+  "text_len": 2622
+ },
+ {
+  "file": "items_bluebuffradiant.html",
+  "title": "TFTips - Radiant Blue Buff - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Blue Buff - Gain 20% additional Attack Damage and Ability Power from all sources.",
+  "text_len": 1911
+ },
+ {
+  "file": "items_bramblevest.html",
+  "title": "TFTips - Bramble Vest - Item Details 【Teamfight Tactics】",
+  "description": "Bramble Vest - Gain 6% max Health.Take 5% reduced damage from attacks. When struck by any attack, deal 100 magic damage to all adjacent enemies.Cooldown: 2 seconds",
+  "text_len": 2924
+ },
+ {
+  "file": "items_bramblevestradiant.html",
+  "title": "TFTips - Radiant Bramble Vest - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Bramble Vest - Gain 12% max Health.Take 10% reduced damage from attacks. When struck by any attack, deal 200 magic damage to all adjacent enemies.Cooldown: 2 seconds",
+  "text_len": 2118
+ },
+ {
+  "file": "items_component_bfsword.html",
+  "title": "TFTips - B.F. Sword - Item Details 【Teamfight Tactics】",
+  "description": "B.F. Sword - +10% Attack Damage",
+  "text_len": 2427
+ },
+ {
+  "file": "items_component_chainvest.html",
+  "title": "TFTips - Chain Vest - Item Details 【Teamfight Tactics】",
+  "description": "Chain Vest - +20 Armor",
+  "text_len": 2417
+ },
+ {
+  "file": "items_component_fryingpan.html",
+  "title": "TFTips - Frying Pan - Item Details 【Teamfight Tactics】",
+  "description": "Frying Pan - ...why else would it be here?",
+  "text_len": 2432
+ },
+ {
+  "file": "items_component_giantsbelt.html",
+  "title": "TFTips - Giant's Belt - Item Details 【Teamfight Tactics】",
+  "description": "Giant's Belt - +150 Health",
+  "text_len": 2424
+ },
+ {
+  "file": "items_component_needlesslylargerod.html",
+  "title": "TFTips - Needlessly Large Rod - Item Details 【Teamfight Tactics】",
+  "description": "Needlessly Large Rod - +10% Ability Power",
+  "text_len": 2446
+ },
+ {
+  "file": "items_component_negatroncloak.html",
+  "title": "TFTips - Negatron Cloak - Item Details 【Teamfight Tactics】",
+  "description": "Negatron Cloak - +20 Magic Resist",
+  "text_len": 2432
+ },
+ {
+  "file": "items_component_recurvebow.html",
+  "title": "TFTips - Recurve Bow - Item Details 【Teamfight Tactics】",
+  "description": "Recurve Bow - +10% Attack Speed",
+  "text_len": 2428
+ },
+ {
+  "file": "items_component_sparringgloves.html",
+  "title": "TFTips - Sparring Gloves - Item Details 【Teamfight Tactics】",
+  "description": "Sparring Gloves - +20% Critical Strike Chance",
+  "text_len": 2446
+ },
+ {
+  "file": "items_component_spatula.html",
+  "title": "TFTips - Spatula - Item Details 【Teamfight Tactics】",
+  "description": "Spatula - It must do something...",
+  "text_len": 2420
+ },
+ {
+  "file": "items_component_tearofthegoddess.html",
+  "title": "TFTips - Tear Of The Goddess - Item Details 【Teamfight Tactics】",
+  "description": "Tear Of The Goddess - +1 Mana Regeneration",
+  "text_len": 2445
+ },
+ {
+  "file": "items_consumable_championduplicator.html",
+  "title": "TFTips - Champion Duplicator - Item Details 【Teamfight Tactics】",
+  "description": "Champion Duplicator - Use on a champion to create a 1-star copy on your bench.Consumable - This item disappears when used.",
+  "text_len": 1329
+ },
+ {
+  "file": "items_consumable_goldenitemremover.html",
+  "title": "TFTips - Golden Item Remover - Item Details 【Teamfight Tactics】",
+  "description": "Golden Item Remover - Use on a champion to unequip all items as many times as you want. Converts all future Magnetic Removers to Reforgers. Repeatable: This item can be in…",
+  "text_len": 1243
+ },
+ {
+  "file": "items_consumable_itemremover.html",
+  "title": "TFTips - Item Remover - Item Details 【Teamfight Tactics】",
+  "description": "Item Remover - Use on a champion to unequip all items. Cannot be used on champions in combat.Consumable: This item disappears when used.",
+  "text_len": 1184
+ },
+ {
+  "file": "items_consumable_lesserchampionduplicator.html",
+  "title": "TFTips - Lesser Champion Duplicator - Item Details 【Teamfight Tactics】",
+  "description": "Lesser Champion Duplicator - Use on a 3-cost champion or less to create a 1-star copy on your bench.Consumable: This item disappears when used.",
+  "text_len": 1357
+ },
+ {
+  "file": "items_crownguard.html",
+  "title": "TFTips - Crownguard - Item Details 【Teamfight Tactics】",
+  "description": "Crownguard - Combat start: Gain a 25% max Health Shield for 8 seconds.When the shield expires, gain 20% Ability Power.",
+  "text_len": 2904
+ },
+ {
+  "file": "items_crownguardradiant.html",
+  "title": "TFTips - Radiant Crownguard - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Crownguard - Combat start: Gain a 50% max Health Shield for 8 seconds.When the shield expires, gain 50% Ability Power.",
+  "text_len": 1877
+ },
+ {
+  "file": "items_deathblade.html",
+  "title": "TFTips - Deathblade - Item Details 【Teamfight Tactics】",
+  "description": "Deathblade - Perfect peace and calm for the holder - and all who face it.",
+  "text_len": 2595
+ },
+ {
+  "file": "items_deathbladeradiant.html",
+  "title": "TFTips - Radiant Deathblade - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Deathblade - It glows in the presence of enemies. Or friends. Or anything alive, really.",
+  "text_len": 1897
+ },
+ {
+  "file": "items_dragonsclaw.html",
+  "title": "TFTips - Dragon's Claw - Item Details 【Teamfight Tactics】",
+  "description": "Dragon's Claw - Gain 6% max Health. Every 2 seconds, heal 2.5% max Health.",
+  "text_len": 2779
+ },
+ {
+  "file": "items_dragonsclawradiant.html",
+  "title": "TFTips - Radiant Dragon's Claw - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Dragon's Claw - Gain 28% max Health.Every 2 seconds, heal 5% max Health.",
+  "text_len": 2021
+ },
+ {
+  "file": "items_edgeofnight.html",
+  "title": "TFTips - Edge of Night - Item Details 【Teamfight Tactics】",
+  "description": "Edge of Night - At 40% Health, briefly become untargetable, shed negative effects, and heal 15% missing health.",
+  "text_len": 3061
+ },
+ {
+  "file": "items_edgeofnightradiant.html",
+  "title": "TFTips - Radiant Edge of Night - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Edge of Night - At 40% Health, briefly become untargetable, shed negative effects, and heal all missing health.",
+  "text_len": 2008
+ },
+ {
+  "file": "items_evenshroud.html",
+  "title": "TFTips - Evenshroud - Item Details 【Teamfight Tactics】",
+  "description": "Evenshroud - 30% Sunder enemies within 2 hexes. Gain 15 Armor and Magic Resist for the first 15 seconds of combat.Sunder: Reduce Armor",
+  "text_len": 2838
+ },
+ {
+  "file": "items_evenshroudradiant.html",
+  "title": "TFTips - Radiant Evenshroud - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Evenshroud - 30% Sunder enemies within 3 hexes. Gain 50 Armor and Magic Resist for the first 20 seconds of combat.Sunder: Reduce Armor",
+  "text_len": 1885
+ },
+ {
+  "file": "items_gargoylestoneplate.html",
+  "title": "TFTips - Gargoyle Stoneplate - Item Details 【Teamfight Tactics】",
+  "description": "Gargoyle Stoneplate - Gain 10 Armor and 10 Magic Resist for each enemy targeting the holder.",
+  "text_len": 2808
+ },
+ {
+  "file": "items_gargoylestoneplate_radiant.html",
+  "title": "TFTips - Radiant Gargoyle Stoneplate - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Gargoyle Stoneplate - Gain 20 Armor and 20 Magic Resist for each enemy targeting the holder.",
+  "text_len": 2189
+ },
+ {
+  "file": "items_giantslayer.html",
+  "title": "TFTips - Giant Slayer - Item Details 【Teamfight Tactics】",
+  "description": "Giant Slayer - Gain 15% additional Damage Amp against Tanks.",
+  "text_len": 2688
+ },
+ {
+  "file": "items_giantslayer_radiant.html",
+  "title": "TFTips - Radiant Giant Slayer - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Giant Slayer - Gain 30% additional Damage Amp against Tanks.",
+  "text_len": 1824
+ },
+ {
+  "file": "items_guinsoosrageblade.html",
+  "title": "TFTips - Guinsoo's Rageblade - Item Details 【Teamfight Tactics】",
+  "description": "Guinsoo's Rageblade - Gain 7% stacking Attack Speed every second.",
+  "text_len": 2650
+ },
+ {
+  "file": "items_guinsoosragebladeradiant.html",
+  "title": "TFTips - Radiant Guinsoo's Rageblade - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Guinsoo's Rageblade - Gain 16% stacking Attack Speed every second.",
+  "text_len": 1940
+ },
+ {
+  "file": "items_handofjustice.html",
+  "title": "TFTips - Hand Of Justice - Item Details 【Teamfight Tactics】",
+  "description": "Hand Of Justice - Gain 2 effects:• 18% Attack Damage and 18% Ability Power.• 15% Omnivamp.While above 50% health, double the Attack Damage and Ability Power. While bel…",
+  "text_len": 3046
+ },
+ {
+  "file": "items_handofjusticeradiant.html",
+  "title": "TFTips - Radiant Hand of Justice - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Hand of Justice - Gain 2 effects:• 35% Attack Damage and 35% Ability Power.• 30% Omnivamp.While above 50% health, double the Attack Damage and Ability Power. While bel…",
+  "text_len": 2389
+ },
+ {
+  "file": "items_healthbooster18.html",
+  "title": "TFTips - Health Booster - Item Details 【Teamfight Tactics】",
+  "description": "Health Booster - Permanently grant 100 max Health. [Consumable - This item disappears when used.]",
+  "text_len": 1245
+ },
+ {
+  "file": "items_healthpotion18.html",
+  "title": "TFTips - Health Potion - Item Details 【Teamfight Tactics】",
+  "description": "Health Potion - When the holder drops below 50% health, heal for 750 Health over 3 seconds.[Single Use - This item is destroyed after activating in combat.]",
+  "text_len": 1304
+ },
+ {
+  "file": "items_healthpotion18_radiant.html",
+  "title": "TFTips - Radiant Health Potion - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Health Potion - When the holder drops below 50% health, heal for 850 Health and heal allies for 150 Health over 3 seconds. [Single Use - This item is destroyed after…",
+  "text_len": 1351
+ },
+ {
+  "file": "items_hextechgunblade.html",
+  "title": "TFTips - Hextech Gunblade - Item Details 【Teamfight Tactics】",
+  "description": "Hextech Gunblade - Heal the lowest percent Health ally for 20% of damage dealt.",
+  "text_len": 2702
+ },
+ {
+  "file": "items_hextechgunbladeradiant.html",
+  "title": "TFTips - Radiant Hextech Gunblade - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Hextech Gunblade - Heal the lowest percent Health ally for 40% of damage dealt.",
+  "text_len": 1845
+ },
+ {
+  "file": "items_infinityedge.html",
+  "title": "TFTips - Infinity Edge - Item Details 【Teamfight Tactics】",
+  "description": "Infinity Edge - Gain Precision. Precision: Ability damage can critically strike. Extra Precision grants 10% Critical Strike Damage.",
+  "text_len": 2989
+ },
+ {
+  "file": "items_infinityedgeradiant.html",
+  "title": "TFTips - Radiant Infinity Edge - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Infinity Edge - Gain Precision. Precision: Ability damage can critically strike. Extra Precision grants 10% Critical Strike Damage.",
+  "text_len": 2142
+ },
+ {
+  "file": "items_ionicspark.html",
+  "title": "TFTips - Ionic Spark - Item Details 【Teamfight Tactics】",
+  "description": "Ionic Spark - 30% Shred enemies within 2 hexes. When enemies cast an Ability, deal magic damage equal to 150% of the Mana spent.Shred: Reduce Magic Resist",
+  "text_len": 2714
+ },
+ {
+  "file": "items_ionicsparkradiant.html",
+  "title": "TFTips - Radiant Ionic Spark - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Ionic Spark - 30% Shred enemies within 2 hexes. When enemies cast an Ability, deal magic damage equal to 300% of the Mana spent.Shred: Reduce Magic Resist",
+  "text_len": 1911
+ },
+ {
+  "file": "items_item_artifact_talismanofascension.html",
+  "title": "TFTips - Talisman of Ascension - Item Details 【Teamfight Tactics】",
+  "description": "Talisman of Ascension - After 22 seconds gain 100% max Health, 12 Mana Regen, and 120% Damage Amp for the rest of combat.",
+  "text_len": 1749
+ },
+ {
+  "file": "items_jeweledgauntlet.html",
+  "title": "TFTips - Jeweled Gauntlet - Item Details 【Teamfight Tactics】",
+  "description": "Jeweled Gauntlet - Gain Precision. Precision: Ability damage can critically strike. Extra Precision grants 10% Critical Strike Damage.",
+  "text_len": 2957
+ },
+ {
+  "file": "items_jeweledgauntletradiant.html",
+  "title": "TFTips - Radiant Jeweled Gauntlet - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Jeweled Gauntlet - Gain Precision. Precision: Ability damage can critically strike. Extra Precision grants 10% Critical Strike Damage.",
+  "text_len": 2147
+ },
+ {
+  "file": "items_krakensfury.html",
+  "title": "TFTips - Kraken's Fury - Item Details 【Teamfight Tactics】",
+  "description": "Kraken's Fury - Attacks grant 3.5% stacking Attack Damage, up to 15 attacks. After 15 attacks, gain 15% Attack Speed.",
+  "text_len": 2762
+ },
+ {
+  "file": "items_krakensfury_radiant.html",
+  "title": "TFTips - Radiant Kraken's Fury - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Kraken's Fury - Attacks grant 7% stacking Attack Damage, up to 15 attacks. After 15 attacks, gain 30% Attack Speed.",
+  "text_len": 2010
+ },
+ {
+  "file": "items_lastwhisper.html",
+  "title": "TFTips - Last Whisper - Item Details 【Teamfight Tactics】",
+  "description": "Last Whisper - Attacks and Ability damage 30% Sunders the target for 3 seconds. This effect does not stack.Sunder: Reduce Armor",
+  "text_len": 2665
+ },
+ {
+  "file": "items_lastwhisperradiant.html",
+  "title": "TFTips - Radiant Last Whisper - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Last Whisper - Attacks and Ability damage 30% Sunders the target for the rest of combat. This effect does not stack.Sunder: Reduce Armor",
+  "text_len": 1896
+ },
+ {
+  "file": "items_luckyitemchest.html",
+  "title": "TFTips - Lucky Item Chest - Item Details 【Teamfight Tactics】",
+  "description": "Lucky Item Chest - Use on a champion to open an armory of items especially suited for them.These items are based on the champion's recommended items.",
+  "text_len": 1201
+ },
+ {
+  "file": "items_manapotion18.html",
+  "title": "TFTips - Mana Potion - Item Details 【Teamfight Tactics】",
+  "description": "Mana Potion - The holder gains 10 Mana. On cast, restore 70 Mana over 5 seconds.[Single Use - This item is destroyed after activating in combat.]",
+  "text_len": 1461
+ },
+ {
+  "file": "items_manapotion18_radiant.html",
+  "title": "TFTips - Radiant Mana Potion - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Mana Potion - The holder gains 10 Mana. On cast, restore 80 Mana to the holder and 10 Mana to allies over 5 seconds.[Single Use - This item is destroyed after acti…",
+  "text_len": 1549
+ },
+ {
+  "file": "items_manaregenbooster18.html",
+  "title": "TFTips - Mana Regen Booster - Item Details 【Teamfight Tactics】",
+  "description": "Mana Regen Booster - Permanently grant 1 Mana Regen. [Consumable - This item disappears when used.]",
+  "text_len": 1251
+ },
+ {
+  "file": "items_masterworkupgrade.html",
+  "title": "TFTips - Masterwork Upgrade - Item Details 【Teamfight Tactics】",
+  "description": "Masterwork Upgrade - Use on a champion to choose a Radiant version of that champion's craftable completed items. Upgrade the item you choose to its Radiant equivalent and…",
+  "text_len": 1384
+ },
+ {
+  "file": "items_morellonomicon.html",
+  "title": "TFTips - Morellonomicon - Item Details 【Teamfight Tactics】",
+  "description": "Morellonomicon - Attacks and Abilities deal 1% Burn and 33% Wound to enemies for 10 seconds.Burn: Deals a percent of the target’s max Health as true damage every seco…",
+  "text_len": 2720
+ },
+ {
+  "file": "items_morellonomiconradiant.html",
+  "title": "TFTips - Radiant Morellonomicon - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Morellonomicon - Attacks and Abilities deal 2% Burn and 33% Wound to enemies for 10 seconds.Burn: Deals a percent of the target’s max Health as true damage every seco…",
+  "text_len": 2015
+ },
+ {
+  "file": "items_nashorstooth.html",
+  "title": "TFTips - Nashor's Tooth - Item Details 【Teamfight Tactics】",
+  "description": "Nashor's Tooth - Attacks grant 2 bonus Mana, increased to 4 if they critically strike.",
+  "text_len": 2754
+ },
+ {
+  "file": "items_nashorstoothradiant.html",
+  "title": "TFTips - Radiant Nashor's Tooth - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Nashor's Tooth - Attacks grant 4 bonus Mana, increased to 6 if they critically strike.",
+  "text_len": 2054
+ },
+ {
+  "file": "items_protectorsvow.html",
+  "title": "TFTips - Protector's Vow - Item Details 【Teamfight Tactics】",
+  "description": "Protector's Vow - Combat Start: Gain 20 Mana.At 40% Health, gain 15 Mana and a Shield equal to 20% max Health.",
+  "text_len": 2705
+ },
+ {
+  "file": "items_protectorsvowradiant.html",
+  "title": "TFTips - Radiant Protector's Vow - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Protector's Vow - Combat Start: Gain 40 Mana.At 40% Health, gain 30 Mana and a Shield equal to 50% max Health",
+  "text_len": 1998
+ },
+ {
+  "file": "items_quicksilver.html",
+  "title": "TFTips - Quicksilver - Item Details 【Teamfight Tactics】",
+  "description": "Quicksilver - Combat Start: Unstoppable for 18 seconds. Gain 3% stacking Attack Speed every second.",
+  "text_len": 2730
+ },
+ {
+  "file": "items_quicksilverradiant.html",
+  "title": "TFTips - Radiant Quicksilver - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Quicksilver - Combat Start: Unstoppable for 45 seconds. Gain 6% stacking Attack Speed every second.",
+  "text_len": 1910
+ },
+ {
+  "file": "items_rabadonsdeathcap.html",
+  "title": "TFTips - Rabadon's Deathcap - Item Details 【Teamfight Tactics】",
+  "description": "Rabadon's Deathcap - This humble hat can help you make, or unmake, the world itself.",
+  "text_len": 2742
+ },
+ {
+  "file": "items_rabadonsdeathcap_radiant.html",
+  "title": "TFTips - Radiant Rabadon's Deathcap - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Rabadon's Deathcap - It's witnessed - and unleashed - miracles and calamities both.",
+  "text_len": 1932
+ },
+ {
+  "file": "items_radiantluckyitemchest.html",
+  "title": "TFTips - Radiant Lucky Item Chest - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Lucky Item Chest - Use on a champion to open an armory of items especially suited for them.These items are based on the champion's recommended items.",
+  "text_len": 1388
+ },
+ {
+  "file": "items_redbuff.html",
+  "title": "TFTips - Red Buff - Item Details 【Teamfight Tactics】",
+  "description": "Red Buff - Attacks and Abilities 1% Burn and 33% Wound enemies for 5 seconds.Burn: Deals a percent of the target’s max Health as true damage every second.Wound:…",
+  "text_len": 2738
+ },
+ {
+  "file": "items_redbuffradiant.html",
+  "title": "TFTips - Radiant Red Buff - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Red Buff - Attacks and Abilities 2% Burn and 33% Wound enemies for 5 seconds.Burn: Deals a percent of the target’s max Health as true damage every second.Wound:…",
+  "text_len": 1991
+ },
+ {
+  "file": "items_reforger.html",
+  "title": "TFTips - Reforger - Item Details 【Teamfight Tactics】",
+  "description": "Reforger - Unequip all items and randomly transform them into new ones of a similar type and quality.[Consumable - This item disappears when used.]",
+  "text_len": 1324
+ },
+ {
+  "file": "items_spearofshojin.html",
+  "title": "TFTips - Spear of Shojin - Item Details 【Teamfight Tactics】",
+  "description": "Spear of Shojin - Attacks grant 5 bonus Mana.",
+  "text_len": 2625
+ },
+ {
+  "file": "items_spearofshojinradiant.html",
+  "title": "TFTips - Radiant Spear of Shojin - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Spear of Shojin - Attacks grant 10 bonus Mana.",
+  "text_len": 1806
+ },
+ {
+  "file": "items_speedbooster18.html",
+  "title": "TFTips - Attack Speed Booster - Item Details 【Teamfight Tactics】",
+  "description": "Attack Speed Booster - Permanently grant 6% Attack Speed. [Consumable - This item disappears when used.]",
+  "text_len": 1567
+ },
+ {
+  "file": "items_spiritvisage.html",
+  "title": "TFTips - Spirit Visage - Item Details 【Teamfight Tactics】",
+  "description": "Spirit Visage - Regenerate 2% of missing Health each second.",
+  "text_len": 2787
+ },
+ {
+  "file": "items_spiritvisage_radiant.html",
+  "title": "TFTips - Radiant Spirit Visage - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Spirit Visage - Regenerate 4% of missing Health each second.",
+  "text_len": 1991
+ },
+ {
+  "file": "items_steadfastheart.html",
+  "title": "TFTips - Steadfast Heart - Item Details 【Teamfight Tactics】",
+  "description": "Steadfast Heart - Gain 5% Durability. While above 50% Health, instead gain 15% Durability.",
+  "text_len": 2698
+ },
+ {
+  "file": "items_steadfastheartradiant.html",
+  "title": "TFTips - Radiant Steadfast Heart - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Steadfast Heart - Gain 10% Durability. While above 50% Health, instead gain 30% Durability.",
+  "text_len": 2023
+ },
+ {
+  "file": "items_steraksgage.html",
+  "title": "TFTips - Sterak's Gage - Item Details 【Teamfight Tactics】",
+  "description": "Sterak's Gage - At 60% Health, gain a Shield equal to 40% of the wearer's maximum Health that rapidly decays over 4 seconds.",
+  "text_len": 2794
+ },
+ {
+  "file": "items_steraksgageradiant.html",
+  "title": "TFTips - Radiant Sterak's Gage - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Sterak's Gage - At 60% Health, gain a Shield equal to 80% of the wearer's maximum Health that rapidly decays over 6 seconds.",
+  "text_len": 2047
+ },
+ {
+  "file": "items_strikersflail.html",
+  "title": "TFTips - Striker's Flail - Item Details 【Teamfight Tactics】",
+  "description": "Striker's Flail - Critical Strikes grant 5% Damage Amp for 5 seconds, stacking up to 4 times.",
+  "text_len": 2650
+ },
+ {
+  "file": "items_strikersflailradiant.html",
+  "title": "TFTips - Radiant Striker's Flail - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Striker's Flail - Critical Strikes grant 10% Damage Amp for 5 seconds, stacking up to 4 times.",
+  "text_len": 1862
+ },
+ {
+  "file": "items_sunfirecape.html",
+  "title": "TFTips - Sunfire Cape - Item Details 【Teamfight Tactics】",
+  "description": "Sunfire Cape - Gain 8% max Health.Every 2 seconds, deal 1% Burn and 33% Wound to an enemy within 2 hexes for 10 seconds.Burn: Deals a percent of the target’s max He…",
+  "text_len": 2809
+ },
+ {
+  "file": "items_sunfirecape_radiant.html",
+  "title": "TFTips - Radiant Sunfire Cape - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Sunfire Cape - Gain 16% max Health.Every 2 seconds, deal 2% Burn and 33% Wound to an enemy within 2 hexes for 10 seconds.Burn: Deals a percent of the target’s max H…",
+  "text_len": 1986
+ },
+ {
+  "file": "items_tacticianscape.html",
+  "title": "TFTips - Tactician's Cape - Item Details 【Teamfight Tactics】",
+  "description": "Tactician's Cape - Your team gains +1 maximum team size.10% chance to drop 1 gold after 10 seconds of combat....and a bit of Luck.",
+  "text_len": 2530
+ },
+ {
+  "file": "items_tacticianscrown.html",
+  "title": "TFTips - Tacticians Crown - Item Details 【Teamfight Tactics】",
+  "description": "Tacticians Crown - Your team gains +1 maximum team size.10% chance to drop 1 gold when you win combat....the Heart of a hero...",
+  "text_len": 2527
+ },
+ {
+  "file": "items_tacticiansshield.html",
+  "title": "TFTips - Tacticians Shield - Item Details 【Teamfight Tactics】",
+  "description": "Tacticians Shield - Your team gains +1 maximum team size.10% chance to drop 1 gold when the holder dies.Imbued with a Philosopher's wisdom...",
+  "text_len": 2542
+ },
+ {
+  "file": "items_tftset18_item_riftbeastselector.html",
+  "title": "TFTips - Alpha Mark - Item Details 【Teamfight Tactics】",
+  "description": "Alpha Mark - Select a Riftbeast to gain its unique effect!",
+  "text_len": 975
+ },
+ {
+  "file": "items_thiefsgloves.html",
+  "title": "TFTips - Thief's Gloves - Item Details 【Teamfight Tactics】",
+  "description": "Thief's Gloves - Each round: Equip 2 random items[Consumes 3 item slots.]",
+  "text_len": 2766
+ },
+ {
+  "file": "items_thiefsglovesradiant.html",
+  "title": "TFTips - Radiant Thief's Gloves - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Thief's Gloves - Each round: Equip 2 random Radiant items[Consumes 3 item slots.]",
+  "text_len": 1837
+ },
+ {
+  "file": "items_titansresolve.html",
+  "title": "TFTips - Titan's Resolve - Item Details 【Teamfight Tactics】",
+  "description": "Titan's Resolve - Gain 2% Attack Damage and Ability Power when attacking or taking damage, stacking up to 25 times.At full stacks, gain 10% Damage Amp and become unsto…",
+  "text_len": 2776
+ },
+ {
+  "file": "items_titansresolve_radiant.html",
+  "title": "TFTips - Radiant Titan's Resolve - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Titan's Resolve - Gain 4% Attack Damage and 4% Ability Power when attacking or taking damage, stacking up to 25 times.At full stacks, gain 20% Damage Amp and unstoppab…",
+  "text_len": 1927
+ },
+ {
+  "file": "items_voidstaff.html",
+  "title": "TFTips - Void Staff - Item Details 【Teamfight Tactics】",
+  "description": "Void Staff - Attacks and Ability damage 30% Shred the target for 5 seconds. This effect does not stack.Shred: Reduce Magic Resist",
+  "text_len": 2731
+ },
+ {
+  "file": "items_voidstaffradiant.html",
+  "title": "TFTips - Radiant Void Staff - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Void Staff - Attacks and Ability damage 30% Shred the target for the rest of combat. This effect does not stack.Shred: Reduce Magic Resist",
+  "text_len": 1893
+ },
+ {
+  "file": "items_warmogsarmor.html",
+  "title": "TFTips - Warmog's Armor - Item Details 【Teamfight Tactics】",
+  "description": "Warmog's Armor - Gain 18% max Health.",
+  "text_len": 2594
+ },
+ {
+  "file": "items_warmogsarmorradiant.html",
+  "title": "TFTips - Radiant Warmog's Armor - Item Details 【Teamfight Tactics】",
+  "description": "Radiant Warmog's Armor - Gain 36% max Health.",
+  "text_len": 1898
+ },
+ {
+  "file": "mastery.html",
+  "title": "TFTips - Set 18 Knowledge Check 【Teamfight Tactics】",
+  "description": "Put your champion, trait, and more knowledge to the test!",
+  "text_len": 932
+ },
+ {
+  "file": "missed_connections_quiz.html",
+  "title": "TFTips - Missed Connections Quiz 【Teamfight Tactics】",
+  "description": "Place all 14 one-cost champions in their correct positions",
+  "text_len": 887
+ },
+ {
+  "file": "patches.html",
+  "title": "TFTips - Patch Notes 【Teamfight Tactics】",
+  "description": "TFT patch notes list. View changes for champions, traits, items, augments, and encounters.",
+  "text_len": 1208
+ },
+ {
+  "file": "patches_18_1.html",
+  "title": "TFTips - Patch 18.1 Notes & Changes 【Teamfight Tactics】",
+  "description": "Detailed TFT Patch 18.1 patch notes covering champion, trait, item, and augment changes.",
+  "text_len": 10151
+ },
+ {
+  "file": "patches_18_1d.html",
+  "title": "TFTips - Patch 18.1d Notes & Changes 【Teamfight Tactics】",
+  "description": "Detailed TFT Patch 18.1d patch notes covering champion, trait, item, and augment changes.",
+  "text_len": 3248
+ },
+ {
+  "file": "patches_18_2.html",
+  "title": "TFTips - Patch 18.2 Notes & Changes 【Teamfight Tactics】",
+  "description": "Detailed TFT Patch 18.2 patch notes covering champion, trait, item, and augment changes.",
+  "text_len": 10227
+ },
+ {
+  "file": "patches_18_2b.html",
+  "title": "TFTips - Patch 18.2b Notes & Changes 【Teamfight Tactics】",
+  "description": "Detailed TFT Patch 18.2b patch notes covering champion, trait, item, and augment changes.",
+  "text_len": 2731
+ },
+ {
+  "file": "patches_18_3.html",
+  "title": "TFTips - Patch 18.3 Notes & Changes 【Teamfight Tactics】",
+  "description": "Detailed TFT Patch 18.3 patch notes covering champion, trait, item, and augment changes.",
+  "text_len": 7433
+ },
+ {
+  "file": "patches_18_3b.html",
+  "title": "TFTips - Patch 18.3b Notes & Changes 【Teamfight Tactics】",
+  "description": "Detailed TFT Patch 18.3b patch notes covering champion, trait, item, and augment changes.",
+  "text_len": 2685
+ },
+ {
+  "file": "patches_18_4.html",
+  "title": "TFTips - Patch 18.4 Notes & Changes 【Teamfight Tactics】",
+  "description": "Detailed TFT Patch 18.4 patch notes covering champion, trait, item, and augment changes.",
+  "text_len": 10089
+ },
+ {
+  "file": "patches_18_4b.html",
+  "title": "TFTips - Patch 18.4b Notes & Changes 【Teamfight Tactics】",
+  "description": "Detailed TFT Patch 18.4b patch notes covering champion, trait, item, and augment changes.",
+  "text_len": 2874
+ },
+ {
+  "file": "patches_18_5.html",
+  "title": "TFTips - Patch 18.5 PBE Preview 【Teamfight Tactics】",
+  "description": "Preview TFT Patch 18.5 changes on the PBE server before live release. Champion, trait, item, and augment adjustments.",
+  "text_len": 6835
+ },
+ {
+  "file": "patreon.html",
+  "title": "TFTips - Support TFTips 【Teamfight Tactics】",
+  "description": "We are looking for supporters to help keep TFTips running.",
+  "text_len": 1545
+ },
+ {
+  "file": "privacy.html",
+  "title": "TFTips - Privacy Policy 【Teamfight Tactics】",
+  "description": "This website respects the privacy of our users and is committed to protecting personal information. This privacy policy explains what information we…",
+  "text_len": 6118
+ },
+ {
+  "file": "replays.html",
+  "title": "TFTips - Challenger Replays 【Teamfight Tactics】",
+  "description": "Watch and learn from top players",
+  "text_len": 2786
+ },
+ {
+  "file": "replays_jp1_599129776.html",
+  "title": "TFTips - Mimosa 7 (8/26, 16:33 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (8/26, 16:33 #2). Jump to any round to follow the decisions.",
+  "text_len": 1274
+ },
+ {
+  "file": "replays_jp1_599135169.html",
+  "title": "TFTips - Mimosa 7 (8/26, 17:17 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (8/26, 17:17 #2). Jump to any round to follow the decisions.",
+  "text_len": 1288
+ },
+ {
+  "file": "replays_jp1_599620837.html",
+  "title": "TFTips - Mimosa 7 (8/29, 12:35 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (8/29, 12:35 #1). Jump to any round to follow the decisions.",
+  "text_len": 1298
+ },
+ {
+  "file": "replays_jp1_599622227.html",
+  "title": "TFTips - マクD (8/29, 12:44 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by マクD (8/29, 12:44 #2). Jump to any round to follow the decisions.",
+  "text_len": 1288
+ },
+ {
+  "file": "replays_jp1_600021535.html",
+  "title": "TFTips - Mimosa 7 (8/31, 14:17 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (8/31, 14:17 #2). Jump to any round to follow the decisions.",
+  "text_len": 1316
+ },
+ {
+  "file": "replays_jp1_600028563.html",
+  "title": "TFTips - Mimosa 7 (8/31, 15:37 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (8/31, 15:37 #1). Jump to any round to follow the decisions.",
+  "text_len": 1302
+ },
+ {
+  "file": "replays_jp1_600044529.html",
+  "title": "TFTips - Mimosa 7 (8/31, 18:12 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (8/31, 18:12 #2). Jump to any round to follow the decisions.",
+  "text_len": 1291
+ },
+ {
+  "file": "replays_jp1_600188094.html",
+  "title": "TFTips - chocotomato (9/1, 16:57 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/1, 16:57 #1). Jump to any round to follow the decisions.",
+  "text_len": 1310
+ },
+ {
+  "file": "replays_jp1_600194647.html",
+  "title": "TFTips - Mimosa 7 (9/1, 18:08 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/1, 18:08 #1). Jump to any round to follow the decisions.",
+  "text_len": 1299
+ },
+ {
+  "file": "replays_jp1_600229287.html",
+  "title": "TFTips - chocotomato (9/1, 22:00 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/1, 22:00 #1). Jump to any round to follow the decisions.",
+  "text_len": 1326
+ },
+ {
+  "file": "replays_jp1_600239591.html",
+  "title": "TFTips - Mimosa 7 (9/1, 22:42 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/1, 22:42 #2). Jump to any round to follow the decisions.",
+  "text_len": 1305
+ },
+ {
+  "file": "replays_jp1_600249898.html",
+  "title": "TFTips - chocotomato (9/1, 23:18 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/1, 23:18 #1). Jump to any round to follow the decisions.",
+  "text_len": 1334
+ },
+ {
+  "file": "replays_jp1_600331973.html",
+  "title": "TFTips - m1zono (9/2, 15:45 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/2, 15:45 #1). Jump to any round to follow the decisions.",
+  "text_len": 1302
+ },
+ {
+  "file": "replays_jp1_600336003.html",
+  "title": "TFTips - Mimosa 7 (9/2, 15:53 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/2, 15:53 #2). Jump to any round to follow the decisions.",
+  "text_len": 1303
+ },
+ {
+  "file": "replays_jp1_600375794.html",
+  "title": "TFTips - Mimosa 7 (9/2, 21:31 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/2, 21:31 #2). Jump to any round to follow the decisions.",
+  "text_len": 1322
+ },
+ {
+  "file": "replays_jp1_600387255.html",
+  "title": "TFTips - m1zono (9/2, 22:13 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/2, 22:13 #2). Jump to any round to follow the decisions.",
+  "text_len": 1315
+ },
+ {
+  "file": "replays_jp1_600398254.html",
+  "title": "TFTips - chocotomato (9/2, 23:00 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/2, 23:00 #2). Jump to any round to follow the decisions.",
+  "text_len": 1319
+ },
+ {
+  "file": "replays_jp1_600529228.html",
+  "title": "TFTips - chocotomato (9/3, 21:29 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/3, 21:29 #2). Jump to any round to follow the decisions.",
+  "text_len": 1332
+ },
+ {
+  "file": "replays_jp1_600541421.html",
+  "title": "TFTips - chocotomato (9/3, 22:23 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/3, 22:23 #2). Jump to any round to follow the decisions.",
+  "text_len": 1306
+ },
+ {
+  "file": "replays_jp1_600622652.html",
+  "title": "TFTips - Mimosa 7 (9/4, 11:40 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/4, 11:40 #1). Jump to any round to follow the decisions.",
+  "text_len": 1298
+ },
+ {
+  "file": "replays_jp1_600822863.html",
+  "title": "TFTips - Mimosa 7 (9/5, 15:42 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/5, 15:42 #1). Jump to any round to follow the decisions.",
+  "text_len": 1301
+ },
+ {
+  "file": "replays_jp1_600843465.html",
+  "title": "TFTips - Mimosa 7 (9/5, 17:50 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/5, 17:50 #1). Jump to any round to follow the decisions.",
+  "text_len": 1279
+ },
+ {
+  "file": "replays_jp1_601029871.html",
+  "title": "TFTips - chocotomato (9/6, 16:28 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/6, 16:28 #1). Jump to any round to follow the decisions.",
+  "text_len": 1296
+ },
+ {
+  "file": "replays_jp1_601171683.html",
+  "title": "TFTips - chocotomato (9/7, 10:07 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/7, 10:07 #1). Jump to any round to follow the decisions.",
+  "text_len": 1335
+ },
+ {
+  "file": "replays_jp1_601272814.html",
+  "title": "TFTips - chocotomato (9/7, 23:54 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/7, 23:54 #1). Jump to any round to follow the decisions.",
+  "text_len": 1335
+ },
+ {
+  "file": "replays_jp1_601294118.html",
+  "title": "TFTips - Mimosa 7 (9/8, 01:29 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/8, 01:29 #2). Jump to any round to follow the decisions.",
+  "text_len": 1302
+ },
+ {
+  "file": "replays_jp1_601299144.html",
+  "title": "TFTips - chocotomato (9/8, 02:03 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/8, 02:03 #1). Jump to any round to follow the decisions.",
+  "text_len": 1372
+ },
+ {
+  "file": "replays_jp1_601305106.html",
+  "title": "TFTips - Mimosa 7 (9/8, 02:54 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/8, 02:54 #2). Jump to any round to follow the decisions.",
+  "text_len": 1298
+ },
+ {
+  "file": "replays_jp1_601349412.html",
+  "title": "TFTips - Mimosa 7 (9/8, 16:25 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/8, 16:25 #2). Jump to any round to follow the decisions.",
+  "text_len": 1299
+ },
+ {
+  "file": "replays_jp1_601360091.html",
+  "title": "TFTips - Mimosa 7 (9/8, 17:49 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/8, 17:49 #2). Jump to any round to follow the decisions.",
+  "text_len": 1341
+ },
+ {
+  "file": "replays_jp1_601415780.html",
+  "title": "TFTips - Mimosa 7 (9/8, 23:29 #3) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/8, 23:29 #3). Jump to any round to follow the decisions.",
+  "text_len": 1295
+ },
+ {
+  "file": "replays_jp1_601475640.html",
+  "title": "TFTips - Mimosa 7 (9/9, 11:04 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/9, 11:04 #2). Jump to any round to follow the decisions.",
+  "text_len": 1329
+ },
+ {
+  "file": "replays_jp1_601480012.html",
+  "title": "TFTips - Mimosa 7 (9/9, 11:47 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/9, 11:47 #1). Jump to any round to follow the decisions.",
+  "text_len": 1336
+ },
+ {
+  "file": "replays_jp1_601571031.html",
+  "title": "TFTips - chocotomato (9/9, 23:49 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/9, 23:49 #1). Jump to any round to follow the decisions.",
+  "text_len": 1341
+ },
+ {
+  "file": "replays_jp1_601633961.html",
+  "title": "TFTips - m1zono (9/10, 14:52 #3) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/10, 14:52 #3). Jump to any round to follow the decisions.",
+  "text_len": 1319
+ },
+ {
+  "file": "replays_jp1_601644484.html",
+  "title": "TFTips - m1zono (9/10, 16:53 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/10, 16:53 #2). Jump to any round to follow the decisions.",
+  "text_len": 1291
+ },
+ {
+  "file": "replays_jp1_601653060.html",
+  "title": "TFTips - m1zono (9/10, 18:14 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/10, 18:14 #1). Jump to any round to follow the decisions.",
+  "text_len": 1340
+ },
+ {
+  "file": "replays_jp1_601724454.html",
+  "title": "TFTips - m1zono (9/11, 00:48 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/11, 00:48 #1). Jump to any round to follow the decisions.",
+  "text_len": 1284
+ },
+ {
+  "file": "replays_jp1_601725259.html",
+  "title": "TFTips - Mimosa 7 (9/11, 00:59 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/11, 00:59 #1). Jump to any round to follow the decisions.",
+  "text_len": 1294
+ },
+ {
+  "file": "replays_jp1_601843480.html",
+  "title": "TFTips - chocotomato (9/11, 22:52 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/11, 22:52 #1). Jump to any round to follow the decisions.",
+  "text_len": 1326
+ },
+ {
+  "file": "replays_jp1_601867241.html",
+  "title": "TFTips - chocotomato (9/12, 00:24 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/12, 00:24 #1). Jump to any round to follow the decisions.",
+  "text_len": 1349
+ },
+ {
+  "file": "replays_jp1_601947650.html",
+  "title": "TFTips - chocotomato (9/12, 13:29 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/12, 13:29 #2). Jump to any round to follow the decisions.",
+  "text_len": 1337
+ },
+ {
+  "file": "replays_jp1_601978519.html",
+  "title": "TFTips - m1zono (9/12, 17:22 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/12, 17:22 #1). Jump to any round to follow the decisions.",
+  "text_len": 1300
+ },
+ {
+  "file": "replays_jp1_601987253.html",
+  "title": "TFTips - chocotomato (9/12, 18:16 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/12, 18:16 #1). Jump to any round to follow the decisions.",
+  "text_len": 1313
+ },
+ {
+  "file": "replays_jp1_602059772.html",
+  "title": "TFTips - Mimosa 7 (9/13, 00:27 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/13, 00:27 #1). Jump to any round to follow the decisions.",
+  "text_len": 1331
+ },
+ {
+  "file": "replays_jp1_602096720.html",
+  "title": "TFTips - Mimosa 7 (9/13, 03:20 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/13, 03:20 #2). Jump to any round to follow the decisions.",
+  "text_len": 1330
+ },
+ {
+  "file": "replays_jp1_602140172.html",
+  "title": "TFTips - chocotomato (9/13, 13:23 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/13, 13:23 #1). Jump to any round to follow the decisions.",
+  "text_len": 1300
+ },
+ {
+  "file": "replays_jp1_602157313.html",
+  "title": "TFTips - chocotomato (9/13, 15:19 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by chocotomato (9/13, 15:19 #1). Jump to any round to follow the decisions.",
+  "text_len": 1335
+ },
+ {
+  "file": "replays_jp1_602626660.html",
+  "title": "TFTips - Mimosa 7 (9/16, 16:19 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/16, 16:19 #1). Jump to any round to follow the decisions.",
+  "text_len": 1294
+ },
+ {
+  "file": "replays_jp1_602628520.html",
+  "title": "TFTips - m1zono (9/16, 16:42 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/16, 16:42 #1). Jump to any round to follow the decisions.",
+  "text_len": 1293
+ },
+ {
+  "file": "replays_jp1_602633848.html",
+  "title": "TFTips - Mimosa 7 (9/16, 17:53 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/16, 17:53 #1). Jump to any round to follow the decisions.",
+  "text_len": 1281
+ },
+ {
+  "file": "replays_jp1_602634988.html",
+  "title": "TFTips - m1zono (9/16, 17:57 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/16, 17:57 #2). Jump to any round to follow the decisions.",
+  "text_len": 1304
+ },
+ {
+  "file": "replays_jp1_602754464.html",
+  "title": "TFTips - fandel (9/17, 12:26 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by fandel (9/17, 12:26 #2). Jump to any round to follow the decisions.",
+  "text_len": 1292
+ },
+ {
+  "file": "replays_jp1_602805982.html",
+  "title": "TFTips - Mimosa 7 (9/17, 21:29 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/17, 21:29 #1). Jump to any round to follow the decisions.",
+  "text_len": 1285
+ },
+ {
+  "file": "replays_jp1_602881567.html",
+  "title": "TFTips - マクD (9/18, 05:07 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by マクD (9/18, 05:07 #1). Jump to any round to follow the decisions.",
+  "text_len": 1278
+ },
+ {
+  "file": "replays_jp1_602917302.html",
+  "title": "TFTips - Mimosa 7 (9/18, 16:27 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/18, 16:27 #1). Jump to any round to follow the decisions.",
+  "text_len": 1298
+ },
+ {
+  "file": "replays_jp1_602923853.html",
+  "title": "TFTips - Mimosa 7 (9/18, 17:45 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/18, 17:45 #2). Jump to any round to follow the decisions.",
+  "text_len": 1336
+ },
+ {
+  "file": "replays_jp1_603031099.html",
+  "title": "TFTips - マクD (9/19, 03:43 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by マクD (9/19, 03:43 #1). Jump to any round to follow the decisions.",
+  "text_len": 1255
+ },
+ {
+  "file": "replays_jp1_603114770.html",
+  "title": "TFTips - マクD (9/19, 19:23 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by マクD (9/19, 19:23 #1). Jump to any round to follow the decisions.",
+  "text_len": 1287
+ },
+ {
+  "file": "replays_jp1_603223030.html",
+  "title": "TFTips - マクD (9/20, 05:39 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by マクD (9/20, 05:39 #1). Jump to any round to follow the decisions.",
+  "text_len": 1314
+ },
+ {
+  "file": "replays_jp1_603854111.html",
+  "title": "TFTips - Mimosa 7 (9/23, 18:26 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/23, 18:26 #1). Jump to any round to follow the decisions.",
+  "text_len": 1257
+ },
+ {
+  "file": "replays_jp1_604172026.html",
+  "title": "TFTips - Mimosa 7 (9/25, 21:48 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/25, 21:48 #1). Jump to any round to follow the decisions.",
+  "text_len": 1322
+ },
+ {
+  "file": "replays_jp1_604331141.html",
+  "title": "TFTips - Mimosa 7 (9/26, 18:50 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/26, 18:50 #2). Jump to any round to follow the decisions.",
+  "text_len": 1318
+ },
+ {
+  "file": "replays_jp1_604344601.html",
+  "title": "TFTips - Mimosa 7 (9/26, 20:18 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/26, 20:18 #2). Jump to any round to follow the decisions.",
+  "text_len": 1307
+ },
+ {
+  "file": "replays_jp1_604356305.html",
+  "title": "TFTips - Mimosa 7 (9/26, 21:23 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/26, 21:23 #1). Jump to any round to follow the decisions.",
+  "text_len": 1314
+ },
+ {
+  "file": "replays_jp1_604470828.html",
+  "title": "TFTips - Mimosa 7 (9/27, 12:16 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (9/27, 12:16 #1). Jump to any round to follow the decisions.",
+  "text_len": 1302
+ },
+ {
+  "file": "replays_jp1_604817080.html",
+  "title": "TFTips - m1zono (9/29, 19:11 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by m1zono (9/29, 19:11 #1). Jump to any round to follow the decisions.",
+  "text_len": 1280
+ },
+ {
+  "file": "replays_jp1_605358450.html",
+  "title": "TFTips - Mimosa 7 (10/3, 13:43 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (10/3, 13:43 #2). Jump to any round to follow the decisions.",
+  "text_len": 1320
+ },
+ {
+  "file": "replays_jp1_605563454.html",
+  "title": "TFTips - Mimosa 7 (10/4, 16:26 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (10/4, 16:26 #1). Jump to any round to follow the decisions.",
+  "text_len": 1276
+ },
+ {
+  "file": "replays_jp1_605570051.html",
+  "title": "TFTips - Mimosa 7 (10/4, 17:06 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (10/4, 17:06 #1). Jump to any round to follow the decisions.",
+  "text_len": 1289
+ },
+ {
+  "file": "replays_jp1_605600133.html",
+  "title": "TFTips - Mimosa 7 (10/4, 20:22 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (10/4, 20:22 #2). Jump to any round to follow the decisions.",
+  "text_len": 1304
+ },
+ {
+  "file": "replays_jp1_606386393.html",
+  "title": "TFTips - Mimosa 7 (10/10, 13:25 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (10/10, 13:25 #2). Jump to any round to follow the decisions.",
+  "text_len": 1277
+ },
+ {
+  "file": "replays_jp1_607794516.html",
+  "title": "TFTips - Mimosa 7 (10/18, 18:13 #1) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (10/18, 18:13 #1). Jump to any round to follow the decisions.",
+  "text_len": 1320
+ },
+ {
+  "file": "replays_jp1_607804289.html",
+  "title": "TFTips - Mimosa 7 (10/18, 19:04 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (10/18, 19:04 #2). Jump to any round to follow the decisions.",
+  "text_len": 1335
+ },
+ {
+  "file": "replays_jp1_607954877.html",
+  "title": "TFTips - Mimosa 7 (10/19, 18:36 #2) - Challenger Replays 【Teamfight Tactics】",
+  "description": "Recorded TFT game by Mimosa 7 (10/19, 18:36 #2). Jump to any round to follow the decisions.",
+  "text_len": 1309
+ },
+ {
+  "file": "set18.html",
+  "title": "TFTips - SET18 \"Enchanted Wilds\" Overview 【Teamfight Tactics】",
+  "description": "Everything about TFT SET18 \"Enchanted Wilds\" — the new Wisps mechanic, the PBE and live release schedule, the Unreal Engine migration, and the official reveal video.",
+  "text_len": 3830
+ },
+ {
+  "file": "specs_aug.html",
+  "title": "TFTips - Augments - Game Specs & Rules 【Teamfight Tactics】",
+  "description": "Augments - Augment ranks and trees",
+  "text_len": 2076
+ },
+ {
+  "file": "specs_battle.html",
+  "title": "TFTips - Battle - Game Specs & Rules 【Teamfight Tactics】",
+  "description": "Battle - Damage formulas, debuffs, basic attack targeting, and overtime",
+  "text_len": 8461
+ },
+ {
+  "file": "specs_items.html",
+  "title": "TFTips - Items - Game Specs & Rules 【Teamfight Tactics】",
+  "description": "Items - How items carry over when starring up, and what anvils contain",
+  "text_len": 1649
+ },
+ {
+  "file": "specs_player.html",
+  "title": "TFTips - Player - Game Specs & Rules 【Teamfight Tactics】",
+  "description": "Player - Player damage and required experience",
+  "text_len": 1682
+ },
+ {
+  "file": "specs_roles.html",
+  "title": "TFTips - Roles - Game Specs & Rules 【Teamfight Tactics】",
+  "description": "Roles - About champion roles",
+  "text_len": 1928
+ },
+ {
+  "file": "specs_shop.html",
+  "title": "TFTips - Shop - Game Specs & Rules 【Teamfight Tactics】",
+  "description": "Shop - Shop odds and champion pool",
+  "text_len": 1949
+ },
+ {
+  "file": "specs_stats.html",
+  "title": "TFTips - Stats - Game Specs & Rules 【Teamfight Tactics】",
+  "description": "Stats - Detailed stat descriptions",
+  "text_len": 4671
+ },
+ {
+  "file": "specs_wisp.html",
+  "title": "TFTips - Wisps - Game Specs & Rules 【Teamfight Tactics】",
+  "description": "Wisps - When wisps appear in the shop and how they are chosen",
+  "text_len": 2258
+ },
+ {
+  "file": "stream_widgets.html",
+  "title": "TFT Stream Widgets",
+  "description": "Show your rank and results, or chat with viewer ranks, right on your stream.",
+  "text_len": 1959
+ },
+ {
+  "file": "tables.html",
+  "title": "TFTips - Tables 【Teamfight Tactics】",
+  "description": "View various probability tables and reward contents for TFT",
+  "text_len": 2959
+ },
+ {
+  "file": "tables_backline_blueprint.html",
+  "title": "TFTips - Backline Blueprint - Tables 【Teamfight Tactics】",
+  "description": "Every non-tank 3-cost it can give",
+  "text_len": 1492
+ },
+ {
+  "file": "tables_blackthorn_sacrifice.html",
+  "title": "TFTips - Blackthorn Sacrifice Bonus - Tables 【Teamfight Tactics】",
+  "description": "Stats your team gains, by the sacrifice's role, cost and star level",
+  "text_len": 5419
+ },
+ {
+  "file": "tables_blossom_call.html",
+  "title": "TFTips - Blossom's Call - Tables 【Teamfight Tactics】",
+  "description": "How the cost of the champion you get from a Wisp is decided by the Wisp's price and the stage",
+  "text_len": 1850
+ },
+ {
+  "file": "tables_booster_pack.html",
+  "title": "TFTips - Booster Pack - Tables 【Teamfight Tactics】",
+  "description": "Random champion pool (9 gold)",
+  "text_len": 2848
+ },
+ {
+  "file": "tables_call_to_chaos.html",
+  "title": "TFTips - Call To Chaos - Tables 【Teamfight Tactics】",
+  "description": "One of nine rewards, chosen at random",
+  "text_len": 1636
+ },
+ {
+  "file": "tables_coven_cashout.html",
+  "title": "TFTips - Coven Cashout Rewards - Tables 【Teamfight Tactics】",
+  "description": "Coven cashout rewards by Essence conversion threshold",
+  "text_len": 3902
+ },
+ {
+  "file": "tables_dark_ritual.html",
+  "title": "TFTips - Dark Ritual - Tables 【Teamfight Tactics】",
+  "description": "Ability Power granted instead of loot when converting Coven Essence",
+  "text_len": 1572
+ },
+ {
+  "file": "tables_draven_bounties.html",
+  "title": "TFTips - Bounty Seeker Bounties - Tables 【Teamfight Tactics】",
+  "description": "Bounty conditions and rewards (7 easy, then 4 hard once all are done)",
+  "text_len": 2138
+ },
+ {
+  "file": "tables_exclusive_augments.html",
+  "title": "TFTips - Mutually Exclusive Augments - Tables 【Teamfight Tactics】",
+  "description": "Augments that no longer appear after selecting certain augments",
+  "text_len": 5028
+ },
+ {
+  "file": "tables_expected_unexpectedness.html",
+  "title": "TFTips - Expected Unexpectedness - Tables 【Teamfight Tactics】",
+  "description": "Dice roll reward table",
+  "text_len": 1865
+ },
+ {
+  "file": "tables_fae_thresholds.html",
+  "title": "TFTips - Fae Pixie Thresholds - Tables 【Teamfight Tactics】",
+  "description": "Damage, healing, and shielding needed to attract each Pixie and Golden Pixie",
+  "text_len": 1898
+ },
+ {
+  "file": "tables_frontline_foundation.html",
+  "title": "TFTips - Frontline Foundation - Tables 【Teamfight Tactics】",
+  "description": "Every 1-cost tank it can give",
+  "text_len": 1504
+ },
+ {
+  "file": "tables_golden_egg.html",
+  "title": "TFTips - The Golden Egg - Tables 【Teamfight Tactics】",
+  "description": "The Golden Egg augment rewards",
+  "text_len": 2033
+ },
+ {
+  "file": "tables_greenfather_hexes.html",
+  "title": "TFTips - Greenfather Hexes - Tables 【Teamfight Tactics】",
+  "description": "Board layouts, growth order, and bonuses of the hexes Ivern grows",
+  "text_len": 2369
+ },
+ {
+  "file": "tables_hard_commit_emblems.html",
+  "title": "TFTips - Hard Commit - Tables 【Teamfight Tactics】",
+  "description": "Available emblems and champions with that trait",
+  "text_len": 1551
+ },
+ {
+  "file": "tables_magic_roll.html",
+  "title": "TFTips - Magic Roll - Tables 【Teamfight Tactics】",
+  "description": "Rewards by 3-dice total and special rolls",
+  "text_len": 1600
+ },
+ {
+  "file": "tables_missed_connections_set18.html",
+  "title": "TFTips - Missed Connections - Tables 【Teamfight Tactics】",
+  "description": "All 1-cost champions",
+  "text_len": 1464
+ },
+ {
+  "file": "tables_orb.html",
+  "title": "TFTips - Loot Orbs - Tables 【Teamfight Tactics】",
+  "description": "Loot orb rewards from PvE rounds",
+  "text_len": 2967
+ },
+ {
+  "file": "tables_player_damages.html",
+  "title": "TFTips - Player Damage - Tables 【Teamfight Tactics】",
+  "description": "Base damage table by stage",
+  "text_len": 1339
+ },
+ {
+  "file": "tables_shop_odds.html",
+  "title": "TFTips - Shop Odds - Tables 【Teamfight Tactics】",
+  "description": "Shop appearance odds by level",
+  "text_len": 1575
+ },
+ {
+  "file": "tables_slightly_magic_roll.html",
+  "title": "TFTips - Slightly Magic Roll - Tables 【Teamfight Tactics】",
+  "description": "Rewards for each single-die result",
+  "text_len": 1526
+ },
+ {
+  "file": "tables_solo_leveling.html",
+  "title": "TFTips - Solo Leveling - Tables 【Teamfight Tactics】",
+  "description": "The stat bonuses the description does not list",
+  "text_len": 1627
+ },
+ {
+  "file": "tables_thiefs_gloves.html",
+  "title": "TFTips - What's in Thief's Gloves - Tables 【Teamfight Tactics】",
+  "description": "Every pair it can equip each round, and the tier odds by stage and level",
+  "text_len": 2050
+ },
+ {
+  "file": "tables_tier_bag.html",
+  "title": "TFTips - Champion Pool - Tables 【Teamfight Tactics】",
+  "description": "Champion pool size by cost",
+  "text_len": 1434
+ },
+ {
+  "file": "tables_trait_ladder.html",
+  "title": "TFTips - Trait Ladder - Tables 【Teamfight Tactics】",
+  "description": "Rewards at each active trait milestone",
+  "text_len": 1951
+ },
+ {
+  "file": "tables_warpath.html",
+  "title": "TFTips - Warpath - Tables 【Teamfight Tactics】",
+  "description": "Warpath augment rewards",
+  "text_len": 1459
+ },
+ {
+  "file": "tacticians.html",
+  "title": "TFTips - Tacticians 【Teamfight Tactics】",
+  "description": "Every Tactician, grouped by species. Filter by rarity or name.",
+  "text_len": 21465
+ },
+ {
+  "file": "terms.html",
+  "title": "TFTips - Terms of Service 【Teamfight Tactics】",
+  "description": "By accessing or using TFTips.app (\"the Site\"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use…",
+  "text_len": 4635
+ },
+ {
+  "file": "timeline.html",
+  "title": "TFTips - TFT Timeline 【Teamfight Tactics】",
+  "description": "Timeline of all TFT sets. Includes world championship winners and other key milestones.",
+  "text_len": 2179
+ },
+ {
+  "file": "timeline_prerelease.html",
+  "title": "TFTips - Pre-release 【Teamfight Tactics】",
+  "description": "Worlds video and related articles for Pre-release.",
+  "text_len": 1128
+ },
+ {
+  "file": "timeline_set1.html",
+  "title": "TFTips - SET1 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET1.",
+  "text_len": 17419
+ },
+ {
+  "file": "timeline_set10.html",
+  "title": "TFTips - SET10 Remix Rumble 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET10 Remix Rumble.",
+  "text_len": 21331
+ },
+ {
+  "file": "timeline_set11.html",
+  "title": "TFTips - SET11 Inkborn Fables 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET11 Inkborn Fables.",
+  "text_len": 22914
+ },
+ {
+  "file": "timeline_set12.html",
+  "title": "TFTips - SET12 Magic N' Mayhem 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET12 Magic N' Mayhem.",
+  "text_len": 22953
+ },
+ {
+  "file": "timeline_set13.html",
+  "title": "TFTips - SET13 Into the Arcane 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET13 Into the Arcane.",
+  "text_len": 25581
+ },
+ {
+  "file": "timeline_set14.html",
+  "title": "TFTips - SET14 Cyber City 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET14 Cyber City.",
+  "text_len": 23168
+ },
+ {
+  "file": "timeline_set15.html",
+  "title": "TFTips - SET15 K.O. Coliseum 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET15 K.O. Coliseum.",
+  "text_len": 23802
+ },
+ {
+  "file": "timeline_set16.html",
+  "title": "TFTips - SET16 Lore & Legends 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET16 Lore & Legends.",
+  "text_len": 41857
+ },
+ {
+  "file": "timeline_set17.html",
+  "title": "TFTips - SET17 Space Gods 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET17 Space Gods.",
+  "text_len": 28325
+ },
+ {
+  "file": "timeline_set18.html",
+  "title": "TFTips - SET18 Enchanted Wilds 【Teamfight Tactics】",
+  "description": "Worlds video and related articles for SET18 Enchanted Wilds.",
+  "text_len": 1156
+ },
+ {
+  "file": "timeline_set2.html",
+  "title": "TFTips - SET2 Rise of the Elements 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET2 Rise of the Elements.",
+  "text_len": 17968
+ },
+ {
+  "file": "timeline_set3.html",
+  "title": "TFTips - SET3 Galaxies 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET3 Galaxies.",
+  "text_len": 27692
+ },
+ {
+  "file": "timeline_set4.html",
+  "title": "TFTips - SET4 Fates 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET4 Fates.",
+  "text_len": 33425
+ },
+ {
+  "file": "timeline_set5.html",
+  "title": "TFTips - SET5 Reckoning 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET5 Reckoning.",
+  "text_len": 44099
+ },
+ {
+  "file": "timeline_set6.html",
+  "title": "TFTips - SET6 Gizmos & Gadgets 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET6 Gizmos & Gadgets.",
+  "text_len": 48311
+ },
+ {
+  "file": "timeline_set7.html",
+  "title": "TFTips - SET7 Dragonlands 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET7 Dragonlands.",
+  "text_len": 46404
+ },
+ {
+  "file": "timeline_set8.html",
+  "title": "TFTips - SET8 Monsters Attack! 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET8 Monsters Attack!.",
+  "text_len": 44609
+ },
+ {
+  "file": "timeline_set9.html",
+  "title": "TFTips - SET9 Runeterra Reforged 【Teamfight Tactics】",
+  "description": "Champions, traits, Worlds video, and related articles for SET9 Runeterra Reforged.",
+  "text_len": 52218
+ },
+ {
+  "file": "tips_keywords.html",
+  "title": "TFTips - TFT Strategy & Guides 【Teamfight Tactics】",
+  "description": "TFTips provides champion data, trait synergies, item builds, augment info, and TFT strategy guides.",
+  "text_len": 898
+ },
+ {
+  "file": "tips_strategy.html",
+  "title": "TFTips - Strategy Tips 【Teamfight Tactics】",
+  "description": "A collection of strategy tips for TFT gameplay.",
+  "text_len": 2284
+ },
+ {
+  "file": "tips_strategy_1cost_reroll_leveling.html",
+  "title": "TFTips - Don't buy XP in 1-cost reroll comps until you hit your 3* units 【Teamfight Tactics】",
+  "description": "Don't buy XP in 1-cost reroll comps until you hit your 3* units - Strategy and gameplay tips for TFT.",
+  "text_len": 1395
+ },
+ {
+  "file": "tips_strategy_2cost_3_2_reroll.html",
+  "title": "TFTips - Level to 6 on 3-2 and stabilize your board in 2-cost reroll comps 【Teamfight Tactics】",
+  "description": "Level to 6 on 3-2 and stabilize your board in 2-cost reroll comps - Strategy and gameplay tips for TFT.",
+  "text_len": 1369
+ },
+ {
+  "file": "tips_strategy_4cost_4_2_reroll.html",
+  "title": "TFTips - Push level 8 on 4-2 to stabilize your board in 4-cost comps 【Teamfight Tactics】",
+  "description": "Push level 8 on 4-2 to stabilize your board in 4-cost comps - Strategy and gameplay tips for TFT.",
+  "text_len": 1438
+ },
+ {
+  "file": "tips_strategy_anti_healing_item.html",
+  "title": "TFTips - Build a Wound (healing reduction) item 【Teamfight Tactics】",
+  "description": "Build a Wound (healing reduction) item - Strategy and gameplay tips for TFT.",
+  "text_len": 1370
+ },
+ {
+  "file": "tips_strategy_avoid_contested_comp.html",
+  "title": "TFTips - Avoid contested comps 【Teamfight Tactics】",
+  "description": "Avoid contested comps - Strategy and gameplay tips for TFT.",
+  "text_len": 1403
+ },
+ {
+  "file": "tips_strategy_carry_corner.html",
+  "title": "TFTips - Position ranged carries in the corner 【Teamfight Tactics】",
+  "description": "Position ranged carries in the corner - Strategy and gameplay tips for TFT.",
+  "text_len": 1447
+ },
+ {
+  "file": "tips_strategy_component_item_limit.html",
+  "title": "TFTips - Don't hold more than 3 components 【Teamfight Tactics】",
+  "description": "Don't hold more than 3 components - Strategy and gameplay tips for TFT.",
+  "text_len": 1302
+ },
+ {
+  "file": "tips_strategy_concentrate_items.html",
+  "title": "TFTips - Stack 3 items on one unit 【Teamfight Tactics】",
+  "description": "Stack 3 items on one unit - Strategy and gameplay tips for TFT.",
+  "text_len": 1370
+ },
+ {
+  "file": "tips_strategy_debuff_carry_target.html",
+  "title": "TFTips - Apply Shred and healing reduction to your carry's targets 【Teamfight Tactics】",
+  "description": "Apply Shred and healing reduction to your carry's targets - Strategy and gameplay tips for TFT.",
+  "text_len": 1367
+ },
+ {
+  "file": "tips_strategy_focus_weak_units.html",
+  "title": "TFTips - Position to focus down squishy units first 【Teamfight Tactics】",
+  "description": "Position to focus down squishy units first - Strategy and gameplay tips for TFT.",
+  "text_len": 1276
+ },
+ {
+  "file": "tips_strategy_keep_the_streak.html",
+  "title": "TFTips - Commit to a Winstreak or Losestreak in the Early Game 【Teamfight Tactics】",
+  "description": "Commit to a Winstreak or Losestreak in the Early Game - Strategy and gameplay tips for TFT.",
+  "text_len": 1804
+ },
+ {
+  "file": "tips_strategy_level_up_timing.html",
+  "title": "TFTips - Level up at clean XP breakpoints 【Teamfight Tactics】",
+  "description": "Level up at clean XP breakpoints - Strategy and gameplay tips for TFT.",
+  "text_len": 1524
+ },
+ {
+  "file": "tips_strategy_reroll_at_right_level.html",
+  "title": "TFTips - Roll at the right level 【Teamfight Tactics】",
+  "description": "Roll at the right level - Strategy and gameplay tips for TFT.",
+  "text_len": 1166
+ },
+ {
+  "file": "tips_strategy_reroll_focus_main_units.html",
+  "title": "TFTips - Don't chase 3* on non-carry units in reroll comps 【Teamfight Tactics】",
+  "description": "Don't chase 3* on non-carry units in reroll comps - Strategy and gameplay tips for TFT.",
+  "text_len": 1388
+ },
+ {
+  "file": "tips_strategy_scout_next_opponent.html",
+  "title": "TFTips - Check your upcoming opponents 【Teamfight Tactics】",
+  "description": "Check your upcoming opponents - Strategy and gameplay tips for TFT.",
+  "text_len": 1587
+ },
+ {
+  "file": "tips_strategy_shred_item.html",
+  "title": "TFTips - Build a Sunder or Shred item 【Teamfight Tactics】",
+  "description": "Build a Sunder or Shred item - Strategy and gameplay tips for TFT.",
+  "text_len": 1442
+ },
+ {
+  "file": "tips_strategy_slam_all_items_5_1.html",
+  "title": "TFTips - Slam all components into completed items on 5-1 【Teamfight Tactics】",
+  "description": "Slam all components into completed items on 5-1 - Strategy and gameplay tips for TFT.",
+  "text_len": 1248
+ },
+ {
+  "file": "tips_strategy_spend_gold_when_low_health.html",
+  "title": "TFTips - Spend all your gold when low on HP 【Teamfight Tactics】",
+  "description": "Spend all your gold when low on HP - Strategy and gameplay tips for TFT.",
+  "text_len": 1723
+ },
+ {
+  "file": "tips_strategy_stage2_interest_line.html",
+  "title": "TFTips - Focus on 10/20 gold thresholds in Stage 2 【Teamfight Tactics】",
+  "description": "Focus on 10/20 gold thresholds in Stage 2 - Strategy and gameplay tips for TFT.",
+  "text_len": 1290
+ },
+ {
+  "file": "tips_strategy_tank_same_side.html",
+  "title": "TFTips - Position your main tank to protect your carry 【Teamfight Tactics】",
+  "description": "Position your main tank to protect your carry - Strategy and gameplay tips for TFT.",
+  "text_len": 1438
+ },
+ {
+  "file": "tips_strategy_upgraded_1cost.html",
+  "title": "TFTips - Play around 2* 1-costs in the early game 【Teamfight Tactics】",
+  "description": "Play around 2* 1-costs in the early game - Strategy and gameplay tips for TFT.",
+  "text_len": 1504
+ },
+ {
+  "file": "tools_coven_essence.html",
+  "title": "TFTips - Cashout Calculator 【Teamfight Tactics】",
+  "description": "Calculate Essence gains for the SET18 trait Coven, and when each reward becomes available.",
+  "text_len": 1940
+ },
+ {
+  "file": "tools_shoprob.html",
+  "title": "TFTips - Shop Probability Calculator 【Teamfight Tactics】",
+  "description": "Shop Probability Calculator",
+  "text_len": 1889
+ },
+ {
+  "file": "tools_team_builder.html",
+  "title": "TFTips - Team Builder 【Teamfight Tactics】",
+  "description": "TFT SET18 Team Builder. Place champions and items on the board to check your team composition.",
+  "text_len": 1504
+ },
+ {
+  "file": "tools_tierlist_maker.html",
+  "title": "TFTips - Tier List Maker 【Teamfight Tactics】",
+  "description": "TFT SET18 Tier List Maker. Create tier lists by ranking champions, items, augments, and traits.",
+  "text_len": 1576
+ },
+ {
+  "file": "tournaments.html",
+  "title": "TFTips - Tournaments 【Teamfight Tactics】",
+  "description": "Public TFTips community tournaments, open signups, and past results.",
+  "text_len": 2523
+ },
+ {
+  "file": "tournaments_ankoku.html",
+  "title": "TFTips - 暗黒学園蠱毒杯 【Teamfight Tactics】",
+  "description": "終了 / 6月21日 19:00 開始 / 半分抜け方式のTFTソロトーナメント。今回は参加者数の確定に伴い**40名・全3試合**で開催する。各卓8人の上位が勝ち上がり、決勝8人で優勝を決める。",
+  "text_len": 3780
+ },
+ {
+  "file": "tournaments_katsuobushicup_set17_1.html",
+  "title": "TFTips - 鰹節杯 【Teamfight Tactics】",
+  "description": "終了 / 5月16日 17:00 開始 / SET17最初の鰹節杯。誰でも気軽に参加いただけます。",
+  "text_len": 9791
+ },
+ {
+  "file": "tournaments_katsuobushikai_2026_team.html",
+  "title": "TFTips - 鰹節會 2026 チーム戦交流会 【Teamfight Tactics】",
+  "description": "終了 / 10月12日 15:30 開始 / TFT鰹節會 2026 (10/12、TUNNEL TOKYO) の全員参加型チーム戦交流会です。会場に来ている参加者が対象です。",
+  "text_len": 11391
+ },
+ {
+  "file": "tournaments_kimi_meet_set17_1.html",
+  "title": "TFTips - 第1回黄身鯖交流会【Set17】 【Teamfight Tactics】",
+  "description": "終了 / 6月11日 20:00 開始 / 和やかな雰囲気の交流イベントです。どなたでも個人で申し込めます。",
+  "text_len": 8453
+ },
+ {
+  "file": "tournaments_kimi_meet_set17_2.html",
+  "title": "TFTips - 第2回黄身鯖交流会【Set17】 【Teamfight Tactics】",
+  "description": "終了 / 6月25日 20:00 開始 / 黄身鯖交流会の第2回。和やかな雰囲気の交流イベントです。どなたでも個人で申し込めます。",
+  "text_len": 6473
+ },
+ {
+  "file": "tournaments_kimi_meet_set17_3.html",
+  "title": "TFTips - 第3回黄身鯖交流会【Set17】 【Teamfight Tactics】",
+  "description": "終了 / 7月9日 20:00 開始 / 黄身鯖交流会の第3回。和やかな雰囲気の交流イベントです。どなたでも個人で申し込めます。",
+  "text_len": 5027
+ },
+ {
+  "file": "tournaments_kimi_meet_set18_1.html",
+  "title": "TFTips - 第1回黄身鯖交流会【Set18】 【Teamfight Tactics】",
+  "description": "終了 / 9月23日 20:00 開始 / 黄身鯖交流会のSet18第1回。和やかな雰囲気の交流イベントです。どなたでも個人で申し込めます。",
+  "text_len": 5062
+ },
+ {
+  "file": "tournaments_kimi_meet_set18_2.html",
+  "title": "TFTips - 第2回黄身鯖交流会【Set18】 【Teamfight Tactics】",
+  "description": "中止 / 10月8日 20:00 開始 / 黄身鯖交流会のSet18第2回。和やかな雰囲気の交流イベントです。どなたでも個人で申し込めます。",
+  "text_len": 2204
+ },
+ {
+  "file": "tournaments_kimi_meet_set18_3.html",
+  "title": "TFTips - 第3回黄身鯖交流会【Set18】 【Teamfight Tactics】",
+  "description": "参加受付中 / 10月28日 20:00 開始 / 黄身鯖交流会のSet18第3回。和やかな雰囲気の交流イベントです。どなたでも個人で申し込めます。",
+  "text_len": 1673
+ },
+ {
+  "file": "tournaments_kimi_meet_set18_4.html",
+  "title": "TFTips - 第4回黄身鯖交流会【Set18】 【Teamfight Tactics】",
+  "description": "参加受付中 / 11月11日 20:00 開始 / 黄身鯖交流会のSet18第4回。和やかな雰囲気の交流イベントです。どなたでも個人で申し込めます。",
+  "text_len": 1672
+ },
+ {
+  "file": "tournaments_series_katsuobushi_cup.html",
+  "title": "TFTips - Katsuobushi Cup 【Teamfight Tactics】",
+  "description": "A community tournament with a half-cut bracket that welcomes players of every level.",
+  "text_len": 975
+ },
+ {
+  "file": "tournaments_series_kimi_server_meetup.html",
+  "title": "TFTips - Kimi Server Meetup 【Teamfight Tactics】",
+  "description": "A 4-player team meetup. Team up with friends and climb the standings.",
+  "text_len": 1462
+ },
+ {
+  "file": "tournaments_yucchaku_cup_set18.html",
+  "title": "TFTips - ゆっ着杯 TFT SET18 PBE編 【Teamfight Tactics】",
+  "description": "終了 / 8月2日 14:00 開始 / TFT PBE (パブリックベータ環境)・SET18で開催するオープン大会です。",
+  "text_len": 8653
+ },
+ {
+  "file": "traits.html",
+  "title": "TFTips - Trait List 【Teamfight Tactics】",
+  "description": "List of all traits with their champions and details.",
+  "text_len": 10601
+ },
+ {
+  "file": "traits_18_adaptor.html",
+  "title": "TFTips - Adaptor - Trait Details 【Teamfight Tactics】",
+  "description": "Adaptor - Innate: Adaptor abilities change depending on if their Attack Damage or Ability Power is higher.Adaptors gain Ability Power or Attack Damage, dependi…",
+  "text_len": 1193
+ },
+ {
+  "file": "traits_18_aluneuniquetrait.html",
+  "title": "TFTips - Attuned - Trait Details 【Teamfight Tactics】",
+  "description": "Attuned - Your strongest Alune cycles to a new phase of the moon after each cast. While the moon is at or below half full, your team gains 7% Durabilty. While…",
+  "text_len": 1272
+ },
+ {
+  "file": "traits_18_apexpredator.html",
+  "title": "TFTips - Apex Predator - Trait Details 【Teamfight Tactics】",
+  "description": "Apex Predator - Elder Dragon takes up 2 team slots and grants +2 to the Riftbeast trait.",
+  "text_len": 1026
+ },
+ {
+  "file": "traits_18_battlemage.html",
+  "title": "TFTips - Monolith - Trait Details 【Teamfight Tactics】",
+  "description": "Monolith - Monoliths gain 10 Armor and Magic Resist for each enemy targeting them.",
+  "text_len": 1029
+ },
+ {
+  "file": "traits_18_blackthorn.html",
+  "title": "TFTips - Blackthorn - Trait Details 【Teamfight Tactics】",
+  "description": "Blackthorn - The ally on the Blackthorn hex is sacrificed before combat, granting your champions Health. Blackthorn champions gain additional stats based on the s…",
+  "text_len": 2148
+ },
+ {
+  "file": "traits_18_blossom.html",
+  "title": "TFTips - Blossom - Trait Details 【Teamfight Tactics】",
+  "description": "Blossom - After combat, your Wisps are empowered. Blossom champions gain Attack Damage, Ability Power, and 10% max Health.(3) Wisps are upgraded, 12%(5) Wisps…",
+  "text_len": 1837
+ },
+ {
+  "file": "traits_18_brawler.html",
+  "title": "TFTips - Brawler - Trait Details 【Teamfight Tactics】",
+  "description": "Brawler - Your team gains 120 max Health. Brawlers gain more.(2) 25%(4) 40%(6) 65%",
+  "text_len": 1109
+ },
+ {
+  "file": "traits_18_caustic.html",
+  "title": "TFTips - Caustic - Trait Details 【Teamfight Tactics】",
+  "description": "Caustic - Caustic damage 30% Shreds and Sunders enemies for 4 seconds.Shred: Reduce Magic ResistSunder: Reduce Armor",
+  "text_len": 1066
+ },
+ {
+  "file": "traits_18_coven.html",
+  "title": "TFTips - Coven - Trait Details 【Teamfight Tactics】",
+  "description": "Coven - Gather Essence by killing champions, plus more by losing player combat. Beginning at 40 Essence, choose to convert Essence to rewards or continue gat…",
+  "text_len": 2005
+ },
+ {
+  "file": "traits_18_defender.html",
+  "title": "TFTips - Defender - Trait Details 【Teamfight Tactics】",
+  "description": "Defender - Your team gains 12 Armor and Magic Resist. Defenders gain more.(2) 25 (4) 60 (6) 115",
+  "text_len": 1269
+ },
+ {
+  "file": "traits_18_dravenuniquetrait.html",
+  "title": "TFTips - Bounty Seeker - Trait Details 【Teamfight Tactics】",
+  "description": "Bounty Seeker - Choose a bounty. Your strongest Draven can progress on the bounty to earn its reward. Upon completing a bounty, choose another.",
+  "text_len": 2768
+ },
+ {
+  "file": "traits_18_eclipse.html",
+  "title": "TFTips - Eclipse - Trait Details 【Teamfight Tactics】",
+  "description": "Eclipse - After 8 seconds of combat, the Eclipse kills the lowest Health enemy, repeating every 3.5 seconds.",
+  "text_len": 1195
+ },
+ {
+  "file": "traits_18_elderwood.html",
+  "title": "TFTips - Elderwood - Trait Details 【Teamfight Tactics】",
+  "description": "Elderwood - Gain placeable Elderwood plants. Plants gain 25% Max Health and 10% Ability Power per Elderwood Star Level.(3) A Stonebark Tree and a Lifebloom(5) A…",
+  "text_len": 1636
+ },
+ {
+  "file": "traits_18_emerald.html",
+  "title": "TFTips - Emerald Aspect - Trait Details 【Teamfight Tactics】",
+  "description": "Emerald Aspect - Drag an ally onto your strongest Taric to pair them, granting the ally powerful bonuses from Taric's Ability.",
+  "text_len": 1074
+ },
+ {
+  "file": "traits_18_executioner.html",
+  "title": "TFTips - Executioner - Trait Details 【Teamfight Tactics】",
+  "description": "Executioner - Precision: Ability damage can critically strike. Extra Precision grants 10% Critical Strike Damage.(2) Executioners gain Precision and 15% Critical S…",
+  "text_len": 1579
+ },
+ {
+  "file": "traits_18_fae.html",
+  "title": "TFTips - Fae - Trait Details 【Teamfight Tactics】",
+  "description": "Fae - Your team's damage, healing, and shielding attracts Pixies.Each Pixie grants Fae champions Attack Damage and Ability Power, and after they fall below…",
+  "text_len": 2525
+ },
+ {
+  "file": "traits_18_florafatalis.html",
+  "title": "TFTips - Flora Fatalis - Trait Details 【Teamfight Tactics】",
+  "description": "Flora Fatalis - Flora Fatalis champions harvest enemies on takedown, gaining:(1) 10 Mana(2) and grant a 8% max Health heal to the lowest Health ally.",
+  "text_len": 1491
+ },
+ {
+  "file": "traits_18_greenfather.html",
+  "title": "TFTips - Greenfather - Trait Details 【Teamfight Tactics】",
+  "description": "Greenfather - Gain 1 / 1 / 10 seed when your strongest Ivern casts, plus 3 / 3 / 30 every combat. Ivern uses 5 seeds to grow a hex on your board that grants a bonu…",
+  "text_len": 2042
+ },
+ {
+  "file": "traits_18_hunter.html",
+  "title": "TFTips - Hunter - Trait Details 【Teamfight Tactics】",
+  "description": "Hunter - Hunters gain Attack Damage. If a Hunter hasn't swapped targets for 3 seconds, they gain 10% Damage Amp.(2) 20%(3) 30%(4) 45%(5) 60%",
+  "text_len": 1667
+ },
+ {
+  "file": "traits_18_inferno.html",
+  "title": "TFTips - Inferno - Trait Details 【Teamfight Tactics】",
+  "description": "Inferno - Inferno damage Burns and Wounds enemies for 3 seconds. Inferno Burns stack with other Burns.Burn: Deals a percent of the target’s max Health as true…",
+  "text_len": 2281
+ },
+ {
+  "file": "traits_18_invoker.html",
+  "title": "TFTips - Invoker - Trait Details 【Teamfight Tactics】",
+  "description": "Invoker - Your team gains Mana Regen, increased for Invokers.(2) 1 | 3(3) 1 | 4(4) 2 | 6(5) 2 | 8",
+  "text_len": 1278
+ },
+ {
+  "file": "traits_18_juggernaut.html",
+  "title": "TFTips - Juggernaut - Trait Details 【Teamfight Tactics】",
+  "description": "Juggernaut - Your team gains Durability. Juggernauts gain more.(2) 4% or 20%(4) 6% or 30%(6) 8% or 42%",
+  "text_len": 1373
+ },
+ {
+  "file": "traits_18_lunar.html",
+  "title": "TFTips - Lunar - Trait Details 【Teamfight Tactics】",
+  "description": "Lunar - Lunar champions and adjacent allies gain Attack Speed and Ability Power. Lunar champions gain 100% more. Field 3 Solar and 3 Lunar champions to activ…",
+  "text_len": 1873
+ },
+ {
+  "file": "traits_18_luxuniquetrait.html",
+  "title": "TFTips - Avatar - Trait Details 【Teamfight Tactics】",
+  "description": "Avatar - Having an Avatar on your bench or board transforms all other Avatars in your shop to the Trait of that Avatar.An Avatar's chosen Trait is counted twi…",
+  "text_len": 1290
+ },
+ {
+  "file": "traits_18_maokai_uniquetrait.html",
+  "title": "TFTips - Old Growth - Trait Details 【Teamfight Tactics】",
+  "description": "Old Growth - Whenever an enemy within 3 / 3 / 10 hexes dies, your strongest Old Growth champion gains 30 / 30 / 100 permanent max Health.",
+  "text_len": 1081
+ },
+ {
+  "file": "traits_18_primal.html",
+  "title": "TFTips - Primal - Trait Details 【Teamfight Tactics】",
+  "description": "Primal - Choose one of four Primal Blessings.",
+  "text_len": 1686
+ },
+ {
+  "file": "traits_18_rapidfire.html",
+  "title": "TFTips - Rapidfire - Trait Details 【Teamfight Tactics】",
+  "description": "Rapidfire - Your team gains 10% Attack Speed. Rapidfire champions gain more on every attack, up to 10 stacks.(2) +3% per Attack(3) +5% per Attack(4) +8% per Atta…",
+  "text_len": 1622
+ },
+ {
+  "file": "traits_18_riftbeast.html",
+  "title": "TFTips - Riftbeast - Trait Details 【Teamfight Tactics】",
+  "description": "Riftbeast - (3) Use the Alpha Mark to grant a Riftbeast their unique Buff(5) Every 3 combats, your next shop is overrun with Riftbeasts.(7) On combat start and e…",
+  "text_len": 2409
+ },
+ {
+  "file": "traits_18_rival.html",
+  "title": "TFTips - Rival - Trait Details 【Teamfight Tactics】",
+  "description": "Rival - Only applies to your strongest Rival.(1) Only active while fielding 1 Rival.Rivals collect takedowns, gaining 3 if they takedown another Rival.(1) Ri…",
+  "text_len": 1668
+ },
+ {
+  "file": "traits_18_rival_evolution.html",
+  "title": "TFTips - Evolution - Trait Details 【Teamfight Tactics】",
+  "description": "Evolution - Kha'Zix evolves and unlocks additional traits.",
+  "text_len": 916
+ },
+ {
+  "file": "traits_18_slayer.html",
+  "title": "TFTips - Ravager - Trait Details 【Teamfight Tactics】",
+  "description": "Ravager - Ravagers gain 10% Omnivamp. Additionally, Ravagers deal bonus damage, doubled against units below 50% Health.(2) 12% Bonus Damage(4) 25% Bonus Damage…",
+  "text_len": 1173
+ },
+ {
+  "file": "traits_18_solar.html",
+  "title": "TFTips - Solar - Trait Details 【Teamfight Tactics】",
+  "description": "Solar - Field 3 Solar and 3 Lunar champions to activate Eclipse.(3) Your champions gain a 5% max Health shield and deal 8% bonus magic damage. Gain additiona…",
+  "text_len": 2062
+ },
+ {
+  "file": "traits_18_spellweaver.html",
+  "title": "TFTips - Spellweaver - Trait Details 【Teamfight Tactics】",
+  "description": "Spellweaver - Your team gains 10% Ability Power. Spellweavers gain more, plus extra Ability Power whenever a Spellweaver casts an Ability.(2) 10%, +1% per cast(4)…",
+  "text_len": 1250
+ },
+ {
+  "file": "traits_18_sprykin.html",
+  "title": "TFTips - Sprykin - Trait Details 【Teamfight Tactics】",
+  "description": "Sprykin - Gain the Big Furry Friend. Drop a Sprykin on the BFF to pick its Rider.The BFF’s attacks and Ability change if the Rider is melee or ranged.(3) The R…",
+  "text_len": 1897
+ },
+ {
+  "file": "traits_18_summoner.html",
+  "title": "TFTips - Summoner - Trait Details 【Teamfight Tactics】",
+  "description": "Summoner - Summoners empower their summons in different ways.Yorick: +30% HealthAzir: +20% DamageMama Beak: +45% DamageZyra: +4 Plant Attacks(2) Empower Summons…",
+  "text_len": 1174
+ },
+ {
+  "file": "traits_18_vanguard.html",
+  "title": "TFTips - Vanguard - Trait Details 【Teamfight Tactics】",
+  "description": "Vanguard - At Combat Start and after dropping below 50% Health, Vanguards gain a max Health Shield for 10 seconds.(2) 18% max Health(4) 30% max Health(6) 40% ma…",
+  "text_len": 1218
+ },
+ {
+  "file": "traits_18_zyrauniquetrait.html",
+  "title": "TFTips - Thornmaiden - Trait Details 【Teamfight Tactics】",
+  "description": "Thornmaiden - Your team gains 5% Durability, increased to 10% if 6 or more Zyra plants are alive.",
+  "text_len": 1039
+ },
+ {
+  "file": "wisps.html",
+  "title": "TFTips - Wisps 【Teamfight Tactics】",
+  "description": "Every Set 18 Wisp with its price, effect, and the stages it can appear on.",
+  "text_len": 28432
+ }
+]
