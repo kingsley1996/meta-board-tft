@@ -57,9 +57,9 @@ export type SetData = {
 };
 
 export async function fetchSetData(): Promise<SetData> {
-  const raw = await (await fetchWithRetry(CDRAGON)).json();
+  const raw: any = await (await fetchWithRetry(CDRAGON)).json();
   const set = pickSet(raw);
-  const itemsByName = new Map(raw.items.map((item: any) => [item.apiName, item]));
+  const itemsByName = new Map<string, any>(raw.items.map((item: any) => [item.apiName, item]));
 
   const traits = set.traits.map((trait: any) => {
     // Activation tiers: effects carry minUnits (e.g. 2/4/6) and a style id
@@ -87,7 +87,11 @@ export async function fetchSetData(): Promise<SetData> {
   const setItemIds = new Set(set.items);
   const seenItemNames = new Set();
   const items = raw.items
-    .filter((item: any) => setItemIds.has(item.apiName) && item.composition.length > 0 && !item.isAugment)
+    .filter((item: any) =>
+      setItemIds.has(item.apiName) &&
+      !item.isAugment &&
+      (item.composition.length > 0 || /Artifact|Emblem/.test(item.apiName) || /^Radiant /.test(item.name ?? ''))
+    )
     .sort((a: any, b: any) => (b.apiName.startsWith('DA_') ? 1 : 0) - (a.apiName.startsWith('DA_') ? 1 : 0))
     .filter((item: any) => {
       const key = item.name.toLowerCase();
@@ -124,7 +128,7 @@ export async function fetchSetData(): Promise<SetData> {
 
   let patch = 'latest';
   try {
-    const versions = await (await fetchWithRetry('https://ddragon.leagueoflegends.com/api/versions.json', 2)).json();
+    const versions: any = await (await fetchWithRetry('https://ddragon.leagueoflegends.com/api/versions.json', 2)).json();
     patch = versions[0];
   } catch {
     console.warn('could not fetch patch version, keeping "latest"');

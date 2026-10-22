@@ -1,0 +1,411 @@
+import { clampLimit, entityId, type CatalogEntity, type EntityId, type EntityMatch, type GameEntityType } from './contracts.ts';
+
+export type { EntityMatch };
+import type { StaticGameData } from './static-game-data.ts';
+
+export type DbChampion = {
+  api_name: string;
+  name: string;
+  cost: number;
+  traits: string[] | null;
+  icon: string | null;
+};
+
+export type DbTrait = {
+  api_name: string;
+  name: string;
+  description: string;
+  thresholds: number[] | null;
+  styles: number[] | null;
+  icon: string | null;
+};
+
+export type DbItem = {
+  api_name: string;
+  name: string;
+  description: string;
+  composition: string[] | null;
+  icon: string | null;
+};
+
+export type DbAugment = {
+  api_name: string;
+  name: string;
+  description: string;
+  rarity: number | null;
+  icon: string | null;
+};
+
+export type DbRows = {
+  champions: DbChampion[];
+  traits: DbTrait[];
+  items: DbItem[];
+  augments: DbAugment[];
+};
+
+export type Catalog = {
+  entities: CatalogEntity[];
+  byId: Map<string, CatalogEntity>;
+  byName: Map<string, CatalogEntity>;
+  aliases: Map<string, Set<string>>;
+  aliasesSpaced: Map<string, Set<string>>;
+  components: Set<string>;
+};
+
+const ITEM_ALIASES: Record<string, string> = {
+  frozenheart: "Protector's Vow",
+  protectorsvow: "Protector's Vow",
+  redemption: 'Spirit Visage',
+  tacticiansring: "Tactician's Cape",
+  madredsbloodrazor: 'Giant Slayer',
+  guardianangel: 'Edge of Night',
+  runaanshurricane: "Kraken's Fury",
+  spectralgauntlet: 'Evenshroud',
+  leviathan: "Nashor's Tooth",
+  forceofnature: "Tactician's Crown",
+  tacticiansscepter: "Tactician's Shield",
+  statikkshiv: 'Void Staff',
+  powergauntlet: "Striker's Flail",
+  nightharvester: 'Steadfast Heart',
+  unstableconcoction: 'Hand Of Justice',
+};
+
+const TRAIT_ALIASES: Record<string, string> = {
+  slayer: 'Ravager',
+  florafatalis: 'Flora Fatalis',
+};
+
+const COMPONENT_ALIASES: Record<string, string> = {
+  bf: 'B.F. Sword',
+  bfs: 'B.F. Sword',
+  sword: 'B.F. Sword',
+  bow: 'Recurve Bow',
+  rod: 'Needlessly Large Rod',
+  tear: 'Tear of the Goddess',
+  cloak: 'Negatron Cloak',
+  vest: 'Chain Vest',
+  belt: "Giant's Belt",
+  gloves: 'Sparring Gloves',
+  spat: 'Spatula',
+  spatula: 'Spatula',
+  pan: 'Frying Pan',
+};
+
+export function normalize(value: string): string {
+  return normalizeSpaced(value).replace(/ /g, '');
+}
+
+export function normalizeSpaced(value: string): string {
+  return String(value)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+export function buildCatalog(rows: DbRows, staticData: StaticGameData): Catalog {
+  const entities: CatalogEntity[] = [];
+  const byId = new Map<string, CatalogEntity>();
+  const byName = new Map<string, CatalogEntity>();
+  const aliases = new Map<string, Set<string>>();
+  const aliasesSpaced = new Map<string, Set<string>>();
+  const components = new Set(
+    staticData.items.filter((item) => (item.composition ?? []).length === 0).map((item) => item.name)
+  );
+
+  const add = (entity: CatalogEntity) => {
+    if (byId.has(entity.id)) return;
+    entities.push(entity);
+    byId.set(entity.id, entity);
+    if (!byName.has(entity.name)) byName.set(entity.name, entity);
+  };
+
+  const staticChampionByApi = new Map(staticData.champions.map((champion) => [champion.apiName, champion]));
+  const staticChampionByName = new Map(staticData.champions.map((champion) => [normalize(champion.name), champion]));
+  const staticTraitByApi = new Map(staticData.traits.map((trait) => [trait.apiName, trait]));
+  const staticTraitByName = new Map(staticData.traits.map((trait) => [normalize(trait.name), trait]));
+  const staticItemByApi = new Map(staticData.items.map((item) => [item.apiName, item]));
+  const staticItemByName = new Map(staticData.items.map((item) => [normalize(item.name), item]));
+  const staticAugmentByApi = new Map(staticData.augments.map((augment) => [augment.apiName, augment]));
+  const staticAugmentByName = new Map(staticData.augments.map((augment) => [normalize(augment.name), augment]));
+
+  for (const row of rows.champions) {
+    const extra = staticChampionByApi.get(row.api_name) ?? staticChampionByName.get(normalize(row.name));
+    add({
+      id: entityId('champion', row.api_name),
+      type: 'champion',
+      apiName: row.api_name,
+      slug: extra?.slug ?? null,
+      name: row.name,
+      nameVi: extra?.nameVi ?? null,
+      icon: row.icon,
+      cost: row.cost,
+      traits: row.traits ?? [],
+      traitsVi: extra?.traitsVi ?? [],
+      mana: extra?.mana ?? null,
+      ability: extra?.ability
+        ? {
+            name: extra.ability.name,
+            desc: extra.ability.desc,
+            keywords: extra.ability.keywords ?? [],
+            nameVi: extra.ability.nameVi ?? null,
+            descVi: extra.ability.descVi ?? null,
+            keywordsVi: extra.ability.keywordsVi ?? [],
+            icon: extra.ability.icon ?? null,
+          }
+        : null,
+      description: null,
+      descriptionVi: null,
+      composition: [],
+      compositionVi: [],
+      rarity: null,
+      thresholds: [],
+      styles: [],
+      breakpoints: [],
+      breakpointsVi: [],
+    });
+  }
+
+  for (const row of rows.traits) {
+    const extra = staticTraitByApi.get(row.api_name) ?? staticTraitByName.get(normalize(row.name));
+    add({
+      id: entityId('trait', row.api_name),
+      type: 'trait',
+      apiName: row.api_name,
+      slug: extra?.slug ?? null,
+      name: row.name,
+      nameVi: extra?.nameVi ?? null,
+      icon: row.icon,
+      cost: null,
+      traits: [],
+      traitsVi: [],
+      mana: null,
+      ability: null,
+      description: extra?.desc || row.description,
+      descriptionVi: extra?.descVi ?? null,
+      composition: [],
+      compositionVi: [],
+      rarity: null,
+      thresholds: row.thresholds ?? [],
+      styles: row.styles ?? [],
+      breakpoints: extra?.breakpoints ?? [],
+      breakpointsVi: extra?.breakpointsVi ?? [],
+    });
+  }
+
+  for (const row of rows.items) {
+    const extra = staticItemByApi.get(row.api_name) ?? staticItemByName.get(normalize(row.name));
+    add({
+      id: entityId('item', row.api_name),
+      type: 'item',
+      apiName: row.api_name,
+      slug: extra?.slug ?? null,
+      name: row.name,
+      nameVi: extra?.nameVi ?? null,
+      icon: row.icon,
+      cost: null,
+      traits: [],
+      traitsVi: [],
+      mana: null,
+      ability: null,
+      description: extra?.desc || row.description,
+      descriptionVi: extra?.descVi ?? null,
+      composition: row.composition ?? [],
+      compositionVi: extra?.compositionVi ?? [],
+      rarity: null,
+      thresholds: [],
+      styles: [],
+      breakpoints: [],
+      breakpointsVi: [],
+    });
+  }
+
+  for (const row of rows.augments) {
+    const extra = staticAugmentByApi.get(row.api_name) ?? staticAugmentByName.get(normalize(row.name));
+    add({
+      id: entityId('augment', row.api_name),
+      type: 'augment',
+      apiName: row.api_name,
+      slug: extra?.slug ?? null,
+      name: row.name,
+      nameVi: extra?.nameVi ?? null,
+      icon: row.icon,
+      cost: null,
+      traits: [],
+      traitsVi: [],
+      mana: null,
+      ability: null,
+      description: extra?.desc || row.description,
+      descriptionVi: extra?.descVi ?? null,
+      composition: [],
+      compositionVi: [],
+      rarity: row.rarity ?? extra?.rarity ?? null,
+      thresholds: [],
+      styles: [],
+      breakpoints: [],
+      breakpointsVi: [],
+    });
+  }
+
+  const addAlias = (alias: string, entity: CatalogEntity) => {
+    const key = normalize(alias);
+    if (!key) return;
+    const ids = aliases.get(key) ?? new Set<string>();
+    ids.add(entity.id);
+    aliases.set(key, ids);
+
+    const spaced = normalizeSpaced(alias);
+    if (spaced.length < 2) return;
+    const spacedIds = aliasesSpaced.get(spaced) ?? new Set<string>();
+    spacedIds.add(entity.id);
+    aliasesSpaced.set(spaced, spacedIds);
+  };
+
+  for (const entity of entities) {
+    addAlias(entity.name, entity);
+    if (entity.nameVi) addAlias(entity.nameVi, entity);
+    if (entity.apiName) {
+      addAlias(entity.apiName, entity);
+      addAlias(entity.apiName.replace(/^TFT\d*_Augment_/i, ''), entity);
+      addAlias(entity.apiName.replace(/^(TFT\d*_|DA_\d+_|DA_)/i, ''), entity);
+    }
+    if (entity.slug) addAlias(entity.slug, entity);
+  }
+
+  for (const [alias, name] of Object.entries(ITEM_ALIASES)) {
+    const entity = byName.get(name);
+    if (entity) addAlias(alias, entity);
+  }
+  for (const [alias, name] of Object.entries(COMPONENT_ALIASES)) {
+    const entity = byName.get(name);
+    if (entity) addAlias(alias, entity);
+  }
+  for (const [alias, name] of Object.entries(TRAIT_ALIASES)) {
+    const trait = byName.get(name);
+    if (trait) addAlias(alias, trait);
+    const emblem = byName.get(`${name} Emblem`);
+    if (emblem) addAlias(`${alias} emblem`, emblem);
+  }
+
+  return { entities, byId, byName, aliases, aliasesSpaced, components };
+}
+
+export function getCatalogEntity(catalog: Catalog, id: EntityId | string): CatalogEntity | null {
+  return catalog.byId.get(id) ?? null;
+}
+
+export function grantedTrait(catalog: Catalog, entity: CatalogEntity): CatalogEntity | null {
+  if (entity.type !== 'item' || !entity.name.endsWith(' Emblem')) return null;
+  const trait = catalog.byName.get(entity.name.slice(0, -' Emblem'.length).trim());
+  return trait?.type === 'trait' ? trait : null;
+}
+
+function editDistance(a: string, b: string): number {
+  if (Math.abs(a.length - b.length) > 2) return 99;
+  let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i += 1) {
+    const current = [i];
+    for (let j = 1; j <= b.length; j += 1) {
+      current[j] = Math.min(
+        previous[j] + 1,
+        current[j - 1] + 1,
+        previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+    }
+    previous = current;
+  }
+  return previous[b.length];
+}
+
+export function searchCatalog(
+  catalog: Catalog,
+  query: string,
+  type?: GameEntityType | null,
+  limit = 8
+): EntityMatch[] {
+  const normalized = normalize(query);
+  if (!normalized) return [];
+  const aliasIds = catalog.aliases.get(normalized);
+  const matches: EntityMatch[] = [];
+
+  for (const entity of catalog.entities) {
+    if (type && entity.type !== type) continue;
+    const names = [entity.name, entity.nameVi, entity.apiName, entity.slug].filter(
+      (name): name is string => Boolean(name)
+    );
+    let score = 0;
+    if (entity.id === query) score = 120;
+    else if (names.some((name) => normalize(name) === normalized)) score = 100;
+    else if (aliasIds?.has(entity.id)) score = 90;
+    else if (names.some((name) => normalize(name).startsWith(normalized))) score = 80;
+    else if (names.some((name) => normalize(name).includes(normalized))) score = 60;
+    if (score > 0) matches.push({ entity, score });
+  }
+
+  if (!matches.length && normalized.length >= 5) {
+    const fuzzy = new Map<string, EntityMatch>();
+    for (const entity of catalog.entities) {
+      if (type && entity.type !== type) continue;
+      const names = [entity.name, entity.nameVi, entity.apiName, entity.slug].filter(
+        (name): name is string => Boolean(name)
+      );
+      if (names.some((name) => editDistance(normalized, normalize(name)) <= 2)) {
+        fuzzy.set(entity.id, { entity, score: 70 });
+      }
+    }
+    if (fuzzy.size === 1) {
+      const only = [...fuzzy.values()][0];
+      only.score = 80;
+    }
+    matches.push(...fuzzy.values());
+  }
+
+  matches.sort((a, b) => b.score - a.score || a.entity.name.localeCompare(b.entity.name));
+  return matches.slice(0, clampLimit(limit));
+}
+
+export function pickEntityMatch(matches: EntityMatch[]): { entity: CatalogEntity | null; ambiguous: EntityMatch[] } {
+  if (!matches.length) return { entity: null, ambiguous: [] };
+  const top = matches[0];
+  const tied = matches.filter((match) => match.score === top.score);
+  if (top.score >= 80 && tied.length === 1) return { entity: top.entity, ambiguous: [] };
+  return { entity: null, ambiguous: matches.slice(0, 5) };
+}
+
+export function findEntityMentions(catalog: Catalog, text: string, limit = 10): EntityMatch[] {
+  const spaced = ` ${normalizeSpaced(text)} `;
+  if (!spaced.trim()) return [];
+  const found = new Map<string, { entity: CatalogEntity; start: number; length: number }>();
+
+  for (const [alias, ids] of catalog.aliasesSpaced) {
+    const index = spaced.indexOf(` ${alias} `);
+    if (index < 0) continue;
+    const start = index + 1;
+    for (const id of ids) {
+      const entity = catalog.byId.get(id);
+      if (!entity) continue;
+      const existing = found.get(id);
+      if (!existing || start < existing.start || (start === existing.start && alias.length > existing.length)) {
+        found.set(id, { entity, start, length: alias.length });
+      }
+    }
+  }
+
+  const all = [...found.values()];
+  return all
+    .filter(
+      (match) =>
+        !all.some(
+          (other) =>
+            other !== match &&
+            other.length > match.length &&
+            other.start <= match.start &&
+            other.start + other.length >= match.start + match.length
+        )
+    )
+    .sort((a, b) => a.start - b.start || b.length - a.length || a.entity.name.localeCompare(b.entity.name))
+    .slice(0, clampLimit(limit))
+    .map(({ entity }) => ({ entity, score: 100 }));
+}

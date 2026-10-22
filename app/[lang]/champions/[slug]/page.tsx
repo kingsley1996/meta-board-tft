@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Chip, CostDots, ItemTile, Panel, UnitHex, tierColor } from '@/components/ui';
+import { Chip, CostDots, ItemRanking, Panel, UnitHex, tierColor } from '@/components/ui';
 import { PatchBar } from '@/components/patch-bar';
 import type { CompsResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
-import { itemTierByName } from '@/lib/data';
+import { iconByName, itemTierByName, itemTiers, unitStats } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { championDetail, championSlugToName, keywordsFor } from '@/lib/tips';
@@ -35,6 +35,7 @@ export default async function ChampionPage({ params }: { params: Promise<{ lang:
   if (!champion) notFound();
   const t = messages[lang].champion;
   const keywords = keywordsFor(lang);
+  const stats = unitStats[champion.name];
 
   const data = await backendJson<CompsResponse>(`/api/comps?lang=${lang}`);
   const comps = (data?.comps ?? []).filter((comp) =>
@@ -53,7 +54,14 @@ export default async function ChampionPage({ params }: { params: Promise<{ lang:
       for (const item of unit.items) itemCount.set(item.name, (itemCount.get(item.name) ?? 0) + 1);
     }
   }
-  const topItems = [...itemCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const topItems = (stats?.items ?? [...itemCount.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name)).slice(0, 6);
+  const itemRows = topItems.map((name) => ({
+    name,
+    icon: iconByName[name] ?? null,
+    tier: itemTierByName[name] ?? null,
+    note: itemTiers.find((item) => item.name === name)?.note[lang],
+  }));
+  const compact = (value: number) => value >= 1e6 ? `${(value / 1e6).toFixed(1)}M` : value >= 1e3 ? `${(value / 1e3).toFixed(1)}K` : String(value);
 
   return (
     <div className="flex flex-col gap-6">
@@ -104,14 +112,29 @@ export default async function ChampionPage({ params }: { params: Promise<{ lang:
           </Panel>
         ) : null}
         <Panel className="flex flex-col gap-3 p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.items}</p>
-          {topItems.length ? (
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.items}</p>
+            {stats ? <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-soft">{t.stats}</p> : null}
+          </div>
+          {stats ? (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {[
+                [t.avg, stats.avg.toFixed(2)],
+                [t.top4, `${(stats.top4 * 100).toFixed(1)}%`],
+                [t.win, `${(stats.win * 100).toFixed(1)}%`],
+                [t.games, compact(stats.games)],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-lg border border-line bg-ink/40 p-2 text-center">
+                  <p className="font-display text-lg font-bold text-fog">{value}</p>
+                  <p className="text-[11px] uppercase tracking-wide text-mist">{label}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          {itemRows.length ? (
             <>
-              <div className="flex flex-wrap items-center gap-2">
-                {topItems.map(([name]) => (
-                  <ItemTile key={name} name={name} icon={data?.comps.flatMap((comp) => comp.items).find((item) => item.name === name)?.icon ?? null} tier={itemTierByName[name]} size={44} />
-                ))}
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.itemRanking}</p>
+              <ItemRanking items={itemRows} showTier={false} />
               <p className="text-xs leading-relaxed text-mist">{t.itemsNote}</p>
             </>
           ) : (

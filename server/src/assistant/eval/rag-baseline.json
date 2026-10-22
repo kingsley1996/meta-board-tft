@@ -1,0 +1,227 @@
+{
+  "generatedAt": "2026-10-21T10:05:47.727Z",
+  "positives": 32,
+  "negatives": 4,
+  "hitAt1": 0.84375,
+  "hitAt3": 1,
+  "hitAt5": 1,
+  "mrrAt10": 0.9166666666666666,
+  "cases": [
+    {
+      "id": "mechanics-wisp-en",
+      "rank": 1,
+      "top": "mechanics:18:en:wisps:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-wisp-vi",
+      "rank": 1,
+      "top": "mechanics:18:vi:wisps:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-wisp-stage5",
+      "rank": 1,
+      "top": "mechanics:18:en:wisps:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-set18-en",
+      "rank": 1,
+      "top": "mechanics:18:en:set18:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-set18-vi",
+      "rank": 1,
+      "top": "mechanics:18:vi:set18:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-economy-en",
+      "rank": 1,
+      "top": "mechanics:18:en:economy:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-economy-vi",
+      "rank": 2,
+      "top": "tip:tips-commit-to-streak:vi:s0:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-shop-odds-en",
+      "rank": 1,
+      "top": "mechanics:18:en:leveling:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-shop-odds-vi",
+      "rank": 1,
+      "top": "mechanics:18:vi:leveling:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-core-en",
+      "rank": 1,
+      "top": "mechanics:general:en:core:1",
+      "ok": true
+    },
+    {
+      "id": "mechanics-items-en",
+      "rank": 1,
+      "top": "mechanics:general:en:items:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-economy-general",
+      "rank": 1,
+      "top": "mechanics:general:en:economy:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-blossom",
+      "rank": 1,
+      "top": "mechanics:18:en:blossom:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-riftbeast",
+      "rank": 1,
+      "top": "mechanics:18:en:riftbeast:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-coven-en",
+      "rank": 1,
+      "top": "mechanics:18:en:coven:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-coven-vi",
+      "rank": 1,
+      "top": "mechanics:18:vi:coven:0",
+      "ok": true
+    },
+    {
+      "id": "mechanics-bounties",
+      "rank": 1,
+      "top": "mechanics:18:en:bounties:0",
+      "ok": true
+    },
+    {
+      "id": "guide-stage2-economy-en",
+      "rank": 3,
+      "top": "mechanics:general:en:economy:0",
+      "ok": true
+    },
+    {
+      "id": "guide-stage2-economy-vi",
+      "rank": 1,
+      "top": "guide:economy-first-stage-2:vi:summary:0",
+      "ok": true
+    },
+    {
+      "id": "guide-slam-order",
+      "rank": 1,
+      "top": "guide:item-slam-decision:en:s0:0",
+      "ok": true
+    },
+    {
+      "id": "guide-augment-fit",
+      "rank": 1,
+      "top": "guide:augment-tiers-when-s-tier-loses:en:s0:0",
+      "ok": true
+    },
+    {
+      "id": "guide-frontline",
+      "rank": 1,
+      "top": "guide:frontline-positioning-5-minutes:en:summary:0",
+      "ok": true
+    },
+    {
+      "id": "guide-tier-list",
+      "rank": 1,
+      "top": "guide:read-a-tier-list:en:summary:0",
+      "ok": true
+    },
+    {
+      "id": "guide-roll-down",
+      "rank": 1,
+      "top": "guide:rolling-on-8-flowchart:en:s0:0",
+      "ok": true
+    },
+    {
+      "id": "tip-1cost-reroll",
+      "rank": 2,
+      "top": "tip:tips-2cost-reroll-3-2:en:summary:0",
+      "ok": true
+    },
+    {
+      "id": "tip-2cost-reroll",
+      "rank": 2,
+      "top": "tip:tips-4cost-push-8-on-4-2:en:s0:0",
+      "ok": true
+    },
+    {
+      "id": "tip-4cost-reroll",
+      "rank": 1,
+      "top": "tip:tips-4cost-push-8-on-4-2:en:summary:0",
+      "ok": true
+    },
+    {
+      "id": "tip-wound",
+      "rank": 2,
+      "top": "mechanics:general:en:items:0",
+      "ok": true
+    },
+    {
+      "id": "tip-shred",
+      "rank": 1,
+      "top": "tip:tips-build-one-shred-sunder:en:s0:0",
+      "ok": true
+    },
+    {
+      "id": "tip-corner-carry",
+      "rank": 1,
+      "top": "tip:tips-corner-your-ranged-carry:en:summary:0",
+      "ok": true
+    },
+    {
+      "id": "tip-streak-vi",
+      "rank": 1,
+      "top": "tip:tips-commit-to-streak:vi:summary:0",
+      "ok": true
+    },
+    {
+      "id": "tip-interest-vi",
+      "rank": 1,
+      "top": "tip:tips-stage2-interest-line:vi:summary:0",
+      "ok": true
+    },
+    {
+      "id": "negative-capital",
+      "rank": null,
+      "top": null,
+      "ok": true
+    },
+    {
+      "id": "negative-weather",
+      "rank": null,
+      "top": null,
+      "ok": true
+    },
+    {
+      "id": "negative-world-cup",
+      "rank": null,
+      "top": null,
+      "ok": true
+    },
+    {
+      "id": "negative-vague",
+      "rank": null,
+      "top": null,
+      "ok": true
+    }
+  ]
+}

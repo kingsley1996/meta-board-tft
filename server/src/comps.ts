@@ -2,11 +2,18 @@ import { pool } from './db.ts';
 
 const TIERS = ['S', 'A', 'B', 'C', 'X'];
 const STYLES = ['Reroll', 'Fast 8', 'Flex', 'Tempo'];
+const AUGMENT_TYPES = ['ITEMS', 'ECON', 'COMBAT', 'EMBLEM'];
 
 export type BoardUnit = {
   name: string;
   row: number | null;
   col: number | null;
+  stars: number | null;
+  items: string[];
+};
+
+export type AltUnit = {
+  name: string;
   stars: number | null;
   items: string[];
 };
@@ -28,7 +35,8 @@ export type CompInput = {
   tips: string;
   tipsVi: string | null;
   stages: { stage: string; text: string; textVi: string | null }[];
-  alt: string[];
+  alt: AltUnit[];
+  augmentTypes: string[];
   matchups: { slug: string; kind: string }[];
 };
 
@@ -130,7 +138,44 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
   const augments = list(raw.augments);
   if (!augments.length) return fail('at least one augment is required');
 
-  const alt = list(raw.alt);
+  const augmentTypes = [...new Set(list(raw.augmentTypes).map((type) => type.toUpperCase()))];
+  const unknownAugmentType = augmentTypes.find((type) => !AUGMENT_TYPES.includes(type));
+  if (unknownAugmentType) return fail(`unknown augment priority: ${unknownAugmentType}`);
+
+  // Alt builds accept "Name" (admin form) or { name, stars, items } (stored shape).
+  // Names-only saves keep the items/stars already stored for that name. Alt item
+  // names are not checked against `items` because TFT Academy recommends
+  // artifacts that CDragon does not list as completed items.
+  const altEntries = Array.isArray(raw.alt) ? raw.alt : [];
+  const existingAlt = altEntries.some((entry) => typeof entry === 'string')
+    ? (await pool.query("SELECT name, stars, items FROM comp_units WHERE comp_slug = $1 AND role = 'alt' ORDER BY position", [slug])).rows
+    : [];
+  const alt: AltUnit[] = [];
+  for (const entry of altEntries) {
+    let name = '';
+    let stars: number | null = null;
+    let altItems: string[] = [];
+    if (typeof entry === 'string') {
+      name = entry.trim();
+      const index = existingAlt.findIndex((row: { name: string }) => row.name === name);
+      if (index >= 0) {
+        const [row] = existingAlt.splice(index, 1);
+        stars = row.stars ?? null;
+        altItems = row.items ?? [];
+      }
+    } else if (entry && typeof entry === 'object') {
+      const record = entry as Record<string, unknown>;
+      name = str(record.name);
+      stars = cellNumber(record.stars);
+      altItems = list(record.items);
+    }
+    if (!name) continue;
+    if (stars !== null && (!Number.isInteger(stars) || stars < 1 || stars > 3)) {
+      return fail(`alt build ${name} has invalid stars (1-3)`);
+    }
+    if (altItems.length > 3) return fail(`alt build ${name} can hold at most 3 items`);
+    alt.push({ name, stars, items: altItems });
+  }
 
   // Counters: [{ slug, kind: 'good' | 'bad' }], up to 6, other comps only.
   const matchupEntries = Array.isArray(raw.matchups) ? raw.matchups : [];
@@ -163,7 +208,7 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
     .filter((stage) => stage.text);
 
   const known = await nameSets();
-  const unknownUnit = [...unitNames, ...early, ...alt].find((name) => !known.champions.has(name));
+  const unknownUnit = [...unitNames, ...early, ...alt.map((unit) => unit.name)].find((name) => !known.champions.has(name));
   if (unknownUnit) return fail(`unknown champion: ${unknownUnit}`);
   const unknownItem = items.find((name) => !known.items.has(name));
   if (unknownItem) return fail(`unknown item: ${unknownItem}`);
@@ -194,6 +239,7 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
       tipsVi,
       stages,
       alt,
+      augmentTypes,
       matchups,
     },
   };
@@ -204,13 +250,15 @@ export async function writeComp(comp: CompInput): Promise<void> {
   try {
     await client.query('BEGIN');
     await client.query(
-      `INSERT INTO comps (slug, title, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, tips, tips_vi, matchups)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      `INSERT INTO comps (slug, title, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, tips, tips_vi, augment_types, matchups)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, tier = EXCLUDED.tier, style = EXCLUDED.style,
          difficulty = EXCLUDED.difficulty, trend = EXCLUDED.trend, playstyle = EXCLUDED.playstyle,
-         carry = EXCLUDED.carry, tips = EXCLUDED.tips, matchups = EXCLUDED.matchups, updated_at = now()`,
-      [comp.slug, comp.title, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.tips, comp.tipsVi, JSON.stringify(comp.matchups)]
+         playstyle_vi = EXCLUDED.playstyle_vi, carry = EXCLUDED.carry, tips = EXCLUDED.tips,
+         tips_vi = EXCLUDED.tips_vi, augment_types = EXCLUDED.augment_types,
+         matchups = EXCLUDED.matchups, updated_at = now()`,
+      [comp.slug, comp.title, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.tips, comp.tipsVi, comp.augmentTypes, JSON.stringify(comp.matchups)]
     );
     for (const table of ['comp_units', 'comp_items', 'comp_augments']) {
       await client.query(`DELETE FROM ${table} WHERE comp_slug = $1`, [comp.slug]);
@@ -233,7 +281,13 @@ export async function writeComp(comp: CompInput): Promise<void> {
       }
     };
     await insertUnits(comp.early, 'early');
-    await insertUnits(comp.alt, 'alt');
+    for (let position = 0; position < comp.alt.length; position++) {
+      const unit = comp.alt[position];
+      await client.query(
+        'INSERT INTO comp_units (comp_slug, role, position, name, stars, items) VALUES ($1, $2, $3, $4, $5, $6)',
+        [comp.slug, 'alt', position, unit.name, unit.stars, unit.items]
+      );
+    }
     await insertNamed('comp_items', comp.items);
     await insertNamed('comp_augments', comp.augments);
     // Stages upsert instead of delete+insert so an admin save keeps the vi text.
@@ -378,6 +432,7 @@ export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en', sort?: 
         text: vi && entry.text_vi ? entry.text_vi : entry.text,
       })),
       alt: role('alt'),
+      augmentTypes: row.augment_types ?? [],
       matchups: (row.matchups ?? []).flatMap((entry: { slug: string; kind: string }) => {
         const info = matchupInfo.get(entry.slug);
         return info ? [{ slug: entry.slug, kind: entry.kind, title: info.title, tier: info.tier }] : [];

@@ -12,6 +12,7 @@ next-env.d.ts
 !.env.example
 
 # icon downloads — regenerate with `npm run fetch-data` (lib/tft.json is tracked; it's small and the build imports it)
+# loot table art — regenerate with `npm run fetch-loot`
 public/tft/
 scripts/.cache/
 
@@ -35,3 +36,7 @@ capture/tftips/assets-index/
 .DS_Store
 coverage/
 *.log
+
+# playwright
+test-results/
+playwright-report/

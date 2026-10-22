@@ -5,6 +5,7 @@ import { ADMIN_COOKIE, adminToken, cookieValue, tokensMatch } from './auth.ts';
 import { syncTft } from './tft.ts';
 import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
 import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
+import { assistantRouter } from './assistant/index.ts';
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -23,7 +24,7 @@ app.get('/api/comps', async (req, res) => {
   const meta = await getMeta();
   const sort = req.query.sort === 'popular' ? 'popular' : undefined;
   const comps = await listComps(undefined, readLang(req.query.lang), sort);
-  res.json({ patch: { version: meta.patch ?? 'latest', updated: 'via CommunityDragon' }, set: Number(meta.set_number ?? 0), comps });
+  res.json({ patch: { version: meta.patch ?? 'latest', updated: 'via MetaTFT' }, set: Number(meta.set_number ?? 0), comps });
 });
 
 app.get('/api/comps/:slug', async (req, res) => {
@@ -37,7 +38,7 @@ app.get('/api/comps/:slug', async (req, res) => {
 const bumped = new Set<string>();
 
 function bumpOnce(kind: 'vote' | 'view', req: express.Request, res: express.Response) {
-  const slug = req.params.slug;
+  const slug = String(req.params.slug);
   const key = `${kind}:${req.ip}:${slug}`;
   const field = kind === 'vote' ? 'votes' : 'views';
   if (bumped.has(key)) return res.json({ counted: false });
@@ -186,6 +187,8 @@ app.delete('/api/admin/subscribers/:email', async (req, res) => {
   if (!rowCount) return res.status(404).json({ error: 'no such subscriber' });
   res.status(204).end();
 });
+
+app.use('/api/assistant', assistantRouter);
 
 app.use('/api', (_req, res) => res.status(404).json({ error: 'not found' }));
 

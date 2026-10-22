@@ -36,6 +36,14 @@ export default async function GuideArticlePage({ params }: { params: Promise<{ l
           </div>
           <h1 className="font-display text-4xl leading-tight font-bold tracking-tight text-fog md:text-5xl">{guide.title}</h1>
           <p className="text-sm font-semibold text-mist">{t.by} {guide.author} &middot; {guide.date}</p>
+          {guide.slug.startsWith('tips-') ? (
+            <p className="text-xs text-mist">
+              {t.adaptedFrom} &middot;{' '}
+              <a href="https://tftips.app/en/tips/strategy" target="_blank" rel="noopener noreferrer nofollow" className="underline decoration-line underline-offset-2 hover:text-fog">
+                tftips.app
+              </a>
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-col gap-6 text-base leading-relaxed text-mist">
           {guide.sections.map((section) => (

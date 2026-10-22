@@ -124,6 +124,7 @@ export type CompFormComp = {
   tips: string;
   stages: { stage: string; text: string }[];
   alt: string[];
+  augmentTypes?: string[];
   matchups: { slug: string; kind: 'good' | 'bad' }[];
   playstyleVi?: string;
   tipsVi?: string;
@@ -206,6 +207,7 @@ export function CompForm({
     items: comp?.items ?? [],
     augments: comp?.augments ?? [],
     alt: comp?.alt ?? [],
+    augmentTypes: comp?.augmentTypes ?? [],
     matchups: comp?.matchups ?? [],
     tips: comp?.tips ?? '',
     stage2: comp?.stages?.[0]?.text ?? '',
@@ -259,6 +261,7 @@ export function CompForm({
       items: form.items,
       augments: form.augments,
       alt: form.alt,
+      augmentTypes: form.augmentTypes,
       matchups: form.matchups,
       tips: form.tips,
       stages: [

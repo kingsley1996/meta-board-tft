@@ -18,13 +18,15 @@ export const shopOdds: { level: number; odds: number[] }[] = [
 ];
 
 // XP needed to reach each level (2 XP free every round, 4 XP costs 4 gold).
+// Matches the Set 18 leveling table published on tftflow (7→8 costs 56 XP).
 export const xpTable: { level: number; xp: number }[] = [
+  { level: 2, xp: 2 },
   { level: 3, xp: 2 },
   { level: 4, xp: 6 },
   { level: 5, xp: 10 },
   { level: 6, xp: 20 },
   { level: 7, xp: 36 },
-  { level: 8, xp: 60 },
+  { level: 8, xp: 56 },
   { level: 9, xp: 68 },
   { level: 10, xp: 68 },
 ];
