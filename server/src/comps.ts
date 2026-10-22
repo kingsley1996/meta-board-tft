@@ -1,4 +1,5 @@
 import { pool } from './db.ts';
+import { translateText } from './assistant/translate.ts';
 
 const TIERS = ['S', 'A', 'B', 'C', 'X'];
 const STYLES = ['Reroll', 'Fast 8', 'Flex', 'Tempo'];
@@ -419,17 +420,19 @@ export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en', sort?: 
       trend: row.trend ?? null,
       votes: row.votes ?? 0,
       views: row.views ?? 0,
-      playstyle: vi && row.playstyle_vi ? row.playstyle_vi : row.playstyle,
+      playstyle: vi
+        ? translateText('vi', 'comps', 'comp-playstyle', row.playstyle, row.playstyle_vi)
+        : row.playstyle,
       units: role('board'),
       traits: compTraits(compUnits.filter((entry) => entry.role === 'board').map((entry) => entry.name)),
       early: role('early'),
       carry: unit({ name: row.carry }),
       items: (itemsBySlug.get(row.slug) ?? []).map((entry) => icon(entry.name, itemIconByName)),
       augments: (augmentsBySlug.get(row.slug) ?? []).map((entry) => icon(entry.name, augmentIconByName)),
-      tips: vi && row.tips_vi ? row.tips_vi : row.tips,
+      tips: vi ? translateText('vi', 'comps', 'comp-tips', row.tips, row.tips_vi) : row.tips,
       stages: (stagesBySlug.get(row.slug) ?? []).map((entry) => ({
         stage: vi ? `Giai đoạn ${entry.stage}` : `Stage ${entry.stage}`,
-        text: vi && entry.text_vi ? entry.text_vi : entry.text,
+        text: vi ? translateText('vi', 'comps', 'comp-stage', entry.text, entry.text_vi) : entry.text,
       })),
       alt: role('alt'),
       augmentTypes: row.augment_types ?? [],

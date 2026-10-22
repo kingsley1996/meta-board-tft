@@ -9,10 +9,12 @@ import {
 } from '../../../lib/mechanics.ts';
 import type { Lang } from './contracts.ts';
 import { normalizeSpaced } from './entities.ts';
+import { translateText } from './translate.ts';
 
 export type MechanicsEvidence = {
   setId: string;
   setName: string;
+  setNameVi?: string;
   topic: string;
   patch: string;
   rules: string[];
@@ -23,6 +25,7 @@ type RawKeyword = string | { term: string; weight: number };
 type RawTopic = {
   id: string;
   title: string;
+  titleVi?: string;
   keywords: RawKeyword[];
   rules?: LocalizedRules;
   generator?: 'economy' | 'leveling';
@@ -32,6 +35,7 @@ type RawSource = { title: string; url: string; provider: string };
 type RawSet = {
   id: string;
   name: string;
+  nameVi?: string;
   patch: string;
   updated: string;
   source: RawSource;
@@ -48,11 +52,12 @@ type Keyword = { term: string; weight: number };
 type Topic = {
   id: string;
   title: string;
+  titleVi: string;
   keywords: Keyword[];
   minScore: number;
   rules: (lang: Lang) => string[];
 };
-type SetKnowledge = Omit<RawSet, 'topics'> & { topics: Topic[] };
+type SetKnowledge = Omit<RawSet, 'topics'> & { nameVi: string; topics: Topic[] };
 type Knowledge = {
   general: Omit<RawKnowledge['general'], 'topics'> & { topics: Topic[] };
   sets: Record<string, SetKnowledge>;
@@ -119,6 +124,10 @@ function compileTopics(value: unknown, path: string): Topic[] {
     if (seen.has(id)) fail(`${path} has duplicate topic id ${id}`);
     seen.add(id);
     const title = text(topic.title, `${path}[${index}].title`);
+    const titleVi =
+      typeof topic.titleVi === 'string' && topic.titleVi.trim()
+        ? topic.titleVi.trim()
+        : translateText('vi', 'mechanics', 'topic-title', title);
     const keywords = compileKeywords(topic.keywords, `${path}[${index}].keywords`);
     const generator = topic.generator == null ? null : text(topic.generator, `${path}[${index}].generator`);
     if (generator && generator !== 'economy' && generator !== 'leveling') {
@@ -131,6 +140,7 @@ function compileTopics(value: unknown, path: string): Topic[] {
     return {
       id,
       title,
+      titleVi,
       keywords,
       minScore,
       rules:
@@ -145,9 +155,14 @@ function compileTopics(value: unknown, path: string): Topic[] {
 
 function compileSet(value: unknown, path: string): SetKnowledge {
   const set = record(value, path);
+  const name = text(set.name, `${path}.name`);
   return {
     id: text(set.id, `${path}.id`),
-    name: text(set.name, `${path}.name`),
+    name,
+    nameVi:
+      typeof set.nameVi === 'string' && set.nameVi.trim()
+        ? set.nameVi.trim()
+        : translateText('vi', 'mechanics', 'set-name', name),
     patch: text(set.patch, `${path}.patch`),
     updated: text(set.updated, `${path}.updated`),
     source: compileSource(set.source, `${path}.source`),
@@ -270,17 +285,18 @@ export type MechanicsKnowledgeSnapshot = {
     version: string;
     updated: string;
     source: RawSource;
-    topics: { id: string; title: string; rules: { en: string[]; vi: string[] } }[];
+    topics: { id: string; title: string; titleVi: string; rules: { en: string[]; vi: string[] } }[];
   };
   sets: Record<
     string,
     {
       id: string;
       name: string;
+      nameVi: string;
       patch: string;
       updated: string;
       source: RawSource;
-      topics: { id: string; title: string; rules: { en: string[]; vi: string[] } }[];
+      topics: { id: string; title: string; titleVi: string; rules: { en: string[]; vi: string[] } }[];
     }
   >;
 };
@@ -290,6 +306,7 @@ export function mechanicsKnowledgeSnapshot(): MechanicsKnowledgeSnapshot {
     entries.map((topic) => ({
       id: topic.id,
       title: topic.title,
+      titleVi: topic.titleVi,
       rules: { en: topic.rules('en'), vi: topic.rules('vi') },
     }));
   const sets = Object.fromEntries(
@@ -298,6 +315,7 @@ export function mechanicsKnowledgeSnapshot(): MechanicsKnowledgeSnapshot {
       {
         id: set.id,
         name: set.name,
+        nameVi: set.nameVi,
         patch: set.patch,
         updated: set.updated,
         source: set.source,
@@ -317,11 +335,14 @@ export function mechanicsKnowledgeSnapshot(): MechanicsKnowledgeSnapshot {
   };
 }
 
-export const mechanicsSource = (setId: string = KNOWLEDGE.defaultSet) => {
+export const mechanicsSource = (setId: string = KNOWLEDGE.defaultSet, lang: Lang = 'en') => {
   const set = KNOWLEDGE.sets[setId];
   const source = set?.source ?? KNOWLEDGE.general.source;
+  const setName = set && lang === 'vi' ? set.nameVi : set?.name;
   return {
-    title: set ? `${set.name} mechanics` : 'TFT mechanics',
+    title: set
+      ? lang === 'vi' ? `Cơ chế ${setName}` : `${setName} mechanics`
+      : lang === 'vi' ? 'Cơ chế TFT' : 'TFT mechanics',
     url: source.url,
     provider: source.provider,
     patch: set?.patch ?? 'latest',
@@ -347,6 +368,7 @@ export function mechanicsFor(text: string, lang: Lang, setId: string = KNOWLEDGE
   return {
     setId: set?.id ?? setId,
     setName: set?.name ?? 'TFT',
+    setNameVi: set?.nameVi ?? 'TFT',
     topic: matched.map((entry) => entry.topic.id).join(','),
     patch: set?.patch ?? 'latest',
     rules,
@@ -354,8 +376,9 @@ export function mechanicsFor(text: string, lang: Lang, setId: string = KNOWLEDGE
 }
 
 export function mechanicsAnswer(evidence: MechanicsEvidence, lang: Lang): string {
+  const setName = lang === 'vi' ? evidence.setNameVi ?? evidence.setName : evidence.setName;
   const intro = isVi(lang)
-    ? `Theo luật ${evidence.setName} (patch ${evidence.patch}):`
-    : `Under ${evidence.setName} rules (patch ${evidence.patch}):`;
+    ? `Theo luật ${setName} (patch ${evidence.patch}):`
+    : `Under ${setName} rules (patch ${evidence.patch}):`;
   return `${intro} ${evidence.rules.join(' ')}`;
 }

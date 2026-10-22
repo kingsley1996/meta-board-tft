@@ -1,4 +1,5 @@
 import { pool } from './db.ts';
+import { translateText } from './assistant/translate.ts';
 
 export type GuideSection = { heading: string; body: string[]; list?: string[] };
 
@@ -112,20 +113,44 @@ export async function listGuides(lang: 'en' | 'vi' = 'en', slug?: string): Promi
     slug ? 'SELECT * FROM guides WHERE slug = $1' : 'SELECT * FROM guides ORDER BY published_on DESC, slug',
     slug ? [slug] : []
   );
-  return rows.rows.map((row: any) => ({
-    slug: row.slug,
-    author: row.author,
-    authorSlug: row.author_slug,
-    date: formatDate(row.published_on, lang),
-    publishedOn: row.published_on,
-    title: vi && row.title_vi ? row.title_vi : row.title,
-    excerpt: vi && row.excerpt_vi ? row.excerpt_vi : row.excerpt,
-    tags: row.tags ?? [],
-    featured: row.featured === true,
-    sections: vi && row.sections_vi ? row.sections_vi : row.sections,
-    // Raw English values for the admin editor prefill.
-    titleEn: row.title,
-    excerptEn: row.excerpt,
-    sectionsEn: row.sections,
-  }));
+  return rows.rows.map((row: any) => {
+    const surface = row.slug.startsWith('tips-') ? 'tips' : 'guides';
+    const sections = (row.sections ?? []).map((section: GuideSection, index: number) => {
+      if (!vi) return section;
+      const translated = row.sections_vi?.[index] ?? {};
+      return {
+        heading: translateText(lang, surface, 'section-heading', section.heading, translated.heading),
+        body: section.body.map((text, textIndex) =>
+          translateText(lang, surface, 'article-paragraph', text, translated.body?.[textIndex]),
+        ),
+        ...(section.list
+          ? {
+              list: section.list.map((text, textIndex) =>
+                translateText(lang, surface, 'article-list-item', text, translated.list?.[textIndex]),
+              ),
+            }
+          : {}),
+      };
+    });
+    return {
+      slug: row.slug,
+      author: row.author,
+      authorSlug: row.author_slug,
+      date: formatDate(row.published_on, lang),
+      publishedOn: row.published_on,
+      title: vi
+        ? translateText(lang, surface, 'article-title', row.title, row.title_vi)
+        : row.title,
+      excerpt: vi
+        ? translateText(lang, surface, 'article-excerpt', row.excerpt, row.excerpt_vi)
+        : row.excerpt,
+      tags: row.tags ?? [],
+      featured: row.featured === true,
+      sections,
+      // Raw English values for the admin editor prefill.
+      titleEn: row.title,
+      excerptEn: row.excerpt,
+      sectionsEn: row.sections,
+    };
+  });
 }

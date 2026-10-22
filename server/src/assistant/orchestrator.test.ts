@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { CatalogEntity, CompData } from './contracts.ts';
-import { detectIntent, isPromptInjection, ungroundedNumbers } from './orchestrator.ts';
+import { detectIntent, isPromptInjection, isReferenceDataQuestion, ungroundedNumbers } from './orchestrator.ts';
 import type { Evidence } from './prompt.ts';
 
 const ahri = { type: 'champion', id: 'champion:DA_18_Ahri' } as unknown as CatalogEntity;
@@ -39,6 +39,13 @@ test('intent routing distinguishes lookup, recommendation and comparison', () =>
   assert.equal(detectIntent('comp nao de choi nhat cho nguoi moi', [], []), 'comp_recommendation');
   assert.equal(detectIntent('what is the easiest comp for a beginner', [], []), 'comp_recommendation');
   assert.equal(detectIntent('so sanh ahri morgana', [ahri], [comp]), 'comp_comparison');
+});
+
+test('routes static mechanic tables and economy plans to reference tools, not live-match strategy analysis', () => {
+  assert.equal(isReferenceDataQuestion('Bảng tỉ lệ shop ở cấp 7'), true);
+  assert.equal(isReferenceDataQuestion('Fast 8 economy plan'), true);
+  assert.equal(isReferenceDataQuestion('level 7 40 vàng 30 HP nên roll hay lên 8'), false);
+  assert.equal(isReferenceDataQuestion('How does a 6-win streak affect gold income?'), true);
 });
 
 test('item names containing buff are lookups, not patch changes', () => {

@@ -49,3 +49,19 @@ test('header search is localized and stays inside a mobile viewport', async ({ p
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(overflow).toBe(false);
 });
+
+test('desktop navigation dropdown closes after selecting an item', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/en');
+
+  const menu = page.locator('[data-section="menu"]');
+  const database = menu.getByRole('button', { name: 'Database' });
+  await database.hover();
+
+  const champions = menu.getByRole('link', { name: 'Champions', exact: true });
+  await expect(champions).toBeVisible();
+  await champions.click();
+
+  await expect(page).toHaveURL(/\/en\/champions$/);
+  await expect(champions).toBeHidden();
+});

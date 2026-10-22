@@ -7,6 +7,7 @@ import { backendJson } from '@/lib/backend';
 import { economyForComp, economyStrategies } from '@/lib/economy';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+import { translateText } from '@/lib/translate';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
   const { lang } = await params;
@@ -38,7 +39,9 @@ export default async function EconomyPage({ params }: { params: Promise<{ lang: 
         return (
           <section key={strategy.id} id={strategy.id} className="flex scroll-mt-20 flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="font-display text-2xl font-bold tracking-tight text-fog">{strategy.name}</h2>
+              <h2 className="font-display text-2xl font-bold tracking-tight text-fog">
+                {translateText(lang, 'economy', 'strategy-name', strategy.name)}
+              </h2>
               <span className="rounded-full border border-line bg-util px-2.5 py-0.5 text-xs font-semibold text-mist">
                 {t.compsCount(players.length)}
               </span>
@@ -49,7 +52,9 @@ export default async function EconomyPage({ params }: { params: Promise<{ lang: 
                 {strategy.rounds.map((round) => (
                   <li key={round.round} className="flex flex-col gap-1 border-b border-line/50 pb-2 last:border-b-0 last:pb-0 sm:flex-row sm:gap-4">
                     <span className="w-20 shrink-0 font-display text-sm font-bold text-brand-soft">{round.round}</span>
-                    <span className="text-sm leading-relaxed text-mist">{round.text}</span>
+                    <span className="text-sm leading-relaxed text-mist">
+                      {translateText(lang, 'economy', 'round-plan', round.text)}
+                    </span>
                   </li>
                 ))}
               </ol>

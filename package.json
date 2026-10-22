@@ -10,6 +10,7 @@
     "fetch-wisps": "node scripts/fetch-wisps.mjs",
     "fetch-loot": "node scripts/fetch-loot-tables.mjs",
     "fetch-comp-tips": "node scripts/fetch-tftacademy-tips.mjs",
+    "extract-translations": "node scripts/extract-translation-tasks.mjs",
     "test:server": "npm --prefix server test",
     "typecheck": "tsc --noEmit && tsc -p server/tsconfig.json --noEmit",
     "test:e2e": "playwright test",
