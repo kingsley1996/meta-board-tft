@@ -20,7 +20,7 @@ test('comp page opens the assistant with comp context', async ({ page }) => {
 test('mobile assistant has no horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/vi/assistant');
-  await expect(page).toHaveTitle(/Trợ lý/);
+  await expect(page).toHaveTitle(/Coach AI/);
 
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth

@@ -212,6 +212,16 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href={`/${lang}/assistant`}
+              className="smooth ml-auto inline-flex items-center gap-2 rounded-lg border border-brand/50 bg-brand/15 px-4 py-1.5 text-sm font-bold text-brand-soft hover:border-brand-soft hover:bg-brand/25"
+            >
+              <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 fill-none stroke-current stroke-[1.7]">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m10 2 1.5 4.5L16 8l-4.5 1.5L10 14l-1.5-4.5L4 8l4.5-1.5L10 2Z" />
+                <path strokeLinecap="round" d="m16 13 .8 1.7 1.7.8-1.7.8L16 18l-.8-1.7-1.7-.8 1.7-.8L16 13Z" />
+              </svg>
+              {t.assistant}
+            </Link>
           </nav>
         </div>
       </div>
