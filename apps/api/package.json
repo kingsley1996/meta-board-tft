@@ -1,0 +1,32 @@
+{
+  "name": "@metaboard/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=.env src/index.ts",
+    "start": "node src/index.ts",
+    "seed": "node --env-file-if-exists=.env seed/seed.ts",
+    "seed:economy": "node --env-file-if-exists=.env seed/add-economy-comps.ts",
+    "test": "node --test src/assistant/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "eval": "node --env-file-if-exists=.env src/assistant/eval/run.ts",
+    "build:knowledge": "node src/assistant/eval/build-knowledge.ts",
+    "test:rag": "node src/assistant/eval/rag.ts",
+    "test:accuracy": "node --env-file-if-exists=.env src/assistant/eval/accuracy.ts"
+  },
+  "dependencies": {
+    "@metaboard/shared": "*",
+    "express": "^5.1.0",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.23.1",
+    "typescript": "^5.9.0"
+  }
+}

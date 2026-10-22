@@ -4,6 +4,8 @@ Trạng thái: **M0–M3 MVP đã triển khai — provider Ollama local + `qwen
 Spec gốc: `tft-assistant-feature-spec.md` (root repo).
 Phạm vi MVP: read-only lookup + comp recommendation trên dữ liệu hiện có, text-first, tiếng Việt/tiếng Anh.
 
+> Cập nhật cấu trúc: repo hiện dùng npm workspaces. Frontend nằm trong `apps/web`, API trong `apps/api`, và code/data dùng chung trong `packages/shared`. README ở root là hướng dẫn hiện hành; các path cũ dưới đây là ghi chú theo thời điểm triển khai từng milestone.
+
 ---
 
 ## 1. M0 — Repository discovery

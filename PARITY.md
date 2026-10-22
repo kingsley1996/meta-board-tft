@@ -1,6 +1,8 @@
 # Parity report — MetaBoard (reference build of tftacademy.com)
 
-Lane: **reference build**. The source site belongs to a third party with no authorization to copy, so nothing of its brand was reproduced: name, logo, palette, typefaces, copy and imagery are MetaBoard's own. The capture in `capture/` is the pattern record; the rebuild is in the repo root.
+Lane: **reference build**. The source site belongs to a third party with no authorization to copy, so nothing of its brand was reproduced: name, logo, palette, typefaces, copy and imagery are MetaBoard's own. The capture in `capture/` is the pattern record; the rebuild is in `apps/web/`.
+
+Current workspace layout and deployment commands are documented in [`README.md`](./README.md). Some file paths in this historical parity report predate the move to `apps/web`, `apps/api`, and `packages/shared`.
 
 Acceptance test for this lane: user review + side-by-side confirming brand difference. No pixel-diff target was set. Screenshots: `capture/source/<page>/page-*.png` vs `capture/rebuild/<page>/page-*.png` at 390/768/1440.
 
@@ -137,11 +139,15 @@ brew install postgresql@17 && brew services start postgresql@17
 psql -d postgres -c "CREATE ROLE metaboard WITH LOGIN PASSWORD 'metaboard';" -c "CREATE DATABASE metaboard OWNER metaboard;"
 
 # backend (:4000) — first run applies the schema and seeds the data
-cd server && npm install && npm run seed && npm run dev
+npm install
+npm run seed --workspace @metaboard/api
+npm run dev:api
+npm run dev:web
 
-# frontend (:3001 dev / :4173 prod) — separate terminal
-npm install && npm run dev
-npm run build && npm run start   # production preview on :4173
+# Each workspace can be built and started independently.
+npm run build --workspace @metaboard/web
+npm run start --workspace @metaboard/web
+npm run start --workspace @metaboard/api
 
 curl http://localhost:4173/en/tierlist/comps                  # public site (vi at /vi/...)
 curl http://localhost:4173/api/comps                          # through the Next proxy
@@ -149,8 +155,8 @@ curl http://localhost:4000/api/comps                          # direct to the ba
 curl -X POST -H "Authorization: Bearer $REFRESH_TOKEN" http://localhost:4000/api/tft/refresh   # REFRESH_TOKEN in server/.env
 
 # admin: open http://localhost:4173/admin and sign in with ADMIN_PASSWORD (server/.env, mirrored in .env.local)
-# full set update: npm run fetch-data (repo root, downloads icons + lib/tft.json) → rebuild Next → POST /api/tft/refresh
-# meta snapshot: node scripts/fetch-metatft.mjs (writes lib/meta.json + server/seed/comps.json) → npm run seed in server/
+# full set update: npm run fetch-data → rebuild web → POST /api/tft/refresh
+# meta snapshot: npm run fetch-data → npm run seed --workspace @metaboard/api
 node capture/shots.mjs capture/sources-rebuild.json capture/sections-rebuild.json capture/rebuild http://localhost:4173   # recapture rebuild
 node capture/check-rebuild.mjs http://localhost:4173   # console/network/focus sanity check
 ```
