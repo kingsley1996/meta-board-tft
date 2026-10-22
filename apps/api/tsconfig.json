@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@metaboard/shared/mechanics": ["../../packages/shared/src/mechanics.ts"],
+      "@metaboard/shared/economy-match": ["../../packages/shared/src/economy-match.ts"],
+      "@metaboard/shared/translation-id": ["../../packages/shared/src/translation-id.ts"],
+      "@metaboard/shared/data/*": ["../../packages/shared/data/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "seed/**/*.ts"]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@metaboard/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./mechanics": "./src/mechanics.ts",
+    "./economy-match": "./src/economy-match.ts",
+    "./translation-id": "./src/translation-id.ts",
+    "./data/*.json": "./data/*.json"
+  }
+}
