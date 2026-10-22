@@ -31,3 +31,28 @@ test('mobile header stays a single row without the menu row', async ({ page }) =
   await menu.getByRole('link', { name: 'Tướng', exact: true }).click();
   await expect(page).toHaveURL(/\/vi\/champions$/);
 });
+
+test('assistant is promoted on the home page and directly linked from desktop navigation', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/vi');
+
+  const hero = page.locator('[data-section="hero"]');
+  const bannerResponse = await page.request.get('/images/tft/enchanted-wilds-banner.webp');
+  expect(bannerResponse.ok()).toBeTruthy();
+  await expect.poll(() => hero.evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('enchanted-wilds-banner.webp');
+  const coachMascot = page.locator('img[src*="coach-mascot"]');
+  await expect(coachMascot).toBeVisible();
+  await expect.poll(() => coachMascot.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+
+  const spotlight = page.locator('[data-section="assistant-spotlight"]');
+  await expect(spotlight.getByRole('heading', { name: 'Tự tin chọn nước đi tiếp theo.' })).toBeVisible();
+  await spotlight.getByRole('link', { name: 'Hỏi Coach AI' }).click();
+  await expect(page).toHaveURL(/\/vi\/assistant$/);
+
+  await page.goto('/en');
+  await expect(page.locator('[data-section="menu"]').getByRole('link', { name: 'Coach AI', exact: true })).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/vi');
+  await expect(page.locator('[data-section="assistant-spotlight"]').getByRole('link', { name: 'Hỏi Coach AI' })).toBeVisible();
+});
