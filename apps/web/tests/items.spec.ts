@@ -20,3 +20,17 @@ test('localized item tabs show Vietnamese radiant names', async ({ page }) => {
   await expect(page.getByText('Mũ Phù Thủy Rabadon Ánh Sáng')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Ánh sáng', exact: true })).toBeVisible();
 });
+
+test('recipes with repeated components do not produce duplicate React keys', async ({ page }) => {
+  const duplicateKeyWarnings: string[] = [];
+  page.on('console', (message) => {
+    if (/same key/i.test(message.text())) duplicateKeyWarnings.push(message.text());
+  });
+
+  await page.goto('/vi/items?type=completed');
+  await expect(page.getByText('Mũ Phù Thủy Rabadon', { exact: true })).toBeVisible();
+
+  await page.goto('/vi/items/tft-item-rabadonsdeathcap');
+  await expect(page.getByText('Gậy Quá Khổ', { exact: true })).toHaveCount(2);
+  await expect.poll(() => duplicateKeyWarnings).toEqual([]);
+});

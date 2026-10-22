@@ -81,8 +81,8 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
                 {tip?.kind === 'item' && tip.composition.length ? (
                   <span className="flex items-center gap-1.5 text-xs text-mist">
                     <span className="font-semibold">{t.buildsFrom}</span>
-                    {tip.composition.map((component) => (
-                      <span key={component.name} className="flex items-center gap-1">
+                    {tip.composition.map((component, index) => (
+                      <span key={`${component.name}-${index}`} className="flex items-center gap-1">
                         {component.icon ? <img src={component.icon} alt="" loading="lazy" className="h-5 w-5 rounded" /> : null}
                         {component.name}
                       </span>

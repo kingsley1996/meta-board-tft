@@ -159,8 +159,8 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.augments}</p>
           <div className="grid grid-cols-4 gap-2">
-            {comp.augments.slice(0, 8).map((augment) => (
-              <AugmentTile key={augment.name} name={augment.name} icon={augment.icon} size={44} />
+            {comp.augments.slice(0, 8).map((augment, index) => (
+              <AugmentTile key={`${augment.name}-${index}`} name={augment.name} icon={augment.icon} size={44} />
             ))}
           </div>
         </div>
