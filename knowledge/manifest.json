@@ -1,0 +1,396 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-22T07:27:37.779Z",
+  "counts": {
+    "sources": 29,
+    "chunks": 184,
+    "byType": {
+      "mechanics": 54,
+      "guide": 36,
+      "tip": 94
+    },
+    "byLang": {
+      "en": 92,
+      "vi": 92
+    }
+  },
+  "sources": [
+    {
+      "sourceId": "guide:augment-tiers-when-s-tier-loses",
+      "sourceType": "guide",
+      "title": "Augment tiers: when the S-tier pick loses",
+      "url": "/guides/augment-tiers-when-s-tier-loses",
+      "version": "2026-09-02",
+      "updated": "2026-09-02",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "guide:economy-first-stage-2",
+      "sourceType": "guide",
+      "title": "Economy first: why your stage 2 decides your stage 5",
+      "url": "/guides/economy-first-stage-2",
+      "version": "2026-10-12",
+      "updated": "2026-10-12",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "guide:frontline-positioning-5-minutes",
+      "sourceType": "guide",
+      "title": "Frontline positioning in 5 minutes",
+      "url": "/guides/frontline-positioning-5-minutes",
+      "version": "2026-09-22",
+      "updated": "2026-09-22",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "guide:item-slam-decision",
+      "sourceType": "guide",
+      "title": "Item slams: the 8-second decision",
+      "url": "/guides/item-slam-decision",
+      "version": "2026-10-08",
+      "updated": "2026-10-08",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "guide:read-a-tier-list",
+      "sourceType": "guide",
+      "title": "How to read a tier list without copying it",
+      "url": "/guides/read-a-tier-list",
+      "version": "2026-09-15",
+      "updated": "2026-09-15",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "guide:rolling-on-8-flowchart",
+      "sourceType": "guide",
+      "title": "Rolling on 8: a flowchart that actually works",
+      "url": "/guides/rolling-on-8-flowchart",
+      "version": "2026-09-30",
+      "updated": "2026-09-30",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "mechanics:18",
+      "sourceType": "mechanics",
+      "title": "Set 18 — Enchanted Wilds",
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/enchanted-wilds-overview/",
+      "version": "18.4",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 38
+    },
+    {
+      "sourceId": "mechanics:general",
+      "sourceType": "mechanics",
+      "title": "General TFT mechanics",
+      "url": "https://teamfighttactics.leagueoflegends.com/en-us/",
+      "version": "1",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 16
+    },
+    {
+      "sourceId": "tip:tips-1cost-reroll-hold-level",
+      "sourceType": "tip",
+      "title": "1-cost reroll: hold your level until the 3-star lands",
+      "url": "/guides/tips-1cost-reroll-hold-level",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "tip:tips-2cost-reroll-3-2",
+      "sourceType": "tip",
+      "title": "2-cost reroll: level 6 on 3-2, then stabilize",
+      "url": "/guides/tips-2cost-reroll-3-2",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "tip:tips-4cost-push-8-on-4-2",
+      "sourceType": "tip",
+      "title": "4-cost comps: push level 8 on 4-2",
+      "url": "/guides/tips-4cost-push-8-on-4-2",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "tip:tips-avoid-contested-lines",
+      "sourceType": "tip",
+      "title": "Play the uncontested line, unless you are the strongest contestant",
+      "url": "/guides/tips-avoid-contested-lines",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-build-one-shred-sunder",
+      "sourceType": "tip",
+      "title": "Build exactly one Shred or Sunder item",
+      "url": "/guides/tips-build-one-shred-sunder",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-build-one-wound",
+      "sourceType": "tip",
+      "title": "Build exactly one Wound item",
+      "url": "/guides/tips-build-one-wound",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-commit-to-streak",
+      "sourceType": "tip",
+      "title": "Commit to your streak: stop alternating wins and losses",
+      "url": "/guides/tips-commit-to-streak",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "tip:tips-corner-your-ranged-carry",
+      "sourceType": "tip",
+      "title": "Put ranged carries in the corner",
+      "url": "/guides/tips-corner-your-ranged-carry",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-debuffs-follow-carry",
+      "sourceType": "tip",
+      "title": "Debuffs belong on the carry side",
+      "url": "/guides/tips-debuffs-follow-carry",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-kill-squishies-first",
+      "sourceType": "tip",
+      "title": "Aim your damage at the squishies first",
+      "url": "/guides/tips-kill-squishies-first",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-level-at-clean-breakpoints",
+      "sourceType": "tip",
+      "title": "Level on clean XP rounds: 3-2, 3-5, 4-2, 4-5",
+      "url": "/guides/tips-level-at-clean-breakpoints",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-play-2star-1cost-early",
+      "sourceType": "tip",
+      "title": "Early game: slam items on 2-star 1-costs and ride them",
+      "url": "/guides/tips-play-2star-1cost-early",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-roll-at-right-level",
+      "sourceType": "tip",
+      "title": "Roll at the level your carry lives in",
+      "url": "/guides/tips-roll-at-right-level",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-scout-next-opponents",
+      "sourceType": "tip",
+      "title": "Scout the two icons before you position",
+      "url": "/guides/tips-scout-next-opponents",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-slam-components-cap-3",
+      "sourceType": "tip",
+      "title": "Never hold more than 3 components",
+      "url": "/guides/tips-slam-components-cap-3",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-slam-everything-on-5-1",
+      "sourceType": "tip",
+      "title": "On 5-1, slam everything",
+      "url": "/guides/tips-slam-everything-on-5-1",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-spend-gold-when-dying",
+      "sourceType": "tip",
+      "title": "Below 30 HP: your gold is only worth what it saves now",
+      "url": "/guides/tips-spend-gold-when-dying",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 6
+    },
+    {
+      "sourceId": "tip:tips-stack-3-items-one-carry",
+      "sourceType": "tip",
+      "title": "Three items on one carry beats two on three units",
+      "url": "/guides/tips-stack-3-items-one-carry",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-stage2-interest-line",
+      "sourceType": "tip",
+      "title": "Stage 2 interest: 10 gold by 2-3, 20 by 2-6",
+      "url": "/guides/tips-stage2-interest-line",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-stop-at-2star-non-carry",
+      "sourceType": "tip",
+      "title": "Stop at 2 stars for non-carries in reroll comps",
+      "url": "/guides/tips-stop-at-2star-non-carry",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    },
+    {
+      "sourceId": "tip:tips-tank-same-side-as-carry",
+      "sourceType": "tip",
+      "title": "Tank on the same side as the carry",
+      "url": "/guides/tips-tank-same-side-as-carry",
+      "version": "2026-10-21",
+      "updated": "2026-10-21",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 4
+    }
+  ]
+}

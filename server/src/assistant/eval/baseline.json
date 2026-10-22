@@ -1,0 +1,222 @@
+{
+  "generatedAt": "2026-10-21T07:36:07.503Z",
+  "cases": [
+    {
+      "id": "lookup-ahri-vi",
+      "intent": "entity_lookup",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "lookup-ahri-en",
+      "intent": "entity_lookup",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "lookup-ahri-no-diacritics",
+      "intent": "entity_lookup",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "lookup-item",
+      "intent": "entity_lookup",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "lookup-item-apostrophe",
+      "intent": "entity_lookup",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "lookup-trait",
+      "intent": "entity_lookup",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "lookup-augment",
+      "intent": "entity_lookup",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "comp-title",
+      "intent": "comp_search",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "comp-slug",
+      "intent": "comp_search",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "recommend-champion",
+      "intent": "comp_recommendation",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "recommend-items",
+      "intent": "comp_recommendation",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "recommend-component",
+      "intent": "comp_recommendation",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "recommend-augment",
+      "intent": "comp_recommendation",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "compare-en",
+      "intent": "comp_comparison",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "compare-vi",
+      "intent": "comp_comparison",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "compare-one",
+      "intent": "comp_comparison",
+      "status": "needs_clarification",
+      "mode": "deterministic",
+      "ok": true
+    },
+    {
+      "id": "ambiguous-champions",
+      "intent": "entity_lookup",
+      "status": "needs_clarification",
+      "mode": "deterministic",
+      "ok": true
+    },
+    {
+      "id": "stat-winrate",
+      "intent": "meta_query",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "stat-winrate-vi",
+      "intent": "meta_query",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "stat-top4",
+      "intent": "meta_query",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "patch-en",
+      "intent": "patch_change",
+      "status": "unsupported",
+      "mode": "deterministic",
+      "ok": true
+    },
+    {
+      "id": "patch-vi",
+      "intent": "patch_change",
+      "status": "unsupported",
+      "mode": "deterministic",
+      "ok": true
+    },
+    {
+      "id": "set-en",
+      "intent": "set_patch",
+      "status": "answered",
+      "mode": "deterministic",
+      "ok": true
+    },
+    {
+      "id": "set-vi",
+      "intent": "set_patch",
+      "status": "answered",
+      "mode": "deterministic",
+      "ok": true
+    },
+    {
+      "id": "out-of-scope",
+      "intent": "unsupported_or_unknown",
+      "status": "unsupported",
+      "mode": "deterministic",
+      "ok": true
+    },
+    {
+      "id": "injection-stat",
+      "intent": "meta_query",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "injection-prompt",
+      "intent": "unsupported_or_unknown",
+      "status": "unsupported",
+      "mode": "deterministic",
+      "ok": true
+    },
+    {
+      "id": "context-comp",
+      "intent": "comp_search",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "context-champion",
+      "intent": "comp_recommendation",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    },
+    {
+      "id": "unknown-entity",
+      "intent": "unsupported_or_unknown",
+      "status": "unsupported",
+      "mode": "deterministic",
+      "ok": true
+    },
+    {
+      "id": "lookup-fae-emblem",
+      "intent": "gameplay_knowledge",
+      "status": "answered",
+      "mode": "llm",
+      "ok": true
+    }
+  ]
+}

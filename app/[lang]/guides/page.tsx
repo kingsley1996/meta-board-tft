@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 }
 
 // Tag order for the filter chips; unknown tags from the CMS are appended.
-const tagOrder = ['Fundamentals', 'Economy', 'Items', 'Positioning', 'Augments', 'Meta', 'Patch notes'];
+const tagOrder = ['Fundamentals', 'Economy', 'Leveling', 'Items', 'Positioning', 'Augments', 'Meta', 'Patch notes'];
 
 export default async function GuidesPage({ params, searchParams }: { params: Promise<{ lang: Lang }>; searchParams: Promise<{ tag?: string }> }) {
   const { lang } = await params;

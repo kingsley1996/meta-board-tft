@@ -125,6 +125,9 @@ ALTER TABLE comps ADD COLUMN IF NOT EXISTS playstyle_vi text;
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS tips_vi text;
 ALTER TABLE comp_stages ADD COLUMN IF NOT EXISTS text_vi text;
 
+-- Augment priority order shown in the comp panel, e.g. {ITEMS,ECON,COMBAT}.
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS augment_types text[] NOT NULL DEFAULT '{}';
+
 -- Guides: authored articles edited through /admin/guides. published_on is an
 -- ISO date string (YYYY-MM-DD); sections is [{ heading, body: [], list?: [] }].
 CREATE TABLE IF NOT EXISTS guides (

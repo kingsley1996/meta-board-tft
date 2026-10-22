@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ApiComp, ApiUnit } from '@/lib/api';
-import { itemTierByName, units } from '@/lib/data';
+import { itemTierByName, unitStats, units } from '@/lib/data';
+import { economyForComp, economyStrategyByName } from '@/lib/economy';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { championNameToSlug, traitStyleColors } from '@/lib/tips';
@@ -11,15 +12,22 @@ import { AugmentTile, Chip, CostDots, ItemHex, ItemRanking, Panel, UnitHex } fro
 // Fallback hexes (row-major index) for comps saved before the board editor existed.
 const fallbackCells = [3, 9, 10, 17, 23, 24, 30];
 
-// Comp context for the hover card: trait counts for this unit + the comp's
-// item priority, read by HoverCardLayer via data-tip-traits / data-tip-items.
+// Comp context for the hover card: trait counts and the unit's MetaTFT
+// item priority, read via data-tip-traits / data-tip-items.
 function unitTipContext(comp: ApiComp, unit: ApiUnit) {
   const counts = new Map(comp.traits.map((trait) => [trait.name, trait.count]));
   const traits = (units.find((entry) => entry.name === unit.name)?.traits ?? [])
     .filter((name) => (counts.get(name) ?? 0) > 0)
     .map((name) => `${name}:${counts.get(name)}`)
     .join(',');
-  return { traits, items: comp.items.map((item) => item.name).join('|') };
+  const priority = unitStats[unit.name]?.items ?? unit.items.map((item) => item.name);
+  return { traits, items: priority.slice(0, 3).join('|') };
+}
+
+// Alt builds carry their own items, so show those instead of MetaTFT priority.
+function altTipContext(comp: ApiComp, unit: ApiUnit) {
+  const context = unitTipContext(comp, unit);
+  return { ...context, items: unit.items.length ? unit.items.map((item) => item.name).join('|') : context.items };
 }
 
 function UnitTile({ unit, size = 54, fill = false, context }: { unit: ApiUnit; size?: number; fill?: boolean; context?: { traits: string; items: string } }) {
@@ -86,15 +94,25 @@ function TraitChip({ trait }: { trait: ApiComp['traits'][number] }) {
 
 export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
   const t = messages[lang].compPanel;
+  const economy = economyForComp({ style: comp.style, carry: comp.carry, units: comp.units });
   return (
     <div data-section="comp-panel" className="grid gap-4 rounded-xl border border-line bg-page p-4 lg:grid-cols-[300px_1fr]">
       <aside className="flex flex-col gap-4 rounded-lg border border-line bg-panel p-4">
         <div>
           <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-fog">{comp.title}</h3>
           <p className="text-xs font-semibold uppercase tracking-wide text-brand-soft">{comp.playstyle}</p>
+          <Link
+            href={`/${lang}/assistant?comp=${comp.slug}`}
+            className="smooth mt-3 inline-flex rounded-full border border-line bg-util px-3 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+          >
+            {t.askAssistant}
+          </Link>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           <Chip>{comp.style}</Chip>
+          <Link href={`/${lang}/economy#${economyStrategyByName[economy.strategy]?.id ?? ''}`} className="smooth">
+            <Chip className="border-brand-soft/60 text-brand-soft">{economy.strategy}</Chip>
+          </Link>
           <Chip>{t.difficulty} <CostDots cost={comp.difficulty} /></Chip>
           <Chip>{comp.units.length} {t.units}</Chip>
           <VoteButton slug={comp.slug} votes={comp.votes} lang={lang} />
@@ -146,7 +164,16 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.augmentPriority}</p>
           <div className="flex items-center gap-1 text-xs font-semibold text-mist">
-            <span className="text-brand-soft">{t.economy}</span> {'\u2192'} <span className="text-brand-soft">{t.items}</span> {'\u2192'} <span className="text-brand-soft">{t.combat}</span>
+            {(comp.augmentTypes.length ? comp.augmentTypes : ['ECON', 'ITEMS', 'COMBAT']).map((type, index) => {
+              const labels: Record<string, string> = { ITEMS: t.items, ECON: t.economy, COMBAT: t.combat, EMBLEM: t.emblem };
+              const label = labels[type] ?? type;
+              return (
+                <span key={type} className="flex items-center gap-1">
+                  {index > 0 ? <span>{'\u2192'}</span> : null}
+                  <span className="text-brand-soft">{label}</span>
+                </span>
+              );
+            })}
           </div>
         </div>
       </aside>
@@ -185,8 +212,10 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
           <Panel className="flex flex-col items-start gap-3 p-4">
             <p className="w-full text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.altBuilds}</p>
             <div className="flex flex-wrap items-center justify-center gap-2 self-center pt-2">
-              {(comp.alt.length ? comp.alt : [comp.carry]).map((unit) => (
-                <UnitHex key={unit.name} name={unit.name} cost={unit.cost} icon={unit.icon} size={44} />
+              {(comp.alt.length ? comp.alt : [comp.carry]).map((unit, index) => (
+                <Link key={`${unit.name}-${index}`} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth shrink-0">
+                  <UnitTile unit={unit} size={44} context={altTipContext(comp, unit)} />
+                </Link>
               ))}
             </div>
           </Panel>
@@ -210,6 +239,23 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
               </Panel>
             ))}
           </div>
+        ) : null}
+        {economy.levelCurve.length ? (
+          <Panel className="flex flex-col gap-3 p-4">
+            <p className="flex items-center justify-center gap-2">
+              <span className="rounded-full border border-brand-soft/60 bg-util px-3 py-0.5 text-xs font-semibold text-brand-soft">
+                {messages[lang].economy.plan} · {economy.strategy}
+              </span>
+            </p>
+            <ol className="flex flex-col gap-2">
+              {economy.levelCurve.map((entry) => (
+                <li key={entry.stage} className="flex flex-col gap-1 border-b border-line/50 pb-2 last:border-b-0 last:pb-0 sm:flex-row sm:gap-4">
+                  <span className="w-16 shrink-0 font-display text-sm font-bold text-brand-soft">{entry.stage}</span>
+                  <span className="text-sm leading-relaxed text-mist">{entry.text}</span>
+                </li>
+              ))}
+            </ol>
+          </Panel>
         ) : null}
       </div>
     </div>

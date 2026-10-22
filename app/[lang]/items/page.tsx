@@ -22,11 +22,9 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
   const query = q.trim().toLowerCase();
 
   const items = tft.items
-    .map((item) => ({ name: item.name, tip: getTip('item', item.name, lang) }))
-    .filter(({ name, tip }) => {
-      const completed = (tip?.kind === 'item' ? tip.composition.length : 0) > 0;
-      if (type === 'completed' && !completed) return false;
-      if (type === 'component' && completed) return false;
+    .map((item) => ({ name: item.name, category: item.category, tip: getTip('item', item.name, lang) }))
+    .filter(({ name, category }) => {
+      if (type !== 'all' && category !== type) return false;
       return !query || name.toLowerCase().includes(query) || itemName(name, lang).toLowerCase().includes(query);
     })
     .sort((a, b) => itemName(a.name, lang).localeCompare(itemName(b.name, lang), lang));
@@ -35,6 +33,8 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
     { key: 'all', label: t.all },
     { key: 'completed', label: t.completed },
     { key: 'component', label: t.components },
+    { key: 'radiant', label: t.radiant },
+    { key: 'artifact', label: t.ornn },
   ];
 
   return (
@@ -73,7 +73,7 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
       </div>
       {items.length ? (
         <div data-section="item-grid" className="grid w-full gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
-          {items.map(({ name, tip }) => (
+          {items.map(({ name, category, tip }) => (
             <div key={name} className="flex gap-4 rounded-xl border border-line bg-panel p-4">
               <ItemTile name={name} icon={iconByName[name] ?? null} size={52} />
               <div className="flex min-w-0 flex-col gap-1.5">
@@ -89,7 +89,7 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
                     ))}
                   </span>
                 ) : (
-                  <Chip>{t.components}</Chip>
+                  <Chip>{category === 'radiant' ? t.radiant : category === 'artifact' ? t.ornn : t.components}</Chip>
                 )}
                 {tip?.kind === 'item' ? <p className="text-xs leading-relaxed text-mist">{tip.desc}</p> : null}
               </div>

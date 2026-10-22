@@ -1,0 +1,36 @@
+{"id":"mechanics-wisp-en","query":"How do Wisps work?","lang":"en","answerable":true,"relevant":["mechanics:18:en:wisps:0"]}
+{"id":"mechanics-wisp-vi","query":"Wisp là gì?","lang":"vi","answerable":true,"relevant":["mechanics:18:vi:wisps:0"]}
+{"id":"mechanics-wisp-stage5","query":"What changes about Wisps after stage 5?","lang":"en","answerable":true,"relevant":["mechanics:18:en:wisps:0"]}
+{"id":"mechanics-set18-en","query":"What is Enchanted Wilds about?","lang":"en","answerable":true,"relevant":["mechanics:18:en:set18:0"]}
+{"id":"mechanics-set18-vi","query":"Bối cảnh Enchanted Wilds có gì?","lang":"vi","answerable":true,"relevant":["mechanics:18:vi:set18:0"]}
+{"id":"mechanics-economy-en","query":"How does gold and interest work in set 18?","lang":"en","answerable":true,"relevant":["mechanics:18:en:economy:0"]}
+{"id":"mechanics-economy-vi","query":"Lãi vàng được tính thế nào?","lang":"vi","answerable":true,"relevant":["mechanics:18:vi:economy:0"]}
+{"id":"mechanics-shop-odds-en","query":"What are the level 8 shop odds in set 18?","lang":"en","answerable":true,"relevant":["mechanics:18:en:leveling:0"]}
+{"id":"mechanics-shop-odds-vi","query":"Tỉ lệ shop cấp 8 trong set 18 là gì?","lang":"vi","answerable":true,"relevant":["mechanics:18:vi:leveling:0"]}
+{"id":"mechanics-core-en","query":"What are the general TFT rules?","lang":"en","answerable":true,"relevant":["mechanics:general:en:core:0","mechanics:general:en:core:1"]}
+{"id":"mechanics-items-en","query":"How many items can a champion hold?","lang":"en","answerable":true,"relevant":["mechanics:general:en:items:0"]}
+{"id":"mechanics-economy-general","query":"How does the general economy work?","lang":"en","answerable":true,"relevant":["mechanics:general:en:economy:0"]}
+{"id":"mechanics-blossom","query":"How does Blossom work?","lang":"en","answerable":true,"relevant":["mechanics:18:en:blossom:0"]}
+{"id":"mechanics-riftbeast","query":"How does Riftbeast give team size?","lang":"en","answerable":true,"relevant":["mechanics:18:en:riftbeast:0"]}
+{"id":"mechanics-coven-en","query":"What does Coven do?","lang":"en","answerable":true,"relevant":["mechanics:18:en:coven:0"]}
+{"id":"mechanics-coven-vi","query":"Coven hoạt động thế nào?","lang":"vi","answerable":true,"relevant":["mechanics:18:vi:coven:0"]}
+{"id":"mechanics-bounties","query":"How do Bounty Seeker and Apex Predator work?","lang":"en","answerable":true,"relevant":["mechanics:18:en:bounties:0"]}
+{"id":"guide-stage2-economy-en","query":"Stage 2 economy: streak or interest?","lang":"en","answerable":true,"relevant":["guide:economy-first-stage-2:en:summary:0","guide:economy-first-stage-2:en:s0:0"]}
+{"id":"guide-stage2-economy-vi","query":"Kinh tế giai đoạn 2 nên đi chuỗi hay lãi?","lang":"vi","answerable":true,"relevant":["guide:economy-first-stage-2:vi:summary:0","guide:economy-first-stage-2:vi:s0:0"]}
+{"id":"guide-slam-order","query":"What is the slam order for items?","lang":"en","answerable":true,"relevant":["guide:item-slam-decision:en:summary:0","guide:item-slam-decision:en:s0:0"]}
+{"id":"guide-augment-fit","query":"Should I pick an S-tier augment that does not fit?","lang":"en","answerable":true,"relevant":["guide:augment-tiers-when-s-tier-loses:en:summary:0","guide:augment-tiers-when-s-tier-loses:en:s0:0"]}
+{"id":"guide-frontline","query":"How should I position my frontline?","lang":"en","answerable":true,"relevant":["guide:frontline-positioning-5-minutes:en:summary:0","guide:frontline-positioning-5-minutes:en:s0:0"]}
+{"id":"guide-tier-list","query":"How do I read a tier list?","lang":"en","answerable":true,"relevant":["guide:read-a-tier-list:en:summary:0","guide:read-a-tier-list:en:s0:0"]}
+{"id":"guide-roll-down","query":"When do I roll down for a contested board?","lang":"en","answerable":true,"relevant":["guide:rolling-on-8-flowchart:en:summary:0","guide:rolling-on-8-flowchart:en:s0:0"]}
+{"id":"tip-1cost-reroll","query":"1-cost reroll: when do I level?","lang":"en","answerable":true,"relevant":["tip:tips-1cost-reroll-hold-level:en:summary:0","tip:tips-1cost-reroll-hold-level:en:s0:0"]}
+{"id":"tip-2cost-reroll","query":"2-cost reroll timing on 3-2","lang":"en","answerable":true,"relevant":["tip:tips-2cost-reroll-3-2:en:summary:0","tip:tips-2cost-reroll-3-2:en:s0:0"]}
+{"id":"tip-4cost-reroll","query":"When do 4-cost comps push level 8?","lang":"en","answerable":true,"relevant":["tip:tips-4cost-push-8-on-4-2:en:summary:0","tip:tips-4cost-push-8-on-4-2:en:s0:0"]}
+{"id":"tip-wound","query":"How many Wound items should I build?","lang":"en","answerable":true,"relevant":["tip:tips-build-one-wound:en:summary:0","tip:tips-build-one-wound:en:s0:0"]}
+{"id":"tip-shred","query":"Should I build Shred and Sunder?","lang":"en","answerable":true,"relevant":["tip:tips-build-one-shred-sunder:en:summary:0","tip:tips-build-one-shred-sunder:en:s0:0"]}
+{"id":"tip-corner-carry","query":"Where should my ranged carry stand?","lang":"en","answerable":true,"relevant":["tip:tips-corner-your-ranged-carry:en:summary:0","tip:tips-corner-your-ranged-carry:en:s0:0"]}
+{"id":"tip-streak-vi","query":"Chuỗi thắng thua trả bao nhiêu vàng?","lang":"vi","answerable":true,"relevant":["tip:tips-commit-to-streak:vi:summary:0","tip:tips-commit-to-streak:vi:s0:0"]}
+{"id":"tip-interest-vi","query":"Mốc lãi giai đoạn 2 là bao nhiêu?","lang":"vi","answerable":true,"relevant":["tip:tips-stage2-interest-line:vi:summary:0","tip:tips-stage2-interest-line:vi:s0:0"]}
+{"id":"negative-capital","query":"What is the capital of France?","lang":"en","answerable":false,"relevant":[]}
+{"id":"negative-weather","query":"What is the weather in Paris?","lang":"en","answerable":false,"relevant":[]}
+{"id":"negative-world-cup","query":"Who won the 2022 World Cup?","lang":"en","answerable":false,"relevant":[]}
+{"id":"negative-vague","query":"How does it work?","lang":"en","answerable":false,"relevant":[]}

@@ -311,6 +311,23 @@ const items = [...itemByName.values()].map((item) => {
   };
 });
 
+// Artifacts, emblems and radiant items have no build path, but comp alt builds
+// show them; download their icons for the API. fetch-metatft-items.mjs then
+// adds radiant and artifact items to the frontend catalog.
+const extraItems = raw.items
+  .filter((item) =>
+    setItemIds.has(item.apiName) &&
+    !item.isAugment &&
+    item.icon &&
+    item.composition.length === 0 &&
+    (/Artifact|Emblem/.test(item.apiName) || /^Radiant /.test(item.name ?? ''))
+  )
+  .map((item) => ({
+    apiName: item.apiName,
+    slug: slugify(item.apiName),
+    iconSrc: GAME_BASE + item.icon.replace(/\.tex$/i, '.png'),
+  }));
+
 const keywordDefs = {};
 for (const item of itemByName.values()) harvestKeywords(item.desc, keywordDefs);
 for (const champion of set.champions) harvestKeywords(champion.ability?.desc, keywordDefs);
@@ -400,6 +417,7 @@ const jobs = [
   }]),
   ...traits.map((t) => ['traits', t]),
   ...items.map((i) => ['items', i]),
+  ...extraItems.map((i) => ['items', i]),
   ...augments.map((a) => ['augments', a]),
 ];
 console.log(`downloading ${jobs.length} icons (concurrency ${CONCURRENCY})...`);

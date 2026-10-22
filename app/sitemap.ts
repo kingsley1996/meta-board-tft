@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import type { CompsResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import { locales } from '@/lib/i18n';
+import { lootPages } from '@/lib/loot';
 import tft from '@/lib/tft.json';
 
 export const dynamic = 'force-dynamic';
@@ -26,10 +27,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...tft.champions.map((champion) => ({ path: `champions/${champion.slug}`, meta: page })),
     { path: 'items', meta: page },
     { path: 'augments', meta: page },
+    { path: 'wisps', meta: page },
     { path: 'tables', meta: page },
+    { path: 'tables/gold-income', meta: page },
+    { path: 'economy', meta: page },
+    ...lootPages.map((loot) => ({ path: `tables/${loot.slug}`, meta: page })),
     { path: 'builder', meta: page },
     { path: 'tier-maker', meta: page },
     { path: 'quiz', meta: page },
+    { path: 'assistant', meta: page },
     { path: 'guides', meta: page },
     ...guides.map((entry) => ({ path: `guides/${entry.slug}`, meta: page })),
     { path: 'about', meta: page },
