@@ -9,7 +9,10 @@ next-env.d.ts
 
 # env — never commit secrets (ADMIN_PASSWORD, REFRESH_TOKEN)
 .env*
-!.env.example
+
+# local editor and shell settings
+.vscode/
+.bash_profile
 
 # icon downloads — regenerate with `npm run fetch-data` (lib/tft.json is tracked; it's small and the build imports it)
 # loot table art — regenerate with `npm run fetch-loot`
