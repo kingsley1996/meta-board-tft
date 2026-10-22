@@ -105,7 +105,7 @@ export function ItemRanking({ items, size = 36, showTier = true }: { items: { na
   return (
     <ol className="flex flex-col gap-1.5">
       {items.map((item, index) => (
-        <li key={item.name} className="flex items-center gap-3 rounded-lg border border-line bg-ink/40 px-3 py-2">
+        <li key={`${item.name}-${index}`} className="flex items-center gap-3 rounded-lg border border-line bg-ink/40 px-3 py-2">
           <span className="w-5 shrink-0 text-center font-display text-sm font-bold text-mist">{index + 1}</span>
           <ItemTile name={item.name} icon={item.icon} tier={item.tier} size={size} />
           <span className="min-w-0 flex-1">

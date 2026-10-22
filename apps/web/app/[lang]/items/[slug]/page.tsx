@@ -56,7 +56,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
                     {component.name}
                   </span>
                 );
-                return target ? <Link key={component.name} href={`/${lang}/items/${target.slug}`} className="smooth hover:opacity-80">{content}</Link> : <span key={component.name}>{content}</span>;
+                return target ? <Link key={`${component.name}-${index}`} href={`/${lang}/items/${target.slug}`} className="smooth hover:opacity-80">{content}</Link> : <span key={`${component.name}-${index}`}>{content}</span>;
               })}
             </div>
           </Panel>
