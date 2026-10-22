@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+import { translateText } from '@/lib/translate';
 
 export type AugmentCell = {
   path: string;
@@ -100,7 +101,7 @@ export function AugmentOdds({ cells, lang }: { cells: AugmentCell[]; lang: Lang 
                       type="button"
                       onClick={() => pick(depth, cell.tier)}
                       aria-pressed={active}
-                      title={cell.title}
+                      title={translateText(lang, 'loot', 'augment-odds-title', cell.title)}
                       className="flex min-h-[20px] w-full items-center justify-center gap-1 px-2 text-center text-[11px] font-bold transition hover:brightness-110"
                       style={{
                         flex: `${percent(cell.conditional)} 0 0%`,

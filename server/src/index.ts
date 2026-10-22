@@ -6,6 +6,7 @@ import { syncTft } from './tft.ts';
 import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
 import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
 import { assistantRouter } from './assistant/index.ts';
+import { translateText } from './assistant/translate.ts';
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -72,7 +73,7 @@ app.get('/api/guides/:slug', async (req, res) => {
   res.json(guide);
 });
 
-app.get('/api/tft/set', async (_req, res) => {
+app.get('/api/tft/set', async (req, res) => {
   const meta = await getMeta();
   const [champions, traits, items, augments] = await Promise.all([
     pool.query('SELECT * FROM champions ORDER BY cost, name'),
@@ -80,7 +81,17 @@ app.get('/api/tft/set', async (_req, res) => {
     pool.query('SELECT * FROM items ORDER BY name'),
     pool.query('SELECT * FROM augments ORDER BY name'),
   ]);
-  res.json({ patch: meta.patch ?? 'latest', set: Number(meta.set_number ?? 0), set_name: meta.set_name ?? '', champions: champions.rows, traits: traits.rows, items: items.rows, augments: augments.rows });
+  const lang = readLang(req.query.lang);
+  const setName = meta.set_name ?? '';
+  res.json({
+    patch: meta.patch ?? 'latest',
+    set: Number(meta.set_number ?? 0),
+    set_name: translateText(lang, 'tft', 'set-name', setName),
+    champions: champions.rows,
+    traits: traits.rows,
+    items: items.rows,
+    augments: augments.rows,
+  });
 });
 
 app.post('/api/tft/refresh', async (req, res) => {

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { PatchBar } from '@/components/patch-bar';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+import { translateText } from '@/lib/translate';
 import wispsJson from '@/lib/wisps.json';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
@@ -87,8 +88,10 @@ export default async function WispsPage({ params, searchParams }: { params: Prom
   const query = q.trim().toLowerCase();
   const activeTier = WISP_TIERS.includes(tier as WispTier) ? (tier as WispTier) : 'all';
   const categoryLabel = (category: string | null) =>
-    category ? ((t.categories as Record<string, string>)[category] ?? category) : null;
-  const displayName = (wisp: Wisp) => (lang === 'vi' ? wisp.nameVi ?? wisp.name : wisp.name);
+    category
+      ? translateText(lang, 'wisps', 'wisp-category', category, (t.categories as Record<string, string>)[category])
+      : null;
+  const displayName = (wisp: Wisp) => translateText(lang, 'wisps', 'wisp-name', wisp.name, wisp.nameVi);
   const matches = (value: string | null | undefined) => (value ?? '').toLowerCase().includes(query);
 
   const wisps = allWisps
@@ -169,14 +172,16 @@ export default async function WispsPage({ params, searchParams }: { params: Prom
                   {VARIANT_ORDER.map((variant) => {
                     const data = wisp.variants[variant];
                     if (!data) return null;
-                    const description = lang === 'vi' ? data.descriptionVi ?? data.description : data.description;
+                    const description = data.description
+                      ? translateText(lang, 'wisps', 'wisp-description', data.description, data.descriptionVi)
+                      : t.missing;
                     return (
                       <div key={variant} className="rounded-lg bg-util/40 px-3 py-2">
                         <div className="flex items-baseline justify-between gap-2">
                           <span className="text-xs font-semibold uppercase tracking-wide text-brand-soft">{t.variants[variant]}</span>
                           {data.round ? <span className="shrink-0 text-[11px] text-mist">{t.round(data.round)}</span> : null}
                         </div>
-                        <p className="mt-1 text-sm leading-relaxed text-fog/80">{description ?? t.missing}</p>
+                        <p className="mt-1 text-sm leading-relaxed text-fog/80">{description}</p>
                       </div>
                     );
                   })}

@@ -159,16 +159,19 @@ export function buildUserPrompt(message: string, evidence: Evidence): string {
   return `User question:\n${message}\n\nEvidence JSON:\n${JSON.stringify(evidenceBody(evidence))}`;
 }
 
-export function buildToolPlannerPrompt(lang: Lang, setId: string, patch: string): string {
+export function buildToolPlannerPrompt(lang: Lang, setId: string, patch: string, compSlugs: string[] = []): string {
   return [
     'You are MetaBoard Assistant, a TFT data planner.',
     `The user writes in ${lang === 'vi' ? 'Vietnamese' : 'English'}.`,
     `Current Set ${setId}, patch ${patch}.`,
-    'Call only the read-only tools needed for comp lookup, filtering, comparison or MetaTFT stats.',
+    ...(compSlugs.length ? [`Comp context slugs: ${compSlugs.slice(0, 3).join(', ')}.`] : []),
+    'Call only the read-only tools needed for comp lookup, game mechanics tables, economy plans, comparison or MetaTFT stats.',
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
     'Correct obvious champion-name typos before calling a tool. For example, cassopiea means Cassiopeia.',
     'Use search_comps to browse by comp name, trait, tier or style.',
     'Use get_comp for one comp detail, compare_comps for 2-3 comps, and get_stats for one entity stat line.',
+    'Use get_game_mechanics for exact income, interest, shop odds, leveling XP, champion-pool, loot-table or augment-odds data. Pass a queried item/table name to search loot pages globally; include a slug when the page is known.',
+    'Use get_economy_plan for a named strategy or comp-specific stage-by-stage level curve. If comp context slugs are present and the question refers to this comp, pass its slug as comp_slug. Never reconstruct a sourced economy plan from memory.',
     'You may call another tool after reading a result. Do not repeat the same tool with the same arguments.',
     'Do not answer the question yourself and do not invent data. When the collected results are enough, return no tool call.',
     'If no tool can answer it, return no tool call.',
@@ -178,11 +181,12 @@ export function buildToolPlannerPrompt(lang: Lang, setId: string, patch: string)
 export function buildToolAgentPrompt(lang: Lang, evidence: Evidence): string {
   return [
     'You are MetaBoard Assistant with read-only TFT data tools.',
-    'Call only the tools needed for comp lookup, filtering, comparison or MetaTFT stats. Never invent tool results.',
+    'Call only the tools needed for comp lookup, mechanics tables, economy plans, comparison or MetaTFT stats. Never invent tool results.',
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
     'Correct obvious champion-name typos before calling a tool. For example, cassopiea means Cassiopeia.',
     'Use search_comps to browse by comp name, trait, tier or style.',
     'Use get_comp for one comp detail, compare_comps for 2-3 comps, and get_stats for one entity stat line.',
+    'Use get_game_mechanics for exact game-rule tables (loot searches can be global by query) and get_economy_plan for sourced, stage-by-stage strategy or comp economy advice.',
     'You may call another tool after reading a result. Do not repeat the same tool with the same arguments.',
     'When the collected results are enough, stop calling tools and return the final JSON answer.',
     buildSystemPrompt(lang, evidence),

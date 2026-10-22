@@ -1,4 +1,8 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { listComps } from '../comps.ts';
+import { incomeBase, interest, mechanicsPatch, poolSizes, shopOdds, streakBonus, xpTable } from '../../../lib/mechanics.ts';
+import { economyForComp, matchEconomyComp, type EconomyPlanComp, type EconomyPlanStrategy } from '../../../lib/economy-match.ts';
 import type {
   CatalogEntity,
   CompComparison,
@@ -8,10 +12,11 @@ import type {
   RankedComp,
   RankingQuery,
 } from './contracts.ts';
-import { pickEntityMatch, searchCatalog, type Catalog } from './entities.ts';
+import { normalizeSpaced, pickEntityMatch, searchCatalog, type Catalog } from './entities.ts';
 import { compStats, entityStats, loadMetaStats, type StatEvidence } from './meta-stats.ts';
 import type { ProviderTool } from './provider.ts';
 import { rankComps } from './ranking.ts';
+import { translateText } from './translate.ts';
 import { compareComps, getComp, loadCatalog, searchComps } from './tools.ts';
 
 export type AmbiguousEntity = {
@@ -37,6 +42,43 @@ export class AssistantToolError extends Error {
     this.name = 'AssistantToolError';
   }
 }
+
+type LootItemData = { kind: string; name: string; count: string | null; cost: number | null; stars: number | null };
+type LootOutcomeData = { chance: string | null; items: LootItemData[] };
+type LootTableData = {
+  title: string;
+  level: number | null;
+  facts: { label: string; value: string }[];
+  outcomes: LootOutcomeData[];
+};
+type LootPlainTableData = {
+  title: string;
+  note: string | null;
+  group: string | null;
+  headers: string[];
+  rows: { value: string }[][];
+};
+type LootPageData = {
+  slug: string;
+  title: string;
+  sourceUrl: string;
+  owners: { kind: string; name: string; description: string | null; stages: string[]; tables: LootTableData[] }[];
+  tables: LootPlainTableData[];
+  augmentDistribution: { path: string; tier: string; conditional: string; weight: string; title: string }[];
+};
+type LootSnapshot = {
+  source: { provider: string; page: string; set: string; generatedAt: string; fetchedAt: string };
+  pages: LootPageData[];
+};
+type EconomySnapshot = {
+  source: { provider: string; page: string; set: string; generatedAt: string | null; fetchedAt: string };
+  strategies: EconomyPlanStrategy[];
+  comps: EconomyPlanComp[];
+};
+
+const dataRoot = join(import.meta.dirname, '../../../lib');
+const economyData = JSON.parse(readFileSync(join(dataRoot, 'economy.json'), 'utf8')) as EconomySnapshot;
+const lootData = JSON.parse(readFileSync(join(dataRoot, 'loot-tables.json'), 'utf8')) as LootSnapshot;
 
 export const ASSISTANT_TOOLS: ProviderTool[] = [
   {
@@ -120,7 +162,515 @@ export const ASSISTANT_TOOLS: ProviderTool[] = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'get_game_mechanics',
+      description: 'Retrieve exact Set 18 system mechanics tables or a specific TFT loot/augment table. Use instead of recalling numbers from memory for income, interest, shop odds, leveling XP, champion pool, loot tables or augment odds.',
+      parameters: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          table: {
+            type: 'string',
+            enum: ['income', 'shop_odds', 'leveling', 'champion_pool', 'loot_tables', 'augment_odds'],
+            description: 'Which structured game table to retrieve.',
+          },
+          slug: { type: 'string', maxLength: 80, description: 'Optional loot-table page slug, for example stage-loot-orbs or coven.' },
+          query: { type: 'string', maxLength: 80, description: 'Optional table title, outcome, item or rule to narrow a loot-table page.' },
+        },
+        required: ['table'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_economy_plan',
+      description: 'Retrieve sourced, stage-by-stage economy guidance. Use for Fast 8/9, reroll plans, a comp-specific level curve, or advice for when to level, roll and save.',
+      parameters: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          strategy: { type: 'string', maxLength: 50, description: 'Named strategy, for example Fast 8 or 2-Cost Reroll.' },
+          comp_slug: { type: 'string', maxLength: 80, description: 'MetaBoard comp slug for its matched or derived economy curve.' },
+          query: { type: 'string', maxLength: 80, description: 'Search a comp, carry or strategy from the sourced economy dataset.' },
+        },
+      },
+    },
+  },
 ];
+
+function normalized(value: string): string {
+  return normalizeSpaced(value);
+}
+
+function mechanicsSource(url: string) {
+  return {
+    provider: 'MetaBoard / tftflow.com',
+    url,
+    set: lootData.source.set,
+    patch: mechanicsPatch,
+    updatedAt: lootData.source.fetchedAt,
+  };
+}
+
+function translateLoot(value: string, kind: string, lang: Lang): string {
+  return translateText(lang, 'loot', kind, value);
+}
+
+function lootQueryMatches(value: unknown, query: string, lang: Lang): boolean {
+  const needle = normalized(query);
+  if (!needle) return true;
+  const raw = JSON.stringify(value);
+  if (normalized(raw).includes(needle)) return true;
+  if (lang !== 'vi') return false;
+  const stringsIn = (entry: unknown): string[] => {
+    if (typeof entry === 'string') return [entry];
+    if (Array.isArray(entry)) return entry.flatMap(stringsIn);
+    if (entry && typeof entry === 'object') return Object.values(entry).flatMap(stringsIn);
+    return [];
+  };
+  const kinds = [
+    'page-title', 'owner-name', 'owner-description', 'table-title', 'table-note', 'table-group',
+    'fact-label', 'fact-value', 'column-header', 'cell', 'outcome-item', 'augment-odds-title',
+  ];
+  return stringsIn(value).some((source) =>
+    kinds.some((kind) => normalized(translateLoot(source, kind, lang)).includes(needle))
+  );
+}
+
+function augmentTier(tier: string, lang: Lang): string {
+  if (lang !== 'vi') return tier;
+  return tier === 'Gold' ? 'Vàng' : tier === 'Silver' ? 'Bạc' : tier === 'Prismatic' ? 'Lăng kính' : tier;
+}
+
+function lootTablePayload(table: LootTableData, lang: Lang) {
+  return {
+    title: translateLoot(table.title, 'table-title', lang),
+    level: table.level,
+    facts: table.facts.map((fact) => ({
+      label: translateLoot(fact.label, 'fact-label', lang),
+      value: translateLoot(fact.value, 'fact-value', lang),
+    })),
+    outcomes: table.outcomes.map((outcome) => ({
+      chance: outcome.chance,
+      items: outcome.items.map((item) => ({
+        kind: item.kind,
+        name: translateLoot(item.name, 'outcome-item', lang),
+        count: item.count,
+        cost: item.cost,
+        stars: item.stars,
+      })),
+    })),
+  };
+}
+
+function lootPagePayload(page: LootPageData, lang: Lang, query?: string) {
+  const needle = normalized(query ?? '');
+  const matches = (value: unknown) => lootQueryMatches(value, query ?? '', lang);
+  const ownerTables = page.owners.flatMap((owner) => {
+    const ownerMatches = matches({ name: owner.name, description: owner.description });
+    const tables = ownerMatches ? owner.tables : owner.tables.filter(matches);
+    return tables.map((table) => ({
+      owner: translateLoot(owner.name, 'owner-name', lang),
+      title: translateLoot(table.title, 'table-title', lang),
+      level: table.level,
+      facts: table.facts.map((fact) => ({
+        label: translateLoot(fact.label, 'fact-label', lang),
+        value: translateLoot(fact.value, 'fact-value', lang),
+      })),
+      outcomes: lootTablePayload(table, lang).outcomes.slice(0, 8).map((outcome) => ({
+        ...outcome,
+        items: outcome.items.slice(0, 8),
+      })),
+    }));
+  });
+  const plainTables = page.tables
+    .filter(matches)
+    .map((table) => ({
+      title: translateLoot(table.title, 'table-title', lang),
+      note: table.note ? translateLoot(table.note, 'table-note', lang) : null,
+      group: table.group ? translateLoot(table.group, 'table-group', lang) : null,
+      headers: table.headers.map((header) => translateLoot(header, 'column-header', lang)),
+      rows: table.rows.slice(0, 12).map((row) => row.map((cell) => ({
+        value: translateLoot(cell.value, 'cell', lang),
+      }))),
+    }));
+  const augmentDistribution = page.augmentDistribution
+    .filter(matches)
+    .map((entry) => ({
+      path: entry.path,
+      tier: entry.tier,
+      conditional: entry.conditional,
+      weight: entry.weight,
+      title: translateLoot(entry.title, 'augment-odds-title', lang),
+    }));
+  const allTables = [...ownerTables, ...plainTables];
+  return {
+    slug: page.slug,
+    title: translateLoot(page.title, 'page-title', lang),
+    ...(needle
+      ? {
+          tables: allTables.slice(0, 3),
+          augmentDistribution: augmentDistribution.slice(0, 12),
+          matchedCount: allTables.length + augmentDistribution.length,
+          truncated:
+            allTables.length > 3 ||
+            augmentDistribution.length > 12 ||
+            page.tables.some((table) => matches(table) && table.rows.length > 12) ||
+            page.owners.some((owner) =>
+              owner.tables.some((table) =>
+                (matches({ name: owner.name, description: owner.description }) || matches(table)) &&
+                (table.outcomes.length > 8 || table.outcomes.some((outcome) => outcome.items.length > 8))
+              )
+            ),
+        }
+      : {
+          tableIndex: [
+            ...page.owners.flatMap((owner) => owner.tables.map((table) => translateLoot(table.title, 'table-title', lang))),
+            ...page.tables.map((table) => translateLoot(table.title, 'table-title', lang)),
+          ],
+          augmentDistributionCount: page.augmentDistribution.length,
+          instruction: lang === 'vi'
+            ? 'Gọi lại get_game_mechanics với query là tên bảng hoặc vật phẩm cần tra để lấy số liệu chi tiết.'
+            : 'Call get_game_mechanics again with query set to a table or item name to retrieve its details.',
+        }),
+  };
+}
+
+async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): Promise<ToolExecution> {
+  allowed(args, ['table', 'slug', 'query']);
+  const table = text(args.table, 'table', 30);
+  const pageSlug = text(args.slug, 'slug', 80);
+  const query = text(args.query, 'query', 80);
+  if (!table || !['income', 'shop_odds', 'leveling', 'champion_pool', 'loot_tables', 'augment_odds'].includes(table)) {
+    throw new AssistantToolError('table must be income, shop_odds, leveling, champion_pool, loot_tables or augment_odds.');
+  }
+  if ((pageSlug || query) && table !== 'loot_tables' && table !== 'augment_odds') {
+    throw new AssistantToolError('slug and query are only supported for loot_tables and augment_odds.');
+  }
+
+  if (table === 'loot_tables' || table === 'augment_odds') {
+    if (!pageSlug) {
+      if (query && table === 'loot_tables') {
+        const matches = lootData.pages.flatMap((page) => {
+          const result = lootPagePayload(page, lang, query);
+          return 'matchedCount' in result && result.matchedCount > 0 ? [result] : [];
+        });
+        return {
+          tool: 'get_game_mechanics',
+          payload: {
+            table,
+            results: matches.slice(0, 3),
+            matchedPages: matches.length,
+            truncated: matches.length > 3,
+            source: mechanicsSource(lootData.source.page),
+            summary: lang === 'vi'
+              ? `Tìm thấy kết quả "${query}" trong ${matches.length} trang bảng loot.`
+              : `Found "${query}" in ${matches.length} loot-table pages.`,
+          },
+        };
+      }
+      if (query && table === 'augment_odds') {
+        const matches = lootData.pages.flatMap((page) =>
+          page.augmentDistribution
+            .filter((entry) =>
+              normalized(JSON.stringify(entry)).includes(normalized(query)) ||
+              normalized(translateLoot(entry.title, 'augment-odds-title', lang)).includes(normalized(query)) ||
+              normalized(augmentTier(entry.tier, lang)).includes(normalized(query))
+            )
+            .map((entry) => ({
+              page: translateLoot(page.title, 'page-title', lang),
+              slug: page.slug,
+              path: entry.path,
+              tier: augmentTier(entry.tier, lang),
+              conditional: entry.conditional,
+              weight: entry.weight,
+              title: translateLoot(entry.title, 'augment-odds-title', lang),
+            }))
+        );
+        return {
+          tool: 'get_game_mechanics',
+          payload: {
+            table,
+            entries: matches.slice(0, 12),
+            matchedCount: matches.length,
+            truncated: matches.length > 12,
+            source: mechanicsSource(lootData.source.page),
+            summary: lang === 'vi'
+              ? `Tìm thấy ${matches.length} kết quả tỉ lệ nâng cấp cho "${query}".`
+              : `Found ${matches.length} augment-odds rows matching "${query}".`,
+          },
+        };
+      }
+      const pages = lootData.pages
+        .filter((page) => table === 'loot_tables' || page.augmentDistribution.length > 0)
+        .map((page) => ({ slug: page.slug, title: translateLoot(page.title, 'page-title', lang) }));
+      return {
+        tool: 'get_game_mechanics',
+        payload: {
+          table,
+          pages,
+          source: mechanicsSource(lootData.source.page),
+          summary: lang === 'vi'
+            ? 'Đây là danh sách các trang bảng. Chọn slug phù hợp rồi gọi lại để lấy bảng chi tiết.'
+            : 'This is the table-page index. Select a matching slug and call again for the table details.',
+        },
+      };
+    }
+    const page = lootData.pages.find((entry) => entry.slug === pageSlug);
+    if (!page) throw new AssistantToolError('Loot table page not found.');
+    if (table === 'augment_odds' && !page.augmentDistribution.length) {
+      throw new AssistantToolError('This page has no augment odds table.');
+    }
+    if (table === 'loot_tables' && !query) {
+      return {
+        tool: 'get_game_mechanics',
+        payload: { ...lootPagePayload(page, lang), source: mechanicsSource(page.sourceUrl) },
+      };
+    }
+    if (table === 'augment_odds') {
+      const entries = page.augmentDistribution.filter((entry) =>
+        !query ||
+        normalized(JSON.stringify(entry)).includes(normalized(query)) ||
+        normalized(translateLoot(entry.title, 'augment-odds-title', lang)).includes(normalized(query)) ||
+        normalized(augmentTier(entry.tier, lang)).includes(normalized(query))
+      );
+      return {
+        tool: 'get_game_mechanics',
+        payload: {
+          table,
+          page: translateLoot(page.title, 'page-title', lang),
+          entries: entries.slice(0, 12).map((entry) => ({
+            path: entry.path,
+            tier: augmentTier(entry.tier, lang),
+            conditional: entry.conditional,
+            weight: entry.weight,
+            title: translateLoot(entry.title, 'augment-odds-title', lang),
+          })),
+          matchedCount: entries.length,
+          truncated: entries.length > 12,
+          source: mechanicsSource(page.sourceUrl),
+          summary: lang === 'vi' ? `Có ${entries.length} kết quả bảng tỉ lệ nâng cấp.` : `${entries.length} augment-odds rows matched.`,
+        },
+      };
+    }
+    const data = lootPagePayload(page, lang, query);
+    const matchedCount = 'matchedCount' in data ? data.matchedCount : 0;
+    return {
+      tool: 'get_game_mechanics',
+      payload: {
+        table,
+        ...data,
+        source: mechanicsSource(page.sourceUrl),
+        summary: query
+          ? lang === 'vi'
+            ? `Tìm thấy ${matchedCount} bảng phù hợp trong ${data.title}.`
+            : `${matchedCount} matching tables found in ${data.title}.`
+          : lang === 'vi'
+            ? `${data.title} có ${'tableIndex' in data ? data.tableIndex.length : 0} bảng; hãy chọn bảng cần tra.`
+            : `${data.title} has ${'tableIndex' in data ? data.tableIndex.length : 0} tables; choose one to inspect.`,
+      },
+    };
+  }
+
+  const sourceUrl = `${lootData.source.page}/shop-odds-pool-size-xp-table`;
+  if (table === 'income') {
+    return {
+      tool: 'get_game_mechanics',
+      payload: {
+        table,
+        baseIncome: incomeBase,
+        interest,
+        streakBonus,
+        interestTiming: lang === 'vi'
+          ? 'Lãi tính trên lượng vàng giữ trước khi cộng thu nhập nền của vòng đó.'
+          : 'Interest is calculated from gold held before that round’s base income is added.',
+        source: mechanicsSource(`${lootData.source.page}/gold-income`),
+        summary: lang === 'vi'
+          ? 'Thu nhập mỗi vòng gồm vàng nền, lãi theo vàng đang giữ và thưởng chuỗi thắng/thua; tối đa 5 vàng lãi ở mốc 50 vàng.'
+          : 'Round income combines base gold, interest on held gold, and streak bonuses; interest caps at 5 gold when holding 50.',
+      },
+    };
+  }
+  if (table === 'shop_odds') {
+    return {
+      tool: 'get_game_mechanics',
+      payload: {
+        table,
+        costOrder: [1, 2, 3, 4, 5],
+        rows: shopOdds,
+        source: mechanicsSource(sourceUrl),
+        summary: lang === 'vi' ? 'Bảng tỉ lệ tướng trong shop theo cấp, thứ tự cost 1–5.' : 'Shop champion odds by level, ordered by cost 1–5.',
+      },
+    };
+  }
+  if (table === 'leveling') {
+    return {
+      tool: 'get_game_mechanics',
+      payload: {
+        table,
+        freeXpPerRound: 2,
+        xpPurchase: { gold: 4, xp: 4 },
+        xpToLevel: xpTable,
+        source: mechanicsSource(sourceUrl),
+        summary: lang === 'vi'
+          ? 'Nhận 2 XP miễn phí mỗi vòng; mua 4 XP tốn 4 vàng. Bảng cho biết XP cần để đạt từng cấp.'
+          : 'Gain 2 free XP per round; buying 4 XP costs 4 gold. The table lists XP needed to reach each level.',
+      },
+    };
+  }
+  return {
+    tool: 'get_game_mechanics',
+    payload: {
+      table,
+      copiesPerCost: poolSizes,
+      starCopies: { twoStar: 3, threeStar: 9 },
+      source: mechanicsSource(sourceUrl),
+      summary: lang === 'vi'
+        ? 'Số bản sao của từng tướng trong pool dùng chung; 3 bản sao lên 2 sao, 9 bản sao lên 3 sao.'
+        : 'Champion copies per cost in the shared pool; 3 copies make a 2-star and 9 make a 3-star.',
+    },
+  };
+}
+
+async function getEconomyPlanTool(args: Record<string, unknown>, lang: Lang): Promise<ToolExecution> {
+  allowed(args, ['strategy', 'comp_slug', 'query']);
+  const strategyName = text(args.strategy, 'strategy', 50);
+  const compSlug = text(args.comp_slug, 'comp_slug', 80);
+  const query = text(args.query, 'query', 80);
+  if ([strategyName, compSlug, query].filter(Boolean).length !== 1) {
+    throw new AssistantToolError('Provide exactly one of strategy, comp_slug or query.');
+  }
+
+  const strategyNeedle = normalized(strategyName ?? query ?? '');
+  const strategy = economyData.strategies.find(
+    (entry) => normalized(entry.name) === strategyNeedle || normalized(entry.name).replaceAll(' ', '-') === normalized(strategyName ?? '')
+  );
+  if (strategy) {
+    const plan = translatedStrategy(strategy, lang);
+    return {
+      tool: 'get_economy_plan',
+      payload: {
+        type: 'strategy',
+        plan,
+        source: economySource(),
+        summary: lang === 'vi'
+          ? `Kế hoạch ${plan.name} có ${plan.rounds.length} mốc vòng, bao gồm hướng dẫn lên cấp, roll và giữ vàng.`
+          : `${plan.name} has ${plan.rounds.length} round-by-round steps for leveling, rolling and saving gold.`,
+      },
+    };
+  }
+
+  if (compSlug) {
+    const comp = await getComp(slug(compSlug, 'comp_slug'), lang);
+    if (!comp) throw new AssistantToolError('Comp not found.');
+    const plan = economyForComp(comp, economyData.comps, economyData.strategies);
+    const matched = matchEconomyComp(comp, economyData.comps)?.comp;
+    const strategyInfo = economyData.strategies.find((entry) => entry.name === plan.strategy);
+    const data = {
+      slug: comp.slug,
+      name: comp.title,
+      carry: comp.carry.name,
+      strategy: translateText(lang, 'economy', 'strategy-name', plan.strategy),
+      planSource: plan.source,
+      levelCurve: plan.levelCurve.map((entry) => ({
+        stage: entry.stage,
+        text: translateText(lang, 'economy', 'round-plan', entry.text),
+      })),
+      tips: matched?.tips.map((tip) => translateText(lang, 'economy', 'comp-tip', tip)) ?? [],
+      ...(strategyInfo ? { strategyPlan: translatedStrategy(strategyInfo, lang) } : {}),
+    };
+    return {
+      tool: 'get_economy_plan',
+      payload: {
+        type: 'comp',
+        comp: data,
+        source: economySource(),
+        summary: lang === 'vi'
+          ? `${comp.title} phù hợp với chiến thuật ${data.strategy}; đường cong cấp có ${data.levelCurve.length} mốc vòng.`
+          : `${comp.title} maps to ${data.strategy}; its level curve has ${data.levelCurve.length} round steps.`,
+      },
+      comps: [comp],
+    };
+  }
+
+  const queryNeedle = normalized(query ?? '');
+  const matchingComps = economyData.comps.filter((entry) =>
+    [entry.slug, entry.name, entry.carry ?? ''].some((value) => normalized(value).includes(queryNeedle))
+  );
+  if (!matchingComps.length) throw new AssistantToolError('No economy strategy or comp matched that query.');
+  if (matchingComps.length > 1) {
+    return {
+      tool: 'get_economy_plan',
+      payload: {
+        type: 'matches',
+        matches: matchingComps.slice(0, 5).map((entry) => ({
+          slug: entry.slug,
+          name: translateText(lang, 'economy', 'comp-name', entry.name),
+          carry: entry.carry,
+          strategy: entry.strategy
+            ? translateText(lang, 'economy', 'strategy-name', entry.strategy)
+            : null,
+        })),
+        matchedCount: matchingComps.length,
+        source: economySource(),
+        summary: lang === 'vi'
+          ? `Có ${matchingComps.length} comp kinh tế khớp; hãy chọn đúng comp rồi truy vấn lại.`
+          : `${matchingComps.length} economy comps matched; select one and query again for its plan.`,
+      },
+    };
+  }
+  const plan = economyPlanForDatasetComp(matchingComps[0], lang);
+  return {
+    tool: 'get_economy_plan',
+    payload: {
+      type: 'comp',
+      comp: plan,
+      source: economySource(),
+      summary: lang === 'vi'
+        ? `Kế hoạch kinh tế cho ${plan.name}: ${plan.strategy ?? 'chưa phân loại'}, ${plan.levelCurve.length} mốc vòng.`
+        : `Economy plan for ${plan.name}: ${plan.strategy ?? 'unclassified'}, ${plan.levelCurve.length} round steps.`,
+    },
+  };
+}
+
+function translatedStrategy(strategy: EconomyPlanStrategy, lang: Lang) {
+  return {
+    id: normalized(strategy.name).replaceAll(' ', '-'),
+    name: translateText(lang, 'economy', 'strategy-name', strategy.name),
+    rounds: strategy.rounds.map((round) => ({
+      round: round.round,
+      text: translateText(lang, 'economy', 'round-plan', round.text),
+    })),
+  };
+}
+
+function economySource() {
+  return {
+    provider: economyData.source.provider,
+    url: economyData.source.page,
+    set: economyData.source.set,
+    updatedAt: economyData.source.fetchedAt,
+  };
+}
+
+function economyPlanForDatasetComp(comp: EconomyPlanComp, lang: Lang) {
+  const strategy = economyData.strategies.find((entry) => entry.name === comp.strategy);
+  return {
+    slug: comp.slug,
+    name: translateText(lang, 'economy', 'comp-name', comp.name),
+    carry: comp.carry,
+    strategy: comp.strategy ? translateText(lang, 'economy', 'strategy-name', comp.strategy) : null,
+    levelCurve: comp.levelCurve.map((entry) => ({
+      stage: entry.stage,
+      text: translateText(lang, 'economy', 'round-plan', entry.text),
+    })),
+    tips: comp.tips.map((tip) => translateText(lang, 'economy', 'comp-tip', tip)),
+    ...(strategy ? { strategyPlan: translatedStrategy(strategy, lang) } : {}),
+  };
+}
 
 function record(value: unknown): Record<string, unknown> {
   if (typeof value === 'string') {
@@ -385,6 +935,10 @@ export async function executeAssistantTool(name: string, value: unknown, lang: L
       return compareCompsTool(args, lang);
     case 'get_stats':
       return getStatsTool(args, lang);
+    case 'get_game_mechanics':
+      return getGameMechanicsTool(args, lang);
+    case 'get_economy_plan':
+      return getEconomyPlanTool(args, lang);
     default:
       throw new AssistantToolError('Unknown tool.');
   }

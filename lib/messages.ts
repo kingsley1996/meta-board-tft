@@ -1,4 +1,5 @@
 import type { Lang } from './i18n';
+import { translateText } from './translate';
 
 // UI copy for every locale. `vi` is typed against `en` so a missing key fails
 // the build. Authored article bodies (guides, legal) stay English for now.
@@ -834,4 +835,26 @@ const vi: typeof en = {
   },
 };
 
-export const messages: Record<Lang, typeof en> = { en, vi };
+function fillMissingMessages(english: unknown, vietnamese: unknown): unknown {
+  if (typeof english === 'string') {
+    return typeof vietnamese === 'string' && vietnamese.trim()
+      ? vietnamese
+      : translateText('vi', 'ui', 'message', english);
+  }
+  if (Array.isArray(english)) {
+    return english.map((value, index) =>
+      fillMissingMessages(value, Array.isArray(vietnamese) ? vietnamese[index] : undefined),
+    );
+  }
+  if (english && typeof english === 'object') {
+    const viRecord = vietnamese && typeof vietnamese === 'object' ? vietnamese as Record<string, unknown> : {};
+    return Object.fromEntries(
+      Object.entries(english).map(([key, value]) => [key, fillMissingMessages(value, viRecord[key])]),
+    );
+  }
+  return vietnamese ?? english;
+}
+
+const completedVietnameseMessages = fillMissingMessages(en, vi) as typeof en;
+
+export const messages: Record<Lang, typeof en> = { en, vi: completedVietnameseMessages };

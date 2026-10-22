@@ -4,6 +4,7 @@ import { itemTierByName, unitStats, units } from '@/lib/data';
 import { economyForComp, economyStrategyByName } from '@/lib/economy';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+import { translateText } from '@/lib/translate';
 import { championNameToSlug, traitStyleColors } from '@/lib/tips';
 import { HexBoard } from './hex-board';
 import { VoteButton } from './vote-button';
@@ -111,7 +112,9 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
         <div className="flex flex-wrap items-center gap-1.5">
           <Chip>{comp.style}</Chip>
           <Link href={`/${lang}/economy#${economyStrategyByName[economy.strategy]?.id ?? ''}`} className="smooth">
-            <Chip className="border-brand-soft/60 text-brand-soft">{economy.strategy}</Chip>
+            <Chip className="border-brand-soft/60 text-brand-soft">
+              {translateText(lang, 'economy', 'strategy-name', economy.strategy)}
+            </Chip>
           </Link>
           <Chip>{t.difficulty} <CostDots cost={comp.difficulty} /></Chip>
           <Chip>{comp.units.length} {t.units}</Chip>
@@ -244,14 +247,16 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
           <Panel className="flex flex-col gap-3 p-4">
             <p className="flex items-center justify-center gap-2">
               <span className="rounded-full border border-brand-soft/60 bg-util px-3 py-0.5 text-xs font-semibold text-brand-soft">
-                {messages[lang].economy.plan} · {economy.strategy}
+                {messages[lang].economy.plan} · {translateText(lang, 'economy', 'strategy-name', economy.strategy)}
               </span>
             </p>
             <ol className="flex flex-col gap-2">
               {economy.levelCurve.map((entry) => (
                 <li key={entry.stage} className="flex flex-col gap-1 border-b border-line/50 pb-2 last:border-b-0 last:pb-0 sm:flex-row sm:gap-4">
                   <span className="w-16 shrink-0 font-display text-sm font-bold text-brand-soft">{entry.stage}</span>
-                  <span className="text-sm leading-relaxed text-mist">{entry.text}</span>
+                  <span className="text-sm leading-relaxed text-mist">
+                    {translateText(lang, 'economy', 'round-plan', entry.text)}
+                  </span>
                 </li>
               ))}
             </ol>

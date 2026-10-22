@@ -45,6 +45,8 @@ const SIMPLE_INTENTS: AssistantIntent[] = ['entity_lookup', 'comp_search', 'game
 const COMP_WORD = /\b(comp|comps|doi hinh|team|build|composition)\b/;
 const RECOMMEND_WORD = /\b(tim|find|recommend|goi y|phu hop|nen choi|choi gi|item nao|trang bi nao|which items?|what items?|best|strongest|manh nhat|tot nhat|easiest|de choi|don gian|build|meta)\b/;
 const HAVE_WORD = /\b(toi co|minh co|i have|with|voi|using|dung)\b/;
+const REFERENCE_DATA_QUESTION =
+  /\b(?:economy plan|economy strategy|economy curve|level curve|leveling plan|round plan|fast 8|fast 9|[1-3] cost reroll|reroll plan|shop odds|odds by level|champion pool|pool size|copies in pool|xp table|gold income|base income|round income|income by round|interest|streak bonus|loot table|stage loot|loot orb|augment odds|carousel odds|encounter odds|mechanics table|ti le shop|ti le cua hang|bang xp|bang kinh te|ke hoach kinh te|ke hoach reroll|duong cong cap|thu nhap vang|thu nhap theo vong|vang theo vong|lai vang|thuong chuoi|be tuong|bang loot|ti le nang cap|bang co che)\b|\b(?:xp|exp)\b.*\b(?:level|leveling|cap|len cap)\b|\b(?:level|leveling|cap|len cap)\b.*\b(?:xp|exp)\b/;
 
 function unique<T>(values: T[]): T[] {
   return [...new Set(values)];
@@ -66,6 +68,10 @@ function isVi(lang: Lang): boolean {
 
 function t(lang: Lang, en: string, vi: string): string {
   return isVi(lang) ? vi : en;
+}
+
+export function isReferenceDataQuestion(text: string): boolean {
+  return REFERENCE_DATA_QUESTION.test(normalizeSpaced(text));
 }
 
 function clip(value: string, length = 900): string {
@@ -220,8 +226,8 @@ export function ungroundedNumbers(answer: string, evidence: Evidence): string[] 
   return [...new Set(answer.match(/\d+/g) ?? [])].filter((number) => !allowed.has(number));
 }
 
-function sourceForMechanics(setId: string): AssistantSource {
-  const source = mechanicsSource(setId);
+function sourceForMechanics(setId: string, lang: Lang): AssistantSource {
+  const source = mechanicsSource(setId, lang);
   return {
     id: `mechanics:set${setId}`,
     title: source.title,
@@ -607,7 +613,11 @@ export async function answerAssistant(
   );
 
   const text = normalizeSpaced(resolutionText);
+  const wantsReferenceData = isReferenceDataQuestion(text);
   let intent = detectIntent(text, entities, mentionedComps, meta.setId);
+  if (wantsReferenceData && ['strategy_analysis', 'unsupported_or_unknown'].includes(intent)) {
+    intent = 'gameplay_knowledge';
+  }
 
   const version = `set${meta.setId || '?'}-patch${meta.patch || 'latest'}`;
   const repeated = [...entities
@@ -642,7 +652,7 @@ export async function answerAssistant(
     };
   }
 
-  if (intent === 'strategy_analysis') {
+  if (intent === 'strategy_analysis' && !wantsReferenceData) {
     const analysis = analyzeStrategy(text);
     if (analysis) {
       const plan = buildStrategyPlan(analysis, request.lang, meta.patch);
@@ -659,7 +669,7 @@ export async function answerAssistant(
         },
         recommendations: [],
         sections: plan.sections,
-        sources: [sourceForMechanics(meta.setId)],
+        sources: [sourceForMechanics(meta.setId, request.lang)],
         limitations: plan.limitations,
         followUpQuestions: plan.followUpQuestions,
         status: plan.status,
@@ -685,7 +695,7 @@ export async function answerAssistant(
       );
       if (hinted.length === 1) selectedEntities = hinted;
     }
-    if (selectedEntities.length !== 1 && !mechanics) {
+    if (selectedEntities.length !== 1 && !mechanics && !wantsReferenceData) {
       const names = selectedEntities.map((entity) => displayName(entity, request.lang)).join(', ');
       const question = isVi(request.lang) ? `Bạn muốn hỏi về lựa chọn nào: ${names}?` : `Which one do you mean: ${names}?`;
       return {
@@ -806,13 +816,14 @@ export async function answerAssistant(
   let toolStopped: ToolLoopResult['stopped'] | null = null;
   let toolAmbiguous: AmbiguousEntity[] = [];
   const shouldTryTools =
+    wantsReferenceData ||
     intent === 'unsupported_or_unknown' ||
     (intent === 'comp_recommendation' && /\b(?:tier|hang)\s*[sabcx]\b/i.test(text)) ||
     (intent === 'meta_query' && !stats.length);
   if (shouldTryTools) {
     try {
       const loop = await runToolLoop({
-        system: buildToolPlannerPrompt(request.lang, meta.setId, meta.patch),
+        system: buildToolPlannerPrompt(request.lang, meta.setId, meta.patch, selectedComps.map((comp) => comp.slug)),
         answerSystem: buildToolAgentPrompt(request.lang, agentEvidence),
         messages: [...request.history, { role: 'user', content: request.message }],
         tools: ASSISTANT_TOOLS,
@@ -925,13 +936,33 @@ export async function answerAssistant(
     ...(intent === 'comp_recommendation' ? candidates.map((candidate) => candidate.comp) : selectedComps),
     ...toolComps,
   ];
+  const toolSources = toolResults.flatMap((result): AssistantSource[] => {
+    if (result.status !== 'ok' || !result.data || typeof result.data !== 'object') return [];
+    const source = (result.data as { source?: unknown }).source;
+    if (!source || typeof source !== 'object') return [];
+    const item = source as { provider?: unknown; url?: unknown; set?: unknown; patch?: unknown; updatedAt?: unknown };
+    if (typeof item.url !== 'string' || typeof item.provider !== 'string') return [];
+    return [{
+      id: `${result.tool}:${item.url}`,
+      title: item.provider,
+      url: item.url,
+      sourceType: result.tool === 'get_game_mechanics' ? 'mechanics' : 'structured_data',
+      version: typeof item.patch === 'string'
+        ? `patch${item.patch}`
+        : typeof item.set === 'string'
+          ? item.set
+          : `patch${meta.patch || 'latest'}`,
+      ...(typeof item.updatedAt === 'string' ? { retrievedAt: item.updatedAt } : {}),
+    }];
+  });
   const sources = [
     ...sourceComps.map((comp) => sourceForComp(comp, request.lang, version)),
     ...relatedComps.map((comp) => sourceForComp(comp, request.lang, version)),
     ...selectedEntities.map((entity) => sourceForEntity(entity, request.lang, version)),
     ...relatedEntities.map((entity) => sourceForEntity(entity, request.lang, version)),
     ...(stats.length ? [sourceForStats(metaStats.source)] : []),
-    ...(mechanics ? [sourceForMechanics(meta.setId)] : []),
+    ...(mechanics ? [sourceForMechanics(meta.setId, request.lang)] : []),
+    ...toolSources,
   ]
     .filter((source, index, list) => list.findIndex((entry) => entry.id === source.id) === index)
     .slice(0, 6);
@@ -949,6 +980,11 @@ export async function answerAssistant(
     { setId: meta.setId, patch: meta.patch },
     catalog
   );
+  const referenceAnswer = toolResults
+    .filter((result) => result.status === 'ok' && ['get_game_mechanics', 'get_economy_plan'].includes(result.tool))
+    .map((result) => (result.data as { summary?: unknown } | null)?.summary)
+    .filter((summary): summary is string => typeof summary === 'string' && summary.trim().length > 0)
+    .join(' ');
   const evidence: Evidence = {
     intent,
     setId: meta.setId,
@@ -980,7 +1016,7 @@ export async function answerAssistant(
     sections: [],
     sources,
     followUpQuestions: followUps(request.lang, intent, selectedEntities, selectedComps, candidates, mechanics),
-    status: deterministic.status,
+    status: referenceAnswer ? 'answered' : deterministic.status,
   };
 
   if (toolAmbiguous.length) {
@@ -1001,15 +1037,15 @@ export async function answerAssistant(
     };
   }
 
-  const toolHasData = toolResults.some((result) => result.status === 'ok') &&
+  const toolHasData = !referenceAnswer && toolResults.some((result) => result.status === 'ok') &&
     Boolean(candidates.length || selectedComps.length || stats.length || comparison);
   const canUseLlm =
-    !['patch_change', 'unsupported_or_unknown', 'set_patch'].includes(intent) &&
-    deterministic.status === 'answered' &&
+    (!['patch_change', 'unsupported_or_unknown', 'set_patch'].includes(intent) || Boolean(referenceAnswer)) &&
+    (deterministic.status === 'answered' || Boolean(referenceAnswer)) &&
     !toolHasData &&
     !(intent === 'comp_recommendation' && (candidates.length === 1 || !selectedEntities.length));
   if (!canUseLlm) {
-    return { ...base, answer: deterministic.answer, mode: 'deterministic', limitations };
+    return { ...base, answer: referenceAnswer || deterministic.answer, mode: 'deterministic', limitations };
   }
 
   try {
@@ -1033,7 +1069,7 @@ export async function answerAssistant(
       assistantLog('invalid_answer', { length: result.text.length, sample: result.text.slice(0, 200) });
       return {
         ...base,
-        answer: deterministic.answer,
+        answer: referenceAnswer || deterministic.answer,
         mode: 'deterministic',
         limitations: unique([...limitations, t(request.lang, 'The generated answer was invalid; I used the data summary instead.', 'Câu trả lời tự động không hợp lệ; đã dùng bản tóm tắt từ dữ liệu.')]),
       };
@@ -1063,7 +1099,7 @@ export async function answerAssistant(
     if (error instanceof ProviderError && (error.code === 'unavailable' || !SIMPLE_INTENTS.includes(intent))) throw error;
     return {
       ...base,
-      answer: deterministic.answer,
+      answer: referenceAnswer || deterministic.answer,
       mode: 'deterministic',
       limitations: unique([...limitations, t(request.lang, 'The model is temporarily unavailable; I used the data summary instead.', 'Model tạm thời không khả dụng; đã dùng bản tóm tắt từ dữ liệu.')]),
     };

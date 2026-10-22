@@ -12,6 +12,7 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
   const headerRef = useRef<HTMLElement>(null);
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dismissedDropdown, setDismissedDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 1024px)');
@@ -176,15 +177,29 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
         <div className="mx-auto flex h-12 w-full max-w-[1280px] items-center gap-3 px-6">
           <nav className="flex items-center gap-2" aria-label={t.mainAria}>
             {dropdowns.map((dropdown) => (
-              <div key={dropdown.label} className="group relative">
+              <div
+                key={dropdown.label}
+                className="group relative"
+                onMouseEnter={() => {
+                  if (dismissedDropdown === dropdown.label) setDismissedDropdown(null);
+                }}
+                onMouseLeave={() => {
+                  if (dismissedDropdown === dropdown.label) setDismissedDropdown(null);
+                }}
+              >
                 <button type="button" className="smooth flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold text-fog group-hover:text-brand-soft">
                   {dropdown.label}
                   <span className="text-[10px] text-mist">{'\u25BE'}</span>
                 </button>
-                <div className="invisible absolute top-full left-1/2 z-50 -translate-x-1/2 origin-top scale-95 opacity-0 transition-all duration-150 group-hover:visible group-hover:scale-100 group-hover:opacity-100 group-focus-within:visible group-focus-within:scale-100 group-focus-within:opacity-100">
+                <div className={`invisible absolute top-full left-1/2 z-50 -translate-x-1/2 origin-top scale-95 opacity-0 transition-all duration-150 ${dismissedDropdown === dropdown.label ? '' : 'group-hover:visible group-hover:scale-100 group-hover:opacity-100 group-focus-within:visible group-focus-within:scale-100 group-focus-within:opacity-100'}`}>
                   <div className="mt-1 flex w-44 flex-col overflow-hidden rounded-lg border border-line bg-panel py-1">
                     {dropdown.items.map((item) => (
-                      <Link key={item.href} href={item.href} className="smooth px-4 py-2 text-sm text-mist hover:bg-util hover:text-brand-soft">
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setDismissedDropdown(dropdown.label)}
+                        className="smooth px-4 py-2 text-sm text-mist hover:bg-util hover:text-brand-soft"
+                      >
                         {item.label}
                       </Link>
                     ))}

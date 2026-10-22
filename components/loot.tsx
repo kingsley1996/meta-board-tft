@@ -3,6 +3,7 @@ import type { LootItem, LootOutcome, LootPlainTable } from '@/lib/loot';
 import { lootCategories, lootLocalCards } from '@/lib/loot';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+import { translateText } from '@/lib/translate';
 
 type HubCard = { slug: string; name: string; icon: string | null; splash: string | null };
 
@@ -41,14 +42,24 @@ export function LootHub({ lang }: { lang: Lang }) {
         const cards: HubCard[] = [
           ...lootLocalCards
             .filter((card) => card.category === category.heading)
-            .map((card) => ({ slug: card.slug, name: t.cardNames[card.name] ?? card.name, icon: card.icon, splash: null })),
-          ...category.pages.map((page) => ({ slug: page.slug, name: page.name, icon: page.icon, splash: page.splash })),
+            .map((card) => ({
+              slug: card.slug,
+              name: translateText(lang, 'loot', 'card-name', card.name, t.cardNames[card.name]),
+              icon: card.icon,
+              splash: null,
+            })),
+          ...category.pages.map((page) => ({
+            slug: page.slug,
+            name: translateText(lang, 'loot', 'page-name', page.name),
+            icon: page.icon,
+            splash: page.splash,
+          })),
         ];
         return (
           <section key={category.heading} data-section={`loot-${category.heading.toLowerCase()}`} className="flex flex-col gap-3">
             <h2 className="flex items-center gap-2 font-display text-2xl font-bold tracking-tight text-fog">
               <span className="text-brand-soft">{'\u25C8'}</span>
-              {t.categories[category.heading] ?? category.heading}
+              {translateText(lang, 'loot', 'category-heading', category.heading, t.categories[category.heading])}
               <span className="text-brand-soft">{'\u25C8'}</span>
             </h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -64,24 +75,24 @@ export function LootHub({ lang }: { lang: Lang }) {
   );
 }
 
-export function LootItemRow({ item }: { item: LootItem }) {
+export function LootItemRow({ item, lang }: { item: LootItem; lang: Lang }) {
   return (
     <span className="flex items-center gap-2">
       {item.icon ? <img src={item.icon} alt="" loading="lazy" className="h-6 w-6 shrink-0 rounded" /> : null}
-      <span className="text-sm text-fog">{item.name}</span>
+      <span className="text-sm text-fog">{translateText(lang, 'loot', 'outcome-item', item.name)}</span>
       {item.count ? <span className="text-xs font-semibold text-mist">{item.count}</span> : null}
     </span>
   );
 }
 
-export function LootOutcomes({ outcomes }: { outcomes: LootOutcome[] }) {
+export function LootOutcomes({ outcomes, lang }: { outcomes: LootOutcome[]; lang: Lang }) {
   return (
     <ul className="flex flex-col gap-1.5">
       {outcomes.map((outcome, index) => (
         <li key={`${outcome.chance ?? index}`} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line/50 pb-1.5 last:border-b-0">
           <span className="w-16 shrink-0 text-xs font-semibold text-brand-soft">{outcome.chance ?? '—'}</span>
           <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            {outcome.items.map((item, itemIndex) => <LootItemRow key={`${item.name}-${itemIndex}`} item={item} />)}
+            {outcome.items.map((item, itemIndex) => <LootItemRow key={`${item.name}-${itemIndex}`} item={item} lang={lang} />)}
           </span>
         </li>
       ))}
@@ -89,14 +100,16 @@ export function LootOutcomes({ outcomes }: { outcomes: LootOutcome[] }) {
   );
 }
 
-export function LootPlainTableView({ table }: { table: LootPlainTable }) {
+export function LootPlainTableView({ table, lang }: { table: LootPlainTable; lang: Lang }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr>
             {table.headers.map((header) => (
-              <th key={header} className="border-b border-line px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-mist">{header}</th>
+              <th key={header} className="border-b border-line px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-mist">
+                {translateText(lang, 'loot', 'column-header', header)}
+              </th>
             ))}
           </tr>
         </thead>
@@ -107,7 +120,7 @@ export function LootPlainTableView({ table }: { table: LootPlainTable }) {
                 <td key={cellIndex} className="border-b border-line/50 px-3 py-1.5 text-mist">
                   <span className="flex items-center gap-1.5">
                     {cell.icon ? <img src={cell.icon} alt="" loading="lazy" className="h-4 w-4 object-contain" /> : null}
-                    {cell.value}
+                    {translateText(lang, 'loot', 'cell', cell.value)}
                   </span>
                 </td>
               ))}
