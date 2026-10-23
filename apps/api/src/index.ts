@@ -7,6 +7,18 @@ import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, write
 import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
 import { assistantRouter } from './assistant/index.ts';
 import { translateText } from './assistant/translate.ts';
+import { voiceRouter } from './voice.ts';
+import { ENTITY_TYPES } from './assistant/contracts.ts';
+import { loadCatalog } from './assistant/tools.ts';
+import {
+  approveUnresolvedEntityMention,
+  createEntityAlias,
+  deleteEntityAlias,
+  deleteUnresolvedEntityMention,
+  listEntityAliases,
+  listUnresolvedEntityMentions,
+} from './assistant/entity-alias-store.ts';
+import { COMP_ALIASES } from './assistant/entity-aliases.ts';
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -25,7 +37,7 @@ app.get('/api/comps', async (req, res) => {
   const meta = await getMeta();
   const sort = req.query.sort === 'popular' ? 'popular' : undefined;
   const comps = await listComps(undefined, readLang(req.query.lang), sort);
-  res.json({ patch: { version: meta.patch ?? 'latest', updated: 'via MetaTFT' }, set: Number(meta.set_number ?? 0), comps });
+  res.json({ patch: { version: meta.patch ?? 'latest', updated: 'via MetaBoard' }, set: Number(meta.set_number ?? 0), comps });
 });
 
 app.get('/api/comps/:slug', async (req, res) => {
@@ -199,7 +211,78 @@ app.delete('/api/admin/subscribers/:email', async (req, res) => {
   res.status(204).end();
 });
 
+app.get('/api/admin/aliases', async (_req, res) => {
+  const [catalog, comps, aliases, unresolved] = await Promise.all([
+    loadCatalog(),
+    listComps(undefined, 'en'),
+    listEntityAliases(),
+    listUnresolvedEntityMentions(),
+  ]);
+  const entities = [
+    ...catalog.entities.map((entity) => ({ id: entity.id, type: entity.type, name: entity.name })),
+    ...comps.map((comp) => ({ id: `comp:${comp.slug}`, type: 'comp', name: comp.title })),
+  ];
+  const namesById = new Map(entities.map((entity) => [entity.id, entity.name]));
+  res.json({
+    aliases: aliases.map((alias) => ({ ...alias, targetName: namesById.get(alias.entityId) ?? alias.entityId })),
+    unresolved,
+    entities,
+  });
+});
+
+app.post('/api/admin/aliases', async (req, res) => {
+  const { alias, entityType, entityId } = req.body ?? {};
+  if (typeof alias !== 'string' || typeof entityId !== 'string' || !ENTITY_TYPES.includes(entityType)) {
+    return res.status(400).json({ error: 'alias, entityType, and entityId are required.' });
+  }
+  const [catalog, comps] = await Promise.all([loadCatalog(), listComps(undefined, 'en')]);
+  const compIds = new Set(comps.map((comp) => comp.slug));
+  const reservedAliases = [
+    ...comps.flatMap((comp) => [comp.title, comp.slug, ...(COMP_ALIASES[comp.slug] ?? [])]),
+    ...Object.values(COMP_ALIASES).flat(),
+  ];
+  const result = await createEntityAlias({ alias, entityType, entityId }, catalog, compIds, reservedAliases);
+  if ('error' in result) return res.status(result.status).json({ error: result.error });
+  res.status(201).json({ alias: result.alias });
+});
+
+app.delete('/api/admin/aliases/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid alias id.' });
+  if (!(await deleteEntityAlias(id))) return res.status(404).json({ error: 'Alias not found.' });
+  res.status(204).end();
+});
+
+app.post('/api/admin/aliases/unresolved/:id/approve', async (req, res) => {
+  const id = Number(req.params.id);
+  const { entityType, entityId } = req.body ?? {};
+  if (!Number.isSafeInteger(id) || id < 1 || typeof entityId !== 'string' || !ENTITY_TYPES.includes(entityType)) {
+    return res.status(400).json({ error: 'A valid pending alias id, entityType, and entityId are required.' });
+  }
+  const [catalog, comps] = await Promise.all([loadCatalog(), listComps(undefined, 'en')]);
+  const compIds = new Set(comps.map((comp) => comp.slug));
+  const reservedAliases = [
+    ...comps.flatMap((comp) => [comp.title, comp.slug, ...(COMP_ALIASES[comp.slug] ?? [])]),
+    ...Object.values(COMP_ALIASES).flat(),
+  ];
+  const result = await approveUnresolvedEntityMention(id, { entityType, entityId }, catalog, compIds, reservedAliases);
+  if ('error' in result) return res.status(result.status).json({ error: result.error });
+  const targetName =
+    entityType === 'comp'
+      ? comps.find((comp) => `comp:${comp.slug}` === entityId)?.title ?? entityId
+      : catalog.byId.get(entityId)?.name ?? entityId;
+  res.status(201).json({ alias: { ...result.alias, targetName } });
+});
+
+app.delete('/api/admin/aliases/unresolved/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid unresolved alias id.' });
+  if (!(await deleteUnresolvedEntityMention(id))) return res.status(404).json({ error: 'Unresolved alias not found.' });
+  res.status(204).end();
+});
+
 app.use('/api/assistant', assistantRouter);
+app.use('/api/voice', voiceRouter);
 
 app.use('/api', (_req, res) => res.status(404).json({ error: 'not found' }));
 

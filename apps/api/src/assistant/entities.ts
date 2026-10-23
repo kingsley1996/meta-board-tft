@@ -1,4 +1,5 @@
-import { clampLimit, entityId, type CatalogEntity, type EntityId, type EntityMatch, type GameEntityType } from './contracts.ts';
+import { clampLimit, entityId, type CatalogEntity, type EntityId, type EntityMatch, type GameEntityType, type Lang } from './contracts.ts';
+import { ENTITY_ALIAS_GROUPS } from './entity-aliases.ts';
 
 export type { EntityMatch };
 import type { StaticGameData } from './static-game-data.ts';
@@ -49,31 +50,15 @@ export type Catalog = {
   byName: Map<string, CatalogEntity>;
   aliases: Map<string, Set<string>>;
   aliasesSpaced: Map<string, Set<string>>;
+  compAliases: Map<string, string[]>;
   components: Set<string>;
 };
 
-const ITEM_ALIASES: Record<string, string> = {
-  frozenheart: "Protector's Vow",
-  protectorsvow: "Protector's Vow",
-  redemption: 'Spirit Visage',
-  tacticiansring: "Tactician's Cape",
-  madredsbloodrazor: 'Giant Slayer',
-  guardianangel: 'Edge of Night',
-  runaanshurricane: "Kraken's Fury",
-  spectralgauntlet: 'Evenshroud',
-  leviathan: "Nashor's Tooth",
-  forceofnature: "Tactician's Crown",
-  tacticiansscepter: "Tactician's Shield",
-  statikkshiv: 'Void Staff',
-  powergauntlet: "Striker's Flail",
-  nightharvester: 'Steadfast Heart',
-  unstableconcoction: 'Hand Of Justice',
-};
+export type CustomEntityAlias = { alias: string; entityType: string; entityId: string };
 
-const TRAIT_ALIASES: Record<string, string> = {
-  slayer: 'Ravager',
-  florafatalis: 'Flora Fatalis',
-};
+export function localizedName(catalog: Catalog, name: string, lang: Lang): string {
+  return lang === 'vi' ? (catalog.byName.get(name)?.nameVi ?? name) : name;
+}
 
 const COMPONENT_ALIASES: Record<string, string> = {
   bf: 'B.F. Sword',
@@ -105,7 +90,7 @@ export function normalizeSpaced(value: string): string {
     .trim();
 }
 
-export function buildCatalog(rows: DbRows, staticData: StaticGameData): Catalog {
+export function buildCatalog(rows: DbRows, staticData: StaticGameData, customAliases: CustomEntityAlias[] = []): Catalog {
   const entities: CatalogEntity[] = [];
   const byId = new Map<string, CatalogEntity>();
   const byName = new Map<string, CatalogEntity>();
@@ -274,22 +259,37 @@ export function buildCatalog(rows: DbRows, staticData: StaticGameData): Catalog 
     if (entity.slug) addAlias(entity.slug, entity);
   }
 
-  for (const [alias, name] of Object.entries(ITEM_ALIASES)) {
-    const entity = byName.get(name);
-    if (entity) addAlias(alias, entity);
+  for (const group of ENTITY_ALIAS_GROUPS) {
+    const entity = byName.get(group.name);
+    if (entity?.type !== group.type) continue;
+    for (const alias of group.aliases) addAlias(alias, entity);
   }
   for (const [alias, name] of Object.entries(COMPONENT_ALIASES)) {
     const entity = byName.get(name);
     if (entity) addAlias(alias, entity);
   }
-  for (const [alias, name] of Object.entries(TRAIT_ALIASES)) {
-    const trait = byName.get(name);
-    if (trait) addAlias(alias, trait);
-    const emblem = byName.get(`${name} Emblem`);
-    if (emblem) addAlias(`${alias} emblem`, emblem);
+  for (const group of ENTITY_ALIAS_GROUPS) {
+    if (group.type !== 'trait') continue;
+    const trait = byName.get(group.name);
+    if (trait?.type !== 'trait') continue;
+    for (const alias of group.aliases) {
+      const emblem = byName.get(`${group.name} Emblem`);
+      if (emblem?.type === 'item') addAlias(`${alias} emblem`, emblem);
+    }
   }
 
-  return { entities, byId, byName, aliases, aliasesSpaced, components };
+  const compAliases = new Map<string, string[]>();
+  for (const entry of customAliases) {
+    if (entry.entityType === 'comp') {
+      const slug = entry.entityId.startsWith('comp:') ? entry.entityId.slice('comp:'.length) : '';
+      if (slug) compAliases.set(slug, [...(compAliases.get(slug) ?? []), entry.alias]);
+      continue;
+    }
+    const entity = byId.get(entry.entityId);
+    if (entity?.type === entry.entityType) addAlias(entry.alias, entity);
+  }
+
+  return { entities, byId, byName, aliases, aliasesSpaced, compAliases, components };
 }
 
 export function getCatalogEntity(catalog: Catalog, id: EntityId | string): CatalogEntity | null {

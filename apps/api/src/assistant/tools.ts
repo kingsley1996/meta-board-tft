@@ -18,8 +18,10 @@ import {
 import { buildCatalog, normalize, searchCatalog, type Catalog, type DbRows } from './entities.ts';
 import { rankComps } from './ranking.ts';
 import { loadStaticGameData } from './static-game-data.ts';
+import { ensureEntityAliasTable, listEntityAliases } from './entity-alias-store.ts';
 
 export async function loadCatalog(): Promise<Catalog> {
+  await ensureEntityAliasTable();
   const [champions, traits, items, augments, staticData] = await Promise.all([
     pool.query('SELECT api_name, name, cost, traits, icon FROM champions'),
     pool.query('SELECT api_name, name, description, thresholds, styles, icon FROM traits'),
@@ -27,6 +29,7 @@ export async function loadCatalog(): Promise<Catalog> {
     pool.query('SELECT api_name, name, description, rarity, icon FROM augments'),
     loadStaticGameData(),
   ]);
+  const customAliases = await listEntityAliases();
 
   return buildCatalog(
     {
@@ -35,7 +38,8 @@ export async function loadCatalog(): Promise<Catalog> {
       items: items.rows,
       augments: augments.rows,
     } as DbRows,
-    staticData
+    staticData,
+    customAliases
   );
 }
 

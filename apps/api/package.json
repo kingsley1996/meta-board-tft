@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "node --watch --env-file-if-exists=.env src/index.ts",
     "start": "node src/index.ts",
+    "download:sherpa-model": "node scripts/download-sherpa-model.mjs",
     "seed": "node --env-file-if-exists=.env seed/seed.ts",
     "seed:economy": "node --env-file-if-exists=.env seed/add-economy-comps.ts",
     "test": "node --test src/assistant/*.test.ts",
@@ -21,7 +22,8 @@
   "dependencies": {
     "@metaboard/shared": "*",
     "express": "^5.1.0",
-    "pg": "^8.16.0"
+    "pg": "^8.16.0",
+    "sherpa-onnx-node": "^1.13.8"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

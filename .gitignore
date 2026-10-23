@@ -18,6 +18,7 @@ next-env.d.ts
 # loot table art — regenerate with `npm run fetch-loot`
 apps/web/public/tft/
 apps/web/scripts/.cache/
+apps/api/models/
 
 # capture artefacts (source-site screenshots and rebuild output are large)
 capture/source/

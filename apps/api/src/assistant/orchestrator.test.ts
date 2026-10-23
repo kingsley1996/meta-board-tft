@@ -1,7 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { CatalogEntity, CompData } from './contracts.ts';
-import { detectIntent, isPromptInjection, isReferenceDataQuestion, ungroundedNumbers } from './orchestrator.ts';
+import {
+  detectIntent,
+  findCompMentions,
+  isPromptInjection,
+  isReferenceDataQuestion,
+  ungroundedNumbers,
+} from './orchestrator.ts';
 import type { Evidence } from './prompt.ts';
 
 const ahri = { type: 'champion', id: 'champion:DA_18_Ahri' } as unknown as CatalogEntity;
@@ -48,6 +54,13 @@ test('routes static mechanic tables and economy plans to reference tools, not li
   assert.equal(isReferenceDataQuestion('How does a 6-win streak affect gold income?'), true);
 });
 
+test('comp aliases match known shortened titles without partial-word matches', () => {
+  const comp = { slug: 'ahri-spellweaver', title: 'Ahri & Morgana Blossom' } as CompData;
+  const other = { slug: 'ahri-zyra-blossom', title: 'Ahri & Zyra Blossom' } as CompData;
+  assert.deepEqual(findCompMentions([comp, other], 'Mình muốn chơi Ahri Morgana.'), [comp]);
+  assert.deepEqual(findCompMentions([comp, other], 'Chơi ZyraBlossom chứ?'), []);
+  assert.deepEqual(findCompMentions([comp, other], 'Play blossom fox please', new Map([[comp.slug, ['blossom fox']]])), [comp]);
+});
 test('item names containing buff are lookups, not patch changes', () => {
   assert.equal(detectIntent('what is blue buff', [blueBuff], []), 'entity_lookup');
 });
