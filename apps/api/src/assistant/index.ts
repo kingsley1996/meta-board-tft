@@ -6,6 +6,7 @@ import { assistantLog } from './logger.ts';
 import { AssistantContextError, answerAssistant } from './orchestrator.ts';
 import { ProviderError } from './provider.ts';
 import { checkRateLimit } from './rate-limit.ts';
+import { captureUnresolvedEntityMentions } from './unresolved-entity-detection.ts';
 
 const COOKIE = 'mb_assistant';
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -68,6 +69,12 @@ assistantRouter.post('/query', async (req, res) => {
       lang: request.lang,
       messageLength: request.message.length,
       durationMs: Date.now() - started,
+    });
+    void captureUnresolvedEntityMentions(request).catch((error: unknown) => {
+      assistantLog('unresolved_entity_capture_error', {
+        requestId,
+        message: error instanceof Error ? error.message.slice(0, 300) : 'unknown error',
+      });
     });
     res.json({ requestId, ...answer });
   } catch (error) {

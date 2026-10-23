@@ -8,6 +8,7 @@ const items = [
   { href: '/admin', label: 'Overview', exact: true },
   { href: '/admin/comps', label: 'Comps' },
   { href: '/admin/guides', label: 'Guides' },
+  { href: '/admin/aliases', label: 'Aliases' },
   { href: '/admin/subscribers', label: 'Subscribers' },
 ];
 

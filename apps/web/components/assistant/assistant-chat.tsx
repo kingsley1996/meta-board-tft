@@ -19,13 +19,64 @@ type ChatMessage = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  voiceResponse?: boolean;
   response?: AssistantResponse;
 };
 
 type StoredChat = { conversationId?: string; messages?: ChatMessage[] };
 
+type SpeechRecognitionResultLike = ArrayLike<{ transcript: string }> & { isFinal: boolean };
+
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: ArrayLike<SpeechRecognitionResultLike>;
+};
+
+type SpeechRecognitionLike = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onend: (() => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onstart: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type SpeechRecognitionWindow = Window & {
+  SpeechRecognition?: new () => SpeechRecognitionLike;
+  webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+};
+
+type SherpaVoiceSession = {
+  stream: MediaStream;
+  audioContext: AudioContext;
+  source: MediaStreamAudioSourceNode;
+  processor: AudioWorkletNode;
+  chunks: Float32Array[];
+  sampleCount: number;
+  maxSamples: number;
+  tooLong: boolean;
+};
+
 function makeId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+}
+
+function closeSherpaSession(session: SherpaVoiceSession): Promise<void> {
+  session.processor.port.onmessage = null;
+  session.processor.disconnect();
+  session.source.disconnect();
+  session.stream.getTracks().forEach((track) => track.stop());
+  return session.audioContext.close();
+}
+
+function floatSamplesToBuffer(samples: Float32Array): ArrayBuffer {
+  const buffer = new ArrayBuffer(samples.length * Float32Array.BYTES_PER_ELEMENT);
+  const view = new DataView(buffer);
+  samples.forEach((sample, index) => view.setFloat32(index * Float32Array.BYTES_PER_ELEMENT, sample, true));
+  return buffer;
 }
 
 function loadStored(key: string): StoredChat {
@@ -62,6 +113,21 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const [feedback, setFeedback] = useState<Record<string, boolean>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [voiceStarting, setVoiceStarting] = useState(false);
+  const [voiceTranscribing, setVoiceTranscribing] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const sherpaSessionRef = useRef<SherpaVoiceSession | null>(null);
+  const speechRequestRef = useRef<AbortController | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
+  const voiceBaseRef = useRef('');
+  const voiceTranscriptRef = useRef('');
+  const autoSubmitVoiceRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -70,6 +136,21 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     setConversationId(stored.conversationId);
     setHydrated(true);
   }, [storageKey]);
+
+  useEffect(
+    () => () => {
+      autoSubmitVoiceRef.current = false;
+      recognitionRef.current?.stop();
+      const session = sherpaSessionRef.current;
+      sherpaSessionRef.current = null;
+      if (session) void closeSherpaSession(session).catch((caught: unknown) => console.error('Could not close Sherpa audio session', caught));
+      speechRequestRef.current?.abort();
+      audioRef.current?.pause();
+      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+      window.speechSynthesis?.cancel();
+    },
+    []
+  );
 
   useEffect(() => {
     if (!hydrated) return;
@@ -93,11 +174,83 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     return t.errors.generic;
   }
 
-  async function submit(raw: string, addUser = true) {
+  function stopAnswerSpeech() {
+    speechRequestRef.current?.abort();
+    speechRequestRef.current = null;
+    audioRef.current?.pause();
+    audioRef.current = null;
+    if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+    audioUrlRef.current = null;
+    window.speechSynthesis?.cancel();
+    setSpeaking(false);
+    setSpeakingMessageId(null);
+  }
+
+  async function speakAnswer(answer: string, messageId: string) {
+    stopAnswerSpeech();
+    setSpeechError(null);
+    const controller = new AbortController();
+    speechRequestRef.current = controller;
+    setSpeaking(true);
+    setSpeakingMessageId(messageId);
+    try {
+      const response = await fetch('/api/voice/tts/speech', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: answer }),
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
+      if (response.status === 503) {
+        setSpeechError(t.voiceTtsUnavailable);
+        setSpeaking(false);
+        setSpeakingMessageId(null);
+        return;
+      }
+      if (!response.ok) throw new Error(`VieNeu TTS responded ${response.status}`);
+      const audioUrl = URL.createObjectURL(await response.blob());
+      if (controller.signal.aborted) {
+        URL.revokeObjectURL(audioUrl);
+        return;
+      }
+      const audio = new Audio(audioUrl);
+      audioUrlRef.current = audioUrl;
+      audioRef.current = audio;
+      audio.onended = () => {
+        if (audioRef.current !== audio) return;
+        audioRef.current = null;
+        audioUrlRef.current = null;
+        URL.revokeObjectURL(audioUrl);
+        setSpeaking(false);
+        setSpeakingMessageId(null);
+      };
+      audio.onerror = () => {
+        if (audioRef.current !== audio) return;
+        audioRef.current = null;
+        audioUrlRef.current = null;
+        URL.revokeObjectURL(audioUrl);
+        setSpeaking(false);
+        setSpeakingMessageId(null);
+        setSpeechError(t.voiceSpeechError);
+      };
+      await audio.play();
+    } catch (caught) {
+      if (controller.signal.aborted) return;
+      console.error('VieNeu speech playback failed', caught);
+      stopAnswerSpeech();
+      setSpeechError(t.voiceSpeechError);
+    } finally {
+      if (speechRequestRef.current === controller) speechRequestRef.current = null;
+    }
+  }
+
+  async function submit(raw: string, addUser = true, speakResponse = false) {
     const text = raw.trim();
     if (!text || loading) return;
+    if (addUser) stopAnswerSpeech();
     setError(null);
     setRetryText(null);
+    setSpeechError(null);
     if (addUser) {
       setMessages((current) => [...current, { id: makeId(), role: 'user', content: text }]);
       setInput('');
@@ -113,7 +266,12 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     try {
       const response = await askAssistant(request);
       setConversationId(response.conversationId);
-      setMessages((current) => [...current, { id: makeId(), role: 'assistant', content: response.answer, response }]);
+      const assistantMessageId = makeId();
+      setMessages((current) => [
+        ...current,
+        { id: assistantMessageId, role: 'assistant', content: response.answer, response, voiceResponse: speakResponse },
+      ]);
+      if (speakResponse) void speakAnswer(response.answer, assistantMessageId);
     } catch (caught) {
       setError(errorText(caught));
       setRetryText(text);
@@ -122,12 +280,274 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     }
   }
 
+  async function startSherpaVoiceInput() {
+    if (
+      !navigator.mediaDevices?.getUserMedia ||
+      !window.AudioContext ||
+      !window.OfflineAudioContext ||
+      !window.AudioWorkletNode
+    ) {
+      setVoiceError(t.voiceUnsupported);
+      return;
+    }
+
+    setVoiceStarting(true);
+    stopAnswerSpeech();
+    setVoiceError(null);
+    setSpeechError(null);
+    voiceBaseRef.current = input.trim();
+    let stream: MediaStream | undefined;
+    let audioContext: AudioContext | undefined;
+    try {
+      const statusResponse = await fetch('/api/voice/status', { cache: 'no-store' });
+      if (!statusResponse.ok) {
+        setVoiceError(t.voiceSherpaError);
+        return;
+      }
+      const status = (await statusResponse.json()) as { available?: boolean };
+      if (!status.available) {
+        setVoiceError(t.voiceSherpaUnavailable);
+        return;
+      }
+
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      });
+      audioContext = new AudioContext();
+      await audioContext.resume();
+      await audioContext.audioWorklet.addModule('/audio-capture-processor.js');
+      const source = audioContext.createMediaStreamSource(stream);
+      const processor = new AudioWorkletNode(audioContext, 'metaboard-audio-capture', {
+        numberOfInputs: 1,
+        numberOfOutputs: 1,
+        outputChannelCount: [1],
+      });
+      const session: SherpaVoiceSession = {
+        stream,
+        audioContext,
+        source,
+        processor,
+        chunks: [],
+        sampleCount: 0,
+        maxSamples: Math.ceil(audioContext.sampleRate * 60),
+        tooLong: false,
+      };
+      processor.port.onmessage = (event: MessageEvent<ArrayBuffer>) => {
+        const inputSamples = new Float32Array(event.data);
+        const remaining = session.maxSamples - session.sampleCount;
+        if (remaining <= 0) {
+          session.tooLong = true;
+          return;
+        }
+        const captured = inputSamples.slice(0, Math.min(inputSamples.length, remaining));
+        session.chunks.push(captured);
+        session.sampleCount += captured.length;
+        if (captured.length < inputSamples.length) session.tooLong = true;
+      };
+      source.connect(processor);
+      processor.connect(audioContext.destination);
+      sherpaSessionRef.current = session;
+      setListening(true);
+    } catch (caught) {
+      stream?.getTracks().forEach((track) => track.stop());
+      if (audioContext && audioContext.state !== 'closed') {
+        await audioContext.close();
+      }
+      if (caught instanceof DOMException && caught.name === 'NotAllowedError') {
+        setVoiceError(t.voicePermission);
+      } else if (caught instanceof DOMException && ['NotFoundError', 'NotReadableError', 'OverconstrainedError'].includes(caught.name)) {
+        setVoiceError(t.voiceNoMicrophone);
+      } else {
+        setVoiceError(t.voiceError);
+      }
+    } finally {
+      setVoiceStarting(false);
+    }
+  }
+
+  async function stopSherpaVoiceInput() {
+    const session = sherpaSessionRef.current;
+    if (!session) return;
+    sherpaSessionRef.current = null;
+    setListening(false);
+    setVoiceTranscribing(true);
+    try {
+      await closeSherpaSession(session);
+      if (session.tooLong) {
+        setVoiceError(t.voiceTooLong);
+        return;
+      }
+      if (!session.sampleCount) {
+        setVoiceError(t.voiceNoSpeech);
+        return;
+      }
+
+      const capturedSamples = new Float32Array(session.sampleCount);
+      let offset = 0;
+      for (const chunk of session.chunks) {
+        capturedSamples.set(chunk, offset);
+        offset += chunk.length;
+      }
+      const outputLength = Math.ceil((capturedSamples.length * 16_000) / session.audioContext.sampleRate);
+      const offlineContext = new OfflineAudioContext(1, outputLength, 16_000);
+      const audioBuffer = offlineContext.createBuffer(1, capturedSamples.length, session.audioContext.sampleRate);
+      audioBuffer.copyToChannel(capturedSamples, 0);
+      const source = offlineContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(offlineContext.destination);
+      source.start();
+      const resampled = await offlineContext.startRendering();
+      const response = await fetch('/api/voice/transcribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/octet-stream', 'X-Sample-Rate': '16000' },
+        body: floatSamplesToBuffer(resampled.getChannelData(0)),
+      });
+      if (response.status === 413) {
+        setVoiceError(t.voiceTooLong);
+        return;
+      }
+      if (response.status === 503) {
+        setVoiceError(t.voiceSherpaUnavailable);
+        return;
+      }
+      if (response.status === 429) {
+        setVoiceError(t.voiceBusy);
+        return;
+      }
+      const result = (await response.json()) as { text?: unknown; error?: unknown };
+      if (response.status === 422 || result.error === 'no_speech') {
+        setVoiceError(t.voiceNoSpeech);
+        return;
+      }
+      if (!response.ok || typeof result.text !== 'string') {
+        setVoiceError(t.voiceSherpaError);
+        return;
+      }
+      const transcript = result.text.trim();
+      if (!transcript) {
+        setVoiceError(t.voiceNoSpeech);
+        return;
+      }
+      const base = voiceBaseRef.current;
+      const question = `${base}${base ? ' ' : ''}${transcript}`.slice(0, 2000);
+      setVoiceError(null);
+      setVoiceTranscribing(false);
+      await submit(question, true, true);
+    } catch (caught) {
+      console.error('Sherpa transcription failed', caught);
+      setVoiceError(t.voiceSherpaError);
+    } finally {
+      setVoiceTranscribing(false);
+    }
+  }
+
+  function cancelSherpaVoiceInput() {
+    const session = sherpaSessionRef.current;
+    sherpaSessionRef.current = null;
+    if (session) void closeSherpaSession(session).catch((caught: unknown) => console.error('Could not close Sherpa audio session', caught));
+    setListening(false);
+  }
+
+  function toggleVoiceInput() {
+    if (lang === 'vi') {
+      if (sherpaSessionRef.current) void stopSherpaVoiceInput();
+      else if (!voiceStarting && !voiceTranscribing) void startSherpaVoiceInput();
+      return;
+    }
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      return;
+    }
+
+    const speechWindow = window as SpeechRecognitionWindow;
+    const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+    if (!Recognition) {
+      setVoiceError(t.voiceUnsupported);
+      return;
+    }
+
+    setVoiceError(null);
+    setSpeechError(null);
+    stopAnswerSpeech();
+    voiceBaseRef.current = input.trim();
+    voiceTranscriptRef.current = '';
+    autoSubmitVoiceRef.current = true;
+    const recognition = new Recognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.onstart = () => setListening(true);
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+      let interimTranscript = '';
+      for (let index = 0; index < event.results.length; index += 1) {
+        const result = event.results[index];
+        const transcript = result[0]?.transcript ?? '';
+        if (result.isFinal) finalTranscript += transcript;
+        else interimTranscript += transcript;
+      }
+      const transcript = `${finalTranscript}${interimTranscript}`.trim();
+      voiceTranscriptRef.current = finalTranscript.trim();
+      const base = voiceBaseRef.current;
+      setInput(`${base}${base && transcript ? ' ' : ''}${transcript}`.slice(0, 2000));
+    };
+    recognition.onerror = (event) => {
+      if (event.error !== 'aborted') autoSubmitVoiceRef.current = false;
+      if (event.error === 'not-allowed') {
+        setVoiceError(t.voicePermission);
+      } else if (event.error === 'service-not-allowed') {
+        setVoiceError(t.voiceServiceUnavailable);
+      } else if (event.error === 'no-speech') {
+        setVoiceError(t.voiceNoSpeech);
+      } else if (event.error === 'audio-capture') {
+        setVoiceError(t.voiceNoMicrophone);
+      } else if (event.error === 'network') {
+        setVoiceError(t.voiceNetwork);
+      } else if (event.error === 'language-not-supported') {
+        setVoiceError(t.voiceLanguageUnavailable);
+      } else if (event.error !== 'aborted') {
+        setVoiceError(t.voiceError);
+      }
+    };
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      setListening(false);
+      const transcript = voiceTranscriptRef.current;
+      const shouldAutoSubmit = autoSubmitVoiceRef.current;
+      const shouldSubmit = shouldAutoSubmit && !!transcript;
+      autoSubmitVoiceRef.current = false;
+      voiceTranscriptRef.current = '';
+      if (shouldSubmit) {
+        const base = voiceBaseRef.current;
+        void submit(`${base}${base ? ' ' : ''}${transcript}`, true, true);
+      } else if (shouldAutoSubmit && !transcript) {
+        setVoiceError(t.voiceNoSpeech);
+      }
+    };
+    recognitionRef.current = recognition;
+    setListening(true);
+
+    try {
+      recognition.start();
+    } catch {
+      recognitionRef.current = null;
+      setListening(false);
+      setVoiceError(t.voiceError);
+    }
+  }
+
   function newChat() {
     if (loading) return;
+    stopAnswerSpeech();
+    autoSubmitVoiceRef.current = false;
+    recognitionRef.current?.stop();
+    cancelSherpaVoiceInput();
     setMessages([]);
     setConversationId(undefined);
     setInput('');
     setError(null);
+    setVoiceError(null);
+    setSpeechError(null);
     setRetryText(null);
     setFeedback({});
     try {
@@ -216,6 +636,8 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
               lang={lang}
               feedback={message.response ? feedback[message.response.requestId] : undefined}
               copied={copiedId === message.id}
+              speaking={speakingMessageId === message.id}
+              onSpeak={() => (speakingMessageId === message.id ? stopAnswerSpeech() : void speakAnswer(message.content, message.id))}
               onCopy={() => void copyAnswer(message)}
               onRate={rate}
               onFollowUp={(question) => void submit(question)}
@@ -370,6 +792,8 @@ function AssistantBubble({
   lang,
   feedback,
   copied,
+  speaking,
+  onSpeak,
   onCopy,
   onRate,
   onFollowUp,
@@ -379,6 +803,8 @@ function AssistantBubble({
   lang: Lang;
   feedback: boolean | undefined;
   copied: boolean;
+  speaking: boolean;
+  onSpeak: () => void;
   onCopy: () => void;
   onRate: (response: AssistantResponse, helpful: boolean) => Promise<void>;
   onFollowUp: (question: string) => void;
@@ -393,6 +819,15 @@ function AssistantBubble({
       <div className="max-w-[92%] rounded-2xl rounded-bl-sm border border-line bg-util px-4 py-3 text-sm leading-relaxed text-fog sm:max-w-[85%]">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-soft">{t.assistant}</span>
+          {message.voiceResponse ? (
+            <span className="inline-flex items-center gap-1 rounded border border-brand-soft/40 bg-brand-soft/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-soft" title={t.voiceAnswer}>
+              <svg viewBox="0 0 20 20" aria-hidden className="h-3.5 w-3.5 fill-none stroke-current stroke-[1.7]">
+                <path d="M3 8v4h3l4 3V5L6 8H3Z" strokeLinejoin="round" />
+                <path d="M13 7.5a4 4 0 0 1 0 5M15 5a7.5 7.5 0 0 1 0 10" strokeLinecap="round" />
+              </svg>
+              {t.voiceAnswer}
+            </span>
+          ) : null}
           {response ? (
             <span className="rounded border border-line px-1.5 py-0.5 text-[10px] font-semibold text-mist">
               {response.mode === 'llm' ? t.llmMode : t.dataMode}
@@ -473,6 +908,26 @@ function AssistantBubble({
 
         {response ? (
           <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3">
+            {message.voiceResponse ? (
+              <button
+                type="button"
+                onClick={onSpeak}
+                aria-label={speaking ? t.voiceStopSpeaking : t.voiceReplay}
+                className="smooth inline-flex items-center gap-1.5 rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+              >
+                <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 fill-none stroke-current stroke-[1.7]">
+                  {speaking ? (
+                    <path d="M7 5h2v10H7zM11 5h2v10h-2z" fill="currentColor" stroke="none" />
+                  ) : (
+                    <>
+                      <path d="M3 8v4h3l4 3V5L6 8H3Z" strokeLinejoin="round" />
+                      <path d="M13 7.5a4 4 0 0 1 0 5M15 5a7.5 7.5 0 0 1 0 10" strokeLinecap="round" />
+                    </>
+                  )}
+                </svg>
+                {speaking ? t.voiceStopSpeaking : t.voiceReplay}
+              </button>
+            ) : null}
             <button type="button" onClick={onCopy} className="smooth rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog">
               {copied ? t.copied : t.copy}
             </button>

@@ -73,6 +73,26 @@ CREATE TABLE IF NOT EXISTS subscribers (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS entity_aliases (
+  id serial PRIMARY KEY,
+  alias text NOT NULL CHECK (char_length(alias) BETWEEN 2 AND 80),
+  alias_key text NOT NULL UNIQUE,
+  entity_type text NOT NULL CHECK (entity_type IN ('champion', 'item', 'trait', 'augment', 'comp')),
+  entity_id text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS unresolved_entity_mentions (
+  id serial PRIMARY KEY,
+  name text NOT NULL CHECK (char_length(name) BETWEEN 2 AND 80),
+  name_key text NOT NULL,
+  entity_type text NOT NULL DEFAULT 'unknown' CHECK (entity_type IN ('champion', 'item', 'trait', 'augment', 'comp', 'unknown')),
+  occurrences integer NOT NULL DEFAULT 1 CHECK (occurrences > 0),
+  first_seen_at timestamptz NOT NULL DEFAULT now(),
+  last_seen_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (name_key, entity_type)
+);
+
 CREATE TABLE IF NOT EXISTS comp_units (
   comp_slug text NOT NULL REFERENCES comps (slug) ON DELETE CASCADE,
   role text NOT NULL CHECK (role IN ('board', 'early', 'alt')),

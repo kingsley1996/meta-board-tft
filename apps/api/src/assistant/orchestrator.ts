@@ -36,6 +36,7 @@ import { assistantLog } from './logger.ts';
 import { ASSISTANT_TOOLS } from './tool-registry.ts';
 import { runToolLoop, type ToolFailure, type ToolLoopResult } from './tool-loop.ts';
 import type { AmbiguousEntity } from './tool-registry.ts';
+import { COMP_ALIASES } from './entity-aliases.ts';
 
 export class AssistantContextError extends Error {
   status = 400;
@@ -169,11 +170,16 @@ function deterministicComp(comp: CompData, lang: Lang): string {
     .join(' ');
 }
 
-function findCompMentions(comps: CompData[], text: string): CompData[] {
-  const compact = normalize(text);
-  if (!compact) return [];
+export function findCompMentions(comps: CompData[], text: string, customAliases: Map<string, string[]> = new Map()): CompData[] {
+  const normalized = ` ${normalizeSpaced(text)} `;
+  if (!normalized.trim()) return [];
   return comps
-    .filter((comp) => compact.includes(normalize(comp.title)) || compact.includes(normalize(comp.slug)))
+    .filter((comp) =>
+      [comp.title, comp.slug, ...(COMP_ALIASES[comp.slug] ?? []), ...(customAliases.get(comp.slug) ?? [])].some((alias) => {
+        const normalizedAlias = normalizeSpaced(alias);
+        return normalizedAlias && normalized.includes(` ${normalizedAlias} `);
+      })
+    )
     .slice(0, 4);
 }
 
@@ -589,14 +595,14 @@ export async function answerAssistant(
   let resolutionText = request.message;
   let mentionText = request.message;
   let entityMentions = findEntityMentions(catalog, mentionText);
-  let compMentions = findCompMentions(comps, mentionText);
+  let compMentions = findCompMentions(comps, mentionText, catalog.compAliases);
   const priorUser = [...request.history].reverse().find((entry) => entry.role === 'user');
   const followUp = /\b(nay|do|no|it|this|that|above|tren|comp nay|con gi|what about)\b/i.test(normalizeSpaced(request.message)) || request.message.length < 40;
   if (!entityMentions.length && !compMentions.length && priorUser && followUp) {
     resolutionText = `${priorUser.content} ${request.message}`;
     mentionText = resolutionText;
     entityMentions = findEntityMentions(catalog, mentionText);
-    compMentions = findCompMentions(comps, mentionText);
+    compMentions = findCompMentions(comps, mentionText, catalog.compAliases);
   }
 
   const entities = unique([...contextEntities, ...entityMentions.map((match) => match.entity)]).filter(

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { entityId, parseEntityId } from './contracts.ts';
+import { ENTITY_ALIAS_GROUPS } from './entity-aliases.ts';
 import { buildCatalog, findEntityMentions, grantedTrait, normalize, pickEntityMatch, searchCatalog, type DbRows, type EntityMatch } from './entities.ts';
 import { loadStaticGameData } from './static-game-data.ts';
 
@@ -35,7 +36,7 @@ function augmentRow(data: Awaited<ReturnType<typeof loadStaticGameData>>, name: 
   return { api_name: augment.apiName, name: augment.name, description: augment.desc ?? '', rarity: augment.rarity ?? null, icon: null };
 }
 
-async function fixture() {
+async function fixture(customAliases: { alias: string; entityType: string; entityId: string }[] = []) {
   const data = await loadStaticGameData();
   return buildCatalog(
     {
@@ -45,18 +46,34 @@ async function fixture() {
         itemRow(data, 'B.F. Sword'),
         itemRow(data, "Guinsoo's Rageblade"),
         itemRow(data, 'Giant Slayer'),
+        itemRow(data, 'Spirit Visage'),
         itemRow(data, 'Ravager Emblem'),
         itemRow(data, 'Fae Emblem'),
       ],
       augments: [augmentRow(data, 'Cursed Crown')],
     },
-    data
+    data,
+    customAliases
   );
 }
 
 test('normalize folds Vietnamese diacritics and punctuation', () => {
   assert.equal(normalize('Cóc Thành Tinh'), 'cocthanhtinh');
   assert.equal(normalize('B.F. Sword'), 'bfsword');
+});
+
+test('curated entity aliases target names that exist in the active set', async () => {
+  const data = await loadStaticGameData();
+  const names: Record<string, Set<string>> = {
+    champion: new Set(data.champions.map((entity) => entity.name)),
+    trait: new Set(data.traits.map((entity) => entity.name)),
+    item: new Set(data.items.map((entity) => entity.name)),
+    augment: new Set(data.augments.map((entity) => entity.name)),
+  };
+  for (const group of ENTITY_ALIAS_GROUPS) {
+    assert.ok(names[group.type].has(group.name), `${group.type} alias target "${group.name}" must exist in the current set`);
+    assert.ok(group.aliases.length > 0, `${group.type} alias target "${group.name}" must have aliases`);
+  }
 });
 
 test('search resolves Vietnamese champion names and API names', async () => {
@@ -82,6 +99,24 @@ test('search resolves component aliases and returns stable IDs', async () => {
   assert.equal(matches[0]?.entity.name, 'B.F. Sword');
   assert.equal(matches[0]?.score, 90);
   assert.equal(matches[0]?.entity.id, entityId('item', 'TFT_Item_BFSword'));
+});
+
+test('catalog aliases resolve historical item names and trait aliases in natural questions', async () => {
+  const catalog = await fixture();
+  const item = findEntityMentions(catalog, 'Tôi nên ghép Redemption cho Ahri không?');
+  assert.ok(item.some((match) => match.entity.name === 'Spirit Visage'));
+
+  const trait = findEntityMentions(catalog, 'Slayer có mốc kích hoạt nào?');
+  assert.ok(trait.some((match) => match.entity.name === 'Ravager'));
+
+  const translated = findEntityMentions(catalog, 'Mình đang có Cuồng Đao Guinsoo');
+  assert.ok(translated.some((match) => match.entity.name === "Guinsoo's Rageblade"));
+});
+
+test('catalog resolves aliases loaded from persistent storage', async () => {
+  const catalog = await fixture([{ alias: 'fox mage', entityType: 'champion', entityId: entityId('champion', 'DA_18_Ahri') }]);
+  const matches = findEntityMentions(catalog, 'Is Fox Mage good with this item?');
+  assert.ok(matches.some((match) => match.entity.name === 'Ahri'));
 });
 
 test('search resolves trait and emblem aliases', async () => {
