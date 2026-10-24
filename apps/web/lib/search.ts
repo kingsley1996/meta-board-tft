@@ -96,14 +96,15 @@ function buildIndex(lang: Lang): Entry[] {
   }
 
   for (const comp of meta.comps) {
+    const title = lang === 'vi' ? comp.titleVi ?? comp.title : comp.title;
     entries.push({
       id: `comp:${comp.slug}`,
       kind: 'comp',
-      name: comp.title,
+      name: title,
       subtitle: `${comp.tier} · ${comp.style}`,
       icon: championIcon(comp.carry),
       href: `/${lang}/tierlist/comps/${comp.slug}`,
-      terms: normalize([comp.title, comp.playstyle, comp.playstyleVi ?? '', ...[...comp.units.map((unit) => unit.name), comp.carry].flatMap((name) => [name, unitName(name, lang), ...unitTraitNames(name, lang)])].join(' ')),
+      terms: normalize([title, comp.title, comp.playstyle, comp.playstyleVi ?? '', ...[...comp.units.map((unit) => unit.name), comp.carry].flatMap((name) => [name, unitName(name, lang), ...unitTraitNames(name, lang)])].join(' ')),
     });
   }
 

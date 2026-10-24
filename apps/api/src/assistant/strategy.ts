@@ -38,10 +38,10 @@ export type StrategyPlan = {
 const MAX_LEVEL = 10;
 
 const STRATEGY_MARKERS =
-  /\b(roll|reroll|len cap|len 7|len 8|len 9|level up|up cap|giu vang|giu tien|tich vang|pivot|chuyen bai|board|frontline|tank|do manh|manh khong|yeu|streak|econ|kinh te)\b/;
+  /\b(roll|reroll|len cap|len 7|len 8|len 9|level up|up cap|giu vang|giu tien|tich vang|pivot|chuyen bai|board|frontline|tank|do manh|manh khong|yeu|streak|econ|kinh te|all ?in|nen lam gi|lam gi day|what should i do|what do i do)\b/;
 const QUESTION_FORM = /(\?|\bnen\b|\bshould\b|\bhay\b|\bkhi nao\b|\bwhen\b|\bco\b.*\bkhong\b)/;
 const BOARD_CONTEXT = /\b(board|frontline|tank|do manh|manh khong)\b/;
-const ACTION_MARKER = /\b(roll|reroll|len cap|level up|up cap|giu vang|giu tien|tich vang|pivot|chuyen bai|board|frontline|tank|do manh|manh khong)\b/;
+const ACTION_MARKER = /\b(roll|reroll|len cap|level up|up cap|giu vang|giu tien|tich vang|pivot|chuyen bai|all ?in|board|frontline|tank|do manh|manh khong)\b/;
 const COMP_QUESTION = /\b(comp|comps|doi hinh|team|build|composition)\b/;
 
 function matchInt(text: string, pattern: RegExp): number | null {
@@ -58,27 +58,36 @@ function bounded(value: number | null, min: number, max: number): number | null 
 }
 
 export function parseStrategyState(text: string): StrategyState {
-  const stage = text.match(/\b(?:stage|vong)\s*(\d)\s*[- ]?\s*(\d)?/);
-  const streak = text.match(/\b(\d)\s*(win|thang|loss|thua)\b/);
+  // "Tướng 2 vàng" / "2-cost champion" is a unit cost, not the player's gold —
+  // strip those phrases before scanning for level/gold/HP state.
+  const cleaned = normalizeDiacritics(text).replace(/\b(?:tuong|champion|general)\s*\d(?:\s*(?:vang|gold|cost|costs))?\b/g, ' ');
+  const stage = cleaned.match(/\b(?:stage|vong)\s*(\d)\s*[- ]?\s*(\d)?/);
+  const streak = cleaned.match(/\b(\d)\s*(win|thang|loss|thua)\b/);
   return {
-    level: bounded(matchInt(text, /\b(?:level|lvl|lv|cap)\s*(\d{1,2})\b/), 1, MAX_LEVEL),
-    xp: bounded(matchInt(text, /\b(\d{1,3})\s*(?:xp|kn|kinh nghiem)\b/), 0, 300),
-    gold: bounded(matchInt(text, /\b(\d{1,3})\s*(?:vang|gold|g)\b/), 0, 300),
-    hp: bounded(matchInt(text, /\b(\d{1,3})\s*(?:hp|mau)\b/), 1, 200),
+    level: bounded(matchInt(cleaned, /\b(?:level|lvl|lv|cap)\s*(\d{1,2})\b/), 1, MAX_LEVEL),
+    xp: bounded(matchInt(cleaned, /\b(\d{1,3})\s*(?:xp|kn|kinh nghiem)\b/), 0, 300),
+    gold: bounded(matchInt(cleaned, /\b(\d{1,3})\s*(?:vang|gold|g)\b/), 0, 300),
+    hp: bounded(matchInt(cleaned, /\b(\d{1,3})\s*(?:hp|mau)\b/), 1, 200),
     stage: stage ? `${stage[1]}${stage[2] ? `-${stage[2]}` : ''}` : null,
     streak: streak
       ? { kind: /win|thang/.test(streak[2]) ? 'win' : 'loss', count: Number(streak[1]) }
       : null,
-    goal: /top\s*4/.test(text)
+    goal: /top\s*4/.test(cleaned)
       ? 'top4'
-      : /top\s*1|thang lobby|win lobby/.test(text)
+      : /top\s*1|thang lobby|win lobby/.test(cleaned)
         ? 'win'
-        : /kinh te|econ|tich vang/.test(text)
+        : /kinh te|econ|tich vang/.test(cleaned)
           ? 'econ'
-          : /giu streak|win streak|loss streak|chuoi/.test(text)
+          : /giu streak|win streak|loss streak|chuoi/.test(cleaned)
             ? 'streak'
             : null,
   };
+}
+
+// parseStrategyState is called on pre-normalized text in the orchestrator, but
+// be defensive when it receives raw Vietnamese ("vàng", "máu") directly.
+function normalizeDiacritics(text: string): string {
+  return text.normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/\p{M}/gu, '');
 }
 
 export function isStrategyQuestion(text: string): boolean {

@@ -315,6 +315,82 @@
             "Cách xếp, mục tiêu, khống chế, shred, sunder, burn và wound đều quan trọng."
           ]
         }
+      },
+      {
+        "id": "metrics",
+        "title": "Meta statistics metrics",
+        "keywords": [
+          {
+            "term": "top 4 rate",
+            "weight": 4
+          },
+          {
+            "term": "top-4 rate",
+            "weight": 4
+          },
+          {
+            "term": "ty le top 4",
+            "weight": 4
+          },
+          {
+            "term": "win rate",
+            "weight": 4
+          },
+          {
+            "term": "ty le thang",
+            "weight": 4
+          },
+          {
+            "term": "winrate",
+            "weight": 4
+          },
+          {
+            "term": "average placement",
+            "weight": 4
+          },
+          {
+            "term": "avg place",
+            "weight": 3
+          },
+          {
+            "term": "hang trung binh",
+            "weight": 3
+          },
+          {
+            "term": "top-4",
+            "weight": 3
+          },
+          {
+            "term": "metric",
+            "weight": 3
+          },
+          {
+            "term": "sample size",
+            "weight": 3
+          },
+          {
+            "term": "co mau",
+            "weight": 3
+          },
+          {
+            "term": "statistics",
+            "weight": 2
+          }
+        ],
+        "rules": {
+          "en": [
+            "Average placement is the mean finishing position across games; lower is better and 4.0 is the break-even midpoint of an 8-player lobby.",
+            "Top-4 rate is the share of games finishing 1st-4th; it measures consistency, not winning.",
+            "Win rate is the share of games finishing 1st; it is the strictest placement metric and is always lower than the top-4 rate.",
+            "Small samples mislead: a 60% win rate over 40 games is less reliable than 52% over 4,000 games. Always check games played, rank bracket and patch before trusting a rate."
+          ],
+          "vi": [
+            "Hạng trung bình là vị trí xếp hạng trung bình qua các trận; càng thấp càng tốt và 4.0 là mốc cân bằng của lobby 8 người.",
+            "Tỷ lệ top 4 là phần trận về nhất đến tư; đo độ ổn định, không đo việc ăn giải.",
+            "Tỷ lệ thắng là phần trận về nhất — chỉ số khắt khe nhất và luôn thấp hơn tỷ lệ top 4.",
+            "Mẫu nhỏ dễ gây hiểu lầm: 60% thắng sau 40 trận kém tin cậy hơn 52% sau 4.000 trận. Luôn xem số trận, khung rank và patch trước khi tin một tỷ lệ."
+          ]
+        }
       }
     ]
   },

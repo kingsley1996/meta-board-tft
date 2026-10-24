@@ -64,6 +64,7 @@ export type CompTrait = NamedIcon & {
 export type CompData = {
   slug: string;
   title: string;
+  titleVi: string | null;
   tier: string;
   style: string;
   difficulty: number;

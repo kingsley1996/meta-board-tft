@@ -9,6 +9,7 @@ const items = [
   { href: '/admin/comps', label: 'Comps' },
   { href: '/admin/guides', label: 'Guides' },
   { href: '/admin/aliases', label: 'Aliases' },
+  { href: '/admin/assistant-reasoning', label: 'Assistant reasoning' },
   { href: '/admin/subscribers', label: 'Subscribers' },
 ];
 

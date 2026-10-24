@@ -19,8 +19,9 @@ import { buildCatalog, normalize, searchCatalog, type Catalog, type DbRows } fro
 import { rankComps } from './ranking.ts';
 import { loadStaticGameData } from './static-game-data.ts';
 import { ensureEntityAliasTable, listEntityAliases } from './entity-alias-store.ts';
+import { cached } from '../cache.ts';
 
-export async function loadCatalog(): Promise<Catalog> {
+async function loadCatalogUncached(): Promise<Catalog> {
   await ensureEntityAliasTable();
   const [champions, traits, items, augments, staticData] = await Promise.all([
     pool.query('SELECT api_name, name, cost, traits, icon FROM champions'),
@@ -41,6 +42,12 @@ export async function loadCatalog(): Promise<Catalog> {
     staticData,
     customAliases
   );
+}
+
+export function loadCatalog(): Promise<Catalog> {
+  // The catalog is loaded once per assistant request and again inside most
+  // tool calls; memoize it short-term (invalidated by alias writes and tft sync).
+  return cached('catalog', loadCatalogUncached);
 }
 
 export async function getActiveSetAndPatch(): Promise<{ setId: string; patch: string; setName: string }> {

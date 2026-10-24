@@ -16,7 +16,7 @@ import {
   type RankingQuery,
   type ResolvedEntity,
 } from './contracts.ts';
-import { findEntityMentions, grantedTrait, normalize, normalizeSpaced, type Catalog } from './entities.ts';
+import { findEntityMentions, grantedTrait, localizedName, normalize, normalizeSpaced, type Catalog } from './entities.ts';
 import { buildSystemPrompt, buildToolAgentPrompt, buildToolPlannerPrompt, buildUserPrompt, type Evidence } from './prompt.ts';
 import { generateAssistantAnswer, ProviderError, type ProviderChatMessage, type ProviderResult } from './provider.ts';
 import { rankComps } from './ranking.ts';
@@ -37,6 +37,7 @@ import { ASSISTANT_TOOLS } from './tool-registry.ts';
 import { runToolLoop, type ToolFailure, type ToolLoopResult } from './tool-loop.ts';
 import type { AmbiguousEntity } from './tool-registry.ts';
 import { COMP_ALIASES } from './entity-aliases.ts';
+import { summarizeReasoningText, type ReasoningLogWriter } from './assistant-reasoning-store.ts';
 
 export class AssistantContextError extends Error {
   status = 400;
@@ -73,6 +74,65 @@ function t(lang: Lang, en: string, vi: string): string {
 
 export function isReferenceDataQuestion(text: string): boolean {
   return REFERENCE_DATA_QUESTION.test(normalizeSpaced(text));
+}
+
+export function isFollowUpQuestion(text: string): boolean {
+  return /\b(?:what about|how about|it|this|that|these|those|they|them|its|their|above|previous|same|former|latter|comp nay|doi hinh nay|cai nay|cai do|cai kia|con gi|con nao|con no|con do|con nay|con kia|con|no|the nao|ra sao)\b/i.test(
+    normalizeSpaced(text)
+  );
+}
+
+export function resolveFollowUpText(
+  message: string,
+  history: { role: 'user' | 'assistant'; content: string }[]
+): string {
+  const priorUser = [...history].reverse().find((entry) => entry.role === 'user');
+  if (priorUser && isFollowUpQuestion(message)) return `${priorUser.content} ${message}`;
+  // A bare decision question ("có nên lên cấp?") carries no state of its own.
+  // Join the most recent user message that does, so corrections ("thực ra còn
+  // 14 vàng") win over older facts (MEM-02/ADV-02 in the quality dataset).
+  // "Which level should I roll at?" questions stay out: they are odds/reference
+  // questions, not decisions, and are answered from the mechanics tables.
+  const normalized = normalizeSpaced(message);
+  if (
+    !/\d/.test(message) &&
+    !REFERENCE_LEVEL_QUESTION.test(normalized) &&
+    BARE_DECISION_QUESTION.test(normalized)
+  ) {
+    const factSource = [...history].reverse().find((entry) => entry.role === 'user' && /\d/.test(entry.content));
+    if (factSource) return `${factSource.content} ${message}`;
+  }
+  return message;
+}
+
+const REFERENCE_LEVEL_QUESTION = /\b(cap nao|level nao|which level|odds|ty le|xac suat|bao nhieu|khi nao|when)\b/i;
+const BARE_DECISION_QUESTION =
+  /\b(roll|reroll|len cap|up cap|level up|giu vang|giu tien|tich vang|all ?in|pivot|chuyen bai|nen lam gi)\b/i;
+
+// A follow-up such as "còn items?" names no comp: the comp it refers to is usually in the
+// last answer ("Blossom Executioners is the top pick"), not in the last question.
+export function carryOverComps(
+  message: string,
+  history: { role: 'user' | 'assistant'; content: string }[],
+  comps: CompData[]
+): CompData[] {
+  if (!isFollowUpQuestion(message)) return [];
+  for (let index = history.length - 1; index >= 0; index -= 1) {
+    const entry = history[index];
+    if (entry.role !== 'assistant') continue;
+    const found = findCompMentions(comps, entry.content);
+    if (found.length) return inMentionOrder(found, entry.content).slice(0, 2);
+  }
+  return [];
+}
+
+function inMentionOrder(matched: CompData[], text: string): CompData[] {
+  const haystack = normalizeSpaced(text);
+  const at = (comp: CompData) => {
+    const index = haystack.indexOf(normalizeSpaced(comp.title));
+    return index < 0 ? Number.MAX_SAFE_INTEGER : index;
+  };
+  return [...matched].sort((a, b) => at(a) - at(b));
 }
 
 function clip(value: string, length = 900): string {
@@ -122,7 +182,7 @@ function compsUsingItems(comps: CompData[], items: CatalogEntity[]): CompData[] 
     .slice(0, 3);
 }
 
-function deterministicEntity(entity: CatalogEntity, lang: Lang, relatedTrait: CatalogEntity | null = null): string {
+function deterministicEntity(entity: CatalogEntity, lang: Lang, relatedTrait: CatalogEntity | null, catalog: Catalog): string {
   const name = displayName(entity, lang);
   if (entity.type === 'champion') {
     const traits = isVi(lang) && entity.traitsVi.length ? entity.traitsVi.join(', ') : entity.traits.join(', ');
@@ -134,7 +194,7 @@ function deterministicEntity(entity: CatalogEntity, lang: Lang, relatedTrait: Ca
   }
   if (entity.type === 'item') {
     const description = isVi(lang) && entity.descriptionVi ? entity.descriptionVi : entity.description;
-    const composition = isVi(lang) && entity.compositionVi.length ? entity.compositionVi : entity.composition;
+    const composition = isVi(lang) && entity.compositionVi.length ? entity.compositionVi : entity.composition.map((name) => localizedName(catalog, name, lang));
     const grant = relatedTrait
       ? t(
           lang,
@@ -154,14 +214,15 @@ function deterministicEntity(entity: CatalogEntity, lang: Lang, relatedTrait: Ca
   return [name, traitText(entity, lang)].filter(Boolean).join(' — ');
 }
 
-function deterministicComp(comp: CompData, lang: Lang): string {
-  const units = comp.units.map((unit) => unit.name).join(', ');
-  const items = comp.items.map((item) => item.name).join(', ');
-  const augments = comp.augments.slice(0, 5).map((augment) => augment.name).join(', ');
+function deterministicComp(comp: CompData, lang: Lang, catalog: Catalog): string {
+  const name = (value: string) => localizedName(catalog, value, lang);
+  const units = comp.units.map((unit) => name(unit.name)).join(', ');
+  const items = comp.items.map((item) => name(item.name)).join(', ');
+  const augments = comp.augments.slice(0, 5).map((augment) => name(augment.name)).join(', ');
   const stages = comp.stages.map((stage) => `${stage.stage}: ${clip(stage.text, 220)}`).join(' ');
   return [
     `${compName(comp)} — ${comp.tier} tier, ${comp.style}, ${t(lang, `difficulty ${comp.difficulty}/3`, `độ khó ${comp.difficulty}/3`)}.`,
-    t(lang, `Board: ${units}. Carry: ${comp.carry.name}. Items: ${items}.`, `Đội hình: ${units}. Chủ lực: ${comp.carry.name}. Trang bị: ${items}.`),
+    t(lang, `Board: ${units}. Carry: ${name(comp.carry.name)}. Items: ${items}.`, `Đội hình: ${units}. Chủ lực: ${name(comp.carry.name)}. Trang bị: ${items}.`),
     augments ? t(lang, `Augments: ${augments}.`, `Nâng cấp: ${augments}.`) : '',
     comp.tips ? clip(comp.tips, 500) : '',
     stages ? clip(stages, 500) : '',
@@ -170,17 +231,50 @@ function deterministicComp(comp: CompData, lang: Lang): string {
     .join(' ');
 }
 
+const isSubsequence = (window: string[], target: string[]): boolean => {
+  let targetIndex = 0;
+  for (const word of window) {
+    while (targetIndex < target.length && target[targetIndex] !== word) targetIndex += 1;
+    if (targetIndex >= target.length) return false;
+    targetIndex += 1;
+  }
+  return true;
+};
+
 export function findCompMentions(comps: CompData[], text: string, customAliases: Map<string, string[]> = new Map()): CompData[] {
   const normalized = ` ${normalizeSpaced(text)} `;
   if (!normalized.trim()) return [];
-  return comps
-    .filter((comp) =>
-      [comp.title, comp.slug, ...(COMP_ALIASES[comp.slug] ?? []), ...(customAliases.get(comp.slug) ?? [])].some((alias) => {
+  const words = normalized.trim().split(/\s+/);
+  const exact: CompData[] = [];
+  const fuzzy: CompData[] = [];
+  for (const comp of comps) {
+    const aliases = [comp.title, comp.titleVi ?? '', comp.slug, ...(COMP_ALIASES[comp.slug] ?? []), ...(customAliases.get(comp.slug) ?? [])];
+    const aliasWords = aliases
+      .map((alias) => normalizeSpaced(alias).split(/\s+/).filter(Boolean))
+      .filter((list) => list.length >= 3);
+    if (
+      aliases.some((alias) => {
         const normalizedAlias = normalizeSpaced(alias);
         return normalizedAlias && normalized.includes(` ${normalizedAlias} `);
       })
-    )
-    .slice(0, 4);
+    ) {
+      exact.push(comp);
+      continue;
+    }
+    // Partial-title fallback: users shorten long titles ("Brambleback & Pebbles
+    // Riftbeast" for "Brambleback & Pebbles / Cinderling / Gromp / Elder Dragon
+    // Riftbeast"). A 3+ word run of the message that is a subsequence of one
+    // alias still identifies the comp; shorter runs stay out to avoid noise.
+    for (let start = 0; start + 3 <= words.length; start += 1) {
+      let end = start + 3;
+      while (end <= words.length && aliasWords.some((list) => isSubsequence(words.slice(start, end), list))) end += 1;
+      if (end - start - 1 >= 3) {
+        fuzzy.push(comp);
+        break;
+      }
+    }
+  }
+  return [...exact, ...fuzzy].slice(0, 4);
 }
 
 function sameComp(a: CompData, b: CompData): boolean {
@@ -199,7 +293,7 @@ function sourceForEntity(entity: CatalogEntity, lang: Lang, version: string): As
           : `${base}/champions`;
   return {
     id: entity.id,
-    title: entity.name,
+    title: displayName(entity, lang),
     url,
     sourceType: 'structured_data',
     version,
@@ -219,7 +313,7 @@ function sourceForComp(comp: CompData, lang: Lang, version: string): AssistantSo
 function sourceForStats(source: { provider: string; patch: string; updated: string }): AssistantSource {
   return {
     id: 'meta:stats',
-    title: `${source.provider} stats`,
+    title: 'MetaBoard stats',
     url: 'https://www.metatft.com/',
     sourceType: 'structured_data',
     version: `patch${source.patch}`,
@@ -320,11 +414,12 @@ function followUps(
   }
   if (entities[0]?.type === 'champion') {
     return isVi(lang)
-      ? [`Comp nào dùng ${entities[0].name}?`, `Item nào hợp với ${entities[0].name}?`]
+      ? [`Comp nào dùng ${displayName(entities[0], lang)}?`, `Item nào hợp với ${displayName(entities[0], lang)}?`]
       : [`Which comp uses ${entities[0].name}?`, `Which items fit ${entities[0].name}?`];
   }
   if (entities[0]) {
-    return isVi(lang) ? [`Giải thích thêm về ${entities[0].name}?`] : [`Explain ${entities[0].name} further?`];
+    const entityName = displayName(entities[0], lang);
+    return isVi(lang) ? [`Giải thích thêm về ${entityName}?`] : [`Explain ${entityName} further?`];
   }
   return isVi(lang) ? ['Hỏi về một tướng', 'Hỏi về một đội hình'] : ['Ask about a champion', 'Ask about a comp'];
 }
@@ -355,15 +450,16 @@ function deterministicAnswer(
   stats: StatEvidence[],
   mechanics: MechanicsEvidence | null,
   meta: { setId: string; patch: string },
-  catalog: Catalog
+  catalog: Catalog,
+  text: string
 ): { answer: string; status: AssistantStatus } {
   if (intent === 'gameplay_knowledge' && mechanics && !entities.length && !comps.length) {
     return { status: 'answered', answer: mechanicsAnswer(mechanics, lang) };
   }
   if (intent === 'meta_query') {
     const detail = [
-      ...entities.map((entity) => deterministicEntity(entity, lang, grantedTrait(catalog, entity))),
-      ...comps.map((comp) => deterministicComp(comp, lang)),
+      ...entities.map((entity) => deterministicEntity(entity, lang, grantedTrait(catalog, entity), catalog)),
+      ...comps.map((comp) => deterministicComp(comp, lang, catalog)),
       ...stats.map((entry) => entry.text),
     ]
       .filter(Boolean)
@@ -372,8 +468,8 @@ function deterministicAnswer(
     return {
       status: 'insufficient_data',
       answer: isVi(lang)
-        ? 'Mình chưa có số liệu MetaTFT cho lựa chọn này. Bạn hỏi cụ thể tướng, trang bị, nâng cấp hoặc comp nhé.'
-        : 'I do not have MetaTFT stats for that pick. Ask about a specific champion, item, augment or comp.',
+        ? 'Mình chưa có số liệu MetaBoard cho lựa chọn này. Bạn hỏi cụ thể tướng, trang bị, nâng cấp hoặc comp nhé.'
+        : 'I do not have MetaBoard stats for that pick. Ask about a specific champion, item, augment or comp.',
     };
   }
   if (intent === 'patch_change') {
@@ -385,6 +481,22 @@ function deterministicAnswer(
     };
   }
   if (intent === 'set_patch') {
+    // A question that names a mechanic the knowledge base does not cover must
+    // not be answered with set/patch boilerplate — say the data is missing
+    // (RAG-04 in the quality dataset).
+    const asksUnknownMechanic =
+      !mechanics &&
+      !entities.length &&
+      !comps.length &&
+      /\b(co che|mechanic|hoat dong|works?|tuong tac|interact)\b/.test(text);
+    if (asksUnknownMechanic) {
+      return {
+        status: 'unsupported',
+        answer: isVi(lang)
+          ? `Mình không tìm thấy cơ chế này trong dữ liệu Set ${meta.setId || '?'} (patch ${meta.patch || 'latest'}). Có thể tên đó thuộc set cũ hoặc cách gọi khác — thử hỏi bằng tên tướng, tộc/hệ hoặc lõi cụ thể trong set này nhé.`
+          : `I could not find that mechanic in the Set ${meta.setId || '?'} data (patch ${meta.patch || 'latest'}). The name may be from an older set or a different label — try a specific champion, trait or augment from this set.`,
+      };
+    }
     return {
       status: 'answered',
       answer: isVi(lang)
@@ -414,11 +526,11 @@ function deterministicAnswer(
       status: 'answered',
       answer: [
         isVi(lang)
-          ? `Dựa trên ${basis}, comp khớp nhất là ${top.comp.title} (${top.comp.tier} tier, điểm khớp ${top.score}).`
-          : `Based on ${basis}, the closest comp is ${top.comp.title} (${top.comp.tier} tier, match score ${top.score}).`,
+          ? `Dựa trên ${basis}, comp khớp nhất là ${top.comp.title} (${top.comp.tier} tier, điểm khớp ${top.score}) theo dữ liệu Set ${meta.setId || '?'} patch ${meta.patch || 'latest'}.`
+          : `Based on ${basis}, the closest comp is ${top.comp.title} (${top.comp.tier} tier, match score ${top.score}) under Set ${meta.setId || '?'} patch ${meta.patch || 'latest'}.`,
         top.reasons.join(' '),
         preliminary,
-        t(lang, 'This score measures overlap only; see MetaTFT stats for performance.', 'Điểm này chỉ đo độ trùng khớp; xem số liệu MetaTFT để biết hiệu quả.'),
+        t(lang, 'This score measures overlap only; see MetaBoard stats for performance.', 'Điểm này chỉ đo độ trùng khớp; xem số liệu MetaBoard để biết hiệu quả.'),
       ]
         .filter(Boolean)
         .join(' '),
@@ -433,17 +545,17 @@ function deterministicAnswer(
     }
     const [a, b] = comparison.comps;
     const common = [
-      comparison.commonUnits.length ? t(lang, `shared units: ${comparison.commonUnits.join(', ')}`, `tướng chung: ${comparison.commonUnits.join(', ')}`) : '',
-      comparison.commonItems.length ? t(lang, `shared items: ${comparison.commonItems.join(', ')}`, `trang bị chung: ${comparison.commonItems.join(', ')}`) : '',
-      comparison.commonAugments.length ? t(lang, `shared augments: ${comparison.commonAugments.join(', ')}`, `nâng cấp chung: ${comparison.commonAugments.join(', ')}`) : '',
+      comparison.commonUnits.length ? t(lang, `shared units: ${comparison.commonUnits.map((name) => localizedName(catalog, name, lang)).join(', ')}`, `tướng chung: ${comparison.commonUnits.map((name) => localizedName(catalog, name, lang)).join(', ')}`) : '',
+      comparison.commonItems.length ? t(lang, `shared items: ${comparison.commonItems.map((name) => localizedName(catalog, name, lang)).join(', ')}`, `trang bị chung: ${comparison.commonItems.map((name) => localizedName(catalog, name, lang)).join(', ')}`) : '',
+      comparison.commonAugments.length ? t(lang, `shared augments: ${comparison.commonAugments.map((name) => localizedName(catalog, name, lang)).join(', ')}`, `nâng cấp chung: ${comparison.commonAugments.map((name) => localizedName(catalog, name, lang)).join(', ')}`) : '',
     ]
       .filter(Boolean)
       .join('; ');
     return {
       status: 'answered',
       answer: isVi(lang)
-        ? `${a.title} (${a.tier}, ${a.style}) và ${b.title} (${b.tier}, ${b.style}): ${common || 'không có nhiều điểm chung'}. ${a.title} dùng ${a.carry.name}; ${b.title} dùng ${b.carry.name}.`
-        : `${a.title} (${a.tier}, ${a.style}) and ${b.title} (${b.tier}, ${b.style}): ${common || 'little overlap'}. ${a.title} carries with ${a.carry.name}; ${b.title} carries with ${b.carry.name}.`,
+        ? `${a.title} (${a.tier}, ${a.style}) và ${b.title} (${b.tier}, ${b.style}): ${common || 'không có nhiều điểm chung'}. ${a.title} dùng ${localizedName(catalog, a.carry.name, lang)}; ${b.title} dùng ${localizedName(catalog, b.carry.name, lang)}.`
+        : `${a.title} (${a.tier}, ${a.style}) and ${b.title} (${b.tier}, ${b.style}): ${common || 'little overlap'}. ${a.title} carries with ${localizedName(catalog, a.carry.name, lang)}; ${b.title} carries with ${localizedName(catalog, b.carry.name, lang)}.`,
     };
   }
   if (intent === 'comp_search') {
@@ -454,7 +566,7 @@ function deterministicAnswer(
       };
     }
     if (comps.length === 1) {
-      return { status: 'answered', answer: [deterministicComp(comps[0], lang), ...stats.map((entry) => entry.text)].join(' ') };
+      return { status: 'answered', answer: [deterministicComp(comps[0], lang, catalog), ...stats.map((entry) => entry.text)].join(' ') };
     }
     return {
       status: 'answered',
@@ -476,7 +588,7 @@ function deterministicAnswer(
     return {
       status: 'answered',
       answer: [
-        entities.map((entity) => deterministicEntity(entity, lang, grantedTrait(catalog, entity))).join('\n\n'),
+        entities.map((entity) => deterministicEntity(entity, lang, grantedTrait(catalog, entity), catalog)).join('\n\n'),
         usage,
         ...stats.map((entry) => entry.text),
         mechanics ? mechanicsAnswer(mechanics, lang) : '',
@@ -488,8 +600,8 @@ function deterministicAnswer(
   return {
     status: 'unsupported',
     answer: isVi(lang)
-      ? 'Mình hỗ trợ tra cứu tướng, trang bị, tộc hệ, nâng cấp, tìm comp, so sánh comp và số liệu MetaTFT trong Set 18. Mình chưa có patch notes.'
-      : 'I support champion, item, trait, augment lookup, comp search, comp comparison and MetaTFT stats for Set 18. I do not have patch notes yet.',
+      ? 'Mình hỗ trợ tra cứu tướng, trang bị, tộc hệ, nâng cấp, tìm comp, so sánh comp và số liệu MetaBoard trong Set 18. Mình chưa có patch notes.'
+      : 'I support champion, item, trait, augment lookup, comp search, comp comparison and MetaBoard stats for Set 18. I do not have patch notes yet.',
   };
 }
 
@@ -511,13 +623,25 @@ export function detectIntent(text: string, entities: CatalogEntity[], comps: Com
   const hasCompare = /\b(so sanh|compare|versus|vs|khac nhau|difference)\b/.test(text);
   const hasMeta = /\b(win ?rate|winrate|top ?4|top4|avg|average|placement|thong ke|ti le thang|ty le thang)\b/.test(text);
   const hasPatchChange =
-    /\b(patch|phien ban|what changed|notes?|co gi moi|whats new|what is new)\b/.test(text) &&
-    /\b(change|changed|thay doi|buff|nerf|notes?|moi|new)\b/.test(text);
+    (/\b(patch|phien ban|what changed|notes?|co gi moi|whats new|what is new|nerfed|nerfs?|buffed)\b/.test(text) ||
+      // A buff/nerf claim ("vừa bị buff", "got a 50% buff") — not the game verb
+      // ("How does Lunar buff champions?"), not "trang bị" (equipment) and not
+      // the item "Blue Buff", so the Vietnamese forms must be contiguous.
+      /\b(?:bi|duoc|vua)\s+buff\b|\b(?:got|was|just|heard)\b[^.?!]*\bbuff\b/.test(text)) &&
+    /\b(change|changed|thay doi|buff|buffed|nerf|nerfed|notes?|moi|new)\b/.test(text);
   const hasCurrentPatch = /\b(patch|phien ban|set|mua)\b/.test(text) && /\b(hien tai|current|now|nay)\b/.test(text);
   const hasLookup = /\b(la gi|what is|whats|ability|ky nang|skill|mana|noi tai|toc he|trait|item|trang bi|augment|nang cap|gia|cost|mo ta|describe|tell me about|thong tin)\b/.test(text);
   const hasRecommendation = RECOMMEND_WORD.test(text) || HAVE_WORD.test(text) || COMP_WORD.test(text);
 
   if (isStrategyQuestion(text)) return 'strategy_analysis';
+  // "Top-4 rate khác win rate thế nào?" asks for metric definitions, not live
+  // stats — route to the mechanics knowledge base instead of meta_query (DAT-03).
+  const asksMetricDefinition =
+    hasMeta &&
+    /\b(khac|difference|different|dinh nghia|nghia la|what is|what does|mean|la gi|dang tin|reliable|trust)\b/.test(text) &&
+    !entities.length &&
+    !comps.length;
+  if (asksMetricDefinition) return 'gameplay_knowledge';
   if (hasMeta) return 'meta_query';
   if (hasPatchChange) return 'patch_change';
   if (hasCurrentPatch && !entities.length && !comps.length) return 'set_patch';
@@ -543,9 +667,15 @@ export function detectIntent(text: string, entities: CatalogEntity[], comps: Com
 export async function answerAssistant(
   request: AssistantRequest,
   signal: AbortSignal,
-  deps: { generate?: typeof generateAssistantAnswer } = {}
+  deps: { generate?: typeof generateAssistantAnswer; logReasoningStep?: ReasoningLogWriter } = {}
 ): Promise<Omit<AssistantResponse, 'requestId'>> {
   const generate = deps.generate ?? generateAssistantAnswer;
+  const logReasoningStep = deps.logReasoningStep ?? (() => {});
+  // History is client-supplied (or replayed from past messages), so strip
+  // entries that try to steer the assistant before they reach follow-up
+  // resolution, tool calls, or the final prompt — the current message alone
+  // is checked further down.
+  request.history = request.history.filter((entry) => !isPromptInjection(entry.content));
   const [meta, catalog, comps, metaStats] = await Promise.all([
     getActiveSetAndPatch(),
     loadCatalog(),
@@ -575,6 +705,14 @@ export async function answerAssistant(
   }
 
   if (isPromptInjection(request.message)) {
+    logReasoningStep({
+      step: 'intent_detection',
+      intent: 'unsupported_or_unknown',
+      mode: 'deterministic',
+      status: 'answered',
+      inputSummary: summarizeReasoningText(request.message),
+      details: { promptInjection: true },
+    });
     return {
       conversationId: request.conversationId,
       answer: isVi(request.lang)
@@ -596,14 +734,14 @@ export async function answerAssistant(
   let mentionText = request.message;
   let entityMentions = findEntityMentions(catalog, mentionText);
   let compMentions = findCompMentions(comps, mentionText, catalog.compAliases);
-  const priorUser = [...request.history].reverse().find((entry) => entry.role === 'user');
-  const followUp = /\b(nay|do|no|it|this|that|above|tren|comp nay|con gi|what about)\b/i.test(normalizeSpaced(request.message)) || request.message.length < 40;
-  if (!entityMentions.length && !compMentions.length && priorUser && followUp) {
-    resolutionText = `${priorUser.content} ${request.message}`;
+  if (!entityMentions.length && !compMentions.length) {
+    resolutionText = resolveFollowUpText(request.message, request.history);
     mentionText = resolutionText;
     entityMentions = findEntityMentions(catalog, mentionText);
     compMentions = findCompMentions(comps, mentionText, catalog.compAliases);
   }
+  const carriedComps =
+    entityMentions.length || compMentions.length ? [] : carryOverComps(request.message, request.history, comps);
 
   const entities = unique([...contextEntities, ...entityMentions.map((match) => match.entity)]).filter(
     (entity, index, list) =>
@@ -614,7 +752,7 @@ export async function answerAssistant(
           entry.rarity === entity.rarity
       ) === index
   );
-  const mentionedComps = [...contextComps, ...compMentions].filter(
+  const mentionedComps = [...contextComps, ...compMentions, ...carriedComps].filter(
     (comp, index, list) => list.findIndex((entry) => sameComp(entry, comp)) === index
   );
 
@@ -624,6 +762,23 @@ export async function answerAssistant(
   if (wantsReferenceData && ['strategy_analysis', 'unsupported_or_unknown'].includes(intent)) {
     intent = 'gameplay_knowledge';
   }
+  logReasoningStep({
+    step: 'intent_detection',
+    intent,
+    inputSummary: summarizeReasoningText(request.message),
+    details: { wantsReferenceData, entityCount: entities.length, mentionedCompCount: mentionedComps.length },
+  });
+  logReasoningStep({
+    step: 'entity_resolution',
+    intent,
+    inputSummary: summarizeReasoningText(request.message),
+    outputSummary: `${entities.length} entities, ${mentionedComps.length} comps`,
+    details: {
+      entityIds: entities.map((entity) => entity.id),
+      compSlugs: mentionedComps.map((comp) => comp.slug),
+      ...(carriedComps.length ? { carriedComps: carriedComps.map((comp) => comp.slug) } : {}),
+    },
+  });
 
   const version = `set${meta.setId || '?'}-patch${meta.patch || 'latest'}`;
   const repeated = [...entities
@@ -827,6 +982,7 @@ export async function answerAssistant(
     (intent === 'comp_recommendation' && /\b(?:tier|hang)\s*[sabcx]\b/i.test(text)) ||
     (intent === 'meta_query' && !stats.length);
   if (shouldTryTools) {
+    const toolStart = Date.now();
     try {
       const loop = await runToolLoop({
         system: buildToolPlannerPrompt(request.lang, meta.setId, meta.patch, selectedComps.map((comp) => comp.slug)),
@@ -854,6 +1010,25 @@ export async function answerAssistant(
           data: { status: 'error', code: failure.code, message: failure.message },
           status: 'error',
           meta: provenance,
+        });
+      }
+      logReasoningStep({
+        step: 'tool_call',
+        intent,
+        status: loop.steps.length ? (loop.failures.length ? 'error' : 'answered') : undefined,
+        outputSummary: `${loop.steps.length} call${loop.steps.length === 1 ? '' : 's'} in ${loop.rounds} round${loop.rounds === 1 ? '' : 's'}${loop.failures.length ? `, ${loop.failures.length} failed` : ''}`,
+        details: { stopped: loop.stopped, rounds: loop.rounds, calls: loop.calls, failures: loop.failures.map((f) => ({ tool: f.tool, code: f.code })) },
+        durationMs: Date.now() - toolStart,
+      });
+      for (const step of loop.steps) {
+        const args = JSON.stringify(step.args ?? {});
+        logReasoningStep({
+          step: 'tool_call',
+          intent,
+          status: step.ok ? 'answered' : 'error',
+          outputSummary: summarizeReasoningText(`${step.tool}(${args}) → ${step.ok ? 'ok' : step.code ?? 'error'}`, 120),
+          details: { tool: step.tool, args: step.args, ...(step.code ? { code: step.code } : {}) },
+          durationMs: step.durationMs,
         });
       }
 
@@ -895,6 +1070,16 @@ export async function answerAssistant(
       }
     } catch (error) {
       if (error instanceof ProviderError && (error.code === 'aborted' || error.code === 'timeout')) throw error;
+      logReasoningStep({
+        step: 'tool_call',
+        intent,
+        status: 'error',
+        outputSummary: 'Tool loop failed.',
+        details: {
+          reason: error instanceof ProviderError ? error.code : 'tool_loop_error',
+        },
+        durationMs: Date.now() - toolStart,
+      });
       assistantLog('tool_loop_error', {
         lang: request.lang,
         code: error instanceof ProviderError ? error.code : 'error',
@@ -913,7 +1098,7 @@ export async function answerAssistant(
     limitations.push(t(request.lang, 'The tool step limit was reached; the answer uses the results collected so far.', 'Đã chạm giới hạn bước gọi tool; câu trả lời dùng các kết quả đã thu thập.'));
   }
   if (intent === 'comp_search' || intent === 'comp_comparison' || intent === 'comp_recommendation') {
-    limitations.push(t(request.lang, 'Board and tier from MetaTFT; tips and stages from TFT Academy.', 'Board/tier từ MetaTFT; tips/stages từ TFT Academy.'));
+    limitations.push(t(request.lang, 'Board and tier from MetaBoard; tips and stages from TFT Academy.', 'Board/tier từ MetaBoard; tips/stages từ TFT Academy.'));
   }
   if (intent === 'entity_lookup' || (intent === 'gameplay_knowledge' && selectedEntities.length)) {
     limitations.push(t(request.lang, 'Static data from CommunityDragon and the shared TFT catalog.', 'Dữ liệu tĩnh từ CommunityDragon và danh mục TFT dùng chung.'));
@@ -984,7 +1169,8 @@ export async function answerAssistant(
     stats,
     mechanics,
     { setId: meta.setId, patch: meta.patch },
-    catalog
+    catalog,
+    text
   );
   const referenceAnswer = toolResults
     .filter((result) => result.status === 'ok' && ['get_game_mechanics', 'get_economy_plan'].includes(result.tool))
@@ -1057,22 +1243,49 @@ export async function answerAssistant(
   try {
     let result = toolFinal;
     if (!result || !parseGeneratedAnswer(result.text)) {
+      const llmStart = Date.now();
       result = await withInferenceSlot(() =>
         generate({
           system: buildSystemPrompt(request.lang, evidence),
           messages: [
             ...request.history.map((entry) => ({ role: entry.role, content: entry.content })),
-            { role: 'user', content: buildUserPrompt(request.message, evidence) },
+            { role: 'user', content: buildUserPrompt(request.message, evidence, (name) => localizedName(catalog, name, request.lang)) },
             ...toolMessages,
           ],
           maxOutputTokens: 800,
           signal,
         })
       );
+      logReasoningStep({
+        step: 'llm_generation',
+        intent,
+        mode: 'llm',
+        inputSummary: summarizeReasoningText(request.message),
+        outputSummary: 'Generated response received.',
+        details: { model: result.model, inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens },
+        durationMs: Date.now() - llmStart,
+      });
     }
     const parsed = parseGeneratedAnswer(result.text);
     if (!parsed) {
-      assistantLog('invalid_answer', { length: result.text.length, sample: result.text.slice(0, 200) });
+      logReasoningStep({
+        step: 'validation',
+        intent,
+        mode: 'llm',
+        status: 'error',
+        inputSummary: summarizeReasoningText(request.message),
+        outputSummary: 'Response did not match the expected format.',
+        details: { reason: 'parse_failed' },
+      });
+      logReasoningStep({
+        step: 'fallback',
+        intent,
+        mode: 'deterministic',
+        inputSummary: summarizeReasoningText(request.message),
+        outputSummary: summarizeReasoningText(referenceAnswer || deterministic.answer),
+        details: { reason: 'invalid_llm_answer' },
+      });
+      assistantLog('invalid_answer', { length: result.text.length });
       return {
         ...base,
         answer: referenceAnswer || deterministic.answer,
@@ -1080,9 +1293,35 @@ export async function answerAssistant(
         limitations: unique([...limitations, t(request.lang, 'The generated answer was invalid; I used the data summary instead.', 'Câu trả lời tự động không hợp lệ; đã dùng bản tóm tắt từ dữ liệu.')]),
       };
     }
+    logReasoningStep({
+      step: 'validation',
+      intent,
+      mode: 'llm',
+      status: 'answered',
+      inputSummary: summarizeReasoningText(request.message),
+      outputSummary: summarizeReasoningText(parsed.answer),
+      details: { passed: true, sectionCount: parsed.sections.length },
+    });
     const generatedText = [parsed.answer, ...parsed.sections.flatMap((section) => section.points)].join(' ');
     const unsupportedNumbers = intent === 'gameplay_knowledge' && mechanics ? ungroundedNumbers(generatedText, evidence) : [];
     if (unsupportedNumbers.length) {
+      logReasoningStep({
+        step: 'validation',
+        intent,
+        mode: 'llm',
+        status: 'insufficient_data',
+        inputSummary: summarizeReasoningText(request.message),
+        outputSummary: 'Generated answer contained unsupported numbers.',
+        details: { passed: false, reason: 'ungrounded_numbers', numbers: unsupportedNumbers },
+      });
+      logReasoningStep({
+        step: 'fallback',
+        intent,
+        mode: 'deterministic',
+        inputSummary: summarizeReasoningText(request.message),
+        outputSummary: summarizeReasoningText(deterministic.answer),
+        details: { reason: 'ungrounded_numbers' },
+      });
       return {
         ...base,
         answer: deterministic.answer,
@@ -1103,6 +1342,18 @@ export async function answerAssistant(
     };
   } catch (error) {
     if (error instanceof ProviderError && (error.code === 'unavailable' || !SIMPLE_INTENTS.includes(intent))) throw error;
+    logReasoningStep({
+      step: 'fallback',
+      intent,
+      mode: 'deterministic',
+      status: 'error',
+      inputSummary: summarizeReasoningText(request.message),
+      outputSummary: summarizeReasoningText(referenceAnswer || deterministic.answer),
+      details: {
+        reason: error instanceof ProviderError ? error.code : 'generation_error',
+        fallbackUsed: true,
+      },
+    });
     return {
       ...base,
       answer: referenceAnswer || deterministic.answer,

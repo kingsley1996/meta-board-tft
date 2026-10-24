@@ -42,9 +42,30 @@ export const itemOptions = tft.items.map((item) => ({ name: item.name, icon: ite
 
 export const augmentTiers: TierItem[] = meta.augments.map((augment) => ({ name: augment.name, tier: augment.tier as Tier, note: augment.note }));
 
-export type UnitMetaStats = { games: number; avg: number; top4: number; win: number; items: string[] };
+export type UnitStatBlock = { games: number; avg: number; top4: number; win: number; pick?: number };
+export type UnitMetaStats = UnitStatBlock & {
+  items: string[];
+  ranks?: { all: UnitStatBlock | null; master: UnitStatBlock | null };
+  itemStats?: { name: string; count: number; avg: number; pick: number }[];
+  builds?: { items: string[]; count: number; avg: number; pick: number }[];
+  stars?: { stars: number; count: number; avg: number; pct: number }[];
+  itemCounts?: { items: number; count: number; avg: number; pct: number }[];
+  positions?: { cell: string; count: number }[];
+};
+
+export type UnitAbilityAttribute = { key: string; label: string; values: number[] };
+
+export const unitAbilityAttributes: Record<string, UnitAbilityAttribute[]> = meta.abilities;
+
+export const unitRoles: Record<string, string> = meta.roles;
 
 export const unitStats: Record<string, UnitMetaStats> = meta.units;
+
+export type CompMetaStats = { avg: number; games: number; level: number };
+
+export const compStatsBySlug: Record<string, CompMetaStats> = Object.fromEntries(
+  meta.comps.map((comp) => [comp.slug, comp.stats])
+);
 
 // Guide tags stay English keys (they are authored on the guides themselves);
 // only the chip label is localized.
@@ -64,7 +85,7 @@ const guideTags: Record<string, string> = {
 
 export const guideTag = (name: string, lang: Lang) => (lang === 'vi' ? guideTags[name] ?? name : name);
 
-export const patch = { version: setInfo.patch, updated: `MetaTFT · ${meta.source.updated.slice(0, 10)}` };
+export const patch = { version: setInfo.patch, updated: `MetaBoard · ${meta.source.updated.slice(0, 10)}` };
 
 export const socials = [
   { label: 'YouTube', href: '#' },

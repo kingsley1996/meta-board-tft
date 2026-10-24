@@ -74,6 +74,11 @@ test('returns tool results to the next model turn and stops after the answer', a
     tool_name: 'find_comps',
     content: JSON.stringify({ status: 'ok', tool: 'find_comps', data: { args: { tier: 'S' } } }),
   });
+  assert.deepEqual(
+    loop.steps.map((step) => ({ tool: step.tool, args: step.args, ok: step.ok })),
+    [{ tool: 'find_comps', args: { tier: 'S' }, ok: true }],
+  );
+  assert.ok(loop.steps[0].durationMs >= 0);
 });
 
 test('can stop after the first successful tool batch for deterministic finalization', async () => {

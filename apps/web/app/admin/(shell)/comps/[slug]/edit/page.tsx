@@ -42,6 +42,7 @@ export default async function EditCompPage({ params }: { params: Promise<{ slug:
     augmentTypes: apiComp.augmentTypes,
     matchups: (apiComp.matchups ?? []).map((entry) => ({ slug: entry.slug, kind: entry.kind })),
     playstyleVi: keep(viComp?.playstyle, apiComp.playstyle),
+    titleVi: keep(viComp?.title, apiComp.title),
     tipsVi: keep(viComp?.tips, apiComp.tips),
     stagesVi: apiComp.stages.map((stage, index) => keep(viComp?.stages?.[index]?.text, stage.text)),
   };

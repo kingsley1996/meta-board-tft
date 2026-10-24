@@ -1,6 +1,7 @@
 import { pool } from '../db.ts';
 import { normalize, type Catalog } from './entities.ts';
 import type { EntityType, GameEntityType } from './contracts.ts';
+import { invalidateCachePrefix } from '../cache.ts';
 
 export type StoredEntityAlias = {
   id: number;
@@ -152,6 +153,7 @@ export async function createEntityAlias(input: {
        RETURNING id, alias, entity_type AS "entityType", entity_id AS "entityId", created_at AS "createdAt"`,
       [alias, aliasKey, input.entityType, input.entityId]
     );
+    invalidateCachePrefix('catalog');
     return { alias: rows[0] };
   } catch (error) {
     if (typeof error === 'object' && error !== null && 'code' in error && error.code === '23505') {
@@ -164,6 +166,7 @@ export async function createEntityAlias(input: {
 export async function deleteEntityAlias(id: number): Promise<boolean> {
   await ensureEntityAliasTable();
   const { rowCount } = await pool.query('DELETE FROM entity_aliases WHERE id = $1', [id]);
+  if (rowCount === 1) invalidateCachePrefix('catalog');
   return rowCount === 1;
 }
 
@@ -216,6 +219,7 @@ export async function approveUnresolvedEntityMention(
     );
     await client.query('DELETE FROM unresolved_entity_mentions WHERE id = $1', [id]);
     await client.query('COMMIT');
+    invalidateCachePrefix('catalog');
     return { alias: inserted.rows[0] };
   } catch (error) {
     await client.query('ROLLBACK');
