@@ -3,12 +3,21 @@ import type { ReactNode } from 'react';
 import type { Tier } from '@/lib/tiers';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+import { itemSlugByName } from '@/lib/data';
+import { itemName } from '@/lib/tips';
+
+// Detail-page link for a catalog item; undefined when unknown or no lang context.
+export function itemHref(name: string, lang?: Lang): string | undefined {
+  const slug = itemSlugByName[name];
+  return slug && lang ? `/${lang}/items/${slug}` : undefined;
+}
 
 export const tierColor: Record<Tier, string> = {
   S: 'var(--color-tier-s)',
   A: 'var(--color-tier-a)',
   B: 'var(--color-tier-b)',
   C: 'var(--color-tier-c)',
+  D: 'var(--color-tier-d)',
   X: 'var(--color-tier-x)',
 };
 
@@ -82,7 +91,7 @@ export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = fals
         </div>
       </div>
       {stars ? (
-        <span className="pointer-events-none absolute -top-2 left-1/2 z-30 -translate-x-1/2 rounded-[5px] border border-black/30 bg-[#f5c542] px-1.5 py-[1px] text-[max(9px,calc(var(--hex-w,56px)*0.18))] leading-none tracking-[0.08em] text-[#201a0a] shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+        <span className="pointer-events-none absolute top-0.5 left-1/2 z-30 -translate-x-1/2 rounded-[5px] border border-black/30 bg-[#f5c542] px-1.5 py-[1px] text-[max(9px,calc(var(--hex-w,56px)*0.18))] leading-none tracking-[0.08em] text-[#201a0a] shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
           {'★'.repeat(Math.min(stars, 3))}
         </span>
       ) : null}
@@ -90,8 +99,8 @@ export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = fals
   );
 }
 
-export function ItemTile({ name, icon, tier, size = 44 }: { name: string; icon?: string | null; tier?: Tier | null; size?: number }) {
-  return (
+export function ItemTile({ name, icon, tier, size = 44, href }: { name: string; icon?: string | null; tier?: Tier | null; size?: number; href?: string }) {
+  const tile = (
     <span data-tip={`item:${name}`} className="relative block shrink-0" style={{ width: size, height: size }}>
       <span className="absolute inset-0 rounded-[22%]" style={{ background: tier ? tierColor[tier] : 'var(--color-line)' }} />
       <span className="absolute overflow-hidden rounded-[16%] bg-panel" style={{ inset: size * 0.09 }}>
@@ -99,17 +108,42 @@ export function ItemTile({ name, icon, tier, size = 44 }: { name: string; icon?:
       </span>
     </span>
   );
+  // Optional link to the item detail page; board/tile contexts without href
+  // (hex board, pickers) stay non-interactive.
+  return href ? (
+    <Link href={href} className="smooth relative block shrink-0 hover:brightness-110" style={{ width: size, height: size }}>
+      {tile}
+    </Link>
+  ) : (
+    tile
+  );
 }
 
-export function ItemRanking({ items, size = 36, showTier = true }: { items: { name: string; icon?: string | null; tier?: Tier | null; note?: string }[]; size?: number; showTier?: boolean }) {
+export function ItemRanking({
+  items,
+  size = 36,
+  showTier = true,
+  lang,
+}: {
+  items: { name: string; icon?: string | null; tier?: Tier | null; note?: string }[];
+  size?: number;
+  showTier?: boolean;
+  lang?: Lang;
+}) {
   return (
     <ol className="flex flex-col gap-1.5">
       {items.map((item, index) => (
         <li key={`${item.name}-${index}`} className="flex items-center gap-3 rounded-lg border border-line bg-ink/40 px-3 py-2">
           <span className="w-5 shrink-0 text-center font-display text-sm font-bold text-mist">{index + 1}</span>
-          <ItemTile name={item.name} icon={item.icon} tier={item.tier} size={size} />
+          <ItemTile name={item.name} icon={item.icon} tier={item.tier} size={size} href={itemHref(item.name, lang)} />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-semibold text-fog">{item.name}</span>
+            {itemHref(item.name, lang) ? (
+              <Link href={itemHref(item.name, lang)!} className="smooth block truncate text-sm font-semibold text-fog hover:text-brand-soft">
+                {lang ? itemName(item.name, lang) : item.name}
+              </Link>
+            ) : (
+              <span className="block truncate text-sm font-semibold text-fog">{lang ? itemName(item.name, lang) : item.name}</span>
+            )}
             {item.note ? <span className="block truncate text-[11px] text-mist">{item.note}</span> : null}
           </span>
           {showTier && item.tier ? (
@@ -160,8 +194,10 @@ export function AugmentTile({ name, icon, size = 44 }: { name: string; icon?: st
 }
 
 export function TierChip({ tier, label }: { tier: Tier; label: string }) {
+  // min-h (not fixed h) so the chip stretches to the full height of its
+  // tier row when the comp/item list beside it wraps to several lines.
   return (
-    <div className="flex h-28 w-24 shrink-0 flex-col items-center justify-center rounded-lg border-2 bg-panel" style={{ borderColor: tierColor[tier] }}>
+    <div className="flex min-h-28 w-24 shrink-0 flex-col items-center justify-center rounded-lg border-2 bg-panel" style={{ borderColor: tierColor[tier] }}>
       <span className="font-display text-5xl font-bold" style={{ color: tierColor[tier] }}>{tier}</span>
       <span className="text-[10px] font-semibold uppercase tracking-wide text-mist">{label}</span>
     </div>

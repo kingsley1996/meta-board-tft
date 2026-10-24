@@ -8,7 +8,7 @@ import { translateText } from '@/lib/translate';
 import { championNameToSlug, traitStyleColors } from '@/lib/tips';
 import { HexBoard } from './hex-board';
 import { VoteButton } from './vote-button';
-import { AugmentTile, Chip, CostDots, ItemHex, ItemRanking, Panel, UnitHex } from './ui';
+import { AugmentTile, Chip, CostDots, ItemHex, ItemRanking, Panel, tierColor, UnitHex } from './ui';
 
 // Fallback hexes (row-major index) for comps saved before the board editor existed.
 const fallbackCells = [3, 9, 10, 17, 23, 24, 30];
@@ -98,18 +98,32 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
   const economy = economyForComp({ style: comp.style, carry: comp.carry, units: comp.units });
   return (
     <div data-section="comp-panel" className="grid gap-4 rounded-xl border border-line bg-page p-4 lg:grid-cols-[300px_1fr]">
+      {/* Left rail after TFT Academy's comp card, in MetaBoard's palette:
+          carry portrait → name → playstyle → meta chips, then sectioned
+          traits / augments / augment priority / matchups. */}
       <aside className="flex flex-col gap-4 rounded-lg border border-line bg-panel p-4">
-        <div>
-          <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-fog">{comp.title}</h3>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-soft">{comp.playstyle}</p>
+        <div className="flex flex-col items-center gap-2 text-center">
+          <div className="relative" style={{ filter: `drop-shadow(0 0 12px ${tierColor[comp.tier]}55)` }}>
+            <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} />
+            <span
+              className="absolute -bottom-1 -right-1 rounded-md border border-black/40 px-1.5 py-px font-display text-xs font-bold text-black/80"
+              style={{ background: tierColor[comp.tier] }}
+            >
+              {comp.tier}
+            </span>
+          </div>
+          <h3 className="font-display text-2xl font-bold uppercase leading-tight tracking-tight text-fog">{comp.title}</h3>
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-soft">
+            {t.playstyleLabel}: {comp.playstyle}
+          </p>
           <Link
             href={`/${lang}/assistant?comp=${comp.slug}`}
-            className="smooth mt-3 inline-flex rounded-full border border-line bg-util px-3 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+            className="smooth mt-1 inline-flex rounded-full border border-line bg-util px-3 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
           >
             {t.askAssistant}
           </Link>
         </div>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
           <Chip>{comp.style}</Chip>
           <Link href={`/${lang}/economy#${economyStrategyByName[economy.strategy]?.id ?? ''}`} className="smooth">
             <Chip className="border-brand-soft/60 text-brand-soft">
@@ -118,26 +132,51 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
           </Link>
           <Chip>{t.difficulty} <CostDots cost={comp.difficulty} /></Chip>
           <Chip>{comp.units.length} {t.units}</Chip>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
           <VoteButton slug={comp.slug} votes={comp.votes} lang={lang} />
           <Chip>{comp.views} {t.views}</Chip>
         </div>
         {comp.traits?.length ? (
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.activeTraits}</p>
-            <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-col gap-2 border-t border-line/60 pt-4">
+            <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.activeTraits}</p>
+            <div className="flex flex-wrap justify-center gap-1.5">
               {comp.traits.map((trait) => <TraitChip key={trait.name} trait={trait} />)}
             </div>
           </div>
         ) : null}
+        <div className="flex flex-col gap-2 border-t border-line/60 pt-4">
+          <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.augments}</p>
+          <div className="grid grid-cols-4 justify-items-center gap-2">
+            {comp.augments.slice(0, 8).map((augment, index) => (
+              <AugmentTile key={`${augment.name}-${index}`} name={augment.name} icon={augment.icon} size={52} />
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 border-t border-line/60 pt-4">
+          <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.augmentPriority}</p>
+          <div className="flex flex-wrap items-center justify-center gap-1 text-xs font-semibold">
+            {(comp.augmentTypes.length ? comp.augmentTypes : ['ECON', 'ITEMS', 'COMBAT']).map((type, index) => {
+              const labels: Record<string, string> = { ITEMS: t.items, ECON: t.economy, COMBAT: t.combat, EMBLEM: t.emblem };
+              const label = labels[type] ?? type;
+              return (
+                <span key={type} className="flex items-center gap-1">
+                  {index > 0 ? <span className="text-mist">{'\u25B8'}</span> : null}
+                  <span className="rounded-full border border-brand-soft/60 bg-util px-3 py-1 text-brand-soft">{label}</span>
+                </span>
+              );
+            })}
+          </div>
+        </div>
         {comp.matchups?.length ? (
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.matchups}</p>
+          <div className="flex flex-col gap-2 border-t border-line/60 pt-4">
+            <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.matchups}</p>
             <div className="flex flex-col gap-1.5">
               {(['good', 'bad'] as const).map((kind) => {
                 const entries = comp.matchups.filter((entry) => entry.kind === kind);
                 if (!entries.length) return null;
                 return (
-                  <div key={kind} className="flex flex-wrap items-center gap-1.5">
+                  <div key={kind} className="flex flex-wrap items-center justify-center gap-1.5">
                     <span className={`text-xs font-bold ${kind === 'good' ? 'text-tier-c' : 'text-tier-s'}`}>
                       {kind === 'good' ? t.matchupGood : t.matchupBad}
                     </span>
@@ -156,29 +195,6 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
             </div>
           </div>
         ) : null}
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.augments}</p>
-          <div className="grid grid-cols-4 gap-2">
-            {comp.augments.slice(0, 8).map((augment, index) => (
-              <AugmentTile key={`${augment.name}-${index}`} name={augment.name} icon={augment.icon} size={44} />
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">{t.augmentPriority}</p>
-          <div className="flex items-center gap-1 text-xs font-semibold text-mist">
-            {(comp.augmentTypes.length ? comp.augmentTypes : ['ECON', 'ITEMS', 'COMBAT']).map((type, index) => {
-              const labels: Record<string, string> = { ITEMS: t.items, ECON: t.economy, COMBAT: t.combat, EMBLEM: t.emblem };
-              const label = labels[type] ?? type;
-              return (
-                <span key={type} className="flex items-center gap-1">
-                  {index > 0 ? <span>{'\u2192'}</span> : null}
-                  <span className="text-brand-soft">{label}</span>
-                </span>
-              );
-            })}
-          </div>
-        </div>
       </aside>
       <div className="flex flex-col gap-4">
         <Panel className="p-4">
@@ -204,7 +220,7 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
           </Panel>
           <Panel className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.itemPriority}</p>
-            <ItemRanking items={comp.items.map(({ name, icon }) => ({ name, icon }))} size={30} />
+            <ItemRanking items={comp.items.map(({ name, icon }) => ({ name, icon }))} size={30} lang={lang} />
           </Panel>
         </div>
         <div className="grid gap-4 md:grid-cols-[1fr_200px]">
