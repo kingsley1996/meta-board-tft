@@ -34,11 +34,48 @@ export const iconByName: Record<string, string> = Object.fromEntries(
 
 export type TierItem = { name: string; tier: Tier; note: { en: string; vi: string } };
 
-export const itemTiers: TierItem[] = meta.items.map((item) => ({ name: item.name, tier: item.tier as Tier, note: item.note }));
+export type ItemMetaStats = {
+  name: string;
+  category?: string;
+  tier: Tier;
+  avg: number;
+  games: number;
+  top4: number;
+  win: number;
+  pick?: number | null;
+  champions?: string[];
+  championStats?: {
+    name: string;
+    count: number;
+    avg: number;
+    top4: number;
+    win: number;
+    delta: number | null;
+    placeChange?: number | null;
+    score?: number;
+    tier?: string;
+  }[];
+  stages?: { stage: string; count: number; win: number }[];
+  unitGames?: number | null;
+  note: { en: string; vi: string };
+};
+
+export const itemMetaByName: Record<string, ItemMetaStats> = Object.fromEntries(
+  meta.items.map((item) => [item.name, item as unknown as ItemMetaStats])
+);
+
+// The tier-list board stays completed-only; Ornn artifacts and Radiant upgrades
+// carry their own per-group tiers on the item detail pages.
+export const itemTiers: TierItem[] = meta.items
+  .filter((item) => item.category !== 'artifact' && item.category !== 'radiant')
+  .map((item) => ({ name: item.name, tier: item.tier as Tier, note: item.note }));
 
 export const itemTierByName: Record<string, Tier> = Object.fromEntries(itemTiers.map((item) => [item.name, item.tier]));
 
 export const itemOptions = tft.items.map((item) => ({ name: item.name, icon: item.icon as string | null, tier: itemTierByName[item.name] ?? null }));
+
+// Detail-page link target for every catalog item (null when unknown).
+export const itemSlugByName: Record<string, string> = Object.fromEntries(tft.items.map((item) => [item.name, item.slug]));
 
 export const augmentTiers: TierItem[] = meta.augments.map((augment) => ({ name: augment.name, tier: augment.tier as Tier, note: augment.note }));
 
@@ -60,6 +97,20 @@ export const unitAbilityAttributes: Record<string, UnitAbilityAttribute[]> = met
 export const unitRoles: Record<string, string> = meta.roles;
 
 export const unitStats: Record<string, UnitMetaStats> = meta.units;
+
+// Champion's global meta tier (S..D by average placement, share-based cut like
+// the item tiers). Used for the per-champion badges on item detail pages —
+// the badge reflects the champion's standing, not the item's tier.
+export const championTierByName: Record<string, Tier> = (() => {
+  const ranked = Object.entries(unitStats)
+    .filter(([, stats]) => (stats.ranks?.all?.games ?? stats.games) >= 2000)
+    .sort(([, a], [, b]) => a.avg - b.avg);
+  const cut = (index: number): Tier => {
+    const share = index / Math.max(ranked.length, 1);
+    return share < 0.15 ? 'S' : share < 0.4 ? 'A' : share < 0.7 ? 'B' : share < 0.88 ? 'C' : 'D';
+  };
+  return Object.fromEntries(ranked.map(([name], index) => [name, cut(index)]));
+})();
 
 export type CompMetaStats = { avg: number; games: number; level: number };
 

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ItemRanking, ItemTile, Panel, UnitHex, tierColor } from '@/components/ui';
+import { ItemRanking, ItemTile, Panel, UnitHex, itemHref, tierColor } from '@/components/ui';
 import { HexBoard } from '@/components/hex-board';
 import { PatchBar } from '@/components/patch-bar';
 import type { CompsResponse } from '@/lib/api';
@@ -249,7 +249,7 @@ export default async function ChampionPage({
                       <span className="w-5 shrink-0 text-center font-display text-sm font-bold text-mist">{index + 1}</span>
                       <span className="flex shrink-0 gap-1">
                         {combo.items.map((item) => (
-                          <ItemTile key={item} name={item} icon={iconByName[item] ?? null} tier={itemTierByName[item] ?? null} size={34} />
+                          <ItemTile key={item} name={item} icon={iconByName[item] ?? null} tier={itemTierByName[item] ?? null} size={34} href={itemHref(item, lang)} />
                         ))}
                       </span>
                       <span className="min-w-0 flex-1 text-[11px] text-mist">{compact(combo.count)} {t.games.toLowerCase()}</span>
@@ -307,7 +307,7 @@ export default async function ChampionPage({
                 {itemRows.length ? (
                   <>
                     <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.items}</p>
-                    <ItemRanking items={itemRows} showTier={false} />
+                    <ItemRanking items={itemRows} showTier={false} lang={lang} />
                     <p className="text-xs leading-relaxed text-mist">{t.itemsNote}</p>
                   </>
                 ) : (

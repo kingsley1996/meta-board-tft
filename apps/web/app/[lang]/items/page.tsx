@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Chip, ItemTile } from '@/components/ui';
 import { PatchBar } from '@/components/patch-bar';
-import { iconByName } from '@/lib/data';
+import { iconByName, itemSlugByName } from '@/lib/data';
 import tft from '@metaboard/shared/data/tft.json';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
@@ -74,7 +74,7 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
       {items.length ? (
         <div data-section="item-grid" className="grid w-full gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
           {items.map(({ name, category, tip }) => (
-            <div key={name} className="flex gap-4 rounded-xl border border-line bg-panel p-4">
+            <Link key={name} href={`/${lang}/items/${itemSlugByName[name]}`} className="smooth flex gap-4 rounded-xl border border-line bg-panel p-4 hover:border-brand-soft">
               <ItemTile name={name} icon={iconByName[name] ?? null} size={52} />
               <div className="flex min-w-0 flex-col gap-1.5">
                 <p className="font-display text-base font-semibold text-fog">{itemName(name, lang)}</p>
@@ -93,7 +93,7 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
                 )}
                 {tip?.kind === 'item' ? <p className="text-xs leading-relaxed text-mist">{tip.desc}</p> : null}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       ) : (
