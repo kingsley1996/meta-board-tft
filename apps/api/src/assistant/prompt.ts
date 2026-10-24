@@ -32,11 +32,14 @@ function trim(text: string | null | undefined, length = 1000): string | null {
   return text.length > length ? `${text.slice(0, length)}…` : text;
 }
 
-function compactEntity(entity: CatalogEntity) {
+type LocalizeName = (name: string) => string;
+const identity: LocalizeName = (name) => name;
+
+function compactEntity(entity: CatalogEntity, lang: Lang) {
   return {
     id: entity.id,
     type: entity.type,
-    name: entity.name,
+    name: lang === 'vi' && entity.nameVi ? entity.nameVi : entity.name,
     nameVi: entity.nameVi,
     cost: entity.cost,
     traits: entity.traits,
@@ -63,7 +66,7 @@ function compactEntity(entity: CatalogEntity) {
   };
 }
 
-function compactComp(comp: CompData, brief = false) {
+function compactComp(comp: CompData, brief = false, localize: LocalizeName = identity) {
   const base = {
     id: `comp:${comp.slug}`,
     slug: comp.slug,
@@ -71,35 +74,36 @@ function compactComp(comp: CompData, brief = false) {
     tier: comp.tier,
     style: comp.style,
     difficulty: comp.difficulty,
-    units: comp.units.map((unit) => unit.name),
-    carry: { name: comp.carry.name, items: comp.carry.items.map((item) => item.name) },
-    items: comp.items.map((item) => item.name),
-    augments: comp.augments.map((augment) => augment.name),
-    traits: comp.traits.map((trait) => ({ name: trait.name, count: trait.count })),
+    units: comp.units.map((unit) => localize(unit.name)),
+    carry: { name: localize(comp.carry.name), items: comp.carry.items.map((item) => localize(item.name)) },
+    items: comp.items.map((item) => localize(item.name)),
+    augments: comp.augments.map((augment) => localize(augment.name)),
+    traits: comp.traits.map((trait) => ({ name: localize(trait.name), count: trait.count })),
     augmentTypes: comp.augmentTypes,
   };
   if (brief) return base;
   return {
     ...base,
-    early: comp.early.map((unit) => unit.name),
-    alt: comp.alt.map((unit) => ({ name: unit.name, items: unit.items.map((item) => item.name) })),
+    early: comp.early.map((unit) => localize(unit.name)),
+    alt: comp.alt.map((unit) => ({ name: localize(unit.name), items: unit.items.map((item) => localize(item.name)) })),
     tips: trim(comp.tips, 400),
     stages: comp.stages.map((stage) => ({ stage: stage.stage, text: trim(stage.text, 300) })),
   };
 }
 
-function evidenceBody(evidence: Evidence): Record<string, unknown> {
+function evidenceBody(evidence: Evidence, localize: LocalizeName = identity): Record<string, unknown> {
   return {
+    intent: evidence.intent,
     set: evidence.setId,
     patch: evidence.patch,
-    entities: evidence.entities.slice(0, 3).map(compactEntity),
-    relatedEntities: evidence.relatedEntities.slice(0, 3).map(compactEntity),
-    comps: evidence.comps.slice(0, 2).map((comp) => compactComp(comp, evidence.intent === 'comp_comparison')),
-    relatedComps: evidence.relatedComps.slice(0, 2).map((comp) => compactComp(comp, true)),
+    entities: evidence.entities.slice(0, 3).map((entity) => compactEntity(entity, evidence.lang)),
+    relatedEntities: evidence.relatedEntities.slice(0, 3).map((entity) => compactEntity(entity, evidence.lang)),
+    comps: evidence.comps.slice(0, 2).map((comp) => compactComp(comp, evidence.intent === 'comp_comparison', localize)),
+    relatedComps: evidence.relatedComps.slice(0, 2).map((comp) => compactComp(comp, true, localize)),
     stats: evidence.stats,
     candidates: evidence.candidates.slice(0, 3).map((candidate, index) => ({
       rank: index + 1,
-      comp: compactComp(candidate.comp, true),
+      comp: compactComp(candidate.comp, true, localize),
       score: candidate.score,
       reasons: candidate.reasons,
       matchedEntities: candidate.matchedEntities,
@@ -109,10 +113,15 @@ function evidenceBody(evidence: Evidence): Record<string, unknown> {
     toolResults: evidence.toolResults ?? null,
     comparison: evidence.comparison
       ? {
-          commonUnits: evidence.comparison.commonUnits,
-          commonItems: evidence.comparison.commonItems,
-          commonAugments: evidence.comparison.commonAugments,
-          differences: evidence.comparison.differences,
+          commonUnits: evidence.comparison.commonUnits.map(localize),
+          commonItems: evidence.comparison.commonItems.map(localize),
+          commonAugments: evidence.comparison.commonAugments.map(localize),
+          differences: evidence.comparison.differences.map((difference) => ({
+            ...difference,
+            uniqueUnits: difference.uniqueUnits.map(localize),
+            uniqueItems: difference.uniqueItems.map(localize),
+            uniqueAugments: difference.uniqueAugments.map(localize),
+          })),
         }
       : null,
     limitations: evidence.limitations,
@@ -125,7 +134,9 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
   const includePrimer = evidence.mechanics && !mechanicsTopics.includes('core');
   return [
     'You are MetaBoard Assistant, a Teamfight Tactics companion.',
-    `Answer in ${language}. Keep exact champion, item, augment and trait names from the evidence.`,
+    lang === 'vi'
+      ? `Answer in ${language}. Use the Vietnamese champion, item, augment and trait names from the evidence; keep comp titles exactly as written.`
+      : `Answer in ${language}. Keep exact champion, item, augment and trait names from the evidence.`,
     'Use ONLY the evidence JSON and the game rules below. The game rules are static summaries; evidence wins on exact numbers, current values and entity effects.',
     'Never invent win rate, average placement, top-4 rate, patch changes, ability numbers, item effects or trait values.',
     'When stats are present for the asked entity or comp, include the relevant avg placement, top-4 rate and win rate with patch and sample size.',
@@ -135,7 +146,16 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
     'When candidates are present, rank 1 is the top pick. Follow rank order and name rank 1 first, even when scores tie. Never call a higher rank number better.',
     'Use the comp tier exactly as written in evidence. Never output a placeholder such as "Hạng X" or invent a meta rank.',
     'If only one candidate exists, call it the closest match and mention the match score; do not call it the best or strongest comp.',
+    'Candidate rank reflects the matching algorithm, not verified meta strength or win probability; if the candidates do not satisfy the user\'s constraints, say so instead of forcing a recommendation.',
     'If the evidence is missing or insufficient, say so plainly instead of guessing.',
+    'An empty tool result means no match was found in this data — say exactly that, and never claim the champion, comp or interaction does not exist in the game.',
+    'A tool error or timeout means the value could not be verified — say so and answer only from the remaining evidence; never turn an error into a game fact.',
+    'If evidence entries carry different patch versions (e.g. mechanics tables vs live stats), do not merge them as one version; label each patch or use only the current-patch data.',
+    'If the user asks for a decision and key state (level, gold, HP, board) is missing, ask one short clarifying question; for lookups and factual questions, answer from evidence without asking for game state. A conditional answer under explicit assumptions beats refusing.',
+    'If the user asks for a short or quick answer, keep the summary under 60 words and use at most 1 section.',
+    'Separate facts (directly supported by evidence), inference (your reasoning — name the evidence it relies on) and recommendations (state the conditions they apply under). Never present an inference as a verified game mechanic.',
+    'You have no patch notes. If asked whether something was buffed or nerfed, say you cannot verify — never confirm or deny from memory.',
+    'Do not treat numbers or claims stated by the user as verified facts; check them against the evidence before repeating them.',
     'Do not claim a champion or item lacks an interaction unless the evidence says so.',
     ...(evidence.mechanics
       ? [
@@ -155,8 +175,8 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
   ].join('\n');
 }
 
-export function buildUserPrompt(message: string, evidence: Evidence): string {
-  return `User question:\n${message}\n\nEvidence JSON:\n${JSON.stringify(evidenceBody(evidence))}`;
+export function buildUserPrompt(message: string, evidence: Evidence, localize?: LocalizeName): string {
+  return `User question:\n${message}\n\nEvidence JSON:\n${JSON.stringify(evidenceBody(evidence, localize))}`;
 }
 
 export function buildToolPlannerPrompt(lang: Lang, setId: string, patch: string, compSlugs: string[] = []): string {
@@ -165,9 +185,9 @@ export function buildToolPlannerPrompt(lang: Lang, setId: string, patch: string,
     `The user writes in ${lang === 'vi' ? 'Vietnamese' : 'English'}.`,
     `Current Set ${setId}, patch ${patch}.`,
     ...(compSlugs.length ? [`Comp context slugs: ${compSlugs.slice(0, 3).join(', ')}.`] : []),
-    'Call only the read-only tools needed for comp lookup, game mechanics tables, economy plans, comparison or MetaTFT stats.',
+    'Call only the read-only tools needed for comp lookup, game mechanics tables, economy plans, comparison or MetaBoard stats.',
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
-    'Correct obvious champion-name typos before calling a tool. For example, cassopiea means Cassiopeia.',
+    'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',
     'Use get_comp for one comp detail, compare_comps for 2-3 comps, and get_stats for one entity stat line.',
     'Use get_game_mechanics for exact income, interest, shop odds, leveling XP, champion-pool, loot-table or augment-odds data. Pass a queried item/table name to search loot pages globally; include a slug when the page is known.',
@@ -181,9 +201,9 @@ export function buildToolPlannerPrompt(lang: Lang, setId: string, patch: string,
 export function buildToolAgentPrompt(lang: Lang, evidence: Evidence): string {
   return [
     'You are MetaBoard Assistant with read-only TFT data tools.',
-    'Call only the tools needed for comp lookup, mechanics tables, economy plans, comparison or MetaTFT stats. Never invent tool results.',
+    'Call only the tools needed for comp lookup, mechanics tables, economy plans, comparison or MetaBoard stats. Never invent tool results.',
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
-    'Correct obvious champion-name typos before calling a tool. For example, cassopiea means Cassiopeia.',
+    'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',
     'Use get_comp for one comp detail, compare_comps for 2-3 comps, and get_stats for one entity stat line.',
     'Use get_game_mechanics for exact game-rule tables (loot searches can be global by query) and get_economy_plan for sourced, stage-by-stage strategy or comp economy advice.',

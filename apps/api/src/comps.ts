@@ -1,5 +1,6 @@
 import { pool } from './db.ts';
 import { translateText } from './assistant/translate.ts';
+import { cached, invalidateCachePrefix } from './cache.ts';
 
 const TIERS = ['S', 'A', 'B', 'C', 'X'];
 const STYLES = ['Reroll', 'Fast 8', 'Flex', 'Tempo'];
@@ -22,6 +23,7 @@ export type AltUnit = {
 export type CompInput = {
   slug: string;
   title: string;
+  titleVi?: string | null;
   tier: string;
   style: string;
   difficulty: number;
@@ -82,6 +84,7 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
 
   const playstyle = str(raw.playstyle);
   if (!playstyle) return fail('playstyle is required');
+  const titleVi = str(raw.titleVi) || null;
   const playstyleVi = str(raw.playstyleVi) || null;
 
   // Units accept "Name" or { name, row, col, stars, items } — positions are
@@ -225,6 +228,7 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
     comp: {
       slug,
       title,
+      titleVi,
       tier,
       style,
       difficulty,
@@ -251,15 +255,15 @@ export async function writeComp(comp: CompInput): Promise<void> {
   try {
     await client.query('BEGIN');
     await client.query(
-      `INSERT INTO comps (slug, title, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, tips, tips_vi, augment_types, matchups)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      `INSERT INTO comps (slug, title, title_vi, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, tips, tips_vi, augment_types, matchups)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        ON CONFLICT (slug) DO UPDATE SET
-         title = EXCLUDED.title, tier = EXCLUDED.tier, style = EXCLUDED.style,
-         difficulty = EXCLUDED.difficulty, trend = EXCLUDED.trend, playstyle = EXCLUDED.playstyle,
-         playstyle_vi = EXCLUDED.playstyle_vi, carry = EXCLUDED.carry, tips = EXCLUDED.tips,
-         tips_vi = EXCLUDED.tips_vi, augment_types = EXCLUDED.augment_types,
-         matchups = EXCLUDED.matchups, updated_at = now()`,
-      [comp.slug, comp.title, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.tips, comp.tipsVi, comp.augmentTypes, JSON.stringify(comp.matchups)]
+         title = EXCLUDED.title, title_vi = EXCLUDED.title_vi, tier = EXCLUDED.tier,
+         style = EXCLUDED.style, difficulty = EXCLUDED.difficulty, trend = EXCLUDED.trend,
+         playstyle = EXCLUDED.playstyle, playstyle_vi = EXCLUDED.playstyle_vi,
+         carry = EXCLUDED.carry, tips = EXCLUDED.tips, tips_vi = EXCLUDED.tips_vi,
+         augment_types = EXCLUDED.augment_types, matchups = EXCLUDED.matchups, updated_at = now()`,
+      [comp.slug, comp.title, comp.titleVi, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.tips, comp.tipsVi, comp.augmentTypes, JSON.stringify(comp.matchups)]
     );
     for (const table of ['comp_units', 'comp_items', 'comp_augments']) {
       await client.query(`DELETE FROM ${table} WHERE comp_slug = $1`, [comp.slug]);
@@ -303,6 +307,7 @@ export async function writeComp(comp: CompInput): Promise<void> {
       );
     }
     await client.query('COMMIT');
+    invalidateCachePrefix('comps');
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
@@ -314,6 +319,7 @@ export async function writeComp(comp: CompInput): Promise<void> {
 // Community counters. Returns the new value, or null when the slug is unknown.
 export async function bumpComp(slug: string, field: 'votes' | 'views'): Promise<number | null> {
   const { rows } = await pool.query(`UPDATE comps SET ${field} = ${field} + 1 WHERE slug = $1 RETURNING ${field}`, [slug]);
+  if (rows.length) invalidateCachePrefix('comps');
   return rows.length ? (rows[0][field] as number) : null;
 }
 
@@ -324,10 +330,17 @@ export async function compExists(slug: string): Promise<boolean> {
 
 export async function deleteComp(slug: string): Promise<boolean> {
   const { rowCount } = await pool.query('DELETE FROM comps WHERE slug = $1', [slug]);
+  if ((rowCount ?? 0) > 0) invalidateCachePrefix('comps');
   return (rowCount ?? 0) > 0;
 }
 
-export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en', sort?: string): Promise<any[]> {
+export function listComps(slug?: string, lang: 'en' | 'vi' = 'en', sort?: string): Promise<any[]> {
+  // listComps runs ~9 queries per call and is hit by the public API, the admin
+  // alias routes, and every assistant tool call — memoize per argument combo.
+  return cached(`comps:${slug ?? ''}:${lang}:${sort ?? ''}`, () => listCompsUncached(slug, lang, sort));
+}
+
+async function listCompsUncached(slug?: string, lang: 'en' | 'vi' = 'en', sort?: string): Promise<any[]> {
   const vi = lang === 'vi';
   const order = !slug && sort === 'popular' ? 'ORDER BY votes DESC, created_at, slug' : 'ORDER BY created_at, slug';
   const comps = await pool.query(
@@ -413,7 +426,8 @@ export async function listComps(slug?: string, lang: 'en' | 'vi' = 'en', sort?: 
     const role = (value: string) => compUnits.filter((entry) => entry.role === value).map(unit);
     return {
       slug: row.slug,
-      title: row.title,
+      title: vi ? translateText('vi', 'comps', 'comp-title', row.title, row.title_vi) : row.title,
+      titleVi: row.title_vi ?? null,
       tier: row.tier,
       style: row.style,
       difficulty: row.difficulty,

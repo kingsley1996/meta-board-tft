@@ -30,10 +30,19 @@ export type ToolFailure = {
   message: string;
 };
 
+export type ToolCallStep = {
+  tool: string;
+  args: unknown;
+  ok: boolean;
+  code?: string;
+  durationMs: number;
+};
+
 export type ToolLoopResult = {
   messages: ProviderChatMessage[];
   results: ToolExecution[];
   failures: ToolFailure[];
+  steps: ToolCallStep[];
   final: ProviderResult | null;
   calls: number;
   rounds: number;
@@ -106,6 +115,7 @@ export async function runToolLoop(input: {
   const messages: ProviderChatMessage[] = [];
   const results: ToolExecution[] = [];
   const failures: ToolFailure[] = [];
+  const steps: ToolCallStep[] = [];
   const seen = new Set<string>();
   let calls = 0;
   let rounds = 0;
@@ -113,7 +123,7 @@ export async function runToolLoop(input: {
   let final: ProviderResult | null = null;
 
   while (rounds < config.maxRounds && calls < config.maxCalls) {
-    if (input.signal.aborted) return { messages, results, failures, final, calls, rounds, stopped: 'aborted' };
+    if (input.signal.aborted) return { messages, results, failures, steps, final, calls, rounds, stopped: 'aborted' };
     rounds += 1;
     const planned = await input.generate({
       system: calls === 0 ? input.system : input.answerSystem,
@@ -148,21 +158,26 @@ export async function runToolLoop(input: {
 
     for (const call of accepted) {
       calls += 1;
+      const callStarted = Date.now();
       let result: ToolExecution | null = null;
+      let stepCode: string | undefined;
       let content: string;
       if (call.argumentError) {
         const error = failure(call.name, 'invalid_arguments', call.argumentError);
         failures.push(error);
+        stepCode = error.code;
         content = JSON.stringify({ status: 'error', tool: call.name, code: error.code, message: error.message });
       } else if (!allowed.has(call.name)) {
         const error = failure(call.name, 'unknown_tool', 'Tool is not allowed.');
         failures.push(error);
+        stepCode = error.code;
         content = JSON.stringify({ status: 'error', tool: call.name, code: error.code, message: error.message });
       } else {
         const signature = `${call.name}:${stable(call.arguments)}`;
         if (seen.has(signature)) {
           const error = failure(call.name, 'repeated_call', 'This tool call was already tried; choose a different tool or answer.');
           failures.push(error);
+          stepCode = error.code;
           content = JSON.stringify({ status: 'error', tool: call.name, code: error.code, message: error.message });
         } else {
           seen.add(signature);
@@ -188,10 +203,18 @@ export async function runToolLoop(input: {
             const message = timedOut ? 'Tool timed out.' : known ? caught.message : 'Tool execution failed.';
             const error = failure(call.name, code, message);
             failures.push(error);
+            stepCode = code;
             content = JSON.stringify({ status: 'error', tool: call.name, code, message });
           }
         }
       }
+      steps.push({
+        tool: call.name,
+        args: call.arguments,
+        ok: Boolean(result),
+        ...(stepCode ? { code: stepCode } : {}),
+        durationMs: Math.max(0, Date.now() - callStarted),
+      });
       assistantLog('tool_call', {
         tool: call.name,
         lang: input.lang,
@@ -218,5 +241,5 @@ export async function runToolLoop(input: {
     assistantLog('tool_limit', { calls, rounds, reason: 'max_rounds' });
   }
   if (rounds > 0) assistantLog('tool_loop', { calls, rounds, results: results.length, failures: failures.length, stopped });
-  return { messages, results, failures, final, calls, rounds, stopped };
+  return { messages, results, failures, steps, final, calls, rounds, stopped };
 }

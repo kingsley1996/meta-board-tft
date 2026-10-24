@@ -15,6 +15,7 @@ export type ApiIcon = { name: string; icon: string | null };
 export type ApiComp = {
   slug: string;
   title: string;
+  titleVi?: string | null;
   tier: Tier;
   style: string;
   difficulty: number;
@@ -189,4 +190,54 @@ export async function sendAssistantFeedback(input: { requestId: string; conversa
     body: JSON.stringify(input),
   });
   if (!res.ok) throw new AssistantApiError(res.status, 'feedback_failed');
+}
+
+export type AssistantConversation = {
+  id: string;
+  client_id: string;
+  lang: string;
+  title: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AssistantMessageRecord = {
+  id: string;
+  conversation_id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  intent: string | null;
+  mode: string | null;
+  status: string | null;
+  created_at: string;
+};
+
+export type AssistantConversationDetail = {
+  conversationId: string;
+  messages: AssistantMessageRecord[];
+};
+
+export async function listAssistantConversations(): Promise<AssistantConversation[]> {
+  const res = await fetch('/api/assistant/conversations', {
+    headers: { 'content-type': 'application/json' },
+  });
+  if (!res.ok) throw new AssistantApiError(res.status, 'conversation_list_failed');
+  const data = await res.json() as { conversations: AssistantConversation[] };
+  return data.conversations;
+}
+
+export async function getAssistantConversation(conversationId: string): Promise<AssistantConversationDetail> {
+  const res = await fetch(`/api/assistant/conversations/${conversationId}`, {
+    headers: { 'content-type': 'application/json' },
+  });
+  if (!res.ok) throw new AssistantApiError(res.status, 'conversation_get_failed');
+  return res.json();
+}
+
+export async function deleteAssistantConversation(conversationId: string): Promise<void> {
+  const res = await fetch(`/api/assistant/conversations/${conversationId}`, {
+    method: 'DELETE',
+    headers: { 'content-type': 'application/json' },
+  });
+  if (!res.ok) throw new AssistantApiError(res.status, 'conversation_delete_failed');
 }

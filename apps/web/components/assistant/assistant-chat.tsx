@@ -8,7 +8,11 @@ import type { Tier } from '@/lib/tiers';
 import {
   AssistantApiError,
   askAssistant,
+  deleteAssistantConversation,
+  getAssistantConversation,
+  listAssistantConversations,
   sendAssistantFeedback,
+  type AssistantConversation,
   type AssistantQueryRequest,
   type AssistantResponse,
 } from '@/lib/api';
@@ -120,6 +124,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [speechError, setSpeechError] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<AssistantConversation[]>([]);
+  const [conversationsLoading, setConversationsLoading] = useState(false);
+
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const sherpaSessionRef = useRef<SherpaVoiceSession | null>(null);
   const speechRequestRef = useRef<AbortController | null>(null);
@@ -129,12 +136,58 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const voiceTranscriptRef = useRef('');
   const autoSubmitVoiceRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  // Voice callbacks fire long after the render that created them (speech end,
+  // async transcription); they must submit with the latest conversationId and
+  // messages, not the ones captured when recording started.
+  const submitRef = useRef<((raw: string, addUser?: boolean, speakResponse?: boolean) => Promise<void>) | null>(null);
 
   useEffect(() => {
-    const stored = loadStored(storageKey);
-    setMessages(stored.messages ?? []);
-    setConversationId(stored.conversationId);
-    setHydrated(true);
+    let mounted = true;
+
+    async function load() {
+      // Load conversation list from server. Graceful: if there is no session
+      // yet (first visit), simply show an empty list.
+      try {
+        setConversationsLoading(true);
+        const list = await listAssistantConversations();
+        if (mounted) setConversations(list);
+      } catch {
+        if (mounted) setConversations([]);
+      } finally {
+        if (mounted) setConversationsLoading(false);
+      }
+
+      // Load stored conversation from sessionStorage as the initial conversationId.
+      const stored = loadStored(storageKey);
+      if (mounted) {
+        setMessages(stored.messages ?? []);
+        setConversationId(stored.conversationId);
+        setHydrated(true);
+      }
+
+      // If we have a stored conversationId, fetch its messages from the server to restore history.
+      if (mounted && stored.conversationId) {
+        try {
+          const detail = await getAssistantConversation(stored.conversationId);
+          if (mounted && detail.messages.length) {
+            const restored = detail.messages.map((m) => ({
+              id: m.id,
+              role: m.role as 'user' | 'assistant',
+              content: m.content,
+            }));
+            setMessages(restored);
+            setConversationId(stored.conversationId);
+          }
+        } catch {
+          // Server fetch failed; fall back to sessionStorage messages already loaded above.
+        }
+      }
+    }
+
+    void load();
+    return () => {
+      mounted = false;
+    };
   }, [storageKey]);
 
   useEffect(
@@ -272,6 +325,10 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         { id: assistantMessageId, role: 'assistant', content: response.answer, response, voiceResponse: speakResponse },
       ]);
       if (speakResponse) void speakAnswer(response.answer, assistantMessageId);
+      // Refresh conversation list so the new conversation appears with its title.
+      void listAssistantConversations().then((list) => setConversations(list)).catch(() => {
+        // Ignore list refresh failures.
+      });
     } catch (caught) {
       setError(errorText(caught));
       setRetryText(text);
@@ -279,6 +336,10 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    submitRef.current = submit;
+  });
 
   async function startSherpaVoiceInput() {
     if (
@@ -432,7 +493,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       const question = `${base}${base ? ' ' : ''}${transcript}`.slice(0, 2000);
       setVoiceError(null);
       setVoiceTranscribing(false);
-      await submit(question, true, true);
+      await submitRef.current?.(question, true, true);
     } catch (caught) {
       console.error('Sherpa transcription failed', caught);
       setVoiceError(t.voiceSherpaError);
@@ -519,7 +580,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       voiceTranscriptRef.current = '';
       if (shouldSubmit) {
         const base = voiceBaseRef.current;
-        void submit(`${base}${base ? ' ' : ''}${transcript}`, true, true);
+        void submitRef.current?.(`${base}${base ? ' ' : ''}${transcript}`, true, true);
       } else if (shouldAutoSubmit && !transcript) {
         setVoiceError(t.voiceNoSpeech);
       }
@@ -555,6 +616,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     } catch {
       // Ignore storage failures.
     }
+    void listAssistantConversations().then((list) => setConversations(list)).catch(() => {
+      // Ignore list refresh failures; new chat still works.
+    });
   }
 
   async function copyAnswer(message: ChatMessage) {
@@ -589,6 +653,18 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     return t.status[response.status];
   }
 
+  const voiceStatus = voiceStarting
+    ? t.voiceStarting
+    : voiceTranscribing
+      ? t.voiceTranscribing
+      : speaking
+        ? t.voiceSpeaking
+        : listening
+          ? lang === 'vi'
+            ? t.voiceSherpaListening
+            : t.voiceListening
+          : t.voiceNotice;
+
   return (
     <Panel className="mx-auto flex min-h-[68vh] w-full max-w-4xl flex-col overflow-hidden">
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
@@ -596,6 +672,43 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
           <p className="font-display text-lg font-bold text-fog">{t.assistant}</p>
           {compTitle || compSlug ? <p className="truncate text-xs text-mist">{t.context(compTitle ?? compSlug ?? '')}</p> : null}
         </div>
+        <select
+          value={conversationId ?? ''}
+          onChange={(event) => {
+            const id = event.target.value;
+            if (!id) return;
+            const selected = conversations.find((c) => c.id === id);
+            if (!selected) return;
+            void getAssistantConversation(id).then((detail) => {
+              setConversationId(id);
+              setMessages(
+                detail.messages.map((m) => ({
+                  id: m.id,
+                  role: m.role as 'user' | 'assistant',
+                  content: m.content,
+                })),
+              );
+              setInput('');
+              setError(null);
+            }).catch(() => {
+              setError('Failed to load conversation');
+            });
+          }}
+          className="smooth rounded-md border border-line bg-panel px-2.5 py-1 text-xs text-mist focus:border-brand-soft focus:outline-none"
+          disabled={conversationsLoading}
+        >
+          <option value="">{t.newChat}</option>
+          {conversations.length === 0 ? (
+            <option disabled value="">
+              {t.noConversations}
+            </option>
+          ) : null}
+          {conversations.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.title || t.untitledConversation}
+            </option>
+          ))}
+        </select>
         <button type="button" onClick={newChat} className="smooth rounded-md border border-line bg-util px-3 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog">
           {t.clear}
         </button>
@@ -637,8 +750,8 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
               feedback={message.response ? feedback[message.response.requestId] : undefined}
               copied={copiedId === message.id}
               speaking={speakingMessageId === message.id}
-              onSpeak={() => (speakingMessageId === message.id ? stopAnswerSpeech() : void speakAnswer(message.content, message.id))}
               onCopy={() => void copyAnswer(message)}
+              onSpeak={() => (speakingMessageId === message.id ? stopAnswerSpeech() : void speakAnswer(message.content, message.id))}
               onRate={rate}
               onFollowUp={(question) => void submit(question)}
               statusLabel={message.response ? statusLabel(message.response) : null}
@@ -690,6 +803,24 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
             className="min-h-12 flex-1 resize-none rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog outline-none placeholder:text-mist focus:border-brand-soft"
           />
           <button
+            type="button"
+            onClick={toggleVoiceInput}
+            disabled={loading || voiceStarting || voiceTranscribing}
+            aria-label={listening ? t.voiceStop : t.voiceStart}
+            aria-pressed={listening}
+            title={listening ? t.voiceStop : t.voiceStart}
+            className={`smooth inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 ${
+              listening
+                ? 'animate-pulse border-tier-s bg-tier-s/20 text-tier-s'
+                : 'border-line bg-page text-mist hover:border-brand-soft hover:text-fog'
+            }`}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
+              <rect x="9" y="3" width="6" height="12" rx="3" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5.5 11a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8" />
+            </svg>
+          </button>
+          <button
             type="submit"
             disabled={loading || !input.trim()}
             className="smooth h-12 rounded-lg border border-brand-hot bg-brand-hot px-5 text-sm font-semibold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-40"
@@ -697,7 +828,19 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
             {loading ? t.sending : t.send}
           </button>
         </div>
-        <p className="mt-2 text-[11px] text-mist">{t.disclaimer}</p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-mist">
+          <p>{t.disclaimer}</p>
+          <div className="flex items-center gap-2">
+            <p role="status">{voiceStatus}</p>
+            {speaking ? (
+              <button type="button" onClick={stopAnswerSpeech} className="underline underline-offset-2">
+                {t.voiceStopSpeaking}
+              </button>
+            ) : null}
+          </div>
+        </div>
+        {voiceError ? <p role="status" className="mt-2 text-xs text-tier-s">{voiceError}</p> : null}
+        {speechError ? <p role="status" className="mt-2 text-xs text-tier-s">{speechError}</p> : null}
       </form>
     </Panel>
   );
@@ -793,8 +936,8 @@ function AssistantBubble({
   feedback,
   copied,
   speaking,
-  onSpeak,
   onCopy,
+  onSpeak,
   onRate,
   onFollowUp,
   statusLabel,
@@ -804,8 +947,8 @@ function AssistantBubble({
   feedback: boolean | undefined;
   copied: boolean;
   speaking: boolean;
-  onSpeak: () => void;
   onCopy: () => void;
+  onSpeak: () => void;
   onRate: (response: AssistantResponse, helpful: boolean) => Promise<void>;
   onFollowUp: (question: string) => void;
   statusLabel: string | null;

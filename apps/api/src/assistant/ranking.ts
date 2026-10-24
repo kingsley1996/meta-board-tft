@@ -3,11 +3,12 @@ import {
   type CatalogEntity,
   type CompData,
   type EntityId,
+  type Lang,
   type RankPart,
   type RankedComp,
   type RankingQuery,
 } from './contracts.ts';
-import type { Catalog } from './entities.ts';
+import { localizedName, type Catalog } from './entities.ts';
 
 const TIER_SCORE: Record<string, number> = { S: 0, A: 1, B: 2, C: 3, X: 4 };
 
@@ -19,12 +20,13 @@ function part(key: RankPart['key'], points: number, reason: string, matched: Ent
   return { key, points, reason, matched: unique(matched) };
 }
 
-function namesOf(entities: CatalogEntity[]): string {
-  return entities.map((entity) => entity.name).join(', ');
+function namesOf(entities: CatalogEntity[], catalog: Catalog, lang: Lang): string {
+  return entities.map((entity) => localizedName(catalog, entity.name, lang)).join(', ');
 }
 
 export function rankComps(comps: CompData[], query: RankingQuery, catalog: Catalog): RankedComp[] {
-  const vi = query.lang !== 'en';
+  const lang = query.lang ?? 'en';
+  const vi = lang === 'vi';
   const say = (en: string, viText: string) => (vi ? viText : en);
   const champions = query.championIds
     .map((id) => catalog.byId.get(id))
@@ -48,10 +50,10 @@ export function rankComps(comps: CompData[], query: RankingQuery, catalog: Catal
       const carry = champions.filter((entity) => entity.name === carryName);
       const early = champions.filter((entity) => earlyNames.has(entity.name));
       const alt = champions.filter((entity) => altNames.has(entity.name));
-      if (board.length) parts.push(part('champion', board.length * 3, say(`Board champion match: ${namesOf(board)}.`, `Khớp tướng board: ${namesOf(board)}.`), board.map((entity) => entity.id)));
-      if (carry.length) parts.push(part('carry', carry.length * 2, say(`Carry match: ${namesOf(carry)}.`, `Khớp carry: ${namesOf(carry)}.`), carry.map((entity) => entity.id)));
-      if (early.length) parts.push(part('early', early.length, say(`Early unit match: ${namesOf(early)}.`, `Khớp tướng early: ${namesOf(early)}.`), early.map((entity) => entity.id)));
-      if (alt.length) parts.push(part('alt', alt.length, say(`Alt unit match: ${namesOf(alt)}.`, `Khớp tướng alt: ${namesOf(alt)}.`), alt.map((entity) => entity.id)));
+      if (board.length) parts.push(part('champion', board.length * 3, say(`Board champion match: ${namesOf(board, catalog, lang)}.`, `Khớp tướng board: ${namesOf(board, catalog, lang)}.`), board.map((entity) => entity.id)));
+      if (carry.length) parts.push(part('carry', carry.length * 2, say(`Carry match: ${namesOf(carry, catalog, lang)}.`, `Khớp carry: ${namesOf(carry, catalog, lang)}.`), carry.map((entity) => entity.id)));
+      if (early.length) parts.push(part('early', early.length, say(`Early unit match: ${namesOf(early, catalog, lang)}.`, `Khớp tướng early: ${namesOf(early, catalog, lang)}.`), early.map((entity) => entity.id)));
+      if (alt.length) parts.push(part('alt', alt.length, say(`Alt unit match: ${namesOf(alt, catalog, lang)}.`, `Khớp tướng alt: ${namesOf(alt, catalog, lang)}.`), alt.map((entity) => entity.id)));
 
       const compItems = new Set<string>([
         ...comp.items.map((item) => item.name),
@@ -61,7 +63,7 @@ export function rankComps(comps: CompData[], query: RankingQuery, catalog: Catal
       ]);
       const exactItems = items.filter((entity) => compItems.has(entity.name));
       if (exactItems.length) {
-        parts.push(part('item', exactItems.length * 2, say(`Item match: ${namesOf(exactItems)}.`, `Khớp item: ${namesOf(exactItems)}.`), exactItems.map((entity) => entity.id)));
+        parts.push(part('item', exactItems.length * 2, say(`Item match: ${namesOf(exactItems, catalog, lang)}.`, `Khớp item: ${namesOf(exactItems, catalog, lang)}.`), exactItems.map((entity) => entity.id)));
       }
 
       let componentMatch = false;
@@ -81,13 +83,13 @@ export function rankComps(comps: CompData[], query: RankingQuery, catalog: Catal
           .map((name) => catalog.byName.get(name))
           .filter((entity): entity is CatalogEntity => Boolean(entity))
           .map((entity) => entity.id);
-        parts.push(part('component', 2, say(`Craftable items from your components: ${[...craftable].join(', ')}.`, `Có thể ghép item từ component bạn có: ${[...craftable].join(', ')}.`), matched));
+        parts.push(part('component', 2, say(`Craftable items from your components: ${[...craftable].map((name) => localizedName(catalog, name, lang)).join(', ')}.`, `Có thể ghép item từ component bạn có: ${[...craftable].map((name) => localizedName(catalog, name, lang)).join(', ')}.`), matched));
       }
 
       const compAugments = new Set(comp.augments.map((augment) => augment.name));
       const exactAugments = augments.filter((entity) => compAugments.has(entity.name));
       if (exactAugments.length) {
-        parts.push(part('augment', exactAugments.length * 2, say(`Augment match: ${namesOf(exactAugments)}.`, `Khớp augment: ${namesOf(exactAugments)}.`), exactAugments.map((entity) => entity.id)));
+        parts.push(part('augment', exactAugments.length * 2, say(`Augment match: ${namesOf(exactAugments, catalog, lang)}.`, `Khớp augment: ${namesOf(exactAugments, catalog, lang)}.`), exactAugments.map((entity) => entity.id)));
       }
 
       if (query.style && comp.style === query.style) {
@@ -101,7 +103,7 @@ export function rankComps(comps: CompData[], query: RankingQuery, catalog: Catal
 
       const score = parts.reduce((total, entry) => total + entry.points, 0);
       const matchedEntities = unique(parts.flatMap((entry) => entry.matched));
-      const limitations = [say('This score reflects comp overlap; see MetaTFT stats for performance.', 'Điểm này phản ánh độ khớp đội hình; xem số liệu MetaTFT để biết hiệu quả.')];
+      const limitations = [say('This score reflects comp overlap; see MetaBoard stats for performance.', 'Điểm này phản ánh độ khớp đội hình; xem số liệu MetaBoard để biết hiệu quả.')];
       if (componentMatch) limitations.push(say('Completed items are inferred from your components and are not verified purchases.', 'Item hoàn chỉnh được suy ra từ component, chưa xác minh item thực tế.'));
       if (!board.length && !exactItems.length && !exactAugments.length) {
         limitations.push(say('No champion, item or augment matched; only style or difficulty matched.', 'Chưa khớp tướng/item/augment nào; chỉ khớp lối chơi hoặc độ khó.'));

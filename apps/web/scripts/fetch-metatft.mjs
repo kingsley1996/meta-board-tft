@@ -20,10 +20,11 @@ const WAIT_MS = 100;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function get(path, tries = 3) {
+  const url = /^https?:\/\//.test(path) ? path : BASE + path;
   for (let attempt = 1; ; attempt++) {
     try {
-      const res = await fetch(BASE + path, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(30000) });
-      if (!res.ok) throw new Error(`HTTP ${res.status} ${path}`);
+      const res = await fetch(url, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(30000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`);
       return await res.json();
     } catch (error) {
       if (attempt >= tries) throw error;
@@ -48,6 +49,8 @@ async function pool(items, worker) {
 const norm = (value) => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
 
 const championByNorm = new Map(tft.champions.map((champion) => [norm(champion.name), champion.name]));
+const championViByNorm = new Map(tft.champions.map((champion) => [norm(champion.name), champion.nameVi ?? champion.name]));
+const traitViByName = new Map(tft.traits.map((trait) => [trait.name, trait.nameVi ?? trait.name]));
 const itemByNorm = new Map(tft.items.map((item) => [norm(item.name), item.name]));
 const augmentByApi = new Map(tft.augments.map((augment) => [norm(augment.apiName.replace(/^TFT\d*_Augment_/, '')), augment.name]));
 const augmentByName = new Map(tft.augments.map((augment) => [norm(augment.name), augment.name]));
@@ -180,17 +183,66 @@ async function main() {
   });
 
   console.log('fetching stat snapshots...');
-  const [unitDistribution, unitItemsProcessed, itemStats, augmentTiersRaw, compAugmentTiers] = await Promise.all([
+  const [unitDistribution, masterDistribution, unitItemsProcessed, itemStats, augmentTiersRaw, compAugmentTiers, lookup] = await Promise.all([
     get(`/tft-stat-api/units_distribution?queue=${QUEUE}&days=7&patch=current`),
+    get(`/tft-stat-api/units_distribution?queue=${QUEUE}&days=7&patch=current&rank=MASTER,GRANDMASTER,CHALLENGER`),
     get('/tft-comps-api/unit_items_processed'),
     get(`/tft-stat-api/items?queue=${QUEUE}&days=7`),
     get('/tft-stat-api/augments_tiers'),
     get(`/tft-comps-api/comp_augment_tiers?cluster_id=${clusterId}&queue=${QUEUE}`),
+    get('https://data.metatft.com/lookups/TFTSet18_latest_en_us.json'),
   ]);
 
+  // Ability numbers come from MetaTFT's resolved attribute values; the local
+  // CommunityDragon text has no numbers for most Set 18 units.
+  const abilities = {};
+  const roles = {};
+  for (const unit of lookup.units ?? []) {
+    const championName = championByNorm.get(norm(unit.name));
+    const role = unit.role ? lookup.roleData?.[unit.role]?.name : null;
+    if (championName && role) roles[championName] = role;
+  }
+  for (const unit of lookup.units ?? []) {
+    const name = championByNorm.get(norm(unit.name));
+    if (!name) continue;
+    const footerLabels = new Map();
+    for (const row of unit.ability?.footer ?? []) {
+      const id = String(row.desc ?? '').match(/attributeid="([^"]+)"/i)?.[1];
+      const label = String(row.desc ?? '').split(/[<:]/)[0].trim();
+      if (id && label) footerLabels.set(id, label);
+    }
+    const attributes = Object.entries(unit.ability?.attributeCalcs ?? {})
+      .filter(([, calc]) => calc?.resolved && Array.isArray(calc.values) && calc.values.some((value) => Number.isFinite(value)))
+      .map(([key, calc]) => ({
+        key,
+        label: footerLabels.get(key) ?? key.replace(/^.*\./, '').replace(/Calc\d+$/, '').replace(/([a-z0-9])([A-Z])/g, '$1 $2'),
+        values: calc.values.slice(0, 3),
+      }));
+    if (attributes.length) abilities[name] = attributes;
+  }
+
   // Unit stats: aggregate the numItems rows, then attach the processed item list.
-  const unitPlaces = new Map();
-  for (const row of unitDistribution.results) addPlaces(unitPlaces, unitName(row.unit), row.places);
+  const gameMeta = Array.isArray(unitDistribution.games) ? unitDistribution.games[0] : unitDistribution.games;
+  const masterMeta = Array.isArray(masterDistribution.games) ? masterDistribution.games[0] : masterDistribution.games;
+  const placesByUnit = (distribution) => {
+    const map = new Map();
+    for (const row of distribution.results ?? []) addPlaces(map, unitName(row.unit), row.places);
+    return map;
+  };
+  const unitPlaces = placesByUnit(unitDistribution);
+  const masterPlaces = placesByUnit(masterDistribution);
+  const statsFrom = (map, name, totalGames) => {
+    const places = map.get(name);
+    const stats = places ? placementStats(places) : null;
+    if (!stats) return null;
+    return {
+      games: stats.games,
+      avg: Math.round(stats.avg * 1000) / 1000,
+      top4: Math.round(stats.top4 * 10000) / 10000,
+      win: Math.round(stats.win * 10000) / 10000,
+      pick: totalGames ? Math.round((stats.games / totalGames) * 10000) / 10000 : 0,
+    };
+  };
   const unitItems = new Map();
   for (const [id, entry] of Object.entries(unitItemsProcessed.units)) {
     const name = unitName(id);
@@ -202,16 +254,136 @@ async function main() {
     }
     unitItems.set(name, items);
   }
+
+  // Per-unit detail sampled from every comp cluster: item pairs, star levels,
+  // item counts and board cells. Rank filtering is only available for the
+  // stat cards above, so these keep the all-ranks sample.
+  const unitItemSamples = new Map();
+  const unitStars = new Map();
+  const unitItemCounts = new Map();
+  const unitPositions = new Map();
+  const unitBuilds = new Map();
+  const bump = (map, name, key, count, avg) => {
+    const rows = map.get(name) ?? new Map();
+    const current = rows.get(key) ?? { count: 0, place: 0 };
+    current.count += count;
+    current.place += count * avg;
+    rows.set(key, current);
+    map.set(name, rows);
+  };
+  for (const { results } of compsRaw) {
+    for (const entry of results.itemNames ?? []) {
+      const item = metaItem(entry.itemNames);
+      if (!item) continue;
+      for (const row of entry.units ?? []) {
+        const name = unitName(row.units);
+        const count = Number(row.count) || 0;
+        const avg = Number(row.avg);
+        if (!name || !count || !Number.isFinite(avg)) continue;
+        bump(unitItemSamples, name, item, count, avg);
+      }
+    }
+    for (const entry of results.unit_stats ?? []) {
+      const name = unitName(entry.unit);
+      if (!name) continue;
+      for (const tier of entry.tiers ?? []) {
+        const count = Number(tier.count) || 0;
+        const avg = Number(tier.avg);
+        if (count && Number.isFinite(avg)) bump(unitStars, name, tier.tier, count, avg);
+      }
+      for (const slot of entry.num_items ?? []) {
+        const count = Number(slot.count) || 0;
+        const avg = Number(slot.avg);
+        if (count && Number.isFinite(avg)) bump(unitItemCounts, name, slot.num_items, count, avg);
+      }
+    }
+    for (const [id, entry] of Object.entries(results.positioning?.units ?? {})) {
+      const name = unitName(id);
+      if (!name) continue;
+      const cells = unitPositions.get(name) ?? new Map();
+      for (const position of entry.positions ?? []) {
+        const count = Number(position.count) || 0;
+        if (!count || !position.cell) continue;
+        cells.set(position.cell, (cells.get(position.cell) ?? 0) + count);
+      }
+      unitPositions.set(name, cells);
+    }
+    for (const build of results.builds ?? []) {
+      const name = unitName(build.unit);
+      const items = (build.buildName ?? []).map(metaItem);
+      const count = Number(build.count) || 0;
+      const avg = Number(build.avg);
+      if (!name || items.length !== 3 || items.some((item) => !item) || !count || !Number.isFinite(avg)) continue;
+      const key = [...items].sort().join('|');
+      const rows = unitBuilds.get(name) ?? new Map();
+      const current = rows.get(key) ?? { items, count: 0, place: 0 };
+      current.count += count;
+      current.place += count * avg;
+      rows.set(key, current);
+      unitBuilds.set(name, rows);
+    }
+  }
+  const sampleGamesFor = (name) => [...(unitStars.get(name)?.values() ?? [])].reduce((sum, row) => sum + row.count, 0);
+  const buckets = (rows, key) => {
+    const entries = [...(rows ?? new Map()).entries()];
+    const total = entries.reduce((sum, [, row]) => sum + row.count, 0);
+    return entries
+      .sort(([a], [b]) => Number(a) - Number(b))
+      .map(([value, row]) => ({
+        [key]: Number(value),
+        count: row.count,
+        avg: Math.round((row.place / row.count) * 100) / 100,
+        pct: total ? Math.round((row.count / total) * 10000) / 10000 : 0,
+      }));
+  };
+  const unitItemStats = (name) => {
+    const sampleGames = sampleGamesFor(name);
+    return [...(unitItemSamples.get(name) ?? new Map()).entries()]
+      .map(([item, row]) => ({
+        name: item,
+        count: row.count,
+        avg: Math.round((row.place / row.count) * 100) / 100,
+        pick: sampleGames ? Math.round((row.count / sampleGames) * 10000) / 10000 : 0,
+      }))
+      .filter((row) => row.count >= 20)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+  };
+  const unitBuildStats = (name) => {
+    const sampleGames = sampleGamesFor(name);
+    return [...(unitBuilds.get(name) ?? new Map()).values()]
+      .map((row) => ({
+        items: row.items,
+        count: row.count,
+        avg: Math.round((row.place / row.count) * 100) / 100,
+        pick: sampleGames ? Math.round((row.count / sampleGames) * 10000) / 10000 : 0,
+      }))
+      .filter((row) => row.count >= 20)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+  };
+
   const units = {};
   for (const [name, places] of unitPlaces) {
     const stats = placementStats(places);
     if (!stats) continue;
+    const all = statsFrom(unitPlaces, name, gameMeta?.count);
     units[name] = {
       games: stats.games,
       avg: Math.round(stats.avg * 1000) / 1000,
       top4: Math.round(stats.top4 * 10000) / 10000,
       win: Math.round(stats.win * 10000) / 10000,
+      pick: all?.pick ?? 0,
       items: [...(unitItems.get(name) ?? [])].slice(0, 6),
+      ranks: { all, master: statsFrom(masterPlaces, name, masterMeta?.count) },
+      itemStats: unitItemStats(name),
+      builds: unitBuildStats(name),
+      stars: buckets(unitStars.get(name), 'stars'),
+      itemCounts: buckets(unitItemCounts.get(name), 'items'),
+      positions: [...(unitPositions.get(name) ?? new Map()).entries()]
+        .map(([cell, count]) => ({ cell, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 12),
     };
   }
 
@@ -259,8 +431,8 @@ async function main() {
         name,
         tier,
         note: {
-          en: `MetaTFT ${rank} tier`,
-          vi: `Hạng ${rank} MetaTFT`,
+          en: `MetaBoard ${rank} tier`,
+          vi: `Hạng ${rank} MetaBoard`,
         },
       };
     })
@@ -428,6 +600,13 @@ async function main() {
       ? sourceCarryPart.split(/([&/])/).map((part) => (/^[&/]$/.test(part) ? part : championByNorm.get(norm(part)) ?? titleCase(part))).join(' ')
       : carry;
     const title = `${displayCarry} ${titleCase(activeTrait)}`.replace(/\s+/g, ' ').trim();
+    // Vietnamese title uses the same parts as the English one: unit names and the
+    // active trait from tft.json (fallback: keep the English part).
+    const viName = (name) => championViByNorm.get(norm(name)) ?? name;
+    const viCarry = sourceCarryPart && sourceCarries.length
+      ? sourceCarryPart.split(/([&/])/).map((part) => (/^[&/]$/.test(part) ? part : viName(championByNorm.get(norm(part)) ?? titleCase(part)))).join(' ')
+      : viName(carry);
+    const titleVi = `${viCarry} ${traitViByName.get(activeTrait) ?? titleCase(activeTrait)}`.replace(/\s+/g, ' ').trim();
     const augmentsForComp = [...(sourceTitles[cluster.Cluster]?.augments ?? [])]
       .sort((a, b) => (AUGMENT_RANK[a.tier] ?? 9) - (AUGMENT_RANK[b.tier] ?? 9))
       .map((entry) => metaAugment(entry.id))
@@ -481,6 +660,7 @@ async function main() {
 
     return {
       title,
+      titleVi,
       tier: 'B', // assigned after the whole set is known
       style,
       difficulty,
@@ -545,8 +725,72 @@ async function main() {
     usedSlugs.add(slug);
   }
 
+  // Editorial tips/stages: tftacademy writes stage-by-stage advice, tftflow has
+  // tips plus a level curve. Match on carry + board overlap; keep the MetaTFT
+  // stat sentence only when neither source covers the comp. The English text is
+  // translated at read time through translation-catalog.json.
+  const championNames = new Set(tft.champions.map((champion) => champion.name));
+  const nameByApi = new Map(tft.champions.map((champion) => [champion.apiName, champion.name]));
+  const boardOf = (comp) => comp.units.map((unit) => unit.name).filter((name) => championNames.has(name));
+  const overlapOf = (board, other) => {
+    const theirs = new Set(other);
+    return board.length ? board.filter((name) => theirs.has(name)).length / board.length : 0;
+  };
+  const bestMatch = (board, carry, entries, unitsOf) =>
+    entries
+      .map((entry) => ({ entry, overlap: overlapOf(board, unitsOf(entry)) }))
+      .filter((candidate) => candidate.entry.carry === carry && candidate.overlap >= 0.6)
+      .sort((a, b) => b.overlap - a.overlap)[0] ?? null;
+
+  let academy = [];
+  try {
+    const body = await get(`https://tftacademy.com/api/tierlist/comps?set=${Number(clusterInfo.tft_set.replace(/\D+/g, ''))}`);
+    academy = (body.guides ?? [])
+      .filter((entry) => entry.isPublic && entry.compSlug)
+      .map((entry) => ({
+        carry: nameByApi.get(entry.mainChampion?.apiName) ?? null,
+        units: [...new Set((entry.finalComp ?? []).map((unit) => nameByApi.get(unit.apiName)).filter(Boolean))],
+        tips: entry.augmentsTip ?? null,
+        stages: (entry.tips ?? []).filter((tip) => tip?.stage && tip?.tip).map((tip) => ({ stage: tip.stage, text: tip.tip })),
+      }));
+  } catch (error) {
+    console.warn(`tftacademy unavailable, using tftflow only: ${error.message}`);
+  }
+  const flowComps = readJson('../../packages/shared/data/economy.json').comps;
+
+  let fromAcademy = 0;
+  let fromFlow = 0;
+  let keptStats = 0;
+  for (const comp of finalComps) {
+    const board = boardOf(comp);
+    const match = bestMatch(board, comp.carry, academy, (entry) => entry.units);
+    if (match && (match.entry.stages.length || match.entry.tips)) {
+      const { tips, stages } = match.entry;
+      comp.tips = tips ?? stages.map((entry) => entry.text).join(' ');
+      if (stages.length) comp.stages = stages;
+      comp.tipsVi = null;
+      fromAcademy += 1;
+      continue;
+    }
+    const flow = bestMatch(board, comp.carry, flowComps, (entry) => entry.boardNames ?? []);
+    if (flow && (flow.entry.tips?.length || flow.entry.levelCurve?.length)) {
+      const stages = [2, 3, 4]
+        .map((stage) => {
+          const steps = (flow.entry.levelCurve ?? []).filter((step) => String(step.stage).startsWith(`${stage}-`));
+          return steps.length ? { stage: `Stage ${stage}`, text: steps.map((step) => step.text).join(' ') } : null;
+        })
+        .filter(Boolean);
+      if (flow.entry.tips?.length) comp.tips = flow.entry.tips.join(' ');
+      if (stages.length) comp.stages = stages;
+      comp.tipsVi = null;
+      fromFlow += 1;
+      continue;
+    }
+    keptStats += 1;
+  }
+  console.log(`tips/stages: tftacademy ${fromAcademy}, tftflow ${fromFlow}, MetaTFT stats ${keptStats}`);
+
   const updated = new Date(clusterIdRes.updated).toISOString();
-  const gameMeta = Array.isArray(unitDistribution.games) ? unitDistribution.games[0] : unitDistribution.games;
   const snapshot = {
     source: {
       provider: 'MetaTFT',
@@ -562,10 +806,11 @@ async function main() {
     items,
     augments,
     units,
+    abilities,
+    roles,
   };
 
   // Self-checks: never write a snapshot the site or seed cannot consume.
-  const championNames = new Set(tft.champions.map((champion) => champion.name));
   const itemNames = new Set(tft.items.map((item) => item.name));
   const augmentNames = new Set(tft.augments.map((augment) => augment.name));
   const errors = [];
@@ -573,8 +818,13 @@ async function main() {
   if (items.length < 20) errors.push(`only ${items.length} item tiers`);
   if (augments.length < 50) errors.push(`only ${augments.length} augment tiers`);
   if (Object.keys(units).length < 40) errors.push(`only ${Object.keys(units).length} unit stat rows`);
+  if (Object.keys(abilities).length < 20) errors.push(`only ${Object.keys(abilities).length} unit ability rows`);
+  if (Object.keys(roles).length < 40) errors.push(`only ${Object.keys(roles).length} unit role rows`);
+  if (!Object.values(units).some((unit) => unit.builds?.length)) errors.push('no 3-item combos');
   for (const comp of finalComps) {
     if (!TIERS.includes(comp.tier)) errors.push(`${comp.slug}: bad tier`);
+    if (!comp.titleVi) errors.push(`${comp.slug}: missing Vietnamese title`);
+    if (!comp.tips) errors.push(`${comp.slug}: empty tips`);
     if (!STYLES.includes(comp.style)) errors.push(`${comp.slug}: bad style`);
     if (comp.units.length < 3 || comp.units.length > 12) errors.push(`${comp.slug}: ${comp.units.length} units`);
     if (!comp.units.some((unit) => unit.name === comp.carry)) errors.push(`${comp.slug}: carry not on board`);

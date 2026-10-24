@@ -10,8 +10,9 @@ type AccuracyCase = {
   id: string;
   question: string;
   lang: Lang;
+  history?: { role: 'user' | 'assistant'; content: string }[];
   expect: {
-    status: 'answered' | 'needs_clarification' | 'insufficient_data' | 'unsupported';
+    status: 'answered' | 'needs_clarification' | 'insufficient_data' | 'unsupported' | Array<'answered' | 'needs_clarification' | 'insufficient_data' | 'unsupported'>;
     intent?: string;
     mode?: 'llm' | 'deterministic';
     contains?: string[];
@@ -55,14 +56,17 @@ for (const entry of cases) {
         message: entry.question,
         lang: entry.lang,
         conversationId: randomUUID(),
-        history: [],
+        history: entry.history ?? [],
         context: { pageType: 'assistant', compSlug: null, entityIds: [] },
       },
       new AbortController().signal
     );
     const problems: string[] = [];
     const text = answer.answer.toLowerCase();
-    if (answer.status !== entry.expect.status) problems.push(`status ${answer.status} != ${entry.expect.status}`);
+    const expectedStatuses = Array.isArray(entry.expect.status) ? entry.expect.status : [entry.expect.status];
+    if (!expectedStatuses.includes(answer.status as (typeof expectedStatuses)[number])) {
+      problems.push(`status ${answer.status} != ${expectedStatuses.join('|')}`);
+    }
     if (entry.expect.intent && answer.intent !== entry.expect.intent) problems.push(`intent ${answer.intent} != ${entry.expect.intent}`);
     if (entry.expect.mode && answer.mode !== entry.expect.mode) problems.push(`mode ${answer.mode} != ${entry.expect.mode}`);
     for (const value of entry.expect.contains ?? []) {

@@ -1,6 +1,8 @@
 // Ported from the Next app's scripts/fetch-tft.mjs. Same filters and icon path
 // formula, except icons are not downloaded here — they live in the Next app's
 // public/tft (run `npm run fetch-data` there after a set update).
+import { invalidateCachePrefix } from './cache.ts';
+
 const CDRAGON = 'https://raw.communitydragon.org/latest/cdragon/tft/en_us.json';
 
 // Augment rarity is not exposed as a field; these tag GUIDs decode to the
@@ -170,6 +172,10 @@ export async function syncTft(pool: any): Promise<SetData> {
       [data.patch, String(data.set.number), data.set.name]
     );
     await client.query('COMMIT');
+    // champions/traits/items/augments rows feed both the catalog and the
+    // icon/trait maps listComps builds — drop their cached entries.
+    invalidateCachePrefix('catalog');
+    invalidateCachePrefix('comps');
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;

@@ -19,9 +19,20 @@ import {
   listUnresolvedEntityMentions,
 } from './assistant/entity-alias-store.ts';
 import { COMP_ALIASES } from './assistant/entity-aliases.ts';
+import {
+  countReasoningTraces,
+  listReasoningTraces,
+  parseReasoningListQuery,
+  scheduleReasoningLogCleanup,
+} from './assistant/assistant-reasoning-store.ts';
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
+
+// Behind a reverse proxy, set TRUST_PROXY to the proxy hop count (usually 1)
+// so req.ip resolves to the real client for vote/view dedupe.
+const trustProxy = process.env.TRUST_PROXY?.trim();
+if (trustProxy) app.set('trust proxy', /^\d+$/.test(trustProxy) ? Number(trustProxy) : true);
 
 const bearerOk = (header: string | undefined, expected: string | undefined): boolean => {
   if (!expected) return false;
@@ -32,6 +43,7 @@ const bearerOk = (header: string | undefined, expected: string | undefined): boo
 };
 
 const readLang = (value: unknown): 'en' | 'vi' => (value === 'vi' ? 'vi' : 'en');
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 app.get('/api/comps', async (req, res) => {
   const meta = await getMeta();
@@ -48,7 +60,20 @@ app.get('/api/comps/:slug', async (req, res) => {
 
 // One bump per visitor per comp, tracked in memory. ponytail: resets with the
 // process and does not survive multiple instances — add a table if it matters.
-const bumped = new Set<string>();
+// Bounded (oldest keys evicted) so spoofed IPs cannot grow it forever.
+const bumped = new Map<string, true>();
+const MAX_BUMPED_KEYS = 50_000;
+
+function rememberBump(key: string): void {
+  bumped.set(key, true);
+  if (bumped.size <= MAX_BUMPED_KEYS) return;
+  let excess = bumped.size - Math.floor(MAX_BUMPED_KEYS / 2);
+  for (const oldest of bumped.keys()) {
+    if (excess <= 0) break;
+    bumped.delete(oldest);
+    excess -= 1;
+  }
+}
 
 function bumpOnce(kind: 'vote' | 'view', req: express.Request, res: express.Response) {
   const slug = String(req.params.slug);
@@ -57,7 +82,7 @@ function bumpOnce(kind: 'vote' | 'view', req: express.Request, res: express.Resp
   if (bumped.has(key)) return res.json({ counted: false });
   return bumpComp(slug, field as 'votes' | 'views').then((value) => {
     if (value === null) return res.status(404).json({ error: `no comp with slug "${slug}"` });
-    bumped.add(key);
+    rememberBump(key);
     res.json({ counted: true, [field]: value });
   });
 }
@@ -211,6 +236,21 @@ app.delete('/api/admin/subscribers/:email', async (req, res) => {
   res.status(204).end();
 });
 
+app.get('/api/admin/assistant-reasoning', async (req, res) => {
+  const parsed = parseReasoningListQuery(req.query);
+  if (!parsed.ok) {
+    return res.status(400).json({ error: 'Invalid reasoning log filters or pagination.' });
+  }
+
+  const { conversationId, requestId, limit, offset } = parsed.value;
+  const filters = { conversationId, requestId };
+  const [traces, total] = await Promise.all([
+    listReasoningTraces({ ...filters, limit, offset }),
+    countReasoningTraces(filters),
+  ]);
+  res.json({ traces, total, limit, offset });
+});
+
 app.get('/api/admin/aliases', async (_req, res) => {
   const [catalog, comps, aliases, unresolved] = await Promise.all([
     loadCatalog(),
@@ -293,3 +333,6 @@ app.use((error: Error, _req: express.Request, res: express.Response, _next: expr
 
 const port = Number(process.env.PORT ?? 4000);
 app.listen(port, () => console.log(`metaboard server on http://localhost:${port}`));
+
+const configuredRetentionDays = Number(process.env.ASSISTANT_REASONING_RETENTION_DAYS ?? '30');
+scheduleReasoningLogCleanup(Number.isSafeInteger(configuredRetentionDays) && configuredRetentionDays >= 1 ? configuredRetentionDays : 30);

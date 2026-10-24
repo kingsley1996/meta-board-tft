@@ -2,16 +2,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { CatalogEntity, CompData } from './contracts.ts';
 import {
+  carryOverComps,
   detectIntent,
   findCompMentions,
+  isFollowUpQuestion,
   isPromptInjection,
   isReferenceDataQuestion,
+  resolveFollowUpText,
   ungroundedNumbers,
 } from './orchestrator.ts';
 import type { Evidence } from './prompt.ts';
 
 const ahri = { type: 'champion', id: 'champion:DA_18_Ahri' } as unknown as CatalogEntity;
 const comp = { slug: 'ahri-spellweaver', title: 'Ahri & Morgana Blossom' } as unknown as CompData;
+const akali = { slug: 'akali-reroll', title: 'Akali Reroll' } as unknown as CompData;
 const blueBuff = { type: 'item', id: 'item:BlueBuff' } as unknown as CatalogEntity;
 
 test('detects prompt injection without flagging normal guide questions', () => {
@@ -54,6 +58,31 @@ test('routes static mechanic tables and economy plans to reference tools, not li
   assert.equal(isReferenceDataQuestion('How does a 6-win streak affect gold income?'), true);
 });
 
+test('only carries prior context into questions that explicitly refer back to it', () => {
+  assert.equal(isFollowUpQuestion('What about her items?'), true);
+  assert.equal(isFollowUpQuestion('Comp nay thi sao?'), true);
+  assert.equal(isFollowUpQuestion('Do you know how interest works?'), false);
+  assert.equal(isFollowUpQuestion('Who uses Ahri?'), false);
+  const history = [{ role: 'user' as const, content: 'Which comp uses Ahri?' }];
+  assert.equal(resolveFollowUpText('Who uses Yasuo?', history), 'Who uses Yasuo?');
+  assert.equal(resolveFollowUpText('What about her items?', history), 'Which comp uses Ahri? What about her items?');
+  assert.equal(isFollowUpQuestion('build cua no sao'), true);
+});
+
+test('follow-ups resolve the comp named in the previous answer, in mention order', () => {
+  const history = [
+    { role: 'user' as const, content: 'comp nao manh nhat' },
+    {
+      role: 'assistant' as const,
+      content: 'Akali Reroll is the top pick; Ahri & Morgana Blossom is a solid second choice.',
+    },
+  ];
+  assert.deepEqual(carryOverComps('con items?', history, [comp, akali]), [akali, comp]);
+  assert.deepEqual(carryOverComps('build cua no sao', history, [comp, akali]), [akali, comp]);
+  assert.deepEqual(carryOverComps('con items?', [], [comp, akali]), []);
+  assert.deepEqual(carryOverComps('comp nao manh nhat', history, [comp, akali]), []);
+});
+
 test('comp aliases match known shortened titles without partial-word matches', () => {
   const comp = { slug: 'ahri-spellweaver', title: 'Ahri & Morgana Blossom' } as CompData;
   const other = { slug: 'ahri-zyra-blossom', title: 'Ahri & Zyra Blossom' } as CompData;
@@ -61,6 +90,7 @@ test('comp aliases match known shortened titles without partial-word matches', (
   assert.deepEqual(findCompMentions([comp, other], 'Chơi ZyraBlossom chứ?'), []);
   assert.deepEqual(findCompMentions([comp, other], 'Play blossom fox please', new Map([[comp.slug, ['blossom fox']]])), [comp]);
 });
+
 test('item names containing buff are lookups, not patch changes', () => {
   assert.equal(detectIntent('what is blue buff', [blueBuff], []), 'entity_lookup');
 });

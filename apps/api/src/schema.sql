@@ -141,12 +141,62 @@ CREATE TABLE IF NOT EXISTS comp_stages (
 
 -- Public-site translations. Editors write English; vi text is seed-managed and
 -- survives admin saves (see writeComp). Empty/absent vi falls back to English.
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS title_vi text;
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS playstyle_vi text;
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS tips_vi text;
 ALTER TABLE comp_stages ADD COLUMN IF NOT EXISTS text_vi text;
 
 -- Augment priority order shown in the comp panel, e.g. {ITEMS,ECON,COMBAT}.
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS augment_types text[] NOT NULL DEFAULT '{}';
+
+-- Assistant conversation persistence (Conversation Persistence).
+-- Stores chat sessions and messages so users can resume conversations
+-- across devices and page reloads instead of relying on sessionStorage only.
+CREATE TABLE IF NOT EXISTS assistant_conversations (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id text NOT NULL,           -- cookie mb_assistant value, for ownership scoping
+  lang text NOT NULL DEFAULT 'en',   -- conversation language
+  title text,                        -- auto-derived from first user message
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS assistant_conversations_client_id_idx ON assistant_conversations (client_id);
+CREATE INDEX IF NOT EXISTS assistant_conversations_updated_at_idx ON assistant_conversations (updated_at DESC);
+
+CREATE TABLE IF NOT EXISTS assistant_messages (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id uuid NOT NULL REFERENCES assistant_conversations (id) ON DELETE CASCADE,
+  role text NOT NULL CHECK (role IN ('user', 'assistant')),
+  content text NOT NULL CHECK (char_length(content) BETWEEN 1 AND 2000),
+  intent text,                       -- AssistantIntent, null for user messages
+  mode text,                         -- 'llm' | 'deterministic'
+  status text,                       -- AssistantStatus
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS assistant_messages_conversation_id_idx ON assistant_messages (conversation_id, created_at);
+
+-- Assistant decision trace for admin observability; does not store model chain-of-thought.
+-- conversation_id is not a FK so traces still write when conversation persistence fails
+-- for that request; user-initiated conversation deletes purge their traces explicitly.
+-- Rows older than ASSISTANT_REASONING_RETENTION_DAYS (default 30) are pruned daily.
+CREATE TABLE IF NOT EXISTS assistant_reasoning_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id uuid NOT NULL,
+  request_id text NOT NULL,
+  step text NOT NULL CHECK (step IN ('intent_detection', 'entity_resolution', 'tool_call', 'llm_generation', 'validation', 'fallback', 'deterministic_answer')),
+  step_index int NOT NULL DEFAULT 0,    -- ordering within a single request
+  intent text,                          -- detected AssistantIntent
+  mode text,                            -- 'llm' | 'deterministic'
+  status text,                          -- AssistantStatus
+  input_summary text,                   -- truncated user message
+  output_summary text,                  -- truncated assistant answer or tool result
+  details jsonb NOT NULL DEFAULT '{}',  -- structured step-specific data
+  duration_ms int CHECK (duration_ms IS NULL OR duration_ms >= 0),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS assistant_reasoning_logs_conversation_id_idx ON assistant_reasoning_logs (conversation_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS assistant_reasoning_logs_request_order_idx ON assistant_reasoning_logs (request_id, step_index);
+CREATE INDEX IF NOT EXISTS assistant_reasoning_logs_step_idx ON assistant_reasoning_logs (step);
 
 -- Guides: authored articles edited through /admin/guides. published_on is an
 -- ISO date string (YYYY-MM-DD); sections is [{ heading, body: [], list?: [] }].

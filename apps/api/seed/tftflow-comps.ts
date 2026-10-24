@@ -3,6 +3,8 @@
 // here too. The site's own comps (apps/api/seed/comps.json) stay authoritative;
 // these are added when their slug is free.
 import type { CompInput } from '../src/comps.ts';
+import { readFileSync } from 'node:fs';
+import { sharedDataPath } from '../src/shared-data.ts';
 
 export type EconomyComp = {
   slug: string;
@@ -32,6 +34,41 @@ export type KnownNames = {
 
 // tftflow grades S+/S/A/B/C/D, the site S/A/B/C/X.
 const TIER: Record<string, string> = { 'S+': 'S', S: 'S', A: 'A', B: 'B', C: 'C', D: 'X' };
+
+// tftflow titles are free-form ("Yunara Executioner Reroll", "Blackthorn Kha'Zix"),
+// so translate the champion/trait words and keep everything else as written.
+const normName = (value: string) =>
+  value.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9]/g, '');
+const tftJson = JSON.parse(readFileSync(sharedDataPath('tft.json'), 'utf8')) as {
+  champions: { name: string; nameVi?: string | null }[];
+  traits: { name: string; nameVi?: string | null }[];
+};
+const VI_BY_NAME = new Map<string, string>();
+for (const entry of [...tftJson.champions, ...tftJson.traits]) {
+  if (entry.nameVi) VI_BY_NAME.set(normName(entry.name), entry.nameVi);
+}
+
+export function translateCompTitle(title: string): string {
+  const emblem = title.match(/^(.*)-Emblem$/i);
+  if (emblem) return `Ấn ${translateCompTitle(emblem[1])}`;
+  const words = title.split(' ');
+  const word = /^[\p{L}\p{N}'’.-]+$/u;
+  const out: string[] = [];
+  for (let index = 0; index < words.length; index += 1) {
+    // Both tokens must be words, so separators ("/", "&") never join a lookup.
+    const pair =
+      word.test(words[index]) && word.test(words[index + 1] ?? '')
+        ? VI_BY_NAME.get(normName(`${words[index]} ${words[index + 1]}`))
+        : undefined;
+    if (pair) {
+      out.push(pair);
+      index += 1;
+    } else {
+      out.push(VI_BY_NAME.get(normName(words[index])) ?? words[index]);
+    }
+  }
+  return out.join(' ');
+}
 
 const styleFor = (comp: EconomyComp) => {
   if (comp.strategy?.startsWith('Fast')) return 'Fast 8';
@@ -120,6 +157,7 @@ export function buildTftflowComps(
     built.push({
       slug: comp.slug,
       title: comp.name,
+      titleVi: translateCompTitle(comp.name),
       tier: TIER[comp.tier ?? 'C'] ?? 'C',
       style: styleFor(comp),
       difficulty: 2,

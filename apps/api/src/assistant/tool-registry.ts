@@ -7,12 +7,14 @@ import type {
   CatalogEntity,
   CompComparison,
   CompData,
+  CompSummary,
   GameEntityType,
+  EntityType,
   Lang,
   RankedComp,
   RankingQuery,
 } from './contracts.ts';
-import { normalizeSpaced, pickEntityMatch, searchCatalog, type Catalog } from './entities.ts';
+import { localizedName, normalizeSpaced, pickEntityMatch, searchCatalog, type Catalog } from './entities.ts';
 import { compStats, entityStats, loadMetaStats, type StatEvidence } from './meta-stats.ts';
 import type { ProviderTool } from './provider.ts';
 import { rankComps } from './ranking.ts';
@@ -34,6 +36,7 @@ export type ToolExecution = {
   comparison?: CompComparison;
   ambiguous?: AmbiguousEntity[];
   unresolved?: string[];
+  unresolvedCandidates?: { name: string; entityType: EntityType | null }[];
 };
 
 export class AssistantToolError extends Error {
@@ -149,13 +152,13 @@ export const ASSISTANT_TOOLS: ProviderTool[] = [
     type: 'function',
     function: {
       name: 'get_stats',
-      description: 'Get MetaTFT stats for a champion, item, augment or comp slug.',
+      description: 'Get MetaBoard stats for a champion, item, augment or comp slug.',
       parameters: {
         type: 'object',
         additionalProperties: false,
         properties: {
           name: { type: 'string', maxLength: 80, description: 'Entity name or comp slug.' },
-          type: { type: 'string', enum: ['champion', 'item', 'augment', 'comp'] },
+          type: { type: 'string', enum: ['champion', 'item', 'trait', 'augment', 'comp'] },
         },
         required: ['name'],
       },
@@ -762,8 +765,19 @@ function resolve(
   return { entities, unresolved, ambiguous };
 }
 
-function candidatePayload(candidate: RankedComp, index: number) {
+function summaryPayload(summary: CompSummary, catalog: Catalog, lang: Lang) {
+  const name = (value: string) => localizedName(catalog, value, lang);
+  return {
+    ...summary,
+    carry: name(summary.carry),
+    units: summary.units.map(name),
+    traits: summary.traits.map(name),
+  };
+}
+
+function candidatePayload(candidate: RankedComp, index: number, catalog: Catalog, lang: Lang) {
   const comp = candidate.comp;
+  const name = (value: string) => localizedName(catalog, value, lang);
   return {
     rank: index + 1,
     slug: comp.slug,
@@ -772,26 +786,27 @@ function candidatePayload(candidate: RankedComp, index: number) {
     style: comp.style,
     score: candidate.score,
     reasons: candidate.reasons,
-    units: comp.units.map((unit) => unit.name),
-    carry: comp.carry.name,
-    items: comp.items.map((item) => item.name),
-    augments: comp.augments.map((augment) => augment.name),
-    traits: comp.traits.map((trait) => ({ name: trait.name, count: trait.count })),
+    units: comp.units.map((unit) => name(unit.name)),
+    carry: name(comp.carry.name),
+    items: comp.items.map((item) => name(item.name)),
+    augments: comp.augments.map((augment) => name(augment.name)),
+    traits: comp.traits.map((trait) => ({ name: name(trait.name), count: trait.count })),
   };
 }
 
-function compPayload(comp: CompData) {
+function compPayload(comp: CompData, catalog: Catalog, lang: Lang) {
+  const name = (value: string) => localizedName(catalog, value, lang);
   return {
     slug: comp.slug,
     title: comp.title,
     tier: comp.tier,
     style: comp.style,
     difficulty: comp.difficulty,
-    units: comp.units.map((unit) => ({ name: unit.name, cost: unit.cost, items: unit.items.map((item) => item.name) })),
-    carry: comp.carry.name,
-    items: comp.items.map((item) => item.name),
-    augments: comp.augments.map((augment) => augment.name),
-    traits: comp.traits.map((trait) => ({ name: trait.name, count: trait.count })),
+    units: comp.units.map((unit) => ({ name: name(unit.name), cost: unit.cost, items: unit.items.map((item) => name(item.name)) })),
+    carry: name(comp.carry.name),
+    items: comp.items.map((item) => name(item.name)),
+    augments: comp.augments.map((augment) => name(augment.name)),
+    traits: comp.traits.map((trait) => ({ name: name(trait.name), count: trait.count })),
     tips: comp.tips.slice(0, 400),
     stages: comp.stages.slice(0, 4),
   };
@@ -808,11 +823,14 @@ async function findComps(args: Record<string, unknown>, lang: Lang): Promise<Too
   const max = limit(args.limit);
 
   if (!championNames.length && !itemNames.length && !augmentNames.length && !playstyle && level === undefined) {
-    const summaries = await searchComps('', { tier: wantedTier, style: playstyle }, max);
+    const [catalog, summaries] = await Promise.all([
+      loadCatalog(),
+      searchComps('', { tier: wantedTier, style: playstyle }, max),
+    ]);
     const comps = (await Promise.all(summaries.map((entry) => getComp(entry.slug, lang)))).filter(
       (comp): comp is CompData => comp !== null
     );
-    return { tool: 'find_comps', payload: { comps: summaries }, comps };
+    return { tool: 'find_comps', payload: { comps: summaries.map((summary) => summaryPayload(summary, catalog, lang)) }, comps };
   }
 
   const [catalog, comps] = await Promise.all([loadCatalog(), listComps(undefined, lang) as Promise<CompData[]>]);
@@ -821,8 +839,13 @@ async function findComps(args: Record<string, unknown>, lang: Lang): Promise<Too
   const augments = resolve(catalog, augmentNames, 'augment');
   const ambiguous = [...champions.ambiguous, ...items.ambiguous, ...augments.ambiguous];
   const unresolved = [...champions.unresolved, ...items.unresolved, ...augments.unresolved];
+  const unresolvedCandidates = [
+    ...champions.unresolved.map((name) => ({ name, entityType: 'champion' as const })),
+    ...items.unresolved.map((name) => ({ name, entityType: 'item' as const })),
+    ...augments.unresolved.map((name) => ({ name, entityType: 'augment' as const })),
+  ];
   if (ambiguous.length) {
-    return { tool: 'find_comps', payload: { ambiguous, unresolved }, ambiguous, unresolved };
+    return { tool: 'find_comps', payload: { ambiguous, unresolved }, ambiguous, unresolved, unresolvedCandidates };
   }
   const query: RankingQuery = {
     championIds: champions.entities.map((entity) => entity.id),
@@ -837,10 +860,11 @@ async function findComps(args: Record<string, unknown>, lang: Lang): Promise<Too
     .slice(0, max);
   return {
     tool: 'find_comps',
-    payload: { candidates: candidates.map(candidatePayload), unresolved },
+    payload: { candidates: candidates.map((candidate, index) => candidatePayload(candidate, index, catalog, lang)), unresolved },
     candidates,
     comps: candidates.map((candidate) => candidate.comp),
     unresolved,
+    unresolvedCandidates,
   };
 }
 
@@ -849,38 +873,64 @@ async function searchCompsTool(args: Record<string, unknown>, lang: Lang): Promi
   const query = text(args.query, 'query', 80) ?? '';
   const wantedTier = tier(args.tier);
   const playstyle = text(args.style, 'style', 30);
-  const summaries = await searchComps(query, { tier: wantedTier, style: playstyle }, limit(args.limit));
+  const [catalog, summaries] = await Promise.all([
+    loadCatalog(),
+    searchComps(query, { tier: wantedTier, style: playstyle }, limit(args.limit)),
+  ]);
   if (!summaries.length && query.length >= 3) {
     const fallback = await findComps({ champions: [query], tier: wantedTier, limit: limit(args.limit) }, lang);
     if (fallback.candidates?.length) return { ...fallback, tool: 'search_comps' };
+    return {
+      tool: 'search_comps',
+      payload: { comps: [], unresolved: [query] },
+      unresolved: [query],
+      unresolvedCandidates: [{ name: query, entityType: 'comp' }],
+    };
   }
   const comps = (await Promise.all(summaries.map((entry) => getComp(entry.slug, lang)))).filter(
     (comp): comp is CompData => comp !== null
   );
-  return { tool: 'search_comps', payload: { comps: summaries }, comps };
+  return { tool: 'search_comps', payload: { comps: summaries.map((summary) => summaryPayload(summary, catalog, lang)) }, comps };
 }
 
 async function getCompTool(args: Record<string, unknown>, lang: Lang): Promise<ToolExecution> {
   allowed(args, ['slug']);
-  const comp = await getComp(slug(args.slug), lang);
-  if (!comp) throw new AssistantToolError('Comp not found.');
-  return { tool: 'get_comp', payload: { comp: compPayload(comp) }, comps: [comp] };
+  const compSlug = slug(args.slug);
+  const [catalog, comp] = await Promise.all([loadCatalog(), getComp(compSlug, lang)]);
+  if (!comp) {
+    return {
+      tool: 'get_comp',
+      payload: { comp: null, unresolved: [compSlug] },
+      unresolved: [compSlug],
+      unresolvedCandidates: [{ name: compSlug, entityType: 'comp' }],
+    };
+  }
+  return { tool: 'get_comp', payload: { comp: compPayload(comp, catalog, lang) }, comps: [comp] };
 }
 
 async function compareCompsTool(args: Record<string, unknown>, lang: Lang): Promise<ToolExecution> {
   allowed(args, ['slugs']);
   const slugs = strings(args.slugs, 'slugs', 3);
   if (slugs.length < 2) throw new AssistantToolError('slugs must contain 2 or 3 comps.');
-  const comparison = await compareComps(slugs.map((entry) => slug(entry, 'slugs')), lang);
+  const [catalog, comparison] = await Promise.all([
+    loadCatalog(),
+    compareComps(slugs.map((entry) => slug(entry, 'slugs')), lang),
+  ]);
   if (!comparison) throw new AssistantToolError('Could not load both comps.');
+  const name = (value: string) => localizedName(catalog, value, lang);
   return {
     tool: 'compare_comps',
     payload: {
-      comps: comparison.comps.map(compPayload),
-      commonUnits: comparison.commonUnits,
-      commonItems: comparison.commonItems,
-      commonAugments: comparison.commonAugments,
-      differences: comparison.differences,
+      comps: comparison.comps.map((comp) => compPayload(comp, catalog, lang)),
+      commonUnits: comparison.commonUnits.map(name),
+      commonItems: comparison.commonItems.map(name),
+      commonAugments: comparison.commonAugments.map(name),
+      differences: comparison.differences.map((difference) => ({
+        ...difference,
+        uniqueUnits: difference.uniqueUnits.map(name),
+        uniqueItems: difference.uniqueItems.map(name),
+        uniqueAugments: difference.uniqueAugments.map(name),
+      })),
     },
     comps: comparison.comps,
     comparison,
@@ -894,20 +944,27 @@ async function getStatsTool(args: Record<string, unknown>, lang: Lang): Promise<
   if (!name) throw new AssistantToolError('name is required.');
   const [catalog, meta] = await Promise.all([loadCatalog(), loadMetaStats()]);
 
-  if (type === 'comp' || (!type && !catalog.byName.has(name))) {
+  if (type === 'comp') {
     const direct = /^[a-z0-9-]+$/i.test(name) ? await getComp(name, lang) : null;
     const summary = direct ? null : (await searchComps(name, {}, 1))[0];
     const comp = direct ?? (summary ? await getComp(summary.slug, lang) : null);
-    if (!comp) throw new AssistantToolError('Comp not found.');
+    if (!comp) {
+      return {
+        tool: 'get_stats',
+        payload: { stats: [], unresolved: [name] },
+        unresolved: [name],
+        unresolvedCandidates: [{ name, entityType: 'comp' }],
+      };
+    }
     const stats = compStats(meta, comp, lang);
     return { tool: 'get_stats', payload: { stats: stats ? [stats] : [] }, comps: [comp], stats: stats ? [stats] : [] };
   }
 
-  const wanted = type === undefined ? null : type;
-  if (wanted !== null && !['champion', 'item', 'augment'].includes(wanted)) {
-    throw new AssistantToolError('type must be champion, item, augment or comp.');
+  if (type !== undefined && !['champion', 'item', 'trait', 'augment'].includes(type)) {
+    throw new AssistantToolError('type must be champion, item, trait, augment or comp.');
   }
-  const types: GameEntityType[] = wanted ? [wanted as GameEntityType] : ['champion', 'item', 'augment'];
+  const wanted: GameEntityType | null = type === undefined ? null : (type as GameEntityType);
+  const types: GameEntityType[] = wanted ? [wanted] : ['champion', 'item', 'trait', 'augment'];
   for (const candidateType of types) {
     const resolution = resolve(catalog, [name], candidateType);
     if (resolution.ambiguous.length) {
@@ -918,7 +975,22 @@ async function getStatsTool(args: Record<string, unknown>, lang: Lang): Promise<
     const stats = entityStats(meta, entity, lang);
     return { tool: 'get_stats', payload: { entity: entity.name, stats: stats ? [stats] : [] }, stats: stats ? [stats] : [] };
   }
-  throw new AssistantToolError('Entity not found.');
+  if (type === undefined) {
+    const direct = /^[a-z0-9-]+$/i.test(name) ? await getComp(name, lang) : null;
+    const summary = direct ? null : (await searchComps(name, {}, 1))[0];
+    const comp = direct ?? (summary ? await getComp(summary.slug, lang) : null);
+    if (comp) {
+      const stats = compStats(meta, comp, lang);
+      return { tool: 'get_stats', payload: { stats: stats ? [stats] : [] }, comps: [comp], stats: stats ? [stats] : [] };
+    }
+  }
+  const unresolvedType = wanted ?? null;
+  return {
+    tool: 'get_stats',
+    payload: { stats: [], unresolved: [name] },
+    unresolved: [name],
+    unresolvedCandidates: [{ name, entityType: unresolvedType }],
+  };
 }
 
 export async function executeAssistantTool(name: string, value: unknown, lang: Lang): Promise<ToolExecution> {

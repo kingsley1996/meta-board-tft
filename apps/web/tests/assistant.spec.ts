@@ -1,12 +1,14 @@
 import { expect, test } from 'playwright/test';
 
-test('statistics question answers with MetaTFT stats', async ({ page }) => {
+test('statistics question answers with MetaBoard stats', async ({ page }) => {
   test.setTimeout(90_000);
   await page.goto('/en/assistant');
   await page.getByRole('textbox', { name: /ask about/i }).fill('What is Ahri win rate?');
   await page.getByRole('button', { name: 'Send', exact: true }).click();
 
-  await expect(page.getByText(/11\.2%|50\.8%/).first()).toBeVisible({ timeout: 75_000 });
+  // Stats change with every meta.json refresh — assert the shape (a MetaBoard
+  // stat line with a percentage), not exact numbers.
+  await expect(page.getByText(/MetaBoard.*\d+(\.\d+)?%/s).first()).toBeVisible({ timeout: 75_000 });
 });
 
 test('comp page opens the assistant with comp context', async ({ page }) => {

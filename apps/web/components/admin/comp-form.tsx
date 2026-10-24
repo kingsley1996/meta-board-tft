@@ -126,6 +126,7 @@ export type CompFormComp = {
   alt: string[];
   augmentTypes?: string[];
   matchups: { slug: string; kind: 'good' | 'bad' }[];
+  titleVi?: string;
   playstyleVi?: string;
   tipsVi?: string;
   stagesVi?: string[];
@@ -213,6 +214,7 @@ export function CompForm({
     stage2: comp?.stages?.[0]?.text ?? '',
     stage3: comp?.stages?.[1]?.text ?? '',
     stage4: comp?.stages?.[2]?.text ?? '',
+    titleVi: comp?.titleVi ?? '',
     playstyleVi: comp?.playstyleVi ?? '',
     tipsVi: comp?.tipsVi ?? '',
     stage2Vi: comp?.stagesVi?.[0] ?? '',
@@ -269,19 +271,26 @@ export function CompForm({
         { text: form.stage3, textVi: form.stage3Vi },
         { text: form.stage4, textVi: form.stage4Vi },
       ],
+      titleVi: form.titleVi || null,
       playstyleVi: form.playstyleVi || null,
       tipsVi: form.tipsVi || null,
     };
-    const res = await fetch(comp ? `/api/admin/comps/${comp.slug}` : '/api/admin/comps', {
-      method: comp ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const body = await res.json().catch(() => ({}));
-    setBusy(false);
-    if (!res.ok) {
-      setError(body.error ?? `Save failed (${res.status})`);
+    try {
+      const res = await fetch(comp ? `/api/admin/comps/${comp.slug}` : '/api/admin/comps', {
+        method: comp ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(body.error ?? `Save failed (${res.status})`);
+        return;
+      }
+    } catch {
+      setError('Save failed — check your connection and try again.');
       return;
+    } finally {
+      setBusy(false);
     }
     router.push('/admin/comps');
     router.refresh();
@@ -477,6 +486,9 @@ export function CompForm({
           <p className="text-sm font-semibold text-mist">Vietnamese (optional)</p>
           <p className="text-xs text-mist">Shown on /vi pages. Leave a field empty to fall back to the English text. Seeded translations survive admin saves unless you change them here.</p>
         </div>
+        <Field label="Title (vi)">
+          <input className={inputCls} value={form.titleVi} onChange={set('titleVi')} />
+        </Field>
         <Field label="Playstyle (vi)">
           <input className={inputCls} value={form.playstyleVi} onChange={set('playstyleVi')} />
         </Field>

@@ -65,6 +65,7 @@ function comp(catalog: Catalog, overrides: Partial<CompData> = {}): CompData {
   return {
     slug: 'test-comp',
     title: 'Test Comp',
+    titleVi: null,
     tier: 'S',
     style: 'Fast 8',
     difficulty: 2,
@@ -127,7 +128,7 @@ test('augments, style and difficulty score separately', async () => {
     catalog
   );
   assert.equal(result.score, 4);
-  assert.ok(result.limitations.some((line) => line.includes('MetaTFT')));
+  assert.ok(result.limitations.some((line) => line.includes('MetaBoard')));
 });
 
 test('no matching input returns no candidates', async () => {
@@ -151,4 +152,15 @@ test('localizes reasons and limitations for English answers', async () => {
   const [result] = rankComps([comp(catalog)], query({ championIds: [id(catalog, 'Ahri')], lang: 'en' }), catalog);
   assert.match(result.reasons[0], /Board champion match/);
   assert.match(result.limitations[0], /comp overlap/);
+});
+
+test('localizes matched entity names in Vietnamese reasons', async () => {
+  const catalog = await fixture();
+  const [result] = rankComps(
+    [comp(catalog, { items: [named(catalog, 'Blue Buff')] })],
+    query({ itemIds: [id(catalog, 'Blue Buff')], lang: 'vi' }),
+    catalog
+  );
+  assert.ok(result.reasons[0].includes('Bùa Xanh'));
+  assert.equal(result.reasons[0].includes('Blue Buff'), false);
 });

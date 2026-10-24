@@ -27,6 +27,7 @@
     "test:eval": "npm run eval --workspace @metaboard/api",
     "build:knowledge": "npm run build:knowledge --workspace @metaboard/api",
     "test:rag": "npm run test:rag --workspace @metaboard/api",
+    "test:quality": "npm run test:quality --workspace @metaboard/api",
     "test:accuracy": "npm run test:accuracy --workspace @metaboard/api"
   },
   "devDependencies": {

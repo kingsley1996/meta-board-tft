@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-22T07:27:37.779Z",
+  "generatedAt": "2026-10-24T09:49:02.560Z",
   "counts": {
     "sources": 29,
-    "chunks": 184,
+    "chunks": 186,
     "byType": {
-      "mechanics": 54,
+      "mechanics": 56,
       "guide": 36,
       "tip": 94
     },
     "byLang": {
-      "en": 92,
-      "vi": 92
+      "en": 93,
+      "vi": 93
     }
   },
   "sources": [
@@ -117,7 +117,7 @@
         "en",
         "vi"
       ],
-      "chunks": 16
+      "chunks": 18
     },
     {
       "sourceId": "tip:tips-1cost-reroll-hold-level",
