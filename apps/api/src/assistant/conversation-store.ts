@@ -1,5 +1,5 @@
 import { pool } from '../db.ts';
-import type { Lang } from './contracts.ts';
+import type { AssistantResponse, Lang } from './contracts.ts';
 import { assistantLog } from './logger.ts';
 
 export type AssistantMessageRow = {
@@ -10,6 +10,7 @@ export type AssistantMessageRow = {
   intent: string | null;
   mode: string | null;
   status: string | null;
+  response: AssistantResponse | null;
   created_at: Date;
 };
 
@@ -24,19 +25,29 @@ export type AssistantConversationRow = {
 
 /**
  * Create a new conversation or return existing one by ID.
- * If clientId is provided, scope the lookup to that client for ownership.
+ * Ownership matches the client cookie or, when signed in, the user account.
+ * A signed-in user adopts a client-created conversation so the history follows
+ * the account across devices.
  */
 export async function getOrCreateConversation(
   conversationId: string | undefined,
   clientId: string,
   lang: Lang,
+  userId?: string | null,
 ): Promise<AssistantConversationRow> {
   if (conversationId) {
     const existing = await pool.query<AssistantConversationRow>(
-      'SELECT id, client_id, lang, title, created_at, updated_at FROM assistant_conversations WHERE id = $1 AND client_id = $2',
-      [conversationId, clientId],
+      `SELECT id, client_id, lang, title, created_at, updated_at FROM assistant_conversations
+       WHERE id = $1 AND (client_id = $2 OR ($3::uuid IS NOT NULL AND user_id = $3))`,
+      [conversationId, clientId, userId ?? null],
     );
     if (existing.rows.length) {
+      if (userId) {
+        await pool.query(
+          'UPDATE assistant_conversations SET user_id = COALESCE(user_id, $2) WHERE id = $1',
+          [conversationId, userId],
+        );
+      }
       return existing.rows[0];
     }
     // Conversation exists but not owned by this client — create a new one instead of leaking.
@@ -47,10 +58,10 @@ export async function getOrCreateConversation(
   }
 
   const { rows } = await pool.query<AssistantConversationRow>(
-    `INSERT INTO assistant_conversations (client_id, lang, title)
-     VALUES ($1, $2, $3)
+    `INSERT INTO assistant_conversations (client_id, lang, title, user_id)
+     VALUES ($1, $2, $3, $4)
      RETURNING id, client_id, lang, title, created_at, updated_at`,
-    [clientId, lang, null],
+    [clientId, lang, null, userId ?? null],
   );
   return rows[0];
 }
@@ -65,12 +76,13 @@ export async function appendMessage(
   intent: string | null = null,
   mode: string | null = null,
   status: string | null = null,
+  response: AssistantResponse | null = null,
 ): Promise<AssistantMessageRow> {
   const { rows } = await pool.query<AssistantMessageRow>(
-    `INSERT INTO assistant_messages (conversation_id, role, content, intent, mode, status)
-     VALUES ($1, $2, $3, $4, $5, $6)
-     RETURNING id, conversation_id, role, content, intent, mode, status, created_at`,
-    [conversationId, role, content, intent, mode, status],
+    `INSERT INTO assistant_messages (conversation_id, role, content, intent, mode, status, response)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING id, conversation_id, role, content, intent, mode, status, response, created_at`,
+    [conversationId, role, content, intent, mode, status, response],
   );
 
   // Update conversation updated_at and derive title from first user message if missing.
@@ -100,18 +112,20 @@ export async function getConversationHistory(
   conversationId: string,
   clientId: string,
   limit = 6,
+  userId?: string | null,
 ): Promise<AssistantMessageRow[]> {
-  // Verify ownership first.
-  const owner = await pool.query<{ client_id: string }>(
-    'SELECT client_id FROM assistant_conversations WHERE id = $1',
+  // Verify ownership first (client cookie or signed-in user).
+  const owner = await pool.query<{ client_id: string; user_id: string | null }>(
+    'SELECT client_id, user_id FROM assistant_conversations WHERE id = $1',
     [conversationId],
   );
-  if (!owner.rows.length || owner.rows[0].client_id !== clientId) {
+  const row = owner.rows[0];
+  if (!row || (row.client_id !== clientId && (!userId || row.user_id !== userId))) {
     return [];
   }
 
   const { rows } = await pool.query<AssistantMessageRow>(
-    `SELECT id, conversation_id, role, content, intent, mode, status, created_at
+    `SELECT id, conversation_id, role, content, intent, mode, status, response, created_at
      FROM assistant_messages
      WHERE conversation_id = $1
      ORDER BY created_at DESC
@@ -123,19 +137,22 @@ export async function getConversationHistory(
 }
 
 /**
- * List recent conversations for a client (most recently updated first).
+ * List recent conversations for a client or signed-in user (most recently
+ * updated first). Signed-in users see every conversation attached to their
+ * account plus the ones created on this client.
  */
 export async function listConversations(
   clientId: string,
   limit = 20,
+  userId?: string | null,
 ): Promise<AssistantConversationRow[]> {
   const { rows } = await pool.query<AssistantConversationRow>(
     `SELECT id, client_id, lang, title, created_at, updated_at
      FROM assistant_conversations
-     WHERE client_id = $1
+     WHERE client_id = $1 OR ($2::uuid IS NOT NULL AND user_id = $2)
      ORDER BY updated_at DESC
-     LIMIT $2`,
-    [clientId, limit],
+     LIMIT $3`,
+    [clientId, userId ?? null, limit],
   );
   return rows;
 }
@@ -146,10 +163,11 @@ export async function listConversations(
 export async function deleteConversation(
   conversationId: string,
   clientId: string,
+  userId?: string | null,
 ): Promise<boolean> {
   const result = await pool.query(
-    'DELETE FROM assistant_conversations WHERE id = $1 AND client_id = $2',
-    [conversationId, clientId],
+    `DELETE FROM assistant_conversations WHERE id = $1 AND (client_id = $2 OR ($3::uuid IS NOT NULL AND user_id = $3))`,
+    [conversationId, clientId, userId ?? null],
   );
   return (result.rowCount ?? 0) > 0;
 }

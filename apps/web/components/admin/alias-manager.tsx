@@ -117,7 +117,7 @@ export function AliasManager({
       if (!statusResponse.ok) throw new Error(`Voice status request failed (${statusResponse.status}).`);
       const status = (await statusResponse.json()) as { available?: boolean };
       if (!status.available) {
-        setAudioError('Sherpa speech recognition is not configured. Set up the voice model before testing audio.');
+        setAudioError('Speech recognition is not configured on the API server. Set a provider key or download the local model before testing audio.');
         return;
       }
 
@@ -213,8 +213,8 @@ export function AliasManager({
       const result = (await response.json()) as { text?: unknown; error?: unknown };
       if (!response.ok || typeof result.text !== 'string') {
         const message =
-          result.error === 'sherpa_not_configured'
-            ? 'Sherpa speech recognition is not configured.'
+          result.error === 'stt_not_configured'
+            ? 'Speech recognition is not configured on the API server.'
             : result.error === 'no_speech'
               ? 'No speech was recognized. Try speaking more clearly or closer to the microphone.'
               : result.error === 'transcription_busy'
@@ -402,7 +402,7 @@ export function AliasManager({
         <div>
           <h2 id="alias-audio-test-title" className="text-base font-bold text-fog">Test a spoken name</h2>
           <p className="mt-1 text-xs text-mist">
-            Record a name with the Sherpa Vietnamese speech recognizer. If it is transcribed incorrectly, edit the transcript and add it as an alias for the selected entity.
+            Record a name with the Vietnamese speech recognizer configured on the API. If it is transcribed incorrectly, edit the transcript and add it as an alias for the selected entity.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -415,7 +415,7 @@ export function AliasManager({
             {recording ? 'Stop and transcribe' : transcribing ? 'Transcribing…' : 'Record spoken name'}
           </button>
           <span aria-live="polite" className="text-xs text-mist">
-            {recording ? 'Recording… maximum 60 seconds.' : transcribing ? 'Sending recording to Sherpa…' : 'Select the intended entity above before adding a transcript as an alias.'}
+            {recording ? 'Recording… maximum 60 seconds.' : transcribing ? 'Sending recording for transcription…' : 'Select the intended entity above before adding a transcript as an alias.'}
           </span>
         </div>
         {audioError ? <p role="alert" className="text-sm text-tier-s">{audioError}</p> : null}

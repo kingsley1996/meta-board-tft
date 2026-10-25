@@ -5,27 +5,36 @@ import { messages } from '@/lib/messages';
 import { augmentName, itemName } from '@/lib/tips';
 import { AugmentTile, ItemTile, tierColor, TierChip, TierTabs } from './ui';
 
-export function ItemBoard({ items, current, lang }: { items: TierItem[]; current: 'items' | 'augments'; lang: Lang }) {
+export function ItemBoard({
+  items,
+  current,
+  lang,
+  heading,
+}: {
+  items: TierItem[];
+  current: 'items' | 'augments';
+  lang: Lang;
+  heading?: string;
+}) {
   const t = messages[lang];
   const displayName = current === 'items' ? itemName : augmentName;
   return (
     <div className="flex flex-col gap-5">
-      <div data-section="page-head">
-        <TierTabs current={current} lang={lang} />
-      </div>
+      {heading ? (
+        <p className="mt-2 text-center text-xs font-semibold uppercase tracking-wide text-mist">{heading}</p>
+      ) : (
+        <div data-section="page-head">
+          <TierTabs current={current} lang={lang} />
+        </div>
+      )}
       <div data-section="tierboard" className="flex flex-col gap-4">
         {tierRank.map((tier) => {
           const tierItems = items.filter((item) => item.tier === tier);
           if (!tierItems.length) return null;
           return (
             <div key={tier} className="flex items-stretch gap-4">
-              <TierChip tier={tier} label={t.tiers[tier]} />
+              <TierChip tier={tier} label={`${tier} Tier`} />
               <div className="relative flex-1 rounded-xl border p-3" style={{ borderColor: tierColor[tier] }}>
-                {tier === 'D' || tier === 'X' ? (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-line bg-panel px-4 py-0.5 text-xs font-semibold uppercase tracking-wide" style={{ color: tierColor[tier] }}>
-                    {t.tiers[tier]}
-                  </span>
-                ) : null}
                 <div className="flex flex-wrap gap-3">
                   {tierItems.map((item) => (
                     <div key={item.name} className="group/hex relative flex items-center gap-2">

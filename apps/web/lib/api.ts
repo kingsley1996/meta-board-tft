@@ -183,6 +183,85 @@ export async function askAssistant(body: AssistantQueryRequest, signal?: AbortSi
   return res.json();
 }
 
+const STREAM_FAILURE_STATUS: Record<string, number> = {
+  invalid_context: 400,
+  invalid_request: 400,
+  rate_limited: 429,
+  assistant_disabled: 503,
+  unavailable: 503,
+  timeout: 504,
+};
+
+// Streaming variant of askAssistant: the server answers with SSE — delta
+// events carry the answer prose while it generates, and a final event carries
+// the complete AssistantResponse. Falls back to plain JSON when the server
+// replies with a regular body.
+export async function askAssistantStream(
+  body: AssistantQueryRequest,
+  onDelta: (text: string) => void,
+  signal?: AbortSignal
+): Promise<AssistantResponse> {
+  const res = await fetch('/api/assistant/query', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ ...body, stream: true }),
+    signal,
+  });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => null)) as { code?: unknown; retryAfter?: unknown } | null;
+    throw new AssistantApiError(
+      res.status,
+      typeof data?.code === 'string' ? data.code : 'request_failed',
+      typeof data?.retryAfter === 'number' ? data.retryAfter : null
+    );
+  }
+  if (!res.body) throw new AssistantApiError(502, 'stream_unavailable');
+  const contentType = res.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) return (await res.json()) as AssistantResponse;
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  const events: { event: string; payload: { text?: unknown; code?: unknown } }[] = [];
+  const handleFrame = (frame: string) => {
+    let event = 'message';
+    const dataLines: string[] = [];
+    for (const line of frame.split('\n')) {
+      if (line.startsWith(':')) continue;
+      if (line.startsWith('event:')) event = line.slice(6).trim();
+      else if (line.startsWith('data:')) dataLines.push(line.slice(5).trim());
+    }
+    if (!dataLines.length) return;
+    try {
+      events.push({ event, payload: JSON.parse(dataLines.join('\n')) as { text?: unknown; code?: unknown } });
+    } catch {
+      // Skip malformed frames.
+    }
+  };
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let separator = buffer.indexOf('\n\n');
+    while (separator !== -1) {
+      handleFrame(buffer.slice(0, separator));
+      buffer = buffer.slice(separator + 2);
+      separator = buffer.indexOf('\n\n');
+    }
+  }
+
+  let final: AssistantResponse | null = null;
+  let failure: string | null = null;
+  for (const { event, payload } of events) {
+    if (event === 'delta' && typeof payload.text === 'string') onDelta(payload.text);
+    else if (event === 'final') final = payload as AssistantResponse;
+    else if (event === 'error' && typeof payload.code === 'string') failure = payload.code;
+  }
+  if (final) return final;
+  if (failure) throw new AssistantApiError(STREAM_FAILURE_STATUS[failure] ?? 502, failure);
+  throw new AssistantApiError(502, 'stream_ended');
+}
+
 export async function sendAssistantFeedback(input: { requestId: string; conversationId: string; helpful: boolean }): Promise<void> {
   const res = await fetch('/api/assistant/feedback', {
     method: 'POST',
@@ -209,6 +288,7 @@ export type AssistantMessageRecord = {
   intent: string | null;
   mode: string | null;
   status: string | null;
+  response: AssistantResponse | null;
   created_at: string;
 };
 
@@ -240,4 +320,77 @@ export async function deleteAssistantConversation(conversationId: string): Promi
     headers: { 'content-type': 'application/json' },
   });
   if (!res.ok) throw new AssistantApiError(res.status, 'conversation_delete_failed');
+}
+
+// --- Auth (email + password, Google OAuth) ---
+
+export type AuthUser = {
+  id: string;
+  email: string;
+  name: string | null;
+  avatarUrl: string | null;
+  emailVerified: boolean;
+};
+
+export async function getMe(): Promise<AuthUser | null> {
+  const res = await fetch('/api/auth/me', { cache: 'no-store' });
+  if (res.status === 401) return null;
+  if (!res.ok) throw new AssistantApiError(res.status, 'me_failed');
+  const data = await res.json() as { user: AuthUser };
+  return data.user;
+}
+
+export type AuthResult = { ok: true; user: AuthUser | null } | { ok: false; status: number; code: string };
+
+export async function registerUser(email: string, password: string, name: string, lang: Lang): Promise<AuthResult> {
+  const res = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, name, lang }),
+  });
+  if (res.ok) return { ok: true, user: null };
+  const body = await res.json().catch(() => ({}));
+  return { ok: false, status: res.status, code: body.code ?? 'generic_error' };
+}
+
+export async function loginUser(email: string, password: string): Promise<AuthResult> {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (res.ok) {
+    const data = await res.json() as { user: AuthUser };
+    return { ok: true, user: data.user };
+  }
+  const body = await res.json().catch(() => ({}));
+  return { ok: false, status: res.status, code: body.code ?? 'generic_error' };
+}
+
+export async function verifyEmail(token: string): Promise<AuthResult> {
+  const res = await fetch('/api/auth/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+  if (res.ok) {
+    const data = await res.json() as { user: AuthUser };
+    return { ok: true, user: data.user };
+  }
+  const body = await res.json().catch(() => ({}));
+  return { ok: false, status: res.status, code: body.code ?? 'generic_error' };
+}
+
+export async function resendVerification(email: string, lang: Lang): Promise<boolean> {
+  const res = await fetch('/api/auth/resend-verification', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, lang }),
+  });
+  return res.ok;
+}
+
+export async function logout(): Promise<void> {
+  const res = await fetch('/api/auth/logout', { method: 'POST' });
+  if (!res.ok) throw new AssistantApiError(res.status, 'logout_failed');
 }

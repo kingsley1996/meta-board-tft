@@ -53,13 +53,13 @@ export function Chip({ children, className = '' }: { children: ReactNode; classN
   return <span className={`inline-flex items-center gap-1 rounded-md border border-line bg-util px-2 py-0.5 text-xs font-semibold text-mist ${className}`}>{children}</span>;
 }
 
-export function DisplayTitle({ small, big, accent, sub }: { small: string; big: string; accent?: string; sub?: string }) {
+export function DisplayTitle({ small, big, accent, sub, compact = false }: { small: string; big: string; accent?: string; sub?: string; compact?: boolean }) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-baseline gap-3">
-        <span className="font-display text-4xl font-bold uppercase tracking-tight text-fog md:text-6xl">{small}</span>
-        <span className="text-3xl text-brand">{'\u25B8'}</span>
-        <span className="font-display text-4xl font-bold uppercase tracking-tight text-brand-soft md:text-6xl">{big}</span>
+        <span className={`font-display font-bold uppercase tracking-tight text-fog ${compact ? 'text-lg' : 'text-4xl md:text-6xl'}`}>{small}</span>
+        <span className={compact ? 'text-base text-brand' : 'text-3xl text-brand'}>{'\u25B8'}</span>
+        <span className={`font-display font-bold uppercase tracking-tight text-brand-soft ${compact ? 'text-lg' : 'text-4xl md:text-6xl'}`}>{big}</span>
       </div>
       {sub ? <p className="max-w-2xl text-sm text-mist">{sub}</p> : null}
     </div>

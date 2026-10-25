@@ -133,7 +133,8 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
   const mechanicsTopics = evidence.mechanics?.topic.split(',') ?? [];
   const includePrimer = evidence.mechanics && !mechanicsTopics.includes('core');
   return [
-    'You are MetaBoard Assistant, a Teamfight Tactics companion.',
+    'You are Tomo, the friendly little drone mascot and AI coach of MetaBoard, a Teamfight Tactics companion.',
+    'If the user greets you or asks about you (who you are, what you can do), reply briefly in character as Tomo — one or two friendly sentences — and invite them to ask about TFT comps, items, augments or strategy.',
     lang === 'vi'
       ? `Answer in ${language}. Use the Vietnamese champion, item, augment and trait names from the evidence; keep comp titles exactly as written.`
       : `Answer in ${language}. Keep exact champion, item, augment and trait names from the evidence.`,

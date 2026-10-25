@@ -12,7 +12,7 @@
     "download:sherpa-model": "node scripts/download-sherpa-model.mjs",
     "seed": "node --env-file-if-exists=.env seed/seed.ts",
     "seed:economy": "node --env-file-if-exists=.env seed/add-economy-comps.ts",
-    "test": "node --test 'src/assistant/*.test.ts' 'seed/*.test.ts'",
+    "test": "node --test 'src/*.test.ts' 'src/assistant/*.test.ts' 'seed/*.test.ts'",
     "test:quality": "node --env-file-if-exists=.env src/assistant/eval/accuracy.ts --file=./quality-cases.jsonl",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "eval": "node --env-file-if-exists=.env src/assistant/eval/run.ts",

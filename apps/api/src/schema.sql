@@ -175,6 +175,10 @@ CREATE TABLE IF NOT EXISTS assistant_messages (
 );
 CREATE INDEX IF NOT EXISTS assistant_messages_conversation_id_idx ON assistant_messages (conversation_id, created_at);
 
+-- Full AssistantResponse so reload/other devices can re-render sections,
+-- recommendations and sources; NULL for messages persisted before this column.
+ALTER TABLE assistant_messages ADD COLUMN IF NOT EXISTS response jsonb;
+
 -- Assistant decision trace for admin observability; does not store model chain-of-thought.
 -- conversation_id is not a FK so traces still write when conversation persistence fails
 -- for that request; user-initiated conversation deletes purge their traces explicitly.
@@ -219,3 +223,32 @@ CREATE TABLE IF NOT EXISTS guides (
 ALTER TABLE guides ADD COLUMN IF NOT EXISTS title_vi text;
 ALTER TABLE guides ADD COLUMN IF NOT EXISTS excerpt_vi text;
 ALTER TABLE guides ADD COLUMN IF NOT EXISTS sections_vi jsonb;
+
+-- Accounts: email+password and Google OAuth identities. Rows are created by
+-- /api/auth/* (see src/accounts.ts, which also ensures these tables at runtime).
+CREATE TABLE IF NOT EXISTS users (
+  id uuid PRIMARY KEY,
+  email text NOT NULL UNIQUE,
+  password_hash text,                   -- null for Google-only accounts
+  name text,
+  avatar_url text,
+  google_id text UNIQUE,                -- Google "sub" claim
+  email_verified_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS user_sessions (
+  token_hash text PRIMARY KEY,          -- sha256 of the opaque cookie token
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL
+);
+CREATE TABLE IF NOT EXISTS email_tokens (
+  token_hash text PRIMARY KEY,          -- sha256 of the emailed token
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  purpose text NOT NULL CHECK (purpose IN ('verify_email', 'password_reset')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL
+);
+-- Personal Coach AI history: conversations attach to the signed-in user.
+ALTER TABLE assistant_conversations ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES users(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS assistant_conversations_user_id_idx ON assistant_conversations (user_id, updated_at DESC);

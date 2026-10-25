@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import type { AssistantResponse } from './contracts.ts';
 
 // DB-backed test: skips when no Postgres is configured. Falls back to the
 // workspace .env (not loaded by `npm test`) before deciding. Guards the
@@ -48,6 +49,25 @@ test(
 
       // Ownership: another client must not read the conversation.
       assert.deepEqual(await getConversationHistory(conversation.id, randomUUID(), 6), []);
+
+      // Structured response survives reload/other devices (jsonb round-trip).
+      const structured = {
+        requestId: 'test-request',
+        conversationId: conversation.id,
+        answer: 'structured answer',
+        sections: [{ heading: 'Source', points: ['kb'] }],
+        intent: 'comp_search',
+        mode: 'deterministic',
+        resolvedContext: { setId: 'set18', patchId: '18.5', lang: 'vi', entities: [] },
+        recommendations: [],
+        sources: [],
+        limitations: [],
+        followUpQuestions: [],
+        status: 'answered',
+      } as AssistantResponse;
+      await appendMessage(conversation.id, 'assistant', 'structured answer', 'comp_search', 'deterministic', 'answered', structured);
+      const [, reloaded] = await getConversationHistory(conversation.id, clientId, 2);
+      assert.deepEqual(reloaded.response, structured);
 
       assert.equal(await deleteConversation(conversation.id, clientId), true);
       assert.equal(await deleteConversation(conversation.id, clientId), false);

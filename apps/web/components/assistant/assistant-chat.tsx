@@ -1,18 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import { Tomo, TomoSprite, type TomoCue, type TomoReaction } from '@/components/assistant/tomo';
 import { useEffect, useRef, useState } from 'react';
 import { AugmentTile, ItemHex, Panel, UnitHex, tierColor } from '@/components/ui';
 import type { AssistantRecommendation } from '@/lib/api';
 import type { Tier } from '@/lib/tiers';
 import {
   AssistantApiError,
-  askAssistant,
-  deleteAssistantConversation,
+  askAssistantStream,
   getAssistantConversation,
   listAssistantConversations,
   sendAssistantFeedback,
   type AssistantConversation,
+  type AssistantMessageRecord,
   type AssistantQueryRequest,
   type AssistantResponse,
 } from '@/lib/api';
@@ -83,6 +84,43 @@ function floatSamplesToBuffer(samples: Float32Array): ArrayBuffer {
   return buffer;
 }
 
+// Answers are written for reading: markdown, emoji, arrows, and star ratings
+// would be read aloud as symbols or rejected by the speech limit. Reduce them
+// to plain spoken prose and cut at a sentence boundary. VieNeu synthesizes on
+// CPU with no streaming (500 chars ≈ 20 s wait ≈ 30 s audio, growing
+// super-linearly), so the cap keeps the wait tolerable; the full answer stays
+// readable in the chat bubble.
+const maxSpokenCharacters = 500;
+
+function spokenText(answer: string): string {
+  const plain = answer
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^\s{0,3}#{1,6}\s+/gm, '')
+    .replace(/^\s{0,3}>\s?/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '')
+    .replace(/^\s*\d+[.)]\s+/gm, '')
+    // Markdown table separator rows (|---|---|) carry no spoken content.
+    .replace(/^\s*[\p{Pd}:|\s]+$/gmu, ' ')
+    .replace(/(\*\*\*|\*\*|__|\*|~~)(?=\S)([\s\S]*?\S)\1/g, '$2')
+    .replace(
+      /[\p{Extended_Pictographic}\u{2022}\u{2023}\u{2043}\u{2190}-\u{21FF}\u{2500}-\u{25FF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}\u{00A9}\u{00AE}]/gu,
+      ' '
+    )
+    .replace(/[*_~#>|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (plain.length <= maxSpokenCharacters) return plain;
+  const boundary = Math.max(
+    plain.lastIndexOf('.', maxSpokenCharacters),
+    plain.lastIndexOf('!', maxSpokenCharacters),
+    plain.lastIndexOf('?', maxSpokenCharacters)
+  );
+  return plain.slice(0, boundary > maxSpokenCharacters * 0.6 ? boundary + 1 : maxSpokenCharacters).trim();
+}
+
 function loadStored(key: string): StoredChat {
   try {
     const parsed = JSON.parse(sessionStorage.getItem(key) ?? 'null') as StoredChat | null;
@@ -97,12 +135,19 @@ function loadStored(key: string): StoredChat {
   }
 }
 
+function restoredMessages(records: AssistantMessageRecord[]): ChatMessage[] {
+  return records.map((message) => ({
+    id: message.id,
+    role: message.role,
+    // response.answer is untruncated; content was capped at 2000 chars for the DB check.
+    content: message.response?.answer ?? message.content,
+    response: message.response ?? undefined,
+  }));
+}
+
 function historyFor(messages: ChatMessage[], excludeLastUser: boolean): { role: 'user' | 'assistant'; content: string }[] {
   const base = excludeLastUser && messages[messages.length - 1]?.role === 'user' ? messages.slice(0, -1) : messages;
-  return base
-    .filter((message) => message.role === 'user' || message.response)
-    .slice(-6)
-    .map(({ role, content }) => ({ role, content }));
+  return base.slice(-6).map(({ role, content }) => ({ role, content }));
 }
 
 export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compSlug: string | null; compTitle: string | null }) {
@@ -126,6 +171,8 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [conversations, setConversations] = useState<AssistantConversation[]>([]);
   const [conversationsLoading, setConversationsLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tomoCue, setTomoCue] = useState<TomoCue | null>(null);
 
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const sherpaSessionRef = useRef<SherpaVoiceSession | null>(null);
@@ -136,6 +183,8 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const voiceTranscriptRef = useRef('');
   const autoSubmitVoiceRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const logRef = useRef<HTMLDivElement>(null);
+  const pendingVoiceRef = useRef<HTMLDivElement>(null);
   // Voice callbacks fire long after the render that created them (speech end,
   // async transcription); they must submit with the latest conversationId and
   // messages, not the ones captured when recording started.
@@ -170,12 +219,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         try {
           const detail = await getAssistantConversation(stored.conversationId);
           if (mounted && detail.messages.length) {
-            const restored = detail.messages.map((m) => ({
-              id: m.id,
-              role: m.role as 'user' | 'assistant',
-              content: m.content,
-            }));
-            setMessages(restored);
+            setMessages(restoredMessages(detail.messages));
             setConversationId(stored.conversationId);
           }
         } catch {
@@ -215,8 +259,23 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   }, [conversationId, hydrated, messages, storageKey]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: 'end' });
+    const log = logRef.current;
+    if (!log) return;
+    const last = messages[messages.length - 1];
+    // A fresh answer opens at its top, not its tail; user messages and the
+    // thinking indicator still hug the bottom.
+    if (last && last.role === 'assistant') {
+      log.querySelector<HTMLElement>(`[data-message-id="${CSS.escape(last.id)}"]`)?.scrollIntoView({ block: 'start' });
+    } else {
+      bottomRef.current?.scrollIntoView({ block: 'end' });
+    }
   }, [messages, loading]);
+
+  // The pending spoken-question bubble pops in at the tail; follow it down
+  // immediately so the recording state is where the user is looking.
+  useEffect(() => {
+    if (listening || voiceTranscribing) pendingVoiceRef.current?.scrollIntoView({ block: 'end' });
+  }, [listening, voiceTranscribing]);
 
   function errorText(caught: unknown): string {
     if (caught instanceof AssistantApiError) {
@@ -225,6 +284,10 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       if (caught.status === 504) return t.errors.timeout;
     }
     return t.errors.generic;
+  }
+
+  function cueTomo(name: TomoReaction) {
+    setTomoCue({ name, id: `${Date.now()}-${Math.random()}` });
   }
 
   function stopAnswerSpeech() {
@@ -242,6 +305,10 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   async function speakAnswer(answer: string, messageId: string) {
     stopAnswerSpeech();
     setSpeechError(null);
+    const spoken = spokenText(answer);
+    // Nothing audible after stripping markdown and symbols (emoji-only or
+    // table-only answers); skip synthesis instead of surfacing an error.
+    if (!spoken) return;
     const controller = new AbortController();
     speechRequestRef.current = controller;
     setSpeaking(true);
@@ -250,12 +317,18 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       const response = await fetch('/api/voice/tts/speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: answer }),
+        body: JSON.stringify({ input: spoken }),
         signal: controller.signal,
       });
       if (controller.signal.aborted) return;
       if (response.status === 503) {
         setSpeechError(t.voiceTtsUnavailable);
+        setSpeaking(false);
+        setSpeakingMessageId(null);
+        return;
+      }
+      if (response.status === 429) {
+        setSpeechError(t.voiceBusy);
         setSpeaking(false);
         setSpeakingMessageId(null);
         return;
@@ -291,7 +364,12 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       if (controller.signal.aborted) return;
       console.error('VieNeu speech playback failed', caught);
       stopAnswerSpeech();
-      setSpeechError(t.voiceSpeechError);
+      // Chromium rejects play() once the click's transient activation has
+      // expired (it does not survive the answer wait + synthesis); the
+      // per-message replay button is a fresh gesture and still works.
+      setSpeechError(
+        caught instanceof DOMException && caught.name === 'NotAllowedError' ? t.voiceSpeechBlocked : t.voiceSpeechError
+      );
     } finally {
       if (speechRequestRef.current === controller) speechRequestRef.current = null;
     }
@@ -316,22 +394,50 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       history: historyFor(messages, !addUser),
       context: { pageType: compSlug ? 'comp' : 'assistant', compSlug, entityIds: [] },
     };
+    const streamId = makeId();
+    let accumulated = '';
+    let streamed = false;
     try {
-      const response = await askAssistant(request);
+      const response = await askAssistantStream(
+        request,
+        (chunk) => {
+          // Grow the answer bubble as Tomo generates; updates always carry the
+          // full accumulated text so they stay idempotent under batching.
+          accumulated += chunk;
+          const content = accumulated;
+          setMessages((current) => {
+            const exists = current.some((message) => message.id === streamId);
+            return exists
+              ? current.map((message) => (message.id === streamId ? { ...message, content } : message))
+              : [...current, { id: streamId, role: 'assistant' as const, content }];
+          });
+          streamed = true;
+        }
+      );
       setConversationId(response.conversationId);
-      const assistantMessageId = makeId();
-      setMessages((current) => [
-        ...current,
-        { id: assistantMessageId, role: 'assistant', content: response.answer, response, voiceResponse: speakResponse },
-      ]);
-      if (speakResponse) void speakAnswer(response.answer, assistantMessageId);
+      setMessages((current) =>
+        streamed
+          ? current.map((message) =>
+              message.id === streamId
+                ? { ...message, content: response.answer, response, voiceResponse: speakResponse }
+                : message
+            )
+          : [
+              ...current,
+              { id: streamId, role: 'assistant' as const, content: response.answer, response, voiceResponse: speakResponse },
+            ]
+      );
+      if (speakResponse) void speakAnswer(response.answer, streamId);
+      cueTomo('sparkle');
       // Refresh conversation list so the new conversation appears with its title.
       void listAssistantConversations().then((list) => setConversations(list)).catch(() => {
         // Ignore list refresh failures.
       });
     } catch (caught) {
+      if (streamed) setMessages((current) => current.filter((message) => message.id !== streamId));
       setError(errorText(caught));
       setRetryText(text);
+      cueTomo('surprised');
     } finally {
       setLoading(false);
     }
@@ -362,12 +468,12 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     try {
       const statusResponse = await fetch('/api/voice/status', { cache: 'no-store' });
       if (!statusResponse.ok) {
-        setVoiceError(t.voiceSherpaError);
+        setVoiceError(t.voiceSttError);
         return;
       }
       const status = (await statusResponse.json()) as { available?: boolean };
       if (!status.available) {
-        setVoiceError(t.voiceSherpaUnavailable);
+        setVoiceError(t.voiceSttUnavailable);
         return;
       }
 
@@ -468,7 +574,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         return;
       }
       if (response.status === 503) {
-        setVoiceError(t.voiceSherpaUnavailable);
+        setVoiceError(t.voiceSttUnavailable);
         return;
       }
       if (response.status === 429) {
@@ -481,7 +587,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         return;
       }
       if (!response.ok || typeof result.text !== 'string') {
-        setVoiceError(t.voiceSherpaError);
+        setVoiceError(t.voiceSttError);
         return;
       }
       const transcript = result.text.trim();
@@ -496,7 +602,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       await submitRef.current?.(question, true, true);
     } catch (caught) {
       console.error('Sherpa transcription failed', caught);
-      setVoiceError(t.voiceSherpaError);
+      setVoiceError(t.voiceSttError);
     } finally {
       setVoiceTranscribing(false);
     }
@@ -597,7 +703,26 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     }
   }
 
+  async function openConversation(id: string) {
+    if (loading || id === conversationId) {
+      setSidebarOpen(false);
+      return;
+    }
+    stopAnswerSpeech();
+    setSidebarOpen(false);
+    try {
+      const detail = await getAssistantConversation(id);
+      setConversationId(id);
+      setMessages(restoredMessages(detail.messages));
+      setInput('');
+      setError(null);
+    } catch {
+      setError('Failed to load conversation');
+    }
+  }
+
   function newChat() {
+    setSidebarOpen(false);
     if (loading) return;
     stopAnswerSpeech();
     autoSubmitVoiceRef.current = false;
@@ -661,188 +786,235 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         ? t.voiceSpeaking
         : listening
           ? lang === 'vi'
-            ? t.voiceSherpaListening
+            ? t.voiceRecording
             : t.voiceListening
           : t.voiceNotice;
 
   return (
-    <Panel className="mx-auto flex min-h-[68vh] w-full max-w-4xl flex-col overflow-hidden">
-      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-        <div className="min-w-0">
-          <p className="font-display text-lg font-bold text-fog">{t.assistant}</p>
-          {compTitle || compSlug ? <p className="truncate text-xs text-mist">{t.context(compTitle ?? compSlug ?? '')}</p> : null}
-        </div>
-        <select
-          value={conversationId ?? ''}
-          onChange={(event) => {
-            const id = event.target.value;
-            if (!id) return;
-            const selected = conversations.find((c) => c.id === id);
-            if (!selected) return;
-            void getAssistantConversation(id).then((detail) => {
-              setConversationId(id);
-              setMessages(
-                detail.messages.map((m) => ({
-                  id: m.id,
-                  role: m.role as 'user' | 'assistant',
-                  content: m.content,
-                })),
-              );
-              setInput('');
-              setError(null);
-            }).catch(() => {
-              setError('Failed to load conversation');
-            });
-          }}
-          className="smooth rounded-md border border-line bg-panel px-2.5 py-1 text-xs text-mist focus:border-brand-soft focus:outline-none"
-          disabled={conversationsLoading}
-        >
-          <option value="">{t.newChat}</option>
-          {conversations.length === 0 ? (
-            <option disabled value="">
-              {t.noConversations}
-            </option>
-          ) : null}
-          {conversations.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.title || t.untitledConversation}
-            </option>
-          ))}
-        </select>
-        <button type="button" onClick={newChat} className="smooth rounded-md border border-line bg-util px-3 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog">
-          {t.clear}
-        </button>
-      </div>
-
-      <div role="log" aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-5">
-        {!messages.length ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 py-10 text-center">
-            <p className="font-display text-2xl font-bold text-fog">{t.emptyTitle}</p>
-            <p className="max-w-lg text-sm leading-relaxed text-mist">{t.emptyBody}</p>
-            <div className="flex max-w-xl flex-wrap justify-center gap-2 pt-2">
-              {t.samples.map((sample) => (
-                <button
-                  key={sample}
-                  type="button"
-                  onClick={() => void submit(sample)}
-                  className="smooth rounded-full border border-line bg-util px-3 py-1.5 text-left text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
-                >
-                  {sample}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {messages.map((message) =>
-          message.role === 'user' ? (
-            <div key={message.id} className="flex justify-end">
-              <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-brand-hot px-4 py-2.5 text-sm leading-relaxed text-white">
-                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-white/70">{t.you}</span>
-                <span className="whitespace-pre-wrap">{message.content}</span>
-              </div>
-            </div>
-          ) : (
-            <AssistantBubble
-              key={message.id}
-              message={message}
-              lang={lang}
-              feedback={message.response ? feedback[message.response.requestId] : undefined}
-              copied={copiedId === message.id}
-              speaking={speakingMessageId === message.id}
-              onCopy={() => void copyAnswer(message)}
-              onSpeak={() => (speakingMessageId === message.id ? stopAnswerSpeech() : void speakAnswer(message.content, message.id))}
-              onRate={rate}
-              onFollowUp={(question) => void submit(question)}
-              statusLabel={message.response ? statusLabel(message.response) : null}
-            />
-          )
-        )}
-
-        {loading ? (
-          <div className="flex items-center gap-2 text-sm text-mist" role="status">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-brand" />
-            {t.sending}
-          </div>
-        ) : null}
-        <div ref={bottomRef} />
-      </div>
-
-      {error ? (
-        <div role="alert" className="flex flex-wrap items-center justify-between gap-2 border-t border-tier-s/40 bg-tier-s/10 px-4 py-2.5 text-sm text-fog">
-          <span>{error}</span>
-          {retryText ? (
-            <button type="button" onClick={() => void submit(retryText, false)} className="smooth rounded-md border border-line bg-panel px-3 py-1 text-xs font-semibold hover:border-brand-soft">
-              {t.retry}
-            </button>
-          ) : null}
-        </div>
+    <div className="flex w-full gap-4">
+      {sidebarOpen ? (
+        <button
+          type="button"
+          aria-label={t.sidebarClose}
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-50 bg-black/50 lg:hidden"
+        />
       ) : null}
-
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          void submit(input);
-        }}
-        className="border-t border-line bg-panel p-3"
+      <aside
+        className={`${sidebarOpen ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-[60] w-72 flex-col gap-3 overflow-hidden border-r border-line bg-panel p-3 shadow-xl lg:sticky lg:top-28 lg:z-auto lg:flex lg:max-h-[calc(100dvh-15rem)] lg:w-72 lg:shrink-0 lg:self-start lg:rounded-xl lg:border lg:shadow-none`}
       >
-        <div className="flex items-end gap-2">
-          <textarea
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-                event.preventDefault();
-                void submit(input);
-              }
-            }}
-            rows={2}
-            maxLength={2000}
-            placeholder={t.placeholder}
-            aria-label={t.placeholder}
-            className="min-h-12 flex-1 resize-none rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog outline-none placeholder:text-mist focus:border-brand-soft"
-          />
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={toggleVoiceInput}
-            disabled={loading || voiceStarting || voiceTranscribing}
-            aria-label={listening ? t.voiceStop : t.voiceStart}
-            aria-pressed={listening}
-            title={listening ? t.voiceStop : t.voiceStart}
-            className={`smooth inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 ${
-              listening
-                ? 'animate-pulse border-tier-s bg-tier-s/20 text-tier-s'
-                : 'border-line bg-page text-mist hover:border-brand-soft hover:text-fog'
-            }`}
+            onClick={newChat}
+            className="smooth flex-1 rounded-lg border border-line bg-util px-3 py-2 text-left text-sm font-semibold text-fog hover:border-brand-soft"
           >
-            <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
-              <rect x="9" y="3" width="6" height="12" rx="3" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5.5 11a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8" />
-            </svg>
+            {t.clear}
           </button>
           <button
-            type="submit"
-            disabled={loading || !input.trim()}
-            className="smooth h-12 rounded-lg border border-brand-hot bg-brand-hot px-5 text-sm font-semibold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-40"
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            aria-label={t.sidebarClose}
+            className="smooth rounded-lg border border-line px-2.5 py-2 text-sm text-mist hover:border-brand-soft hover:text-fog lg:hidden"
           >
-            {loading ? t.sending : t.send}
+            ×
           </button>
         </div>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-mist">
-          <p>{t.disclaimer}</p>
-          <div className="flex items-center gap-2">
-            <p role="status">{voiceStatus}</p>
-            {speaking ? (
-              <button type="button" onClick={stopAnswerSpeech} className="underline underline-offset-2">
-                {t.voiceStopSpeaking}
+        <p className="px-1 text-[10px] font-semibold uppercase tracking-wide text-mist">{t.history}</p>
+        <nav aria-label={t.history} aria-busy={conversationsLoading} className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
+          {conversations.length ? (
+            conversations.map((conversation) => (
+              <button
+                key={conversation.id}
+                type="button"
+                onClick={() => void openConversation(conversation.id)}
+                aria-current={conversation.id === conversationId ? 'true' : undefined}
+                title={conversation.title || t.untitledConversation}
+                className={`smooth shrink-0 truncate rounded-md px-2 py-2 text-left text-xs font-semibold ${
+                  conversation.id === conversationId ? 'bg-util text-brand-soft' : 'text-mist hover:bg-util hover:text-fog'
+                }`}
+              >
+                {conversation.title || t.untitledConversation}
+              </button>
+            ))
+          ) : (
+            <p className="px-2 py-1 text-xs text-mist">{conversationsLoading ? '…' : t.noConversations}</p>
+          )}
+        </nav>
+      </aside>
+      <Panel className="flex h-[calc(100dvh-14rem)] min-h-[20rem] min-w-0 flex-1 flex-col overflow-hidden lg:h-[calc(100dvh-15rem)]">
+        <div className="flex items-center gap-2 border-b border-line px-4 py-3">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label={t.sidebarOpen}
+            className="smooth rounded-md border border-line bg-util px-2.5 py-2 text-sm font-semibold text-mist hover:border-brand-soft hover:text-fog lg:hidden"
+          >
+            <span aria-hidden>☰</span>
+          </button>
+          <div className="min-w-0">
+            <p className="font-display text-lg font-bold text-fog">{t.assistant}</p>
+            {compTitle || compSlug ? <p className="truncate text-xs text-mist">{t.context(compTitle ?? compSlug ?? '')}</p> : null}
+          </div>
+          <div className="ml-auto flex items-center gap-1.5">
+            <span
+              aria-hidden
+              className="hidden rounded-full border border-line bg-util px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-mist sm:inline"
+            >
+              Tomo
+            </span>
+            <Tomo cue={tomoCue} busy={loading} />
+          </div>
+        </div>
+
+        <div ref={logRef} role="log" aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-5">
+          {!messages.length ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-3 py-10 text-center">
+              <p className="font-display text-2xl font-bold text-fog">{t.emptyTitle}</p>
+              <p className="max-w-lg text-sm leading-relaxed text-mist">{t.emptyBody}</p>
+              <div className="flex max-w-xl flex-wrap justify-center gap-2 pt-2">
+                {t.samples.map((sample) => (
+                  <button
+                    key={sample}
+                    type="button"
+                    onClick={() => void submit(sample)}
+                    className="smooth rounded-full border border-line bg-util px-3 py-1.5 text-left text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+                  >
+                    {sample}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {messages.map((message) =>
+            message.role === 'user' ? (
+              <div key={message.id} className="flex justify-end">
+                <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-brand-hot px-4 py-2.5 text-sm leading-relaxed text-white">
+                  <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-white/70">{t.you}</span>
+                  <span className="whitespace-pre-wrap">{message.content}</span>
+                </div>
+              </div>
+            ) : (
+              <AssistantBubble
+                key={message.id}
+                message={message}
+                lang={lang}
+                feedback={message.response ? feedback[message.response.requestId] : undefined}
+                copied={copiedId === message.id}
+                speaking={speakingMessageId === message.id}
+                onCopy={() => void copyAnswer(message)}
+                onSpeak={() => (speakingMessageId === message.id ? stopAnswerSpeech() : void speakAnswer(message.content, message.id))}
+                onRate={rate}
+                onFollowUp={(question) => void submit(question)}
+                statusLabel={message.response ? statusLabel(message.response) : null}
+              />
+            )
+          )}
+
+          {listening || voiceTranscribing ? (
+            <div ref={pendingVoiceRef} className="flex justify-end" role="status">
+              <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-brand-hot px-4 py-2.5 text-sm text-white">
+                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-white/70">{t.you}</span>
+                <span className="flex items-center gap-1 py-1" aria-hidden>
+                  <span className="chat-typing-dot" style={{ animationDelay: '0s' }} />
+                  <span className="chat-typing-dot" style={{ animationDelay: '0.2s' }} />
+                  <span className="chat-typing-dot" style={{ animationDelay: '0.4s' }} />
+                </span>
+              </div>
+            </div>
+          ) : null}
+
+          {loading ? (
+            <div className="flex items-center gap-2.5 text-sm text-mist" role="status">
+              <span aria-hidden className="agent-step" />
+              {t.sending}
+            </div>
+          ) : null}
+          <div ref={bottomRef} />
+        </div>
+
+        {error ? (
+          <div role="alert" className="flex flex-wrap items-center justify-between gap-2 border-t border-tier-s/40 bg-tier-s/10 px-4 py-2.5 text-sm text-fog">
+            <span>{error}</span>
+            {retryText ? (
+              <button type="button" onClick={() => void submit(retryText, false)} className="smooth rounded-md border border-line bg-panel px-3 py-1 text-xs font-semibold hover:border-brand-soft">
+                {t.retry}
               </button>
             ) : null}
           </div>
-        </div>
-        {voiceError ? <p role="status" className="mt-2 text-xs text-tier-s">{voiceError}</p> : null}
-        {speechError ? <p role="status" className="mt-2 text-xs text-tier-s">{speechError}</p> : null}
-      </form>
-    </Panel>
+        ) : null}
+
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submit(input);
+          }}
+          className="border-t border-line bg-panel p-3"
+        >
+          <div className="flex items-end gap-2">
+            <textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+                  event.preventDefault();
+                  void submit(input);
+                }
+              }}
+              rows={2}
+              maxLength={2000}
+              placeholder={t.placeholder}
+              aria-label={t.placeholder}
+              className="min-h-12 flex-1 resize-none rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog outline-none placeholder:text-mist focus:border-brand-soft"
+            />
+            <button
+              type="button"
+              onClick={toggleVoiceInput}
+              disabled={loading || voiceStarting || voiceTranscribing}
+              aria-label={listening ? t.voiceStop : t.voiceStart}
+              aria-pressed={listening}
+              title={listening ? t.voiceStop : t.voiceStart}
+              className={`smooth inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 ${
+                listening
+                  ? 'border-tier-s bg-tier-s/20 text-tier-s'
+                  : 'border-line bg-page text-mist hover:border-brand-soft hover:text-fog'
+              }`}
+            >
+              {listening ? (
+                <span aria-hidden className="h-3.5 w-3.5 rounded-full bg-current" />
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
+                  <rect x="9" y="3" width="6" height="12" rx="3" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5.5 11a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8" />
+                </svg>
+              )}
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="smooth h-12 rounded-lg border border-brand-hot bg-brand-hot px-5 text-sm font-semibold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {loading ? '…' : t.send}
+            </button>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-mist">
+            <p>{t.disclaimer}</p>
+            <div className="flex items-center gap-2">
+              {voiceStarting || voiceTranscribing ? <span aria-hidden className="agent-step" /> : null}
+              <p role="status">{voiceStatus}</p>
+              {speaking ? (
+                <button type="button" onClick={stopAnswerSpeech} className="underline underline-offset-2">
+                  {t.voiceStopSpeaking}
+                </button>
+              ) : null}
+            </div>
+          </div>
+          {voiceError ? <p role="status" className="mt-2 text-xs text-tier-s">{voiceError}</p> : null}
+          {speechError ? <p role="status" className="mt-2 text-xs text-tier-s">{speechError}</p> : null}
+        </form>
+      </Panel>
+    </div>
   );
 }
 
@@ -958,10 +1130,11 @@ function AssistantBubble({
   const limitations = response ? [...new Set(response.limitations)].slice(0, 4) : [];
 
   return (
-    <div className="flex justify-start">
+    <div data-message-id={message.id} className="flex scroll-mt-5 justify-start">
       <div className="max-w-[92%] rounded-2xl rounded-bl-sm border border-line bg-util px-4 py-3 text-sm leading-relaxed text-fog sm:max-w-[85%]">
         <div className="mb-2 flex flex-wrap items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-soft">{t.assistant}</span>
+          <TomoSprite />
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-soft">{t.mascotName}</span>
           {message.voiceResponse ? (
             <span className="inline-flex items-center gap-1 rounded border border-brand-soft/40 bg-brand-soft/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-soft" title={t.voiceAnswer}>
               <svg viewBox="0 0 20 20" aria-hidden className="h-3.5 w-3.5 fill-none stroke-current stroke-[1.7]">

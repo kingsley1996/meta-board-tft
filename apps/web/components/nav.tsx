@@ -1,14 +1,17 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+import { AuthNav } from './auth/auth-nav';
 import { LangSwitch } from './lang-switch';
 import { Search } from './search';
 
 export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
   const t = messages[lang].nav;
+  const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -84,6 +87,11 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
     { label: t.media, href: `/${lang}/media` },
   ];
 
+  // Section stays active on its detail pages too, e.g. /champions/ahri.
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const isCurrent = (href: string) => pathname === href;
+  const groupActive = (items: { href: string }[]) => items.some((item) => isActive(item.href));
+
   return (
     <>
       <header
@@ -106,6 +114,9 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
             <span className="hidden items-center rounded-md border border-brand/40 bg-brand/10 px-3.5 py-1.5 text-sm font-semibold text-brand-soft lg:inline-flex">
               {t.patch} <span className="ml-1 text-fog">{patch}</span>
             </span>
+            <div className="hidden lg:block">
+              <AuthNav lang={lang} variant="desktop" />
+            </div>
             <div className="hidden lg:block">
               <LangSwitch lang={lang} />
             </div>
@@ -141,7 +152,10 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                       key={item.href}
                       href={item.href}
                       onClick={() => setMenuOpen(false)}
-                      className="smooth block rounded-md px-2 py-2 text-sm font-semibold text-fog hover:bg-util hover:text-brand-soft"
+                      aria-current={isCurrent(item.href) ? 'page' : undefined}
+                      className={`smooth block rounded-md px-2 py-2 text-sm font-semibold hover:bg-util hover:text-brand-soft ${
+                        isActive(item.href) ? 'bg-util text-brand-soft' : 'text-fog'
+                      }`}
                     >
                       {item.label}
                     </Link>
@@ -154,13 +168,17 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
-                    className="smooth rounded-md bg-util px-3 py-2 text-sm font-semibold text-fog hover:text-brand-soft"
+                    aria-current={isCurrent(link.href) ? 'page' : undefined}
+                    className={`smooth rounded-md bg-util px-3 py-2 text-sm font-semibold hover:text-brand-soft ${
+                      isActive(link.href) ? 'text-brand-soft' : 'text-fog'
+                    }`}
                   >
                     {link.label}
                   </Link>
                 ))}
               </div>
               <div className="flex items-center justify-between gap-3 border-t border-line/70 pt-3" onClick={() => setMenuOpen(false)}>
+                <AuthNav lang={lang} variant="mobile" />
                 <span className="inline-flex items-center rounded-md border border-brand/40 bg-brand/10 px-3.5 py-1.5 text-sm font-semibold text-brand-soft">
                   {t.patch} <span className="ml-1 text-fog">{patch}</span>
                 </span>
@@ -187,7 +205,12 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                   if (dismissedDropdown === dropdown.label) setDismissedDropdown(null);
                 }}
               >
-                <button type="button" className="smooth flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold text-fog group-hover:text-brand-soft">
+                <button
+                  type="button"
+                  className={`smooth flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold group-hover:text-brand-soft ${
+                    groupActive(dropdown.items) ? 'bg-util text-brand-soft' : 'text-fog'
+                  }`}
+                >
                   {dropdown.label}
                   <span className="text-[10px] text-mist">{'\u25BE'}</span>
                 </button>
@@ -198,7 +221,10 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                         key={item.href}
                         href={item.href}
                         onClick={() => setDismissedDropdown(dropdown.label)}
-                        className="smooth px-4 py-2 text-sm text-mist hover:bg-util hover:text-brand-soft"
+                        aria-current={isCurrent(item.href) ? 'page' : undefined}
+                        className={`smooth px-4 py-2 text-sm hover:bg-util hover:text-brand-soft ${
+                          isActive(item.href) ? 'bg-util text-brand-soft' : 'text-mist'
+                        }`}
                       >
                         {item.label}
                       </Link>
@@ -208,13 +234,25 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
               </div>
             ))}
             {links.map((link) => (
-              <Link key={link.href} href={link.href} className="smooth rounded-md px-3 py-2 text-sm font-semibold text-fog hover:text-brand-soft">
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={isCurrent(link.href) ? 'page' : undefined}
+                className={`smooth rounded-md px-3 py-2 text-sm font-semibold hover:text-brand-soft ${
+                  isActive(link.href) ? 'bg-util text-brand-soft' : 'text-fog'
+                }`}
+              >
                 {link.label}
               </Link>
             ))}
             <Link
               href={`/${lang}/assistant`}
-              className="smooth ml-auto inline-flex items-center gap-2 rounded-lg border border-brand/50 bg-brand/15 px-4 py-1.5 text-sm font-bold text-brand-soft hover:border-brand-soft hover:bg-brand/25"
+              aria-current={isCurrent(`/${lang}/assistant`) ? 'page' : undefined}
+              className={`smooth ml-auto inline-flex items-center gap-2 rounded-lg border px-4 py-1.5 text-sm font-bold ${
+                isActive(`/${lang}/assistant`)
+                  ? 'border-brand-soft bg-brand/25 text-brand-soft'
+                  : 'border-brand/50 bg-brand/15 text-brand-soft hover:border-brand-soft hover:bg-brand/25'
+              }`}
             >
               <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 fill-none stroke-current stroke-[1.7]">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m10 2 1.5 4.5L16 8l-4.5 1.5L10 14l-1.5-4.5L4 8l4.5-1.5L10 2Z" />

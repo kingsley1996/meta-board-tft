@@ -64,18 +64,35 @@ export const itemMetaByName: Record<string, ItemMetaStats> = Object.fromEntries(
   meta.items.map((item) => [item.name, item as unknown as ItemMetaStats])
 );
 
-// The tier-list board stays completed-only; Ornn artifacts and Radiant upgrades
-// carry their own per-group tiers on the item detail pages.
-export const itemTiers: TierItem[] = meta.items
-  .filter((item) => item.category !== 'artifact' && item.category !== 'radiant')
+// The tier-list board renders three groups — completed items plus Ornn
+// artifacts and Radiant upgrades, each with its own per-group tiers
+// (their smaller samples use MetaTFT's adjusted thresholds).
+const itemTiersFor = (category: string): TierItem[] => meta.items
+  .filter((item) => item.category === category)
   .map((item) => ({ name: item.name, tier: item.tier as Tier, note: item.note }));
 
-export const itemTierByName: Record<string, Tier> = Object.fromEntries(itemTiers.map((item) => [item.name, item.tier]));
+export const itemTiers: TierItem[] = itemTiersFor('completed');
+export const artifactTiers: TierItem[] = itemTiersFor('artifact');
+export const radiantTiers: TierItem[] = itemTiersFor('radiant');
+
+export const itemTierByName: Record<string, Tier> = Object.fromEntries(
+  meta.items.map((item) => [item.name, item.tier as Tier]),
+);
 
 export const itemOptions = tft.items.map((item) => ({ name: item.name, icon: item.icon as string | null, tier: itemTierByName[item.name] ?? null }));
 
 // Detail-page link target for every catalog item (null when unknown).
 export const itemSlugByName: Record<string, string> = Object.fromEntries(tft.items.map((item) => [item.name, item.slug]));
+
+// Route slugs are data ids ("da-18-akali-ad"), so breadcrumbs read the display
+// name from here instead of prettifying the slug.
+export const nameBySlug: Record<string, { en: string; vi: string }> = Object.fromEntries([
+  ...tft.traits.map((entry) => [entry.slug, { en: entry.name, vi: entry.nameVi }] as const),
+  ...tft.champions.map((entry) => [entry.slug, { en: entry.name, vi: entry.nameVi }] as const),
+  ...tft.items.map((entry) => [entry.slug, { en: entry.name, vi: entry.nameVi }] as const),
+  ...tft.augments.map((entry) => [entry.slug, { en: entry.name, vi: entry.nameVi }] as const),
+  ...meta.comps.map((comp) => [comp.slug, { en: comp.title, vi: comp.titleVi }] as const),
+]);
 
 export const augmentTiers: TierItem[] = meta.augments.map((augment) => ({ name: augment.name, tier: augment.tier as Tier, note: augment.note }));
 

@@ -33,23 +33,40 @@ The API loads `apps/api/.env` when present. The web app proxies `/api/*` to
 `BACKEND_URL` (default `http://127.0.0.1:4000`), keeping browser requests
 same-origin.
 
-### Experimental Vietnamese speech input
+### Vietnamese speech input (cloud STT with local fallback)
 
-Coach AI can use the local Sherpa-ONNX Vietnamese model instead of browser
-speech recognition. Download its model files before starting the API:
+Full voice reference — providers, env vars, error codes, measured latencies,
+and production notes: [docs/ai-assistant/voice.md](docs/ai-assistant/voice.md).
+
+Coach AI transcribes Vietnamese voice questions server-side. The API picks the
+first speech-to-text provider whose key is configured, in Vietnamese accuracy
+order:
+
+1. ElevenLabs Scribe — `ELEVENLABS_API_KEY` (model `scribe_v2`); best published
+   Vietnamese WER (~3%).
+2. OpenAI — `OPENAI_API_KEY` (model `gpt-4o-transcribe`).
+3. Groq — `GROQ_API_KEY` (model `whisper-large-v3-turbo`); cheapest (~$0.04 per
+   hour of audio) and fastest.
+4. Google Gemini — `GOOGLE_API_KEY`, reused from the assistant LLM provider, so
+   no extra signup.
+5. The local Sherpa-ONNX model as an offline fallback when no key is set:
 
 ```sh
 npm run download:sherpa-model --workspace @metaboard/api
 ```
 
-The API runs inference on its own machine; recorded speech is sent to that API
-and is not sent to a speech-recognition provider. Keep the API local if audio
-must remain on your device. The downloadable model is licensed
-CC-BY-NC-ND-4.0 and is for local non-commercial evaluation only; do not deploy
-it commercially without permission. English speech input continues to use the
+Set `STT_PROVIDER` to force one provider, `STT_LANGUAGE` to change the pinned
+language (default `vi`), and `STT_MAX_CONCURRENCY` to cap parallel cloud
+requests (default 4). The remaining tunables (`STT_*_MODEL`, `STT_OPENAI_BASE_URL`)
+are listed in `apps/api/.env.example`. English speech input continues to use the
 browser's speech-recognition service. Finishing a voice question submits it
 automatically; the corresponding Coach AI reply is then read aloud by the
 local VieNeu-TTS service when it is running.
+
+With a cloud provider, recordings are forwarded from the API to that provider;
+with `STT_PROVIDER=sherpa` audio stays on the API machine. The downloadable
+Sherpa model is licensed CC-BY-NC-ND-4.0 and is for local non-commercial
+evaluation only; commercial deployments should use a cloud provider.
 
 Curated legacy item names, trait synonyms, and shortened comp names live in
 `apps/api/src/assistant/entity-aliases.ts`. Add aliases there against canonical
@@ -60,8 +77,8 @@ Custom Coach AI aliases can be managed from **Admin → Aliases**. Select an
 entity, add an alternate name, and remove outdated aliases from the same page.
 These aliases are stored in PostgreSQL and loaded by the Coach AI catalog;
 the required tables are created automatically when needed and are also included in
-`apps/api/src/schema.sql`. The page also provides a microphone test using the
-configured Sherpa Vietnamese speech-recognition model; review or edit its
+`apps/api/src/schema.sql`. The page also provides a microphone test using the configured Vietnamese
+speech-to-text provider; review or edit its
 transcript and select **Use transcript as alias** to prefill the alias form.
 After each non-injection Coach AI query, a background entity-extraction pass
 checks for explicitly mentioned champion, item, trait, augment, and comp names
@@ -73,7 +90,17 @@ original user question is not stored. This background pass uses the configured
 local assistant model and does not delay the response; capture failures are
 logged by the API.
 
-### Experimental Coach AI speech output (VieNeu-TTS v3 Turbo)
+### Coach AI speech output (Gemini TTS with VieNeu fallback)
+
+Speech answers default to Google Gemini TTS (`gemini-3.8-flash-lite-tts`,
+`TTS_GEMINI_VOICE`, default `Charon`) when `GOOGLE_API_KEY` is set: it takes
+concurrent requests (a burst queues up to `TTS_QUEUE_WAIT_MS`, default 5 s,
+before returning `speech_busy`) and synthesizes in ~3 s. Set `TTS_MAX_CONCURRENCY`
+to cap parallel syntheses. On quota errors or outages the API automatically
+falls back to the local VieNeu engine; force one engine with
+`TTS_PROVIDER=gemini|vieneu`. The AI Studio free tier has low per-minute TTS
+quotas — enable billing on the Google project for production traffic.
+Full voice reference: [docs/ai-assistant/voice.md](docs/ai-assistant/voice.md).
 
 VieNeu runs as a separate local service; the API proxies speech requests to
 `http://127.0.0.1:8001` by default. Start it from a separate checkout of the
@@ -87,14 +114,30 @@ PORT=8001 uv run python -m apps.openai_speech
 ```
 
 The first start downloads and loads the model. VieNeu v3 Turbo runs on CPU via
-ONNX on macOS; it does not require a GPU. The API uses the built-in `Hải Đăng`
-voice by default, and the API connects to `http://127.0.0.1:8001` by default.
-Set `VIENEU_TTS_URL`, `VIENEU_TTS_API_KEY`, or `VIENEU_TTS_VOICE` in
-`apps/api/.env` only when you need to override those defaults, then restart the
-API. Voice replies from Coach AI are generated and played through VieNeu;
-Sherpa remains the speech-recognition engine. VieNeu model and preset voice
-licensing is declared Apache-2.0 by its authors. Generated audio is requested
-only for voice-triggered assistant replies.
+ONNX on macOS; it does not require a GPU, but a 500-character answer takes
+roughly 20 s to synthesize and holds the local engine the whole time, so it is
+a fallback rather than a production workhorse. The built-in `Hải Đăng` voice is
+used by default; override `VIENEU_TTS_URL`, `VIENEU_TTS_API_KEY`, or
+`VIENEU_TTS_VOICE` in `apps/api/.env` only when needed, then restart the API.
+VieNeu model and preset voice licensing is declared Apache-2.0 by its authors.
+Generated audio is requested only for voice-triggered assistant replies.
+
+### Accounts: email + Google sign-in
+
+Users can register with email + password or continue with Google. Email
+verification is currently skipped (`AUTH_REQUIRE_EMAIL_VERIFICATION`, default
+false): new registrations are auto-verified and signed in immediately. Set it to
+`true` at production launch to require the emailed verification link (sent via
+the mailer seam below). The API owns `users`, `user_sessions`, and `email_tokens`
+in Postgres; sessions are opaque tokens in an `mb_session` HttpOnly cookie
+(30 days). Verification links are sent through the mailer seam in
+`src/mailer.ts` — the default console mailer prints them to the API log, wire a
+real provider (Resend/SMTP) there for production. Google sign-in needs
+`GOOGLE_OAUTH_CLIENT_ID`/`SECRET` (redirect
+`<site>/api/auth/google/callback`); it links to an existing account when the
+Google email matches. Conversations created while signed in attach to the
+account, so Coach AI history follows the user across devices. See
+`apps/api/.env.example` for `AUTH_*` variables.
 
 ### Coach AI decision traces
 

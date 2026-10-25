@@ -98,7 +98,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
           <h1 className="font-display text-3xl font-bold tracking-tight text-fog">{itemName(item.name, lang)}</h1>
           <div className="flex flex-wrap gap-1.5">
             <Chip>{t.category}: {category}</Chip>
-            {stats ? <Chip>{stats.tier} tier</Chip> : null}
+            {stats ? <Chip>{stats.tier} Tier</Chip> : null}
           </div>
           {description ? <p className="text-sm leading-relaxed text-mist">{description}</p> : null}
         </div>

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import '../globals.css';
 import { Nav } from '@/components/nav';
+import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Footer } from '@/components/footer';
 import { patch } from '@/lib/data';
 import { HoverCardLayer } from '@/components/hover-card';
@@ -36,7 +37,8 @@ export default async function LangLayout({ children, params }: { children: React
     <html lang={lang}>
       <body className={`${inter.variable} ${display.variable} flex min-h-screen flex-col antialiased`}>
         <Nav lang={lang} patch={patch.version} />
-        <div className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col border-x border-line px-6 pt-6">
+        <div className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col border-x border-line px-6 pt-6 [&:has([data-assistant])_footer]:hidden">
+          <Breadcrumbs lang={lang} />
           <main className="flex-1">{children}</main>
           <Footer lang={lang} />
         </div>

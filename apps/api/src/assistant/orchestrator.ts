@@ -43,6 +43,72 @@ export class AssistantContextError extends Error {
   status = 400;
 }
 
+// The LLM answers with a JSON object whose first key is "answer". While the
+// provider streams raw JSON text, this wrapper decodes the "answer" string
+// value incrementally and forwards only its decoded content, so the client
+// sees the prose answer and never the JSON scaffolding. Incomplete escape
+// sequences stay buffered; if the model never emits the key, nothing streams
+// and the final response replaces whatever the client shows.
+function createAnswerFieldStreamer(onDelta: (chunk: string) => void): (chunk: string) => void {
+  const KEY = '"answer"';
+  const ESCAPES: Record<string, string> = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
+  let buffer = '';
+  let inValue = false;
+  let closed = false;
+
+  return (chunk) => {
+    if (closed) return;
+    buffer += chunk;
+    if (!inValue) {
+      const keyAt = buffer.indexOf(KEY);
+      if (keyAt === -1) {
+        if (buffer.length > KEY.length) buffer = buffer.slice(buffer.length - KEY.length + 1);
+        return;
+      }
+      buffer = buffer.slice(keyAt + KEY.length);
+      const colon = /^\s*:\s*"/.exec(buffer);
+      if (!colon) {
+        if (buffer.length > 16) buffer = buffer.slice(-16);
+        return;
+      }
+      buffer = buffer.slice(colon[0].length);
+      inValue = true;
+    }
+
+    let decoded = '';
+    let index = 0;
+    while (index < buffer.length) {
+      const char = buffer[index];
+      if (char === '\\') {
+        if (index + 1 >= buffer.length) break;
+        const next = buffer[index + 1];
+        if (next === 'u') {
+          if (index + 6 > buffer.length) break;
+          const code = Number.parseInt(buffer.slice(index + 2, index + 6), 16);
+          if (Number.isNaN(code)) {
+            closed = true;
+            break;
+          }
+          decoded += String.fromCharCode(code);
+          index += 6;
+          continue;
+        }
+        decoded += ESCAPES[next] ?? next;
+        index += 2;
+        continue;
+      }
+      if (char === '"') {
+        closed = true;
+        break;
+      }
+      decoded += char;
+      index += 1;
+    }
+    buffer = buffer.slice(index);
+    if (decoded) onDelta(decoded);
+  };
+}
+
 const SIMPLE_INTENTS: AssistantIntent[] = ['entity_lookup', 'comp_search', 'gameplay_knowledge'];
 const COMP_WORD = /\b(comp|comps|doi hinh|team|build|composition)\b/;
 const RECOMMEND_WORD = /\b(tim|find|recommend|goi y|phu hop|nen choi|choi gi|item nao|trang bi nao|which items?|what items?|best|strongest|manh nhat|tot nhat|easiest|de choi|don gian|build|meta)\b/;
@@ -619,6 +685,37 @@ export function isPromptInjection(text: string): boolean {
   return PROMPT_INJECTION.some((pattern) => pattern.test(normalized) || pattern.test(text));
 }
 
+// Short in-character replies for greetings and questions about Tomo himself.
+// The greeting branch only fires on short messages, so "chào bạn, đội hình nào
+// mạnh nhất?" still flows into the normal intent pipeline and the LLM greets
+// back from its system persona.
+const GREETING_WORD = /^(chao|xin chao|hello|hi|hey|halo|alo|yo|helo|good morning|good evening)\b/;
+const PERSONA_WORD =
+  /\b(ban la ai|ban la gi|tomo la ai|tomo la gi|ban ten gi|ten ban la gi|gioi thieu ve ban|gioi thieu ban|who are you|what are you|introduce yourself|your name)\b/;
+const CAPABILITY_WORD =
+  /\b(ban lam duoc gi|lam duoc gi|ban giup duoc gi|giup gi|ho tro gi|ban ho tro gi|what can you do|what do you do|how can you help)\b/;
+
+export function tomoPersonaReply(text: string, lang: Lang): string | null {
+  const vi = lang === 'vi';
+  const normalized = normalizeSpaced(text);
+  if (GREETING_WORD.test(normalized) && normalized.split(' ').filter(Boolean).length <= 5) {
+    return vi
+      ? 'Chào bạn! Mình là Tomo 🤖 — trợ lý AI của MetaBoard. Mình đọc dữ liệu Mùa 18 để gợi ý đội hình, cách lên đồ và nâng cấp; hỏi mình câu đầu tiên đi!'
+      : "Hi! I'm Tomo 🤖 — MetaBoard's AI assistant. I read live Set 18 data to suggest comps, builds and augments; fire away with your first question!";
+  }
+  if (PERSONA_WORD.test(normalized)) {
+    return vi
+      ? 'Mình là Tomo — chú drone nhỏ đậu góc phải trên màn hình, và là trợ lý AI của MetaBoard. Mình trả lời dựa trên dữ liệu TFT Mùa 18: tướng, trang bị, nâng cấp, đội hình và kinh tế; chỗ nào chưa chắc mình sẽ nói rõ. Bấm vào mình cũng ra biểu cảm đấy!'
+      : "I'm Tomo — the little drone perched in the top-right corner, and MetaBoard's AI assistant. I answer from current Set 18 TFT data (champions, items, augments, comps, economy) and flag whatever I can't verify. Boop me for a reaction!";
+  }
+  if (CAPABILITY_WORD.test(normalized)) {
+    return vi
+      ? 'Mình giúp được: gợi ý đội hình theo tướng/trang bị/nâng cấp bạn đang có, tra cứu tướng & trang bị, so sánh hai comp, kế hoạch kinh tế và cơ chế Mùa 18. Hỏi thẳng luôn nhé!'
+      : 'I can suggest comps from the champions, items or augments you have, look up units and items, compare two comps, plan your economy and explain Set 18 mechanics. Just ask!';
+  }
+  return null;
+}
+
 export function detectIntent(text: string, entities: CatalogEntity[], comps: CompData[], setId?: string): AssistantIntent {
   const hasCompare = /\b(so sanh|compare|versus|vs|khac nhau|difference)\b/.test(text);
   const hasMeta = /\b(win ?rate|winrate|top ?4|top4|avg|average|placement|thong ke|ti le thang|ty le thang)\b/.test(text);
@@ -667,7 +764,13 @@ export function detectIntent(text: string, entities: CatalogEntity[], comps: Com
 export async function answerAssistant(
   request: AssistantRequest,
   signal: AbortSignal,
-  deps: { generate?: typeof generateAssistantAnswer; logReasoningStep?: ReasoningLogWriter } = {}
+  deps: {
+    generate?: typeof generateAssistantAnswer;
+    logReasoningStep?: ReasoningLogWriter;
+    // Streaming hook: receives decoded prose of the LLM answer field as it
+    // generates. Deterministic paths never call it.
+    onAnswerDelta?: (chunk: string) => void;
+  } = {}
 ): Promise<Omit<AssistantResponse, 'requestId'>> {
   const generate = deps.generate ?? generateAssistantAnswer;
   const logReasoningStep = deps.logReasoningStep ?? (() => {});
@@ -718,6 +821,31 @@ export async function answerAssistant(
       answer: isVi(request.lang)
         ? 'Mình không thể tiết lộ system prompt hoặc bỏ qua hướng dẫn hệ thống. Mình chỉ hỗ trợ câu hỏi về TFT.'
         : "I can't reveal the system prompt or ignore my instructions. I can help with TFT questions.",
+      intent: 'unsupported_or_unknown',
+      mode: 'deterministic',
+      resolvedContext: { setId: meta.setId, patchId: meta.patch, lang: request.lang, entities: [] },
+      recommendations: [],
+      sections: [],
+      sources: [],
+      limitations: [],
+      followUpQuestions: [],
+      status: 'answered',
+    };
+  }
+
+  const personaReply = tomoPersonaReply(request.message, request.lang);
+  if (personaReply) {
+    logReasoningStep({
+      step: 'intent_detection',
+      intent: 'unsupported_or_unknown',
+      mode: 'deterministic',
+      status: 'answered',
+      inputSummary: summarizeReasoningText(request.message),
+      details: { persona: true },
+    });
+    return {
+      conversationId: request.conversationId,
+      answer: personaReply,
       intent: 'unsupported_or_unknown',
       mode: 'deterministic',
       resolvedContext: { setId: meta.setId, patchId: meta.patch, lang: request.lang, entities: [] },
@@ -1244,6 +1372,7 @@ export async function answerAssistant(
     let result = toolFinal;
     if (!result || !parseGeneratedAnswer(result.text)) {
       const llmStart = Date.now();
+      const onDelta = deps.onAnswerDelta;
       result = await withInferenceSlot(() =>
         generate({
           system: buildSystemPrompt(request.lang, evidence),
@@ -1254,6 +1383,7 @@ export async function answerAssistant(
           ],
           maxOutputTokens: 800,
           signal,
+          ...(onDelta ? { onDelta: createAnswerFieldStreamer(onDelta) } : {}),
         })
       );
       logReasoningStep({
@@ -1285,7 +1415,7 @@ export async function answerAssistant(
         outputSummary: summarizeReasoningText(referenceAnswer || deterministic.answer),
         details: { reason: 'invalid_llm_answer' },
       });
-      assistantLog('invalid_answer', { length: result.text.length });
+      assistantLog('invalid_answer', { length: result.text.length, sample: summarizeReasoningText(result.text, 300) });
       return {
         ...base,
         answer: referenceAnswer || deterministic.answer,

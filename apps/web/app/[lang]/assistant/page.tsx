@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { AssistantChat } from '@/components/assistant/assistant-chat';
-import { PatchBar } from '@/components/patch-bar';
-import { DisplayTitle } from '@/components/ui';
+import { TomoSprite } from '@/components/assistant/tomo';
 import type { ApiComp } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import type { Lang } from '@/lib/i18n';
@@ -27,9 +26,14 @@ export default async function AssistantPage({
   const t = messages[lang].assistant;
 
   return (
-    <div className="flex flex-col gap-6">
-      <PatchBar lang={lang} />
-      <DisplayTitle small={t.small} big={t.big} sub={t.sub} />
+    <div data-assistant className="flex flex-col gap-4">
+      <aside className="flex items-center gap-3 rounded-xl border border-line bg-panel px-4 py-3">
+        <TomoSprite size={40} />
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-fog">{t.introName}</p>
+          <p className="text-xs leading-relaxed text-mist">{t.intro}</p>
+        </div>
+      </aside>
       <AssistantChat lang={lang} compSlug={comp ? compSlug : null} compTitle={comp?.title ?? null} />
     </div>
   );
