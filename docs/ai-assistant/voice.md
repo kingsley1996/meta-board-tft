@@ -22,7 +22,7 @@
           │
           ▼
 ┌─ API (apps/api/src/voice.ts) ───────────────────────────────────────────┐
-│  STT: elevenlabs → openai → groq → gemini → sherpa (auto theo key)      │
+│  STT failover: deepgram → groq → elevenlabs → openai → gemini           │
 │  TTS: engine VieNeu — bản local port 8001 hoặc cloud api.vieneu.io      │
 │  tối đa 2 request song song; audio trả về đúng Content-Type engine      │
 │  (wav/mp3/pcm/opus); lỗi/timeout → 429/503 để client fallback           │
@@ -47,21 +47,36 @@ Cấu hình STT qua biến môi trường trong `apps/api/.env` (mẫu đầy đ
 
 ## 2. STT — nhận dạng giọng nói tiếng Việt
 
-### 2.1 Provider và thứ tự ưu tiên
+### 2.1 Provider và chuỗi failover
 
-Khi không đặt `STT_PROVIDER`, API tự chọn provider đầu tiên có key, theo thứ tự
-chất lượng tiếng Việt:
+Khi không đặt `STT_PROVIDER`, API dựng danh sách provider **có key** theo thứ tự
+đã đo (xem `apps/api/scripts/stt-bench.mjs`) và đi hết danh sách đó cho mỗi lượt
+nói, thay vì chỉ thử một provider:
 
 | # | Provider | Key | Model mặc định | Ghi chú |
 | --- | --- | --- | --- | --- |
-| 1 | ElevenLabs Scribe | `ELEVENLABS_API_KEY` | `scribe_v2` | WER tiếng Việt tốt nhất (~3.1%), ~$0.40/giờ audio |
-| 2 | OpenAI | `OPENAI_API_KEY` | `gpt-4o-transcribe` | Hỗ trợ `STT_OPENAI_BASE_URL` cho gateway khác |
-| 3 | Groq | `GROQ_API_KEY` | `whisper-large-v3-turbo` | Nhanh nhất (<1 s), rẻ nhất (~$0.04/giờ) |
-| 4 | Google Gemini | `GOOGLE_API_KEY` | `gemini-3.1-flash-lite` | Dùng lại key LLM sẵn có; latency 2–7 s, dao động |
-| 5 | Sherpa-ONNX local | — (cần model) | Zipformer-30M int8 | Offline, audio không rời máy; **license CC-BY-NC-ND-4.0 — cấm deploy thương mại** |
+| 1 | Deepgram | `DEEPGRAM_API_KEY` | `nova-3` | WER tiếng Việt tốt nhất (0.063 trên clip 14 s), không thấy trần quota khi đo; tính tiền theo phút audio |
+| 2 | Groq | `GROQ_API_KEY` | `whisper-large-v3-turbo` | Fast tier miễn phí, trả lời nhanh nhất; free tier 20 request/phút |
+| 3 | ElevenLabs Scribe | `ELEVENLABS_API_KEY` | `scribe_v2` | WER tốt nhưng ~$0.40/giờ audio |
+| 4 | OpenAI | `OPENAI_API_KEY` | `gpt-4o-transcribe` | Hỗ trợ `STT_OPENAI_BASE_URL` cho gateway khác |
+| 5 | Google Gemini | `GOOGLE_API_KEY` | `gemini-3.1-flash-lite` | Dùng lại key LLM; free tier RPM thấp và **tự sửa lời nói** (đổi đại từ) — để cuối |
+| — | OpenRouter | `OPENROUTER_API_KEY` | `openai/whisper-large-v3-turbo` | **Không tự vào chain**: cùng key với LLM nhưng endpoint audio cần số dư riêng ($0.50) → luôn 402. Đặt `STT_PROVIDER=openrouter` khi đã nạp tiền |
 
-Đặt `STT_PROVIDER=elevenlabs|openai|groq|gemini|sherpa` để ép chọn (ép provider
-không có key → endpoint báo `stt_not_configured`).
+Cơ chế failover (`transcribeWithFailover` trong `apps/api/src/voice.ts`):
+
+- Provider trả **429** → được cho vào thời gian chờ `STT_BUSY_COOLDOWN_MS` (mặc
+  định 30 s, tôn trọng header `Retry-After` nếu ngắn hơn trần đó) rồi chuyển
+  sang provider kế tiếp ngay trong cùng lượt nói.
+- Provider trả **401/402/403** (key sai, hết tiền, bị chặn) → chờ cố định 60 s;
+  lỗi kiểu này không tự hết nên không thử lại mỗi lượt.
+- Toàn bộ provider đang chờ → `429 transcription_busy` cho client, và client
+  hint người dùng thử lại sau. Không còn đường offline nào: hết key cloud là hết STT.
+- Đặt `STT_PROVIDER=deepgram|groq|elevenlabs|openai|gemini|openrouter`
+  để ép một provider (ép provider không có key → `stt_not_configured`).
+- `GET /api/voice/status` trả `providers: [{ provider, coolingDown }]` để nhìn
+  thấy cả chain và vendor nào đang chờ; `provider` là đầu chain.
+- Response của `/transcribe` kèm header `X-STT-Provider` cho biết vendor nào
+  thực sự trả lời lượt đó.
 
 ### 2.2 Ràng buộc dữ liệu gửi lên `/api/voice/transcribe`
 
@@ -73,15 +88,26 @@ không có key → endpoint báo `stt_not_configured`).
 
 ### 2.3 Độ trễ đo thực tế
 
-| Provider | Latency (câu ~7 giây) | Ghi chú |
-| --- | --- | --- |
-| Gemini 3.1-flash-lite | 2.3–3.5 s, có lúc tới 30 s khi gọi dồn dập | Ổn định vừa; dùng được ngay không cần đăng ký |
-| (khuyến nghị prod) Groq / ElevenLabs | < 1 s | Chỉ cần thêm key, không đổi code |
+Qua `POST /api/voice/transcribe` trên máy dev, audio 3.0 s tổng hợp bằng VieNeu
+local (26-10-2026):
 
-Chất lượng: câu tiếng Việt thông thường Gemini nhận gần đúng hoàn toàn; lỗi chỉ
-xảy ra ở **tên riêng** ("Rengar" → "Gengar"). Hệ thống **Admin → Aliases** (có
+| Provider | Latency | Kết quả |
+| --- | --- | --- |
+| Deepgram nova-3 | 1.32 s | Đúng nội dung, chỉ sai một âm do chính TTS phát ("bản" → "bàn") |
+| Groq whisper-large-v3-turbo | 0.61 s | Được kích hoạt bằng cách giả lập Deepgram trả 429 — xác nhận failover chạy thật |
+| Gemini 3.1-flash-lite | 2.3–3.5 s, có lúc tới 30 s khi gọi dồn dập | 429 ở ~17 request/phút và tự sửa đại từ; chỉ còn là lựa chọn cuối |
+
+Chất lượng: câu tiếng Việt thông thường các provider nhận gần đúng hoàn toàn; lỗi
+chỉ xảy ra ở **tên riêng** ("Rengar" → "Gengar"). Hệ thống **Admin → Aliases** (có
 mic test) sinh ra để map các lỗi này — thêm tên nhận sai làm alias của entity
 đúng là cách xử lý chuẩn.
+
+Đo lại bất kỳ lúc nào bằng:
+
+```bash
+cd apps/api && node --env-file-if-exists=.env scripts/stt-bench.mjs        # 12 request/provider
+cd apps/api && node --env-file-if-exists=.env scripts/stt-bench.mjs --load # burst tìm trần 429
+```
 
 ---
 
@@ -187,8 +213,8 @@ xếp sau bằng giọng mặc định của utterance đầu. Nếu trình duy�
 
 | Endpoint | Method | Input | Output |
 | --- | --- | --- | --- |
-| `/api/voice/status` | GET | — | `{ available, provider }` — provider STT đang chọn |
-| `/api/voice/transcribe` | POST | Float32 LE mono 16 kHz + `X-Sample-Rate: 16000` | `{ text }` |
+| `/api/voice/status` | GET | — | `{ available, provider, providers: [{ provider, coolingDown }] }` — chain STT và vendor nào đang chờ |
+| `/api/voice/transcribe` | POST | Float32 LE mono 16 kHz + `X-Sample-Rate: 16000` | `{ text }` + header `X-STT-Provider` (vendor đã trả lời) |
 | `/api/voice/tts/status` | GET | — | `{ available, provider: 'vieneu', voice, maxChars }` (+ `reason` ở chế độ dev) |
 | `/api/voice/tts/speech` | POST | JSON `{ input, voice }`, `input` ≤ `maxChars` | Audio nguyên Content-Type từ engine (`audio/wav` 48 kHz mono mặc định), `Cache-Control: no-store` |
 
@@ -199,9 +225,9 @@ xếp sau bằng giọng mặc định của utterance đầu. Nếu trình duy�
 | 400 | `invalid_audio` / `unsupported_sample_rate` | Body/rate sai | `voiceError` |
 | 413 | `audio_too_long` | > 60 giây | `voiceTooLong` |
 | 422 | `no_speech` | Im lặng / không nhận ra chữ | `voiceNoSpeech` |
-| 429 | `transcription_busy` | Hết slot | `voiceBusy` |
+| 429 | `transcription_busy` | Hết slot, hoặc **mọi** provider đang trong thời gian chờ sau khi trả 429 | `voiceBusy` |
 | 503 | `stt_not_configured` | Không provider khả dụng | `voiceSttUnavailable` |
-| 502 | `transcription_failed` | Provider lỗi/timeout | `voiceSttError` |
+| 502 | `transcription_failed` | Mọi provider trong chain đều lỗi/timeout ở lượt đó | `voiceSttError` |
 
 Lỗi phía đọc câu trả lời khi rớt sang Web Speech (không qua API): client hiện
 `voiceSpeechUnsupported` (không có giọng/không hỗ trợ), `voiceSpeechError`
@@ -234,16 +260,19 @@ bằng Web Speech (tránh lẫn hai giọng trong một câu) mà hiện `voiceS
 
 | Biến | Mặc định | Ý nghĩa |
 | --- | --- | --- |
-| `STT_PROVIDER` | auto (`elevenlabs → openai → groq → gemini → sherpa`) | Ép chọn provider |
+| `STT_PROVIDER` | auto (`deepgram → groq → elevenlabs → openai → gemini`) | Ép một provider; ép provider không có key → `stt_not_configured` |
 | `STT_LANGUAGE` | `vi` | Ngôn ngữ ghim cho provider cloud |
-| `STT_MAX_CONCURRENCY` | `4` | Số request song song (sherpa luôn là 1) |
-| `ELEVENLABS_API_KEY` / `GROQ_API_KEY` / `OPENAI_API_KEY` | — | Key provider tương ứng |
-| `STT_ELEVENLABS_MODEL` | `scribe_v2` | |
+| `STT_MAX_CONCURRENCY` | `4` | Số request song song lên cloud |
+| `STT_BUSY_COOLDOWN_MS` | `30000` | Thời gian bỏ qua một provider vừa trả 429; `Retry-After` được tôn trọng trong trần 1 s – 10 phút |
+| `STT_CHAIN_BUDGET_MS` | `45000` | Tổng thời gian cho một lượt đi hết chain; hết ngân sách thì dừng ở provider đang gọi và trả `transcription_failed` |
+| `DEEPGRAM_API_KEY` / `GROQ_API_KEY` / `ELEVENLABS_API_KEY` / `OPENAI_API_KEY` / `OPENROUTER_API_KEY` | — | Key provider tương ứng |
+| `STT_DEEPGRAM_MODEL` | `nova-3` | |
 | `STT_GROQ_MODEL` | `whisper-large-v3-turbo` | |
+| `STT_ELEVENLABS_MODEL` | `scribe_v2` | |
 | `STT_OPENAI_MODEL` | `gpt-4o-transcribe` | |
 | `STT_OPENAI_BASE_URL` | `OPENAI_BASE_URL` hoặc OpenAI API | Gateway khác |
+| `STT_OPENROUTER_MODEL` | `openai/whisper-large-v3-turbo` | |
 | `STT_GEMINI_MODEL` | `gemini-3.1-flash-lite` | |
-| `SHERPA_ASR_MODEL_DIR` | `apps/api/models/sherpa-vi` | Chỉ dùng khi fallback Sherpa |
 
 ### 5.2 TTS (VieNeu local hoặc cloud)
 
@@ -279,34 +308,41 @@ OpenAI-compatible `/v1/audio/speech`; chuyển local ↔ cloud chỉ là đổi
 
 ## 6. Vận hành production
 
-1. **STT dùng key AI Studio free-tier có RPM rất thấp** (burst vài request đã
-   thấy 429). Bật billing cho Google project hoặc dùng Groq/ElevenLabs.
-2. **Muốn STT < 1 s và rẻ nhất:** thêm `GROQ_API_KEY` (~$0.04/giờ audio).
-   Muốn WER tiếng Việt tốt nhất: `ELEVENLABS_API_KEY`. Không đổi code — chỉ
-   thêm key theo đúng thứ tự ưu tiên.
-3. **Quy mô:** STT cloud scale ngang theo phía nhà cung cấp; Sherpa local chỉ
-   dành cho single-user dev.
-4. **Quyền riêng tư:** audio được forward từ API tới provider STT cloud. Muốn
-   giữ audio tại máy: `STT_PROVIDER=sherpa`. Nội dung câu trả lời khi đọc không
-   rời trình duyệt (trừ khi hệ điều hành dùng giọng tổng hợp qua mạng, tùy máy).
-5. **License:** model Sherpa là CC-BY-NC-ND-4.0 — không dùng thương mại.
-6. **TTS cần một engine:** VieNeu chạy local (cổng 8001) hoặc VieNeu cloud
+1. **STT mặc định là Deepgram nova-3, Groq đứng sau.** Trước đây chuỗi chỉ có
+   key AI Studio free-tier (RPM ~10–17) nên người dùng gặp 429 rất thường. Bây giờ
+   429 không còn là lỗi hiển thị với user: provider bị cho nghỉ tạm rồi chuyển
+   provider kế tiếp trong cùng lượt nói. Muốn không đốt phí: xoá `DEEPGRAM_API_KEY`
+   thì Groq (free tier) trở thành provider chính.
+2. **Chi phí/nhân rộng STT.** Groq free tier: 20 request/phút, 2.000 request/ngày,
+   7.200 s audio/giờ — đủ cho giai đoạn đầu, vượt ngưỡng thì failover tự động
+   sang Deepgram (và ngược lại). Thêm key vào `.env` là đủ, không đổi code.
+   `GET /api/voice/status` cho biết chain hiện có những vendor nào và ai đang
+   `coolingDown`.
+3. **STT chỉ còn đường cloud.** Bản Sherpa local đã rời stack: model ~29 MB
+   không sống nổi trên disk ephemeral của host API, và license CC-BY-NC-ND-4.0
+   của nó cấm deploy thương mại. Không có key STT nào thì `/transcribe` trả 503
+   `stt_not_configured`, client biết sớm nhờ `GET /api/voice/status`
+   (`available: false`) và ẩn nút mic thay vì để người dùng nói xong mới hỏng.
+4. **Quyền riêng tư:** audio luôn được forward từ API tới một provider STT cloud.
+   Nội dung câu trả lời khi đọc không rời trình duyệt (trừ khi hệ điều hành dùng
+   giọng tổng hợp qua mạng, tùy máy).
+5. **TTS cần một engine:** VieNeu chạy local (cổng 8001) hoặc VieNeu cloud
    (`VIENEU_TTS_URL=https://api.vieneu.io/api` + key). Không engine nào thì hệ
    thống vẫn hoạt động — `/tts/status` báo `available: false` và client đọc bằng
    Web Speech — nhưng chất lượng giọng lại phụ thuộc máy người dùng. Muốn giọng
    Việt đồng nhất trên mọi máy thì phải chỉ định `VIENEU_TTS_VOICE` thống nhất.
-7. **Tải TTS — số đo thực tế trên CPU (Mac M2, ONNX fp32, RTF 2.75–2.93×):** một
+6. **Tải TTS — số đo thực tế trên CPU (Mac M2, ONNX fp32, RTF 2.75–2.93×):** một
    câu trả lời ~450 ký tự = 3 chunk ≈ 6.5–9.5 s thời gian engine ≈ **6–9 câu/phút
    cho một instance**, và chỉ ~2 người nghe cùng lúc (`TTS_MAX_CONCURRENCY=2` chỉ
    bảo vệ engine, không tăng thông lượng). Nhiều user thì cần thêm instance/GPU
    (VieNeu GPU mặc định 16 stream), không phải chỉnh biến môi trường.
-8. **Chọn engine theo chi phí.** Cloud tính theo ký tự (~487 đ/1.000 ký tự với
+7. **Chọn engine theo chi phí.** Cloud tính theo ký tự (~487 đ/1.000 ký tự với
    `vieneu-v4`; hệ số 1.3 toàn cục), tương đương **~$0.01 cho một câu trả lời**
    và không có chi phí cố định — rẻ nhất ở quy mô hiện tại (free tier
    10.000 token/ngày). Self-host GPU (A5000 ~$0.27/giờ ≈ $195/tháng) chỉ hòa vốn
    từ ~21.000 câu trả lời/tháng. Không deploy Cloud Run scale-to-zero cho VieNeu:
    cold start đo được ~9.6 s, buộc phải giữ min-instances ≈ $490/tháng.
-9. **Quyền riêng tư TTS:** text câu trả lời đi từ trình duyệt → API → engine. Với
+8. **Quyền riêng tư TTS:** text câu trả lời đi từ trình duyệt → API → engine. Với
    VieNeu local nó không rời máy/cụm máy của mình; với cloud nó được gửi tới
    `api.vieneu.io`. Web Speech mới là đường có thể dùng giọng tổng hợp qua mạng,
    tùy hệ điều hành.
@@ -354,8 +390,14 @@ dev) — phân biệt được "engine chưa bật" (`tts_unavailable`) với "k
 
 ## 7. Việc đã biết / hướng tiếp theo
 
-- **STT Gemini latency dao động** (2–7 s, có lúc 30 s khi dồn dập): nếu thấy
-  chậm, thêm `GROQ_API_KEY` — mọi thứ còn lại giữ nguyên.
+- **Gemini không còn đứng đầu chain STT** vì hai lý do đo được: free tier 429 ở
+  ~17 request/phút và model "sửa lời nói" (đổi đại từ nó cho là hợp lý). Nó nằm
+  cuối chain, dùng lại `GOOGLE_API_KEY` của LLM; muốn loại hẳn thì xoá key hoặc
+  pin `STT_PROVIDER`.
+- **Benchmark STT** (`apps/api/scripts/stt-bench.mjs`) tự tổng hợp audio bằng
+  VieNeu local nên không tốn phí TTS, nhưng **mặc định nó bắn ~12 request/provider
+  vào cloud** (Deepgram tính tiền, Groq/Gemini ăn quota free). Chạy nó chỉ khi có
+  mục đích đo lại; muốn thử một provider thì pin `STT_PROVIDER` và giới hạn corpus.
 - **Electron/embedded browser không có TTS backend** (vd trình duyệt trong app
   Qoder): engine server (wav + `<audio>`) vẫn chạy được, nhưng nếu VieNeu tắt thì
   `speechSynthesis` có API mà `speak()` không bao giờ bắn `start`/`end`, nên

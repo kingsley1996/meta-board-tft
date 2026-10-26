@@ -68,7 +68,7 @@ type SpeechRecognitionWindow = Window & {
   webkitSpeechRecognition?: new () => SpeechRecognitionLike;
 };
 
-type SherpaVoiceSession = {
+type VoiceSession = {
   stream: MediaStream;
   audioContext: AudioContext;
   source: MediaStreamAudioSourceNode;
@@ -91,7 +91,7 @@ function chunkLimitFrom(value: unknown): number {
   return Math.min(parsed, 400);
 }
 
-function closeSherpaSession(session: SherpaVoiceSession): Promise<void> {
+function closeVoiceSession(session: VoiceSession): Promise<void> {
   session.processor.port.onmessage = null;
   session.processor.disconnect();
   session.source.disconnect();
@@ -160,7 +160,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const [tomoCue, setTomoCue] = useState<TomoCue | null>(null);
 
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
-  const sherpaSessionRef = useRef<SherpaVoiceSession | null>(null);
+  const voiceSessionRef = useRef<VoiceSession | null>(null);
   // Speech callbacks outlive the request that created them; the sequence token
   // lets a stopped or superseded playback ignore its own late events.
   const speechSeqRef = useRef(0);
@@ -234,9 +234,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       autoSubmitVoiceRef.current = false;
       speechSeqRef.current += 1;
       recognitionRef.current?.stop();
-      const session = sherpaSessionRef.current;
-      sherpaSessionRef.current = null;
-      if (session) void closeSherpaSession(session).catch((caught: unknown) => console.error('Could not close Sherpa audio session', caught));
+      const session = voiceSessionRef.current;
+      voiceSessionRef.current = null;
+      if (session) void closeVoiceSession(session).catch((caught: unknown) => console.error('Could not close audio capture session', caught));
       ttsAbortRef.current?.abort();
       ttsAbortRef.current = null;
       audioRef.current?.pause();
@@ -638,7 +638,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     submitRef.current = submit;
   });
 
-  async function startSherpaVoiceInput() {
+  async function startVoiceInput() {
     if (
       !navigator.mediaDevices?.getUserMedia ||
       !window.AudioContext ||
@@ -680,7 +680,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         numberOfOutputs: 1,
         outputChannelCount: [1],
       });
-      const session: SherpaVoiceSession = {
+      const session: VoiceSession = {
         stream,
         audioContext,
         source,
@@ -704,7 +704,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       };
       source.connect(processor);
       processor.connect(audioContext.destination);
-      sherpaSessionRef.current = session;
+      voiceSessionRef.current = session;
       setListening(true);
     } catch (caught) {
       stream?.getTracks().forEach((track) => track.stop());
@@ -723,14 +723,14 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     }
   }
 
-  async function stopSherpaVoiceInput() {
-    const session = sherpaSessionRef.current;
+  async function stopVoiceInput() {
+    const session = voiceSessionRef.current;
     if (!session) return;
-    sherpaSessionRef.current = null;
+    voiceSessionRef.current = null;
     setListening(false);
     setVoiceTranscribing(true);
     try {
-      await closeSherpaSession(session);
+      await closeVoiceSession(session);
       if (session.tooLong) {
         setVoiceError(t.voiceTooLong);
         return;
@@ -792,17 +792,17 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       setVoiceTranscribing(false);
       await submitRef.current?.(question, true, true);
     } catch (caught) {
-      console.error('Sherpa transcription failed', caught);
+      console.error('Voice transcription failed', caught);
       setVoiceError(t.voiceSttError);
     } finally {
       setVoiceTranscribing(false);
     }
   }
 
-  function cancelSherpaVoiceInput() {
-    const session = sherpaSessionRef.current;
-    sherpaSessionRef.current = null;
-    if (session) void closeSherpaSession(session).catch((caught: unknown) => console.error('Could not close Sherpa audio session', caught));
+  function cancelVoiceInput() {
+    const session = voiceSessionRef.current;
+    voiceSessionRef.current = null;
+    if (session) void closeVoiceSession(session).catch((caught: unknown) => console.error('Could not close audio capture session', caught));
     setListening(false);
   }
 
@@ -811,8 +811,8 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     // can be read aloud later on browsers that require an activation.
     primeSpeechSynthesis(window.speechSynthesis);
     if (lang === 'vi') {
-      if (sherpaSessionRef.current) void stopSherpaVoiceInput();
-      else if (!voiceStarting && !voiceTranscribing) void startSherpaVoiceInput();
+      if (voiceSessionRef.current) void stopVoiceInput();
+      else if (!voiceStarting && !voiceTranscribing) void startVoiceInput();
       return;
     }
     if (recognitionRef.current) {
@@ -921,7 +921,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     stopAnswerSpeech();
     autoSubmitVoiceRef.current = false;
     recognitionRef.current?.stop();
-    cancelSherpaVoiceInput();
+    cancelVoiceInput();
     setMessages([]);
     setConversationId(undefined);
     setInput('');

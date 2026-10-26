@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import {
+  clearSttCooldowns,
   clearTtsFaults,
-  resolveSttProvider,
+  sttProviderCandidates,
+  sttProviderStatus,
   synthVieneuChunk,
+  transcribeWithFailover,
   ttsChunkCharacters,
   ttsFault,
   ttsFormat,
@@ -22,6 +25,13 @@ function envWith(overrides: Record<string, string | undefined>): NodeJS.ProcessE
   for (const key of [
     'STT_PROVIDER',
     'STT_LANGUAGE',
+    'STT_BUSY_COOLDOWN_MS',
+    'STT_CHAIN_BUDGET_MS',
+    'STT_DEEPGRAM_MODEL',
+    'STT_GROQ_MODEL',
+    'STT_OPENROUTER_MODEL',
+    'DEEPGRAM_API_KEY',
+    'OPENROUTER_API_KEY',
     'ELEVENLABS_API_KEY',
     'OPENAI_API_KEY',
     'GROQ_API_KEY',
@@ -45,6 +55,7 @@ function envWith(overrides: Record<string, string | undefined>): NodeJS.ProcessE
 afterEach(() => {
   process.env = { ...baseEnv };
   clearTtsFaults();
+  clearSttCooldowns();
 });
 
 describe('encodeWavPcm16', () => {
@@ -70,24 +81,32 @@ describe('encodeWavPcm16', () => {
   });
 });
 
-describe('resolveSttProvider', () => {
-  it('falls back to sherpa when no cloud key is set', () => {
-    assert.equal(resolveSttProvider(envWith({})), 'sherpa');
+describe('sttProviderCandidates', () => {
+  it('has no plan at all when no cloud key is configured', () => {
+    assert.deepEqual(sttProviderCandidates(envWith({})), []);
   });
 
-  it('auto-picks the first configured cloud provider by accuracy order', () => {
-    assert.equal(resolveSttProvider(envWith({ ELEVENLABS_API_KEY: 'k', GOOGLE_API_KEY: 'k' })), 'elevenlabs');
-    assert.equal(resolveSttProvider(envWith({ OPENAI_API_KEY: 'k', GOOGLE_API_KEY: 'k' })), 'openai');
-    assert.equal(resolveSttProvider(envWith({ GROQ_API_KEY: 'k', GOOGLE_API_KEY: 'k' })), 'groq');
-    assert.equal(resolveSttProvider(envWith({ GOOGLE_API_KEY: 'k' })), 'gemini');
+  it('builds the chain in the measured failover order', () => {
+    assert.deepEqual(
+      sttProviderCandidates(
+        envWith({ DEEPGRAM_API_KEY: 'k', GROQ_API_KEY: 'k', OPENAI_API_KEY: 'k', GOOGLE_API_KEY: 'k' })
+      ),
+      ['deepgram', 'groq', 'openai', 'gemini']
+    );
   });
 
-  it('honors an explicit STT_PROVIDER only when its key is configured', () => {
-    assert.equal(resolveSttProvider(envWith({ STT_PROVIDER: 'gemini', GOOGLE_API_KEY: 'k' })), 'gemini');
-    assert.equal(resolveSttProvider(envWith({ STT_PROVIDER: 'gemini' })), null);
-    assert.equal(resolveSttProvider(envWith({ STT_PROVIDER: 'groq', GOOGLE_API_KEY: 'k' })), null);
-    assert.equal(resolveSttProvider(envWith({ STT_PROVIDER: 'sherpa', GOOGLE_API_KEY: 'k' })), 'sherpa');
-    assert.equal(resolveSttProvider(envWith({ STT_PROVIDER: 'unknown', GOOGLE_API_KEY: 'k' })), null);
+  it('keeps OpenRouter out of the chain until it is asked for by name', () => {
+    assert.deepEqual(sttProviderCandidates(envWith({ OPENROUTER_API_KEY: 'k', GROQ_API_KEY: 'k' })), ['groq']);
+    assert.deepEqual(sttProviderCandidates(envWith({ STT_PROVIDER: 'openrouter', OPENROUTER_API_KEY: 'k' })), [
+      'openrouter',
+    ]);
+  });
+
+  it('treats a pin with no key as unconfigured instead of falling back', () => {
+    assert.deepEqual(sttProviderCandidates(envWith({ STT_PROVIDER: 'groq', GOOGLE_API_KEY: 'k' })), []);
+    assert.deepEqual(sttProviderCandidates(envWith({ STT_PROVIDER: 'gemini', GOOGLE_API_KEY: 'k' })), ['gemini']);
+    assert.deepEqual(sttProviderCandidates(envWith({ STT_PROVIDER: 'sherpa', GROQ_API_KEY: 'k' })), []);
+    assert.deepEqual(sttProviderCandidates(envWith({ STT_PROVIDER: 'unknown', GROQ_API_KEY: 'k' })), []);
   });
 });
 
@@ -143,7 +162,7 @@ async function rejection(work: Promise<unknown>): Promise<SpeechError> {
   );
 }
 
-function fakeFetch(respond: (call: RecordedCall, index: number) => Response) {
+function fakeFetch(respond: (call: RecordedCall, index: number) => Response | Promise<Response>) {
   const calls: RecordedCall[] = [];
   const impl = (async (input: string | URL, init?: RequestInit) => {
     const call: RecordedCall = { url: typeof input === 'string' ? input : String(input), init };
@@ -280,5 +299,140 @@ describe('synthVieneuChunk against the cloud contract', () => {
     });
     const env = envWith({ VIENEU_TTS_URL: 'http://127.0.0.1:1' });
     assert.equal(await vieneuAvailable(env, impl), false);
+  });
+});
+
+const sttWav = encodeWavPcm16(new Float32Array(1600));
+
+function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json', ...headers },
+  });
+}
+
+describe('transcribeWithFailover', () => {
+  it('sends Deepgram the raw WAV body and reads the nested transcript', async () => {
+    const { calls, impl } = fakeFetch(() =>
+      jsonResponse({ results: { channels: [{ alternatives: [{ transcript: 'hôm nay chơi comps gì' }] }] } })
+    );
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg_key', STT_DEEPGRAM_MODEL: 'nova-3' });
+    const outcome = await transcribeWithFailover(sttWav, env, impl);
+
+    assert.equal(outcome.provider, 'deepgram');
+    assert.equal(outcome.text, 'hôm nay chơi comps gì');
+    const url = new URL(calls[0]!.url);
+    assert.equal(`${url.origin}${url.pathname}`, 'https://api.deepgram.com/v1/listen');
+    assert.equal(url.searchParams.get('model'), 'nova-3');
+    assert.equal(url.searchParams.get('smart_format'), 'true');
+    assert.equal(headersOf(calls[0]!).Authorization, 'Token dg_key');
+    assert.ok(Buffer.compare(calls[0]!.init!.body as Buffer, sttWav) === 0, 'the audio must be the raw wav body');
+  });
+
+  it('sends OpenRouter base64 JSON instead of a multipart upload', async () => {
+    const { calls, impl } = fakeFetch(() => jsonResponse({ text: 'lên tier nào đây' }));
+    const env = envWith({ STT_PROVIDER: 'openrouter', OPENROUTER_API_KEY: 'or_key' });
+    const outcome = await transcribeWithFailover(sttWav, env, impl);
+
+    assert.equal(outcome.text, 'lên tier nào đây');
+    assert.equal(calls[0]!.url, 'https://openrouter.ai/api/v1/audio/transcriptions');
+    assert.equal(headersOf(calls[0]!).Authorization, 'Bearer or_key');
+    const body = jsonBody(calls[0]!);
+    assert.equal(body.model, 'openai/whisper-large-v3-turbo');
+    assert.equal(body.response_format, 'json');
+    const audio = body.input_audio as { data: string; format: string };
+    assert.equal(audio.format, 'wav');
+    assert.equal(Buffer.from(audio.data, 'base64').compare(sttWav), 0);
+  });
+
+  it('hands a rate limited turn to the next provider and cools the first', async () => {
+    const { calls, impl } = fakeFetch((call) =>
+      call.url.startsWith('https://api.deepgram.com')
+        ? jsonResponse({ error: { message: 'exceeded quota' } }, 429, { 'retry-after': '20' })
+        : jsonResponse({ text: 'chơi gì đó' })
+    );
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg', GROQ_API_KEY: 'gq' });
+    const outcome = await transcribeWithFailover(sttWav, env, impl);
+
+    assert.equal(outcome.provider, 'groq', 'a 429 must not end the user turn');
+    assert.equal(calls.length, 2);
+    const [first, second] = sttProviderStatus(env);
+    assert.equal(first?.provider, 'deepgram');
+    assert.match(first?.coolingDown ?? '', /Deepgram rate limited/);
+    assert.equal(second?.provider, 'groq');
+    assert.equal(second?.coolingDown, null);
+
+    await transcribeWithFailover(sttWav, env, impl);
+    assert.equal(calls.filter((call) => call.url.startsWith('https://api.deepgram.com')).length, 1);
+  });
+
+  for (const status of [401, 402]) {
+    it(`cools a vendor that answers ${status} instead of retrying bad credentials`, async () => {
+      const { calls, impl } = fakeFetch((call) =>
+        call.url.startsWith('https://api.deepgram.com')
+          ? jsonResponse({ error: { message: status === 401 ? 'invalid credentials' : 'insufficient balance' } }, status)
+          : jsonResponse({ text: 'ok' })
+      );
+      const env = envWith({ DEEPGRAM_API_KEY: 'dg', GROQ_API_KEY: 'gq' });
+      const outcome = await transcribeWithFailover(sttWav, env, impl);
+
+      assert.equal(outcome.provider, 'groq');
+      assert.match(sttProviderStatus(env)[0]?.coolingDown ?? '', status === 401 ? /invalid credentials/ : /insufficient balance/);
+
+      await transcribeWithFailover(sttWav, env, impl);
+      assert.equal(calls.filter((call) => call.url.startsWith('https://api.deepgram.com')).length, 1);
+    });
+  }
+
+  it('reports busy once every configured provider is cooling down', async () => {
+    const { calls, impl } = fakeFetch(() => jsonResponse({ error: { message: 'too many requests' } }, 429));
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg', STT_BUSY_COOLDOWN_MS: '60000' });
+
+    const error = await rejection(transcribeWithFailover(sttWav, env, impl));
+    assert.match(error.message, /too many requests|rate limited/);
+    await assert.rejects(
+      () => transcribeWithFailover(sttWav, env, impl),
+      /every transcription provider is cooling down/
+    );
+    assert.equal(calls.length, 1, 'the second turn must not spend a doomed request');
+  });
+
+  it('keeps a vendor Retry-After inside the configured cooldown ceiling', async () => {
+    const { calls, impl } = fakeFetch((call) =>
+      call.url.startsWith('https://api.deepgram.com')
+        ? jsonResponse({}, 429, { 'retry-after': '30' })
+        : jsonResponse({ text: 'ok' })
+    );
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg', GROQ_API_KEY: 'gq', STT_BUSY_COOLDOWN_MS: '1000' });
+    await transcribeWithFailover(sttWav, env, impl);
+    assert.match(sttProviderStatus(env)[0]?.coolingDown ?? '', /rate limited/);
+
+    await new Promise((resolve) => setTimeout(resolve, 1_100));
+    await transcribeWithFailover(sttWav, env, impl);
+    assert.equal(calls.filter((call) => call.url.startsWith('https://api.deepgram.com')).length, 2);
+  });
+
+  it('stops walking the chain once the shared budget is gone', async () => {
+    const { calls, impl } = fakeFetch((call) =>
+      call.url.startsWith('https://api.deepgram.com')
+        ? new Promise<Response>((resolve) =>
+            setTimeout(() => resolve(jsonResponse({ error: { message: 'hang' } }, 500)), 2_200)
+          )
+        : jsonResponse({ text: 'không tới lượt' })
+    );
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg', GROQ_API_KEY: 'gq', STT_CHAIN_BUDGET_MS: '2000' });
+    const error = await rejection(transcribeWithFailover(sttWav, env, impl));
+
+    assert.match(error.message, /ran out of time/);
+    assert.equal(calls.length, 1, 'an expired budget must not add another vendor latency');
+  });
+
+  it('gives every provider one try before failing the turn', async () => {
+    const { calls, impl } = fakeFetch(() => jsonResponse({ error: { message: 'upstream exploded' } }, 500));
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg', GROQ_API_KEY: 'gq' });
+    const error = await rejection(transcribeWithFailover(sttWav, env, impl));
+
+    assert.equal(error.code, 'transcription_failed');
+    assert.equal(calls.length, 2, 'both providers get one try before the turn fails');
   });
 });

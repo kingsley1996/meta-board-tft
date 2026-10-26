@@ -38,25 +38,29 @@ same-origin.
 Full voice reference — providers, env vars, error codes, measured latencies,
 and production notes: [docs/ai-assistant/voice.md](docs/ai-assistant/voice.md).
 
-Coach AI transcribes Vietnamese voice questions server-side. The API picks the
-first speech-to-text provider whose key is configured, in Vietnamese accuracy
-order:
+Coach AI transcribes Vietnamese voice questions server-side. The API walks a
+failover chain of every speech-to-text provider whose key is configured, in the
+order measured on this project's corpus (`apps/api/scripts/stt-bench.mjs`):
 
-1. ElevenLabs Scribe — `ELEVENLABS_API_KEY` (model `scribe_v2`); best published
-   Vietnamese WER (~3%).
-2. OpenAI — `OPENAI_API_KEY` (model `gpt-4o-transcribe`).
-3. Groq — `GROQ_API_KEY` (model `whisper-large-v3-turbo`); cheapest (~$0.04 per
-   hour of audio) and fastest.
-4. Google Gemini — `GOOGLE_API_KEY`, reused from the assistant LLM provider, so
-   no extra signup.
-5. The local Sherpa-ONNX model as an offline fallback when no key is set:
+1. Deepgram — `DEEPGRAM_API_KEY` (model `nova-3`); lowest Vietnamese WER
+   (0.063 on a 14 s clip) and the highest rate limit of the group.
+2. Groq — `GROQ_API_KEY` (model `whisper-large-v3-turbo`); fastest (~0.6 s) and
+   free up to 20 requests/minute.
+3. ElevenLabs Scribe — `ELEVENLABS_API_KEY` (model `scribe_v2`).
+4. OpenAI — `OPENAI_API_KEY` (model `gpt-4o-transcribe`).
+5. Google Gemini — `GOOGLE_API_KEY`, reused from the assistant LLM provider; last
+   because its free tier 429s at ~17 requests/minute and rewrites pronouns.
 
-```sh
-npm run download:sherpa-model --workspace @metaboard/api
-```
+A provider that answers 429 is skipped for `STT_BUSY_COOLDOWN_MS` (default 30 s,
+`Retry-After` aware) and the turn continues with the next one, so a quota wall
+costs one doomed request per window instead of one per user question. 401/402/403
+credentials failures are skipped for 60 s. `GET /api/voice/status` lists the chain
+and who is cooling down; every `/api/voice/transcribe` response carries
+`X-STT-Provider`.
 
-Set `STT_PROVIDER` to force one provider, `STT_LANGUAGE` to change the pinned
-language (default `vi`), and `STT_MAX_CONCURRENCY` to cap parallel cloud
+Set `STT_PROVIDER` to force one provider (OpenRouter is only reachable this way —
+its audio endpoint needs a separate prepaid balance), `STT_LANGUAGE` to change the
+pinned language (default `vi`), and `STT_MAX_CONCURRENCY` to cap parallel cloud
 requests (default 4). The remaining tunables (`STT_*_MODEL`, `STT_OPENAI_BASE_URL`)
 are listed in `apps/api/.env.example`. English speech input continues to use the
 browser's speech-recognition service. Finishing a voice question submits it
@@ -64,10 +68,11 @@ automatically; the corresponding Coach AI reply is then read aloud by the
 server-side Vietnamese TTS engine (VieNeu), falling back to the browser's Web
 Speech API when that engine is not running.
 
-With a cloud provider, recordings are forwarded from the API to that provider;
-with `STT_PROVIDER=sherpa` audio stays on the API machine. The downloadable
-Sherpa model is licensed CC-BY-NC-ND-4.0 and is for local non-commercial
-evaluation only; commercial deployments should use a cloud provider.
+Vietnamese speech input is cloud-only: recordings are forwarded from the API to
+the provider that answers. Without any STT key the voice button reports
+`stt_not_configured` and text questions keep working. The reply a user hears is
+read server-side by VieNeu; when that engine is unreachable the browser falls
+back to its own speech synthesis.
 
 Curated legacy item names, trait synonyms, and shortened comp names live in
 `apps/api/src/assistant/entity-aliases.ts`. Add aliases there against canonical

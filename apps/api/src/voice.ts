@@ -1,36 +1,40 @@
 import express, { Router, type NextFunction, type Request, type Response as ExpressResponse } from 'express';
-import { access } from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import type { OfflineRecognizer } from 'sherpa-onnx-node';
 
 const router = Router();
 const sampleRate = 16_000;
 const maxSamples = sampleRate * 60;
-const modelDirectory =
-  process.env.SHERPA_ASR_MODEL_DIR?.trim() ||
-  fileURLToPath(new URL('../models/sherpa-vi/', import.meta.url));
 
-const modelFiles = {
-  encoder: 'encoder-epoch-20-avg-10.int8.onnx',
-  decoder: 'decoder-epoch-20-avg-10.int8.onnx',
-  joiner: 'joiner-epoch-20-avg-10.int8.onnx',
-  tokens: 'config.json',
-};
+type SttProvider = 'deepgram' | 'groq' | 'openrouter' | 'elevenlabs' | 'openai' | 'gemini';
 
-type SttProvider = 'elevenlabs' | 'openai' | 'groq' | 'gemini' | 'sherpa';
-
-// Accuracy-first auto order; ElevenLabs Scribe and Gemini lead published
-// Vietnamese WER benchmarks, whisper-large-v3-turbo on Groq is the cheap fast
-// option, and Sherpa stays as the offline fallback when no key is configured.
-const cloudProviderOrder: readonly SttProvider[] = ['elevenlabs', 'openai', 'groq', 'gemini'];
+// Reliability-first, measured on this account's keys with one shared Vietnamese
+// corpus (apps/api/scripts/stt-bench.mjs): Deepgram nova-3 has the lowest WER
+// (0.063 on a 14 s clip) and no quota wall, Groq is the fast $0 free tier that
+// survived 18 un-spaced requests, and Gemini's AI Studio free tier both 429s at
+// ~17 requests/minute and rewrites pronouns it "knows better" — so it is now a
+// last cloud resort.
+const cloudProviderOrder: readonly SttProvider[] = ['deepgram', 'groq', 'openrouter', 'elevenlabs', 'openai', 'gemini'];
 const sttLanguage = (process.env.STT_LANGUAGE?.trim() || 'vi').toLowerCase();
 const sttMaxConcurrency = Math.max(1, Number(process.env.STT_MAX_CONCURRENCY) || 4);
 
-let recognizerPromise: Promise<OfflineRecognizer> | undefined;
+// A provider that just refused us stays skipped for a while, so one rate-limited
+// vendor costs a single doomed request per cooldown window instead of one per
+// user turn.
+const sttCooldowns = new Map<SttProvider, { until: number; reason: string }>();
+
+function sttCooldownMs(env: NodeJS.ProcessEnv = process.env): number {
+  const value = Math.round(Number(env.STT_BUSY_COOLDOWN_MS)) || 30_000;
+  return Math.min(600_000, Math.max(1_000, value));
+}
+
 let activeTranscriptions = 0;
 
-class SpeechBusyError extends Error {}
+class SpeechBusyError extends Error {
+  readonly retryAfterMs: number | null;
+  constructor(message = 'provider is busy', retryAfterMs: number | null = null) {
+    super(message);
+    this.retryAfterMs = retryAfterMs;
+  }
+}
 class SpeechUnavailableError extends Error {
   readonly httpStatus: number;
   readonly code: string;
@@ -51,67 +55,63 @@ function envValue(env: NodeJS.ProcessEnv, ...names: string[]): string | null {
 
 function cloudConfigured(provider: SttProvider, env: NodeJS.ProcessEnv = process.env): boolean {
   switch (provider) {
+    case 'deepgram':
+      return Boolean(envValue(env, 'DEEPGRAM_API_KEY'));
+    case 'groq':
+      return Boolean(envValue(env, 'GROQ_API_KEY'));
+    case 'openrouter':
+      return Boolean(envValue(env, 'OPENROUTER_API_KEY'));
     case 'elevenlabs':
       return Boolean(envValue(env, 'ELEVENLABS_API_KEY'));
     case 'openai':
       return Boolean(envValue(env, 'OPENAI_API_KEY'));
-    case 'groq':
-      return Boolean(envValue(env, 'GROQ_API_KEY'));
     case 'gemini':
       return Boolean(envValue(env, 'GOOGLE_API_KEY'));
-    case 'sherpa':
-      return false;
   }
 }
 
-export function resolveSttProvider(env: NodeJS.ProcessEnv = process.env): SttProvider | null {
+// The cloud providers usable for this environment, in failover order. One
+// provider is never the whole plan: a free tier that 429s or a vendor that is
+// briefly down would otherwise surface as "speech recognition failed" for the
+// user.
+//
+// OpenRouter is deliberately absent from the automatic chain: it shares its key
+// with the assistant LLM, its audio endpoint needs a separate prepaid balance
+// (it answers 402 without one) and it lost the accuracy bench. Pin
+// STT_PROVIDER=openrouter to use it once funded.
+const optInOnlyProviders: readonly SttProvider[] = ['openrouter'];
+
+export function sttProviderCandidates(env: NodeJS.ProcessEnv = process.env): SttProvider[] {
   const explicit = env.STT_PROVIDER?.trim().toLowerCase();
   if (explicit) {
-    if (explicit === 'sherpa') return 'sherpa';
-    if ((cloudProviderOrder as readonly string[]).includes(explicit) && cloudConfigured(explicit as SttProvider, env)) {
-      return explicit as SttProvider;
-    }
+    const wanted = cloudProviderOrder.find((provider) => provider === explicit);
+    return wanted && cloudConfigured(wanted, env) ? [wanted] : [];
+  }
+  return cloudProviderOrder.filter(
+    (provider) => cloudConfigured(provider, env) && !optInOnlyProviders.includes(provider)
+  );
+}
+
+function providerCooldown(provider: SttProvider): string | null {
+  const entry = sttCooldowns.get(provider);
+  if (!entry) return null;
+  if (entry.until <= Date.now()) {
+    sttCooldowns.delete(provider);
     return null;
   }
-  for (const provider of cloudProviderOrder) {
-    if (cloudConfigured(provider, env)) return provider;
-  }
-  return 'sherpa';
+  return entry.reason;
 }
 
-async function modelAvailable(): Promise<boolean> {
-  try {
-    await Promise.all(Object.values(modelFiles).map((file) => access(path.join(modelDirectory, file))));
-    return true;
-  } catch {
-    return false;
-  }
+function coolProvider(provider: SttProvider, reason: string, ms: number): void {
+  sttCooldowns.set(provider, { until: Date.now() + ms, reason });
 }
 
-async function getRecognizer(): Promise<OfflineRecognizer> {
-  if (!recognizerPromise) {
-    const config = {
-      featConfig: { sampleRate, featureDim: 80 },
-      modelConfig: {
-        transducer: {
-          encoder: path.join(modelDirectory, modelFiles.encoder),
-          decoder: path.join(modelDirectory, modelFiles.decoder),
-          joiner: path.join(modelDirectory, modelFiles.joiner),
-        },
-        tokens: path.join(modelDirectory, modelFiles.tokens),
-        numThreads: 2,
-        provider: 'cpu',
-        debug: 0,
-      },
-    };
-    recognizerPromise = import('sherpa-onnx-node')
-      .then(({ default: sherpa }) => sherpa.OfflineRecognizer.createAsync(config))
-      .catch((error: unknown) => {
-        recognizerPromise = undefined;
-        throw error;
-      });
-  }
-  return recognizerPromise;
+export function clearSttCooldowns(): void {
+  sttCooldowns.clear();
+}
+
+export function sttProviderStatus(env: NodeJS.ProcessEnv = process.env): Array<{ provider: SttProvider; coolingDown: string | null }> {
+  return sttProviderCandidates(env).map((provider) => ({ provider, coolingDown: providerCooldown(provider) }));
 }
 
 // 16-bit PCM mono WAV, the one input format every supported provider accepts.
@@ -143,58 +143,153 @@ export function wavFromPcm16(pcm: Buffer, rate: number): Buffer {
   return bytes;
 }
 
-async function transcribeWithElevenLabs(wav: Buffer): Promise<string> {
-  const apiKey = envValue(process.env, 'ELEVENLABS_API_KEY');
+async function transcribeWithElevenLabs(
+  wav: Buffer,
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<string> {
+  const apiKey = envValue(env, 'ELEVENLABS_API_KEY');
   if (!apiKey) throw new SpeechUnavailableError('ELEVENLABS_API_KEY is not configured');
   const form = new FormData();
   form.append('file', new Blob([new Uint8Array(wav)], { type: 'audio/wav' }), 'speech.wav');
-  form.append('model_id', process.env.STT_ELEVENLABS_MODEL?.trim() || 'scribe_v2');
+  form.append('model_id', env.STT_ELEVENLABS_MODEL?.trim() || 'scribe_v2');
   if (sttLanguage) form.append('language_code', sttLanguage);
-  const response = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
+  const response = await fetchImpl('https://api.elevenlabs.io/v1/speech-to-text', {
     method: 'POST',
     headers: { 'xi-api-key': apiKey },
     body: form,
     signal: AbortSignal.timeout(30_000),
   });
-  if (response.status === 429) throw new SpeechBusyError();
-  if (!response.ok) throw new SpeechUnavailableError(`ElevenLabs responded ${response.status}`);
+  if (response.status === 429) throw new SpeechBusyError('ElevenLabs rate limited', retryAfterMs(response, sttCooldownMs(env)));
+  if (!response.ok) {
+    const detail = await upstreamErrorText(response);
+    throw new SpeechUnavailableError(
+      detail,
+      response.status,
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+    );
+  }
   const result = (await response.json()) as { text?: unknown };
   return typeof result.text === 'string' ? result.text : '';
 }
 
-async function transcribeWithOpenAiCompatible(provider: 'openai' | 'groq', wav: Buffer): Promise<string> {
+async function transcribeWithOpenAiCompatible(
+  provider: 'openai' | 'groq',
+  wav: Buffer,
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<string> {
   const isGroq = provider === 'groq';
-  const apiKey = envValue(process.env, isGroq ? 'GROQ_API_KEY' : 'OPENAI_API_KEY');
+  const apiKey = envValue(env, isGroq ? 'GROQ_API_KEY' : 'OPENAI_API_KEY');
   if (!apiKey) {
     throw new SpeechUnavailableError(isGroq ? 'GROQ_API_KEY is not configured' : 'OPENAI_API_KEY is not configured');
   }
   const baseUrl = isGroq
     ? 'https://api.groq.com/openai/v1'
-    : (envValue(process.env, 'STT_OPENAI_BASE_URL', 'OPENAI_BASE_URL') ?? 'https://api.openai.com/v1').replace(/\/+$/, '');
+    : (envValue(env, 'STT_OPENAI_BASE_URL', 'OPENAI_BASE_URL') ?? 'https://api.openai.com/v1').replace(/\/+$/, '');
   const model = isGroq
-    ? process.env.STT_GROQ_MODEL?.trim() || 'whisper-large-v3-turbo'
-    : process.env.STT_OPENAI_MODEL?.trim() || 'gpt-4o-transcribe';
+    ? env.STT_GROQ_MODEL?.trim() || 'whisper-large-v3-turbo'
+    : env.STT_OPENAI_MODEL?.trim() || 'gpt-4o-transcribe';
   const form = new FormData();
   form.append('file', new Blob([new Uint8Array(wav)], { type: 'audio/wav' }), 'speech.wav');
   form.append('model', model);
   if (sttLanguage) form.append('language', sttLanguage);
-  const response = await fetch(`${baseUrl}/audio/transcriptions`, {
+  const response = await fetchImpl(`${baseUrl}/audio/transcriptions`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}` },
     body: form,
     signal: AbortSignal.timeout(30_000),
   });
-  if (response.status === 429) throw new SpeechBusyError();
-  if (!response.ok) throw new SpeechUnavailableError(`${provider} transcription responded ${response.status}`);
+  if (response.status === 429) {
+    throw new SpeechBusyError(`${provider} rate limited`, retryAfterMs(response, sttCooldownMs(env)));
+  }
+  if (!response.ok) {
+    throw new SpeechUnavailableError(
+      `${provider} transcription responded ${response.status}`,
+      response.status,
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+    );
+  }
   const result = (await response.json()) as { text?: unknown };
   return typeof result.text === 'string' ? result.text : '';
 }
 
-async function transcribeWithGemini(wav: Buffer): Promise<string> {
-  const apiKey = envValue(process.env, 'GOOGLE_API_KEY');
+// Deepgram is the only vendor here whose options travel in the query string and
+// whose audio is the raw body; the transcript lives in results.channels[0]
+// .alternatives[0].transcript (the legacy results.transcripts path is gone).
+async function transcribeWithDeepgram(
+  wav: Buffer,
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<string> {
+  const apiKey = envValue(env, 'DEEPGRAM_API_KEY');
+  if (!apiKey) throw new SpeechUnavailableError('DEEPGRAM_API_KEY is not configured');
+  const query = new URLSearchParams({ model: env.STT_DEEPGRAM_MODEL?.trim() || 'nova-3', smart_format: 'true' });
+  if (sttLanguage) query.set('language', sttLanguage);
+  const response = await fetchImpl(`https://api.deepgram.com/v1/listen?${query.toString()}`, {
+    method: 'POST',
+    headers: { Authorization: `Token ${apiKey}`, 'Content-Type': 'audio/wav' },
+    body: wav,
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (response.status === 429) throw new SpeechBusyError('Deepgram rate limited', retryAfterMs(response, sttCooldownMs(env)));
+  if (!response.ok) {
+    const detail = await upstreamErrorText(response);
+    throw new SpeechUnavailableError(
+      detail,
+      response.status,
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+    );
+  }
+  const result = (await response.json()) as {
+    results?: { channels?: Array<{ alternatives?: Array<{ transcript?: unknown }> }> };
+  };
+  const transcript = result.results?.channels?.[0]?.alternatives?.[0]?.transcript;
+  return typeof transcript === 'string' ? transcript : '';
+}
+
+// OpenRouter wraps several STT vendors behind one key; it takes the audio as base64
+// in JSON instead of multipart, which also dodges the 25 MB multipart ceiling.
+async function transcribeWithOpenRouter(
+  wav: Buffer,
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<string> {
+  const apiKey = envValue(env, 'OPENROUTER_API_KEY');
+  if (!apiKey) throw new SpeechUnavailableError('OPENROUTER_API_KEY is not configured');
+  const response = await fetchImpl('https://openrouter.ai/api/v1/audio/transcriptions', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: env.STT_OPENROUTER_MODEL?.trim() || 'openai/whisper-large-v3-turbo',
+      input_audio: { data: wav.toString('base64'), format: 'wav' },
+      ...(sttLanguage ? { language: sttLanguage } : {}),
+      response_format: 'json',
+    }),
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (response.status === 429) throw new SpeechBusyError('OpenRouter rate limited', retryAfterMs(response, sttCooldownMs(env)));
+  if (!response.ok) {
+    const detail = await upstreamErrorText(response);
+    throw new SpeechUnavailableError(
+      detail,
+      response.status,
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+    );
+  }
+  const result = (await response.json()) as { text?: unknown };
+  return typeof result.text === 'string' ? result.text : '';
+}
+
+async function transcribeWithGemini(
+  wav: Buffer,
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<string> {
+  const apiKey = envValue(env, 'GOOGLE_API_KEY');
   if (!apiKey) throw new SpeechUnavailableError('GOOGLE_API_KEY is not configured');
-  const model = process.env.STT_GEMINI_MODEL?.trim() || 'gemini-3.1-flash-lite';
-  const response = await fetch(
+  const model = env.STT_GEMINI_MODEL?.trim() || 'gemini-3.1-flash-lite';
+  const response = await fetchImpl(
     `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
     {
       method: 'POST',
@@ -218,8 +313,15 @@ async function transcribeWithGemini(wav: Buffer): Promise<string> {
       signal: AbortSignal.timeout(45_000),
     }
   );
-  if (response.status === 429) throw new SpeechBusyError();
-  if (!response.ok) throw new SpeechUnavailableError(`Gemini transcription responded ${response.status}`);
+  if (response.status === 429) throw new SpeechBusyError('Gemini rate limited', retryAfterMs(response, sttCooldownMs(env)));
+  if (!response.ok) {
+    const detail = await upstreamErrorText(response);
+    throw new SpeechUnavailableError(
+      detail,
+      response.status,
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+    );
+  }
   const result = (await response.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ text?: unknown }> } }>;
   };
@@ -227,46 +329,96 @@ async function transcribeWithGemini(wav: Buffer): Promise<string> {
   return parts.map((part) => (typeof part.text === 'string' ? part.text : '')).join('').trim();
 }
 
-async function transcribeWithSherpa(samples: Float32Array): Promise<string> {
-  const recognizer = await getRecognizer();
-  const stream = recognizer.createStream();
-  stream.acceptWaveform({ sampleRate, samples });
-  const result = await recognizer.decodeAsync(stream);
-  return result.text;
+// 401/402/403 never fix themselves by retrying the same audio: bad key, no
+// credit, or no access. Everything else is worth a second try on another vendor.
+function isCredentialStatus(status: number): boolean {
+  return status === 401 || status === 402 || status === 403;
 }
 
-async function transcribe(provider: SttProvider, samples: Float32Array): Promise<string> {
+async function transcribeCloud(
+  provider: SttProvider,
+  wav: Buffer,
+  env: NodeJS.ProcessEnv,
+  fetchImpl: typeof fetch
+): Promise<string> {
   switch (provider) {
     case 'elevenlabs':
-      return transcribeWithElevenLabs(encodeWavPcm16(samples));
+      return transcribeWithElevenLabs(wav, env, fetchImpl);
     case 'openai':
-      return transcribeWithOpenAiCompatible('openai', encodeWavPcm16(samples));
+      return transcribeWithOpenAiCompatible('openai', wav, env, fetchImpl);
     case 'groq':
-      return transcribeWithOpenAiCompatible('groq', encodeWavPcm16(samples));
+      return transcribeWithOpenAiCompatible('groq', wav, env, fetchImpl);
+    case 'openrouter':
+      return transcribeWithOpenRouter(wav, env, fetchImpl);
+    case 'deepgram':
+      return transcribeWithDeepgram(wav, env, fetchImpl);
     case 'gemini':
-      return transcribeWithGemini(encodeWavPcm16(samples));
-    case 'sherpa':
-      return transcribeWithSherpa(samples);
+      return transcribeWithGemini(wav, env, fetchImpl);
   }
 }
 
-router.get('/status', async (_req, res) => {
-  const provider = resolveSttProvider();
-  const available =
-    provider === null
-      ? false
-      : provider === 'sherpa'
-        ? await modelAvailable()
-        : true;
-  res.json({ available, provider });
+// Walk the configured providers until one returns text. Every refusal puts that
+// provider on a timeout so a rate-limited vendor costs one doomed request per
+// window instead of one per user turn, and the answer never depends on which
+// vendor happened to be first in the list.
+// Walking six vendors with a 30 s timeout each could park a user's turn for three
+// minutes when one of them hangs, so the chain gets one shared budget: the head
+// provider always gets its try, and a later provider is only asked while the
+// budget has room left.
+function sttChainBudgetMs(env: NodeJS.ProcessEnv = process.env): number {
+  const value = Math.round(Number(env.STT_CHAIN_BUDGET_MS)) || 45_000;
+  return Math.min(180_000, Math.max(2_000, value));
+}
+
+export async function transcribeWithFailover(
+  wav: Buffer,
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<{ text: string; provider: SttProvider }> {
+  const candidates = sttProviderCandidates(env);
+  const deadline = Date.now() + sttChainBudgetMs(env);
+  let lastError: unknown = null;
+  for (const provider of candidates) {
+    if (providerCooldown(provider)) continue;
+    if (lastError && Date.now() >= deadline) {
+      throw new SpeechUnavailableError('the transcription provider chain ran out of time');
+    }
+    try {
+      const text = await transcribeCloud(provider, wav, env, fetchImpl);
+      return { text, provider };
+    } catch (error) {
+      if (!(error instanceof SpeechBusyError) && !(error instanceof SpeechUnavailableError)) throw error;
+      const credentialFailure = error instanceof SpeechUnavailableError && error.code === 'stt_credentials_rejected';
+      const window = credentialFailure ? 60_000 : (error instanceof SpeechBusyError ? error.retryAfterMs : null) ?? sttCooldownMs(env);
+      coolProvider(provider, `${provider}: ${error.message}`, window);
+      lastError = error;
+    }
+  }
+  if (lastError) throw lastError;
+  throw new SpeechBusyError('every transcription provider is cooling down');
+}
+
+router.get('/status', (_req, res) => {
+  const providers = sttProviderStatus();
+  // Upstream messages can name hosts and key ids, so the reason only travels to
+  // the browser console outside production — same rule as /tts/status.
+  const debug = process.env.NODE_ENV !== 'production';
+  res.json({
+    available: providers.some((entry) => !entry.coolingDown),
+    provider: providers[0]?.provider ?? null,
+    providers: providers.map((entry) => ({
+      provider: entry.provider,
+      coolingDown: Boolean(entry.coolingDown),
+      ...(debug && entry.coolingDown ? { reason: entry.coolingDown } : {}),
+    })),
+  });
 });
 
 router.post(
   '/transcribe',
   express.raw({ type: 'application/octet-stream', limit: '4mb' }),
   async (req, res) => {
-    const provider = resolveSttProvider();
-    if (provider === null || (provider === 'sherpa' && !(await modelAvailable()))) {
+    if (sttProviderCandidates().length === 0) {
       return res.status(503).json({ error: 'stt_not_configured' });
     }
     if (!Buffer.isBuffer(req.body) || req.body.byteLength < 4 || req.body.byteLength % 4 !== 0) {
@@ -278,7 +430,7 @@ router.post(
 
     const samplesCount = req.body.byteLength / Float32Array.BYTES_PER_ELEMENT;
     if (samplesCount > maxSamples) return res.status(413).json({ error: 'audio_too_long' });
-    if (activeTranscriptions >= (provider === 'sherpa' ? 1 : sttMaxConcurrency)) {
+    if (activeTranscriptions >= sttMaxConcurrency) {
       return res.status(429).json({ error: 'transcription_busy' });
     }
 
@@ -296,8 +448,10 @@ router.post(
 
     activeTranscriptions += 1;
     try {
-      const text = (await transcribe(provider, samples)).trim();
+      const outcome = await transcribeWithFailover(encodeWavPcm16(samples));
+      const text = outcome.text.trim();
       if (!text || !/[\p{L}\p{N}]/u.test(text)) return res.status(422).json({ error: 'no_speech' });
+      res.setHeader('x-stt-provider', outcome.provider);
       return res.json({ text });
     } catch (error) {
       if (error instanceof SpeechBusyError) {
