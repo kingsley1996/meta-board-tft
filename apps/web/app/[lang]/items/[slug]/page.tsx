@@ -119,7 +119,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
       )}
       <div className="grid gap-4 md:grid-cols-2">
         {itemChampionTable.length ? (
-          <Panel className="flex flex-col gap-3 p-5 md:col-span-2">
+          <Panel className="flex min-w-0 flex-col gap-3 p-5 md:col-span-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.bestOn}</p>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[560px] border-collapse text-sm">
