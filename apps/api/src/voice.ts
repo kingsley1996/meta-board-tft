@@ -468,13 +468,16 @@ router.post(
   }
 );
 
-// --- TTS: VieNeu engine, one sentence-sized chunk per request ---
+// --- TTS: Deepgram Flux (primary), VieNeu (fallback), one chunk per request ---
 //
-// VieNeu on CPU needs ~3.4 s for a 250-character chunk, so the client splits an
-// answer into short chunks and plays one while the next is still synthesizing.
-// The same wire format (OpenAI-compatible POST /v1/audio/speech) is served by
-// the local `apps.openai_speech` server and by the hosted https://api.vieneu.io
-// cloud, so switching engines is only a VIENEU_TTS_URL/API_KEY change.
+// Aura/Aura-2 are English-only, so Vietnamese uses Flux TTS on the /v2/speak
+// batch REST endpoint (`flux-hoa-vi`). Flux Vietnamese is Early Access without
+// text normalization: numbers and dates are read as written.
+//
+// The client splits an answer into short chunks and plays one while the next is
+// still synthesizing. VieNeu uses the OpenAI-compatible POST /v1/audio/speech
+// served by the local `apps.openai_speech` server or the hosted
+// https://api.vieneu.io cloud.
 
 const ttsFormats = ['wav', 'mp3', 'pcm', 'opus', 'ulaw'] as const;
 export type TtsFormat = (typeof ttsFormats)[number];
@@ -487,6 +490,15 @@ const ttsContentTypes: Record<TtsFormat, string> = {
   opus: 'audio/ogg',
   ulaw: 'audio/basic',
 };
+
+// Deepgram's Vietnamese voices; override to `flux-minh-vi` for a male voice.
+export function deepgramTtsModel(env: NodeJS.ProcessEnv = process.env): string {
+  return env.DEEPGRAM_TTS_MODEL?.trim() || 'flux-hoa-vi';
+}
+
+function deepgramTtsConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
+  return Boolean(env.DEEPGRAM_API_KEY?.trim());
+}
 
 function ttsBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
   return (env.VIENEU_TTS_URL?.trim() || 'http://127.0.0.1:8001').replace(/\/+$/, '');
@@ -539,23 +551,31 @@ function vieneuHeaders(env: NodeJS.ProcessEnv = process.env): Record<string, str
 // 401/403 from the cloud means bad key or exhausted/revoked token package, and
 // its docs are explicit that retrying does not help. Without this, every answer
 // would burn its whole chunk budget on doomed requests before the client gave up
-// on the engine, so the fault is remembered per origin and `/tts/status` reports
-// the engine as unavailable until the cooldown expires.
+// on the engine, so the fault is remembered per engine ('deepgram', or the
+// VieNeu origin) and `/tts/status` reports that engine as unavailable until the
+// cooldown expires.
 const engineFaults = new Map<string, { until: number; reason: string; code: string }>();
 
-function rememberFault(origin: string, reason: string, cooldownMs: number, code: string): void {
-  engineFaults.set(origin, { until: Date.now() + cooldownMs, reason, code });
+function rememberFault(key: string, reason: string, cooldownMs: number, code: string): void {
+  engineFaults.set(key, { until: Date.now() + cooldownMs, reason, code });
 }
 
-export function ttsFault(env: NodeJS.ProcessEnv = process.env): { reason: string; code: string } | null {
-  const origin = new URL(ttsBaseUrl(env)).origin;
-  const fault = engineFaults.get(origin);
+function activeFault(key: string): { reason: string; code: string } | null {
+  const fault = engineFaults.get(key);
   if (!fault) return null;
   if (fault.until <= Date.now()) {
-    engineFaults.delete(origin);
+    engineFaults.delete(key);
     return null;
   }
   return { reason: fault.reason, code: fault.code };
+}
+
+export function ttsFault(env: NodeJS.ProcessEnv = process.env): { reason: string; code: string } | null {
+  return activeFault(new URL(ttsBaseUrl(env)).origin);
+}
+
+function deepgramTtsFault(): { reason: string; code: string } | null {
+  return activeFault('deepgram');
 }
 
 export function clearTtsFaults(): void {
@@ -744,18 +764,104 @@ export async function synthVieneuChunk(
   throw new SpeechBusyError();
 }
 
+// Deepgram Flux batch REST. 24 kHz mono WAV keeps the same <audio> path as
+// VieNeu, so a fallback chunk is indistinguishable to the client.
+export async function synthDeepgramChunk(
+  input: string,
+  signal: AbortSignal,
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<{ audio: Buffer; contentType: string }> {
+  const apiKey = env.DEEPGRAM_API_KEY?.trim();
+  if (!apiKey) throw new SpeechUnavailableError('DEEPGRAM_API_KEY is not configured', 503, 'tts_unavailable');
+  const knownFault = deepgramTtsFault();
+  if (knownFault) throw new SpeechUnavailableError(knownFault.reason, 503, knownFault.code);
+  const limits = ttsLimits(env);
+  const url = new URL('https://api.deepgram.com/v2/speak');
+  url.searchParams.set('model', deepgramTtsModel(env));
+  url.searchParams.set('encoding', 'linear16');
+  url.searchParams.set('container', 'wav');
+  url.searchParams.set('sample_rate', '24000');
+
+  let upstream: Response;
+  try {
+    upstream = await fetchImpl(url.toString(), {
+      method: 'POST',
+      headers: { Authorization: `Token ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: input }),
+      signal: AbortSignal.any([signal, AbortSignal.timeout(limits.timeoutMs)]),
+    });
+  } catch (error) {
+    if (signal.aborted) throw error;
+    if (error instanceof Error && error.name === 'TimeoutError') throw error;
+    throw new SpeechUnavailableError('Deepgram is unreachable', 503, 'tts_unavailable');
+  }
+  if (upstream.status === 429) {
+    void upstream.body?.cancel();
+    const wait = retryAfterMs(upstream, 600_000) ?? 30_000;
+    rememberFault('deepgram', 'engine rate limited', wait, 'speech_busy');
+    throw new SpeechBusyError('Deepgram rate limited', wait);
+  }
+  if (upstream.status === 401 || upstream.status === 403) {
+    const detail = await upstreamErrorText(upstream);
+    rememberFault('deepgram', detail, 60_000, 'tts_credentials_rejected');
+    console.error('Deepgram rejected TTS credentials', detail);
+    throw new SpeechUnavailableError(detail, 503, 'tts_credentials_rejected');
+  }
+  if (!upstream.ok) {
+    const detail = await upstreamErrorText(upstream);
+    // A rejected chunk is not an engine outage, same rule as VieNeu.
+    if (upstream.status === 400) throw new SpeechUnavailableError(detail, 400, 'speech_text_rejected');
+    throw new SpeechUnavailableError(detail);
+  }
+  const audio = Buffer.from(await upstream.arrayBuffer());
+  if (audio.length < 4_000 || audio.length > 30 * 1024 * 1024) {
+    throw new SpeechUnavailableError('Deepgram returned invalid audio');
+  }
+  return {
+    audio,
+    contentType: upstream.headers.get('content-type')?.split(';')[0]?.trim() || 'audio/wav',
+  };
+}
+
+export type TtsProvider = 'deepgram' | 'vieneu';
+
+// Deepgram first; any failure that is not the caller aborting or a timeout
+// hands the same chunk to VieNeu. When both fail the last error surfaces to the
+// client, which now reports it instead of switching to the browser speech
+// engine.
+export async function synthSpeechChunk(
+  input: string,
+  signal: AbortSignal,
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<{ audio: Buffer; contentType: string; provider: TtsProvider }> {
+  if (deepgramTtsConfigured(env) && !deepgramTtsFault()) {
+    try {
+      const audio = await synthDeepgramChunk(input, signal, env, fetchImpl);
+      return { ...audio, provider: 'deepgram' };
+    } catch (error) {
+      if (signal.aborted) throw error;
+      if (!(error instanceof SpeechUnavailableError) && !(error instanceof SpeechBusyError)) throw error;
+      console.error('Deepgram speech failed, falling back to VieNeu', error.message);
+    }
+  }
+  const audio = await synthVieneuChunk(input, ttsVoice(env), signal, env, fetchImpl);
+  return { ...audio, provider: 'vieneu' };
+}
+
 router.get('/tts/status', async (_req, res) => {
-  const available = await vieneuAvailable();
+  const provider: TtsProvider | null =
+    deepgramTtsConfigured() && !deepgramTtsFault() ? 'deepgram' : (await vieneuAvailable()) ? 'vieneu' : null;
   res.json({
-    available,
-    provider: 'vieneu',
-    voice: ttsVoice(),
+    available: provider !== null,
+    provider: provider ?? (deepgramTtsConfigured() ? 'deepgram' : 'vieneu'),
     maxChars: ttsChunkCharacters(),
     // The upstream message can name hosts and key ids; dev-only so the browser
-    // console is enough to diagnose "why is the engine grey".
-    ...(available || process.env.NODE_ENV === 'production'
+    // console is enough to diagnose "why is the voice grey".
+    ...(provider || process.env.NODE_ENV === 'production'
       ? {}
-      : { reason: ttsFault()?.reason ?? (available ? null : 'engine did not answer the voices probe') }),
+      : { reason: (deepgramTtsConfigured() ? deepgramTtsFault()?.reason : ttsFault()?.reason) ?? 'no TTS engine answered' }),
   });
 });
 
@@ -765,8 +871,6 @@ router.post('/tts/speech', async (req, res) => {
   if (!input || input.length > maxChars) {
     return res.status(400).json({ error: 'invalid_speech_text', maxChars });
   }
-  const requestedVoice = typeof req.body?.voice === 'string' ? req.body.voice.trim() : '';
-  const voice = requestedVoice && requestedVoice.length <= 60 ? requestedVoice : ttsVoice();
   const limits = ttsLimits();
   if (!(await acquireSpeechSlot(limits.maxConcurrency, limits.queueWaitMs))) {
     return res.status(429).json({ error: 'speech_busy' });
@@ -783,9 +887,9 @@ router.post('/tts/speech', async (req, res) => {
   };
   res.on('close', onClose);
   try {
-    const { audio, contentType } = await synthVieneuChunk(input, voice, clientGone.signal);
+    const { audio, contentType, provider } = await synthSpeechChunk(input, clientGone.signal);
     if (clientGone.signal.aborted || res.writableEnded || res.destroyed) return;
-    res.type(contentType).setHeader('Cache-Control', 'no-store').send(audio);
+    res.type(contentType).setHeader('Cache-Control', 'no-store').setHeader('X-TTS-Provider', provider).send(audio);
   } catch (error) {
     if (clientGone.signal.aborted || res.writableEnded || res.destroyed) return;
     if (error instanceof SpeechBusyError) return res.status(429).json({ error: 'speech_busy' });

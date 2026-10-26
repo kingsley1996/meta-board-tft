@@ -21,13 +21,8 @@ import type { Lang } from '@/lib/i18n';
 import { messages as uiMessages } from '@/lib/messages';
 import {
   chunkForSpeech,
-  loadVoices,
   maxSpeechChunkCharacters,
-  pickVoice,
-  primeSpeechSynthesis,
-  speechLanguageFor,
   spokenText,
-  voicesForLanguage,
 } from '@/lib/speech';
 
 type ChatMessage = {
@@ -42,7 +37,7 @@ type StoredChat = { conversationId?: string; messages?: ChatMessage[] };
 
 // /api/voice/tts/status answers with the engine's own chunk limit, so the
 // client never sends a request the server would reject.
-type VoiceTtsStatus = { available: boolean; voice: string; maxChars: number };
+type VoiceTtsStatus = { available: boolean; maxChars: number };
 
 type SpeechRecognitionResultLike = ArrayLike<{ transcript: string }> & { isFinal: boolean };
 
@@ -245,7 +240,6 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         void task.then((url) => URL.revokeObjectURL(url)).catch(() => {});
       }
       ttsCacheRef.current.clear();
-      window.speechSynthesis?.cancel();
     },
     []
   );
@@ -291,7 +285,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     setTomoCue({ name, id: `${Date.now()}-${Math.random()}` });
   }
 
-  function stopAnswerSpeech(): boolean {
+  function stopAnswerSpeech(): void {
     speechSeqRef.current += 1;
     setSpeaking(false);
     setSpeakingMessageId(null);
@@ -300,12 +294,6 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     const audio = audioRef.current;
     audioRef.current = null;
     audio?.pause();
-    const synth = window.speechSynthesis;
-    // Cancel only when something is actually queued: cancelling an idle engine
-    // is a known way to leave Chrome's queue unable to start the next utterance.
-    if (!synth || (!synth.speaking && !synth.pending)) return false;
-    synth.cancel();
-    return true;
   }
 
   async function readTtsStatus(): Promise<VoiceTtsStatus | null> {
@@ -317,14 +305,13 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       try {
         const response = await fetch('/api/voice/tts/status', { cache: 'no-store' });
         if (!response.ok) return null;
-        const payload = (await response.json()) as { available?: unknown; voice?: unknown; maxChars?: unknown };
+        const payload = (await response.json()) as { available?: unknown; maxChars?: unknown };
         return {
           available: payload.available === true,
-          voice: typeof payload.voice === 'string' ? payload.voice : '',
           maxChars: chunkLimitFrom(payload.maxChars),
         };
       } catch {
-        // The API is unreachable; the browser engine still reads the answer.
+        // The API is unreachable; there is no browser engine to fall back to.
         return null;
       }
     })();
@@ -332,16 +319,16 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     return task;
   }
 
-  function fetchChunkAudio(text: string, voice: string, signal: AbortSignal): Promise<string> {
+  function fetchChunkAudio(text: string, signal: AbortSignal): Promise<string> {
     const cache = ttsCacheRef.current;
-    const key = `${voice}\u0000${text}`;
+    const key = text;
     const existing = cache.get(key);
     if (existing) return existing;
     const task = (async () => {
       const response = await fetch('/api/voice/tts/speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: text, voice }),
+        body: JSON.stringify({ input: text }),
         signal,
       });
       if (!response.ok) throw new Error(`Speech request failed with ${response.status}`);
@@ -395,46 +382,41 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     });
   }
 
-  // Returns false only when nothing was audible, so the caller can hand the
-  // answer to the browser's speech engine instead.
-  async function playWithServerTts(spoken: string, status: VoiceTtsStatus, seq: number): Promise<boolean> {
+  // The server owns the engine choice (Deepgram, then VieNeu). A playback error
+  // is reported to the user; there is no browser speech engine anymore.
+  async function playWithServerTts(spoken: string, status: VoiceTtsStatus, seq: number): Promise<void> {
     const controller = new AbortController();
     ttsAbortRef.current = controller;
     const chunks = chunkForSpeech(spoken, Math.min(status.maxChars, maxSpeechChunkCharacters));
-    let heard = false;
     try {
       for (let index = 0; index < chunks.length; index += 1) {
-        const current = fetchChunkAudio(chunks[index], status.voice, controller.signal);
+        const current = fetchChunkAudio(chunks[index], controller.signal);
         if (index + 1 < chunks.length) {
-          // The engine serves two requests at a time, so prefetch exactly one
-          // chunk ahead: the next sentence is ready when the current one ends.
-          void fetchChunkAudio(chunks[index + 1], status.voice, controller.signal).catch(() => {});
+          // The server caps concurrent synthesis; prefetch exactly one chunk
+          // ahead so the next sentence is ready when the current one ends.
+          void fetchChunkAudio(chunks[index + 1], controller.signal).catch(() => {});
         }
         const url = await current;
-        if (seq !== speechSeqRef.current) return true;
+        if (seq !== speechSeqRef.current) return;
         await playChunkAudio(url, seq);
-        heard = true;
       }
       setSpeaking(false);
       setSpeakingMessageId(null);
-      return true;
     } catch (caught: unknown) {
-      if (seq !== speechSeqRef.current || controller.signal.aborted) return true;
-      if (!heard) return false;
+      if (seq !== speechSeqRef.current || controller.signal.aborted) return;
       console.error('Server speech playback failed', caught);
       setSpeechError(
         caught instanceof DOMException && caught.name === 'NotAllowedError' ? t.voiceSpeechBlocked : t.voiceSpeechError
       );
       setSpeaking(false);
       setSpeakingMessageId(null);
-      return true;
     } finally {
       if (ttsAbortRef.current === controller) ttsAbortRef.current = null;
     }
   }
 
   async function speakAnswer(answer: string, messageId: string) {
-    const canceledSynth = stopAnswerSpeech();
+    stopAnswerSpeech();
     setSpeechError(null);
     const spoken = spokenText(answer);
     // Nothing audible after stripping markdown and symbols (emoji-only or
@@ -443,127 +425,16 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     const seq = speechSeqRef.current;
     setSpeaking(true);
     setSpeakingMessageId(messageId);
-    const speechLang = speechLanguageFor(spoken, lang);
 
-    // The API engine gives a real Vietnamese voice; the browser engine is only
-    // the fallback for when it is not running.
     const status = await readTtsStatus();
     if (seq !== speechSeqRef.current) return;
-    if (status?.available && (await playWithServerTts(spoken, status, seq))) return;
-
-    // Chrome can apply the previous (default) voice when the next utterance
-    // lands in the same task as cancel(); let the queue settle first.
-    if (canceledSynth) {
-      await new Promise((resolve) => window.setTimeout(resolve, 120));
-      if (seq !== speechSeqRef.current) return;
-    }
-    // Unlock the audio session inside the click before any await; iOS Safari
-    // only lets speech start from a user gesture.
-    primeSpeechSynthesis(window.speechSynthesis, speechLang);
-    await speakWithBrowser(spoken, speechLang, seq);
-  }
-
-  async function speakWithBrowser(spoken: string, speechLang: string, seq: number) {
-    const synth = window.speechSynthesis;
-    if (!synth) {
-      setSpeechError(t.voiceSpeechUnsupported);
-      setSpeaking(false);
-      setSpeakingMessageId(null);
-      return;
-    }
-    try {
-      // Re-read the list on every playback: engines rebuild it after a voice is
-      // installed, and stale voice objects are then ignored, which makes the
-      // engine silently fall back to the default (often English) voice.
-      const voices = await loadVoices(synth);
-      if (seq !== speechSeqRef.current) return;
-      const voice = pickVoice(voices, speechLang);
-      if (process.env.NODE_ENV !== 'production') {
-        // Whether the engine honours the voice or silently falls back to its
-        // default depends on which voices the machine really has; list the
-        // candidates so a broken pick can be diagnosed from the console.
-        const candidates = voicesForLanguage(voices, speechLang)
-          .map(
-            (candidate) =>
-              `${candidate.name}[${candidate.voiceURI ?? candidate.lang}${candidate.localService ? '/local' : '/net'}]`
-          )
-          .join('; ');
-        console.info(
-          '[coach-voice]',
-          voice?.name ?? 'none',
-          voice?.lang ?? '-',
-          `of ${voices.length}`,
-          `${speechLang}:`,
-          candidates || 'none'
-        );
-      }
-      if (!voice) {
-        setSpeechError(t.voiceSpeechUnsupported);
-        setSpeaking(false);
-        setSpeakingMessageId(null);
-        return;
-      }
-      const chunks = chunkForSpeech(spoken);
-      let index = 0;
-      let started = false;
-      // Electron and some embedded browsers expose speechSynthesis but ship no
-      // TTS backend: utterances queue and never fire any event. Without this
-      // watchdog the button would sit on "Stop" forever with silence.
-      let watchdog: number | null = window.setTimeout(() => {
-        watchdog = null;
-        if (seq !== speechSeqRef.current || started) return;
-        synth.cancel();
-        setSpeaking(false);
-        setSpeakingMessageId(null);
-        setSpeechError(t.voiceSpeechUnsupported);
-      }, 2_500);
-      const clearWatchdog = () => {
-        if (watchdog !== null) {
-          window.clearTimeout(watchdog);
-          watchdog = null;
-        }
-      };
-      const speakNext = () => {
-        if (seq !== speechSeqRef.current) {
-          clearWatchdog();
-          return;
-        }
-        if (index >= chunks.length) {
-          clearWatchdog();
-          setSpeaking(false);
-          setSpeakingMessageId(null);
-          return;
-        }
-        const utterance = new SpeechSynthesisUtterance(chunks[index]);
-        index += 1;
-        utterance.lang = voice.lang;
-        utterance.voice = voice;
-        utterance.onstart = () => {
-          started = true;
-          clearWatchdog();
-        };
-        utterance.onend = speakNext;
-        utterance.onerror = (event) => {
-          if (seq !== speechSeqRef.current) return;
-          if (event.error === 'interrupted' || event.error === 'canceled') return;
-          clearWatchdog();
-          setSpeaking(false);
-          setSpeakingMessageId(null);
-          setSpeechError(event.error === 'not-allowed' ? t.voiceSpeechBlocked : t.voiceSpeechError);
-        };
-        synth.speak(utterance);
-        // Chrome can leave the engine paused after a cancel; resume() is a
-        // no-op otherwise.
-        synth.resume();
-      };
-      speakNext();
-    } catch (caught) {
-      if (seq !== speechSeqRef.current) return;
-      console.error('Browser speech playback failed', caught);
+    if (!status?.available) {
       setSpeaking(false);
       setSpeakingMessageId(null);
       setSpeechError(t.voiceSpeechError);
+      return;
     }
+    await playWithServerTts(spoken, status, seq);
   }
 
   async function submit(raw: string, addUser = true, speakResponse = false) {
@@ -807,9 +678,6 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   }
 
   function toggleVoiceInput() {
-    // The mic click is a user gesture: unlock speech synthesis now so answers
-    // can be read aloud later on browsers that require an activation.
-    primeSpeechSynthesis(window.speechSynthesis);
     if (lang === 'vi') {
       if (voiceSessionRef.current) void stopVoiceInput();
       else if (!voiceStarting && !voiceTranscribing) void startVoiceInput();

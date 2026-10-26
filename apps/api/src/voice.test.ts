@@ -3,8 +3,11 @@ import { afterEach, describe, it } from 'node:test';
 import {
   clearSttCooldowns,
   clearTtsFaults,
+  deepgramTtsModel,
   sttProviderCandidates,
   sttProviderStatus,
+  synthDeepgramChunk,
+  synthSpeechChunk,
   synthVieneuChunk,
   transcribeWithFailover,
   ttsChunkCharacters,
@@ -42,6 +45,7 @@ function envWith(overrides: Record<string, string | undefined>): NodeJS.ProcessE
     'VIENEU_TTS_FORMAT',
     'VIENEU_TTS_API_KEY',
     'VIENEU_TTS_PROBE_TIMEOUT_MS',
+    'DEEPGRAM_TTS_MODEL',
     'TTS_CHUNK_CHARACTERS',
     'TTS_MAX_CONCURRENCY',
     'TTS_QUEUE_WAIT_MS',
@@ -299,6 +303,76 @@ describe('synthVieneuChunk against the cloud contract', () => {
     });
     const env = envWith({ VIENEU_TTS_URL: 'http://127.0.0.1:1' });
     assert.equal(await vieneuAvailable(env, impl), false);
+  });
+});
+
+describe('Deepgram TTS and the VieNeu fallback', () => {
+  const okAudio = () => new Response(Buffer.alloc(5_000), { headers: { 'content-type': 'audio/wav' } });
+
+  it('defaults to the female Vietnamese Flux voice and honours an override', () => {
+    assert.equal(deepgramTtsModel(envWith({})), 'flux-hoa-vi');
+    assert.equal(deepgramTtsModel(envWith({ DEEPGRAM_TTS_MODEL: 'flux-minh-vi' })), 'flux-minh-vi');
+  });
+
+  it('posts the Flux batch shape and returns wav audio', async () => {
+    const { calls, impl } = fakeFetch(okAudio);
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg_key' });
+    const result = await synthDeepgramChunk('Xin chào', new AbortController().signal, env, impl);
+
+    const url = new URL(calls[0]!.url);
+    assert.equal(`${url.origin}${url.pathname}`, 'https://api.deepgram.com/v2/speak');
+    assert.equal(url.searchParams.get('model'), 'flux-hoa-vi');
+    assert.equal(url.searchParams.get('encoding'), 'linear16');
+    assert.equal(url.searchParams.get('container'), 'wav');
+    assert.equal(url.searchParams.get('sample_rate'), '24000');
+    assert.equal(headersOf(calls[0]!).Authorization, 'Token dg_key');
+    assert.deepEqual(jsonBody(calls[0]!), { text: 'Xin chào' });
+    assert.equal(result.audio.length, 5_000);
+    assert.equal(result.contentType, 'audio/wav');
+  });
+
+  it('hands the chunk to VieNeu when Deepgram fails', async () => {
+    const { calls, impl } = fakeFetch((call) =>
+      call.url.includes('api.deepgram.com') ? new Response('', { status: 500 }) : okAudio()
+    );
+    const result = await synthSpeechChunk(
+      'Xin chào',
+      new AbortController().signal,
+      envWith({ DEEPGRAM_API_KEY: 'dg_key' }),
+      impl
+    );
+
+    assert.equal(result.provider, 'vieneu');
+    assert.equal(calls.length, 2);
+    assert.ok(calls[1]!.url.endsWith('/v1/audio/speech'));
+  });
+
+  it('surfaces the VieNeu error when both engines fail', async () => {
+    const { impl } = fakeFetch((call) =>
+      call.url.includes('api.deepgram.com') ? new Response('', { status: 500 }) : new Response('', { status: 503 })
+    );
+    await assert.rejects(
+      () => synthSpeechChunk('Xin chào', new AbortController().signal, envWith({ DEEPGRAM_API_KEY: 'dg_key' }), impl),
+      /HTTP 503/
+    );
+  });
+
+  it('remembers a rejected Deepgram key instead of retrying it on every chunk', async () => {
+    const { calls, impl } = fakeFetch((call) =>
+      call.url.includes('api.deepgram.com')
+        ? new Response(JSON.stringify({ err_msg: 'invalid credentials' }), {
+            status: 401,
+            headers: { 'content-type': 'application/json' },
+          })
+        : okAudio()
+    );
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg_key' });
+    const first = await synthSpeechChunk('Xin chào', new AbortController().signal, env, impl);
+    const second = await synthSpeechChunk('Tạm biệt', new AbortController().signal, env, impl);
+
+    assert.equal(first.provider, 'vieneu');
+    assert.equal(second.provider, 'vieneu');
+    assert.equal(calls.filter((call) => call.url.includes('api.deepgram.com')).length, 1);
   });
 });
 

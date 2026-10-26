@@ -49,7 +49,7 @@ services:
         value: "google"
       - key: GOOGLE_API_KEY
         sync: false
-      - key: DEEPGRAM_API_KEY
+      - key: DEEPGRAM_API_KEY    # STT + TTS (Flux, tiếng Việt)
         sync: false
       - key: GROQ_API_KEY
         sync: false

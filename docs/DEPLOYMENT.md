@@ -215,7 +215,7 @@ cần biết:
 | `GET <api>/api/health/ready` | 200 kèm số comp; 503 = API sống mà DB không tới được (sai `DATABASE_URL`, pooler chưa bật, IPv4/IPv6) |
 | `GET <api>/api/comps` | 200, comps của patch hiện tại |
 | `GET <web>/en` và `/vi` | 200, console sạch, **zero request ra ngoài** (rule của lane reference-build: không hotlink tài sản third-party) |
-| `GET <api>/api/voice/tts/status` | `available: true` + đúng `VIENEU_TTS_VOICE`; nếu false, `reason` phân biệt engine tắt (`tts_unavailable`) vs key sai (`tts_credentials_rejected`) |
+| `GET <api>/api/voice/tts/status` | `available: true` + `provider` = `deepgram` (Flux) hoặc `vieneu`; nếu false, `reason` phân biệt engine tắt (`tts_unavailable`) vs key sai (`tts_credentials_rejected`) |
 | `GET <api>/api/voice/status` | `available: true` + `providers` list đúng chuỗi key đã cấu hình; `available: false` = thiếu hết `DEEPGRAM_API_KEY`/`GROQ_API_KEY`/… (không còn đường local nào để rơi) |
 | `POST /api/tft/refresh` thiếu/sai token | 401 (503 nếu `REFRESH_TOKEN` chưa cấu hình — nghĩa là endpoint đang chết im lặng) |
 | Một request `/api/*` xuyên qua Vercel | header `Set-Cookie` còn nguyên `Secure` và cookie được gửi lại ở request kế — đây là test thật cho `AUTH_SECURE_COOKIES` + proxy |

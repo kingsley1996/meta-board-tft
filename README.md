@@ -65,14 +65,15 @@ requests (default 4). The remaining tunables (`STT_*_MODEL`, `STT_OPENAI_BASE_UR
 are listed in `apps/api/.env.example`. English speech input continues to use the
 browser's speech-recognition service. Finishing a voice question submits it
 automatically; the corresponding Coach AI reply is then read aloud by the
-server-side Vietnamese TTS engine (VieNeu), falling back to the browser's Web
-Speech API when that engine is not running.
+server-side TTS (Deepgram Flux, then VieNeu); when both engines fail the client
+shows an error instead of switching to the browser's Web Speech API.
 
 Vietnamese speech input is cloud-only: recordings are forwarded from the API to
 the provider that answers. Without any STT key the voice button reports
 `stt_not_configured` and text questions keep working. The reply a user hears is
-read server-side by VieNeu; when that engine is unreachable the browser falls
-back to its own speech synthesis.
+read server-side by Deepgram Flux; if Deepgram has no key, is cooling down after a
+rate limit, or fails on a chunk, the API retries that chunk on VieNeu. When both
+engines fail the assistant shows an error; there is no browser speech fallback.
 
 Curated legacy item names, trait synonyms, and shortened comp names live in
 `apps/api/src/assistant/entity-aliases.ts`. Add aliases there against canonical
@@ -96,39 +97,40 @@ original user question is not stored. This background pass uses the configured
 local assistant model and does not delay the response; capture failures are
 logged by the API.
 
-### Coach AI speech output (VieNeu TTS + browser fallback)
+### Coach AI speech output (Deepgram Flux + VieNeu fallback)
 
-Coach AI answers are read aloud by **VieNeu**, which the API proxies on
-`/api/voice/tts/speech`. Two engines, one code path: a local service (default
+Coach AI answers are read aloud by **Deepgram Flux TTS**, which the API proxies
+on `/api/voice/tts/speech`. Vietnamese is not on Aura/Aura-2 (English-only), so
+the API uses Flux's batch endpoint `POST https://api.deepgram.com/v2/speak` with
+`model=flux-hoa-vi` (or `flux-minh-vi` via `DEEPGRAM_TTS_MODEL`) and the same
+`DEEPGRAM_API_KEY` as speech-to-text. Flux Vietnamese is Early Access without
+text normalization, so numbers and dates are read as written.
+
+When Deepgram has no key, answers `429`, rejects its key, or fails a chunk, the
+API retries that same chunk on **VieNeu** — a local service (default
 `http://127.0.0.1:8001`, free, audio never leaves your machine, serves two
 concurrent requests) or the hosted `https://api.vieneu.io/api` (set
-`VIENEU_TTS_URL` + `VIENEU_TTS_API_KEY`; billed per character, no server to run,
-300 requests/min per key). The browser requests one chunk at a time and prefetches
-exactly one chunk ahead — beyond two concurrent requests VieNeu answers `429` — so
-the next sentence is already decoded when the current one finishes: a 356-character
-answer starts sounding after ~1.5 s and plays in 6 s with no gap, versus 12.2 s for a
-single request. Chunk audio is cached as blob URLs keyed by voice + text, so
-**Listen again** replays instantly without re-synthesizing.
+`VIENEU_TTS_URL` + `VIENEU_TTS_API_KEY`; billed per character). The successful
+engine is named in the `X-TTS-Provider` response header, and a rejected key is
+remembered for 60 s instead of being retried on every chunk.
 
-If no engine answers, `GET /api/voice/tts/status` reports
-`available: false` and the client switches to `window.speechSynthesis` with no
-error message. A cloud key that is wrong or revoked is remembered for 60 s instead of
-being retried on every chunk. That fallback strips markdown and emoji, caps the answer at 500
-characters on a sentence boundary, and splits it into ≤180-character chunks; the
-voice follows the language of the answer (Vietnamese diacritics force `vi-VN`
-even on the English UI) and prefers locally installed voices. The browser engine
-is only a fallback: Chrome on this machine lists `Linh/vi-VN` yet still speaks
-Vietnamese text with an English voice, which is what moved TTS server-side. Edge
-Read Aloud was tested and is unusable here (Microsoft rejects the websocket
-handshake with 401/403), and the Gemini key is quota-limited.
+The browser requests one chunk at a time and prefetches exactly one chunk ahead,
+so the next sentence is already decoded when the current one finishes. Chunk
+audio is cached as blob URLs keyed by text, so **Listen again** replays instantly
+without re-synthesizing. The answer is stripped of markdown/emoji, capped at 500
+characters on a sentence boundary and split into ≤180-character chunks.
+
+If neither engine answers, `GET /api/voice/tts/status` reports `available: false`
+(or playback fails) and the assistant shows an error; the full answer stays in
+the chat bubble. There is no `window.speechSynthesis` fallback: it silently read
+Vietnamese with an English voice on this machine, which is what moved TTS
+server-side.
 
 Every answer — typed or spoken — has a **Listen again** button; replies to voice
-questions start playing automatically. Clicking the mic primes the audio session
-so iOS Safari allows playback later; if a browser blocks autoplay or has no
-matching voice, the assistant shows a message and the full answer stays in the
-chat bubble. Configure the engine with `VIENEU_TTS_*` and `TTS_*` (see
-`apps/api/.env.example`). Full voice reference:
-[docs/ai-assistant/voice.md](docs/ai-assistant/voice.md).
+questions start playing automatically, and a browser that blocks autoplay shows a
+"select Listen again" message instead. Configure the engines with
+`DEEPGRAM_TTS_*`, `VIENEU_TTS_*` and `TTS_*` (see `apps/api/.env.example`). Full
+voice reference: [docs/ai-assistant/voice.md](docs/ai-assistant/voice.md).
 
 ### Accounts: email + Google sign-in
 
