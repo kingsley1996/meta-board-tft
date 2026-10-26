@@ -108,6 +108,13 @@ Thứ tự cứng, nhánh nào khớp dừng ngay:
 - `findEntityMentions(catalog, text)` — khớp tên/alias (đã normalize bỏ dấu), gồm `nameVi`;
   `findCompMentions(comps, text, compAliases)` — alias comp: exact + subsequence ≥3 từ
   (`findCompMentions` trong orchestrator.ts).
+- **Fuzzy fallback** (`findFuzzyEntityMentions`): khi không alias nào khớp exact — user gõ sai
+  hoặc STT nhận diện lệch — trượt cửa sổ 1–3 token trên văn bản đã normalize, so Levenshtein
+  với alias index (chỉ nhận distance ≤1 với alias <8 ký tự, ≤2 với alias dài; cửa sổ ≥4 ký tự).
+  Chỉ resolve khi **một** entity tốt nhất không có đối thủ cùng distance — mơ hồ thì bỏ qua để
+  giữ luồng hỏi lại. Match gắn `matchedText` (từ gốc của user) + limitation minh bạch:
+  «"..." mình hiểu là X — nếu sai, viết lại tên chính xác». Trace `entity_resolution` ghi
+  `fuzzyMatchedText`/`fuzzyResolvedTo`.
 - **Nếu không thấy mention nào** → `resolveFollowUpText(message, history)`:
   - `isFollowUpQuestion` khớp (regex: `what about|it|this|that|comp nay|cái này|con gì|thì sao|nếu không|...`)
     → **ghép với user message gần nhất** trong history.

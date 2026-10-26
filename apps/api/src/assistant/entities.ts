@@ -403,6 +403,54 @@ export function pickEntityMatch(matches: EntityMatch[]): { entity: CatalogEntity
   return { entity: null, ambiguous: matches.slice(0, 5) };
 }
 
+// Typo/STT fallback: when no alias matches exactly, slide 1–3 token windows
+// over the normalized text and match them against the alias index with a
+// bounded edit distance (Vietnamese STT errors are typically 1–2 chars).
+// Only an unambiguous best entity is returned — competing candidates stay
+// unresolved so the clarification paths keep working.
+export function findFuzzyEntityMentions(catalog: Catalog, text: string, limit = 4): EntityMatch[] {
+  const spaced = normalizeSpaced(text);
+  if (!spaced) return [];
+  const tokens = spaced.split(' ').filter(Boolean);
+  if (tokens.length > 24) return [];
+  const candidates = new Map<string, { entity: CatalogEntity; window: string; distance: number }>();
+
+  for (let size = 1; size <= 3; size += 1) {
+    for (let start = 0; start + size <= tokens.length; start += 1) {
+      const window = tokens.slice(start, start + size).join(' ');
+      if (window.length < 4) continue;
+      for (const [alias, ids] of catalog.aliases) {
+        if (Math.abs(alias.length - window.length) > 2) continue;
+        const distance = editDistance(window, alias);
+        const allowed = alias.length >= 8 ? 2 : 1;
+        if (distance > allowed) continue;
+        for (const id of ids) {
+          const entity = catalog.byId.get(id);
+          if (!entity) continue;
+          const existing = candidates.get(id);
+          if (!existing || distance < existing.distance || (distance === existing.distance && window.length > existing.window.length)) {
+            candidates.set(id, { entity, window, distance });
+          }
+        }
+      }
+    }
+  }
+  if (!candidates.size) return [];
+
+  const best = [...candidates.values()].sort(
+    (a, b) => a.distance - b.distance || b.window.length - a.window.length || a.entity.name.localeCompare(b.entity.name)
+  );
+  const top = best[0];
+  // A second entity at the same distance means the typo is ambiguous — do not
+  // guess between them.
+  const competing = best.filter(
+    (entry) => entry.entity.id !== top.entity.id && entry.distance === top.distance
+  );
+  if (competing.length) return [];
+
+  return [{ entity: top.entity, score: 60, matchedText: top.window }];
+}
+
 export function findEntityMentions(catalog: Catalog, text: string, limit = 10): EntityMatch[] {
   const spaced = ` ${normalizeSpaced(text)} `;
   if (!spaced.trim()) return [];

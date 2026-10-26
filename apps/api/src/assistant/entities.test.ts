@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { entityId, parseEntityId } from './contracts.ts';
 import { ENTITY_ALIAS_GROUPS } from './entity-aliases.ts';
-import { localizeEntityNames, type Catalog } from './entities.ts';
+import { findFuzzyEntityMentions, localizeEntityNames, normalizeSpaced, type Catalog } from './entities.ts';
 import { buildCatalog, findEntityMentions, grantedTrait, normalize, pickEntityMatch, searchCatalog, type DbRows, type EntityMatch } from './entities.ts';
 import { loadStaticGameData } from './static-game-data.ts';
 
@@ -188,4 +188,41 @@ test('localizeEntityNames rewrites canonical entity names in prose for vi', () =
   assert.equal(vi, 'Chơi với Nâng Cấp Tà Thuật để lấy Vuốt Bóng Đêm Ánh Sáng.');
   // English requests keep canonical names untouched.
   assert.equal(localizeEntityNames('Play Dark Ritual.', catalog, 'en'), 'Play Dark Ritual.');
+});
+
+test('findFuzzyEntityMentions resolves typos and STT errors within edit distance', () => {
+  const entities = [
+    { id: 'champion:DA_18_Akali', type: 'champion', name: 'Akali', nameVi: 'Akali' },
+    { id: 'trait:DA_Riftbeast18', type: 'trait', name: 'Riftbeast', nameVi: 'Quái Rừng' },
+    { id: 'trait:DA_18_Coven', type: 'trait', name: 'Coven', nameVi: 'Tiên Hắc Ám' },
+    { id: 'item:DA_StrikersFlail', type: 'item', name: "Striker's Flail", nameVi: 'Chùy Đoản Côn' },
+  ];
+  const catalog = {
+    byId: new Map(entities.map((entity) => [entity.id, entity])),
+    byName: new Map(entities.map((entity) => [entity.name, entity])),
+    aliases: new Map(
+      entities.flatMap((entity) =>
+        [entity.name, entity.nameVi].map((alias) => [normalizeSpaced(alias), new Set([entity.id])])
+      )
+    ),
+  } as unknown as Catalog;
+
+  // Typo in an English name (distance 1).
+  const typo = findFuzzyEntityMentions(catalog, 'Akli nen len do gi');
+  assert.equal(typo.length, 1);
+  assert.equal(typo[0].entity.id, 'champion:DA_18_Akali');
+
+  // STT-style Vietnamese confusion ("Tiên" misheard as "Tân", distance 2 on a
+  // long alias).
+  const stt = findFuzzyEntityMentions(catalog, 'Tan Hac Am nen no hu moc bao nhieu');
+  assert.equal(stt.length, 1);
+  assert.equal(stt[0].entity.id, 'trait:DA_18_Coven');
+  assert.equal(stt[0].matchedText, 'tan hac am');
+
+  // Short windows never fuzzy-match ("con" vs "coven" territory).
+  assert.deepEqual(findFuzzyEntityMentions(catalog, 'choi con'), []);
+
+  // Ambiguous typo: two entities at the same distance stay unresolved.
+  const ambiguous = findFuzzyEntityMentions(catalog, 'garen darius abcd efgh ijkl');
+  assert.deepEqual(ambiguous, []);
 });

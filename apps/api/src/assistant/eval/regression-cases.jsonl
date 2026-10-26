@@ -11,3 +11,6 @@
 {"id": "reg-set-patch-vi", "question": "MetaBoard đang dùng set nào?", "lang": "vi", "expect": {"status": "answered", "intent": "set_patch", "mode": "deterministic", "contains": ["Set 18"]}}
 {"id": "reg-trait-roster-vi", "question": "Quái rừng gồm những con nào", "lang": "vi", "expect": {"status": "answered", "intent": "gameplay_knowledge", "matches": ["Sỏi|Sói Hắc Ám|Bụi Gai Đỏ|Rồng Ngàn Tuổi|Cua Kỳ Cục"], "forbidden": ["không có danh sách tướng", "không có danh sách tướng cụ thể"]}}
 {"id": "reg-item-holder-wording-vi", "question": "Găng Đấu Sĩ nên dùng cho tướng nào", "lang": "vi", "expect": {"status": "answered", "intent": "gameplay_knowledge", "matches": ["Camille|Akali|Master Yi|Ahri|Ezreal|Soraka|Sivir"], "forbidden": ["chưa tìm thấy comp nào khớp"]}}
+{"id": "reg-typo-akali-vi", "question": "Akli nen len trang bi gi", "lang": "vi", "expect": {"status": "answered", "intent": "entity_lookup", "matches": ["Akali"]}}
+{"id": "reg-stt-coven-vi", "question": "Tân Hắc Ám nên nổ hũ mốc bao nhiêu", "lang": "vi", "expect": {"status": "answered", "matches": ["mốc|Thu hoạch|Tinh"]}}
+{"id": "reg-typo-item-vi", "question": "Edge of Nigt lên cho ai", "lang": "vi", "expect": {"status": "answered", "intent": "gameplay_knowledge"}}

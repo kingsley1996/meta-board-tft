@@ -143,7 +143,7 @@ export type TraitRoster = {
   champions: { name: string; cost: number | null }[];
 };
 
-export type EntityMatch = { entity: CatalogEntity; score: number };
+export type EntityMatch = { entity: CatalogEntity; score: number; matchedText?: string };
 
 export type RankingQuery = {
   championIds: EntityId[];

@@ -9,6 +9,7 @@ import {
   type AssistantResponse,
   type AssistantSection,
   type AssistantSource,
+  type EntityMatch,
   type EntityRef,
   type TraitRoster,
   type AssistantStatus,
@@ -26,6 +27,7 @@ import {
 } from './contracts.ts';
 import {
   findEntityMentions,
+  findFuzzyEntityMentions,
   grantedTrait,
   localizeEntityNames,
   localizedName,
@@ -1024,6 +1026,16 @@ async function answerAssistantImpl(
     entityMentions = findEntityMentions(catalog, mentionText);
     compMentions = findCompMentions(comps, mentionText, catalog.compAliases);
   }
+  // Typo / STT fallback: exact aliases missed, so try bounded-edit-distance
+  // matching and tell the user what was understood, in case it guessed wrong.
+  let fuzzyMatch: EntityMatch | null = null;
+  if (!entityMentions.length) {
+    const [fuzzy] = findFuzzyEntityMentions(catalog, mentionText);
+    if (fuzzy) {
+      entityMentions = [fuzzy];
+      fuzzyMatch = fuzzy;
+    }
+  }
   const carriedComps =
     entityMentions.length || compMentions.length ? [] : carryOverComps(request.message, request.history, comps);
 
@@ -1056,11 +1068,12 @@ async function answerAssistantImpl(
     step: 'entity_resolution',
     intent,
     inputSummary: summarizeReasoningText(request.message),
-    outputSummary: `${entities.length} entities, ${mentionedComps.length} comps`,
+    outputSummary: `${entities.length} entities, ${mentionedComps.length} comps${fuzzyMatch ? ' (fuzzy)' : ''}`,
     details: {
       entityIds: entities.map((entity) => entity.id),
       compSlugs: mentionedComps.map((comp) => comp.slug),
       ...(carriedComps.length ? { carriedComps: carriedComps.map((comp) => comp.slug) } : {}),
+      ...(fuzzyMatch ? { fuzzyMatchedText: fuzzyMatch.matchedText, fuzzyResolvedTo: fuzzyMatch.entity.id } : {}),
     },
   });
 
@@ -1569,6 +1582,15 @@ async function answerAssistantImpl(
   const limitations = [
     t(request.lang, 'Answers are based on MetaBoard structured data.', 'Câu trả lời dựa trên dữ liệu cấu trúc của MetaBoard.'),
   ];
+  if (fuzzyMatch?.matchedText) {
+    limitations.push(
+      t(
+        request.lang,
+        `I read "${fuzzyMatch.matchedText}" as ${displayName(fuzzyMatch.entity, request.lang)}; rephrase if I guessed wrong.`,
+        `"${fuzzyMatch.matchedText}" mình hiểu là ${displayName(fuzzyMatch.entity, request.lang)} — nếu mình hiểu sai, bạn viết lại tên chính xác nhé.`
+      )
+    );
+  }
   if (toolFailures.length) {
     limitations.push(t(request.lang, 'Some data lookups failed; the answer uses only verified results.', 'Một số bước tra cứu thất bại; câu trả lời chỉ dùng dữ liệu đã xác minh.'));
   }
