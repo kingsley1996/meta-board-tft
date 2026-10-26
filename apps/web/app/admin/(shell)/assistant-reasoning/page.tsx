@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { AdminPageHeader, btnGhost, inputCls } from '@/components/admin/ui';
 import { adminCookieHeader } from '@/lib/admin-session';
 import { backendJson } from '@/lib/backend';
+import { prettyString } from '@/lib/trace-format';
 
 export const dynamic = 'force-dynamic';
 
@@ -99,6 +100,43 @@ function stepBadgeClass(step: ReasoningStep): string {
   return 'border-brand-soft/40 bg-brand-soft/10 text-brand-soft';
 }
 
+function DetailRow({ name, text }: { name?: string; text: string }) {
+  return (
+    <p className="break-words font-mono">
+      {name ? <span className="font-bold text-fog">{name}: </span> : null}
+      {text}
+    </p>
+  );
+}
+
+function DetailValue({ name, value }: { name?: string; value: unknown }) {
+  if (value !== null && typeof value === 'object') {
+    const entries: [string, unknown][] = Array.isArray(value)
+      ? value.map((item, index) => [`[${index}]`, item])
+      : Object.entries(value);
+    if (!entries.length) return <DetailRow name={name} text={Array.isArray(value) ? '[]' : '{}'} />;
+    return (
+      <div className="flex flex-col gap-1">
+        {name ? <p className="break-words font-mono font-bold text-fog">{name}</p> : null}
+        <div className="flex flex-col gap-1 border-l border-line pl-3">
+          {entries.map(([key, item]) => <DetailValue key={key} name={key} value={item} />)}
+        </div>
+      </div>
+    );
+  }
+  if (typeof value === 'string') {
+    const text = prettyString(value);
+    if (!text.includes('\n')) return <DetailRow name={name} text={text} />;
+    return (
+      <div className="flex flex-col gap-1">
+        {name ? <p className="break-words font-mono font-bold text-fog">{name}</p> : null}
+        <pre className="whitespace-pre-wrap break-words rounded bg-panel p-2 font-mono">{text}</pre>
+      </div>
+    );
+  }
+  return <DetailRow name={name} text={value === null ? 'null' : String(value)} />;
+}
+
 function TraceCard({ trace }: { trace: ReasoningTrace }) {
   const question = trace.steps.find((step) => step.input_summary)?.input_summary ?? '';
   const intent = trace.steps.find((step) => step.intent)?.intent ?? null;
@@ -144,9 +182,11 @@ function TraceCard({ trace }: { trace: ReasoningTrace }) {
             {Object.keys(step.details ?? {}).length ? (
               <details className="text-xs text-mist">
                 <summary className="cursor-pointer text-[11px] font-semibold hover:text-fog">Details</summary>
-                <pre className="mt-1 overflow-x-auto whitespace-pre-wrap break-words rounded-lg bg-page p-3">
-                  {JSON.stringify(step.details, null, 2)}
-                </pre>
+                <div className="mt-1 flex flex-col gap-2 rounded-lg bg-page p-3">
+                  {Object.entries(step.details).map(([key, value]) => (
+                    <DetailValue key={key} name={key} value={value} />
+                  ))}
+                </div>
               </details>
             ) : null}
           </li>
