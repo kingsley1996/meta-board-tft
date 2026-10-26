@@ -18,7 +18,7 @@ next-env.d.ts
 
 # icon downloads — regenerate with `npm run fetch-data` (lib/tft.json is tracked; it's small and the build imports it)
 # loot table art — regenerate with `npm run fetch-loot`
-apps/web/public/tft/
+#apps/web/public/tft/
 apps/web/scripts/.cache/
 apps/api/models/
 
