@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  activeAssistantModel,
   activeAssistantProvider,
   geminiContents,
   generateAssistantAnswer,
@@ -12,6 +13,7 @@ import {
   sanitizeGeminiSchema,
   type ProviderChatMessage,
   type ProviderRequest,
+  type ProviderTraceEvent,
 } from './provider.ts';
 
 const originalFetch = globalThis.fetch;
@@ -83,6 +85,31 @@ test('reports request deadline as timeout', async () => {
     globalThis.fetch = originalFetch;
     delete process.env.ASSISTANT_REQUEST_TIMEOUT_MS;
     delete process.env.ASSISTANT_LOAD_TIMEOUT_MS;
+  }
+});
+
+test('traces each provider attempt and retry', async () => {
+  process.env.ASSISTANT_PROVIDER = 'ollama';
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    if (calls === 1) return reply({ error: 'busy' }, 500);
+    return reply({ message: { content: '{"answer":"ok"}' }, prompt_eval_count: 12, eval_count: 4 });
+  };
+  const events: ProviderTraceEvent[] = [];
+  try {
+    const result = await generateAssistantAnswer(mappedRequest({ trace: (event) => events.push(event) }));
+    assert.equal(result.text, '{"answer":"ok"}');
+    assert.deepEqual(
+      events.map((event) => `${event.type}:${event.attempt}`),
+      ['attempt:1', 'retry:1', 'attempt:2']
+    );
+    const retry = events[1];
+    assert.equal(retry?.type === 'retry' ? retry.reason : '', 'http_500');
+    assert.equal(retry?.model, activeAssistantModel());
+  } finally {
+    delete process.env.ASSISTANT_PROVIDER;
+    globalThis.fetch = originalFetch;
   }
 });
 

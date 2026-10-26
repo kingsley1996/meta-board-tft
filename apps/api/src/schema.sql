@@ -179,7 +179,9 @@ CREATE INDEX IF NOT EXISTS assistant_messages_conversation_id_idx ON assistant_m
 -- recommendations and sources; NULL for messages persisted before this column.
 ALTER TABLE assistant_messages ADD COLUMN IF NOT EXISTS response jsonb;
 
--- Assistant decision trace for admin observability; does not store model chain-of-thought.
+-- Assistant decision trace for admin observability; no model chain-of-thought.
+-- llm_generation rows carry the prompt and raw response (truncated per field)
+-- plus every provider attempt/retry, so answers can be audited end to end.
 -- conversation_id is not a FK so traces still write when conversation persistence fails
 -- for that request; user-initiated conversation deletes purge their traces explicitly.
 -- Rows older than ASSISTANT_REASONING_RETENTION_DAYS (default 30) are pruned daily.

@@ -18,7 +18,15 @@ import {
 } from './contracts.ts';
 import { findEntityMentions, grantedTrait, localizedName, normalize, normalizeSpaced, type Catalog } from './entities.ts';
 import { buildSystemPrompt, buildToolAgentPrompt, buildToolPlannerPrompt, buildUserPrompt, type Evidence } from './prompt.ts';
-import { generateAssistantAnswer, ProviderError, type ProviderChatMessage, type ProviderResult } from './provider.ts';
+import {
+  activeAssistantModel,
+  activeAssistantProvider,
+  generateAssistantAnswer,
+  ProviderError,
+  type ProviderChatMessage,
+  type ProviderRequest,
+  type ProviderResult,
+} from './provider.ts';
 import { rankComps } from './ranking.ts';
 import { compareComps, getActiveSetAndPatch, loadCatalog } from './tools.ts';
 import { compStats, entityStats, loadMetaStats, type StatEvidence } from './meta-stats.ts';
@@ -107,6 +115,27 @@ function createAnswerFieldStreamer(onDelta: (chunk: string) => void): (chunk: st
     buffer = buffer.slice(index);
     if (decoded) onDelta(decoded);
   };
+}
+
+// Prompts and responses are kept verbatim in the trace so an admin can replay
+// exactly what the provider saw; caps keep one request from bloating the table.
+const traceSystemLimit = 20_000;
+const traceMessageLimit = 8_000;
+const traceResponseLimit = 20_000;
+
+function traceText(value: string, max: number): string {
+  return value.length <= max ? value : `${value.slice(0, max)}…[truncated ${value.length - max} chars]`;
+}
+
+function traceMessages(messages: ProviderChatMessage[]): unknown[] {
+  return messages.map((message) => ({
+    role: message.role,
+    ...(message.role === 'tool' ? { tool_name: message.tool_name } : {}),
+    content: traceText(message.content, traceMessageLimit),
+    ...(message.role === 'assistant' && message.tool_calls?.length
+      ? { tool_calls: message.tool_calls.map((call) => ({ name: call.function.name, arguments: call.function.arguments })) }
+      : {}),
+  }));
 }
 
 const SIMPLE_INTENTS: AssistantIntent[] = ['entity_lookup', 'comp_search', 'gameplay_knowledge'];
@@ -908,6 +937,88 @@ export async function answerAssistant(
     },
   });
 
+  // Every model call is traced with the exact prompt, provider attempts/retries,
+  // raw response and failure, so an admin can audit quality per request.
+  const tracedGenerate = (purpose: 'answer' | 'tool_plan', providerRequest: ProviderRequest): Promise<ProviderResult> => {
+    const startedAt = Date.now();
+    const provider = activeAssistantProvider();
+    const activeModel = activeAssistantModel();
+    const traceStep = (fields: {
+      status?: AssistantStatus;
+      outputSummary?: string;
+      durationMs?: number;
+      details: Record<string, unknown>;
+    }): void => {
+      logReasoningStep({ step: 'llm_generation', intent, mode: 'llm', ...fields });
+    };
+
+    traceStep({
+      outputSummary: `${purpose} · ${provider}/${activeModel} · ${providerRequest.messages.length} messages`,
+      details: {
+        phase: 'request',
+        purpose,
+        provider,
+        model: activeModel,
+        maxOutputTokens: providerRequest.maxOutputTokens,
+        format: providerRequest.format ?? 'default',
+        tools: providerRequest.tools?.map((tool) => tool.function.name) ?? [],
+        system: traceText(providerRequest.system, traceSystemLimit),
+        messages: traceMessages(providerRequest.messages),
+      },
+    });
+
+    return generate({
+      ...providerRequest,
+      trace: (event) => {
+        traceStep({
+          status: event.type === 'retry' ? 'error' : undefined,
+          outputSummary: event.type === 'retry' ? `retry #${event.attempt}: ${event.reason}` : `attempt #${event.attempt}`,
+          durationMs: event.type === 'retry' ? event.durationMs : undefined,
+          details: { phase: event.type, purpose, ...event },
+        });
+      },
+    }).then(
+      (result) => {
+        traceStep({
+          status: 'answered',
+          outputSummary: summarizeReasoningText(result.text),
+          durationMs: Date.now() - startedAt,
+          details: {
+            phase: 'response',
+            purpose,
+            provider,
+            model: result.model,
+            text: traceText(result.text, traceResponseLimit),
+            usage: result.usage,
+            streamed: typeof providerRequest.onDelta === 'function',
+            toolCalls: result.toolCalls.map((call) => ({
+              name: call.name,
+              arguments: call.arguments,
+              ...(call.argumentError ? { argumentError: call.argumentError } : {}),
+            })),
+          },
+        });
+        return result;
+      },
+      (error: unknown) => {
+        traceStep({
+          status: 'error',
+          outputSummary: `error: ${error instanceof ProviderError ? error.code : 'provider_error'}`,
+          durationMs: Date.now() - startedAt,
+          details: {
+            phase: 'error',
+            purpose,
+            provider,
+            model: activeModel,
+            code: error instanceof ProviderError ? error.code : 'provider_error',
+            message: summarizeReasoningText(error instanceof Error ? error.message : 'unknown error', 500),
+          },
+        });
+        throw error;
+      }
+    );
+  };
+
   const version = `set${meta.setId || '?'}-patch${meta.patch || 'latest'}`;
   const repeated = [...entities
     .reduce((groups, entity) => {
@@ -1121,7 +1232,7 @@ export async function answerAssistant(
         signal,
         provenance: { setId: meta.setId, patch: meta.patch },
         finalizeModel: false,
-        generate: (request) => withInferenceSlot(() => generate(request)),
+        generate: (request) => withInferenceSlot(() => tracedGenerate('tool_plan', request)),
       });
       toolMessages = loop.messages;
       toolFinal = loop.final;
@@ -1371,10 +1482,9 @@ export async function answerAssistant(
   try {
     let result = toolFinal;
     if (!result || !parseGeneratedAnswer(result.text)) {
-      const llmStart = Date.now();
       const onDelta = deps.onAnswerDelta;
       result = await withInferenceSlot(() =>
-        generate({
+        tracedGenerate('answer', {
           system: buildSystemPrompt(request.lang, evidence),
           messages: [
             ...request.history.map((entry) => ({ role: entry.role, content: entry.content })),
@@ -1386,15 +1496,6 @@ export async function answerAssistant(
           ...(onDelta ? { onDelta: createAnswerFieldStreamer(onDelta) } : {}),
         })
       );
-      logReasoningStep({
-        step: 'llm_generation',
-        intent,
-        mode: 'llm',
-        inputSummary: summarizeReasoningText(request.message),
-        outputSummary: 'Generated response received.',
-        details: { model: result.model, inputTokens: result.usage.inputTokens, outputTokens: result.usage.outputTokens },
-        durationMs: Date.now() - llmStart,
-      });
     }
     const parsed = parseGeneratedAnswer(result.text);
     if (!parsed) {
@@ -1481,6 +1582,9 @@ export async function answerAssistant(
       outputSummary: summarizeReasoningText(referenceAnswer || deterministic.answer),
       details: {
         reason: error instanceof ProviderError ? error.code : 'generation_error',
+        provider: activeAssistantProvider(),
+        model: activeAssistantModel(),
+        message: error instanceof Error ? summarizeReasoningText(error.message, 300) : 'unknown error',
         fallbackUsed: true,
       },
     });

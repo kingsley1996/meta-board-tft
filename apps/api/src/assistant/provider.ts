@@ -34,6 +34,10 @@ export type ProviderChatMessage =
     }
   | ProviderToolMessage;
 
+export type ProviderTraceEvent =
+  | { type: 'attempt'; provider: string; model: string; attempt: number }
+  | { type: 'retry'; provider: string; model: string; attempt: number; reason: string; durationMs: number };
+
 export type ProviderRequest = {
   system: string;
   messages: ProviderChatMessage[];
@@ -45,6 +49,9 @@ export type ProviderRequest = {
   // decoded content chunk as it arrives. The returned ProviderResult still
   // carries the full accumulated text.
   onDelta?: (chunk: string) => void;
+  // Observability hook: records each provider attempt and retry. Success and
+  // failure are traced by the caller, which owns the request id and purpose.
+  trace?: (event: ProviderTraceEvent) => void;
 };
 
 export type ProviderResult = {
@@ -215,6 +222,7 @@ async function generateWithOllama(request: ProviderRequest): Promise<ProviderRes
   for (let attempt = 0; attempt < 2; attempt++) {
     const remaining = deadline - Date.now();
     if (remaining <= 0) throw new ProviderError('timeout', 'Ollama request timed out');
+    request.trace?.({ type: 'attempt', provider: 'ollama', model, attempt: attempt + 1 });
     const timeout = AbortSignal.timeout(remaining);
     const signal = AbortSignal.any([request.signal, timeout]);
     let response: Response;
@@ -244,6 +252,7 @@ async function generateWithOllama(request: ProviderRequest): Promise<ProviderRes
       if (abortError(error) || signal.aborted) throw new ProviderError('timeout', 'Ollama request timed out');
       if (attempt === 0 && Date.now() + 500 < deadline) {
         assistantLog('provider_retry', { attempt: attempt + 1, reason: 'network', durationMs: Date.now() - started });
+        request.trace?.({ type: 'retry', provider: 'ollama', model, attempt: attempt + 1, reason: 'network', durationMs: Date.now() - started });
         await new Promise((resolve) => setTimeout(resolve, 400));
         continue;
       }
@@ -258,6 +267,7 @@ async function generateWithOllama(request: ProviderRequest): Promise<ProviderRes
       }
       if (response.status >= 500 && attempt === 0 && Date.now() + 500 < deadline) {
         assistantLog('provider_retry', { attempt: attempt + 1, reason: `http_${response.status}`, durationMs: Date.now() - started });
+        request.trace?.({ type: 'retry', provider: 'ollama', model, attempt: attempt + 1, reason: `http_${response.status}`, durationMs: Date.now() - started });
         await new Promise((resolve) => setTimeout(resolve, 400));
         continue;
       }
@@ -320,6 +330,14 @@ export function activeAssistantProvider(): AssistantProviderId {
   if (raw === 'google') return 'google';
   if (raw === 'openai') return 'openai';
   return 'ollama';
+}
+
+// Model the active provider will use; shown in traces before the first response.
+export function activeAssistantModel(): string {
+  const provider = activeAssistantProvider();
+  if (provider === 'google') return googleModelName();
+  if (provider === 'openai') return openaiRemoteConfig()?.model ?? 'gpt-4o-mini';
+  return process.env.ASSISTANT_MODEL ?? 'qwen3.5:9b';
 }
 
 export async function generateAssistantAnswer(request: ProviderRequest): Promise<ProviderResult> {
@@ -617,6 +635,7 @@ async function generateWithGoogle(request: ProviderRequest): Promise<ProviderRes
     : null;
   const started = Date.now();
   for (let attempt = 0; ; attempt++) {
+    request.trace?.({ type: 'attempt', provider: 'google', model, attempt: attempt + 1 });
     try {
       const result = await runRemote('Google API', request, async (signal) => {
         const endpoint = streaming
@@ -652,6 +671,14 @@ async function generateWithGoogle(request: ProviderRequest): Promise<ProviderRes
         error.code === 'error'
       ) {
         assistantLog('provider_retry', { provider: 'google', attempt: attempt + 1, durationMs: Date.now() - started });
+        request.trace?.({
+          type: 'retry',
+          provider: 'google',
+          model,
+          attempt: attempt + 1,
+          reason: error.message.slice(0, 200),
+          durationMs: Date.now() - started,
+        });
         await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 1000 : 2500));
         continue;
       }
@@ -888,6 +915,7 @@ async function generateWithOpenAI(request: ProviderRequest): Promise<ProviderRes
     : null;
   const started = Date.now();
   for (let attempt = 0; ; attempt++) {
+    request.trace?.({ type: 'attempt', provider: providerName, model: config.model, attempt: attempt + 1 });
     try {
       const result = await runRemote(providerName, request, async (signal) => {
         const response = await fetch(`${config.base}/chat/completions`, {
@@ -917,6 +945,14 @@ async function generateWithOpenAI(request: ProviderRequest): Promise<ProviderRes
     } catch (error) {
       if (attempt < 2 && !streamed && error instanceof ProviderError && error.code === 'error') {
         assistantLog('provider_retry', { provider: providerName, attempt: attempt + 1, durationMs: Date.now() - started });
+        request.trace?.({
+          type: 'retry',
+          provider: providerName,
+          model: config.model,
+          attempt: attempt + 1,
+          reason: error.message.slice(0, 200),
+          durationMs: Date.now() - started,
+        });
         await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 1000 : 2500));
         continue;
       }

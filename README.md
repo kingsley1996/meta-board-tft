@@ -153,11 +153,15 @@ account, so Coach AI history follows the user across devices. See
 
 Admin users can inspect recent Coach AI events at **Admin → Assistant
 reasoning**. Traces are grouped per request and show each step in the order the
-assistant ran it (intent, entity resolution, tool calls with arguments,
-generation, validation, fallback, final answer); filter by request or
-conversation ID. Traces store short input/output summaries rather than
-private model chain-of-thought. Access is protected by the admin session.
-Deleting a conversation also deletes its traces, and rows older than
+assistant ran it (intent, entity resolution, tool calls with arguments, every
+model call, validation, fallback, final answer); filter by request or
+conversation ID. Each model call records the provider, model, full prompt sent,
+raw response, token usage, latency, every attempt/retry and the failure that
+triggered a fallback, so answer quality can be audited end to end. Prompts and
+responses are truncated per field (20k characters for the system prompt and
+response, 8k per message) but never summarized away. No hidden
+chain-of-thought is stored. Access is protected by the admin session. Deleting a
+conversation also deletes its traces, and rows older than
 `ASSISTANT_REASONING_RETENTION_DAYS` (default 30) are pruned daily.
 The `assistant_reasoning_logs` table is defined in `apps/api/src/schema.sql`.
 

@@ -179,7 +179,7 @@ export default async function AdminAssistantReasoningPage({ searchParams }: { se
     <>
       <AdminPageHeader
         title="Assistant reasoning"
-        sub="One card per request. Steps are shown in the order the coach ran them: intent, entities, tool calls, generation, validation, fallback, answer. Summaries only; no model chain-of-thought."
+        sub="One card per request. Steps follow the coach's order: intent, entities, tool calls, every model call (provider, model, prompt, raw response, retries), validation, fallback and answer. Truncated prompts/responses are kept for the reasoning retention window; no hidden chain-of-thought."
       />
 
       <form action="/admin/assistant-reasoning" className="grid gap-3 rounded-xl border border-line bg-panel p-4 md:grid-cols-[1fr_1fr_auto_auto] md:items-end">
