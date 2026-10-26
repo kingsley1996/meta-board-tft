@@ -6,6 +6,8 @@ export async function middleware(request: NextRequest) {
 
   // /admin has no middleware gate any more: access is an account role, and only
   // the API can read it. The (shell) layout asks /api/auth/me and redirects.
+  // It is English-only, so it must not be prefixed with the UI locale.
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return NextResponse.next();
 
   if (pathname.startsWith('/api/')) return NextResponse.next();
 
