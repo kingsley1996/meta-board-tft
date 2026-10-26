@@ -59,6 +59,7 @@ import { withInferenceSlot } from './rate-limit.ts';
 import { assistantLog } from './logger.ts';
 import { ASSISTANT_TOOLS } from './tool-registry.ts';
 import { runToolLoop, type ToolFailure, type ToolLoopResult } from './tool-loop.ts';
+import { mechanicTablePages } from './tool-registry.ts';
 import type { AmbiguousEntity } from './tool-registry.ts';
 import { COMP_ALIASES } from './entity-aliases.ts';
 import { summarizeReasoningText, type ReasoningLogWriter } from './assistant-reasoning-store.ts';
@@ -171,13 +172,12 @@ const RECOMMEND_WORD = /\b(tim|find|recommend|goi y|phu hop|nen choi|choi gi|ite
 const HAVE_WORD = /\b(toi co|minh co|i have|with|voi|using|dung)\b/;
 // Champion + item wording ("Akali nên lên trang bị gì", "what items on Akali");
 // without it those questions fall back to bare entity lookup with no builds.
-const CHAMPION_ITEM_QUESTION = /\b(trang bi|item|len do|build|core item|core)\b/;
-// Champion + augment wording — augments are comp-level in the data, so these
-// questions attach the comps fielding the champion instead of item builds.
-const CHAMPION_AUGMENT_QUESTION = /\b(augment|nang cap|oc bieu)\b/;
 // Negated entity usage inside a follow-up ("nếu không chơi với X", "not
 // playing X") — the user asks about the option without it, not comps with it.
 const NEGATED_ENTITY_USAGE = /\b(?:khong|chua)\s+(?:choi|dung|len|nang cap|lay)\b|\bnot\s+(?:playing|using|building)\b|\bwithout\b/i;
+// Cashout wording with no mechanic named — the loot tables are per-mechanic,
+// so the assistant asks which one instead of searching for nothing.
+const BARE_CASHOUT_QUESTION = /\b(no hu|thu hoach|quy doi|cash ?out)\b/i;
 const REFERENCE_DATA_QUESTION =
   /\b(?:economy plan|economy strategy|economy curve|level curve|leveling plan|round plan|fast 8|fast 9|[1-3] cost reroll|reroll plan|shop odds|odds by level|champion pool|pool size|copies in pool|xp table|gold income|base income|round income|income by round|interest|streak bonus|loot table|stage loot|loot orb|augment odds|carousel odds|encounter odds|mechanics table|ti le shop|ti le cua hang|bang xp|bang kinh te|ke hoach kinh te|ke hoach reroll|duong cong cap|thu nhap vang|thu nhap theo vong|vang theo vong|lai vang|thuong chuoi|be tuong|bang loot|ti le nang cap|bang co che)\b|\b(?:xp|exp)\b.*\b(?:level|leveling|cap|len cap)\b|\b(?:level|leveling|cap|len cap)\b.*\b(?:xp|exp)\b|\b(?:cash ?out|milestones?|rewards?|phan thuong|thu hoach|quy doi|no hu)\b/;
 
@@ -311,6 +311,13 @@ function compsUsingItems(comps: CompData[], items: CatalogEntity[]): CompData[] 
       ].some((entry) => names.has(entry.name))
     )
     .slice(0, 3);
+}
+
+// Augments are comp-level, so comps are matched through comp.augments.
+function compsUsingAugment(comps: CompData[], augments: CatalogEntity[]): CompData[] {
+  const names = new Set(augments.filter((entity) => entity.type === 'augment').map((entity) => entity.name));
+  if (!names.size) return [];
+  return comps.filter((comp) => comp.augments.some((entry) => names.has(entry.name))).slice(0, 3);
 }
 
 // Champion questions have no item to match, so comps are found by board
@@ -878,7 +885,20 @@ export function detectIntent(text: string, entities: CatalogEntity[], comps: Com
   // "Nếu không chơi với Tà Thuật thì sao?" negates the entity: ranking comps
   // that USE it would answer the opposite question, so let the LLM reason
   // from the conversation context instead.
-  if (entities.length && hasRecommendation && !(isFollowUpQuestion(text) && NEGATED_ENTITY_USAGE.test(text))) {
+  // "Găng Đấu Sĩ nên dùng cho tướng nào?" asks which champions hold an item;
+  // HAVE_WORD ("dùng") would otherwise route it to comp_recommendation, which
+  // carries neither the holder lists nor the live usage stats.
+  const itemHolderWording =
+    entities.length &&
+    !comps.length &&
+    entities.every((entity) => entity.type === 'item') &&
+    /\b(?:tướng|tuong|champion|unit|carry)\s*(?:nao|nào)\b/i.test(text);
+  if (
+    entities.length &&
+    hasRecommendation &&
+    !itemHolderWording &&
+    !(isFollowUpQuestion(text) && NEGATED_ENTITY_USAGE.test(text))
+  ) {
     return 'comp_recommendation';
   }
   if (comps.length) return 'comp_search';
@@ -1043,6 +1063,36 @@ async function answerAssistantImpl(
       ...(carriedComps.length ? { carriedComps: carriedComps.map((comp) => comp.slug) } : {}),
     },
   });
+
+  // A bare cashout/milestone question names no mechanic and the reward tables
+  // are per-mechanic: clarify with the available mechanics rather than
+  // tool-looping into an empty search or an LLM guess.
+  if (wantsReferenceData && !entities.length && !mentionedComps.length && BARE_CASHOUT_QUESTION.test(text)) {
+    const mechanics = mechanicTablePages(request.lang);
+    logReasoningStep({
+      step: 'intent_detection',
+      intent,
+      mode: 'deterministic',
+      status: 'needs_clarification',
+      inputSummary: summarizeReasoningText(request.message),
+      details: { bareCashout: true, mechanicCount: mechanics.length },
+    });
+    return {
+      conversationId: request.conversationId,
+      answer: isVi(request.lang)
+        ? `Bạn đang hỏi nổ hũ/thu hoạch của cơ chế nào? Mình có bảng cho: ${mechanics.map((page) => page.title).slice(0, 8).join(', ')}.`
+        : `Which mechanic's cashout do you mean? I have tables for: ${mechanics.map((page) => page.title).slice(0, 8).join(', ')}.`,
+      intent,
+      mode: 'deterministic',
+      resolvedContext: { setId: meta.setId, patchId: meta.patch, lang: request.lang, entities: [] },
+      recommendations: [],
+      sections: [],
+      sources: [],
+      limitations: [],
+      followUpQuestions: mechanics.slice(0, 3).map((page) => page.title),
+      status: 'needs_clarification',
+    };
+  }
 
   // Every model call is traced with the exact prompt, provider attempts/retries,
   // raw response and failure, so an admin can audit quality per request.
@@ -1226,66 +1276,58 @@ async function answerAssistantImpl(
   const relatedEntities = ['entity_lookup', 'gameplay_knowledge'].includes(intent)
     ? unique(selectedEntities.map((entity) => grantedTrait(catalog, entity)).filter((entity): entity is CatalogEntity => entity !== null))
     : [];
-  // "Akali nên lên trang bị gì?" is an item-build question about a champion:
-  // pull the comps that field her and the builds they attach, otherwise the
-  // model has nothing to recommend from and refuses. Augment wording attaches
-  // the comps too (augments are comp-level), just without item builds.
-  const wantsChampionContext =
-    ['entity_lookup', 'gameplay_knowledge'].includes(intent) &&
-    selectedEntities.some((entity) => entity.type === 'champion') &&
-    (CHAMPION_ITEM_QUESTION.test(text) || CHAMPION_AUGMENT_QUESTION.test(text));
-  const championBuildEvidence =
-    wantsChampionContext && CHAMPION_ITEM_QUESTION.test(text) ? championBuilds(comps, selectedEntities) : [];
-  const itemHolderEvidence =
-    ['entity_lookup', 'gameplay_knowledge'].includes(intent) && selectedEntities.some((entity) => entity.type === 'item')
-      ? itemHolders(comps, selectedEntities)
-      : [];
+  // Evidence assembly is entity-driven, not intent-driven: whatever entities
+  // the question resolved, their builds/holders/usage/rosters/related comps
+  // are all gathered. Intent misclassification then costs verbosity, never
+  // missing evidence — regex wording gates cannot keep up with natural phrasing.
+  const selectedChampions = selectedEntities.some((entity) => entity.type === 'champion');
+  const selectedItems = selectedEntities.some((entity) => entity.type === 'item');
+  const selectedTraits = selectedEntities.some((entity) => entity.type === 'trait');
+  const selectedAugments = selectedEntities.some((entity) => entity.type === 'augment');
+  const championBuildEvidence = selectedChampions ? championBuilds(comps, selectedEntities) : [];
+  const itemHolderEvidence = selectedItems ? itemHolders(comps, selectedEntities) : [];
   // Winrate-backed unit builds (live match data) and per-champion item usage:
   // the strongest grounds for item questions, kept off the tool loop so they
   // cost no extra LLM round-trip.
-  const unitBuildEvidence =
-    wantsChampionContext && CHAMPION_ITEM_QUESTION.test(text)
-      ? unique(
-          selectedEntities
-            .filter((entity) => entity.type === 'champion')
-            .map((entity) => unitBuildStats(metaStats, entity))
-            .filter((entry): entry is UnitBuildEvidence => entry !== null)
-        )
-      : [];
-  const itemUsageEvidence =
-    ['entity_lookup', 'gameplay_knowledge'].includes(intent) && selectedEntities.some((entity) => entity.type === 'item')
-      ? unique(
-          selectedEntities
-            .filter((entity) => entity.type === 'item')
-            .map((entity) => itemUsageStats(metaStats, entity))
-            .filter((entry): entry is ItemUsageEvidence => entry !== null)
-        )
-      : [];
-  // Trait rosters: the catalog already knows which champions carry each trait,
-  // so roster questions answer from data instead of the model's memory.
-  const traitRosterEvidence =
-    ['entity_lookup', 'gameplay_knowledge'].includes(intent)
-      ? selectedEntities
-          .filter((entity) => entity.type === 'trait')
-          .map((trait) => ({
-            trait: trait.name,
-            champions: catalog.entities
-              .filter((entity) => entity.type === 'champion' && entity.traits.includes(trait.name))
-              .sort((a, b) => (a.cost ?? 9) - (b.cost ?? 9))
-              .slice(0, 12)
-              .map((champion) => ({ name: champion.name, cost: champion.cost })),
-          }))
-          .filter((roster) => roster.champions.length > 0)
-      : [];
-  const relatedComps = ['entity_lookup', 'gameplay_knowledge'].includes(intent)
-    ? uniqueBy(
-        [
-          ...(wantsChampionContext ? compsUsingChampion(comps, selectedEntities) : []),
-          ...compsUsingItems(comps, selectedEntities),
-        ],
-        (comp) => comp.slug
+  const unitBuildEvidence = selectedChampions
+    ? unique(
+        selectedEntities
+          .filter((entity) => entity.type === 'champion')
+          .map((entity) => unitBuildStats(metaStats, entity))
+          .filter((entry): entry is UnitBuildEvidence => entry !== null)
       )
     : [];
+  const itemUsageEvidence = selectedItems
+    ? unique(
+        selectedEntities
+          .filter((entity) => entity.type === 'item')
+          .map((entity) => itemUsageStats(metaStats, entity))
+          .filter((entry): entry is ItemUsageEvidence => entry !== null)
+      )
+    : [];
+  // Trait rosters: the catalog already knows which champions carry each trait,
+  // so roster questions answer from data instead of the model's memory.
+  const traitRosterEvidence = selectedTraits
+    ? selectedEntities
+        .filter((entity) => entity.type === 'trait')
+        .map((trait) => ({
+          trait: trait.name,
+          champions: catalog.entities
+            .filter((entity) => entity.type === 'champion' && entity.traits.includes(trait.name))
+            .sort((a, b) => (a.cost ?? 9) - (b.cost ?? 9))
+            .slice(0, 12)
+            .map((champion) => ({ name: champion.name, cost: champion.cost })),
+        }))
+        .filter((roster) => roster.champions.length > 0)
+    : [];
+  const relatedComps = uniqueBy(
+    [
+      ...(selectedChampions ? compsUsingChampion(comps, selectedEntities) : []),
+      ...(selectedItems ? compsUsingItems(comps, selectedEntities) : []),
+      ...(selectedAugments ? compsUsingAugment(comps, selectedEntities) : []),
+    ],
+    (comp) => comp.slug
+  );
   const statEntities = intent === 'meta_query' && selectedComps.length ? [] : selectedEntities;
   let stats = unique(
     [
@@ -1396,9 +1438,25 @@ async function answerAssistantImpl(
   let toolFailures: ToolFailure[] = [];
   let toolStopped: ToolLoopResult['stopped'] | null = null;
   let toolAmbiguous: AmbiguousEntity[] = [];
+  // Evidence sufficiency: when entities resolved but nothing question-specific
+  // was assembled, hand the question to the planner so the model decides which
+  // tools top it up — instead of answering from generic data or refusing.
+  const evidenceThin =
+    ['entity_lookup', 'gameplay_knowledge', 'comp_recommendation', 'meta_query', 'comp_search'].includes(intent) &&
+    (selectedEntities.length > 0 || selectedComps.length > 0) &&
+    !championBuildEvidence.length &&
+    !unitBuildEvidence.length &&
+    !itemHolderEvidence.length &&
+    !itemUsageEvidence.length &&
+    !traitRosterEvidence.length &&
+    !stats.length &&
+    !candidates.length &&
+    !comparison &&
+    !mechanics;
   const shouldTryTools =
     wantsReferenceData ||
     intent === 'unsupported_or_unknown' ||
+    evidenceThin ||
     (intent === 'comp_recommendation' && /\b(?:tier|hang)\s*[sabcx]\b/i.test(text)) ||
     (intent === 'meta_query' && !stats.length);
   if (shouldTryTools) {
@@ -1726,6 +1784,7 @@ async function answerAssistantImpl(
       details: { passed: true, sectionCount: parsed.sections.length },
     });
     const generatedText = [parsed.answer, ...parsed.sections.flatMap((section) => section.points)].join(' ');
+    const rosterGaps = rosterGapSections(evidence.traitRosters, generatedText, catalog, request.lang);
     const unsupportedNumbers = intent === 'gameplay_knowledge' && mechanics ? ungroundedNumbers(generatedText, evidence) : [];
     if (unsupportedNumbers.length) {
       logReasoningStep({
@@ -1758,7 +1817,7 @@ async function answerAssistantImpl(
     return {
       ...base,
       answer: parsed.answer,
-      sections: parsed.sections,
+      sections: [...parsed.sections, ...rosterGaps],
       mode: 'llm',
       limitations: unique([...limitations, ...parsed.limitations.filter((entry) => limitations.includes(entry))]),
       followUpQuestions: parsed.followUpQuestions.length ? parsed.followUpQuestions : base.followUpQuestions,
@@ -1800,6 +1859,33 @@ export async function answerAssistant(
   const answer = await answerAssistantImpl(request, signal, deps);
   const catalog = await loadCatalog();
   return { ...answer, mentions: extractEntityMentions(answer, catalog, request.lang) };
+}
+
+// Long rosters occasionally lose their tail to the model's formatting. The
+// data is authoritative: append a section for champions the generated answer
+// dropped, instead of trusting the enumeration.
+export function rosterGapSections(
+  rosters: TraitRoster[],
+  generatedText: string,
+  catalog: Catalog,
+  lang: Lang
+): AssistantSection[] {
+  const sections: AssistantSection[] = [];
+  for (const roster of rosters) {
+    const missing = roster.champions.filter((champion) => {
+      const name = localizedName(catalog, champion.name, lang);
+      return !generatedText.includes(name);
+    });
+    if (!missing.length) continue;
+    const label = isVi(lang) ? 'vàng' : 'gold';
+    sections.push({
+      heading: `${localizedName(catalog, roster.trait, lang)}${isVi(lang) ? ' (tiếp)' : ' (cont.)'}`,
+      points: missing.map((champion) =>
+        champion.cost ? `${localizedName(catalog, champion.name, lang)} (${champion.cost} ${label})` : localizedName(catalog, champion.name, lang)
+      ),
+    });
+  }
+  return sections;
 }
 
 export function extractEntityMentions(

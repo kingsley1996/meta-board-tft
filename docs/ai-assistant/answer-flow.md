@@ -171,7 +171,9 @@ odds/XP/pool/loot/augment odds/cashout/milestone/reward, en+vi) và intent là
 | `itemHolders` | có item entity | comp dùng item (`compsUsingItems`) → unit nào cầm item đó |
 | `itemUsage` | như trên | `itemUsageStats(meta)` — top 6 tướng cầm item kèm avg/top4/win/delta (delta so với trung bình tướng, âm = tốt) + winRate theo stage hoàn thành |
 | `dataVersions` | luôn có | `{activePatch, statsPatch, mechanicsPatch}` — patch nguồn từng loại dữ liệu; system prompt bắt buộc gắn nhãn patch khi lệch nhau |
-| `traitRosters` | có trait entity (2 intent lookup) | catalog champion nào mang trait đó (tên + cost, tối đa 12) — cho câu hỏi "Quái Rừng gồm những con nào" |
+| `traitRosters` | có trait entity | catalog champion nào mang trait đó (tên + cost, tối đa 12) — cho câu hỏi "Quái Rừng gồm những con nào" |
+| `relatedComps` (mở rộng) | có augment entity | `compsUsingAugment` — comp có augment đó trong `comp.augments` |
+| bare-cashout gate | câu hỏi cashout/thu hoạch **không nêu cơ chế** | `needs_clarification` deterministic liệt kê các cơ chế có bảng (`mechanicTablePages`), kèm follow-up tappable |
 | `relatedComps` | 2 intent lookup | hợp `compsUsingChampion` (khi `wantsChampionContext`) ∪ `compsUsingItems`, dedupe slug, tối đa 3 |
 | `stats` | mọi intent trừ meta_query có comp | `entityStats` (champion/item/augment) + `compStats` từ `meta.json` |
 | `candidates` | `comp_recommendation` | `rankComps` — chấm điểm trùng champion/item/augment/style/difficulty, top 5 |
@@ -188,14 +190,21 @@ odds/XP/pool/loot/augment odds/cashout/milestone/reward, en+vi) và intent là
 
 ## 8. Tool loop
 
-**Trigger** (`shouldTryTools`) — chỉ 4 trường hợp được gọi tool:
+**Trigger** (`shouldTryTools`) — các trường hợp được gọi tool:
 
 1. `wantsReferenceData` (bảng kinh tế/shop odds/loot/cashout/milestone/reward...),
 2. intent `unsupported_or_unknown`,
-3. `comp_recommendation` có nhắc tier S/A/B/C/X,
-4. `meta_query` mà chưa có stats tĩnh nào.
+3. **`evidenceThin`** — đã resolve entity/comp nhưng evidence không có gì đặc thù
+   (không builds/holders/usage/rosters/stats/candidates/comparison/mechanics):交给
+   planner để **model tự quyết định gọi tool nào** thay vì trả lời từ dữ liệu chung,
+4. `comp_recommendation` có nhắc tier S/A/B/C/X,
+5. `meta_query` mà chưa có stats tĩnh nào.
 
-Intent `entity_lookup`/`gameplay_knowledge` thường **không** gọi tool — dữ liệu đã bơm tĩnh (§7).
+Từ commit hybrid: **evidence assembly theo entity, không theo intent** — đã resolve
+được Akali thì builds/holders/usage/roster/related comps đều được bơm bất kể intent,
+nên routing sai intent chỉ làm đáp án dài dòng, không bao giờ thiếu căn cứ. Các regex
+wording-gate (`CHAMPION_ITEM_QUESTION`...) đã bị bỏ; chỉ còn regex ở an toàn, follow-up
+và 2 gate đặc thù (negation, item-holder wording) bảo vệ hình dạng đáp án.
 
 **`runToolLoop`** (`tool-loop.ts`):
 - Vòng 1 dùng `buildToolPlannerPrompt` (ra quyết định gọi tool); từ vòng 2 dùng

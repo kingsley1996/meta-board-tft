@@ -42,7 +42,11 @@ test('accepts structured sections and rejects invalid ones', () => {
   );
   assert.deepEqual(parseGeneratedAnswer(JSON.stringify({ answer: 'x', sections: [{ heading: '', points: ['y'] }], followUpQuestions: [], limitations: [] }))?.sections, []);
   assert.equal(
-    parseGeneratedAnswer(JSON.stringify({ answer: 'x', sections: [{ heading: 'A', points: ['1', '2', '3', '4', '5', '6', '7', '8', '9'] }], followUpQuestions: [], limitations: [] }))?.sections[0].points.length,
-    8
+    parseGeneratedAnswer(JSON.stringify({ answer: 'x', sections: [{ heading: 'A', points: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'] }], followUpQuestions: [], limitations: [] }))?.sections[0].points.length,
+    12
+  );
+  assert.equal(
+    parseGeneratedAnswer(JSON.stringify({ answer: 'x', sections: [{ heading: 'A', points: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'] }], followUpQuestions: [], limitations: [] }))?.sections[0].points.length,
+    12
   );
 });

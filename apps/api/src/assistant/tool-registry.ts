@@ -209,6 +209,23 @@ function normalized(value: string): string {
   return normalizeSpaced(value);
 }
 
+// Per-mechanic reward tables (cashouts, harvests, milestones) as opposed to
+// the system-wide reference tables. Bare cashout questions ("nên nổ hũ mốc
+// nào?") name no mechanic, so the assistant clarifies with this list instead
+// of searching the loot dataset for nothing.
+export const MECHANIC_TABLE_SLUGS = [
+  'coven', 'the-golden-egg', 'teemo', 'kayle', 'primal', 'warpath', 'expedition',
+  'barons-lair', 'booster-pack', 'booster-pack-plus', 'booster-pack-plus-plus',
+  'bounty-seeker', 'cooking-pot', 'greenfather', 'blackthorn', 'call-to-chaos',
+  'caretakers-favor', 'gold-subscription', 'slightly-magic-roll', 'magic-roll',
+];
+
+export function mechanicTablePages(lang: Lang): { slug: string; title: string }[] {
+  return lootData.pages
+    .filter((page) => MECHANIC_TABLE_SLUGS.includes(page.slug))
+    .map((page) => ({ slug: page.slug, title: translateLoot(page.title, 'page-title', lang) }));
+}
+
 function mechanicsSource(url: string) {
   return {
     provider: 'MetaBoard / tftflow.com',
@@ -381,6 +398,25 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
           const result = lootPagePayload(page, lang, query);
           return 'matchedCount' in result && result.matchedCount > 0 ? [result] : [];
         });
+        if (!matches.length) {
+          // A query that matches nothing must not read as "the data has no
+          // such table" — hand back the page index so the model can name the
+          // mechanics the user might mean.
+          const pages = lootData.pages
+            .map((page) => ({ slug: page.slug, title: translateLoot(page.title, 'page-title', lang) }));
+          return {
+            tool: 'get_game_mechanics',
+            payload: {
+              table,
+              noMatch: query,
+              pages,
+              source: mechanicsSource(lootData.source.page),
+              summary: lang === 'vi'
+                ? `Không có trang nào khớp "${query}"; đây là danh sách các trang bảng có sẵn.`
+                : `No page matched "${query}"; here is the list of available table pages.`,
+            },
+          };
+        }
         return {
           tool: 'get_game_mechanics',
           payload: {

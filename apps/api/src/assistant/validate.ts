@@ -29,7 +29,9 @@ function sections(value: unknown): AssistantSection[] | null {
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
     const record = entry as Record<string, unknown>;
     const heading = typeof record.heading === 'string' ? record.heading.trim().slice(0, 120) : '';
-    const points = strings(record.points, 8);
+    // Rosters (10-champion traits) group into points; a tight cap silently
+    // drops the tail champions.
+    const points = strings(record.points, 12);
     if (!heading || !points?.length) continue;
     result.push({ heading, points });
   }

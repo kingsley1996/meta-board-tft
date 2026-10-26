@@ -5,6 +5,7 @@ import { normalizeSpaced, type Catalog } from './entities.ts';
 import {
   carryOverComps,
   extractEntityMentions,
+  rosterGapSections,
   detectIntent,
   findCompMentions,
   isFollowUpQuestion,
@@ -184,6 +185,30 @@ test('extractEntityMentions returns answer-mentioned entities in order with icon
   // English labels keep canonical names.
   const en = extractEntityMentions({ answer: 'Use Dark Ritual.', sections: [] }, catalog, 'en');
   assert.deepEqual(en.map((ref) => ref.name), ['Dark Ritual']);
+});
+
+test('rosterGapSections appends only the champions the answer dropped', () => {
+  const catalog = {
+    byName: new Map(
+      ['Elder Dragon', 'Gromp'].map((name) => [name, { name, nameVi: name, type: 'champion' }])
+    ),
+  } as unknown as Catalog;
+  const rosters = [
+    {
+      trait: 'Riftbeast',
+      champions: [
+        { name: 'Gromp', cost: 2 },
+        { name: 'Elder Dragon', cost: 5 },
+      ],
+    },
+  ];
+  // Answer already names Gromp but dropped the tail champion.
+  const gaps = rosterGapSections(rosters, 'Quái Rừng có Gromp và nhiều unit khác.', catalog, 'vi');
+  assert.equal(gaps.length, 1);
+  assert.equal(gaps[0].heading, 'Riftbeast (tiếp)');
+  assert.deepEqual(gaps[0].points, ['Elder Dragon (5 vàng)']);
+  // Nothing missing -> no section.
+  assert.deepEqual(rosterGapSections(rosters, 'Đủ cả Gromp lẫn Elder Dragon.', catalog, 'vi'), []);
 });
 
 test('buffers streaming where validation rewrites answers, streams plain lookups', () => {
