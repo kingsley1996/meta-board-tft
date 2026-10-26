@@ -119,7 +119,7 @@ thì client hiện `voiceSpeechError`; **không còn Web Speech API**. Mọi câ
 giọng nói mới tự động đọc ngay.
 
 Deepgram Aura/Aura-2 chỉ có tiếng Anh; tiếng Việt nằm trên **Flux TTS** — batch
-`POST /v2/speak` với `model=flux-hoa-vi` (nữ) hoặc `flux-minh-vi` (nam). Flux
+`POST /v2/speak` với `model=flux-minh-vi` (nam, mặc định) hoặc `flux-hoa-vi` (nữ). Flux
 tiếng Việt đang Early Access và chưa chuẩn hoá số/ngày, nên số được đọc như chữ.
 VieNeu giữ vai trò dự phòng: bản local không gửi text ra ngoài, bản cloud rẻ và
 đã đo độ trễ ổn định.
@@ -274,7 +274,7 @@ Nếu đã phát được ít nhất một chunk rồi lỗi giữa chừng, cli
 | Biến | Mặc định | Ý nghĩa |
 | --- | --- | --- |
 | `DEEPGRAM_API_KEY` | — | Key cho engine chính; dùng chung với STT. Không có key thì bỏ qua Deepgram, đi thẳng VieNeu |
-| `DEEPGRAM_TTS_MODEL` | `flux-hoa-vi` | Model Flux; `flux-minh-vi` cho giọng nam. Aura/Aura-2 không có tiếng Việt |
+| `DEEPGRAM_TTS_MODEL` | `flux-minh-vi` | Model Flux; `flux-hoa-vi` cho giọng nữ. Aura/Aura-2 không có tiếng Việt |
 | `VIENEU_TTS_URL` | `http://127.0.0.1:8001` | Base URL engine dự phòng. Cloud: `https://api.vieneu.io/api` |
 | `VIENEU_TTS_MODEL` | `vieneu-v4` | Model gửi lên `/v1/audio/speech` (local chấp nhận mọi chuỗi) |
 | `VIENEU_TTS_FORMAT` | `wav` | `wav` \| `mp3` \| `pcm` \| `opus` \| `ulaw`; local chỉ nhận `wav`/`pcm` |
@@ -347,7 +347,7 @@ OpenAI-compatible `/v1/audio/speech`; chuyển local ↔ cloud chỉ là đổi
 
 ```
 DEEPGRAM_API_KEY=…                    # dùng chung với STT
-DEEPGRAM_TTS_MODEL=flux-hoa-vi        # hoặc flux-minh-vi cho giọng nam
+DEEPGRAM_TTS_MODEL=flux-minh-vi        # mặc định; flux-hoa-vi cho giọng nữ
 ```
 
 Không cần probe: `/tts/status` coi Deepgram là available khi có key và không bị
@@ -412,8 +412,8 @@ log API.
   Đổi lại, máy nào không phát được `<audio>` (autoplay bị chặn) sẽ thấy
   `voiceSpeechBlocked` thay vì một giọng đọc sai.
 - **Deepgram Flux tiếng Việt là Early Access**: chưa chuẩn hoá số/ngày, chưa có
-  catalog giọng dày như Aura. Giọng có sẵn: `flux-hoa-vi` (nữ), `flux-minh-vi`
-  (nam). Đổi bằng `DEEPGRAM_TTS_MODEL`; không cần đổi code.
+  catalog giọng dày như Aura. Giọng có sẵn: `flux-minh-vi` (nam, mặc định),
+  `flux-hoa-vi` (nữ). Đổi bằng `DEEPGRAM_TTS_MODEL`; không cần đổi code.
 - **Các engine từng thử và loại**: *Edge Read Aloud* (miễn phí, không key) bị
   Microsoft chặn handshake websocket từ máy này — 401/403 với mọi biến thể
   `Sec-MS-GEC`/`TrustedClientToken`. *Gemini TTS* (`gemini-3.8-flash-lite-tts`,

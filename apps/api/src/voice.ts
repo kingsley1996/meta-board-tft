@@ -471,7 +471,7 @@ router.post(
 // --- TTS: Deepgram Flux (primary), VieNeu (fallback), one chunk per request ---
 //
 // Aura/Aura-2 are English-only, so Vietnamese uses Flux TTS on the /v2/speak
-// batch REST endpoint (`flux-hoa-vi`). Flux Vietnamese is Early Access without
+// batch REST endpoint (`flux-minh-vi`). Flux Vietnamese is Early Access without
 // text normalization: numbers and dates are read as written.
 //
 // The client splits an answer into short chunks and plays one while the next is
@@ -491,9 +491,9 @@ const ttsContentTypes: Record<TtsFormat, string> = {
   ulaw: 'audio/basic',
 };
 
-// Deepgram's Vietnamese voices; override to `flux-minh-vi` for a male voice.
+// Deepgram's Vietnamese voices; override to `flux-hoa-vi` for the female voice.
 export function deepgramTtsModel(env: NodeJS.ProcessEnv = process.env): string {
-  return env.DEEPGRAM_TTS_MODEL?.trim() || 'flux-hoa-vi';
+  return env.DEEPGRAM_TTS_MODEL?.trim() || 'flux-minh-vi';
 }
 
 function deepgramTtsConfigured(env: NodeJS.ProcessEnv = process.env): boolean {

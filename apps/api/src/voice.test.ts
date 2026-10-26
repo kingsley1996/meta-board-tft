@@ -309,9 +309,9 @@ describe('synthVieneuChunk against the cloud contract', () => {
 describe('Deepgram TTS and the VieNeu fallback', () => {
   const okAudio = () => new Response(Buffer.alloc(5_000), { headers: { 'content-type': 'audio/wav' } });
 
-  it('defaults to the female Vietnamese Flux voice and honours an override', () => {
-    assert.equal(deepgramTtsModel(envWith({})), 'flux-hoa-vi');
-    assert.equal(deepgramTtsModel(envWith({ DEEPGRAM_TTS_MODEL: 'flux-minh-vi' })), 'flux-minh-vi');
+  it('defaults to the male Vietnamese Flux voice and honours an override', () => {
+    assert.equal(deepgramTtsModel(envWith({})), 'flux-minh-vi');
+    assert.equal(deepgramTtsModel(envWith({ DEEPGRAM_TTS_MODEL: 'flux-hoa-vi' })), 'flux-hoa-vi');
   });
 
   it('posts the Flux batch shape and returns wav audio', async () => {
@@ -321,7 +321,7 @@ describe('Deepgram TTS and the VieNeu fallback', () => {
 
     const url = new URL(calls[0]!.url);
     assert.equal(`${url.origin}${url.pathname}`, 'https://api.deepgram.com/v2/speak');
-    assert.equal(url.searchParams.get('model'), 'flux-hoa-vi');
+    assert.equal(url.searchParams.get('model'), 'flux-minh-vi');
     assert.equal(url.searchParams.get('encoding'), 'linear16');
     assert.equal(url.searchParams.get('container'), 'wav');
     assert.equal(url.searchParams.get('sample_rate'), '24000');

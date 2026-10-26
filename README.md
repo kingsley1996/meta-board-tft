@@ -102,7 +102,7 @@ logged by the API.
 Coach AI answers are read aloud by **Deepgram Flux TTS**, which the API proxies
 on `/api/voice/tts/speech`. Vietnamese is not on Aura/Aura-2 (English-only), so
 the API uses Flux's batch endpoint `POST https://api.deepgram.com/v2/speak` with
-`model=flux-hoa-vi` (or `flux-minh-vi` via `DEEPGRAM_TTS_MODEL`) and the same
+`model=flux-minh-vi` (or `flux-hoa-vi` via `DEEPGRAM_TTS_MODEL`) and the same
 `DEEPGRAM_API_KEY` as speech-to-text. Flux Vietnamese is Early Access without
 text normalization, so numbers and dates are read as written.
 
