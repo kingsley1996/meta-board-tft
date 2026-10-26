@@ -1,0 +1,78 @@
+# Render blueprint cho backend. Frontend ở Vercel, database ở Supabase — hai thứ
+# đó không nằm trong file này; Render chỉ dựng API và cron nạp dữ liệu.
+#
+# Tạo service: Render Dashboard → New → Blueprint, trỏ vào repo. Render đọc file
+# này, tạo/khai cả hai resource. Các biến `sync: false` là secret: Render không
+# tự lấy từ git, phải nhập một lần ở lần deploy đầu.
+#
+# Vì sao không dùng plan free: instance free ngủ sau 30 phút không request, mà
+# trang public của web gọi thẳng API khi render phía server — mỗi lượt wake là
+# một trang chậm hoặc hỏng.
+
+services:
+  - type: web
+    name: metaboard-api
+    runtime: node
+    plan: starter
+    region: singapore
+    rootDir: .                       # install từ gốc repo; trỏ vào apps/api thì
+                                     # @metaboard/shared không resolve được
+    buildCommand: npm ci
+    startCommand: npm run start --workspace @metaboard/api
+    healthCheckPath: /api/health     # /api/health/ready là bản có chạm DB
+    autoDeploy: true
+    envVars:
+      # ---- bắt buộc ----
+      - key: NODE_ENV
+        value: production            # tắt branch dev-only (reason ở /voice/status)
+      - key: DATABASE_URL            # Supabase pooler, session mode :5432 — xem docs/DEPLOYMENT.md
+        sync: false
+      - key: ADMIN_EMAIL             # owner account for /admin (bootstrap only)
+        sync: false
+      - key: ADMIN_SEED_PASSWORD     # delete with ADMIN_EMAIL after first sign-in
+        sync: false
+      - key: REFRESH_TOKEN
+        sync: false
+      # ---- mặc định an toàn đã bật; ghi rõ để không ai quên ----
+      - key: TRUST_PROXY
+        value: "1"
+      - key: AUTH_SECURE_COOKIES
+        value: "true"
+      - key: PG_POOL_MAX
+        value: "6"                   # tổng server connection của pooler là hữu hạn
+      - key: AUTH_WEB_ORIGIN         # https://<domain Vercel> — link email + OAuth redirect
+        sync: false
+      # ---- tính năng: tắt là site vẫn chạy, chỉ mất Coach AI / voice ----
+      - key: ASSISTANT_ENABLED
+        value: "true"
+      - key: ASSISTANT_PROVIDER      # google | openai | openrouter (ollama không dùng được ở đây)
+        value: "google"
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: DEEPGRAM_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: VIENEU_TTS_URL
+        value: https://api.vieneu.io/api
+      - key: VIENEU_TTS_API_KEY
+        sync: false
+      - key: VIENEU_TTS_VOICE
+        sync: false
+
+  # Patch TFT ra khoảng hai tuần một lần, nhưng cron mỗi ngày cho khỏi phải nhớ:
+  # /api/tft/refresh chỉ đụng dữ liệu game, không xoá comps/guides, và từ chối
+  # chạy chồng (409) nên job thừa không phá gì.
+  - type: cron
+    name: metaboard-tft-refresh
+    runtime: node
+    plan: starter
+    region: singapore
+    rootDir: .
+    schedule: "0 12 * * *"           # 12:00 UTC = 19:00 giờ Việt Nam
+    command: 'curl -sS -o /dev/null -w "tft-refresh:%{http_code}\n" -X POST -H "Authorization: Bearer $REFRESH_TOKEN" "$API_ORIGIN/api/tft/refresh"'
+    envVars:
+      - key: API_ORIGIN              # https://<api service>.onrender.com
+        sync: false
+      - key: REFRESH_TOKEN
+        sync: false

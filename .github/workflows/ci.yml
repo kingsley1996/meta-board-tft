@@ -1,0 +1,62 @@
+name: CI
+
+# Cổng kiểm tra trước khi deploy. `npm run test:e2e` (Playwright) KHÔNG ở đây:
+# nó tự dựng cả web lẫn API và cần Postgres thật, vẫn là bước chạy ở local
+# trước mỗi push như docs/DEPLOYMENT.md §2 đã nêu.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install (from repo root — workspaces need it)
+        run: npm ci
+
+      - name: Typecheck both workspaces
+        run: npm run typecheck
+
+      # Test nào chạm database sẽ tự skip khi DATABASE_URL không tồn tại
+      # (apps/api/.env là gitignored, nên CI không có DB).
+      - name: Unit tests
+        run: |
+          npm run test:web
+          npm run test:server
+
+      - name: Production web build (same command as Vercel)
+        run: npm run build --workspace @metaboard/web
+
+      # API chạy native TypeScript, không có build step: lỗi cú pháp/`import` chỉ
+      # lộ ra lúc khởi động. Bước này chứng minh process sống mà không cần DB, và
+      # /api/health trả lời — chính là path Render probe.
+      - name: API boots with no database
+        env:
+          NODE_ENV: production
+          PORT: '4100'
+          DATABASE_URL: postgres://ci:ci@127.0.0.1:1/ci
+        run: |
+          node apps/api/src/index.ts >api.log 2>&1 &
+          pid=$!
+          ready=''
+          for _ in $(seq 1 40); do
+            if curl -sf http://127.0.0.1:4100/api/health > /dev/null; then ready=1; break; fi
+            sleep 0.5
+          done
+          kill -TERM "$pid" 2>/dev/null
+          if [ -z "$ready" ]; then
+            echo "API never became healthy"
+            cat api.log
+            exit 1
+          fi
+          echo "health ok on $(node --version)"

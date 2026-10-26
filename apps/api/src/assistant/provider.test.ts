@@ -64,6 +64,12 @@ test('reports client cancellation as aborted', async () => {
 test('reports request deadline as timeout', async () => {
   process.env.ASSISTANT_REQUEST_TIMEOUT_MS = '20';
   process.env.ASSISTANT_LOAD_TIMEOUT_MS = '20';
+  // The fake fetch below only settles when the deadline signal aborts. Inside a
+  // real server a listening socket keeps the loop turning so that timer always
+  // gets its chance; in a test process it does not, and Node can retire the
+  // AbortSignal.timeout timer before it fires. Hold a ref'd timer so this runs
+  // under the same condition the code ships into.
+  const loopAlive = setInterval(() => {}, 5);
   globalThis.fetch = async (_url, init) =>
     new Promise<Response>((_resolve, reject) => {
       init?.signal?.addEventListener('abort', () => reject(new DOMException('timeout', 'TimeoutError')), { once: true });
@@ -73,6 +79,7 @@ test('reports request deadline as timeout', async () => {
       return error instanceof ProviderError && error.code === 'timeout';
     });
   } finally {
+    clearInterval(loopAlive);
     globalThis.fetch = originalFetch;
     delete process.env.ASSISTANT_REQUEST_TIMEOUT_MS;
     delete process.env.ASSISTANT_LOAD_TIMEOUT_MS;

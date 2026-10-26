@@ -30,10 +30,29 @@ import {
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 
-// Behind a reverse proxy, set TRUST_PROXY to the proxy hop count (usually 1)
-// so req.ip resolves to the real client for vote/view dedupe.
-const trustProxy = process.env.TRUST_PROXY?.trim();
+// req.ip is what the vote/view dedupe and the login limiter key on, so behind any
+// reverse proxy the hop has to be trusted or every visitor collapses into one IP.
+// Production always sits behind a proxy (Render, and the web tier in front of
+// it), which is why the default there is one hop rather than waiting for the env.
+const trustProxy = process.env.TRUST_PROXY?.trim() || (process.env.NODE_ENV === 'production' ? '1' : '');
 if (trustProxy) app.set('trust proxy', /^\d+$/.test(trustProxy) ? Number(trustProxy) : true);
+
+// Render's health check wants a route that answers as soon as the process can
+// serve traffic. /api/health deliberately skips the database: a database blip
+// must not make the platform restart a service that is otherwise fine.
+// /api/health/ready is the one to watch when a deploy is rolling out.
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true });
+});
+
+app.get('/api/health/ready', async (_req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(503).json({ ok: false, error: error instanceof Error ? error.message : 'database unavailable' });
+  }
+});
 
 const bearerOk = (header: string | undefined, expected: string | undefined): boolean => {
   if (!expected) return false;
@@ -132,12 +151,25 @@ app.get('/api/tft/set', async (req, res) => {
   });
 });
 
+// A refresh rewrites comps, guides and the whole game catalog, so two runs
+// overlapping would interleave writes over the same tables. The endpoint is
+// called by a patch-day runbook and by a cron; either can fire while a slow run
+// is still going, and the second one costs nothing to refuse.
+let refreshInFlight: Promise<Awaited<ReturnType<typeof syncTft>>> | null = null;
+
 app.post('/api/tft/refresh', async (req, res) => {
   const expected = process.env.REFRESH_TOKEN;
   if (!expected) return res.status(503).json({ error: 'REFRESH_TOKEN is not configured' });
   if (!bearerOk(req.headers.authorization, expected)) return res.status(401).json({ error: 'unauthorized' });
+  if (refreshInFlight) return res.status(409).json({ error: 'a refresh is already running' });
 
-  const data = await syncTft(pool);
+  refreshInFlight = syncTft(pool);
+  let data: Awaited<ReturnType<typeof syncTft>>;
+  try {
+    data = await refreshInFlight;
+  } finally {
+    refreshInFlight = null;
+  }
   res.json({
     ok: true,
     summary: [
@@ -368,6 +400,30 @@ const server = app.listen(port, () => {
   console.log(`metaboard server on http://localhost:${port}`);
   void bootstrapAdmin();
 });
+
+// Render sends SIGTERM on every deploy and scale event. Draining first means an
+// assistant answer or a voice upload finishes instead of dying mid-response, and
+// closing the pool releases the database connections the pooler is counting.
+// The deadline is what keeps one stuck query from blocking the exit forever.
+function shutdown(signal: NodeJS.Signals): void {
+  console.log(`${signal}: closing server`);
+  server.close(() => {
+    pool.end().then(
+      () => process.exit(0),
+      (error: unknown) => {
+        console.error('pool did not close cleanly', error);
+        process.exit(1);
+      }
+    );
+  });
+  setTimeout(() => {
+    console.error(`${signal} drain timed out; exiting`);
+    process.exit(1);
+  }, 10_000).unref();
+}
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 const configuredRetentionDays = Number(process.env.ASSISTANT_REASONING_RETENTION_DAYS ?? '30');
 scheduleReasoningLogCleanup(Number.isSafeInteger(configuredRetentionDays) && configuredRetentionDays >= 1 ? configuredRetentionDays : 30);

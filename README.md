@@ -161,6 +161,10 @@ The `assistant_reasoning_logs` table is defined in `apps/api/src/schema.sql`.
 
 ## Build and deploy separately
 
+Target layout: **web on Vercel**, **API on Render**, **Postgres on Supabase**.
+`vercel.json`, `render.yaml` and `.node-version` carry the settings, so the two
+platforms build the same commands this section lists.
+
 Deploy both workspaces from the repository root so npm can resolve the local
 shared package:
 
@@ -173,10 +177,20 @@ npm run start --workspace @metaboard/api
 ```
 
 Configure `BACKEND_URL` on the web deployment, at build and runtime, to the deployed API origin. The
-API deployment needs its own `DATABASE_URL`, `ADMIN_PASSWORD`, `REFRESH_TOKEN`,
-and optional assistant settings; the web deployment should receive only the
+API deployment needs its own `DATABASE_URL`, `REFRESH_TOKEN`, and a one-time
+`ADMIN_EMAIL`/`ADMIN_SEED_PASSWORD` pair to bootstrap the first admin account,
+plus optional assistant settings; the web deployment should receive only the
 settings it uses. Both environments are supplied by the hosting platform, not
 committed `.env` files.
 
+`DATABASE_URL` must be the Supabase **pooler** string, not the direct one: the
+direct host is IPv6-only and Render has no IPv6. Session mode (`…pooler.supabase.com:5432`)
+is the mode this API needs — see `apps/api/.env.example`.
+
+`GET /api/health` (no database) is Render's health-check path; `GET
+/api/health/ready` additionally proves the pool can reach Postgres.
+
 Run checks from the repository root with `npm run typecheck`,
-`npm run test:server`, and `npm run test:e2e`.
+`npm run test:server`, and `npm run test:e2e`. GitHub Actions runs the first two
+plus the production web build and a database-less API boot on the pinned
+`.node-version`; Playwright stays a local gate.

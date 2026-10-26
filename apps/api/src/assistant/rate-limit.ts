@@ -53,19 +53,30 @@ export function checkRateLimit(key: string): { allowed: true } | { allowed: fals
   return { allowed: true };
 }
 
-let tail: Promise<void> = Promise.resolve();
+// Upstream inference is a network wait, not CPU work, so one long answer must
+// not occupy the only slot while everyone else queues behind it. The cap protects
+// the provider's rate limit, so it is deliberately small — and one instance only
+// sees its own queue.
+function inferenceConcurrency(): number {
+  return positiveNumber(process.env.ASSISTANT_MAX_CONCURRENCY, 2);
+}
+
+let active = 0;
+const waiting: Array<() => void> = [];
 
 export async function withInferenceSlot<T>(work: () => Promise<T>): Promise<T> {
-  let release = () => {};
-  const current = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  const previous = tail;
-  tail = previous.then(() => current);
-  await previous;
+  if (active < inferenceConcurrency()) {
+    active += 1;
+  } else {
+    // The releasing task hands its count over instead of decrementing, so a woken
+    // task is already holding a slot and the cap cannot be briefly overshoot.
+    await new Promise<void>((resolve) => waiting.push(resolve));
+  }
   try {
     return await work();
   } finally {
-    release();
+    const next = waiting.shift();
+    if (next) next();
+    else active -= 1;
   }
 }
