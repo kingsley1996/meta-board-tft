@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/sidebar';
-import { currentAdminUser } from '@/lib/admin-session';
+import { currentAdminUser } from '@/lib/session';
 
 // Admin access is an account role, so the gate asks the API instead of reading a
 // password-derived cookie. Redirect target is the English sign-in page: /admin

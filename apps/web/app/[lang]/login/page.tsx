@@ -1,6 +1,8 @@
+import { redirect } from 'next/navigation';
 import { LoginPanel } from '@/components/auth/login-panel';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+import { currentUser } from '@/lib/session';
 
 export default async function LoginPage({
   params,
@@ -10,6 +12,9 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; mode?: string; google?: string; reason?: string }>;
 }) {
   const { lang } = await params;
+  // Signing in from the account menu goes to the profile; a stale /login visit
+  // while already signed in should not show the form again.
+  if (await currentUser()) redirect(`/${lang}/profile`);
   const query = await searchParams;
   const t = messages[lang].auth;
 

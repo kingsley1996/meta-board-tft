@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { AdminPageHeader, btnGhost, inputCls } from '@/components/admin/ui';
-import { adminCookieHeader } from '@/lib/admin-session';
+import { sessionCookieHeader } from '@/lib/session';
 import { backendJson } from '@/lib/backend';
 import { prettyString } from '@/lib/trace-format';
 
@@ -204,7 +204,7 @@ export default async function AdminAssistantReasoningPage({ searchParams }: { se
   const parsedOffset = Number(rawOffset);
   const offset = Number.isSafeInteger(parsedOffset) && parsedOffset >= 0 ? parsedOffset : 0;
   const invalidFilter = (requestId && !UUID_PATTERN.test(requestId)) || (conversationId && !UUID_PATTERN.test(conversationId));
-  const cookie = await adminCookieHeader();
+  const cookie = await sessionCookieHeader();
   const query = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(offset) });
   if (requestId && !invalidFilter) query.set('requestId', requestId);
   if (conversationId && !invalidFilter) query.set('conversationId', conversationId);

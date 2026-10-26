@@ -1,9 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getMe, loginUser, registerUser, resendVerification, logout, type AuthUser } from '@/lib/api';
+import { loginUser, registerUser, resendVerification } from '@/lib/api';
 import { messages } from '@/lib/messages';
 import type { Lang } from '@/lib/i18n';
 import { Panel } from '@/components/ui';
@@ -26,8 +25,6 @@ export function LoginPanel({
   const router = useRouter();
 
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
-  const [me, setMe] = useState<AuthUser | null>(null);
-  const [checkedMe, setCheckedMe] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -35,14 +32,6 @@ export function LoginPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
-  const [avatarFailed, setAvatarFailed] = useState(false);
-
-  useEffect(() => {
-    getMe()
-      .then(setMe)
-      .catch(() => setMe(null))
-      .finally(() => setCheckedMe(true));
-  }, []);
 
   useEffect(() => {
     if (googleState === 'error') setError(t.googleError);
@@ -98,47 +87,6 @@ export function LoginPanel({
     if (!unverifiedEmail) return;
     await resendVerification(unverifiedEmail, lang);
     setNotice(t.resendSent);
-  }
-
-  async function signOut() {
-    await logout();
-    setMe(null);
-  }
-
-  if (checkedMe && me) {
-    return (
-      <Panel className="p-6">
-        <div className="flex flex-col gap-4 text-center">
-          {me.avatarUrl && !avatarFailed ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={me.avatarUrl}
-              alt=""
-              referrerPolicy="no-referrer"
-              onError={() => setAvatarFailed(true)}
-              className="mx-auto h-12 w-12 rounded-full object-cover"
-            />
-          ) : (
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand text-lg font-bold text-white">
-              {(me.name ?? me.email).charAt(0).toUpperCase()}
-            </span>
-          )}
-          <div>
-            <p className="text-sm font-semibold text-fog">{me.name ?? me.email}</p>
-            <p className="text-xs text-mist">{me.email}</p>
-          </div>
-          <Link
-            href={nextPath}
-            className="smooth rounded-full border border-brand-hot bg-brand-hot px-5 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
-          >
-            {messages[lang].nav.assistant}
-          </Link>
-          <button type="button" onClick={() => void signOut()} className="smooth text-sm text-mist underline underline-offset-2 hover:text-fog">
-            {t.logout}
-          </button>
-        </div>
-      </Panel>
-    );
   }
 
   return (
