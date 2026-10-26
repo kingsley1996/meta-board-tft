@@ -9,6 +9,8 @@ next-env.d.ts
 
 # env — never commit secrets (ADMIN_PASSWORD, REFRESH_TOKEN)
 .env*
+# the templates carry no values; they are how a fresh clone learns which keys exist
+!.env.example
 
 # local editor and shell settings
 .vscode/
