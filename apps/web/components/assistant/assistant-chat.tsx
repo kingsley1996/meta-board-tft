@@ -1241,6 +1241,35 @@ function AssistantBubble({
           </div>
         ) : null}
 
+        {response?.mentions?.length ? (
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            {response.mentions.map((ref) => {
+              const base = ref.type === 'champion' ? 'champions' : ref.type;
+              const href = ref.slug
+                ? `/${lang}/${base}/${ref.slug}`
+                : `/${lang}/${base}?q=${encodeURIComponent(ref.name)}`;
+              const tile =
+                ref.type === 'champion' ? (
+                  <UnitHex name={ref.name} cost={ref.cost ?? 1} icon={ref.icon} size={22} />
+                ) : ref.type === 'trait' ? (
+                  <ItemHex name={ref.name} icon={ref.icon} size={16} />
+                ) : (
+                  <AugmentTile name={ref.name} icon={ref.icon} size={20} />
+                );
+              return (
+                <Link
+                  key={ref.id}
+                  href={href}
+                  className="smooth flex items-center gap-1.5 rounded-full border border-line bg-panel py-0.5 pr-2 pl-0.5 text-[11px] font-medium text-mist hover:border-brand-soft hover:text-fog"
+                >
+                  {tile}
+                  <span className="max-w-44 truncate">{ref.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+        ) : null}
+
         {response?.recommendations.length ? (
           <div className="mt-3 border-t border-line pt-3">
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-mist">{t.recommendations}</p>

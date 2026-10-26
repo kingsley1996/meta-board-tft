@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { CatalogEntity, CompData } from './contracts.ts';
+import { normalizeSpaced, type Catalog } from './entities.ts';
 import {
   carryOverComps,
+  extractEntityMentions,
   detectIntent,
   findCompMentions,
   isFollowUpQuestion,
@@ -144,6 +146,43 @@ test('mechanic answers cannot add numbers missing from evidence', () => {
   } satisfies Evidence;
   assert.deepEqual(ungroundedNumbers('Coven gains 22 Essence at 3 units.', evidence), ['22', '3']);
   assert.deepEqual(ungroundedNumbers('Set 18 uses patch 18.4.', evidence), []);
+});
+
+test('extractEntityMentions returns answer-mentioned entities in order with icon/slug', () => {
+  const entities = [
+    { id: 'item:DA_18_EdgeOfNight', type: 'item', name: 'Edge of Night', nameVi: 'Áo Choàng Bóng Tối', slug: 'edge-of-night', icon: 'eon.png', cost: null },
+    { id: 'augment:DA_18_CovenTraitAugment_LootToAP', type: 'augment', name: 'Dark Ritual', nameVi: 'Tà Thuật', slug: 'dark-ritual', icon: 'dr.png', cost: null },
+    { id: 'trait:DA_18_Coven', type: 'trait', name: 'Coven', nameVi: 'Tiên Hắc Ám', slug: 'coven', icon: 'coven.png', cost: null },
+    { id: 'champion:DA_18_Akali', type: 'champion', name: 'Akali', nameVi: 'Akali', slug: 'akali', icon: 'akali.png', cost: 2 },
+  ];
+  const catalog = {
+    byName: new Map(entities.map((entity) => [entity.name, entity])),
+    byId: new Map(entities.map((entity) => [entity.id, entity])),
+    aliasesSpaced: new Map(
+      entities.flatMap((entity) =>
+        [entity.name, entity.nameVi]
+          .filter(Boolean)
+          .map((alias) => [normalizeSpaced(alias as string), new Set([entity.id])])
+      )
+    ),
+  } as unknown as Catalog;
+  const refs = extractEntityMentions(
+    {
+      answer: 'Akali nên dùng Áo Choàng Bóng Tối theo build của Tiên Hắc Ám.',
+      sections: [{ heading: 'Nâng cấp', points: ['Chơi với Tà Thuật để đổi thưởng.'] }],
+    },
+    catalog,
+    'vi'
+  );
+  // Mention order: Akali, Edge of Night (Áo Choàng), Coven, then the augment.
+  assert.deepEqual(refs.map((ref) => ref.id), ['champion:DA_18_Akali', 'item:DA_18_EdgeOfNight', 'trait:DA_18_Coven', 'augment:DA_18_CovenTraitAugment_LootToAP']);
+  assert.equal(refs[0].name, 'Akali');
+  assert.equal(refs[1].name, 'Áo Choàng Bóng Tối');
+  assert.equal(refs[1].slug, 'edge-of-night');
+  assert.equal(refs[1].icon, 'eon.png');
+  // English labels keep canonical names.
+  const en = extractEntityMentions({ answer: 'Use Dark Ritual.', sections: [] }, catalog, 'en');
+  assert.deepEqual(en.map((ref) => ref.name), ['Dark Ritual']);
 });
 
 test('buffers streaming where validation rewrites answers, streams plain lookups', () => {

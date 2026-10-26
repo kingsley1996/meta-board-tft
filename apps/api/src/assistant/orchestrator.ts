@@ -7,7 +7,9 @@ import {
   type AssistantRecommendation,
   type AssistantRequest,
   type AssistantResponse,
+  type AssistantSection,
   type AssistantSource,
+  type EntityRef,
   type AssistantStatus,
   type CatalogEntity,
   type ChampionBuild,
@@ -894,7 +896,7 @@ export function detectIntent(text: string, entities: CatalogEntity[], comps: Com
   return 'unsupported_or_unknown';
 }
 
-export async function answerAssistant(
+async function answerAssistantImpl(
   request: AssistantRequest,
   signal: AbortSignal,
   deps: {
@@ -904,7 +906,7 @@ export async function answerAssistant(
     // generates. Deterministic paths never call it.
     onAnswerDelta?: (chunk: string) => void;
   } = {}
-): Promise<Omit<AssistantResponse, 'requestId'>> {
+): Promise<Omit<AssistantResponse, 'requestId' | 'mentions'>> {
   const generate = deps.generate ?? generateAssistantAnswer;
   const logReasoningStep = deps.logReasoningStep ?? (() => {});
   // History is client-supplied (or replayed from past messages), so strip
@@ -1766,4 +1768,44 @@ export async function answerAssistant(
       limitations: unique([...limitations, t(request.lang, 'The model is temporarily unavailable; I used the data summary instead.', 'Model tạm thời không khả dụng; đã dùng bản tóm tắt từ dữ liệu.')]),
     };
   }
+}
+
+
+// Public entry: runs the pipeline, then extracts the catalog entities named in
+// the final answer so the client can render image chips with detail links.
+export async function answerAssistant(
+  request: AssistantRequest,
+  signal: AbortSignal,
+  deps: Parameters<typeof answerAssistantImpl>[2] = {}
+): Promise<Omit<AssistantResponse, 'requestId'>> {
+  const answer = await answerAssistantImpl(request, signal, deps);
+  const catalog = await loadCatalog();
+  return { ...answer, mentions: extractEntityMentions(answer, catalog, request.lang) };
+}
+
+export function extractEntityMentions(
+  answer: { answer: string; sections: AssistantSection[] },
+  catalog: Catalog,
+  lang: Lang
+): EntityRef[] {
+  const text = [answer.answer, ...answer.sections.flatMap((section) => [section.heading, ...section.points])].join(' ');
+  const refs: EntityRef[] = [];
+  const seenIds = new Set<string>();
+  const seenNames = new Set<string>();
+  for (const { entity } of findEntityMentions(catalog, text, 16)) {
+    if (entity.type !== 'champion' && entity.type !== 'item' && entity.type !== 'trait' && entity.type !== 'augment') continue;
+    if (seenIds.has(entity.id) || seenNames.has(normalize(entity.name))) continue;
+    seenIds.add(entity.id);
+    seenNames.add(normalize(entity.name));
+    refs.push({
+      type: entity.type,
+      id: entity.id,
+      name: isVi(lang) && entity.nameVi ? entity.nameVi : entity.name,
+      slug: entity.slug,
+      icon: entity.icon,
+      cost: entity.cost,
+    });
+    if (refs.length >= 8) break;
+  }
+  return refs;
 }

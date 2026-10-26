@@ -306,6 +306,17 @@ export type AssistantRecommendation = {
   limitations: string[];
 };
 
+// Catalog entity named in the final answer, carrying icon/slug so the client
+// can render an image chip with a link to the entity detail page.
+export type EntityRef = {
+  type: 'champion' | 'item' | 'trait' | 'augment';
+  id: EntityId;
+  name: string;
+  slug: string | null;
+  icon: string | null;
+  cost: number | null;
+};
+
 export type AssistantResponse = {
   requestId: string;
   conversationId: string;
@@ -324,6 +335,7 @@ export type AssistantResponse = {
   limitations: string[];
   followUpQuestions: string[];
   status: AssistantStatus;
+  mentions: EntityRef[];
 };
 
 export type AssistantAnswer = Omit<AssistantResponse, 'requestId'>;

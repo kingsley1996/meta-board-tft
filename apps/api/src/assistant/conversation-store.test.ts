@@ -64,6 +64,7 @@ test(
         limitations: [],
         followUpQuestions: [],
         status: 'answered',
+        mentions: [],
       } as AssistantResponse;
       await appendMessage(conversation.id, 'assistant', 'structured answer', 'comp_search', 'deterministic', 'answered', structured);
       const [, reloaded] = await getConversationHistory(conversation.id, clientId, 2);

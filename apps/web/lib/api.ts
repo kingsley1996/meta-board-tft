@@ -119,6 +119,15 @@ export type AssistantRecommendation = {
   limitations: string[];
 };
 
+export type EntityRef = {
+  type: 'champion' | 'item' | 'trait' | 'augment';
+  id: string;
+  name: string;
+  slug: string | null;
+  icon: string | null;
+  cost: number | null;
+};
+
 export type AssistantResponse = {
   requestId: string;
   conversationId: string;
@@ -137,6 +146,7 @@ export type AssistantResponse = {
   limitations: string[];
   followUpQuestions: string[];
   status: AssistantStatus;
+  mentions?: EntityRef[];
 };
 
 export type AssistantQueryRequest = {
