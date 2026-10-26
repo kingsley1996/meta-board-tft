@@ -62,7 +62,11 @@ for (const entry of cases) {
       new AbortController().signal
     );
     const problems: string[] = [];
-    const text = answer.answer.toLowerCase();
+    // Assert over everything the user reads: the summary sentence plus the
+    // rendered section points, not just the summary.
+    const text = [answer.answer, ...answer.sections.flatMap((section) => [section.heading, ...section.points])]
+      .join(' ')
+      .toLowerCase();
     const expectedStatuses = Array.isArray(entry.expect.status) ? entry.expect.status : [entry.expect.status];
     if (!expectedStatuses.includes(answer.status as (typeof expectedStatuses)[number])) {
       problems.push(`status ${answer.status} != ${expectedStatuses.join('|')}`);
@@ -73,10 +77,10 @@ for (const entry of cases) {
       if (!text.includes(value.toLowerCase())) problems.push(`missing "${value}"`);
     }
     for (const pattern of entry.expect.matches ?? []) {
-      if (!new RegExp(pattern, 'i').test(answer.answer)) problems.push(`missing /${pattern}/`);
+      if (!new RegExp(pattern, 'i').test(text)) problems.push(`missing /${pattern}/`);
     }
     for (const pattern of entry.expect.forbidden ?? []) {
-      if (new RegExp(pattern, 'i').test(answer.answer)) problems.push(`forbidden /${pattern}/`);
+      if (new RegExp(pattern, 'i').test(text)) problems.push(`forbidden /${pattern}/`);
     }
     for (const source of entry.expect.sources ?? []) {
       if (!answer.sources.some((item) => item.id === source)) problems.push(`missing source ${source}`);

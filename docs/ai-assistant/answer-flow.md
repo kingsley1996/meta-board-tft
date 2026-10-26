@@ -171,6 +171,7 @@ odds/XP/pool/loot/augment odds/cashout/milestone/reward, en+vi) và intent là
 | `itemHolders` | có item entity | comp dùng item (`compsUsingItems`) → unit nào cầm item đó |
 | `itemUsage` | như trên | `itemUsageStats(meta)` — top 6 tướng cầm item kèm avg/top4/win/delta (delta so với trung bình tướng, âm = tốt) + winRate theo stage hoàn thành |
 | `dataVersions` | luôn có | `{activePatch, statsPatch, mechanicsPatch}` — patch nguồn từng loại dữ liệu; system prompt bắt buộc gắn nhãn patch khi lệch nhau |
+| `traitRosters` | có trait entity (2 intent lookup) | catalog champion nào mang trait đó (tên + cost, tối đa 12) — cho câu hỏi "Quái Rừng gồm những con nào" |
 | `relatedComps` | 2 intent lookup | hợp `compsUsingChampion` (khi `wantsChampionContext`) ∪ `compsUsingItems`, dedupe slug, tối đa 3 |
 | `stats` | mọi intent trừ meta_query có comp | `entityStats` (champion/item/augment) + `compStats` từ `meta.json` |
 | `candidates` | `comp_recommendation` | `rankComps` — chấm điểm trùng champion/item/augment/style/difficulty, top 5 |

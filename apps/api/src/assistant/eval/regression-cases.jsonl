@@ -9,3 +9,4 @@
 {"id": "reg-comp-detail-vi", "question": "Comp Akali Mặt Trời lên đồ thế nào?", "lang": "vi", "expect": {"status": "answered", "contains": ["Akali"]}}
 {"id": "reg-bare-cashout-vi", "question": "Nên nổ hũ mốc bao nhiêu?", "lang": "vi", "expect": {"status": "needs_clarification"}}
 {"id": "reg-set-patch-vi", "question": "MetaBoard đang dùng set nào?", "lang": "vi", "expect": {"status": "answered", "intent": "set_patch", "mode": "deterministic", "contains": ["Set 18"]}}
+{"id": "reg-trait-roster-vi", "question": "Quái rừng gồm những con nào", "lang": "vi", "expect": {"status": "answered", "intent": "gameplay_knowledge", "matches": ["Sỏi|Sói Hắc Ám|Bụi Gai Đỏ|Rồng Ngàn Tuổi|Cua Kỳ Cục"], "forbidden": ["không có danh sách tướng", "không có danh sách tướng cụ thể"]}}

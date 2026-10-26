@@ -136,6 +136,13 @@ export type ItemUsageEvidence = {
   stages: ItemStageStat[];
 };
 
+// Champions carrying one trait, for trait-roster questions ("Quái Rừng gồm
+// những con nào?") — derived from the catalog, not the model's memory.
+export type TraitRoster = {
+  trait: string;
+  champions: { name: string; cost: number | null }[];
+};
+
 export type EntityMatch = { entity: CatalogEntity; score: number };
 
 export type RankingQuery = {

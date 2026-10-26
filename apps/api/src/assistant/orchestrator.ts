@@ -10,6 +10,7 @@ import {
   type AssistantSection,
   type AssistantSource,
   type EntityRef,
+  type TraitRoster,
   type AssistantStatus,
   type CatalogEntity,
   type ChampionBuild,
@@ -1260,6 +1261,22 @@ async function answerAssistantImpl(
             .filter((entry): entry is ItemUsageEvidence => entry !== null)
         )
       : [];
+  // Trait rosters: the catalog already knows which champions carry each trait,
+  // so roster questions answer from data instead of the model's memory.
+  const traitRosterEvidence =
+    ['entity_lookup', 'gameplay_knowledge'].includes(intent)
+      ? selectedEntities
+          .filter((entity) => entity.type === 'trait')
+          .map((trait) => ({
+            trait: trait.name,
+            champions: catalog.entities
+              .filter((entity) => entity.type === 'champion' && entity.traits.includes(trait.name))
+              .sort((a, b) => (a.cost ?? 9) - (b.cost ?? 9))
+              .slice(0, 12)
+              .map((champion) => ({ name: champion.name, cost: champion.cost })),
+          }))
+          .filter((roster) => roster.champions.length > 0)
+      : [];
   const relatedComps = ['entity_lookup', 'gameplay_knowledge'].includes(intent)
     ? uniqueBy(
         [
@@ -1358,6 +1375,7 @@ async function answerAssistantImpl(
     itemHolders: itemHolderEvidence,
     unitBuilds: unitBuildEvidence,
     itemUsage: itemUsageEvidence,
+    traitRosters: traitRosterEvidence,
     dataVersions,
     stats,
     candidates,
@@ -1593,6 +1611,7 @@ async function answerAssistantImpl(
     itemHolders: itemHolderEvidence,
     unitBuilds: unitBuildEvidence,
     itemUsage: itemUsageEvidence,
+    traitRosters: traitRosterEvidence,
     dataVersions,
     stats,
     candidates,

@@ -8,6 +8,7 @@ import type {
   ItemUsageEvidence,
   Lang,
   RankedComp,
+  TraitRoster,
   UnitBuildEvidence,
 } from './contracts.ts';
 import type { StatEvidence } from './meta-stats.ts';
@@ -35,6 +36,7 @@ export type Evidence = {
   itemHolders: ItemHolder[];
   unitBuilds: UnitBuildEvidence[];
   itemUsage: ItemUsageEvidence[];
+  traitRosters: TraitRoster[];
   dataVersions: DataVersions;
   stats: StatEvidence[];
   candidates: RankedComp[];
@@ -136,6 +138,13 @@ function evidenceBody(evidence: Evidence, localize: LocalizeName = identity, loc
       .slice(0, 6)
       .map((holder) => ({ ...holder, item: localize(holder.item), holders: holder.holders.map(localize) })),
     dataVersions: evidence.dataVersions,
+    traitRosters: evidence.traitRosters
+      .slice(0, 2)
+      .map((roster) => ({
+        ...roster,
+        trait: localize(roster.trait),
+        champions: roster.champions.map((champion) => ({ ...champion, name: localize(champion.name) })),
+      })),
     unitBuilds: evidence.unitBuilds
       .slice(0, 3)
       .map((build) => ({
@@ -197,6 +206,7 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
     'If relatedComps are present, mention them as comps that use the item.',
     'When championBuilds or unitBuilds are present, base item recommendations on them: unitBuilds are winrate-backed builds from live match data (count is the sample size, avg the average placement), championBuilds are curated comp builds — name the items and the source of each build. Say a champion has no recorded build only when both lists are empty.',
     'When itemHolders or itemUsage are present, name the champions that hold the asked item: itemUsage ranks champions by placement while holding it (delta is the change versus that champion overall average; negative is better) and stages gives win rate by the stage the item was completed. Say no holder is recorded only when both lists are empty.',
+    'When traitRosters are present, answer trait-roster questions by listing those champions with their costs; say the roster is not recorded only when traitRosters is empty.',
     'When a build or statistic has a small sample next to others in the evidence (its count is much lower, or only a few hundred games), flag the limited confidence instead of declaring it best; on close comparisons prefer the larger-sample number and say so.',
     'For augment questions about a champion, recommend from the augments of the comps that field that champion and say the recommendation is comp-level.',
     'When candidates are present, rank 1 is the top pick. Follow rank order and name rank 1 first, even when scores tie. Never call a higher rank number better.',

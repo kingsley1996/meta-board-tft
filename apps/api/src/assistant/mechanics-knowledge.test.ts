@@ -24,6 +24,7 @@ function fixture(text: string, lang: 'en' | 'vi' = 'en'): Evidence {
     itemHolders: [],
     unitBuilds: [],
     itemUsage: [],
+    traitRosters: [],
     dataVersions: { activePatch: '18.5b', statsPatch: '18.5b', mechanicsPatch: '18.4' },
     stats: [],
     candidates: [],
