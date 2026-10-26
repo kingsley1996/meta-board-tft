@@ -21,7 +21,15 @@ import {
   type RankingQuery,
   type ResolvedEntity,
 } from './contracts.ts';
-import { findEntityMentions, grantedTrait, localizedName, normalize, normalizeSpaced, type Catalog } from './entities.ts';
+import {
+  findEntityMentions,
+  grantedTrait,
+  localizeEntityNames,
+  localizedName,
+  normalize,
+  normalizeSpaced,
+  type Catalog,
+} from './entities.ts';
 import { buildSystemPrompt, buildToolAgentPrompt, buildToolPlannerPrompt, buildUserPrompt, type Evidence } from './prompt.ts';
 import {
   activeAssistantModel,
@@ -164,8 +172,11 @@ const CHAMPION_ITEM_QUESTION = /\b(trang bi|item|len do|build|core item|core)\b/
 // Champion + augment wording — augments are comp-level in the data, so these
 // questions attach the comps fielding the champion instead of item builds.
 const CHAMPION_AUGMENT_QUESTION = /\b(augment|nang cap|oc bieu)\b/;
+// Negated entity usage inside a follow-up ("nếu không chơi với X", "not
+// playing X") — the user asks about the option without it, not comps with it.
+const NEGATED_ENTITY_USAGE = /\b(?:khong|chua)\s+(?:choi|dung|len|nang cap|lay)\b|\bnot\s+(?:playing|using|building)\b|\bwithout\b/i;
 const REFERENCE_DATA_QUESTION =
-  /\b(?:economy plan|economy strategy|economy curve|level curve|leveling plan|round plan|fast 8|fast 9|[1-3] cost reroll|reroll plan|shop odds|odds by level|champion pool|pool size|copies in pool|xp table|gold income|base income|round income|income by round|interest|streak bonus|loot table|stage loot|loot orb|augment odds|carousel odds|encounter odds|mechanics table|ti le shop|ti le cua hang|bang xp|bang kinh te|ke hoach kinh te|ke hoach reroll|duong cong cap|thu nhap vang|thu nhap theo vong|vang theo vong|lai vang|thuong chuoi|be tuong|bang loot|ti le nang cap|bang co che)\b|\b(?:xp|exp)\b.*\b(?:level|leveling|cap|len cap)\b|\b(?:level|leveling|cap|len cap)\b.*\b(?:xp|exp)\b/;
+  /\b(?:economy plan|economy strategy|economy curve|level curve|leveling plan|round plan|fast 8|fast 9|[1-3] cost reroll|reroll plan|shop odds|odds by level|champion pool|pool size|copies in pool|xp table|gold income|base income|round income|income by round|interest|streak bonus|loot table|stage loot|loot orb|augment odds|carousel odds|encounter odds|mechanics table|ti le shop|ti le cua hang|bang xp|bang kinh te|ke hoach kinh te|ke hoach reroll|duong cong cap|thu nhap vang|thu nhap theo vong|vang theo vong|lai vang|thuong chuoi|be tuong|bang loot|ti le nang cap|bang co che)\b|\b(?:xp|exp)\b.*\b(?:level|leveling|cap|len cap)\b|\b(?:level|leveling|cap|len cap)\b.*\b(?:xp|exp)\b|\b(?:cash ?out|milestones?|rewards?|phan thuong|thu hoach|quy doi|no hu)\b/;
 
 function unique<T>(values: T[]): T[] {
   return [...new Set(values)];
@@ -194,7 +205,7 @@ export function isReferenceDataQuestion(text: string): boolean {
 }
 
 export function isFollowUpQuestion(text: string): boolean {
-  return /\b(?:what about|how about|it|this|that|these|those|they|them|its|their|above|previous|same|former|latter|comp nay|doi hinh nay|cai nay|cai do|cai kia|con gi|con nao|con no|con do|con nay|con kia|con|no|the nao|ra sao)\b/i.test(
+  return /\b(?:what about|how about|it|this|that|these|those|they|them|its|their|above|previous|same|former|latter|comp nay|doi hinh nay|cai nay|cai do|cai kia|con gi|con nao|con no|con do|con nay|con kia|con|no|the nao|ra sao|thi sao|neu khong)\b/i.test(
     normalizeSpaced(text)
   );
 }
@@ -849,7 +860,12 @@ export function detectIntent(text: string, entities: CatalogEntity[], comps: Com
   if (hasCurrentPatch && !entities.length && !comps.length) return 'set_patch';
   if (hasCompare) return 'comp_comparison';
   if (comps.length && !entities.length) return 'comp_search';
-  if (entities.length && hasRecommendation) return 'comp_recommendation';
+  // "Nếu không chơi với Tà Thuật thì sao?" negates the entity: ranking comps
+  // that USE it would answer the opposite question, so let the LLM reason
+  // from the conversation context instead.
+  if (entities.length && hasRecommendation && !(isFollowUpQuestion(text) && NEGATED_ENTITY_USAGE.test(text))) {
+    return 'comp_recommendation';
+  }
   if (comps.length) return 'comp_search';
   if (entities.length) return hasLookup ? 'entity_lookup' : 'gameplay_knowledge';
   if (
@@ -1171,7 +1187,9 @@ export async function answerAssistant(
       );
       if (hinted.length === 1) selectedEntities = hinted;
     }
-    if (selectedEntities.length !== 1 && !mechanics && !wantsReferenceData) {
+    // Follow-ups carry conversation history, so the LLM can disambiguate the
+    // entities itself; the canned clarification would just bounce the user.
+    if (selectedEntities.length !== 1 && !mechanics && !wantsReferenceData && !isFollowUpQuestion(text)) {
       const names = selectedEntities.map((entity) => displayName(entity, request.lang)).join(', ');
       const question = isVi(request.lang) ? `Bạn muốn hỏi về lựa chọn nào: ${names}?` : `Which one do you mean: ${names}?`;
       return {
@@ -1615,7 +1633,12 @@ export async function answerAssistant(
           system: buildSystemPrompt(request.lang, evidence),
           messages: [
             ...request.history.map((entry) => ({ role: entry.role, content: entry.content })),
-            { role: 'user', content: buildUserPrompt(request.message, evidence, (name) => localizedName(catalog, name, request.lang)) },
+            { role: 'user', content: buildUserPrompt(
+              request.message,
+              evidence,
+              (name) => localizedName(catalog, name, request.lang),
+              (text) => localizeEntityNames(text, catalog, request.lang)
+            ) },
             ...toolMessages,
           ],
           maxOutputTokens: 800,

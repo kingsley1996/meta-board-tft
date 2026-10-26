@@ -60,6 +60,35 @@ export function localizedName(catalog: Catalog, name: string, lang: Lang): strin
   return lang === 'vi' ? (catalog.byName.get(name)?.nameVi ?? name) : name;
 }
 
+// Translated prose (comp tips, stage notes) keeps canonical entity names in
+// English ("Nâng Cấp Dark Ritual"), while the catalog knows the Vietnamese
+// name. Replace those mentions so a vi answer says "Tà Thuật", not "Dark
+// Ritual". Longest names replace first so shorter names never corrupt longer
+// ones ("Radiant Edge of Night" before "Edge of Night"); short single-word
+// names are skipped as too collision-prone.
+const localizedNamesCache = new WeakMap<Catalog, [string, string][]>();
+
+function localizedReplacements(catalog: Catalog): [string, string][] {
+  let pairs = localizedNamesCache.get(catalog);
+  if (!pairs) {
+    pairs = [...catalog.byName.entries()]
+      .filter(([name, entity]) => entity.nameVi && entity.nameVi !== name && (name.includes(' ') || name.length >= 5))
+      .sort((a, b) => b[0].length - a[0].length)
+      .map(([name, entity]) => [name, entity.nameVi as string]);
+    localizedNamesCache.set(catalog, pairs);
+  }
+  return pairs;
+}
+
+export function localizeEntityNames(text: string, catalog: Catalog, lang: Lang): string {
+  if (lang !== 'vi' || !text) return text;
+  let result = text;
+  for (const [name, nameVi] of localizedReplacements(catalog)) {
+    if (result.includes(name)) result = result.replaceAll(name, nameVi);
+  }
+  return result;
+}
+
 const COMPONENT_ALIASES: Record<string, string> = {
   bf: 'B.F. Sword',
   bfs: 'B.F. Sword',

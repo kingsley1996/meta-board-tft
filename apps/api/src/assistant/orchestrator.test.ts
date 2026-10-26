@@ -69,11 +69,21 @@ test('routes static mechanic tables and economy plans to reference tools, not li
   assert.equal(isReferenceDataQuestion('Fast 8 economy plan'), true);
   assert.equal(isReferenceDataQuestion('level 7 40 vàng 30 HP nên roll hay lên 8'), false);
   assert.equal(isReferenceDataQuestion('How does a 6-win streak affect gold income?'), true);
+  // Mechanic milestone/cashout reward questions route to the reference tools
+  // so the model can read the /tables datasets instead of guessing numbers.
+  assert.equal(isReferenceDataQuestion('Coven nên nổ hũ mốc bao nhiêu'), true);
+  assert.equal(isReferenceDataQuestion('Mốc thu hoạch Coven có phần thưởng gì'), true);
+  assert.equal(isReferenceDataQuestion('Coven cashout mốc nào tốt nhất'), true);
+  assert.equal(isReferenceDataQuestion('Nên quy đổi Coven ở mốc mấy'), true);
+  assert.equal(isReferenceDataQuestion('Golden egg milestones rewards'), true);
 });
 
 test('only carries prior context into questions that explicitly refer back to it', () => {
   assert.equal(isFollowUpQuestion('What about her items?'), true);
   assert.equal(isFollowUpQuestion('Comp nay thi sao?'), true);
+  // Negated conditionals and "thì sao" are follow-ups too.
+  assert.equal(isFollowUpQuestion('Nếu không chơi với Tà Thuật thì sao'), true);
+  assert.equal(isFollowUpQuestion('Không chơi Tà Thuật nữa thì nổ hũ mốc nào'), true);
   assert.equal(isFollowUpQuestion('Do you know how interest works?'), false);
   assert.equal(isFollowUpQuestion('Who uses Ahri?'), false);
   const history = [{ role: 'user' as const, content: 'Which comp uses Ahri?' }];

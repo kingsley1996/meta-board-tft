@@ -37,10 +37,22 @@ test('returns exact game mechanics tables with source metadata', async () => {
 });
 
 test('returns focused loot-table pages and supports a second query for table details', async () => {
-  const index = await executeAssistantTool('get_game_mechanics', { table: 'loot_tables', slug: 'coven' }, 'en');
-  const indexPayload = index.payload as { tableIndex: string[]; source: { url: string } };
-  assert.ok(indexPayload.tableIndex.length > 0);
-  assert.match(indexPayload.source.url, /coven$/);
+  // Small mechanic pages (the nine Coven cashout tables) inline every table so
+  // the model gets reward details in one call instead of stopping at a listing.
+  const page = await executeAssistantTool('get_game_mechanics', { table: 'loot_tables', slug: 'coven' }, 'en');
+  const pagePayload = page.payload as {
+    tables: { title: string; facts: { label: string; value: string }[] }[];
+    tableCount: number;
+    source: { url: string };
+  };
+  assert.ok(pagePayload.tables.length > 0);
+  assert.equal(pagePayload.tableCount, pagePayload.tables.length);
+  assert.match(pagePayload.source.url, /coven$/);
+
+  // Large pages still return an index to keep the payload bounded.
+  const bigPage = await executeAssistantTool('get_game_mechanics', { table: 'loot_tables', slug: 'stage-loot-orbs' }, 'en');
+  const bigPayload = bigPage.payload as { tableIndex: string[] };
+  assert.ok(bigPayload.tableIndex.length > 0);
 
   const details = await executeAssistantTool(
     'get_game_mechanics',

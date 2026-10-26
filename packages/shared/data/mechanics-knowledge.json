@@ -1,833 +1,838 @@
 {
-  "schemaVersion": 1,
-  "defaultSet": "18",
-  "general": {
-    "id": "general",
-    "version": "1",
-    "updated": "2026-10-21",
-    "source": {
-      "title": "Teamfight Tactics",
-      "url": "https://teamfighttactics.leagueoflegends.com/en-us/",
-      "provider": "Riot Games"
-    },
-    "topics": [
-      {
-        "id": "core",
-        "title": "General TFT rules",
-        "keywords": [
-          "co che",
-          "mechanic",
-          "gameplay",
-          {
-            "term": "cach choi",
-            "weight": 3
-          },
-          {
-            "term": "how do i play",
-            "weight": 3
-          },
-          {
-            "term": "how to play",
-            "weight": 3
-          },
-          "huong dan",
-          "rules",
-          {
-            "term": "luat choi",
-            "weight": 3
-          }
-        ],
-        "rules": {
-          "en": [
-            "TFT is an 8-player autobattler: buy champions, field a board and fight other players; the last player with health wins.",
-            "Players start at 100 health and lose health after losing a player combat; PvE rounds do not eliminate players.",
-            "Team size equals level; leveling also improves shop odds and access to higher-cost champions.",
-            "Gold comes from base income each round, interest on saved gold, win/loss streaks and other rewards.",
-            "The shop offers champions; rerolling costs gold, and the champion pool is shared by all players.",
-            "Three copies combine into a 2-star champion; a 3-star champion needs nine copies.",
-            "Two components make one completed item; a champion can hold 3 items; emblems add +1 trait and count toward breakpoints.",
-            "Augments are offered during stages 2-4; choose 1 of 3, with silver, gold or prismatic rarity.",
-            "Carousel is a shared draft: champions carry an item and pick order follows the previous round.",
-            "Combat is automatic: units gain mana from attacks and damage, cast at max mana, and scale with AD, AP, attack speed, armor, magic resist and durability.",
-            "Positioning, targeting, crowd control, shred, sunder, burn and wound decide many fights; scouting the lobby is part of the game."
-          ],
-          "vi": [
-            "TFT là autobattler 8 người: mua tướng, xếp đội hình và đấu với người chơi khác; người còn máu cuối cùng thắng.",
-            "Người chơi bắt đầu với 100 máu và mất máu khi thua combat PvP; vòng PvE không loại người chơi.",
-            "Số tướng được xếp bằng cấp; lên cấp còn tăng tỉ lệ shop và mở tướng cost cao.",
-            "Vàng đến từ thu nhập nền mỗi vòng, lãi trên vàng giữ lại, chuỗi thắng/thua và các phần thưởng khác.",
-            "Shop cung cấp tướng; reroll tốn vàng và pool tướng được chia sẻ giữa tất cả người chơi.",
-            "Ba bản sao ghép thành tướng 2 sao; tướng 3 sao cần chín bản sao.",
-            "Hai linh kiện ghép thành một trang bị hoàn chỉnh; mỗi tướng giữ được 3 trang bị; Ấn cộng +1 tộc hệ và tính vào mốc kích hoạt.",
-            "Nâng cấp được chọn trong giai đoạn 2-4; chọn 1 trong 3, độ hiếm bạc, vàng hoặc lăng kính.",
-            "Carousel là vòng chọn chung: tướng mang sẵn trang bị và thứ tự chọn theo vòng trước.",
-            "Combat diễn ra tự động: tướng nhận mana khi đánh và chịu sát thương, dùng kỹ năng khi đầy mana, và scale theo AD, AP, tốc đánh, giáp, kháng phép và durability.",
-            "Cách xếp, mục tiêu, khống chế, shred, sunder, burn và wound quyết định nhiều combat; scouting đối thủ là một phần của game."
-          ]
-        }
-      },
-      {
-        "id": "economy",
-        "title": "Economy",
-        "keywords": [
-          "gold",
-          "vang",
-          {
-            "term": "interest",
-            "weight": 3
-          },
-          "lai",
-          {
-            "term": "lai vang",
-            "weight": 3
-          },
-          "econ",
-          {
-            "term": "kinh te",
-            "weight": 2
-          },
-          "streak",
-          {
-            "term": "chuoi thang",
-            "weight": 3
-          },
-          {
-            "term": "chuoi thua",
-            "weight": 3
-          },
-          "income",
-          {
-            "term": "thu nhap",
-            "weight": 2
-          },
-          {
-            "term": "save gold",
-            "weight": 3
-          },
-          {
-            "term": "tiet kiem",
-            "weight": 2
-          }
-        ],
-        "rules": {
-          "en": [
-            "Gold comes from base income each round, interest on saved gold, win/loss streak bonuses and other rewards.",
-            "Interest rewards holding gold in multiples of 10; saving to 50 is common, but leveling or rolling to stabilize can be correct.",
-            "Spending gold now trades economy for immediate board strength; the right choice depends on health, streak and lobby tempo."
-          ],
-          "vi": [
-            "Vàng đến từ thu nhập nền mỗi vòng, lãi trên vàng giữ lại, thưởng chuỗi thắng/thua và các phần thưởng khác.",
-            "Lãi thưởng cho việc giữ vàng theo bội số 10; giữ 50 vàng là thói quen phổ biến, nhưng lên cấp hoặc roll để giữ máu đôi khi đúng hơn.",
-            "Tiêu vàng bây giờ đánh đổi kinh tế lấy sức mạnh đội hình ngay; lựa chọn đúng phụ thuộc máu, chuỗi và nhịp lobby."
-          ]
-        }
-      },
-      {
-        "id": "leveling",
-        "title": "Leveling and rolling",
-        "keywords": [
-          "level",
-          "cap",
-          {
-            "term": "len cap",
-            "weight": 3
-          },
-          "xp",
-          {
-            "term": "kinh nghiem",
-            "weight": 2
-          },
-          "roll",
-          "reroll",
-          {
-            "term": "shop odds",
-            "weight": 3
-          },
-          {
-            "term": "ti le shop",
-            "weight": 3
-          },
-          "pool",
-          "bag",
-          {
-            "term": "3 sao",
-            "weight": 3
-          },
-          {
-            "term": "ba sao",
-            "weight": 3
-          },
-          {
-            "term": "star up",
-            "weight": 2
-          },
-          {
-            "term": "len sao",
-            "weight": 3
-          },
-          {
-            "term": "when to roll",
-            "weight": 3
-          }
-        ],
-        "rules": {
-          "en": [
-            "Gain free XP each round and spend gold to buy more; leveling raises team size and shop odds.",
-            "Three copies make a 2-star; a 3-star needs nine. The pool is shared, so contesting champions reduces your odds.",
-            "Rolling costs gold and is best when you need immediate upgrades; leveling is usually better for long-term power."
-          ],
-          "vi": [
-            "Mỗi vòng nhận XP miễn phí và có thể dùng vàng để mua thêm; lên cấp tăng số tướng được xếp và tỉ lệ shop.",
-            "Ba bản sao thành 2 sao; 3 sao cần chín bản. Pool dùng chung nên tranh tướng làm giảm khả năng ra bản sao.",
-            "Roll tốn vàng và hợp khi cần nâng cấp ngay; lên cấp thường tốt hơn cho sức mạnh dài hạn."
-          ]
-        }
-      },
-      {
-        "id": "items",
-        "title": "Items and emblems",
-        "keywords": [
-          "item",
-          {
-            "term": "trang bi",
-            "weight": 3
-          },
-          "component",
-          {
-            "term": "linh kien",
-            "weight": 3
-          },
-          "emblem",
-          "spatula",
-          "remover",
-          "artifact",
-          "an"
-        ],
-        "rules": {
-          "en": [
-            "Two components combine into one completed item. A champion can hold 3 items.",
-            "Emblems are completed items that grant +1 trait and count toward breakpoints.",
-            "A remover returns an item to your bench."
-          ],
-          "vi": [
-            "Hai linh kiện ghép thành một trang bị hoàn chỉnh. Mỗi tướng giữ được 3 trang bị.",
-            "Ấn là trang bị hoàn chỉnh cộng +1 tộc hệ và tính vào mốc kích hoạt.",
-            "Remover trả trang bị về bench."
-          ]
-        }
-      },
-      {
-        "id": "augments",
-        "title": "Augments",
-        "keywords": [
-          {
-            "term": "augment",
-            "weight": 3
-          },
-          {
-            "term": "nang cap",
-            "weight": 2
-          },
-          "silver",
-          "gold",
-          "prismatic",
-          {
-            "term": "lang kinh",
-            "weight": 3
-          }
-        ],
-        "rules": {
-          "en": [
-            "Augments are offered during stages 2-4; choose one of three, with silver, gold or prismatic rarity.",
-            "Exact augment effects come from the augment evidence."
-          ],
-          "vi": [
-            "Nâng cấp được chọn trong giai đoạn 2-4; chọn 1 trong 3, độ hiếm bạc, vàng hoặc lăng kính.",
-            "Hiệu ứng chính xác lấy từ evidence của nâng cấp."
-          ]
-        }
-      },
-      {
-        "id": "carousel",
-        "title": "Carousel",
-        "keywords": [
-          {
-            "term": "carousel",
-            "weight": 3
-          },
-          {
-            "term": "vong chon",
-            "weight": 3
-          },
-          {
-            "term": "shared draft",
-            "weight": 3
-          },
-          {
-            "term": "chon chung",
-            "weight": 2
-          }
-        ],
-        "rules": {
-          "en": [
-            "Carousel is a shared draft: champions carry an item, and pick order follows the previous round."
-          ],
-          "vi": [
-            "Carousel là vòng chọn chung: tướng mang sẵn trang bị, thứ tự chọn theo vòng trước."
-          ]
-        }
-      },
-      {
-        "id": "combat",
-        "title": "Combat",
-        "keywords": [
-          {
-            "term": "combat",
-            "weight": 3
-          },
-          "mana",
-          "ap",
-          "ad",
-          "armor",
-          "mr",
-          "position",
-          {
-            "term": "do hinh",
-            "weight": 3
-          },
-          "crit",
-          "shield",
-          "heal",
-          "damage",
-          {
-            "term": "sat thuong",
-            "weight": 3
-          },
-          "cc"
-        ],
-        "rules": {
-          "en": [
-            "Combat is automatic. Units gain mana from attacks and damage, cast at max mana, and scale with AD, AP, attack speed, armor, magic resist and durability.",
-            "Positioning, targeting, crowd control, shred, sunder, burn and wound matter."
-          ],
-          "vi": [
-            "Combat diễn ra tự động. Tướng nhận mana khi đánh và chịu sát thương, dùng kỹ năng khi đầy mana, và scale theo AD, AP, tốc đánh, giáp, kháng phép và durability.",
-            "Cách xếp, mục tiêu, khống chế, shred, sunder, burn và wound đều quan trọng."
-          ]
-        }
-      },
-      {
-        "id": "metrics",
-        "title": "Meta statistics metrics",
-        "keywords": [
-          {
-            "term": "top 4 rate",
-            "weight": 4
-          },
-          {
-            "term": "top-4 rate",
-            "weight": 4
-          },
-          {
-            "term": "ty le top 4",
-            "weight": 4
-          },
-          {
-            "term": "win rate",
-            "weight": 4
-          },
-          {
-            "term": "ty le thang",
-            "weight": 4
-          },
-          {
-            "term": "winrate",
-            "weight": 4
-          },
-          {
-            "term": "average placement",
-            "weight": 4
-          },
-          {
-            "term": "avg place",
-            "weight": 3
-          },
-          {
-            "term": "hang trung binh",
-            "weight": 3
-          },
-          {
-            "term": "top-4",
-            "weight": 3
-          },
-          {
-            "term": "metric",
-            "weight": 3
-          },
-          {
-            "term": "sample size",
-            "weight": 3
-          },
-          {
-            "term": "co mau",
-            "weight": 3
-          },
-          {
-            "term": "statistics",
-            "weight": 2
-          }
-        ],
-        "rules": {
-          "en": [
-            "Average placement is the mean finishing position across games; lower is better and 4.0 is the break-even midpoint of an 8-player lobby.",
-            "Top-4 rate is the share of games finishing 1st-4th; it measures consistency, not winning.",
-            "Win rate is the share of games finishing 1st; it is the strictest placement metric and is always lower than the top-4 rate.",
-            "Small samples mislead: a 60% win rate over 40 games is less reliable than 52% over 4,000 games. Always check games played, rank bracket and patch before trusting a rate."
-          ],
-          "vi": [
-            "Hạng trung bình là vị trí xếp hạng trung bình qua các trận; càng thấp càng tốt và 4.0 là mốc cân bằng của lobby 8 người.",
-            "Tỷ lệ top 4 là phần trận về nhất đến tư; đo độ ổn định, không đo việc ăn giải.",
-            "Tỷ lệ thắng là phần trận về nhất — chỉ số khắt khe nhất và luôn thấp hơn tỷ lệ top 4.",
-            "Mẫu nhỏ dễ gây hiểu lầm: 60% thắng sau 40 trận kém tin cậy hơn 52% sau 4.000 trận. Luôn xem số trận, khung rank và patch trước khi tin một tỷ lệ."
-          ]
-        }
-      }
-    ]
+ "schemaVersion": 1,
+ "defaultSet": "18",
+ "general": {
+  "id": "general",
+  "version": "1",
+  "updated": "2026-10-21",
+  "source": {
+   "title": "Teamfight Tactics",
+   "url": "https://teamfighttactics.leagueoflegends.com/en-us/",
+   "provider": "Riot Games"
   },
-  "sets": {
-    "18": {
-      "id": "18",
-      "name": "Enchanted Wilds",
-      "patch": "18.4",
-      "updated": "2026-10-21",
-      "source": {
-        "title": "Enchanted Wilds overview",
-        "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/enchanted-wilds-overview/",
-        "provider": "Riot Games"
-      },
-      "topics": [
-        {
-          "id": "set18",
-          "title": "Set 18 overview",
-          "keywords": [
-            {
-              "term": "set 18",
-              "weight": 4
-            },
-            {
-              "term": "set18",
-              "weight": 4
-            },
-            {
-              "term": "enchanted wilds",
-              "weight": 4
-            },
-            {
-              "term": "enchant wilds",
-              "weight": 3
-            },
-            {
-              "term": "rung xanh",
-              "weight": 3
-            }
-          ],
-          "rules": {
-            "en": [
-              "Set 18 is Enchanted Wilds. Its shop mechanic is Wisps, an evolution of Set 12 Charms.",
-              "Wisps appear in the rightmost shop slot every other shop, only during planning; buy at most one per round, and an unpurchased Wisp reveals the unit behind it.",
-              "Blossom empowers Wisps; Riftbeast uses Alpha Marks; other traits such as Coven, Elderwood, Sprykin, Fae, Primal, Avatar, Solar, Eclipse, Greenfather, Blackthorn, Inferno and Lunar have their own rules."
-            ],
-            "vi": [
-              "Set 18 là Enchanted Wilds. Cơ chế shop của set là Wisp, phiên bản kế thừa Charm từ Set 12.",
-              "Wisp xuất hiện ở ô shop ngoài cùng bên phải mỗi hai lượt shop, chỉ trong giai đoạn chuẩn bị; mua tối đa một Wisp mỗi vòng, và Wisp không mua sẽ lộ tướng phía sau.",
-              "Blossom cường hóa Wisp; Riftbeast dùng Alpha Mark; các tộc hệ khác như Coven, Elderwood, Sprykin, Fae, Primal, Avatar, Solar, Eclipse, Greenfather, Blackthorn, Inferno và Lunar có luật riêng."
-            ]
-          }
-        },
-        {
-          "id": "wisps",
-          "title": "Wisps",
-          "keywords": [
-            {
-              "term": "wisp",
-              "weight": 3
-            },
-            {
-              "term": "wisps",
-              "weight": 3
-            },
-            {
-              "term": "charm",
-              "weight": 3
-            },
-            {
-              "term": "charms",
-              "weight": 3
-            },
-            {
-              "term": "stage 5",
-              "weight": 2
-            }
-          ],
-          "rules": {
-            "en": [
-              "Wisps are Set 18 one-use shop effects, an evolution of Set 12 Charms.",
-              "A Wisp sits in the rightmost shop slot, appears every other shop and can only be bought during planning.",
-              "Buy at most one Wisp per round; if you skip it, it disappears and reveals the unit behind it.",
-              "The seven categories are Champion, Combat, Misc, Shop, Gold/XP, Risky and Item.",
-              "Later Wisps are stronger and more expensive; after stage 5, every other Wisp offer is guaranteed to be Combat.",
-              "Blossom changes Wisp rules; use Blossom evidence for exact breakpoints."
-            ],
-            "vi": [
-              "Wisp là hiệu ứng shop dùng một lần của Set 18, kế thừa Charm từ Set 12.",
-              "Wisp nằm ở ô ngoài cùng bên phải, xuất hiện mỗi hai lượt shop và chỉ mua được trong giai đoạn chuẩn bị.",
-              "Mỗi vòng mua tối đa một Wisp; nếu không mua, Wisp biến mất và lộ tướng phía sau.",
-              "Bảy nhóm: Champion, Combat, Misc, Shop, Gold/XP, Risky và Item.",
-              "Wisp về sau mạnh hơn và đắt hơn; sau stage 5, mỗi hai Wisp có một Wisp Combat được bảo đảm.",
-              "Blossom thay đổi luật Wisp; xem evidence của Blossom để biết mốc chính xác."
-            ]
-          }
-        },
-        {
-          "id": "blossom",
-          "title": "Blossom",
-          "keywords": [
-            {
-              "term": "blossom",
-              "weight": 3
-            },
-            {
-              "term": "hoa linh",
-              "weight": 3
-            }
-          ],
-          "rules": {
-            "en": [
-              "After combat, Blossom empowers your Wisps. Blossom champions gain AD, AP and max Health. At 3 Wisps are upgraded, at 5 they appear in every shop, at 7 you gain gold after buying one, at 9 you can buy two per round, and at 11 Wisps overflow with power."
-            ],
-            "vi": [
-              "Sau combat, Blossom cường hóa Wisp. Tướng Blossom nhận AD, AP và máu tối đa. Mốc 3 nâng cấp Wisp, mốc 5 Wisp có trong mọi shop, mốc 7 nhận vàng sau khi mua Wisp, mốc 9 được mua hai Wisp mỗi vòng, mốc 11 Wisp tràn năng lượng."
-            ]
-          }
-        },
-        {
-          "id": "riftbeast",
-          "title": "Riftbeast",
-          "keywords": [
-            {
-              "term": "riftbeast",
-              "weight": 3
-            },
-            {
-              "term": "alpha mark",
-              "weight": 3
-            },
-            {
-              "term": "elder dragon",
-              "weight": 3
-            }
-          ],
-          "rules": {
-            "en": [
-              "Riftbeast (3) gives an Alpha Mark that grants a Riftbeast its unique buff, (5) overruns the next shop every 3 combats, (7) grows Riftbeasts every 5 seconds, and (10) adds +2 team size. Elder Dragon uses 2 slots and adds +2 Riftbeast."
-            ],
-            "vi": [
-              "Riftbeast (3) cho Alpha Mark để cộng buff riêng cho một Riftbeast, (5) tràn shop sau mỗi 3 combat, (7) Riftbeast lớn dần mỗi 5 giây, (10) cộng +2 slot đội hình. Elder Dragon chiếm 2 slot và cộng +2 Riftbeast."
-            ]
-          }
-        },
-        {
-          "id": "coven",
-          "title": "Coven",
-          "keywords": [
-            "coven"
-          ],
-          "rules": {
-            "en": [
-              "Coven banks Essence from takedowns and lost player combats, then chooses cashouts at breakpoints."
-            ],
-            "vi": [
-              "Coven tích Essence từ hạ gục và thua combat PvP, rồi chọn cashout tại các mốc."
-            ]
-          }
-        },
-        {
-          "id": "elderwood",
-          "title": "Elderwood",
-          "keywords": [
-            "elderwood"
-          ],
-          "rules": {
-            "en": [
-              "Elderwood places plants/summons on the board; higher breakpoints star them up."
-            ],
-            "vi": [
-              "Elderwood đặt cây/summon lên bàn; mốc cao tăng sao cho cây."
-            ]
-          }
-        },
-        {
-          "id": "sprykin",
-          "title": "Sprykin",
-          "keywords": [
-            "sprykin"
-          ],
-          "rules": {
-            "en": [
-              "Sprykin puts a unit on the BFF for health and attack speed; 5/7 share part of the BFF bonus."
-            ],
-            "vi": [
-              "Sprykin cho một tướng cưỡi BFF để nhận máu và tốc đánh; mốc 5/7 chia một phần buff cho đồng đội."
-            ]
-          }
-        },
-        {
-          "id": "fae",
-          "title": "Fae",
-          "keywords": [
-            "fae"
-          ],
-          "rules": {
-            "en": [
-              "Fae attracts Pixies from damage, healing and shielding; at 4, Golden Pixies replace them after 7 Pixies."
-            ],
-            "vi": [
-              "Fae thu hút Pixie từ sát thương, hồi máu và shield; mốc 4 chuyển sang Golden Pixie sau 7 Pixie."
-            ]
-          }
-        },
-        {
-          "id": "primal",
-          "title": "Primal",
-          "keywords": [
-            "primal"
-          ],
-          "rules": {
-            "en": [
-              "Primal chooses one of four blessings at 2/4."
-            ],
-            "vi": [
-              "Primal chọn một trong bốn blessing ở mốc 2/4."
-            ]
-          }
-        },
-        {
-          "id": "avatar",
-          "title": "Avatar",
-          "keywords": [
-            "avatar"
-          ],
-          "rules": {
-            "en": [
-              "Avatar on bench or board transforms other Avatars in shop to its trait; that trait counts twice. Lux is the Avatar."
-            ],
-            "vi": [
-              "Avatar trên bench hoặc bàn biến các Avatar khác trong shop thành tộc hệ của nó; tộc hệ đó được tính hai lần. Lux là Avatar."
-            ]
-          }
-        },
-        {
-          "id": "solar",
-          "title": "Solar",
-          "keywords": [
-            "solar"
-          ],
-          "rules": {
-            "en": [
-              "Solar grants a shield and bonus magic damage; at 7 a 3-star can ascend to 4-star every 4 seconds."
-            ],
-            "vi": [
-              "Solar cho shield và sát thương phép cộng thêm; mốc 7 có thể đưa tướng 3 sao lên 4 sao mỗi 4 giây."
-            ]
-          }
-        },
-        {
-          "id": "eclipse",
-          "title": "Eclipse",
-          "keywords": [
-            "eclipse"
-          ],
-          "rules": {
-            "en": [
-              "Eclipse kills the lowest-health enemy after 8 seconds, repeating every 3.5 seconds."
-            ],
-            "vi": [
-              "Eclipse sau 8 giây giết tướng máu thấp nhất, lặp lại mỗi 3,5 giây."
-            ]
-          }
-        },
-        {
-          "id": "greenfather",
-          "title": "Greenfather",
-          "keywords": [
-            "greenfather"
-          ],
-          "rules": {
-            "en": [
-              "Greenfather: Ivern gains seeds on cast and each combat; 5 seeds grow a hex with a biome buff."
-            ],
-            "vi": [
-              "Greenfather: Ivern nhận seed khi cast và mỗi combat; 5 seed trồng một hex có buff theo vùng."
-            ]
-          }
-        },
-        {
-          "id": "blackthorn",
-          "title": "Blackthorn",
-          "keywords": [
-            "blackthorn"
-          ],
-          "rules": {
-            "en": [
-              "Blackthorn sacrifices the unit on its hex for team health; at 6 the sacrifice survives and gains stats instead."
-            ],
-            "vi": [
-              "Blackthorn hiến tế tướng trên hex để cộng máu; mốc 6 tướng hiến tế không chết mà nhận stats."
-            ]
-          }
-        },
-        {
-          "id": "inferno",
-          "title": "Inferno",
-          "keywords": [
-            "inferno"
-          ],
-          "rules": {
-            "en": [
-              "Inferno burns and wounds; later breakpoints ignite shop slots to roll one cost higher."
-            ],
-            "vi": [
-              "Inferno gây burn và wound; các mốc sau đốt ô shop để roll tướng cao hơn một cost."
-            ]
-          }
-        },
-        {
-          "id": "lunar",
-          "title": "Lunar",
-          "keywords": [
-            "lunar"
-          ],
-          "rules": {
-            "en": [
-              "Lunar gives Lunar champions and adjacent allies attack speed/AP; Lunar champions gain double."
-            ],
-            "vi": [
-              "Lunar cho tướng Lunar và đồng minh kề tốc đánh/AP; tướng Lunar nhận gấp đôi."
-            ]
-          }
-        },
-        {
-          "id": "bounties",
-          "title": "Bounty Seeker and Apex Predator",
-          "keywords": [
-            "bounty seeker",
-            "apex predator"
-          ],
-          "rules": {
-            "en": [
-              "Bounty Seeker: Draven chooses bounties and progresses through attacks, casts, damage or takedowns. Apex Predator makes Elder Dragon use 2 slots and add +2 Riftbeast."
-            ],
-            "vi": [
-              "Bounty Seeker: Draven chọn bounty và tiến độ bằng đòn đánh, cast, sát thương hoặc hạ gục. Apex Predator cho Elder Dragon chiếm 2 slot và +2 Riftbeast."
-            ]
-          }
-        },
-        {
-          "id": "economy",
-          "title": "Set 18 economy",
-          "keywords": [
-            "gold",
-            "vang",
-            {
-              "term": "interest",
-              "weight": 3
-            },
-            "lai",
-            {
-              "term": "lai vang",
-              "weight": 3
-            },
-            "econ",
-            {
-              "term": "kinh te",
-              "weight": 2
-            },
-            "streak",
-            {
-              "term": "chuoi thang",
-              "weight": 3
-            },
-            {
-              "term": "chuoi thua",
-              "weight": 3
-            },
-            "income",
-            {
-              "term": "thu nhap",
-              "weight": 2
-            },
-            {
-              "term": "save gold",
-              "weight": 3
-            },
-            {
-              "term": "tiet kiem",
-              "weight": 2
-            }
-          ],
-          "generator": "economy"
-        },
-        {
-          "id": "leveling",
-          "title": "Set 18 leveling",
-          "keywords": [
-            "level",
-            "cap",
-            {
-              "term": "len cap",
-              "weight": 3
-            },
-            "xp",
-            {
-              "term": "kinh nghiem",
-              "weight": 2
-            },
-            "roll",
-            "reroll",
-            {
-              "term": "shop odds",
-              "weight": 3
-            },
-            {
-              "term": "ti le shop",
-              "weight": 3
-            },
-            "pool",
-            "bag",
-            {
-              "term": "3 sao",
-              "weight": 3
-            },
-            {
-              "term": "ba sao",
-              "weight": 3
-            },
-            {
-              "term": "star up",
-              "weight": 2
-            },
-            {
-              "term": "len sao",
-              "weight": 3
-            },
-            {
-              "term": "when to roll",
-              "weight": 3
-            }
-          ],
-          "generator": "leveling"
-        }
-      ]
+  "topics": [
+   {
+    "id": "core",
+    "title": "General TFT rules",
+    "keywords": [
+     "co che",
+     "mechanic",
+     "gameplay",
+     {
+      "term": "cach choi",
+      "weight": 3
+     },
+     {
+      "term": "how do i play",
+      "weight": 3
+     },
+     {
+      "term": "how to play",
+      "weight": 3
+     },
+     "huong dan",
+     "rules",
+     {
+      "term": "luat choi",
+      "weight": 3
+     }
+    ],
+    "rules": {
+     "en": [
+      "TFT is an 8-player autobattler: buy champions, field a board and fight other players; the last player with health wins.",
+      "Players start at 100 health and lose health after losing a player combat; PvE rounds do not eliminate players.",
+      "Team size equals level; leveling also improves shop odds and access to higher-cost champions.",
+      "Gold comes from base income each round, interest on saved gold, win/loss streaks and other rewards.",
+      "The shop offers champions; rerolling costs gold, and the champion pool is shared by all players.",
+      "Three copies combine into a 2-star champion; a 3-star champion needs nine copies.",
+      "Two components make one completed item; a champion can hold 3 items; emblems add +1 trait and count toward breakpoints.",
+      "Augments are offered during stages 2-4; choose 1 of 3, with silver, gold or prismatic rarity.",
+      "Carousel is a shared draft: champions carry an item and pick order follows the previous round.",
+      "Combat is automatic: units gain mana from attacks and damage, cast at max mana, and scale with AD, AP, attack speed, armor, magic resist and durability.",
+      "Positioning, targeting, crowd control, shred, sunder, burn and wound decide many fights; scouting the lobby is part of the game."
+     ],
+     "vi": [
+      "TFT là autobattler 8 người: mua tướng, xếp đội hình và đấu với người chơi khác; người còn máu cuối cùng thắng.",
+      "Người chơi bắt đầu với 100 máu và mất máu khi thua combat PvP; vòng PvE không loại người chơi.",
+      "Số tướng được xếp bằng cấp; lên cấp còn tăng tỉ lệ shop và mở tướng cost cao.",
+      "Vàng đến từ thu nhập nền mỗi vòng, lãi trên vàng giữ lại, chuỗi thắng/thua và các phần thưởng khác.",
+      "Shop cung cấp tướng; reroll tốn vàng và pool tướng được chia sẻ giữa tất cả người chơi.",
+      "Ba bản sao ghép thành tướng 2 sao; tướng 3 sao cần chín bản sao.",
+      "Hai linh kiện ghép thành một trang bị hoàn chỉnh; mỗi tướng giữ được 3 trang bị; Ấn cộng +1 tộc hệ và tính vào mốc kích hoạt.",
+      "Nâng cấp được chọn trong giai đoạn 2-4; chọn 1 trong 3, độ hiếm bạc, vàng hoặc lăng kính.",
+      "Carousel là vòng chọn chung: tướng mang sẵn trang bị và thứ tự chọn theo vòng trước.",
+      "Combat diễn ra tự động: tướng nhận mana khi đánh và chịu sát thương, dùng kỹ năng khi đầy mana, và scale theo AD, AP, tốc đánh, giáp, kháng phép và durability.",
+      "Cách xếp, mục tiêu, khống chế, shred, sunder, burn và wound quyết định nhiều combat; scouting đối thủ là một phần của game."
+     ]
     }
+   },
+   {
+    "id": "economy",
+    "title": "Economy",
+    "keywords": [
+     "gold",
+     "vang",
+     {
+      "term": "interest",
+      "weight": 3
+     },
+     "lai",
+     {
+      "term": "lai vang",
+      "weight": 3
+     },
+     "econ",
+     {
+      "term": "kinh te",
+      "weight": 2
+     },
+     "streak",
+     {
+      "term": "chuoi thang",
+      "weight": 3
+     },
+     {
+      "term": "chuoi thua",
+      "weight": 3
+     },
+     "income",
+     {
+      "term": "thu nhap",
+      "weight": 2
+     },
+     {
+      "term": "save gold",
+      "weight": 3
+     },
+     {
+      "term": "tiet kiem",
+      "weight": 2
+     }
+    ],
+    "rules": {
+     "en": [
+      "Gold comes from base income each round, interest on saved gold, win/loss streak bonuses and other rewards.",
+      "Interest rewards holding gold in multiples of 10; saving to 50 is common, but leveling or rolling to stabilize can be correct.",
+      "Spending gold now trades economy for immediate board strength; the right choice depends on health, streak and lobby tempo."
+     ],
+     "vi": [
+      "Vàng đến từ thu nhập nền mỗi vòng, lãi trên vàng giữ lại, thưởng chuỗi thắng/thua và các phần thưởng khác.",
+      "Lãi thưởng cho việc giữ vàng theo bội số 10; giữ 50 vàng là thói quen phổ biến, nhưng lên cấp hoặc roll để giữ máu đôi khi đúng hơn.",
+      "Tiêu vàng bây giờ đánh đổi kinh tế lấy sức mạnh đội hình ngay; lựa chọn đúng phụ thuộc máu, chuỗi và nhịp lobby."
+     ]
+    }
+   },
+   {
+    "id": "leveling",
+    "title": "Leveling and rolling",
+    "keywords": [
+     "level",
+     "cap",
+     {
+      "term": "len cap",
+      "weight": 3
+     },
+     "xp",
+     {
+      "term": "kinh nghiem",
+      "weight": 2
+     },
+     "roll",
+     "reroll",
+     {
+      "term": "shop odds",
+      "weight": 3
+     },
+     {
+      "term": "ti le shop",
+      "weight": 3
+     },
+     "pool",
+     "bag",
+     {
+      "term": "3 sao",
+      "weight": 3
+     },
+     {
+      "term": "ba sao",
+      "weight": 3
+     },
+     {
+      "term": "star up",
+      "weight": 2
+     },
+     {
+      "term": "len sao",
+      "weight": 3
+     },
+     {
+      "term": "when to roll",
+      "weight": 3
+     }
+    ],
+    "rules": {
+     "en": [
+      "Gain free XP each round and spend gold to buy more; leveling raises team size and shop odds.",
+      "Three copies make a 2-star; a 3-star needs nine. The pool is shared, so contesting champions reduces your odds.",
+      "Rolling costs gold and is best when you need immediate upgrades; leveling is usually better for long-term power."
+     ],
+     "vi": [
+      "Mỗi vòng nhận XP miễn phí và có thể dùng vàng để mua thêm; lên cấp tăng số tướng được xếp và tỉ lệ shop.",
+      "Ba bản sao thành 2 sao; 3 sao cần chín bản. Pool dùng chung nên tranh tướng làm giảm khả năng ra bản sao.",
+      "Roll tốn vàng và hợp khi cần nâng cấp ngay; lên cấp thường tốt hơn cho sức mạnh dài hạn."
+     ]
+    }
+   },
+   {
+    "id": "items",
+    "title": "Items and emblems",
+    "keywords": [
+     "item",
+     {
+      "term": "trang bi",
+      "weight": 3
+     },
+     "component",
+     {
+      "term": "linh kien",
+      "weight": 3
+     },
+     "emblem",
+     "spatula",
+     "remover",
+     "artifact",
+     "an"
+    ],
+    "rules": {
+     "en": [
+      "Two components combine into one completed item. A champion can hold 3 items.",
+      "Emblems are completed items that grant +1 trait and count toward breakpoints.",
+      "A remover returns an item to your bench."
+     ],
+     "vi": [
+      "Hai linh kiện ghép thành một trang bị hoàn chỉnh. Mỗi tướng giữ được 3 trang bị.",
+      "Ấn là trang bị hoàn chỉnh cộng +1 tộc hệ và tính vào mốc kích hoạt.",
+      "Remover trả trang bị về bench."
+     ]
+    }
+   },
+   {
+    "id": "augments",
+    "title": "Augments",
+    "keywords": [
+     {
+      "term": "augment",
+      "weight": 3
+     },
+     {
+      "term": "nang cap",
+      "weight": 2
+     },
+     "silver",
+     "gold",
+     "prismatic",
+     {
+      "term": "lang kinh",
+      "weight": 3
+     }
+    ],
+    "rules": {
+     "en": [
+      "Augments are offered during stages 2-4; choose one of three, with silver, gold or prismatic rarity.",
+      "Exact augment effects come from the augment evidence."
+     ],
+     "vi": [
+      "Nâng cấp được chọn trong giai đoạn 2-4; chọn 1 trong 3, độ hiếm bạc, vàng hoặc lăng kính.",
+      "Hiệu ứng chính xác lấy từ evidence của nâng cấp."
+     ]
+    }
+   },
+   {
+    "id": "carousel",
+    "title": "Carousel",
+    "keywords": [
+     {
+      "term": "carousel",
+      "weight": 3
+     },
+     {
+      "term": "vong chon",
+      "weight": 3
+     },
+     {
+      "term": "shared draft",
+      "weight": 3
+     },
+     {
+      "term": "chon chung",
+      "weight": 2
+     }
+    ],
+    "rules": {
+     "en": [
+      "Carousel is a shared draft: champions carry an item, and pick order follows the previous round."
+     ],
+     "vi": [
+      "Carousel là vòng chọn chung: tướng mang sẵn trang bị, thứ tự chọn theo vòng trước."
+     ]
+    }
+   },
+   {
+    "id": "combat",
+    "title": "Combat",
+    "keywords": [
+     {
+      "term": "combat",
+      "weight": 3
+     },
+     "mana",
+     "ap",
+     "ad",
+     "armor",
+     "mr",
+     "position",
+     {
+      "term": "do hinh",
+      "weight": 3
+     },
+     "crit",
+     "shield",
+     "heal",
+     "damage",
+     {
+      "term": "sat thuong",
+      "weight": 3
+     },
+     "cc"
+    ],
+    "rules": {
+     "en": [
+      "Combat is automatic. Units gain mana from attacks and damage, cast at max mana, and scale with AD, AP, attack speed, armor, magic resist and durability.",
+      "Positioning, targeting, crowd control, shred, sunder, burn and wound matter."
+     ],
+     "vi": [
+      "Combat diễn ra tự động. Tướng nhận mana khi đánh và chịu sát thương, dùng kỹ năng khi đầy mana, và scale theo AD, AP, tốc đánh, giáp, kháng phép và durability.",
+      "Cách xếp, mục tiêu, khống chế, shred, sunder, burn và wound đều quan trọng."
+     ]
+    }
+   },
+   {
+    "id": "metrics",
+    "title": "Meta statistics metrics",
+    "keywords": [
+     {
+      "term": "top 4 rate",
+      "weight": 4
+     },
+     {
+      "term": "top-4 rate",
+      "weight": 4
+     },
+     {
+      "term": "ty le top 4",
+      "weight": 4
+     },
+     {
+      "term": "win rate",
+      "weight": 4
+     },
+     {
+      "term": "ty le thang",
+      "weight": 4
+     },
+     {
+      "term": "winrate",
+      "weight": 4
+     },
+     {
+      "term": "average placement",
+      "weight": 4
+     },
+     {
+      "term": "avg place",
+      "weight": 3
+     },
+     {
+      "term": "hang trung binh",
+      "weight": 3
+     },
+     {
+      "term": "top-4",
+      "weight": 3
+     },
+     {
+      "term": "metric",
+      "weight": 3
+     },
+     {
+      "term": "sample size",
+      "weight": 3
+     },
+     {
+      "term": "co mau",
+      "weight": 3
+     },
+     {
+      "term": "statistics",
+      "weight": 2
+     }
+    ],
+    "rules": {
+     "en": [
+      "Average placement is the mean finishing position across games; lower is better and 4.0 is the break-even midpoint of an 8-player lobby.",
+      "Top-4 rate is the share of games finishing 1st-4th; it measures consistency, not winning.",
+      "Win rate is the share of games finishing 1st; it is the strictest placement metric and is always lower than the top-4 rate.",
+      "Small samples mislead: a 60% win rate over 40 games is less reliable than 52% over 4,000 games. Always check games played, rank bracket and patch before trusting a rate."
+     ],
+     "vi": [
+      "Hạng trung bình là vị trí xếp hạng trung bình qua các trận; càng thấp càng tốt và 4.0 là mốc cân bằng của lobby 8 người.",
+      "Tỷ lệ top 4 là phần trận về nhất đến tư; đo độ ổn định, không đo việc ăn giải.",
+      "Tỷ lệ thắng là phần trận về nhất — chỉ số khắt khe nhất và luôn thấp hơn tỷ lệ top 4.",
+      "Mẫu nhỏ dễ gây hiểu lầm: 60% thắng sau 40 trận kém tin cậy hơn 52% sau 4.000 trận. Luôn xem số trận, khung rank và patch trước khi tin một tỷ lệ."
+     ]
+    }
+   }
+  ]
+ },
+ "sets": {
+  "18": {
+   "id": "18",
+   "name": "Enchanted Wilds",
+   "patch": "18.4",
+   "updated": "2026-10-21",
+   "source": {
+    "title": "Enchanted Wilds overview",
+    "url": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/enchanted-wilds-overview/",
+    "provider": "Riot Games"
+   },
+   "topics": [
+    {
+     "id": "set18",
+     "title": "Set 18 overview",
+     "keywords": [
+      {
+       "term": "set 18",
+       "weight": 4
+      },
+      {
+       "term": "set18",
+       "weight": 4
+      },
+      {
+       "term": "enchanted wilds",
+       "weight": 4
+      },
+      {
+       "term": "enchant wilds",
+       "weight": 3
+      },
+      {
+       "term": "rung xanh",
+       "weight": 3
+      }
+     ],
+     "rules": {
+      "en": [
+       "Set 18 is Enchanted Wilds. Its shop mechanic is Wisps, an evolution of Set 12 Charms.",
+       "Wisps appear in the rightmost shop slot every other shop, only during planning; buy at most one per round, and an unpurchased Wisp reveals the unit behind it.",
+       "Blossom empowers Wisps; Riftbeast uses Alpha Marks; other traits such as Coven, Elderwood, Sprykin, Fae, Primal, Avatar, Solar, Eclipse, Greenfather, Blackthorn, Inferno and Lunar have their own rules."
+      ],
+      "vi": [
+       "Set 18 là Enchanted Wilds. Cơ chế shop của set là Wisp, phiên bản kế thừa Charm từ Set 12.",
+       "Wisp xuất hiện ở ô shop ngoài cùng bên phải mỗi hai lượt shop, chỉ trong giai đoạn chuẩn bị; mua tối đa một Wisp mỗi vòng, và Wisp không mua sẽ lộ tướng phía sau.",
+       "Blossom cường hóa Wisp; Riftbeast dùng Alpha Mark; các tộc hệ khác như Coven, Elderwood, Sprykin, Fae, Primal, Avatar, Solar, Eclipse, Greenfather, Blackthorn, Inferno và Lunar có luật riêng."
+      ]
+     }
+    },
+    {
+     "id": "wisps",
+     "title": "Wisps",
+     "keywords": [
+      {
+       "term": "wisp",
+       "weight": 3
+      },
+      {
+       "term": "wisps",
+       "weight": 3
+      },
+      {
+       "term": "charm",
+       "weight": 3
+      },
+      {
+       "term": "charms",
+       "weight": 3
+      },
+      {
+       "term": "stage 5",
+       "weight": 2
+      }
+     ],
+     "rules": {
+      "en": [
+       "Wisps are Set 18 one-use shop effects, an evolution of Set 12 Charms.",
+       "A Wisp sits in the rightmost shop slot, appears every other shop and can only be bought during planning.",
+       "Buy at most one Wisp per round; if you skip it, it disappears and reveals the unit behind it.",
+       "The seven categories are Champion, Combat, Misc, Shop, Gold/XP, Risky and Item.",
+       "Later Wisps are stronger and more expensive; after stage 5, every other Wisp offer is guaranteed to be Combat.",
+       "Blossom changes Wisp rules; use Blossom evidence for exact breakpoints."
+      ],
+      "vi": [
+       "Wisp là hiệu ứng shop dùng một lần của Set 18, kế thừa Charm từ Set 12.",
+       "Wisp nằm ở ô ngoài cùng bên phải, xuất hiện mỗi hai lượt shop và chỉ mua được trong giai đoạn chuẩn bị.",
+       "Mỗi vòng mua tối đa một Wisp; nếu không mua, Wisp biến mất và lộ tướng phía sau.",
+       "Bảy nhóm: Champion, Combat, Misc, Shop, Gold/XP, Risky và Item.",
+       "Wisp về sau mạnh hơn và đắt hơn; sau stage 5, mỗi hai Wisp có một Wisp Combat được bảo đảm.",
+       "Blossom thay đổi luật Wisp; xem evidence của Blossom để biết mốc chính xác."
+      ]
+     }
+    },
+    {
+     "id": "blossom",
+     "title": "Blossom",
+     "keywords": [
+      {
+       "term": "blossom",
+       "weight": 3
+      },
+      {
+       "term": "hoa linh",
+       "weight": 3
+      }
+     ],
+     "rules": {
+      "en": [
+       "After combat, Blossom empowers your Wisps. Blossom champions gain AD, AP and max Health. At 3 Wisps are upgraded, at 5 they appear in every shop, at 7 you gain gold after buying one, at 9 you can buy two per round, and at 11 Wisps overflow with power."
+      ],
+      "vi": [
+       "Sau combat, Blossom cường hóa Wisp. Tướng Blossom nhận AD, AP và máu tối đa. Mốc 3 nâng cấp Wisp, mốc 5 Wisp có trong mọi shop, mốc 7 nhận vàng sau khi mua Wisp, mốc 9 được mua hai Wisp mỗi vòng, mốc 11 Wisp tràn năng lượng."
+      ]
+     }
+    },
+    {
+     "id": "riftbeast",
+     "title": "Riftbeast",
+     "keywords": [
+      {
+       "term": "riftbeast",
+       "weight": 3
+      },
+      {
+       "term": "alpha mark",
+       "weight": 3
+      },
+      {
+       "term": "elder dragon",
+       "weight": 3
+      }
+     ],
+     "rules": {
+      "en": [
+       "Riftbeast (3) gives an Alpha Mark that grants a Riftbeast its unique buff, (5) overruns the next shop every 3 combats, (7) grows Riftbeasts every 5 seconds, and (10) adds +2 team size. Elder Dragon uses 2 slots and adds +2 Riftbeast."
+      ],
+      "vi": [
+       "Riftbeast (3) cho Alpha Mark để cộng buff riêng cho một Riftbeast, (5) tràn shop sau mỗi 3 combat, (7) Riftbeast lớn dần mỗi 5 giây, (10) cộng +2 slot đội hình. Elder Dragon chiếm 2 slot và cộng +2 Riftbeast."
+      ]
+     }
+    },
+    {
+     "id": "coven",
+     "title": "Coven",
+     "keywords": [
+      "coven",
+      "tien hac am",
+      "tinh tuy",
+      "tinh hoa",
+      "essence",
+      "ta thuat"
+     ],
+     "rules": {
+      "en": [
+       "Coven banks Essence from takedowns and lost player combats, then chooses cashouts at breakpoints."
+      ],
+      "vi": [
+       "Coven tích Essence từ hạ gục và thua combat PvP, rồi chọn cashout tại các mốc."
+      ]
+     }
+    },
+    {
+     "id": "elderwood",
+     "title": "Elderwood",
+     "keywords": [
+      "elderwood"
+     ],
+     "rules": {
+      "en": [
+       "Elderwood places plants/summons on the board; higher breakpoints star them up."
+      ],
+      "vi": [
+       "Elderwood đặt cây/summon lên bàn; mốc cao tăng sao cho cây."
+      ]
+     }
+    },
+    {
+     "id": "sprykin",
+     "title": "Sprykin",
+     "keywords": [
+      "sprykin"
+     ],
+     "rules": {
+      "en": [
+       "Sprykin puts a unit on the BFF for health and attack speed; 5/7 share part of the BFF bonus."
+      ],
+      "vi": [
+       "Sprykin cho một tướng cưỡi BFF để nhận máu và tốc đánh; mốc 5/7 chia một phần buff cho đồng đội."
+      ]
+     }
+    },
+    {
+     "id": "fae",
+     "title": "Fae",
+     "keywords": [
+      "fae"
+     ],
+     "rules": {
+      "en": [
+       "Fae attracts Pixies from damage, healing and shielding; at 4, Golden Pixies replace them after 7 Pixies."
+      ],
+      "vi": [
+       "Fae thu hút Pixie từ sát thương, hồi máu và shield; mốc 4 chuyển sang Golden Pixie sau 7 Pixie."
+      ]
+     }
+    },
+    {
+     "id": "primal",
+     "title": "Primal",
+     "keywords": [
+      "primal"
+     ],
+     "rules": {
+      "en": [
+       "Primal chooses one of four blessings at 2/4."
+      ],
+      "vi": [
+       "Primal chọn một trong bốn blessing ở mốc 2/4."
+      ]
+     }
+    },
+    {
+     "id": "avatar",
+     "title": "Avatar",
+     "keywords": [
+      "avatar"
+     ],
+     "rules": {
+      "en": [
+       "Avatar on bench or board transforms other Avatars in shop to its trait; that trait counts twice. Lux is the Avatar."
+      ],
+      "vi": [
+       "Avatar trên bench hoặc bàn biến các Avatar khác trong shop thành tộc hệ của nó; tộc hệ đó được tính hai lần. Lux là Avatar."
+      ]
+     }
+    },
+    {
+     "id": "solar",
+     "title": "Solar",
+     "keywords": [
+      "solar"
+     ],
+     "rules": {
+      "en": [
+       "Solar grants a shield and bonus magic damage; at 7 a 3-star can ascend to 4-star every 4 seconds."
+      ],
+      "vi": [
+       "Solar cho shield và sát thương phép cộng thêm; mốc 7 có thể đưa tướng 3 sao lên 4 sao mỗi 4 giây."
+      ]
+     }
+    },
+    {
+     "id": "eclipse",
+     "title": "Eclipse",
+     "keywords": [
+      "eclipse"
+     ],
+     "rules": {
+      "en": [
+       "Eclipse kills the lowest-health enemy after 8 seconds, repeating every 3.5 seconds."
+      ],
+      "vi": [
+       "Eclipse sau 8 giây giết tướng máu thấp nhất, lặp lại mỗi 3,5 giây."
+      ]
+     }
+    },
+    {
+     "id": "greenfather",
+     "title": "Greenfather",
+     "keywords": [
+      "greenfather"
+     ],
+     "rules": {
+      "en": [
+       "Greenfather: Ivern gains seeds on cast and each combat; 5 seeds grow a hex with a biome buff."
+      ],
+      "vi": [
+       "Greenfather: Ivern nhận seed khi cast và mỗi combat; 5 seed trồng một hex có buff theo vùng."
+      ]
+     }
+    },
+    {
+     "id": "blackthorn",
+     "title": "Blackthorn",
+     "keywords": [
+      "blackthorn"
+     ],
+     "rules": {
+      "en": [
+       "Blackthorn sacrifices the unit on its hex for team health; at 6 the sacrifice survives and gains stats instead."
+      ],
+      "vi": [
+       "Blackthorn hiến tế tướng trên hex để cộng máu; mốc 6 tướng hiến tế không chết mà nhận stats."
+      ]
+     }
+    },
+    {
+     "id": "inferno",
+     "title": "Inferno",
+     "keywords": [
+      "inferno"
+     ],
+     "rules": {
+      "en": [
+       "Inferno burns and wounds; later breakpoints ignite shop slots to roll one cost higher."
+      ],
+      "vi": [
+       "Inferno gây burn và wound; các mốc sau đốt ô shop để roll tướng cao hơn một cost."
+      ]
+     }
+    },
+    {
+     "id": "lunar",
+     "title": "Lunar",
+     "keywords": [
+      "lunar"
+     ],
+     "rules": {
+      "en": [
+       "Lunar gives Lunar champions and adjacent allies attack speed/AP; Lunar champions gain double."
+      ],
+      "vi": [
+       "Lunar cho tướng Lunar và đồng minh kề tốc đánh/AP; tướng Lunar nhận gấp đôi."
+      ]
+     }
+    },
+    {
+     "id": "bounties",
+     "title": "Bounty Seeker and Apex Predator",
+     "keywords": [
+      "bounty seeker",
+      "apex predator"
+     ],
+     "rules": {
+      "en": [
+       "Bounty Seeker: Draven chooses bounties and progresses through attacks, casts, damage or takedowns. Apex Predator makes Elder Dragon use 2 slots and add +2 Riftbeast."
+      ],
+      "vi": [
+       "Bounty Seeker: Draven chọn bounty và tiến độ bằng đòn đánh, cast, sát thương hoặc hạ gục. Apex Predator cho Elder Dragon chiếm 2 slot và +2 Riftbeast."
+      ]
+     }
+    },
+    {
+     "id": "economy",
+     "title": "Set 18 economy",
+     "keywords": [
+      "gold",
+      "vang",
+      {
+       "term": "interest",
+       "weight": 3
+      },
+      "lai",
+      {
+       "term": "lai vang",
+       "weight": 3
+      },
+      "econ",
+      {
+       "term": "kinh te",
+       "weight": 2
+      },
+      "streak",
+      {
+       "term": "chuoi thang",
+       "weight": 3
+      },
+      {
+       "term": "chuoi thua",
+       "weight": 3
+      },
+      "income",
+      {
+       "term": "thu nhap",
+       "weight": 2
+      },
+      {
+       "term": "save gold",
+       "weight": 3
+      },
+      {
+       "term": "tiet kiem",
+       "weight": 2
+      }
+     ],
+     "generator": "economy"
+    },
+    {
+     "id": "leveling",
+     "title": "Set 18 leveling",
+     "keywords": [
+      "level",
+      "cap",
+      {
+       "term": "len cap",
+       "weight": 3
+      },
+      "xp",
+      {
+       "term": "kinh nghiem",
+       "weight": 2
+      },
+      "roll",
+      "reroll",
+      {
+       "term": "shop odds",
+       "weight": 3
+      },
+      {
+       "term": "ti le shop",
+       "weight": 3
+      },
+      "pool",
+      "bag",
+      {
+       "term": "3 sao",
+       "weight": 3
+      },
+      {
+       "term": "ba sao",
+       "weight": 3
+      },
+      {
+       "term": "star up",
+       "weight": 2
+      },
+      {
+       "term": "len sao",
+       "weight": 3
+      },
+      {
+       "term": "when to roll",
+       "weight": 3
+      }
+     ],
+     "generator": "leveling"
+    }
+   ]
   }
+ }
 }

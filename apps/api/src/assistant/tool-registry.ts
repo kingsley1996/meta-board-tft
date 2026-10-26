@@ -14,7 +14,7 @@ import type {
   RankedComp,
   RankingQuery,
 } from './contracts.ts';
-import { localizedName, normalizeSpaced, pickEntityMatch, searchCatalog, type Catalog } from './entities.ts';
+import { localizeEntityNames, localizedName, normalizeSpaced, pickEntityMatch, searchCatalog, type Catalog } from './entities.ts';
 import { compStats, entityStats, loadMetaStats, type StatEvidence } from './meta-stats.ts';
 import type { ProviderTool } from './provider.ts';
 import { rankComps } from './ranking.ts';
@@ -169,7 +169,8 @@ export const ASSISTANT_TOOLS: ProviderTool[] = [
     type: 'function',
     function: {
       name: 'get_game_mechanics',
-      description: 'Retrieve exact Set 18 system mechanics tables or a specific TFT loot/augment table. Use instead of recalling numbers from memory for income, interest, shop odds, leveling XP, champion pool, loot tables or augment odds.',
+      description:
+        'Retrieve exact Set 18 system mechanics tables or a specific TFT loot/augment table. Use instead of recalling numbers from memory for income, interest, shop odds, leveling XP, champion pool, loot tables or augment odds. Mechanic milestone/cashout reward tables (Coven harvests, Golden Egg, Teemo, Kayle, Primal, Warpath, Expedition, Baron’s Lair, Booster Packs, Bounty Seeker, Cooking Pot, Greenfather, Blackthorn, Call to Chaos, Caretaker’s Favor) are loot_tables pages.',
       parameters: {
         type: 'object',
         additionalProperties: false,
@@ -315,6 +316,9 @@ function lootPagePayload(page: LootPageData, lang: Lang, query?: string) {
     title: translateLoot(page.title, 'page-title', lang),
     ...(needle
       ? {
+          summary: lang === 'vi'
+            ? `Tìm thấy ${allTables.length + augmentDistribution.length} bảng phù hợp trong ${translateLoot(page.title, 'page-title', lang)}.`
+            : `${allTables.length + augmentDistribution.length} matching tables found in ${translateLoot(page.title, 'page-title', lang)}.`,
           tables: allTables.slice(0, 3),
           augmentDistribution: augmentDistribution.slice(0, 12),
           matchedCount: allTables.length + augmentDistribution.length,
@@ -329,16 +333,30 @@ function lootPagePayload(page: LootPageData, lang: Lang, query?: string) {
               )
             ),
         }
-      : {
-          tableIndex: [
-            ...page.owners.flatMap((owner) => owner.tables.map((table) => translateLoot(table.title, 'table-title', lang))),
-            ...page.tables.map((table) => translateLoot(table.title, 'table-title', lang)),
-          ],
-          augmentDistributionCount: page.augmentDistribution.length,
-          instruction: lang === 'vi'
-            ? 'Gọi lại get_game_mechanics với query là tên bảng hoặc vật phẩm cần tra để lấy số liệu chi tiết.'
-            : 'Call get_game_mechanics again with query set to a table or item name to retrieve its details.',
-        }),
+      : allTables.length > 0 && allTables.length <= 12
+        ? // Small pages (mechanic cashout tables, e.g. the nine Coven harvests)
+          // return every table at once: a table-index round-trip made the model
+          // stop at the listing instead of fetching the reward details.
+          {
+            summary: lang === 'vi'
+              ? `${translateLoot(page.title, 'page-title', lang)}: trả về đầy đủ ${allTables.length} bảng.`
+              : `${translateLoot(page.title, 'page-title', lang)}: all ${allTables.length} tables returned.`,
+            tables: allTables,
+            tableCount: allTables.length,
+          }
+        : {
+            summary: lang === 'vi'
+              ? `${translateLoot(page.title, 'page-title', lang)} có ${page.owners.reduce((total, owner) => total + owner.tables.length, 0) + page.tables.length} bảng; hãy chọn bảng cần tra.`
+              : `${translateLoot(page.title, 'page-title', lang)} has ${page.owners.reduce((total, owner) => total + owner.tables.length, 0) + page.tables.length} tables; choose one to inspect.`,
+            tableIndex: [
+              ...page.owners.flatMap((owner) => owner.tables.map((table) => translateLoot(table.title, 'table-title', lang))),
+              ...page.tables.map((table) => translateLoot(table.title, 'table-title', lang)),
+            ],
+            augmentDistributionCount: page.augmentDistribution.length,
+            instruction: lang === 'vi'
+              ? 'Gọi lại get_game_mechanics với query là tên bảng hoặc vật phẩm cần tra để lấy số liệu chi tiết.'
+              : 'Call get_game_mechanics again with query set to a table or item name to retrieve its details.',
+          }),
   };
 }
 
@@ -460,20 +478,13 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
       };
     }
     const data = lootPagePayload(page, lang, query);
-    const matchedCount = 'matchedCount' in data ? data.matchedCount : 0;
     return {
       tool: 'get_game_mechanics',
       payload: {
         table,
         ...data,
         source: mechanicsSource(page.sourceUrl),
-        summary: query
-          ? lang === 'vi'
-            ? `Tìm thấy ${matchedCount} bảng phù hợp trong ${data.title}.`
-            : `${matchedCount} matching tables found in ${data.title}.`
-          : lang === 'vi'
-            ? `${data.title} có ${'tableIndex' in data ? data.tableIndex.length : 0} bảng; hãy chọn bảng cần tra.`
-            : `${data.title} has ${'tableIndex' in data ? data.tableIndex.length : 0} tables; choose one to inspect.`,
+        summary: data.summary,
       },
     };
   }
@@ -817,8 +828,10 @@ function compPayload(comp: CompData, catalog: Catalog, lang: Lang) {
     augments: comp.augments.map((augment) => name(augment.name)),
     traits: comp.traits.map((trait) => ({ name: name(trait.name), count: trait.count })),
     matchups: comp.matchups.map((matchup) => ({ slug: matchup.slug, kind: matchup.kind, title: matchup.title, tier: matchup.tier })),
-    tips: comp.tips.slice(0, 400),
-    stages: comp.stages.slice(0, 4),
+    tips: localizeEntityNames(comp.tips, catalog, lang).slice(0, 400),
+    stages: comp.stages
+      .slice(0, 4)
+      .map((stage) => ({ stage: stage.stage, text: localizeEntityNames(stage.text, catalog, lang) })),
   };
 }
 

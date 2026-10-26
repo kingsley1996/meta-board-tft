@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { entityId, parseEntityId } from './contracts.ts';
 import { ENTITY_ALIAS_GROUPS } from './entity-aliases.ts';
+import { localizeEntityNames, type Catalog } from './entities.ts';
 import { buildCatalog, findEntityMentions, grantedTrait, normalize, pickEntityMatch, searchCatalog, type DbRows, type EntityMatch } from './entities.ts';
 import { loadStaticGameData } from './static-game-data.ts';
 
@@ -172,4 +173,19 @@ test('only accepts exact or alias matches and surfaces ambiguous fuzzy names', (
   assert.equal(pickEntityMatch([match('Ahri', 100), match('Ahri', 100)]).entity, null);
   assert.equal(pickEntityMatch([match('Ahri', 80)]).entity?.name, 'Ahri');
   assert.equal(pickEntityMatch([match('Ahri', 80), match('Ahri', 80)]).ambiguous.length, 2);
+});
+
+test('localizeEntityNames rewrites canonical entity names in prose for vi', () => {
+  const coven = { name: 'Dark Ritual', nameVi: 'Tà Thuật' };
+  const radiantEdge = { name: 'Radiant Edge of Night', nameVi: 'Vuốt Bóng Đêm Ánh Sáng' };
+  const edge = { name: 'Edge of Night', nameVi: 'Vuốt Bóng Đêm' };
+  const catalog = {
+    byName: new Map(
+      [coven, radiantEdge, edge].map((entity) => [entity.name, { ...entity, type: 'augment' }])
+    ),
+  } as unknown as Catalog;
+  const vi = localizeEntityNames('Chơi với Nâng Cấp Dark Ritual để lấy Radiant Edge of Night.', catalog, 'vi');
+  assert.equal(vi, 'Chơi với Nâng Cấp Tà Thuật để lấy Vuốt Bóng Đêm Ánh Sáng.');
+  // English requests keep canonical names untouched.
+  assert.equal(localizeEntityNames('Play Dark Ritual.', catalog, 'en'), 'Play Dark Ritual.');
 });

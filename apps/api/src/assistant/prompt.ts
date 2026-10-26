@@ -42,6 +42,10 @@ function trim(text: string | null | undefined, length = 1000): string | null {
 
 type LocalizeName = (name: string) => string;
 const identity: LocalizeName = (name) => name;
+// Rewrites canonical entity names inside free prose (comp tips, stage notes)
+// into the request language; see localizeEntityNames.
+type LocalizeText = (text: string) => string;
+const identityText: LocalizeText = (text) => text;
 
 function compactEntity(entity: CatalogEntity, lang: Lang) {
   return {
@@ -74,7 +78,7 @@ function compactEntity(entity: CatalogEntity, lang: Lang) {
   };
 }
 
-function compactComp(comp: CompData, brief = false, localize: LocalizeName = identity) {
+function compactComp(comp: CompData, brief = false, localize: LocalizeName = identity, localizeText: LocalizeText = identityText) {
   const base = {
     id: `comp:${comp.slug}`,
     slug: comp.slug,
@@ -100,20 +104,22 @@ function compactComp(comp: CompData, brief = false, localize: LocalizeName = ide
       items: unit.items.map((item) => localize(item.name)),
     })),
     alt: comp.alt.map((unit) => ({ name: localize(unit.name), items: unit.items.map((item) => localize(item.name)) })),
-    tips: trim(comp.tips, 400),
-    stages: comp.stages.map((stage) => ({ stage: stage.stage, text: trim(stage.text, 300) })),
+    tips: trim(localizeText(comp.tips), 400),
+    stages: comp.stages.map((stage) => ({ stage: stage.stage, text: trim(localizeText(stage.text), 300) })),
   };
 }
 
-function evidenceBody(evidence: Evidence, localize: LocalizeName = identity): Record<string, unknown> {
+function evidenceBody(evidence: Evidence, localize: LocalizeName = identity, localizeText: LocalizeText = identityText): Record<string, unknown> {
   return {
     intent: evidence.intent,
     set: evidence.setId,
     patch: evidence.patch,
     entities: evidence.entities.slice(0, 3).map((entity) => compactEntity(entity, evidence.lang)),
     relatedEntities: evidence.relatedEntities.slice(0, 3).map((entity) => compactEntity(entity, evidence.lang)),
-    comps: evidence.comps.slice(0, 2).map((comp) => compactComp(comp, evidence.intent === 'comp_comparison', localize)),
-    relatedComps: evidence.relatedComps.slice(0, 2).map((comp) => compactComp(comp, true, localize)),
+    comps: evidence.comps
+      .slice(0, 2)
+      .map((comp) => compactComp(comp, evidence.intent === 'comp_comparison', localize, localizeText)),
+    relatedComps: evidence.relatedComps.slice(0, 2).map((comp) => compactComp(comp, true, localize, localizeText)),
     championBuilds: evidence.championBuilds
       .slice(0, 6)
       .map((build) => ({ ...build, champion: localize(build.champion), items: build.items.map(localize) })),
@@ -214,8 +220,8 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
   ].join('\n');
 }
 
-export function buildUserPrompt(message: string, evidence: Evidence, localize?: LocalizeName): string {
-  return `User question:\n${message}\n\nEvidence JSON:\n${JSON.stringify(evidenceBody(evidence, localize))}`;
+export function buildUserPrompt(message: string, evidence: Evidence, localize?: LocalizeName, localizeText?: LocalizeText): string {
+  return `User question:\n${message}\n\nEvidence JSON:\n${JSON.stringify(evidenceBody(evidence, localize, localizeText))}`;
 }
 
 export function buildToolPlannerPrompt(lang: Lang, setId: string, patch: string, compSlugs: string[] = []): string {
@@ -229,7 +235,7 @@ export function buildToolPlannerPrompt(lang: Lang, setId: string, patch: string,
     'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',
     'Use get_comp for one comp detail, compare_comps for 2-3 comps, and get_stats for one entity stat line.',
-    'Use get_game_mechanics for exact income, interest, shop odds, leveling XP, champion-pool, loot-table or augment-odds data. Pass a queried item/table name to search loot pages globally; include a slug when the page is known.',
+    'Use get_game_mechanics for exact income, interest, shop odds, leveling XP, champion-pool, loot-table or augment-odds data. Pass a queried item/table name to search loot pages globally; include a slug when the page is known. Mechanic milestone/cashout reward questions (Coven harvests, Golden Egg, Teemo, Kayle, Primal, Warpath, …) are loot_tables pages: pass the mechanic slug, or a query when unsure.',
     'Use get_economy_plan for a named strategy or comp-specific stage-by-stage level curve. If comp context slugs are present and the question refers to this comp, pass its slug as comp_slug. Never reconstruct a sourced economy plan from memory.',
     'You may call another tool after reading a result. Do not repeat the same tool with the same arguments.',
     'Do not answer the question yourself and do not invent data. When the collected results are enough, return no tool call.',
@@ -245,7 +251,7 @@ export function buildToolAgentPrompt(lang: Lang, evidence: Evidence): string {
     'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',
     'Use get_comp for one comp detail, compare_comps for 2-3 comps, and get_stats for one entity stat line.',
-    'Use get_game_mechanics for exact game-rule tables (loot searches can be global by query) and get_economy_plan for sourced, stage-by-stage strategy or comp economy advice.',
+    'Use get_game_mechanics for exact game-rule tables (loot searches can be global by query) and for mechanic milestone/cashout reward tables (Coven harvests, Golden Egg, Teemo, Kayle, Primal, Warpath, …) and get_economy_plan for sourced, stage-by-stage strategy or comp economy advice.',
     'You may call another tool after reading a result. Do not repeat the same tool with the same arguments.',
     'When the collected results are enough, stop calling tools and return the final JSON answer.',
     buildSystemPrompt(lang, evidence),
