@@ -1244,7 +1244,8 @@ function AssistantBubble({
         {response?.mentions?.length ? (
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {response.mentions.map((ref) => {
-              const base = ref.type === 'champion' ? 'champions' : ref.type;
+              // Route segments are plural: champions/items/traits/augments.
+              const base = ref.type === 'champion' ? 'champions' : ref.type === 'item' ? 'items' : ref.type;
               const href = ref.slug
                 ? `/${lang}/${base}/${ref.slug}`
                 : `/${lang}/${base}?q=${encodeURIComponent(ref.name)}`;
