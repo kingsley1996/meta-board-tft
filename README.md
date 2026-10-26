@@ -65,14 +65,15 @@ requests (default 4). The remaining tunables (`STT_*_MODEL`, `STT_OPENAI_BASE_UR
 are listed in `apps/api/.env.example`. English speech input continues to use the
 browser's speech-recognition service. Finishing a voice question submits it
 automatically; the corresponding Coach AI reply is then read aloud by the
-server-side TTS (Deepgram Flux, then VieNeu); when both engines fail the client
-shows an error instead of switching to the browser's Web Speech API.
+server-side TTS (engine chosen by `TTS_PROVIDER`); when both engines fail the
+client shows an error instead of switching to the browser's Web Speech API.
 
 Vietnamese speech input is cloud-only: recordings are forwarded from the API to
 the provider that answers. Without any STT key the voice button reports
 `stt_not_configured` and text questions keep working. The reply a user hears is
-read server-side by Deepgram Flux; if Deepgram has no key, is cooling down after a
-rate limit, or fails on a chunk, the API retries that chunk on VieNeu. When both
+read server-side by the engine set in `TTS_PROVIDER` (`deepgram` by default, or
+`vieneu`); if the primary engine has no key, is cooling down after a rate limit,
+or fails on a chunk, the API retries that chunk on the other engine. When both
 engines fail the assistant shows an error; there is no browser speech fallback.
 
 Curated legacy item names, trait synonyms, and shortened comp names live in
@@ -97,19 +98,26 @@ original user question is not stored. This background pass uses the configured
 local assistant model and does not delay the response; capture failures are
 logged by the API.
 
-### Coach AI speech output (Deepgram Flux + VieNeu fallback)
+### Coach AI speech output (Deepgram Flux / VieNeu, switchable)
 
-Coach AI answers are read aloud by **Deepgram Flux TTS**, which the API proxies
-on `/api/voice/tts/speech`. Vietnamese is not on Aura/Aura-2 (English-only), so
-the API uses Flux's batch endpoint `POST https://api.deepgram.com/v2/speak` with
-`model=flux-minh-vi` (or `flux-hoa-vi` via `DEEPGRAM_TTS_MODEL`) and the same
-`DEEPGRAM_API_KEY` as speech-to-text. Flux Vietnamese is Early Access without
-text normalization, so numbers and dates are read as written.
+`TTS_PROVIDER` picks the engine that speaks first: `deepgram` (default) or
+`vieneu`. The other engine remains the per-chunk fallback, so switching does not
+need a code change. On this dev machine the Flux batch endpoint measured ~4 s for
+a 60-character chunk and ~5–6 s for 130–150 characters, while warm VieNeu local
+measured ~2–4 s per chunk — set `TTS_PROVIDER=vieneu` when latency matters more
+than the Flux voice.
 
-When Deepgram has no key, answers `429`, rejects its key, or fails a chunk, the
-API retries that same chunk on **VieNeu** — a local service (default
-`http://127.0.0.1:8001`, free, audio never leaves your machine, serves two
-concurrent requests) or the hosted `https://api.vieneu.io/api` (set
+Coach AI answers are proxied on `/api/voice/tts/speech`. Vietnamese is not on
+Aura/Aura-2 (English-only), so the API uses Flux's batch endpoint
+`POST https://api.deepgram.com/v2/speak` with `model=flux-minh-vi` (or
+`flux-hoa-vi` via `DEEPGRAM_TTS_MODEL`) and the same `DEEPGRAM_API_KEY` as
+speech-to-text. Flux Vietnamese is Early Access without text normalization, so
+numbers and dates are read as written.
+
+When the primary engine has no key, answers `429`, rejects its key, or fails a
+chunk, the API retries that same chunk on the other engine. VieNeu is a local
+service (default `http://127.0.0.1:8001`, free, audio never leaves your machine,
+serves two concurrent requests) or the hosted `https://api.vieneu.io/api` (set
 `VIENEU_TTS_URL` + `VIENEU_TTS_API_KEY`; billed per character). The successful
 engine is named in the `X-TTS-Provider` response header, and a rejected key is
 remembered for 60 s instead of being retried on every chunk.

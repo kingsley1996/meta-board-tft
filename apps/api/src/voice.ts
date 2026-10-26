@@ -826,42 +826,74 @@ export async function synthDeepgramChunk(
 
 export type TtsProvider = 'deepgram' | 'vieneu';
 
-// Deepgram first; any failure that is not the caller aborting or a timeout
-// hands the same chunk to VieNeu. When both fail the last error surfaces to the
-// client, which now reports it instead of switching to the browser speech
-// engine.
+// Which engine answers first; the other one stays as the per-chunk fallback.
+// `TTS_PROVIDER=vieneu` is the quick switch when the Flux batch endpoint is
+// slower than the local/cloud VieNeu engine.
+export function ttsPrimaryProvider(env: NodeJS.ProcessEnv = process.env): TtsProvider {
+  return env.TTS_PROVIDER?.trim().toLowerCase() === 'vieneu' ? 'vieneu' : 'deepgram';
+}
+
+export function ttsProviderOrder(env: NodeJS.ProcessEnv = process.env): [TtsProvider, TtsProvider] {
+  const primary = ttsPrimaryProvider(env);
+  return [primary, primary === 'deepgram' ? 'vieneu' : 'deepgram'];
+}
+
+// Deepgram first by default; any failure that is not the caller aborting or a
+// timeout hands the same chunk to the other engine. When both fail the last
+// error surfaces to the client, which reports it instead of switching to the
+// browser speech engine.
 export async function synthSpeechChunk(
   input: string,
   signal: AbortSignal,
   env: NodeJS.ProcessEnv = process.env,
   fetchImpl: typeof fetch = fetch
 ): Promise<{ audio: Buffer; contentType: string; provider: TtsProvider }> {
-  if (deepgramTtsConfigured(env) && !deepgramTtsFault()) {
+  let lastError: unknown = null;
+  for (const provider of ttsProviderOrder(env)) {
+    // No key means the engine cannot start at all; skip without a request.
+    if (provider === 'deepgram' && !deepgramTtsConfigured(env)) continue;
     try {
-      const audio = await synthDeepgramChunk(input, signal, env, fetchImpl);
-      return { ...audio, provider: 'deepgram' };
+      const audio =
+        provider === 'deepgram'
+          ? await synthDeepgramChunk(input, signal, env, fetchImpl)
+          : await synthVieneuChunk(input, ttsVoice(env), signal, env, fetchImpl);
+      return { ...audio, provider };
     } catch (error) {
       if (signal.aborted) throw error;
+      // The timeout already spent the whole chunk budget; trying the other
+      // engine would double the wait, so the route answers 504 instead.
+      if (error instanceof Error && error.name === 'TimeoutError') throw error;
       if (!(error instanceof SpeechUnavailableError) && !(error instanceof SpeechBusyError)) throw error;
-      console.error('Deepgram speech failed, falling back to VieNeu', error.message);
+      lastError = error;
+      console.error(`${provider} speech failed, trying the other engine`, error.message);
     }
   }
-  const audio = await synthVieneuChunk(input, ttsVoice(env), signal, env, fetchImpl);
-  return { ...audio, provider: 'vieneu' };
+  throw lastError ?? new SpeechUnavailableError('No TTS engine is configured', 503, 'tts_unavailable');
+}
+
+async function ttsProviderAvailable(provider: TtsProvider, env: NodeJS.ProcessEnv = process.env): Promise<boolean> {
+  return provider === 'deepgram' ? deepgramTtsConfigured(env) && !deepgramTtsFault() : vieneuAvailable(env);
 }
 
 router.get('/tts/status', async (_req, res) => {
-  const provider: TtsProvider | null =
-    deepgramTtsConfigured() && !deepgramTtsFault() ? 'deepgram' : (await vieneuAvailable()) ? 'vieneu' : null;
+  const [primary, fallback] = ttsProviderOrder();
+  const provider = (await ttsProviderAvailable(primary))
+    ? primary
+    : (await ttsProviderAvailable(fallback))
+      ? fallback
+      : null;
+  const primaryFault = primary === 'deepgram' ? deepgramTtsFault() : ttsFault();
+  const fallbackFault = primary === 'deepgram' ? ttsFault() : deepgramTtsFault();
   res.json({
     available: provider !== null,
-    provider: provider ?? (deepgramTtsConfigured() ? 'deepgram' : 'vieneu'),
+    provider: provider ?? primary,
+    primary,
     maxChars: ttsChunkCharacters(),
     // The upstream message can name hosts and key ids; dev-only so the browser
     // console is enough to diagnose "why is the voice grey".
     ...(provider || process.env.NODE_ENV === 'production'
       ? {}
-      : { reason: (deepgramTtsConfigured() ? deepgramTtsFault()?.reason : ttsFault()?.reason) ?? 'no TTS engine answered' }),
+      : { reason: primaryFault?.reason ?? fallbackFault?.reason ?? 'no TTS engine answered' }),
   });
 });
 

@@ -16,6 +16,7 @@ import {
   ttsLimits,
   ttsModel,
   ttsProbeTimeoutMs,
+  ttsPrimaryProvider,
   vieneuAvailable,
   encodeWavPcm16,
   wavFromPcm16,
@@ -46,6 +47,7 @@ function envWith(overrides: Record<string, string | undefined>): NodeJS.ProcessE
     'VIENEU_TTS_API_KEY',
     'VIENEU_TTS_PROBE_TIMEOUT_MS',
     'DEEPGRAM_TTS_MODEL',
+    'TTS_PROVIDER',
     'TTS_CHUNK_CHARACTERS',
     'TTS_MAX_CONCURRENCY',
     'TTS_QUEUE_WAIT_MS',
@@ -345,6 +347,39 @@ describe('Deepgram TTS and the VieNeu fallback', () => {
     assert.equal(result.provider, 'vieneu');
     assert.equal(calls.length, 2);
     assert.ok(calls[1]!.url.endsWith('/v1/audio/speech'));
+  });
+
+  it('follows TTS_PROVIDER and keeps the other engine as fallback', async () => {
+    assert.equal(ttsPrimaryProvider(envWith({})), 'deepgram');
+    assert.equal(ttsPrimaryProvider(envWith({ TTS_PROVIDER: 'VIENEU' })), 'vieneu');
+
+    const { calls, impl } = fakeFetch(okAudio);
+    const result = await synthSpeechChunk(
+      'Xin chào',
+      new AbortController().signal,
+      envWith({ TTS_PROVIDER: 'vieneu', DEEPGRAM_API_KEY: 'dg_key' }),
+      impl
+    );
+
+    assert.equal(result.provider, 'vieneu');
+    assert.equal(calls.length, 1, 'the primary engine must answer alone');
+    assert.ok(calls[0]!.url.endsWith('/v1/audio/speech'));
+  });
+
+  it('falls back to Deepgram when VieNeu is the primary and fails', async () => {
+    const { calls, impl } = fakeFetch((call) =>
+      call.url.endsWith('/v1/audio/speech') ? new Response('', { status: 503 }) : okAudio()
+    );
+    const result = await synthSpeechChunk(
+      'Xin chào',
+      new AbortController().signal,
+      envWith({ TTS_PROVIDER: 'vieneu', DEEPGRAM_API_KEY: 'dg_key' }),
+      impl
+    );
+
+    assert.equal(result.provider, 'deepgram');
+    assert.equal(calls.length, 2);
+    assert.ok(calls[1]!.url.includes('api.deepgram.com'));
   });
 
   it('surfaces the VieNeu error when both engines fail', async () => {
