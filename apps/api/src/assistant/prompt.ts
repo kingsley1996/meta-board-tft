@@ -1,8 +1,10 @@
 import type {
   AssistantIntent,
   CatalogEntity,
+  ChampionBuild,
   CompComparison,
   CompData,
+  ItemHolder,
   Lang,
   RankedComp,
 } from './contracts.ts';
@@ -19,6 +21,8 @@ export type Evidence = {
   relatedEntities: CatalogEntity[];
   comps: CompData[];
   relatedComps: CompData[];
+  championBuilds: ChampionBuild[];
+  itemHolders: ItemHolder[];
   stats: StatEvidence[];
   candidates: RankedComp[];
   comparison: CompComparison | null;
@@ -84,7 +88,13 @@ function compactComp(comp: CompData, brief = false, localize: LocalizeName = ide
   if (brief) return base;
   return {
     ...base,
-    early: comp.early.map((unit) => localize(unit.name)),
+    // Detailed comp prompts need per-unit items: "comp này lên đồ thế nào?"
+    // cannot be answered from unit names alone.
+    units: comp.units.map((unit) => ({ name: localize(unit.name), items: unit.items.map((item) => localize(item.name)) })),
+    early: comp.early.map((unit) => ({
+      name: localize(unit.name),
+      items: unit.items.map((item) => localize(item.name)),
+    })),
     alt: comp.alt.map((unit) => ({ name: localize(unit.name), items: unit.items.map((item) => localize(item.name)) })),
     tips: trim(comp.tips, 400),
     stages: comp.stages.map((stage) => ({ stage: stage.stage, text: trim(stage.text, 300) })),
@@ -100,6 +110,12 @@ function evidenceBody(evidence: Evidence, localize: LocalizeName = identity): Re
     relatedEntities: evidence.relatedEntities.slice(0, 3).map((entity) => compactEntity(entity, evidence.lang)),
     comps: evidence.comps.slice(0, 2).map((comp) => compactComp(comp, evidence.intent === 'comp_comparison', localize)),
     relatedComps: evidence.relatedComps.slice(0, 2).map((comp) => compactComp(comp, true, localize)),
+    championBuilds: evidence.championBuilds
+      .slice(0, 6)
+      .map((build) => ({ ...build, champion: localize(build.champion), items: build.items.map(localize) })),
+    itemHolders: evidence.itemHolders
+      .slice(0, 6)
+      .map((holder) => ({ ...holder, item: localize(holder.item), holders: holder.holders.map(localize) })),
     stats: evidence.stats,
     candidates: evidence.candidates.slice(0, 3).map((candidate, index) => ({
       rank: index + 1,
@@ -144,6 +160,9 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
     'For an emblem, treat the granted trait in relatedEntities as its effect; do not invent a separate item effect.',
     'For a trait question, include the relevant breakpoint values from evidence; do not replace them with vague wording.',
     'If relatedComps are present, mention them as comps that use the item.',
+    'When championBuilds are present, base item recommendations on them: name the items and the comp each build comes from, and say a champion has no recorded build only when championBuilds is empty.',
+    'When itemHolders are present, name the champions that hold the asked item in each comp; say no holder is recorded only when itemHolders is empty.',
+    'For augment questions about a champion, recommend from the augments of the comps that field that champion and say the recommendation is comp-level.',
     'When candidates are present, rank 1 is the top pick. Follow rank order and name rank 1 first, even when scores tie. Never call a higher rank number better.',
     'Use the comp tier exactly as written in evidence. Never output a placeholder such as "Hạng X" or invent a meta rank.',
     'If only one candidate exists, call it the closest match and mention the match score; do not call it the best or strongest comp.',

@@ -20,6 +20,8 @@ function fixture(text: string, lang: 'en' | 'vi' = 'en'): Evidence {
     relatedEntities: [],
     comps: [],
     relatedComps: [],
+    championBuilds: [],
+    itemHolders: [],
     stats: [],
     candidates: [],
     comparison: null,

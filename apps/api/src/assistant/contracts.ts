@@ -85,6 +85,26 @@ export type CompData = {
   matchups: { slug: string; kind: string; title: string; tier: string }[];
 };
 
+// The item build one comp attaches to one champion, extracted for champion
+// questions ("Akali nên lên trang bị gì") so the model can recommend real
+// builds instead of refusing for lack of data.
+export type ChampionBuild = {
+  champion: string;
+  comp: string;
+  compSlug: string;
+  isCarry: boolean;
+  items: string[];
+};
+
+// Mirror direction: which champions hold a queried item across matching comps,
+// for "Edge of Night lên cho ai?" — relatedComps alone only names the comps.
+export type ItemHolder = {
+  item: string;
+  comp: string;
+  compSlug: string;
+  holders: string[];
+};
+
 export type EntityMatch = { entity: CatalogEntity; score: number };
 
 export type RankingQuery = {

@@ -10,8 +10,10 @@ import {
   type AssistantSource,
   type AssistantStatus,
   type CatalogEntity,
+  type ChampionBuild,
   type CompComparison,
   type CompData,
+  type ItemHolder,
   type Lang,
   type RankedComp,
   type RankingQuery,
@@ -154,6 +156,12 @@ const SIMPLE_INTENTS: AssistantIntent[] = ['entity_lookup', 'comp_search', 'game
 const COMP_WORD = /\b(comp|comps|doi hinh|team|build|composition)\b/;
 const RECOMMEND_WORD = /\b(tim|find|recommend|goi y|phu hop|nen choi|choi gi|item nao|trang bi nao|which items?|what items?|best|strongest|manh nhat|tot nhat|easiest|de choi|don gian|build|meta)\b/;
 const HAVE_WORD = /\b(toi co|minh co|i have|with|voi|using|dung)\b/;
+// Champion + item wording ("Akali nên lên trang bị gì", "what items on Akali");
+// without it those questions fall back to bare entity lookup with no builds.
+const CHAMPION_ITEM_QUESTION = /\b(trang bi|item|len do|build|core item|core)\b/;
+// Champion + augment wording — augments are comp-level in the data, so these
+// questions attach the comps fielding the champion instead of item builds.
+const CHAMPION_AUGMENT_QUESTION = /\b(augment|nang cap|oc bieu)\b/;
 const REFERENCE_DATA_QUESTION =
   /\b(?:economy plan|economy strategy|economy curve|level curve|leveling plan|round plan|fast 8|fast 9|[1-3] cost reroll|reroll plan|shop odds|odds by level|champion pool|pool size|copies in pool|xp table|gold income|base income|round income|income by round|interest|streak bonus|loot table|stage loot|loot orb|augment odds|carousel odds|encounter odds|mechanics table|ti le shop|ti le cua hang|bang xp|bang kinh te|ke hoach kinh te|ke hoach reroll|duong cong cap|thu nhap vang|thu nhap theo vong|vang theo vong|lai vang|thuong chuoi|be tuong|bang loot|ti le nang cap|bang co che)\b|\b(?:xp|exp)\b.*\b(?:level|leveling|cap|len cap)\b|\b(?:level|leveling|cap|len cap)\b.*\b(?:xp|exp)\b/;
 
@@ -287,6 +295,60 @@ function compsUsingItems(comps: CompData[], items: CatalogEntity[]): CompData[] 
       ].some((entry) => names.has(entry.name))
     )
     .slice(0, 3);
+}
+
+// Champion questions have no item to match, so comps are found by board
+// membership instead; unit names are localized per request language and must be
+// compared against both the canonical and Vietnamese entity names.
+function compsUsingChampion(comps: CompData[], champions: CatalogEntity[]): CompData[] {
+  const names = new Set(
+    champions
+      .filter((entity) => entity.type === 'champion')
+      .flatMap((entity) => [normalize(entity.name), normalize(entity.nameVi ?? '')])
+      .filter(Boolean)
+  );
+  if (!names.size) return [];
+  return comps
+    .filter((comp) => [...comp.units, ...comp.early, ...comp.alt, comp.carry].some((unit) => names.has(normalize(unit.name))))
+    .slice(0, 3);
+}
+
+// Per-champion item builds pulled out of matching comps; compactComp(brief)
+// lists unit names only, so without this the model never sees the build.
+function championBuilds(comps: CompData[], champions: CatalogEntity[]): ChampionBuild[] {
+  const builds: ChampionBuild[] = [];
+  for (const champion of champions.filter((entity) => entity.type === 'champion')) {
+    const names = new Set([normalize(champion.name), normalize(champion.nameVi ?? '')].filter(Boolean));
+    for (const comp of compsUsingChampion(comps, [champion])) {
+      const isCarry = names.has(normalize(comp.carry.name));
+      const items = unique(
+        [...comp.units, comp.carry, ...comp.alt]
+          .filter((unit) => names.has(normalize(unit.name)))
+          .flatMap((unit) => unit.items.map((item) => item.name))
+      ).slice(0, 6);
+      if (!items.length) continue;
+      builds.push({ champion: champion.name, comp: comp.title, compSlug: comp.slug, isCarry, items });
+    }
+  }
+  return builds.slice(0, 6);
+}
+
+// Mirror of championBuilds: which champions hold the queried item, so item
+// questions can answer "who builds this" rather than only "which comps use it".
+function itemHolders(comps: CompData[], items: CatalogEntity[]): ItemHolder[] {
+  const names = new Set(items.filter((entity) => entity.type === 'item').map((entity) => entity.name));
+  if (!names.size) return [];
+  const holders: ItemHolder[] = [];
+  for (const comp of compsUsingItems(comps, items)) {
+    const board = [...comp.units, comp.carry, ...comp.alt];
+    for (const item of names) {
+      const found = unique(
+        board.filter((unit) => unit.items.some((entry) => entry.name === item)).map((unit) => unit.name)
+      );
+      if (found.length) holders.push({ item, comp: comp.title, compSlug: comp.slug, holders: found.slice(0, 4) });
+    }
+  }
+  return holders.slice(0, 6);
 }
 
 function deterministicEntity(entity: CatalogEntity, lang: Lang, relatedTrait: CatalogEntity | null, catalog: Catalog): string {
@@ -1129,7 +1191,29 @@ export async function answerAssistant(
   const relatedEntities = ['entity_lookup', 'gameplay_knowledge'].includes(intent)
     ? unique(selectedEntities.map((entity) => grantedTrait(catalog, entity)).filter((entity): entity is CatalogEntity => entity !== null))
     : [];
-  const relatedComps = ['entity_lookup', 'gameplay_knowledge'].includes(intent) ? compsUsingItems(comps, selectedEntities) : [];
+  // "Akali nên lên trang bị gì?" is an item-build question about a champion:
+  // pull the comps that field her and the builds they attach, otherwise the
+  // model has nothing to recommend from and refuses. Augment wording attaches
+  // the comps too (augments are comp-level), just without item builds.
+  const wantsChampionContext =
+    ['entity_lookup', 'gameplay_knowledge'].includes(intent) &&
+    selectedEntities.some((entity) => entity.type === 'champion') &&
+    (CHAMPION_ITEM_QUESTION.test(text) || CHAMPION_AUGMENT_QUESTION.test(text));
+  const championBuildEvidence =
+    wantsChampionContext && CHAMPION_ITEM_QUESTION.test(text) ? championBuilds(comps, selectedEntities) : [];
+  const itemHolderEvidence =
+    ['entity_lookup', 'gameplay_knowledge'].includes(intent) && selectedEntities.some((entity) => entity.type === 'item')
+      ? itemHolders(comps, selectedEntities)
+      : [];
+  const relatedComps = ['entity_lookup', 'gameplay_knowledge'].includes(intent)
+    ? uniqueBy(
+        [
+          ...(wantsChampionContext ? compsUsingChampion(comps, selectedEntities) : []),
+          ...compsUsingItems(comps, selectedEntities),
+        ],
+        (comp) => comp.slug
+      )
+    : [];
   const statEntities = intent === 'meta_query' && selectedComps.length ? [] : selectedEntities;
   let stats = unique(
     [
@@ -1208,6 +1292,8 @@ export async function answerAssistant(
     relatedEntities,
     comps: selectedComps,
     relatedComps,
+    championBuilds: championBuildEvidence,
+    itemHolders: itemHolderEvidence,
     stats,
     candidates,
     comparison,
@@ -1438,6 +1524,8 @@ export async function answerAssistant(
     relatedEntities,
     comps: selectedComps,
     relatedComps,
+    championBuilds: championBuildEvidence,
+    itemHolders: itemHolderEvidence,
     stats,
     candidates,
     comparison,
