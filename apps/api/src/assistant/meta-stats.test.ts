@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { CatalogEntity, CompData } from './contracts.ts';
-import { compStats, entityStats, loadMetaStats } from './meta-stats.ts';
+import { compStats, entityStats, itemUsageStats, loadMetaStats, unitBuildStats } from './meta-stats.ts';
 
 test('loads public MetaBoard stats for items and units', async () => {
   const meta = await loadMetaStats();
@@ -25,4 +25,43 @@ test('loads public MetaBoard stats for comps', async () => {
   assert.ok(stats);
   assert.match(stats.text, /MetaBoard/);
   assert.match(stats.text, /games/);
+});
+
+test('unitBuildStats returns winrate-backed builds for a champion with build data', async () => {
+  const meta = await loadMetaStats();
+  const entity = { type: 'champion', name: 'Akali' } as unknown as CatalogEntity;
+  const evidence = unitBuildStats(meta, entity);
+  assert.ok(evidence);
+  assert.equal(evidence.champion, 'Akali');
+  assert.ok(evidence.unitGames > 0);
+  assert.ok(evidence.builds.length > 0);
+  for (const build of evidence.builds) {
+    assert.ok(build.items.length >= 1 && build.items.length <= 3);
+    assert.ok(build.count > 0);
+    assert.ok(build.avg > 0 && build.avg < 9);
+  }
+  assert.ok(evidence.itemStats.length > 0);
+  // Non-champion entities never produce unit builds.
+  assert.equal(unitBuildStats(meta, { type: 'item', name: 'Akali' } as unknown as CatalogEntity), null);
+});
+
+test('itemUsageStats returns top holders and stage win rates for an item with data', async () => {
+  const meta = await loadMetaStats();
+  const entity = { type: 'item', name: 'Edge of Night' } as unknown as CatalogEntity;
+  const evidence = itemUsageStats(meta, entity);
+  assert.ok(evidence);
+  assert.equal(evidence.item, 'Edge of Night');
+  assert.ok(evidence.unitGames > 0);
+  assert.ok(evidence.topChampions.length > 0);
+  for (const holder of evidence.topChampions) {
+    assert.ok(holder.count > 0);
+    assert.ok(holder.avg > 0 && holder.avg < 9);
+  }
+  // Stage win rates are computed from raw counts and stay in (0, 1].
+  for (const stage of evidence.stages) {
+    assert.ok(stage.games > 0);
+    assert.ok(stage.winRate > 0 && stage.winRate <= 1);
+  }
+  // Non-item entities never produce item usage.
+  assert.equal(itemUsageStats(meta, { type: 'champion', name: 'Edge of Night' } as unknown as CatalogEntity), null);
 });

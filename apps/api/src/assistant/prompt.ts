@@ -5,8 +5,10 @@ import type {
   CompComparison,
   CompData,
   ItemHolder,
+  ItemUsageEvidence,
   Lang,
   RankedComp,
+  UnitBuildEvidence,
 } from './contracts.ts';
 import type { StatEvidence } from './meta-stats.ts';
 import { mechanicsPrimer, type MechanicsEvidence } from './mechanics-knowledge.ts';
@@ -23,6 +25,8 @@ export type Evidence = {
   relatedComps: CompData[];
   championBuilds: ChampionBuild[];
   itemHolders: ItemHolder[];
+  unitBuilds: UnitBuildEvidence[];
+  itemUsage: ItemUsageEvidence[];
   stats: StatEvidence[];
   candidates: RankedComp[];
   comparison: CompComparison | null;
@@ -116,6 +120,21 @@ function evidenceBody(evidence: Evidence, localize: LocalizeName = identity): Re
     itemHolders: evidence.itemHolders
       .slice(0, 6)
       .map((holder) => ({ ...holder, item: localize(holder.item), holders: holder.holders.map(localize) })),
+    unitBuilds: evidence.unitBuilds
+      .slice(0, 3)
+      .map((build) => ({
+        ...build,
+        champion: localize(build.champion),
+        builds: build.builds.map((entry) => ({ ...entry, items: entry.items.map(localize) })),
+        itemStats: build.itemStats.map((stat) => ({ ...stat, item: localize(stat.item) })),
+      })),
+    itemUsage: evidence.itemUsage
+      .slice(0, 3)
+      .map((usage) => ({
+        ...usage,
+        item: localize(usage.item),
+        topChampions: usage.topChampions.map((stat) => ({ ...stat, name: localize(stat.name) })),
+      })),
     stats: evidence.stats,
     candidates: evidence.candidates.slice(0, 3).map((candidate, index) => ({
       rank: index + 1,
@@ -160,8 +179,8 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
     'For an emblem, treat the granted trait in relatedEntities as its effect; do not invent a separate item effect.',
     'For a trait question, include the relevant breakpoint values from evidence; do not replace them with vague wording.',
     'If relatedComps are present, mention them as comps that use the item.',
-    'When championBuilds are present, base item recommendations on them: name the items and the comp each build comes from, and say a champion has no recorded build only when championBuilds is empty.',
-    'When itemHolders are present, name the champions that hold the asked item in each comp; say no holder is recorded only when itemHolders is empty.',
+    'When championBuilds or unitBuilds are present, base item recommendations on them: unitBuilds are winrate-backed builds from live match data (count is the sample size, avg the average placement), championBuilds are curated comp builds — name the items and the source of each build. Say a champion has no recorded build only when both lists are empty.',
+    'When itemHolders or itemUsage are present, name the champions that hold the asked item: itemUsage ranks champions by placement while holding it (delta is the change versus that champion overall average; negative is better) and stages gives win rate by the stage the item was completed. Say no holder is recorded only when both lists are empty.',
     'For augment questions about a champion, recommend from the augments of the comps that field that champion and say the recommendation is comp-level.',
     'When candidates are present, rank 1 is the top pick. Follow rank order and name rank 1 first, even when scores tie. Never call a higher rank number better.',
     'Use the comp tier exactly as written in evidence. Never output a placeholder such as "Hạng X" or invent a meta rank.',

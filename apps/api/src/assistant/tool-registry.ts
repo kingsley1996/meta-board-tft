@@ -124,7 +124,8 @@ export const ASSISTANT_TOOLS: ProviderTool[] = [
     type: 'function',
     function: {
       name: 'get_comp',
-      description: 'Get the full board, items, augments, traits, tips and stages for one comp slug.',
+      description:
+        'Get the full board (with row/col positions), items, augments, traits, matchups (counters), tips and stages for one comp slug.',
       parameters: {
         type: 'object',
         additionalProperties: false,
@@ -802,11 +803,20 @@ function compPayload(comp: CompData, catalog: Catalog, lang: Lang) {
     tier: comp.tier,
     style: comp.style,
     difficulty: comp.difficulty,
-    units: comp.units.map((unit) => ({ name: name(unit.name), cost: unit.cost, items: unit.items.map((item) => name(item.name)) })),
+    // row/col carry the board layout so position questions are answerable;
+    // matchups list which comps this one counters or is countered by.
+    units: comp.units.map((unit) => ({
+      name: name(unit.name),
+      cost: unit.cost,
+      row: unit.row,
+      col: unit.col,
+      items: unit.items.map((item) => name(item.name)),
+    })),
     carry: name(comp.carry.name),
     items: comp.items.map((item) => name(item.name)),
     augments: comp.augments.map((augment) => name(augment.name)),
     traits: comp.traits.map((trait) => ({ name: name(trait.name), count: trait.count })),
+    matchups: comp.matchups.map((matchup) => ({ slug: matchup.slug, kind: matchup.kind, title: matchup.title, tier: matchup.tier })),
     tips: comp.tips.slice(0, 400),
     stages: comp.stages.slice(0, 4),
   };

@@ -105,6 +105,37 @@ export type ItemHolder = {
   holders: string[];
 };
 
+// Winrate-backed builds and per-item placement for one champion, extracted
+// from live match stats (meta.json units) rather than curated comps.
+export type UnitBuildStat = { items: string[]; count: number; avg: number; pick: number };
+export type UnitItemStat = { item: string; count: number; avg: number; pick: number };
+export type UnitBuildEvidence = {
+  champion: string;
+  unitGames: number;
+  builds: UnitBuildStat[];
+  itemStats: UnitItemStat[];
+};
+
+// Live-stat answer to "item X mạnh trên ai / lên ở stage nào": per-champion
+// placement while holding the item (delta versus their overall average,
+// negative is better) and win rate by completion stage.
+export type ItemHolderStat = {
+  name: string;
+  count: number;
+  avg: number;
+  top4: number;
+  win: number;
+  delta: number | null;
+  tier: string | null;
+};
+export type ItemStageStat = { stage: string; games: number; winRate: number };
+export type ItemUsageEvidence = {
+  item: string;
+  unitGames: number;
+  topChampions: ItemHolderStat[];
+  stages: ItemStageStat[];
+};
+
 export type EntityMatch = { entity: CatalogEntity; score: number };
 
 export type RankingQuery = {

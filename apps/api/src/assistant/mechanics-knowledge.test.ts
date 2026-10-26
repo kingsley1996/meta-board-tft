@@ -22,6 +22,8 @@ function fixture(text: string, lang: 'en' | 'vi' = 'en'): Evidence {
     relatedComps: [],
     championBuilds: [],
     itemHolders: [],
+    unitBuilds: [],
+    itemUsage: [],
     stats: [],
     candidates: [],
     comparison: null,

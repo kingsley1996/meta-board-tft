@@ -14,7 +14,9 @@ import {
   type CompComparison,
   type CompData,
   type ItemHolder,
+  type ItemUsageEvidence,
   type Lang,
+  type UnitBuildEvidence,
   type RankedComp,
   type RankingQuery,
   type ResolvedEntity,
@@ -32,7 +34,7 @@ import {
 } from './provider.ts';
 import { rankComps } from './ranking.ts';
 import { compareComps, getActiveSetAndPatch, loadCatalog } from './tools.ts';
-import { compStats, entityStats, loadMetaStats, type StatEvidence } from './meta-stats.ts';
+import { compStats, entityStats, itemUsageStats, loadMetaStats, unitBuildStats, type StatEvidence } from './meta-stats.ts';
 import {
   isMechanicsQuestion,
   mechanicsAnswer,
@@ -1205,6 +1207,27 @@ export async function answerAssistant(
     ['entity_lookup', 'gameplay_knowledge'].includes(intent) && selectedEntities.some((entity) => entity.type === 'item')
       ? itemHolders(comps, selectedEntities)
       : [];
+  // Winrate-backed unit builds (live match data) and per-champion item usage:
+  // the strongest grounds for item questions, kept off the tool loop so they
+  // cost no extra LLM round-trip.
+  const unitBuildEvidence =
+    wantsChampionContext && CHAMPION_ITEM_QUESTION.test(text)
+      ? unique(
+          selectedEntities
+            .filter((entity) => entity.type === 'champion')
+            .map((entity) => unitBuildStats(metaStats, entity))
+            .filter((entry): entry is UnitBuildEvidence => entry !== null)
+        )
+      : [];
+  const itemUsageEvidence =
+    ['entity_lookup', 'gameplay_knowledge'].includes(intent) && selectedEntities.some((entity) => entity.type === 'item')
+      ? unique(
+          selectedEntities
+            .filter((entity) => entity.type === 'item')
+            .map((entity) => itemUsageStats(metaStats, entity))
+            .filter((entry): entry is ItemUsageEvidence => entry !== null)
+        )
+      : [];
   const relatedComps = ['entity_lookup', 'gameplay_knowledge'].includes(intent)
     ? uniqueBy(
         [
@@ -1294,6 +1317,8 @@ export async function answerAssistant(
     relatedComps,
     championBuilds: championBuildEvidence,
     itemHolders: itemHolderEvidence,
+    unitBuilds: unitBuildEvidence,
+    itemUsage: itemUsageEvidence,
     stats,
     candidates,
     comparison,
@@ -1526,6 +1551,8 @@ export async function answerAssistant(
     relatedComps,
     championBuilds: championBuildEvidence,
     itemHolders: itemHolderEvidence,
+    unitBuilds: unitBuildEvidence,
+    itemUsage: itemUsageEvidence,
     stats,
     candidates,
     comparison,

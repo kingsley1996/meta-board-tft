@@ -121,6 +121,8 @@ test('mechanic answers cannot add numbers missing from evidence', () => {
     relatedComps: [],
     championBuilds: [],
     itemHolders: [],
+    unitBuilds: [],
+    itemUsage: [],
     stats: [],
     candidates: [],
     comparison: null,

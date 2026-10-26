@@ -1,8 +1,20 @@
 import { readFile } from 'node:fs/promises';
-import type { CatalogEntity, CompData, Lang } from './contracts.ts';
+import type { CatalogEntity, CompData, ItemStageStat, ItemUsageEvidence, Lang, UnitBuildEvidence, UnitBuildStat, UnitItemStat } from './contracts.ts';
 import { sharedDataPath } from '../shared-data.ts';
 
 type Note = { en: string; vi: string };
+type RawItemChampionStat = {
+  name: string;
+  count: number;
+  avg: number;
+  top4: number;
+  win: number;
+  delta?: number;
+  placeChange?: number;
+  score?: number;
+  tier?: string;
+};
+type RawItemStage = { stage: string; count: number; win: number };
 type RawItem = {
   name: string;
   tier: string;
@@ -11,8 +23,14 @@ type RawItem = {
   top4: number;
   win: number;
   note: Note;
+  unitGames?: number;
+  champions?: string[];
+  championStats?: RawItemChampionStat[];
+  stages?: RawItemStage[];
 };
-type RawUnit = { games: number; avg: number; top4: number; win: number; items: string[] };
+type RawUnitBuild = { items: string[]; count: number; avg: number; pick: number };
+type RawUnitItemStat = { name: string; count: number; avg: number; pick: number };
+type RawUnit = { games: number; avg: number; top4: number; win: number; items: string[]; builds?: RawUnitBuild[]; itemStats?: RawUnitItemStat[] };
 type RawAugment = { name: string; tier: string; note: Note };
 type RawComp = { slug: string; title: string; tier: string; stats: { avg: number; games: number; level: number } };
 
@@ -83,6 +101,51 @@ export function entityStats(meta: MetaStats, entity: CatalogEntity, lang: Lang):
 export function compStats(meta: MetaStats, comp: CompData, lang: Lang): StatEvidence | null {
   const row = meta.comps.get(comp.slug);
   return row ? { id: `comp:${comp.slug}`, name: comp.title, ...formatComp(row, lang, meta.source) } : null;
+}
+
+// Winrate-backed item builds for one champion, from live match data — the
+// strongest ground for "X nên lên trang bị gì" alongside curated comp builds.
+export function unitBuildStats(meta: MetaStats, entity: CatalogEntity): UnitBuildEvidence | null {
+  if (entity.type !== 'champion') return null;
+  const row = meta.units.get(entity.name);
+  if (!row) return null;
+  const builds: UnitBuildStat[] = (row.builds ?? []).slice(0, 4).map((build) => ({
+    items: build.items.slice(0, 3),
+    count: build.count,
+    avg: build.avg,
+    pick: build.pick,
+  }));
+  const itemStats: UnitItemStat[] = (row.itemStats ?? []).slice(0, 6).map((stat) => ({
+    item: stat.name,
+    count: stat.count,
+    avg: stat.avg,
+    pick: stat.pick,
+  }));
+  if (!builds.length && !itemStats.length) return null;
+  return { champion: entity.name, unitGames: row.games, builds, itemStats };
+}
+
+// Who holds an item best, plus when it gets completed — both from live stats.
+// delta is the placement change while holding the item versus the champion's
+// overall average (negative means better), matching the items page.
+export function itemUsageStats(meta: MetaStats, entity: CatalogEntity): ItemUsageEvidence | null {
+  if (entity.type !== 'item') return null;
+  const row = meta.items.get(entity.name);
+  if (!row) return null;
+  const topChampions = (row.championStats ?? []).slice(0, 6).map((stat) => ({
+    name: stat.name,
+    count: stat.count,
+    avg: stat.avg,
+    top4: stat.top4,
+    win: stat.win,
+    delta: stat.delta ?? stat.placeChange ?? null,
+    tier: stat.tier ?? null,
+  }));
+  const stages: ItemStageStat[] = (row.stages ?? [])
+    .filter((stage) => stage.count > 0)
+    .map((stage) => ({ stage: stage.stage, games: stage.count, winRate: stage.win / stage.count }));
+  if (!topChampions.length && !stages.length) return null;
+  return { item: entity.name, unitGames: row.unitGames ?? row.games, topChampions, stages };
 }
 
 function formatItem(row: RawItem, lang: Lang, source: MetaStats['source']): Omit<StatEvidence, 'id' | 'name'> {
