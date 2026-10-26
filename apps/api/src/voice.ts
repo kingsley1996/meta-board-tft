@@ -7,11 +7,9 @@ import type { OfflineRecognizer } from 'sherpa-onnx-node';
 const router = Router();
 const sampleRate = 16_000;
 const maxSamples = sampleRate * 60;
-const maxSpeechCharacters = 2_000;
 const modelDirectory =
   process.env.SHERPA_ASR_MODEL_DIR?.trim() ||
   fileURLToPath(new URL('../models/sherpa-vi/', import.meta.url));
-const vieneuBaseUrl = (process.env.VIENEU_TTS_URL?.trim() || 'http://127.0.0.1:8001').replace(/\/+$/, '');
 
 const modelFiles = {
   encoder: 'encoder-epoch-20-avg-10.int8.onnx',
@@ -21,7 +19,6 @@ const modelFiles = {
 };
 
 type SttProvider = 'elevenlabs' | 'openai' | 'groq' | 'gemini' | 'sherpa';
-type TtsProvider = 'gemini' | 'vieneu';
 
 // Accuracy-first auto order; ElevenLabs Scribe and Gemini lead published
 // Vietnamese WER benchmarks, whisper-large-v3-turbo on Groq is the cheap fast
@@ -29,12 +26,6 @@ type TtsProvider = 'gemini' | 'vieneu';
 const cloudProviderOrder: readonly SttProvider[] = ['elevenlabs', 'openai', 'groq', 'gemini'];
 const sttLanguage = (process.env.STT_LANGUAGE?.trim() || 'vi').toLowerCase();
 const sttMaxConcurrency = Math.max(1, Number(process.env.STT_MAX_CONCURRENCY) || 4);
-
-// Gemini TTS synthesizes off-host and takes concurrent requests; VieNeu is a
-// single-slot local engine kept as the fallback. Speech requests queue briefly
-// for a slot instead of failing so short bursts do not surface errors.
-const ttsMaxConcurrency = Math.max(1, Number(process.env.TTS_MAX_CONCURRENCY) || 4);
-const ttsQueueWaitMs = Math.max(0, Number(process.env.TTS_QUEUE_WAIT_MS) || 5_000);
 
 let recognizerPromise: Promise<OfflineRecognizer> | undefined;
 let activeTranscriptions = 0;
@@ -86,37 +77,6 @@ export function resolveSttProvider(env: NodeJS.ProcessEnv = process.env): SttPro
     if (cloudConfigured(provider, env)) return provider;
   }
   return 'sherpa';
-}
-
-export function resolveTtsProvider(env: NodeJS.ProcessEnv = process.env): TtsProvider | null {
-  const explicit = env.TTS_PROVIDER?.trim().toLowerCase();
-  if (explicit === 'gemini' || explicit === 'vieneu') return explicit;
-  if (explicit && explicit !== 'auto') return null;
-  return envValue(env, 'GOOGLE_API_KEY') ? 'gemini' : 'vieneu';
-}
-
-function ttsProviderIsAuto(): boolean {
-  const explicit = process.env.TTS_PROVIDER?.trim().toLowerCase();
-  return !explicit || explicit === 'auto';
-}
-
-function vieneuHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {};
-  const apiKey = process.env.VIENEU_TTS_API_KEY?.trim();
-  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
-  return headers;
-}
-
-async function vieneuAvailable(): Promise<boolean> {
-  try {
-    const response = await fetch(`${vieneuBaseUrl}/v1/voices`, {
-      headers: vieneuHeaders(),
-      signal: AbortSignal.timeout(1_500),
-    });
-    return response.ok;
-  } catch {
-    return false;
-  }
 }
 
 async function modelAvailable(): Promise<boolean> {
@@ -181,36 +141,6 @@ export function wavFromPcm16(pcm: Buffer, rate: number): Buffer {
   bytes.writeUInt32LE(pcm.byteLength, 40);
   pcm.copy(bytes, 44);
   return bytes;
-}
-
-// Bursty speech requests wait up to ttsQueueWaitMs for a free slot; only
-// requests that give up surface speech_busy to the client.
-const speechSlots = { active: 0, waiters: [] as Array<() => void> };
-
-async function acquireSpeechSlot(limit: number): Promise<boolean> {
-  const deadline = Date.now() + ttsQueueWaitMs;
-  for (;;) {
-    if (speechSlots.active < limit) {
-      speechSlots.active += 1;
-      return true;
-    }
-    const remaining = deadline - Date.now();
-    if (remaining <= 0) return false;
-    await new Promise<void>((resolve) => {
-      const waiter = () => {
-        const index = speechSlots.waiters.indexOf(waiter);
-        if (index >= 0) speechSlots.waiters.splice(index, 1);
-        resolve();
-      };
-      speechSlots.waiters.push(waiter);
-      setTimeout(waiter, remaining);
-    });
-  }
-}
-
-function releaseSpeechSlot(): void {
-  speechSlots.active -= 1;
-  speechSlots.waiters.shift()?.();
 }
 
 async function transcribeWithElevenLabs(wav: Buffer): Promise<string> {
@@ -320,78 +250,6 @@ async function transcribe(provider: SttProvider, samples: Float32Array): Promise
   }
 }
 
-async function synthWithGemini(input: string, signal: AbortSignal): Promise<{ audio: Buffer; mime: string }> {
-  const apiKey = envValue(process.env, 'GOOGLE_API_KEY');
-  if (!apiKey) throw new SpeechUnavailableError('GOOGLE_API_KEY is not configured');
-  const model = process.env.TTS_GEMINI_MODEL?.trim() || 'gemini-3.8-flash-lite-tts';
-  const voice = process.env.TTS_GEMINI_VOICE?.trim() || 'Charon';
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
-    {
-      method: 'POST',
-      headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: input }] }],
-        generationConfig: {
-          responseModalities: ['AUDIO'],
-          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } },
-        },
-      }),
-      signal,
-    }
-  );
-  if (response.status === 429) throw new SpeechBusyError();
-  if (!response.ok) throw new SpeechUnavailableError(`Gemini TTS responded ${response.status}`);
-  const result = (await response.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { data?: unknown; mimeType?: unknown } }> } }>;
-  };
-  const inline = result.candidates?.[0]?.content?.parts?.[0]?.inlineData;
-  if (!inline || typeof inline.data !== 'string' || !inline.data) {
-    throw new SpeechUnavailableError('Gemini TTS returned no audio');
-  }
-  const audio = Buffer.from(inline.data, 'base64');
-  const mime = typeof inline.mimeType === 'string' && inline.mimeType ? inline.mimeType : 'audio/wav';
-  // The API usually answers audio/wav directly; wrap raw L16 PCM payloads so
-  // the browser <audio> element can always decode the response.
-  if (/^audio\/L16/i.test(mime)) {
-    const rate = Number(mime.match(/rate=(\d+)/i)?.[1]) || 24_000;
-    return { audio: wavFromPcm16(audio, rate), mime: 'audio/wav' };
-  }
-  return { audio, mime };
-}
-
-async function synthWithVieneu(input: string, signal: AbortSignal): Promise<Buffer> {
-  let upstream: Response;
-  try {
-    upstream = await fetch(`${vieneuBaseUrl}/v1/audio/speech`, {
-      method: 'POST',
-      headers: { ...vieneuHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'vieneu-v3-turbo',
-        voice: process.env.VIENEU_TTS_VOICE?.trim() || 'Hải Đăng',
-        input,
-        response_format: 'wav',
-      }),
-      signal,
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === 'TimeoutError') throw error;
-    throw new SpeechUnavailableError('VieNeu is unreachable', 503, 'vieneu_unavailable');
-  }
-  if (upstream.status === 429) throw new SpeechBusyError();
-  if (!upstream.ok) {
-    if (upstream.status === 404) {
-      throw new SpeechUnavailableError('VieNeu is not running', 503, 'vieneu_unavailable');
-    }
-    throw new SpeechUnavailableError(`VieNeu responded ${upstream.status}`);
-  }
-  const audio = Buffer.from(await upstream.arrayBuffer());
-  if (!audio.length || audio.length > 30 * 1024 * 1024) {
-    throw new SpeechUnavailableError('VieNeu returned invalid audio');
-  }
-  return audio;
-}
-
 router.get('/status', async (_req, res) => {
   const provider = resolveSttProvider();
   const available =
@@ -401,82 +259,6 @@ router.get('/status', async (_req, res) => {
         ? await modelAvailable()
         : true;
   res.json({ available, provider });
-});
-
-router.get('/tts/status', async (_req, res) => {
-  const provider = resolveTtsProvider();
-  const available =
-    provider === 'vieneu'
-      ? await vieneuAvailable()
-      : provider === 'gemini'
-        ? Boolean(envValue(process.env, 'GOOGLE_API_KEY'))
-        : false;
-  res.json({ available, provider });
-});
-
-router.post('/tts/speech', async (req, res) => {
-  const input = typeof req.body?.input === 'string' ? req.body.input.trim() : '';
-  if (!input || input.length > maxSpeechCharacters) {
-    return res.status(400).json({ error: 'invalid_speech_text' });
-  }
-  const provider = resolveTtsProvider();
-  if (provider === null) return res.status(503).json({ error: 'tts_not_configured' });
-  if (!(await acquireSpeechSlot(provider === 'vieneu' ? 1 : ttsMaxConcurrency))) {
-    return res.status(429).json({ error: 'speech_busy' });
-  }
-
-  // Synthesis of a long answer takes tens of seconds; when the client walks
-  // away (new question via mic, stop button, navigation) abort the upstream
-  // job so the slot frees immediately instead of staying busy for the full
-  // timeout. Listen on the RESPONSE 'close': req 'close' fires as soon as the
-  // body is read, res 'close' fires early only on a real premature disconnect.
-  const clientGone = new AbortController();
-  const onClose = () => {
-    if (!res.writableEnded) clientGone.abort();
-  };
-  res.on('close', onClose);
-  try {
-    const vieneuSignal = AbortSignal.any([clientGone.signal, AbortSignal.timeout(120_000)]);
-    let audio: Buffer;
-    let mime = 'audio/wav';
-    try {
-      if (provider === 'gemini') {
-        ({ audio, mime } = await synthWithGemini(input, AbortSignal.any([clientGone.signal, AbortSignal.timeout(30_000)])));
-      } else {
-        audio = await synthWithVieneu(input, vieneuSignal);
-      }
-    } catch (error) {
-      // Cloud burst or outage: fall back to the local engine in auto mode so a
-      // quota blip degrades voice instead of erroring it.
-      const fallbackable =
-        provider === 'gemini' && ttsProviderIsAuto() && !clientGone.signal.aborted &&
-        (error instanceof SpeechBusyError || error instanceof SpeechUnavailableError);
-      if (!fallbackable) throw error;
-      audio = await synthWithVieneu(input, vieneuSignal);
-    }
-    if (clientGone.signal.aborted || res.writableEnded || res.destroyed) {
-      return;
-    }
-    res.type(mime).send(audio);
-  } catch (error) {
-    if (clientGone.signal.aborted || res.writableEnded || res.destroyed) {
-      return;
-    }
-    if (error instanceof SpeechBusyError) {
-      return res.status(429).json({ error: 'speech_busy' });
-    }
-    if (error instanceof SpeechUnavailableError) {
-      console.error('Speech synthesis unavailable', error.message);
-      return res.status(error.httpStatus).json({ error: error.code });
-    }
-    if (error instanceof Error && error.name === 'TimeoutError') {
-      return res.status(504).json({ error: 'speech_generation_timeout' });
-    }
-    throw error;
-  } finally {
-    res.off('close', onClose);
-    releaseSpeechSlot();
-  }
 });
 
 router.post(
@@ -531,6 +313,341 @@ router.post(
     }
   }
 );
+
+// --- TTS: VieNeu engine, one sentence-sized chunk per request ---
+//
+// VieNeu on CPU needs ~3.4 s for a 250-character chunk, so the client splits an
+// answer into short chunks and plays one while the next is still synthesizing.
+// The same wire format (OpenAI-compatible POST /v1/audio/speech) is served by
+// the local `apps.openai_speech` server and by the hosted https://api.vieneu.io
+// cloud, so switching engines is only a VIENEU_TTS_URL/API_KEY change.
+
+const ttsFormats = ['wav', 'mp3', 'pcm', 'opus', 'ulaw'] as const;
+export type TtsFormat = (typeof ttsFormats)[number];
+
+const ttsContentTypes: Record<TtsFormat, string> = {
+  wav: 'audio/wav',
+  mp3: 'audio/mpeg',
+  // Headerless formats carry no container hint, so the browser needs the rate.
+  pcm: 'audio/L16;rate=48000',
+  opus: 'audio/ogg',
+  ulaw: 'audio/basic',
+};
+
+function ttsBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
+  return (env.VIENEU_TTS_URL?.trim() || 'http://127.0.0.1:8001').replace(/\/+$/, '');
+}
+
+function ttsVoice(env: NodeJS.ProcessEnv = process.env): string {
+  return env.VIENEU_TTS_VOICE?.trim() || 'Hải Đăng';
+}
+
+// The cloud retired the v3 model names and the local server ignores the field
+// ("any string; reported back as-is"), so one default works for both engines.
+export function ttsModel(env: NodeJS.ProcessEnv = process.env): string {
+  return env.VIENEU_TTS_MODEL?.trim() || 'vieneu-v4';
+}
+
+export function ttsFormat(env: NodeJS.ProcessEnv = process.env): TtsFormat {
+  const value = env.VIENEU_TTS_FORMAT?.trim().toLowerCase();
+  return (ttsFormats as readonly string[]).includes(value ?? '') ? (value as TtsFormat) : 'wav';
+}
+
+// A loopback probe answers in milliseconds; a hosted one crosses the internet,
+// and a too-short timeout makes the client fall back to the browser engine while
+// the cloud is perfectly healthy.
+export function ttsProbeTimeoutMs(env: NodeJS.ProcessEnv = process.env): number {
+  const value = Math.round(Number(env.VIENEU_TTS_PROBE_TIMEOUT_MS)) || 4_000;
+  return Math.min(15_000, Math.max(500, value));
+}
+
+export function ttsChunkCharacters(env: NodeJS.ProcessEnv = process.env): number {
+  const value = Math.round(Number(env.TTS_CHUNK_CHARACTERS)) || 150;
+  return Math.min(400, Math.max(40, value));
+}
+
+export function ttsLimits(env: NodeJS.ProcessEnv = process.env) {
+  return {
+    // VieNeu serves two requests at once and answers 429 beyond that.
+    maxConcurrency: Math.max(1, Number(env.TTS_MAX_CONCURRENCY) || 2),
+    queueWaitMs: Math.max(0, Number(env.TTS_QUEUE_WAIT_MS) || 5_000),
+    timeoutMs: Math.max(5_000, Number(env.TTS_TIMEOUT_MS) || 45_000),
+  };
+}
+
+function vieneuHeaders(env: NodeJS.ProcessEnv = process.env): Record<string, string> {
+  const headers: Record<string, string> = {};
+  const apiKey = env.VIENEU_TTS_API_KEY?.trim();
+  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+  return headers;
+}
+
+// 401/403 from the cloud means bad key or exhausted/revoked token package, and
+// its docs are explicit that retrying does not help. Without this, every answer
+// would burn its whole chunk budget on doomed requests before the client gave up
+// on the engine, so the fault is remembered per origin and `/tts/status` reports
+// the engine as unavailable until the cooldown expires.
+const engineFaults = new Map<string, { until: number; reason: string; code: string }>();
+
+function rememberFault(origin: string, reason: string, cooldownMs: number, code: string): void {
+  engineFaults.set(origin, { until: Date.now() + cooldownMs, reason, code });
+}
+
+export function ttsFault(env: NodeJS.ProcessEnv = process.env): { reason: string; code: string } | null {
+  const origin = new URL(ttsBaseUrl(env)).origin;
+  const fault = engineFaults.get(origin);
+  if (!fault) return null;
+  if (fault.until <= Date.now()) {
+    engineFaults.delete(origin);
+    return null;
+  }
+  return { reason: fault.reason, code: fault.code };
+}
+
+export function clearTtsFaults(): void {
+  engineFaults.clear();
+}
+
+// Both the OpenAI-compatible shape ({ error: { message, type, code } }) and the
+// native one ({ statusCode, message, code }) appear on this API; keep whichever
+// text the upstream actually sent, truncated so it can be logged safely.
+async function upstreamErrorText(response: Response): Promise<string> {
+  let raw = '';
+  try {
+    raw = (await response.text()).slice(0, 2_000);
+  } catch {
+    return `HTTP ${response.status}`;
+  }
+  try {
+    const body = JSON.parse(raw) as {
+      error?: { message?: string; type?: string; code?: string | null };
+      message?: string;
+      code?: string;
+    };
+    const openAi = body.error;
+    const detail = openAi?.message || openAi?.type || body.message || body.code || '';
+    const code = !openAi?.code && body.code ? body.code : openAi?.code;
+    return `HTTP ${response.status}${code ? ` ${code}` : ''}${detail ? `: ${String(detail).slice(0, 180)}` : ''}`;
+  } catch {
+    return `HTTP ${response.status}: ${raw.slice(0, 180)}`;
+  }
+}
+
+// Retry-After is either seconds or an HTTP date; anything unparseable is ignored.
+function retryAfterMs(response: Response, maxMs: number): number | null {
+  const header = response.headers.get('retry-after')?.trim();
+  if (!header) return null;
+  const seconds = Number(header);
+  const ms = Number.isFinite(seconds) && seconds >= 0 ? seconds * 1_000 : Date.parse(header) - Date.now();
+  if (!Number.isFinite(ms) || ms <= 0) return null;
+  return Math.min(ms, maxMs);
+}
+
+export async function vieneuAvailable(
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<boolean> {
+  if (ttsFault(env)) return false;
+  try {
+    const response = await fetchImpl(`${ttsBaseUrl(env)}/v1/voices`, {
+      headers: vieneuHeaders(env),
+      signal: AbortSignal.timeout(ttsProbeTimeoutMs(env)),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+// Speech requests queue briefly for a slot instead of failing, so a burst of
+// chunk prefetches does not surface an error for the whole answer.
+const speechSlots = { active: 0, waiters: [] as Array<() => void> };
+
+async function acquireSpeechSlot(limit: number, waitMs: number): Promise<boolean> {
+  const deadline = Date.now() + waitMs;
+  for (;;) {
+    if (speechSlots.active < limit) {
+      speechSlots.active += 1;
+      return true;
+    }
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) return false;
+    await new Promise<void>((resolve) => {
+      const waiter = () => {
+        const index = speechSlots.waiters.indexOf(waiter);
+        if (index >= 0) speechSlots.waiters.splice(index, 1);
+        resolve();
+      };
+      speechSlots.waiters.push(waiter);
+      setTimeout(waiter, remaining);
+    });
+  }
+}
+
+function releaseSpeechSlot(): void {
+  speechSlots.active -= 1;
+  speechSlots.waiters.shift()?.();
+}
+
+function delay(milliseconds: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new DOMException('Aborted', 'AbortError'));
+      return;
+    }
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(new DOMException('Aborted', 'AbortError'));
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, milliseconds);
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
+export async function synthVieneuChunk(
+  input: string,
+  voice: string,
+  signal: AbortSignal,
+  env: NodeJS.ProcessEnv = process.env,
+  fetchImpl: typeof fetch = fetch
+): Promise<{ audio: Buffer; contentType: string }> {
+  const limits = ttsLimits(env);
+  const format = ttsFormat(env);
+  const origin = new URL(ttsBaseUrl(env)).origin;
+  const knownFault = ttsFault(env);
+  if (knownFault) {
+    // A rejected key or a saturated queue stays cheap: the browser gets the
+    // answer from the engine it already knows is gone, without another doomed
+    // upstream request per chunk.
+    throw new SpeechUnavailableError(knownFault.reason, 503, knownFault.code);
+  }
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    let upstream: Response;
+    try {
+      upstream = await fetchImpl(`${ttsBaseUrl(env)}/v1/audio/speech`, {
+        method: 'POST',
+        headers: { ...vieneuHeaders(env), 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: ttsModel(env),
+          voice,
+          input,
+          response_format: format,
+        }),
+        signal: AbortSignal.any([signal, AbortSignal.timeout(limits.timeoutMs)]),
+      });
+    } catch (error) {
+      if (signal.aborted) throw error;
+      if (error instanceof Error && error.name === 'TimeoutError') throw error;
+      throw new SpeechUnavailableError('VieNeu is unreachable', 503, 'tts_unavailable');
+    }
+    if (upstream.status === 429) {
+      // The cloud sends Retry-After for the transient codes (queue full, balance
+      // race); daily/weekly caps answer with resetAt instead and are pointless to
+      // wait out inside one request, so a plain backoff covers those.
+      const wait = retryAfterMs(upstream, limits.timeoutMs) ?? 400 * attempt;
+      void upstream.body?.cancel();
+      if (attempt < maxAttempts) {
+        await delay(wait, signal);
+        continue;
+      }
+      if (wait >= 30_000) rememberFault(origin, `engine queue busy: ${wait} ms`, wait, 'speech_busy');
+      throw new SpeechBusyError();
+    }
+    if (upstream.status === 401 || upstream.status === 403) {
+      const detail = await upstreamErrorText(upstream);
+      rememberFault(origin, detail, 60_000, 'tts_credentials_rejected');
+      console.error('VieNeu rejected credentials', detail);
+      throw new SpeechUnavailableError(detail, 503, 'tts_credentials_rejected');
+    }
+    if (!upstream.ok) {
+      const detail = await upstreamErrorText(upstream);
+      if (upstream.status === 404) {
+        throw new SpeechUnavailableError('VieNeu is not running', 503, 'tts_unavailable');
+      }
+      // 400 on this route means the engine refused this particular text (its
+      // docs reject long consonant-only runs and non-Latin scripts); it is not a
+      // reason to stop using the engine for the next answer.
+      if (upstream.status === 400) {
+        throw new SpeechUnavailableError(detail, 400, 'speech_text_rejected');
+      }
+      throw new SpeechUnavailableError(detail);
+    }
+    const audio = Buffer.from(await upstream.arrayBuffer());
+    // A full chunk is tens of kilobytes at 48 kHz; anything outside that range is
+    // an error page or a truncated stream rather than speech.
+    if (audio.length < 4_000 || audio.length > 30 * 1024 * 1024) {
+      throw new SpeechUnavailableError('VieNeu returned invalid audio');
+    }
+    return {
+      audio,
+      contentType: upstream.headers.get('content-type')?.split(';')[0]?.trim() || ttsContentTypes[format],
+    };
+  }
+  throw new SpeechBusyError();
+}
+
+router.get('/tts/status', async (_req, res) => {
+  const available = await vieneuAvailable();
+  res.json({
+    available,
+    provider: 'vieneu',
+    voice: ttsVoice(),
+    maxChars: ttsChunkCharacters(),
+    // The upstream message can name hosts and key ids; dev-only so the browser
+    // console is enough to diagnose "why is the engine grey".
+    ...(available || process.env.NODE_ENV === 'production'
+      ? {}
+      : { reason: ttsFault()?.reason ?? (available ? null : 'engine did not answer the voices probe') }),
+  });
+});
+
+router.post('/tts/speech', async (req, res) => {
+  const input = typeof req.body?.input === 'string' ? req.body.input.trim() : '';
+  const maxChars = ttsChunkCharacters();
+  if (!input || input.length > maxChars) {
+    return res.status(400).json({ error: 'invalid_speech_text', maxChars });
+  }
+  const requestedVoice = typeof req.body?.voice === 'string' ? req.body.voice.trim() : '';
+  const voice = requestedVoice && requestedVoice.length <= 60 ? requestedVoice : ttsVoice();
+  const limits = ttsLimits();
+  if (!(await acquireSpeechSlot(limits.maxConcurrency, limits.queueWaitMs))) {
+    return res.status(429).json({ error: 'speech_busy' });
+  }
+
+  // Chunk synthesis still takes a second or two per request; when the listener
+  // walks away (stop button, new question, navigation) abort the upstream job so
+  // a slot frees immediately instead of staying busy for the full timeout. The
+  // RESPONSE 'close' event is the real disconnect signal: the request body is
+  // already read by then.
+  const clientGone = new AbortController();
+  const onClose = () => {
+    if (!res.writableEnded) clientGone.abort();
+  };
+  res.on('close', onClose);
+  try {
+    const { audio, contentType } = await synthVieneuChunk(input, voice, clientGone.signal);
+    if (clientGone.signal.aborted || res.writableEnded || res.destroyed) return;
+    res.type(contentType).setHeader('Cache-Control', 'no-store').send(audio);
+  } catch (error) {
+    if (clientGone.signal.aborted || res.writableEnded || res.destroyed) return;
+    if (error instanceof SpeechBusyError) return res.status(429).json({ error: 'speech_busy' });
+    if (error instanceof SpeechUnavailableError) {
+      console.error('Speech synthesis unavailable', error.message);
+      return res.status(error.httpStatus).json({ error: error.code });
+    }
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      return res.status(504).json({ error: 'speech_generation_timeout' });
+    }
+    throw error;
+  } finally {
+    res.off('close', onClose);
+    releaseSpeechSlot();
+  }
+});
 
 router.use((error: unknown, _req: Request, res: ExpressResponse, next: NextFunction) => {
   if (typeof error === 'object' && error !== null && 'type' in error && error.type === 'entity.too.large') {

@@ -19,6 +19,16 @@ import {
 } from '@/lib/api';
 import type { Lang } from '@/lib/i18n';
 import { messages as uiMessages } from '@/lib/messages';
+import {
+  chunkForSpeech,
+  loadVoices,
+  maxSpeechChunkCharacters,
+  pickVoice,
+  primeSpeechSynthesis,
+  speechLanguageFor,
+  spokenText,
+  voicesForLanguage,
+} from '@/lib/speech';
 
 type ChatMessage = {
   id: string;
@@ -29,6 +39,10 @@ type ChatMessage = {
 };
 
 type StoredChat = { conversationId?: string; messages?: ChatMessage[] };
+
+// /api/voice/tts/status answers with the engine's own chunk limit, so the
+// client never sends a request the server would reject.
+type VoiceTtsStatus = { available: boolean; voice: string; maxChars: number };
 
 type SpeechRecognitionResultLike = ArrayLike<{ transcript: string }> & { isFinal: boolean };
 
@@ -69,6 +83,14 @@ function makeId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
 }
 
+// The server owns the chunk size it will synthesize; anything implausible falls
+// back to the size the local VieNeu engine answers in about a second.
+function chunkLimitFrom(value: unknown): number {
+  const parsed = Math.round(Number(value));
+  if (!Number.isFinite(parsed) || parsed < 40) return 150;
+  return Math.min(parsed, 400);
+}
+
 function closeSherpaSession(session: SherpaVoiceSession): Promise<void> {
   session.processor.port.onmessage = null;
   session.processor.disconnect();
@@ -82,43 +104,6 @@ function floatSamplesToBuffer(samples: Float32Array): ArrayBuffer {
   const view = new DataView(buffer);
   samples.forEach((sample, index) => view.setFloat32(index * Float32Array.BYTES_PER_ELEMENT, sample, true));
   return buffer;
-}
-
-// Answers are written for reading: markdown, emoji, arrows, and star ratings
-// would be read aloud as symbols or rejected by the speech limit. Reduce them
-// to plain spoken prose and cut at a sentence boundary. VieNeu synthesizes on
-// CPU with no streaming (500 chars ≈ 20 s wait ≈ 30 s audio, growing
-// super-linearly), so the cap keeps the wait tolerable; the full answer stays
-// readable in the chat bubble.
-const maxSpokenCharacters = 500;
-
-function spokenText(answer: string): string {
-  const plain = answer
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`([^`]*)`/g, '$1')
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-    .replace(/^\s{0,3}#{1,6}\s+/gm, '')
-    .replace(/^\s{0,3}>\s?/gm, '')
-    .replace(/^\s*[-*+]\s+/gm, '')
-    .replace(/^\s*\d+[.)]\s+/gm, '')
-    // Markdown table separator rows (|---|---|) carry no spoken content.
-    .replace(/^\s*[\p{Pd}:|\s]+$/gmu, ' ')
-    .replace(/(\*\*\*|\*\*|__|\*|~~)(?=\S)([\s\S]*?\S)\1/g, '$2')
-    .replace(
-      /[\p{Extended_Pictographic}\u{2022}\u{2023}\u{2043}\u{2190}-\u{21FF}\u{2500}-\u{25FF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}\u{00A9}\u{00AE}]/gu,
-      ' '
-    )
-    .replace(/[*_~#>|]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  if (plain.length <= maxSpokenCharacters) return plain;
-  const boundary = Math.max(
-    plain.lastIndexOf('.', maxSpokenCharacters),
-    plain.lastIndexOf('!', maxSpokenCharacters),
-    plain.lastIndexOf('?', maxSpokenCharacters)
-  );
-  return plain.slice(0, boundary > maxSpokenCharacters * 0.6 ? boundary + 1 : maxSpokenCharacters).trim();
 }
 
 function loadStored(key: string): StoredChat {
@@ -176,9 +161,16 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
 
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const sherpaSessionRef = useRef<SherpaVoiceSession | null>(null);
-  const speechRequestRef = useRef<AbortController | null>(null);
+  // Speech callbacks outlive the request that created them; the sequence token
+  // lets a stopped or superseded playback ignore its own late events.
+  const speechSeqRef = useRef(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioUrlRef = useRef<string | null>(null);
+  const ttsAbortRef = useRef<AbortController | null>(null);
+  // Chunk audio is cached by voice+text so "Listen again" is instant, and the
+  // status probe is cached too — a click should not pay for two round trips.
+  const ttsCacheRef = useRef<Map<string, Promise<string>>>(new Map());
+  const ttsStatusRef = useRef<{ task: Promise<VoiceTtsStatus | null>; at: number } | null>(null);
+
   const voiceBaseRef = useRef('');
   const voiceTranscriptRef = useRef('');
   const autoSubmitVoiceRef = useRef(false);
@@ -228,6 +220,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       }
     }
 
+    // Probe TTS availability up front: the answer engine needs ~1-3s to answer,
+    // and a click on "Listen again" should not also pay for this round trip.
+    void readTtsStatus();
     void load();
     return () => {
       mounted = false;
@@ -237,13 +232,19 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   useEffect(
     () => () => {
       autoSubmitVoiceRef.current = false;
+      speechSeqRef.current += 1;
       recognitionRef.current?.stop();
       const session = sherpaSessionRef.current;
       sherpaSessionRef.current = null;
       if (session) void closeSherpaSession(session).catch((caught: unknown) => console.error('Could not close Sherpa audio session', caught));
-      speechRequestRef.current?.abort();
+      ttsAbortRef.current?.abort();
+      ttsAbortRef.current = null;
       audioRef.current?.pause();
-      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
+      audioRef.current = null;
+      for (const task of ttsCacheRef.current.values()) {
+        void task.then((url) => URL.revokeObjectURL(url)).catch(() => {});
+      }
+      ttsCacheRef.current.clear();
       window.speechSynthesis?.cancel();
     },
     []
@@ -290,88 +291,278 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     setTomoCue({ name, id: `${Date.now()}-${Math.random()}` });
   }
 
-  function stopAnswerSpeech() {
-    speechRequestRef.current?.abort();
-    speechRequestRef.current = null;
-    audioRef.current?.pause();
-    audioRef.current = null;
-    if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
-    audioUrlRef.current = null;
-    window.speechSynthesis?.cancel();
+  function stopAnswerSpeech(): boolean {
+    speechSeqRef.current += 1;
     setSpeaking(false);
     setSpeakingMessageId(null);
+    ttsAbortRef.current?.abort();
+    ttsAbortRef.current = null;
+    const audio = audioRef.current;
+    audioRef.current = null;
+    audio?.pause();
+    const synth = window.speechSynthesis;
+    // Cancel only when something is actually queued: cancelling an idle engine
+    // is a known way to leave Chrome's queue unable to start the next utterance.
+    if (!synth || (!synth.speaking && !synth.pending)) return false;
+    synth.cancel();
+    return true;
+  }
+
+  async function readTtsStatus(): Promise<VoiceTtsStatus | null> {
+    const cached = ttsStatusRef.current;
+    // The in-flight promise is shared, so React's double mount in dev and a
+    // click that lands while the warm-up is still running cost one probe.
+    if (cached && Date.now() - cached.at < 60_000) return cached.task;
+    const task = (async (): Promise<VoiceTtsStatus | null> => {
+      try {
+        const response = await fetch('/api/voice/tts/status', { cache: 'no-store' });
+        if (!response.ok) return null;
+        const payload = (await response.json()) as { available?: unknown; voice?: unknown; maxChars?: unknown };
+        return {
+          available: payload.available === true,
+          voice: typeof payload.voice === 'string' ? payload.voice : '',
+          maxChars: chunkLimitFrom(payload.maxChars),
+        };
+      } catch {
+        // The API is unreachable; the browser engine still reads the answer.
+        return null;
+      }
+    })();
+    ttsStatusRef.current = { task, at: Date.now() };
+    return task;
+  }
+
+  function fetchChunkAudio(text: string, voice: string, signal: AbortSignal): Promise<string> {
+    const cache = ttsCacheRef.current;
+    const key = `${voice}\u0000${text}`;
+    const existing = cache.get(key);
+    if (existing) return existing;
+    const task = (async () => {
+      const response = await fetch('/api/voice/tts/speech', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: text, voice }),
+        signal,
+      });
+      if (!response.ok) throw new Error(`Speech request failed with ${response.status}`);
+      return URL.createObjectURL(await response.blob());
+    })().catch((caught: unknown) => {
+      // A failed request must not poison the key: a later replay asks again.
+      if (cache.get(key) === task) cache.delete(key);
+      throw caught;
+    });
+    cache.set(key, task);
+    // Keep the last dozen chunks around so replaying a recent answer is free,
+    // and release older blob URLs instead of leaking them.
+    while (cache.size > 12) {
+      const oldest = cache.entries().next();
+      if (oldest.done) break;
+      cache.delete(oldest.value[0]);
+      void oldest.value[1]
+        .then((url) => URL.revokeObjectURL(url))
+        .catch(() => {});
+    }
+    return task;
+  }
+
+  function playChunkAudio(url: string, seq: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      const settle = () => {
+        if (audioRef.current === audio) audioRef.current = null;
+      };
+      audio.onended = () => {
+        settle();
+        resolve();
+      };
+      audio.onerror = () => {
+        settle();
+        reject(new Error('Audio playback failed'));
+      };
+      // The stop button pauses rather than ends playback, so without this the
+      // chunk loop would wait for an "ended" event that never arrives.
+      audio.onpause = () => {
+        if (seq !== speechSeqRef.current) {
+          settle();
+          reject(new DOMException('Aborted', 'AbortError'));
+        }
+      };
+      audio.play().catch((caught: unknown) => {
+        settle();
+        reject(caught instanceof Error ? caught : new Error('Audio playback failed'));
+      });
+    });
+  }
+
+  // Returns false only when nothing was audible, so the caller can hand the
+  // answer to the browser's speech engine instead.
+  async function playWithServerTts(spoken: string, status: VoiceTtsStatus, seq: number): Promise<boolean> {
+    const controller = new AbortController();
+    ttsAbortRef.current = controller;
+    const chunks = chunkForSpeech(spoken, Math.min(status.maxChars, maxSpeechChunkCharacters));
+    let heard = false;
+    try {
+      for (let index = 0; index < chunks.length; index += 1) {
+        const current = fetchChunkAudio(chunks[index], status.voice, controller.signal);
+        if (index + 1 < chunks.length) {
+          // The engine serves two requests at a time, so prefetch exactly one
+          // chunk ahead: the next sentence is ready when the current one ends.
+          void fetchChunkAudio(chunks[index + 1], status.voice, controller.signal).catch(() => {});
+        }
+        const url = await current;
+        if (seq !== speechSeqRef.current) return true;
+        await playChunkAudio(url, seq);
+        heard = true;
+      }
+      setSpeaking(false);
+      setSpeakingMessageId(null);
+      return true;
+    } catch (caught: unknown) {
+      if (seq !== speechSeqRef.current || controller.signal.aborted) return true;
+      if (!heard) return false;
+      console.error('Server speech playback failed', caught);
+      setSpeechError(
+        caught instanceof DOMException && caught.name === 'NotAllowedError' ? t.voiceSpeechBlocked : t.voiceSpeechError
+      );
+      setSpeaking(false);
+      setSpeakingMessageId(null);
+      return true;
+    } finally {
+      if (ttsAbortRef.current === controller) ttsAbortRef.current = null;
+    }
   }
 
   async function speakAnswer(answer: string, messageId: string) {
-    stopAnswerSpeech();
+    const canceledSynth = stopAnswerSpeech();
     setSpeechError(null);
     const spoken = spokenText(answer);
     // Nothing audible after stripping markdown and symbols (emoji-only or
     // table-only answers); skip synthesis instead of surfacing an error.
     if (!spoken) return;
-    const controller = new AbortController();
-    speechRequestRef.current = controller;
+    const seq = speechSeqRef.current;
     setSpeaking(true);
     setSpeakingMessageId(messageId);
+    const speechLang = speechLanguageFor(spoken, lang);
+
+    // The API engine gives a real Vietnamese voice; the browser engine is only
+    // the fallback for when it is not running.
+    const status = await readTtsStatus();
+    if (seq !== speechSeqRef.current) return;
+    if (status?.available && (await playWithServerTts(spoken, status, seq))) return;
+
+    // Chrome can apply the previous (default) voice when the next utterance
+    // lands in the same task as cancel(); let the queue settle first.
+    if (canceledSynth) {
+      await new Promise((resolve) => window.setTimeout(resolve, 120));
+      if (seq !== speechSeqRef.current) return;
+    }
+    // Unlock the audio session inside the click before any await; iOS Safari
+    // only lets speech start from a user gesture.
+    primeSpeechSynthesis(window.speechSynthesis, speechLang);
+    await speakWithBrowser(spoken, speechLang, seq);
+  }
+
+  async function speakWithBrowser(spoken: string, speechLang: string, seq: number) {
+    const synth = window.speechSynthesis;
+    if (!synth) {
+      setSpeechError(t.voiceSpeechUnsupported);
+      setSpeaking(false);
+      setSpeakingMessageId(null);
+      return;
+    }
     try {
-      const response = await fetch('/api/voice/tts/speech', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: spoken }),
-        signal: controller.signal,
-      });
-      if (controller.signal.aborted) return;
-      if (response.status === 503) {
-        setSpeechError(t.voiceTtsUnavailable);
+      // Re-read the list on every playback: engines rebuild it after a voice is
+      // installed, and stale voice objects are then ignored, which makes the
+      // engine silently fall back to the default (often English) voice.
+      const voices = await loadVoices(synth);
+      if (seq !== speechSeqRef.current) return;
+      const voice = pickVoice(voices, speechLang);
+      if (process.env.NODE_ENV !== 'production') {
+        // Whether the engine honours the voice or silently falls back to its
+        // default depends on which voices the machine really has; list the
+        // candidates so a broken pick can be diagnosed from the console.
+        const candidates = voicesForLanguage(voices, speechLang)
+          .map(
+            (candidate) =>
+              `${candidate.name}[${candidate.voiceURI ?? candidate.lang}${candidate.localService ? '/local' : '/net'}]`
+          )
+          .join('; ');
+        console.info(
+          '[coach-voice]',
+          voice?.name ?? 'none',
+          voice?.lang ?? '-',
+          `of ${voices.length}`,
+          `${speechLang}:`,
+          candidates || 'none'
+        );
+      }
+      if (!voice) {
+        setSpeechError(t.voiceSpeechUnsupported);
         setSpeaking(false);
         setSpeakingMessageId(null);
         return;
       }
-      if (response.status === 429) {
-        setSpeechError(t.voiceBusy);
+      const chunks = chunkForSpeech(spoken);
+      let index = 0;
+      let started = false;
+      // Electron and some embedded browsers expose speechSynthesis but ship no
+      // TTS backend: utterances queue and never fire any event. Without this
+      // watchdog the button would sit on "Stop" forever with silence.
+      let watchdog: number | null = window.setTimeout(() => {
+        watchdog = null;
+        if (seq !== speechSeqRef.current || started) return;
+        synth.cancel();
         setSpeaking(false);
         setSpeakingMessageId(null);
-        return;
-      }
-      if (!response.ok) throw new Error(`VieNeu TTS responded ${response.status}`);
-      const audioUrl = URL.createObjectURL(await response.blob());
-      if (controller.signal.aborted) {
-        URL.revokeObjectURL(audioUrl);
-        return;
-      }
-      const audio = new Audio(audioUrl);
-      audioUrlRef.current = audioUrl;
-      audioRef.current = audio;
-      audio.onended = () => {
-        if (audioRef.current !== audio) return;
-        audioRef.current = null;
-        audioUrlRef.current = null;
-        URL.revokeObjectURL(audioUrl);
-        setSpeaking(false);
-        setSpeakingMessageId(null);
+        setSpeechError(t.voiceSpeechUnsupported);
+      }, 2_500);
+      const clearWatchdog = () => {
+        if (watchdog !== null) {
+          window.clearTimeout(watchdog);
+          watchdog = null;
+        }
       };
-      audio.onerror = () => {
-        if (audioRef.current !== audio) return;
-        audioRef.current = null;
-        audioUrlRef.current = null;
-        URL.revokeObjectURL(audioUrl);
-        setSpeaking(false);
-        setSpeakingMessageId(null);
-        setSpeechError(t.voiceSpeechError);
+      const speakNext = () => {
+        if (seq !== speechSeqRef.current) {
+          clearWatchdog();
+          return;
+        }
+        if (index >= chunks.length) {
+          clearWatchdog();
+          setSpeaking(false);
+          setSpeakingMessageId(null);
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(chunks[index]);
+        index += 1;
+        utterance.lang = voice.lang;
+        utterance.voice = voice;
+        utterance.onstart = () => {
+          started = true;
+          clearWatchdog();
+        };
+        utterance.onend = speakNext;
+        utterance.onerror = (event) => {
+          if (seq !== speechSeqRef.current) return;
+          if (event.error === 'interrupted' || event.error === 'canceled') return;
+          clearWatchdog();
+          setSpeaking(false);
+          setSpeakingMessageId(null);
+          setSpeechError(event.error === 'not-allowed' ? t.voiceSpeechBlocked : t.voiceSpeechError);
+        };
+        synth.speak(utterance);
+        // Chrome can leave the engine paused after a cancel; resume() is a
+        // no-op otherwise.
+        synth.resume();
       };
-      await audio.play();
+      speakNext();
     } catch (caught) {
-      if (controller.signal.aborted) return;
-      console.error('VieNeu speech playback failed', caught);
-      stopAnswerSpeech();
-      // Chromium rejects play() once the click's transient activation has
-      // expired (it does not survive the answer wait + synthesis); the
-      // per-message replay button is a fresh gesture and still works.
-      setSpeechError(
-        caught instanceof DOMException && caught.name === 'NotAllowedError' ? t.voiceSpeechBlocked : t.voiceSpeechError
-      );
-    } finally {
-      if (speechRequestRef.current === controller) speechRequestRef.current = null;
+      if (seq !== speechSeqRef.current) return;
+      console.error('Browser speech playback failed', caught);
+      setSpeaking(false);
+      setSpeakingMessageId(null);
+      setSpeechError(t.voiceSpeechError);
     }
   }
 
@@ -616,6 +807,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   }
 
   function toggleVoiceInput() {
+    // The mic click is a user gesture: unlock speech synthesis now so answers
+    // can be read aloud later on browsers that require an activation.
+    primeSpeechSynthesis(window.speechSynthesis);
     if (lang === 'vi') {
       if (sherpaSessionRef.current) void stopSherpaVoiceInput();
       else if (!voiceStarting && !voiceTranscribing) void startSherpaVoiceInput();
@@ -904,7 +1098,13 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
                 copied={copiedId === message.id}
                 speaking={speakingMessageId === message.id}
                 onCopy={() => void copyAnswer(message)}
-                onSpeak={() => (speakingMessageId === message.id ? stopAnswerSpeech() : void speakAnswer(message.content, message.id))}
+                onSpeak={() => {
+                  if (speakingMessageId === message.id) {
+                    stopAnswerSpeech();
+                    return;
+                  }
+                  void speakAnswer(message.content, message.id);
+                }}
                 onRate={rate}
                 onFollowUp={(question) => void submit(question)}
                 statusLabel={message.response ? statusLabel(message.response) : null}
@@ -1224,26 +1424,24 @@ function AssistantBubble({
 
         {response ? (
           <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3">
-            {message.voiceResponse ? (
-              <button
-                type="button"
-                onClick={onSpeak}
-                aria-label={speaking ? t.voiceStopSpeaking : t.voiceReplay}
-                className="smooth inline-flex items-center gap-1.5 rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
-              >
-                <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 fill-none stroke-current stroke-[1.7]">
-                  {speaking ? (
-                    <path d="M7 5h2v10H7zM11 5h2v10h-2z" fill="currentColor" stroke="none" />
-                  ) : (
-                    <>
-                      <path d="M3 8v4h3l4 3V5L6 8H3Z" strokeLinejoin="round" />
-                      <path d="M13 7.5a4 4 0 0 1 0 5M15 5a7.5 7.5 0 0 1 0 10" strokeLinecap="round" />
-                    </>
-                  )}
-                </svg>
-                {speaking ? t.voiceStopSpeaking : t.voiceReplay}
-              </button>
-            ) : null}
+            <button
+              type="button"
+              onClick={onSpeak}
+              aria-label={speaking ? t.voiceStopSpeaking : t.voiceReplay}
+              className="smooth inline-flex items-center gap-1.5 rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+            >
+              <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 fill-none stroke-current stroke-[1.7]">
+                {speaking ? (
+                  <path d="M7 5h2v10H7zM11 5h2v10h-2z" fill="currentColor" stroke="none" />
+                ) : (
+                  <>
+                    <path d="M3 8v4h3l4 3V5L6 8H3Z" strokeLinejoin="round" />
+                    <path d="M13 7.5a4 4 0 0 1 0 5M15 5a7.5 7.5 0 0 1 0 10" strokeLinecap="round" />
+                  </>
+                )}
+              </svg>
+              {speaking ? t.voiceStopSpeaking : t.voiceReplay}
+            </button>
             <button type="button" onClick={onCopy} className="smooth rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog">
               {copied ? t.copied : t.copy}
             </button>

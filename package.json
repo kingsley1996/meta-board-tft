@@ -22,6 +22,7 @@
     "fetch-comp-tips": "npm run fetch-comp-tips --workspace @metaboard/web",
     "extract-translations": "npm run extract-translations --workspace @metaboard/web",
     "test:server": "npm test --workspace @metaboard/api",
+    "test:web": "node --test 'apps/web/lib/*.test.ts'",
     "typecheck": "npm run typecheck --workspace @metaboard/web && npm run typecheck --workspace @metaboard/api",
     "test:e2e": "playwright test",
     "test:eval": "npm run eval --workspace @metaboard/api",

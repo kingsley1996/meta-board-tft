@@ -61,7 +61,8 @@ requests (default 4). The remaining tunables (`STT_*_MODEL`, `STT_OPENAI_BASE_UR
 are listed in `apps/api/.env.example`. English speech input continues to use the
 browser's speech-recognition service. Finishing a voice question submits it
 automatically; the corresponding Coach AI reply is then read aloud by the
-local VieNeu-TTS service when it is running.
+server-side Vietnamese TTS engine (VieNeu), falling back to the browser's Web
+Speech API when that engine is not running.
 
 With a cloud provider, recordings are forwarded from the API to that provider;
 with `STT_PROVIDER=sherpa` audio stays on the API machine. The downloadable
@@ -90,37 +91,39 @@ original user question is not stored. This background pass uses the configured
 local assistant model and does not delay the response; capture failures are
 logged by the API.
 
-### Coach AI speech output (Gemini TTS with VieNeu fallback)
+### Coach AI speech output (VieNeu TTS + browser fallback)
 
-Speech answers default to Google Gemini TTS (`gemini-3.8-flash-lite-tts`,
-`TTS_GEMINI_VOICE`, default `Charon`) when `GOOGLE_API_KEY` is set: it takes
-concurrent requests (a burst queues up to `TTS_QUEUE_WAIT_MS`, default 5 s,
-before returning `speech_busy`) and synthesizes in ~3 s. Set `TTS_MAX_CONCURRENCY`
-to cap parallel syntheses. On quota errors or outages the API automatically
-falls back to the local VieNeu engine; force one engine with
-`TTS_PROVIDER=gemini|vieneu`. The AI Studio free tier has low per-minute TTS
-quotas — enable billing on the Google project for production traffic.
-Full voice reference: [docs/ai-assistant/voice.md](docs/ai-assistant/voice.md).
+Coach AI answers are read aloud by **VieNeu**, which the API proxies on
+`/api/voice/tts/speech`. Two engines, one code path: a local service (default
+`http://127.0.0.1:8001`, free, audio never leaves your machine, serves two
+concurrent requests) or the hosted `https://api.vieneu.io/api` (set
+`VIENEU_TTS_URL` + `VIENEU_TTS_API_KEY`; billed per character, no server to run,
+300 requests/min per key). The browser requests one chunk at a time and prefetches
+exactly one chunk ahead — beyond two concurrent requests VieNeu answers `429` — so
+the next sentence is already decoded when the current one finishes: a 356-character
+answer starts sounding after ~1.5 s and plays in 6 s with no gap, versus 12.2 s for a
+single request. Chunk audio is cached as blob URLs keyed by voice + text, so
+**Listen again** replays instantly without re-synthesizing.
 
-VieNeu runs as a separate local service; the API proxies speech requests to
-`http://127.0.0.1:8001` by default. Start it from a separate checkout of the
-[VieNeu-TTS repository](https://github.com/pnnbao97/VieNeu-TTS):
+If no engine answers, `GET /api/voice/tts/status` reports
+`available: false` and the client switches to `window.speechSynthesis` with no
+error message. A cloud key that is wrong or revoked is remembered for 60 s instead of
+being retried on every chunk. That fallback strips markdown and emoji, caps the answer at 500
+characters on a sentence boundary, and splits it into ≤180-character chunks; the
+voice follows the language of the answer (Vietnamese diacritics force `vi-VN`
+even on the English UI) and prefers locally installed voices. The browser engine
+is only a fallback: Chrome on this machine lists `Linh/vi-VN` yet still speaks
+Vietnamese text with an English voice, which is what moved TTS server-side. Edge
+Read Aloud was tested and is unusable here (Microsoft rejects the websocket
+handshake with 401/403), and the Gemini key is quota-limited.
 
-```sh
-git clone https://github.com/pnnbao97/VieNeu-TTS.git
-cd VieNeu-TTS
-uv sync
-PORT=8001 uv run python -m apps.openai_speech
-```
-
-The first start downloads and loads the model. VieNeu v3 Turbo runs on CPU via
-ONNX on macOS; it does not require a GPU, but a 500-character answer takes
-roughly 20 s to synthesize and holds the local engine the whole time, so it is
-a fallback rather than a production workhorse. The built-in `Hải Đăng` voice is
-used by default; override `VIENEU_TTS_URL`, `VIENEU_TTS_API_KEY`, or
-`VIENEU_TTS_VOICE` in `apps/api/.env` only when needed, then restart the API.
-VieNeu model and preset voice licensing is declared Apache-2.0 by its authors.
-Generated audio is requested only for voice-triggered assistant replies.
+Every answer — typed or spoken — has a **Listen again** button; replies to voice
+questions start playing automatically. Clicking the mic primes the audio session
+so iOS Safari allows playback later; if a browser blocks autoplay or has no
+matching voice, the assistant shows a message and the full answer stays in the
+chat bubble. Configure the engine with `VIENEU_TTS_*` and `TTS_*` (see
+`apps/api/.env.example`). Full voice reference:
+[docs/ai-assistant/voice.md](docs/ai-assistant/voice.md).
 
 ### Accounts: email + Google sign-in
 
