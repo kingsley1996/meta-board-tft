@@ -7,6 +7,8 @@ function scryptDerive(password: string | Buffer, salt: string | Buffer, keylen: 
   });
 }
 
+export type UserRole = 'user' | 'admin';
+
 export type AuthUser = {
   id: string;
   email: string;
@@ -14,6 +16,7 @@ export type AuthUser = {
   avatarUrl: string | null;
   emailVerified: boolean;
   hasPassword: boolean;
+  role: UserRole;
 };
 
 export type UserRow = {
@@ -24,6 +27,7 @@ export type UserRow = {
   avatar_url: string | null;
   google_id: string | null;
   email_verified_at: Date | null;
+  role: string;
   created_at: Date;
 };
 
@@ -47,8 +51,12 @@ export function ensureAccountTables(): Promise<void> {
         avatar_url text,
         google_id text UNIQUE,
         email_verified_at timestamptz,
+        role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
         created_at timestamptz NOT NULL DEFAULT now()
       )
+    `);
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin'))
     `);
     await pool.query(`
       CREATE TABLE IF NOT EXISTS user_sessions (
@@ -111,7 +119,7 @@ export function hashToken(token: string): string {
 
 // --- Users ---
 
-function toAuthUser(row: UserRow): AuthUser {
+export function toAuthUser(row: UserRow): AuthUser {
   return {
     id: row.id,
     email: row.email,
@@ -119,6 +127,7 @@ function toAuthUser(row: UserRow): AuthUser {
     avatarUrl: row.avatar_url,
     emailVerified: row.email_verified_at !== null,
     hasPassword: row.password_hash !== null,
+    role: row.role === 'admin' ? 'admin' : 'user',
   };
 }
 
@@ -139,10 +148,11 @@ export async function createUser(input: {
   googleId?: string | null;
   avatarUrl?: string | null;
   emailVerified?: boolean;
+  role?: UserRole;
 }): Promise<UserRow> {
   const { rows } = await pool.query<UserRow>(
-    `INSERT INTO users (id, email, password_hash, name, avatar_url, google_id, email_verified_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `INSERT INTO users (id, email, password_hash, name, avatar_url, google_id, email_verified_at, role)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING *`,
     [
       randomUUID(),
@@ -152,6 +162,7 @@ export async function createUser(input: {
       input.avatarUrl ?? null,
       input.googleId ?? null,
       input.emailVerified ? new Date() : null,
+      input.role ?? 'user',
     ],
   );
   return rows[0];
@@ -172,6 +183,80 @@ export async function markEmailVerified(userId: string): Promise<UserRow> {
     [userId],
   );
   return rows[0];
+}
+
+// --- Admin bootstrap & role management ---
+
+export async function countAdmins(): Promise<number> {
+  const { rows } = await pool.query<{ n: string }>("SELECT count(*) AS n FROM users WHERE role = 'admin'");
+  return Number(rows[0]?.n ?? 0);
+}
+
+// Creates or adopts the account named by ADMIN_EMAIL and gives it the seed
+// password, but only while no admin exists. That condition is what keeps a
+// deployment from silently resetting the owner's password on every boot — after
+// the first admin appears, the env vars can be deleted.
+export async function ensureAdminFromEnv(
+  email: string,
+  password: string,
+  name = 'Admin'
+): Promise<{ created: boolean; updated: boolean; role: UserRole } | null> {
+  if (await countAdmins()) return null;
+  const normalized = email.trim().toLowerCase();
+  const existing = await findUserByEmail(normalized);
+  if (existing) {
+    await pool.query("UPDATE users SET role = 'admin', password_hash = $2, email_verified_at = COALESCE(email_verified_at, now()) WHERE id = $1", [
+      existing.id,
+      await hashPassword(password),
+    ]);
+    return { created: false, updated: true, role: 'admin' };
+  }
+  await createUser({ email: normalized, passwordHash: await hashPassword(password), name, emailVerified: true, role: 'admin' });
+  return { created: true, updated: false, role: 'admin' };
+}
+
+export type AdminUserEntry = { id: string; email: string; name: string | null; role: UserRole; createdAt: string };
+
+export async function listAccountUsers(limit = 200): Promise<AdminUserEntry[]> {
+  const { rows } = await pool.query<{ id: string; email: string; name: string | null; role: string; created_at: Date }>(
+    'SELECT id, email, name, role, created_at FROM users ORDER BY created_at DESC LIMIT $1',
+    [limit]
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    email: row.email,
+    name: row.name,
+    role: row.role === 'admin' ? 'admin' : 'user',
+    createdAt: row.created_at.toISOString(),
+  }));
+}
+
+// The actor is required so an admin cannot demote themself and, with only one
+// admin in the database, lock everyone out of /admin.
+export async function setUserRole(
+  userId: string,
+  role: UserRole,
+  actorId: string
+): Promise<{ ok: true; user: AdminUserEntry } | { ok: false; error: string }> {
+  if (!UUID_PATTERN.test(userId)) return { ok: false, error: 'invalid user id' };
+  if (role !== 'user' && role !== 'admin') return { ok: false, error: 'role must be user or admin' };
+  if (role === 'user' && userId === actorId) {
+    return { ok: false, error: 'you cannot demote your own account' };
+  }
+  if (role === 'user' && (await countAdmins()) <= 1) {
+    const { rows } = await pool.query<{ role: string }>('SELECT role FROM users WHERE id = $1', [userId]);
+    if (rows[0]?.role === 'admin') return { ok: false, error: 'the last admin cannot be demoted' };
+  }
+  const { rows } = await pool.query<{ id: string; email: string; name: string | null; role: string; created_at: Date }>(
+    'UPDATE users SET role = $2 WHERE id = $1 RETURNING id, email, name, role, created_at',
+    [userId, role]
+  );
+  const row = rows[0];
+  if (!row) return { ok: false, error: 'no such user' };
+  return {
+    ok: true,
+    user: { id: row.id, email: row.email, name: row.name, role: row.role === 'admin' ? 'admin' : 'user', createdAt: row.created_at.toISOString() },
+  };
 }
 
 // --- Sessions ---

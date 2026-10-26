@@ -9,11 +9,12 @@ const items = [
   { href: '/admin/comps', label: 'Comps' },
   { href: '/admin/guides', label: 'Guides' },
   { href: '/admin/aliases', label: 'Aliases' },
+  { href: '/admin/users', label: 'Users' },
   { href: '/admin/assistant-reasoning', label: 'Assistant reasoning' },
   { href: '/admin/subscribers', label: 'Subscribers' },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ signedInAs }: { signedInAs?: string }) {
   const pathname = usePathname();
 
   return (
@@ -40,7 +41,8 @@ export function AdminSidebar() {
           );
         })}
       </nav>
-      <div className="flex flex-col items-start gap-3 border-t border-line p-4">
+      <div className="flex flex-col items-start gap-2 border-t border-line p-4">
+        {signedInAs ? <p className="w-full truncate text-[11px] text-mist" title={signedInAs}>Signed in as {signedInAs}</p> : null}
         <Link href="/" className="text-xs font-semibold text-mist hover:text-fog">
           View site ↗
         </Link>

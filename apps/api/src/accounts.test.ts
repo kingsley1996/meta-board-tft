@@ -91,6 +91,67 @@ test(
 );
 
 test(
+  'role changes are validated and cannot demote the acting admin',
+  { skip: !hasDb },
+  async () => {
+    const { pool } = await import('./db.ts');
+    const { createUser, ensureAccountTables, setUserRole } = await import('./accounts.ts');
+    await ensureAccountTables();
+    const owner = await createUser({ email: `test-${randomUUID()}@example.com`, emailVerified: true, role: 'admin' });
+    const editor = await createUser({ email: `test-${randomUUID()}@example.com`, emailVerified: true, role: 'admin' });
+    const plain = await createUser({ email: `test-${randomUUID()}@example.com`, emailVerified: true });
+    try {
+      assert.equal(plain.role, 'user', 'role defaults to user');
+      assert.equal((await setUserRole(plain.id, 'admin', owner.id)).ok, true);
+
+      const selfDemotion = await setUserRole(owner.id, 'user', owner.id);
+      assert.equal(selfDemotion.ok, false);
+      assert.match(selfDemotion.ok ? '' : selfDemotion.error, /own account/);
+
+      const badRole = await setUserRole(owner.id, 'root' as never, editor.id);
+      assert.equal(badRole.ok, false);
+      assert.match(badRole.ok ? '' : badRole.error, /must be user or admin/);
+
+      assert.deepEqual(await setUserRole('not-a-uuid', 'user', editor.id), { ok: false, error: 'invalid user id' });
+
+      // Two admins are in the table by now, so demoting the other one is allowed.
+      assert.equal((await setUserRole(editor.id, 'user', owner.id)).ok, true);
+    } finally {
+      await pool.query('DELETE FROM users WHERE id = ANY($1::uuid[])', [[owner.id, editor.id, plain.id]]);
+    }
+  }
+);
+
+test(
+  'ensureAdminFromEnv never resets an admin that already exists',
+  { skip: !hasDb },
+  async () => {
+    const { pool } = await import('./db.ts');
+    const { countAdmins, ensureAccountTables, ensureAdminFromEnv, findUserByEmail } = await import('./accounts.ts');
+    await ensureAccountTables();
+    const email = `test-${randomUUID()}@example.com`;
+    const adminsBefore = await countAdmins();
+    try {
+      const outcome = await ensureAdminFromEnv(email, 'bootstrap-password');
+      if (adminsBefore > 0) {
+        // The guard that matters in production: a deployed host still holding
+        // the seed env cannot re-create or re-password the owner on every boot.
+        assert.equal(outcome, null);
+        assert.equal(await findUserByEmail(email), null);
+        return;
+      }
+      assert.deepEqual(outcome, { created: true, updated: false, role: 'admin' });
+      const created = await findUserByEmail(email);
+      assert.equal(created?.role, 'admin');
+      assert.ok(created?.email_verified_at, 'the bootstrap admin signs in without an email link');
+      assert.equal(await ensureAdminFromEnv(email, 'other-password'), null);
+    } finally {
+      await pool.query('DELETE FROM users WHERE email = $1', [email]);
+    }
+  }
+);
+
+test(
   'signed-in users adopt client conversations and see them from any client',
   { skip: !hasDb },
   async () => {

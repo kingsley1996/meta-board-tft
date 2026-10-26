@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { cookies } from 'next/headers';
 import { AdminPageHeader, btnGhost, inputCls } from '@/components/admin/ui';
+import { adminCookieHeader } from '@/lib/admin-session';
 import { backendJson } from '@/lib/backend';
 
 export const dynamic = 'force-dynamic';
@@ -164,14 +164,14 @@ export default async function AdminAssistantReasoningPage({ searchParams }: { se
   const parsedOffset = Number(rawOffset);
   const offset = Number.isSafeInteger(parsedOffset) && parsedOffset >= 0 ? parsedOffset : 0;
   const invalidFilter = (requestId && !UUID_PATTERN.test(requestId)) || (conversationId && !UUID_PATTERN.test(conversationId));
-  const token = (await cookies()).get('mb_admin')?.value ?? '';
+  const cookie = await adminCookieHeader();
   const query = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(offset) });
   if (requestId && !invalidFilter) query.set('requestId', requestId);
   if (conversationId && !invalidFilter) query.set('conversationId', conversationId);
   const data = invalidFilter
     ? null
     : await backendJson<ReasoningResponse>(`/api/admin/assistant-reasoning?${query.toString()}`, {
-        headers: { cookie: `mb_admin=${token}` },
+        headers: { cookie },
       });
   if (!invalidFilter && !data) throw new Error('backend is unreachable');
 

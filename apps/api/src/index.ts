@@ -1,7 +1,6 @@
 import express from 'express';
 import { timingSafeEqual } from 'node:crypto';
 import { pool, getMeta } from './db.ts';
-import { ADMIN_COOKIE, adminToken, cookieValue, tokensMatch } from './auth.ts';
 import { syncTft } from './tft.ts';
 import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
 import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
@@ -9,6 +8,7 @@ import { assistantRouter } from './assistant/index.ts';
 import { translateText } from './assistant/translate.ts';
 import { voiceRouter } from './voice.ts';
 import { authRouter, currentSessionUser, type AuthedRequest } from './auth-routes.ts';
+import { ensureAdminFromEnv, listAccountUsers, setUserRole } from './accounts.ts';
 import { ENTITY_TYPES } from './assistant/contracts.ts';
 import { loadCatalog } from './assistant/tools.ts';
 import {
@@ -148,29 +148,18 @@ app.post('/api/tft/refresh', async (req, res) => {
   });
 });
 
-app.post('/api/admin/login', (req, res) => {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return res.status(503).json({ error: 'ADMIN_PASSWORD is not configured' });
-  const provided = typeof req.body?.password === 'string' ? req.body.password : '';
-  if (!tokensMatch(adminToken(provided), adminToken(expected))) {
-    return res.status(401).json({ error: 'wrong password' });
-  }
-  res.setHeader('Set-Cookie', `${ADMIN_COOKIE}=${adminToken(expected)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=43200`);
-  res.json({ ok: true });
-});
+// Admin is an account role, not a second password: /api/admin/* rides on the
+// same mb_session cookie the public site uses, so signing in at /login with an
+// admin account is the only way in.
+async function adminGuard(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const user = await currentSessionUser(req);
+  if (!user) return res.status(401).json({ error: 'unauthorized', code: 'unauthenticated' });
+  if (user.role !== 'admin') return res.status(403).json({ error: 'admin account required', code: 'admin_only' });
+  (req as AuthedRequest).authUser = user;
+  return next();
+}
 
-app.delete('/api/admin/login', (_req, res) => {
-  res.setHeader('Set-Cookie', `${ADMIN_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`);
-  res.json({ ok: true });
-});
-
-app.use('/api/admin', (req, res, next) => {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return res.status(503).json({ error: 'ADMIN_PASSWORD is not configured' });
-  const provided = cookieValue(req.headers.cookie, ADMIN_COOKIE);
-  if (tokensMatch(provided, adminToken(expected))) return next();
-  res.status(401).json({ error: 'unauthorized' });
-});
+app.use('/api/admin', adminGuard);
 
 app.post('/api/admin/comps', async (req, res) => {
   const result = await validateCompPayload(req.body);
@@ -235,6 +224,21 @@ app.delete('/api/admin/subscribers/:email', async (req, res) => {
   const { rowCount } = await pool.query('DELETE FROM subscribers WHERE email = $1', [req.params.email]);
   if (!rowCount) return res.status(404).json({ error: 'no such subscriber' });
   res.status(204).end();
+});
+
+app.get('/api/admin/users', async (_req, res) => {
+  res.json({ users: await listAccountUsers() });
+});
+
+// Only the role changes here; passwords stay with the normal sign-up flow.
+app.patch('/api/admin/users/:id/role', async (req, res) => {
+  const role = req.body?.role;
+  if (role !== 'user' && role !== 'admin') return res.status(400).json({ error: 'role must be user or admin' });
+  const actor = (req as AuthedRequest).authUser;
+  if (!actor) return res.status(401).json({ error: 'unauthorized', code: 'unauthenticated' });
+  const result = await setUserRole(req.params.id, role, actor.id);
+  if (!result.ok) return res.status(result.error === 'no such user' ? 404 : 409).json({ error: result.error });
+  res.json({ ok: true, user: result.user });
 });
 
 app.get('/api/admin/assistant-reasoning', async (req, res) => {
@@ -343,8 +347,27 @@ app.use((error: Error, _req: express.Request, res: express.Response, _next: expr
   res.status(500).json({ error: 'internal error' });
 });
 
+// The same two variables drive the seed script and the boot-time bootstrap, so
+// the owner account exists whether the operator seeded the database or just let
+// a fresh one boot. Once an admin row exists this returns without touching it,
+// which is why the vars can be deleted from the host right after first sign-in.
+async function bootstrapAdmin(): Promise<void> {
+  const email = process.env.ADMIN_EMAIL?.trim();
+  const password = process.env.ADMIN_SEED_PASSWORD;
+  if (!email || !password) return;
+  try {
+    const outcome = await ensureAdminFromEnv(email, password);
+    if (outcome) console.log(`admin account ${outcome.created ? 'created' : 'adopted'}: ${email.toLowerCase()}`);
+  } catch (error) {
+    console.error('admin bootstrap failed', error instanceof Error ? error.message : error);
+  }
+}
+
 const port = Number(process.env.PORT ?? 4000);
-app.listen(port, () => console.log(`metaboard server on http://localhost:${port}`));
+const server = app.listen(port, () => {
+  console.log(`metaboard server on http://localhost:${port}`);
+  void bootstrapAdmin();
+});
 
 const configuredRetentionDays = Number(process.env.ASSISTANT_REASONING_RETENTION_DAYS ?? '30');
 scheduleReasoningLogCleanup(Number.isSafeInteger(configuredRetentionDays) && configuredRetentionDays >= 1 ? configuredRetentionDays : 30);

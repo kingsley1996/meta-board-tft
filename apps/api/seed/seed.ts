@@ -8,6 +8,7 @@ import { sharedDataPath } from '../src/shared-data.ts';
 import { syncTft } from '../src/tft.ts';
 import { validateCompPayload, writeComp } from '../src/comps.ts';
 import { validateGuidePayload, writeGuide } from '../src/guides.ts';
+import { ensureAdminFromEnv } from '../src/accounts.ts';
 import { guideSeeds } from './guides.ts';
 import { tipsSeeds } from './tips.ts';
 import { buildTftflowComps } from './tftflow-comps.ts';
@@ -111,5 +112,21 @@ for (const raw of [...guideSeeds, ...tipsSeeds]) {
   seededGuides += 1;
 }
 console.log(`seeded ${seededGuides}/${guideSeeds.length + tipsSeeds.length} guides from seed/guides.ts + seed/tips.ts (existing guides replaced)`);
+
+// Owner account for /admin, from the same two variables the API reads at boot —
+// seeding a database and booting an empty one have to arrive at the same result.
+// Skipped when an admin already exists, so a re-run never resets that password.
+const adminEmail = process.env.ADMIN_EMAIL?.trim();
+const adminSeedPassword = process.env.ADMIN_SEED_PASSWORD;
+if (adminEmail && adminSeedPassword) {
+  const outcome = await ensureAdminFromEnv(adminEmail, adminSeedPassword);
+  console.log(
+    outcome
+      ? `admin account ${outcome.created ? 'created' : 'adopted'}: ${adminEmail.toLowerCase()}`
+      : `an admin already exists; ${adminEmail.toLowerCase()} left unchanged`
+  );
+} else {
+  console.warn('ADMIN_EMAIL/ADMIN_SEED_PASSWORD not set — no admin account, so /admin has nobody to sign in with');
+}
 
 await pool.end();

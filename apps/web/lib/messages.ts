@@ -80,6 +80,7 @@ const en = {
     genericError: 'Something went wrong. Please try again.',
     logout: 'Sign out',
     account: 'Account',
+    admin: 'Admin',
   },
   breadcrumb: {
     home: 'Home',
@@ -613,6 +614,7 @@ const vi: typeof en = {
     genericError: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
     logout: 'Đăng xuất',
     account: 'Tài khoản',
+    admin: 'Quản trị',
   },
   breadcrumb: {
     home: 'Trang chủ',

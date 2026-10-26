@@ -1,13 +1,13 @@
-import { cookies } from 'next/headers';
+import { adminCookieHeader } from '@/lib/admin-session';
 import { backendJson } from '@/lib/backend';
 import { AliasManager, type AliasEntry, type AliasEntity, type UnresolvedAlias } from '@/components/admin/alias-manager';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminAliasesPage() {
-  const token = (await cookies()).get('mb_admin')?.value ?? '';
+  const cookie = await adminCookieHeader();
   const data = await backendJson<{ aliases: AliasEntry[]; unresolved: UnresolvedAlias[]; entities: AliasEntity[] }>('/api/admin/aliases', {
-    headers: { cookie: `mb_admin=${token}` },
+    headers: { cookie },
   });
   if (!data) throw new Error('backend is unreachable');
 

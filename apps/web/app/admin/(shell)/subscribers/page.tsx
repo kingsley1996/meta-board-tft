@@ -1,6 +1,6 @@
-import { cookies } from 'next/headers';
 import { SubscriberDeleteButton } from '@/components/admin/admin-buttons';
 import { AdminPageHeader, AdminTable } from '@/components/admin/ui';
+import { adminCookieHeader } from '@/lib/admin-session';
 import { backendJson } from '@/lib/backend';
 
 export const dynamic = 'force-dynamic';
@@ -8,9 +8,9 @@ export const dynamic = 'force-dynamic';
 type Subscriber = { email: string; lang: string; created_at: string };
 
 export default async function AdminSubscribersPage() {
-  // Server-side fetch bypasses the browser, so forward the admin cookie by hand.
-  const token = (await cookies()).get('mb_admin')?.value ?? '';
-  const data = await backendJson<{ subscribers: Subscriber[] }>('/api/admin/subscribers', { headers: { cookie: `mb_admin=${token}` } });
+  // Server-side fetch bypasses the browser, so forward the session cookie by hand.
+  const cookie = await adminCookieHeader();
+  const data = await backendJson<{ subscribers: Subscriber[] }>('/api/admin/subscribers', { headers: { cookie } });
   if (!data) throw new Error('backend is unreachable');
   const subscribers = data.subscribers;
 

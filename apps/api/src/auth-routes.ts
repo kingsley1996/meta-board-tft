@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { Router, type Request, type Response } from 'express';
-import { cookieValue } from './auth.ts';
+import { cookieValue, secureCookieSuffix } from './auth.ts';
 import {
   consumeEmailToken,
   createEmailToken,
@@ -14,6 +14,7 @@ import {
   linkGoogleAccount,
   markEmailVerified,
   sessionUser,
+  toAuthUser,
   verifyPassword,
   type AuthUser,
 } from './accounts.ts';
@@ -27,23 +28,20 @@ const OAUTH_STATE_MAX_AGE = 600;
 
 // Public web origin the auth emails and OAuth redirects point back to.
 const webOrigin = (process.env.AUTH_WEB_ORIGIN?.trim() || 'http://localhost:4173').replace(/\/+$/, '');
-const secureCookies = process.env.AUTH_SECURE_COOKIES === 'true';
+const secureFlag = secureCookieSuffix();
 
 export type AuthedRequest = Request & { authUser?: AuthUser | null };
 
 function setSessionCookie(res: Response, token: string, maxAge = SESSION_MAX_AGE): void {
-  const secure = secureCookies ? '; Secure' : '';
-  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}${secure}`);
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}${secureFlag}`);
 }
 
 function clearSessionCookie(res: Response): void {
-  const secure = secureCookies ? '; Secure' : '';
-  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure}`);
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secureFlag}`);
 }
 
 function setOAuthStateCookie(res: Response, state: string): void {
-  const secure = secureCookies ? '; Secure' : '';
-  res.setHeader('Set-Cookie', `${OAUTH_STATE_COOKIE}=${state}; HttpOnly; SameSite=Lax; Path=/api/auth; Max-Age=${OAUTH_STATE_MAX_AGE}${secure}`);
+  res.setHeader('Set-Cookie', `${OAUTH_STATE_COOKIE}=${state}; HttpOnly; SameSite=Lax; Path=/api/auth; Max-Age=${OAUTH_STATE_MAX_AGE}${secureFlag}`);
 }
 
 function readLang(value: unknown): 'vi' | 'en' {
@@ -142,10 +140,7 @@ authRouter.post('/register', async (req, res) => {
   // Verification disabled: sign the fresh account in right away.
   const session = await createSession(user.id);
   setSessionCookie(res, session);
-  return res.status(201).json({
-    ok: true,
-    user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatar_url, emailVerified: true },
-  });
+  return res.status(201).json({ ok: true, user: toAuthUser(user) });
 });
 
 authRouter.post('/resend-verification', async (req, res) => {
@@ -168,7 +163,7 @@ authRouter.post('/verify', async (req, res) => {
   const user = await markEmailVerified(userId);
   const session = await createSession(user.id);
   setSessionCookie(res, session);
-  res.json({ user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatar_url, emailVerified: true } });
+  res.json({ user: toAuthUser(user) });
 });
 
 authRouter.post('/login', async (req, res) => {
@@ -184,7 +179,7 @@ authRouter.post('/login', async (req, res) => {
   }
   const session = await createSession(user.id);
   setSessionCookie(res, session);
-  res.json({ user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatar_url, emailVerified: true } });
+  res.json({ user: toAuthUser(user) });
 });
 
 authRouter.post('/logout', async (req, res) => {

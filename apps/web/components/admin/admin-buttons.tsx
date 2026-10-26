@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { logout } from '@/lib/api';
 
 function DeleteButton({ kind, slug, title }: { kind: 'comps' | 'guides'; slug: string; title: string }) {
   const router = useRouter();
@@ -67,8 +68,9 @@ export function AdminLogout() {
     <button
       type="button"
       onClick={async () => {
-        await fetch('/api/admin/login', { method: 'DELETE' });
-        router.push('/admin/login');
+        // Same session the public site uses: logging out ends the admin visit too.
+        await logout();
+        router.push('/en/login');
         router.refresh();
       }}
       className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"

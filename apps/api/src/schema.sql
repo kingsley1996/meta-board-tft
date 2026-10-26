@@ -234,8 +234,12 @@ CREATE TABLE IF NOT EXISTS users (
   avatar_url text,
   google_id text UNIQUE,                -- Google "sub" claim
   email_verified_at timestamptz,
+  role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
   created_at timestamptz NOT NULL DEFAULT now()
 );
+-- Databases created before the admin flow moved onto accounts. The clause is a
+-- no-op once the column exists, so the CHECK from CREATE TABLE is not doubled.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin'));
 CREATE TABLE IF NOT EXISTS user_sessions (
   token_hash text PRIMARY KEY,          -- sha256 of the opaque cookie token
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,

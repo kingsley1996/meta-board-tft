@@ -324,12 +324,19 @@ export async function deleteAssistantConversation(conversationId: string): Promi
 
 // --- Auth (email + password, Google OAuth) ---
 
+// The session cookie the API sets on sign-in; server code has to forward it by
+// hand, so the name lives here rather than being retyped per call site.
+export const SESSION_COOKIE = 'mb_session';
+
+export type UserRole = 'user' | 'admin';
+
 export type AuthUser = {
   id: string;
   email: string;
   name: string | null;
   avatarUrl: string | null;
   emailVerified: boolean;
+  role: UserRole;
 };
 
 export async function getMe(): Promise<AuthUser | null> {
@@ -393,4 +400,28 @@ export async function resendVerification(email: string, lang: Lang): Promise<boo
 export async function logout(): Promise<void> {
   const res = await fetch('/api/auth/logout', { method: 'POST' });
   if (!res.ok) throw new AssistantApiError(res.status, 'logout_failed');
+}
+
+// --- Admin: account roles ---
+
+export type AdminUserEntry = { id: string; email: string; name: string | null; role: UserRole; createdAt: string };
+
+export async function listAdminUsers(): Promise<AdminUserEntry[]> {
+  const res = await fetch('/api/admin/users', { cache: 'no-store' });
+  if (!res.ok) throw new AssistantApiError(res.status, 'users_load_failed');
+  const data = (await res.json()) as { users: AdminUserEntry[] };
+  return data.users;
+}
+
+export async function setUserRole(id: string, role: UserRole): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await fetch(`/api/admin/users/${id}/role`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role }),
+  });
+  if (res.ok) return { ok: true };
+  // The API answers 404 for unknown ids and 409 for a blocked demotion; the
+  // message is what the operator needs to see, so it travels instead of a code.
+  const data = (await res.json().catch(() => ({}))) as { error?: string };
+  return { ok: false, error: data.error ?? 'role change failed' };
 }
