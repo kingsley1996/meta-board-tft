@@ -220,7 +220,13 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                       <Link
                         key={item.href}
                         href={item.href}
-                        onClick={() => setDismissedDropdown(dropdown.label)}
+                        onClick={(event) => {
+                          setDismissedDropdown(dropdown.label);
+                          // Safari/Firefox focus a clicked link. If that focus
+                          // stays inside the group, clearing the dismissal on
+                          // mouseleave lets group-focus-within reopen the menu.
+                          event.currentTarget.blur();
+                        }}
                         aria-current={isCurrent(item.href) ? 'page' : undefined}
                         className={`smooth px-4 py-2 text-sm hover:bg-util hover:text-brand-soft ${
                           isActive(item.href) ? 'bg-util text-brand-soft' : 'text-mist'
