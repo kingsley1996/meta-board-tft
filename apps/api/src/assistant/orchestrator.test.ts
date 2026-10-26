@@ -10,6 +10,7 @@ import {
   isReferenceDataQuestion,
   resolveFollowUpText,
   tomoPersonaReply,
+  traceSystem,
   ungroundedNumbers,
 } from './orchestrator.ts';
 import type { Evidence } from './prompt.ts';
@@ -126,4 +127,14 @@ test('mechanic answers cannot add numbers missing from evidence', () => {
   } satisfies Evidence;
   assert.deepEqual(ungroundedNumbers('Coven gains 22 Essence at 3 units.', evidence), ['22', '3']);
   assert.deepEqual(ungroundedNumbers('Set 18 uses patch 18.4.', evidence), []);
+});
+
+test('fingerprints the near-constant system prompt instead of storing it', () => {
+  const prompt = 'You are Tomo, the MetaBoard TFT coach. '.repeat(40);
+  const trace = traceSystem(prompt);
+  assert.equal(trace.chars, prompt.length);
+  assert.equal(trace.sha256, traceSystem(prompt).sha256);
+  assert.notEqual(trace.sha256, traceSystem(`${prompt}.`).sha256);
+  assert.ok(trace.preview.length < prompt.length);
+  assert.match(trace.preview, /\[truncated \d+ chars\]$/);
 });

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { listComps } from '../comps.ts';
 import {
   entityId,
@@ -117,14 +118,25 @@ function createAnswerFieldStreamer(onDelta: (chunk: string) => void): (chunk: st
   };
 }
 
-// Prompts and responses are kept verbatim in the trace so an admin can replay
-// exactly what the provider saw; caps keep one request from bloating the table.
-const traceSystemLimit = 20_000;
+// Messages and responses are kept verbatim in the trace so an admin can replay
+// what the provider saw; caps keep one request from bloating the table.
 const traceMessageLimit = 8_000;
 const traceResponseLimit = 20_000;
+const traceSystemPreviewLimit = 400;
 
 function traceText(value: string, max: number): string {
   return value.length <= max ? value : `${value.slice(0, max)}…[truncated ${value.length - max} chars]`;
+}
+
+// The system prompt is near-constant (it only varies with language and evidence
+// sections), so a fingerprint is enough to group requests; the per-request
+// evidence lives in `messages`. Full text can be rebuilt from the code.
+export function traceSystem(system: string): { sha256: string; chars: number; preview: string } {
+  return {
+    sha256: createHash('sha256').update(system).digest('hex').slice(0, 16),
+    chars: system.length,
+    preview: traceText(system, traceSystemPreviewLimit),
+  };
 }
 
 function traceMessages(messages: ProviderChatMessage[]): unknown[] {
@@ -962,7 +974,7 @@ export async function answerAssistant(
         maxOutputTokens: providerRequest.maxOutputTokens,
         format: providerRequest.format ?? 'default',
         tools: providerRequest.tools?.map((tool) => tool.function.name) ?? [],
-        system: traceText(providerRequest.system, traceSystemLimit),
+        system: traceSystem(providerRequest.system),
         messages: traceMessages(providerRequest.messages),
       },
     });
