@@ -18,6 +18,7 @@ import {
   ttsProbeTimeoutMs,
   ttsPrimaryProvider,
   vieneuAvailable,
+  vieneuConfigured,
   encodeWavPcm16,
   wavFromPcm16,
 } from './voice.ts';
@@ -340,13 +341,26 @@ describe('Deepgram TTS and the VieNeu fallback', () => {
     const result = await synthSpeechChunk(
       'Xin chào',
       new AbortController().signal,
-      envWith({ DEEPGRAM_API_KEY: 'dg_key' }),
+      envWith({ DEEPGRAM_API_KEY: 'dg_key', VIENEU_TTS_URL: 'https://cloud.test/api' }),
       impl
     );
 
     assert.equal(result.provider, 'vieneu');
     assert.equal(calls.length, 2);
     assert.ok(calls[1]!.url.endsWith('/v1/audio/speech'));
+  });
+
+  it('does not use a local VieNeu engine unless a URL is configured', async () => {
+    assert.equal(vieneuConfigured(envWith({})), false);
+    const { calls, impl } = fakeFetch((call) =>
+      call.url.includes('api.deepgram.com') ? new Response('', { status: 500 }) : okAudio()
+    );
+    const error = await rejection(
+      synthSpeechChunk('Xin chào', new AbortController().signal, envWith({ DEEPGRAM_API_KEY: 'dg_key' }), impl)
+    );
+
+    assert.match(error.message, /HTTP 500/);
+    assert.equal(calls.length, 1, 'only Deepgram is attempted');
   });
 
   it('follows TTS_PROVIDER and keeps the other engine as fallback', async () => {
@@ -357,7 +371,7 @@ describe('Deepgram TTS and the VieNeu fallback', () => {
     const result = await synthSpeechChunk(
       'Xin chào',
       new AbortController().signal,
-      envWith({ TTS_PROVIDER: 'vieneu', DEEPGRAM_API_KEY: 'dg_key' }),
+      envWith({ TTS_PROVIDER: 'vieneu', DEEPGRAM_API_KEY: 'dg_key', VIENEU_TTS_URL: 'https://cloud.test/api' }),
       impl
     );
 
@@ -373,7 +387,7 @@ describe('Deepgram TTS and the VieNeu fallback', () => {
     const result = await synthSpeechChunk(
       'Xin chào',
       new AbortController().signal,
-      envWith({ TTS_PROVIDER: 'vieneu', DEEPGRAM_API_KEY: 'dg_key' }),
+      envWith({ TTS_PROVIDER: 'vieneu', DEEPGRAM_API_KEY: 'dg_key', VIENEU_TTS_URL: 'https://cloud.test/api' }),
       impl
     );
 
@@ -387,7 +401,13 @@ describe('Deepgram TTS and the VieNeu fallback', () => {
       call.url.includes('api.deepgram.com') ? new Response('', { status: 500 }) : new Response('', { status: 503 })
     );
     await assert.rejects(
-      () => synthSpeechChunk('Xin chào', new AbortController().signal, envWith({ DEEPGRAM_API_KEY: 'dg_key' }), impl),
+      () =>
+        synthSpeechChunk(
+          'Xin chào',
+          new AbortController().signal,
+          envWith({ DEEPGRAM_API_KEY: 'dg_key', VIENEU_TTS_URL: 'https://cloud.test/api' }),
+          impl
+        ),
       /HTTP 503/
     );
   });
@@ -401,7 +421,7 @@ describe('Deepgram TTS and the VieNeu fallback', () => {
           })
         : okAudio()
     );
-    const env = envWith({ DEEPGRAM_API_KEY: 'dg_key' });
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg_key', VIENEU_TTS_URL: 'https://cloud.test/api' });
     const first = await synthSpeechChunk('Xin chào', new AbortController().signal, env, impl);
     const second = await synthSpeechChunk('Tạm biệt', new AbortController().signal, env, impl);
 

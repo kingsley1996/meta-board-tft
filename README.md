@@ -103,7 +103,7 @@ logged by the API.
 `TTS_PROVIDER` picks the engine that speaks first: `deepgram` (default) or
 `vieneu`. The other engine remains the per-chunk fallback, so switching does not
 need a code change. On this dev machine the Flux batch endpoint measured ~4 s for
-a 60-character chunk and ~5–6 s for 130–150 characters, while warm VieNeu local
+a 60-character chunk and ~5–6 s for 130–150 characters, while warm VieNeu
 measured ~2–4 s per chunk — set `TTS_PROVIDER=vieneu` when latency matters more
 than the Flux voice.
 
@@ -115,12 +115,12 @@ speech-to-text. Flux Vietnamese is Early Access without text normalization, so
 numbers and dates are read as written.
 
 When the primary engine has no key, answers `429`, rejects its key, or fails a
-chunk, the API retries that same chunk on the other engine. VieNeu is a local
-service (default `http://127.0.0.1:8001`, free, audio never leaves your machine,
-serves two concurrent requests) or the hosted `https://api.vieneu.io/api` (set
-`VIENEU_TTS_URL` + `VIENEU_TTS_API_KEY`; billed per character). The successful
-engine is named in the `X-TTS-Provider` response header, and a rejected key is
-remembered for 60 s instead of being retried on every chunk.
+chunk, the API retries that same chunk on the other engine. VieNeu is the hosted
+`https://api.vieneu.io/api` (set `VIENEU_TTS_URL` + `VIENEU_TTS_API_KEY`; billed
+per character). The local VieNeu engine is no longer part of the runtime: without
+`VIENEU_TTS_URL` the engine is skipped. The successful engine is named in the
+`X-TTS-Provider` response header, and a rejected key is remembered for 60 s
+instead of being retried on every chunk.
 
 The browser requests one chunk at a time and prefetches exactly one chunk ahead,
 so the next sentence is already decoded when the current one finishes. Chunk

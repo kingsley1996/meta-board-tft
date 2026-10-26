@@ -53,12 +53,16 @@ services:
         sync: false
       - key: GROQ_API_KEY
         sync: false
+      - key: TTS_PROVIDER        # deepgram | vieneu — đổi engine chính, không cần sửa code
+        value: vieneu
       - key: VIENEU_TTS_URL
         value: https://api.vieneu.io/api
       - key: VIENEU_TTS_API_KEY
         sync: false
       - key: VIENEU_TTS_VOICE
         sync: false
+      - key: VIENEU_TTS_PROBE_TIMEOUT_MS
+        value: "6000"            # probe /v1/voices qua WAN
 
   # Patch TFT ra khoảng hai tuần một lần, nhưng cron mỗi ngày cho khỏi phải nhớ:
   # /api/tft/refresh chỉ đụng dữ liệu game, không xoá comps/guides, và từ chối
@@ -70,7 +74,7 @@ services:
     region: singapore
     rootDir: .
     schedule: "0 12 * * *"           # 12:00 UTC = 19:00 giờ Việt Nam
-    command: 'curl -sS -o /dev/null -w "tft-refresh:%{http_code}\n" -X POST -H "Authorization: Bearer $REFRESH_TOKEN" "$API_ORIGIN/api/tft/refresh"'
+    startCommand: 'curl -sS -o /dev/null -w "tft-refresh:%{http_code}\n" -X POST -H "Authorization: Bearer $REFRESH_TOKEN" "$API_ORIGIN/api/tft/refresh"'
     envVars:
       - key: API_ORIGIN              # https://<api service>.onrender.com
         sync: false

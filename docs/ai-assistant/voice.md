@@ -123,10 +123,10 @@ tự động đọc ngay.
 Deepgram Aura/Aura-2 chỉ có tiếng Anh; tiếng Việt nằm trên **Flux TTS** — batch
 `POST /v2/speak` với `model=flux-minh-vi` (nam, mặc định) hoặc `flux-hoa-vi` (nữ). Flux
 tiếng Việt đang Early Access và chưa chuẩn hoá số/ngày, nên số được đọc như chữ.
-VieNeu nói cùng contract OpenAI-compatible, bản local không gửi text ra ngoài.
+VieNeu nói cùng contract OpenAI-compatible nhưng chỉ còn bản cloud.
 Đo trên máy dev: Deepgram Flux batch ~4 s cho 60 ký tự và ~5–6 s cho 130–150 ký tự;
-VieNeu local warm ~2–4 s/chunk. Vì vậy khi cần phản hồi nhanh, đặt
-`TTS_PROVIDER=vieneu` — không cần sửa code.
+VieNeu (bản local, trước khi bị loại khỏi runtime) warm ~2–4 s/chunk. Vì vậy khi
+cần phản hồi nhanh, đặt `TTS_PROVIDER=vieneu` — không cần sửa code.
 
 Lý do bỏ hẳn Web Speech: trên chính máy dev, `getVoices()` liệt kê
 `Linh/vi-VN` nhưng Chrome vẫn lặng lẽ đọc bằng giọng tiếng Anh; engine không
@@ -158,11 +158,12 @@ lỗi và để người dùng bấm **Nghe lại**.
   hoặc chuyển câu, `AbortController` huỷ fetch và API cũng huỷ job đang chạy trên
   engine (giải phóng slot ngay thay vì giữ đủ timeout).
 
-Độ trễ đo trên máy dev (VieNeu local warm, answer 356 ký tự → 3 chunk): audio đầu
-tiên ~1.5–2 s, tổng 6 s không khoảng lặng. Deepgram Flux batch cùng máy: ~4 s cho
-chunk 60 ký tự, ~4.8 s cho 90 ký tự và ~5.3–6.2 s cho 130–150 ký tự. Vì vậy
-`TTS_PROVIDER=vieneu` là lựa chọn khi ưu tiên độ trễ; chunk nhỏ hơn
-(`TTS_CHUNK_CHARACTERS`) cũng giúp audio đầu tiên lên sớm hơn.
+Độ trễ đo trên máy dev (VieNeu local warm — engine này không còn trong luồng chạy,
+số chỉ để tham khảo, answer 356 ký tự → 3 chunk): audio đầu tiên ~1.5–2 s, tổng 6 s
+không khoảng lặng. Deepgram Flux batch cùng máy: ~4 s cho chunk 60 ký tự, ~4.8 s
+cho 90 ký tự và ~5.3–6.2 s cho 130–150 ký tự. Vì vậy `TTS_PROVIDER=vieneu` là lựa
+chọn khi ưu tiên độ trễ; chunk nhỏ hơn (`TTS_CHUNK_CHARACTERS`) cũng giúp audio
+đầu tiên lên sớm hơn.
 
 ### 3.2 Dự phòng và lỗi
 
@@ -286,32 +287,33 @@ Nếu đã phát được ít nhất một chunk rồi lỗi giữa chừng, cli
 | `TTS_PROVIDER` | `deepgram` | `deepgram` hoặc `vieneu`: engine trả lời trước. Engine còn lại tự động đọc thay từng chunk khi engine chính lỗi |
 | `DEEPGRAM_API_KEY` | — | Key cho Deepgram (dùng chung với STT). Không có key thì bỏ qua Deepgram, đi thẳng VieNeu |
 | `DEEPGRAM_TTS_MODEL` | `flux-minh-vi` | Model Flux; `flux-hoa-vi` cho giọng nữ. Aura/Aura-2 không có tiếng Việt |
-| `VIENEU_TTS_URL` | `http://127.0.0.1:8001` | Base URL engine VieNeu. Cloud: `https://api.vieneu.io/api` |
-| `VIENEU_TTS_MODEL` | `vieneu-v4` | Model gửi lên `/v1/audio/speech` (local chấp nhận mọi chuỗi) |
-| `VIENEU_TTS_FORMAT` | `wav` | `wav` \| `mp3` \| `pcm` \| `opus` \| `ulaw`; local chỉ nhận `wav`/`pcm` |
-| `VIENEU_TTS_API_KEY` | — | Gửi `Authorization: Bearer`; cloud bắt buộc (`vn_sk_…`), local bỏ trống |
+| `VIENEU_TTS_URL` | — (tắt VieNeu) | Base URL engine VieNeu cloud: `https://api.vieneu.io/api`. Không đặt thì VieNeu bị bỏ qua hoàn toàn |
+| `VIENEU_TTS_MODEL` | `vieneu-v4` | Model gửi lên `/v1/audio/speech` |
+| `VIENEU_TTS_FORMAT` | `wav` | `wav` \| `mp3` \| `pcm` \| `opus` \| `ulaw` |
+| `VIENEU_TTS_API_KEY` | — | Gửi `Authorization: Bearer`; cloud bắt buộc (`vn_sk_…`) |
 | `VIENEU_TTS_VOICE` | `Hải Đăng` | Giọng dự phòng; `/v1/voices` liệt kê lựa chọn (Trúc Ly, Thiện Minh, Mai Anh, …) |
 | `VIENEU_TTS_PROBE_TIMEOUT_MS` | `4000` | Timeout thăm `/v1/voices` (clamp 500–15000); qua WAN nên đặt 6000 |
 | `TTS_CHUNK_CHARACTERS` | `150` | Số ký tự tối đa mỗi request, clamp 40–400; client nhận qua `maxChars` |
-| `TTS_MAX_CONCURRENCY` | `2` | Số request đồng thời tới engine (VieNeu local chỉ nhận ~2) |
+| `TTS_MAX_CONCURRENCY` | `2` | Số request đồng thời tới engine; tăng khi engine cho phép nhiều stream hơn |
 | `TTS_QUEUE_WAIT_MS` | `5000` | Thời gian chờ slot trước khi trả 429 |
 | `TTS_TIMEOUT_MS` | `45000` | Timeout một chunk |
 
-Không có key Deepgram và không có VieNeu nào chạy: `/tts/status` báo
+Không có key Deepgram và không cấu hình `VIENEU_TTS_URL`: `/tts/status` báo
 `available: false` (kèm `reason` ở dev) và client hiện `voiceSpeechError`; không
 còn engine trình duyệt để tự đọc.
 
-**VieNeu: hai cách chạy, một đường code.** `synthVieneuChunk()` nói chuyện với cùng API
-OpenAI-compatible `/v1/audio/speech`; chuyển local ↔ cloud chỉ là đổi
-`VIENEU_TTS_URL` + thêm `VIENEU_TTS_API_KEY`. Khác biệt được xử lý ở tầng config:
+**VieNeu chỉ còn bản cloud.** Engine local (`127.0.0.1:8001`) đã bị loại khỏi luồng
+chạy — code `synthVieneuChunk()` vẫn giữ nhưng `vieneuConfigured()` đòi
+`VIENEU_TTS_URL`; không có URL thì mọi request VieNeu bị bỏ qua, không có default
+nào trỏ về localhost. Những gì cloud xử lý:
 
-| | VieNeu local | VieNeu cloud (`api.vieneu.io`) |
-| --- | --- | --- |
-| Chi phí | miễn phí, tốn máy chủ/GPU | tính theo ký tự (tối thiểu 50/call), `vieneu-v4` hệ số 3× |
-| Thông lượng | ~2 stream/instance CPU, 16 stream GPU | 300 req/phút mỗi key, 300 stream đồng thời mỗi IP |
-| Lỗi 401/403 | không có | key sai/bị thu hồi → đánh dấu "engine hỏng" 60 s, không retry, `/tts/status` giải thích trong `reason` |
-| Lỗi 429 | queue đầy | `GRANT_DAILY_LIMIT` / `QUEUE_FULL` / `CONCURRENT_CONFLICT`; API tuân theo `Retry-After` |
-| Text | mọi chuỗi | bị chặn nếu >34% ký tự ngoài Latin hoặc từ >30 ký tự không dấu cách → 400 `speech_text_rejected` |
+| | VieNeu cloud (`api.vieneu.io`) |
+| --- | --- |
+| Chi phí | tính theo ký tự (tối thiểu 50/call), `vieneu-v4` hệ số 3× |
+| Thông lượng | 300 req/phút mỗi key, 300 stream đồng thời mỗi IP |
+| Lỗi 401/403 | key sai/bị thu hồi → đánh dấu "engine hỏng" 60 s, không retry, `/tts/status` giải thích trong `reason` |
+| Lỗi 429 | `GRANT_DAILY_LIMIT` / `QUEUE_FULL` / `CONCURRENT_CONFLICT`; API tuân theo `Retry-After` |
+| Text | bị chặn nếu >34% ký tự ngoài Latin hoặc từ >30 ký tự không dấu cách → 400 `speech_text_rejected` |
 
 ---
 
@@ -334,24 +336,21 @@ OpenAI-compatible `/v1/audio/speech`; chuyển local ↔ cloud chỉ là đổi
    (`available: false`) và ẩn nút mic thay vì để người dùng nói xong mới hỏng.
 4. **Quyền riêng tư STT:** audio luôn được forward từ API tới một provider STT cloud.
 5. **TTS cần ít nhất một engine:** Deepgram Flux (key dùng chung với STT) hoặc
-   VieNeu local/cloud (dự phòng). Không engine nào thì hệ thống vẫn hoạt động —
-   `/tts/status` báo `available: false` và client hiện `voiceSpeechError` — nhưng
-   không còn đường đọc bằng trình duyệt.
-6. **Tải TTS — số đo VieNeu trên CPU (Mac M2, ONNX fp32, RTF 2.75–2.93×):** một
-   câu trả lời ~450 ký tự = 3 chunk ≈ 6.5–9.5 s thời gian engine ≈ **6–9 câu/phút
-   cho một instance**, và chỉ ~2 người nghe cùng lúc (`TTS_MAX_CONCURRENCY=2` chỉ
-   bảo vệ engine, không tăng thông lượng). Khi engine chính trả lời, API không chạm
-   tới engine còn lại; các con số này chỉ áp dụng cho lúc dự phòng.
+   VieNeu cloud (`VIENEU_TTS_URL` + key). Không engine nào thì hệ thống vẫn hoạt
+   động — `/tts/status` báo `available: false` và client hiện `voiceSpeechError` —
+   nhưng không còn đường đọc bằng trình duyệt.
+6. **Tải TTS:** engine mặc định là dịch vụ ngoài nên API không giữ slot CPU; các
+   con số cũ về số câu/phút trên một instance chỉ còn đúng nếu tự dựng engine local
+   (không nằm trong luồng chạy). `TTS_MAX_CONCURRENCY=2` bảo vệ quota
+   engine chứ không phản ánh năng lực của nó.
 7. **Chọn engine theo chi phí.** Deepgram Flux tính theo ký tự — xem bảng giá
    Deepgram, không có chi phí cố định. VieNeu cloud tính theo ký tự (~487 đ/1.000
    ký tự với `vieneu-v4`; hệ số 1.3 toàn cục), tương đương **~$0.01 cho một câu
-   trả lời**; VieNeu local miễn phí nhưng tốn máy chủ. Self-host GPU (A5000
-   ~$0.27/giờ ≈ $195/tháng) chỉ hòa vốn từ ~21.000 câu trả lời/tháng.
+   trả lời**.
 8. **Quyền riêng tư TTS:** text câu trả lời đi từ trình duyệt → API → engine chính
-   (Deepgram `api.deepgram.com`, hoặc VieNeu local/cloud). Khi engine chính lỗi,
-   cùng text đó được gửi tới engine còn lại — VieNeu local thì không rời máy,
-   VieNeu cloud thì tới `api.vieneu.io`. Không còn đường Web Speech để engine của
-   hệ điều hành tự gửi text đi.
+   (Deepgram `api.deepgram.com`, hoặc VieNeu cloud `api.vieneu.io`). Khi engine
+   chính lỗi, cùng text đó được gửi tới engine còn lại. Không còn đường Web Speech
+   để engine của hệ điều hành tự gửi text đi.
 
 ### 6.1 Deploy TTS
 
@@ -368,12 +367,10 @@ ghim fault. Key sai lộ ra ở chunk đầu tiên (`503 tts_credentials_rejecte
 ghim 60 s rồi chuyển sang VieNeu. Flux tiếng Việt đang Early Access — kiểm tra
 chất lượng bằng một câu có số/ngày trước khi mở cho người dùng.
 
-**B. VieNeu (engine chính thay thế — cloud hoặc local)**
+**B. VieNeu cloud (engine chính thay thế)**
 
 Đặt `TTS_PROVIDER=vieneu` để VieNeu trả lời trước; Deepgram (nếu có key) chỉ còn
 là dự phòng từng chunk. Đây là cách né độ trễ ~4–6 s/chunk của Flux batch.
-
-Cloud, 0 chi phí cố định:
 
 ```
 TTS_PROVIDER=vieneu
@@ -390,24 +387,8 @@ hạn của key là 300 request/phút và 300 stream đồng thời mỗi IP —
 `TTS_MAX_CONCURRENCY`/`TTS_QUEUE_WAIT_MS` cho đúng với quota, không phải thêm máy.
 Độ trễ đo qua API ở môi trường dev: audio đầu tiên ~1.2 s cho một chunk ngắn.
 
-Local / self-host (khi cần privacy hoặc sản lượng lớn):
-
-```
-TTS_PROVIDER=vieneu
-# chạy cạnh API (Docker hoặc tiến trình trần)
-VIENEU_BACKEND=onnx VIENEU_PRECISION=int8   # CPU: int8 cho 2 stream, fp32 cho 1
-VIENEU_DEVICE=auto                          # có GPU thì tự nhận cuda
-VIENEU_MAX_STREAMS=16                       # GPU; CPU bỏ qua
-VIENEU_QUEUE=16 VIENEU_QUEUE_TIMEOUT=10     # phần vượt sẽ nhận 429
-VIENEU_API_KEY=…                            # BẮT BUỘC nếu HOST không phải loopback
-VIENEU_TTS_URL=http://127.0.0.1:8001
-```
-
-Quy tắc quy mô: 1 instance CPU ≈ 2 người nghe cùng lúc (6–9 câu/phút), 1 instance
-GPU ≈ 16. Mỗi khi thêm user đồng thời thì thêm một instance, không phải chỉnh
-`TTS_MAX_CONCURRENCY` — biến đó chỉ bảo vệ engine mà engine đang có. Không dùng
-scale-to-zero cho engine này (cold start ~9.6 s); nếu bắt buộc thì đặt
-min-instances = 1.
+Engine local (`VIENEU_TTS_URL=http://127.0.0.1:8001`) **không còn được dùng**: code
+vẫn còn nhưng runtime bỏ qua mọi URL rỗng, và không có default trỏ về localhost.
 
 **Kiểm tra sau khi deploy:** `GET /api/voice/tts/status` phải trả
 `available: true`; `provider` cho biết engine chính đang dùng. Nếu `available:
@@ -421,8 +402,10 @@ log API.
   ~17 request/phút và model "sửa lời nói" (đổi đại từ nó cho là hợp lý). Nó nằm
   cuối chain, dùng lại `GOOGLE_API_KEY` của LLM; muốn loại hẳn thì xoá key hoặc
   pin `STT_PROVIDER`.
-- **Benchmark STT** (`apps/api/scripts/stt-bench.mjs`) tự tổng hợp audio bằng
-  VieNeu local nên không tốn phí TTS, nhưng **mặc định nó bắn ~12 request/provider
+- **Benchmark STT** (`apps/api/scripts/stt-bench.mjs`) tự tổng hợp audio bằng một
+  engine VieNeu local chạy riêng (script gọi thẳng `STT_BENCH_TTS_URL`, mặc định
+  `http://127.0.0.1:8001`; API không dùng engine này nữa) nên không tốn phí TTS,
+  nhưng **mặc định nó bắn ~12 request/provider
   vào cloud** (Deepgram tính tiền, Groq/Gemini ăn quota free). Chạy nó chỉ khi có
   mục đích đo lại; muốn thử một provider thì pin `STT_PROVIDER` và giới hạn corpus.
 - **Không còn Web Speech API**: `stopAnswerSpeech()` chỉ huỷ fetch và pause audio
@@ -437,9 +420,10 @@ log API.
   `Sec-MS-GEC`/`TrustedClientToken`. *Gemini TTS* (`gemini-3.8-flash-lite-tts`,
   voice `Charon`) cho chất lượng tốt nhưng key hiện hết quota (429). *Web Speech*
   bị loại vì đọc tiếng Việt bằng giọng tiếng Anh trên máy dev. Hiện tại:
-  **Deepgram Flux** (chính) và **VieNeu** (dự phòng, local hoặc cloud).
-- **VieNeu là service ngoài**: bản local phải tự chạy (cổng 8001); bản cloud chỉ
-  cần `VIENEU_TTS_URL=https://api.vieneu.io/api` + `VIENEU_TTS_API_KEY` — smoke
+  **Deepgram Flux** (chính hoặc dự phòng) và **VieNeu cloud** (dự phòng). Engine
+  VieNeu local đã bị loại khỏi luồng chạy; code vẫn giữ.
+- **VieNeu là service ngoài**: chỉ cần
+  `VIENEU_TTS_URL=https://api.vieneu.io/api` + `VIENEU_TTS_API_KEY` — smoke
   test thực tế qua API: `GET /v1/voices` 0.31 s, `POST /v1/audio/speech` một chunk
   30 ký tự trả 224 KB wav sau **1.19 s** (toàn trình, tính cả proxy API), key sai
   trả 503 `tts_credentials_rejected` sau 0.08 s và được ghim 60 s. Đổi lại, text

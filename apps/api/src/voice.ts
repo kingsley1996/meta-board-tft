@@ -501,7 +501,13 @@ function deepgramTtsConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
 }
 
 function ttsBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
-  return (env.VIENEU_TTS_URL?.trim() || 'http://127.0.0.1:8001').replace(/\/+$/, '');
+  // No default: the local VieNeu engine was removed from the runtime. VieNeu is
+  // only used when a cloud URL is configured explicitly.
+  return (env.VIENEU_TTS_URL?.trim() || '').replace(/\/+$/, '');
+}
+
+export function vieneuConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
+  return Boolean(ttsBaseUrl(env));
 }
 
 function ttsVoice(env: NodeJS.ProcessEnv = process.env): string {
@@ -571,7 +577,8 @@ function activeFault(key: string): { reason: string; code: string } | null {
 }
 
 export function ttsFault(env: NodeJS.ProcessEnv = process.env): { reason: string; code: string } | null {
-  return activeFault(new URL(ttsBaseUrl(env)).origin);
+  const base = ttsBaseUrl(env);
+  return base ? activeFault(new URL(base).origin) : null;
 }
 
 function deepgramTtsFault(): { reason: string; code: string } | null {
@@ -621,7 +628,7 @@ export async function vieneuAvailable(
   env: NodeJS.ProcessEnv = process.env,
   fetchImpl: typeof fetch = fetch
 ): Promise<boolean> {
-  if (ttsFault(env)) return false;
+  if (!vieneuConfigured(env) || ttsFault(env)) return false;
   try {
     const response = await fetchImpl(`${ttsBaseUrl(env)}/v1/voices`, {
       headers: vieneuHeaders(env),
@@ -688,6 +695,9 @@ export async function synthVieneuChunk(
   env: NodeJS.ProcessEnv = process.env,
   fetchImpl: typeof fetch = fetch
 ): Promise<{ audio: Buffer; contentType: string }> {
+  if (!vieneuConfigured(env)) {
+    throw new SpeechUnavailableError('VieNeu is not configured', 503, 'tts_unavailable');
+  }
   const limits = ttsLimits(env);
   const format = ttsFormat(env);
   const origin = new URL(ttsBaseUrl(env)).origin;
@@ -850,8 +860,9 @@ export async function synthSpeechChunk(
 ): Promise<{ audio: Buffer; contentType: string; provider: TtsProvider }> {
   let lastError: unknown = null;
   for (const provider of ttsProviderOrder(env)) {
-    // No key means the engine cannot start at all; skip without a request.
+    // No key/URL means the engine cannot start at all; skip without a request.
     if (provider === 'deepgram' && !deepgramTtsConfigured(env)) continue;
+    if (provider === 'vieneu' && !vieneuConfigured(env)) continue;
     try {
       const audio =
         provider === 'deepgram'
@@ -874,7 +885,6 @@ export async function synthSpeechChunk(
 async function ttsProviderAvailable(provider: TtsProvider, env: NodeJS.ProcessEnv = process.env): Promise<boolean> {
   return provider === 'deepgram' ? deepgramTtsConfigured(env) && !deepgramTtsFault() : vieneuAvailable(env);
 }
-
 router.get('/tts/status', async (_req, res) => {
   const [primary, fallback] = ttsProviderOrder();
   const provider = (await ttsProviderAvailable(primary))

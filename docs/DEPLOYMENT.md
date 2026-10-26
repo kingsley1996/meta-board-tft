@@ -155,9 +155,9 @@ cho cả project — tăng `PG_POOL_MAX` là tăng phần mình chiếm.
   trạng thái cấu hình thiếu, không phải lỗi runtime. Sherpa đã gỡ khỏi repo (`package.json`,
   script tải model, source): model ~29 MB không có chỗ trên disk ephemeral của Render,
   và license CC-BY-NC-ND-4.0 vốn cấm deploy thương mại.
-- TTS: hoặc VieNeu cloud (khuyên dùng — 0 chi phí cố định, không container), hoặc
-  engine local cạnh API (CPU ≈ 2 người nghe đồng thời/instance). Không scale-to-zero
-  cho engine (cold start đo được ~9.6 s). Số đo, quota, chi phí: `voice.md` §6.
+- TTS: VieNeu cloud (khuyên dùng — 0 chi phí cố định, không container). Engine
+  VieNeu local đã bị bỏ khỏi luồng chạy; code vẫn giữ nhưng chỉ cloud URL được
+  cấu hình mới bật. Số đo, quota, chi phí: `voice.md` §6.
 
 ## 4. Dữ liệu: hai bản copy, một nguồn — và seed thì xoá
 

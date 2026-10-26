@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy production — MetaBoard</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --ink: #15181f;
+    --muted: #5b6270;
+    --line: #dfe3ea;
+    --accent: #3452d4;
+    --accent-soft: #eef1ff;
+    --ok: #147a4b;
+    --ok-soft: #e8f7ef;
+    --warn: #9a5b06;
+    --warn-soft: #fdf3e3;
+    --danger: #b3261e;
+    --danger-soft: #fdecea;
+    --code: #1b1f27;
+    --code-ink: #e8ecf4;
+    --radius: 12px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101218;
+      --panel: #171a22;
+      --ink: #e8ebf2;
+      --muted: #a2a9b8;
+      --line: #2a2f3b;
+      --accent: #8fa4ff;
+      --accent-soft: #1d2340;
+      --ok: #6fd3a2;
+      --ok-soft: #14301f;
+      --warn: #e5b064;
+      --warn-soft: #33260f;
+      --danger: #ff9c94;
+      --danger-soft: #3a1917;
+      --code: #0c0e13;
+      --code-ink: #dfe4ee;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  .hero {
+    background: linear-gradient(180deg, var(--panel), var(--bg));
+    border-bottom: 1px solid var(--line);
+    padding: 56px 0 36px;
+  }
+  .eyebrow {
+    margin: 0 0 10px;
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  h1 { margin: 0 0 14px; font-size: clamp(30px, 4vw, 44px); line-height: 1.15; letter-spacing: -.02em; }
+  .lede { margin: 0; max-width: 760px; color: var(--muted); font-size: 18px; }
+  .chips { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 22px 0 0; }
+  .chips li {
+    font-size: 13px; font-weight: 600; padding: 5px 11px;
+    border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--muted);
+  }
+  .conf {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px; margin: 26px 0 0;
+  }
+  .conf div { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+  .conf dt { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+  .conf dd { margin: 3px 0 0; font-size: 14px; font-weight: 600; }
+  .layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 44px; padding-top: 34px; padding-bottom: 80px; }
+  .toc { position: sticky; top: 24px; align-self: start; font-size: 13px; }
+  .toc h2 { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  .toc ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--line); }
+  .toc li a { display: block; padding: 7px 0 7px 14px; color: var(--muted); border-left: 2px solid transparent; margin-left: -1px; }
+  .toc li a:hover { color: var(--ink); text-decoration: none; border-left-color: var(--accent); }
+  main { min-width: 0; }
+  section { margin: 0 0 46px; scroll-margin-top: 24px; }
+  h2.step {
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 0 10px; font-size: 24px; letter-spacing: -.01em; line-height: 1.25;
+  }
+  .num {
+    flex: none; width: 32px; height: 32px; border-radius: 9px;
+    display: grid; place-items: center;
+    background: var(--accent); color: #fff; font-size: 15px; font-weight: 700;
+  }
+  h3 { margin: 26px 0 8px; font-size: 17px; }
+  p { margin: 0 0 12px; }
+  .sub { color: var(--muted); margin: -4px 0 18px; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { margin: 0 0 6px; }
+  li::marker { color: var(--muted); }
+  code {
+    font-family: var(--mono); font-size: .88em;
+    background: var(--accent-soft); color: inherit;
+    padding: 1px 5px; border-radius: 5px;
+    overflow-wrap: anywhere;
+  }
+  pre {
+    position: relative;
+    margin: 0 0 16px; padding: 16px 54px 16px 16px;
+    background: var(--code); color: var(--code-ink);
+    border-radius: var(--radius); overflow-x: auto;
+    font: 13px/1.6 var(--mono);
+  }
+  pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+  .copy {
+    position: absolute; top: 8px; right: 8px;
+    font: 600 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: .04em; text-transform: uppercase;
+    color: #c8d0e0; background: #2a3040; border: 1px solid #3a4256;
+    border-radius: 6px; padding: 7px 9px; cursor: pointer;
+  }
+  .copy:hover { background: #39415a; }
+  .copy.done { color: #9ce6bd; border-color: #2f6b4c; background: #1e3a2b; }
+  .callout {
+    border: 1px solid var(--line); border-left: 4px solid var(--accent);
+    background: var(--panel); border-radius: 10px;
+    padding: 12px 15px; margin: 0 0 16px; font-size: 14.5px;
+  }
+  .callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+  .callout strong { font-weight: 700; }
+  .callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .callout.danger { border-left-color: var(--danger); background: var(--danger-soft); }
+  .callout.ok { border-left-color: var(--ok); background: var(--ok-soft); }
+  .callout .tag {
+    display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .1em;
+    text-transform: uppercase; margin-right: 6px; color: var(--muted);
+  }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); margin: 0 0 18px; background: var(--panel); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 13px; border-bottom: 1px solid var(--line); }
+  th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); background: var(--bg); }
+  tr:last-child td { border-bottom: 0; }
+  td code { white-space: nowrap; }
+  .check { list-style: none; padding: 0; }
+  .check li { position: relative; padding-left: 26px; margin-bottom: 8px; }
+  .check li::before {
+    content: ""; position: absolute; left: 0; top: 5px;
+    width: 14px; height: 14px; border: 1.5px solid var(--muted); border-radius: 4px;
+  }
+  .file { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .card h3 { margin-top: 0; }
+  .card p:last-child { margin-bottom: 0; }
+  footer { border-top: 1px solid var(--line); padding: 22px 0 40px; color: var(--muted); font-size: 13px; }
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; gap: 0; }
+    .toc { display: none; }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+  @media print {
+    body { background: #fff; }
+    .toc, .copy { display: none; }
+    .layout { display: block; }
+    pre { white-space: pre-wrap; }
+    section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Runbook · cập nhật 26/10/2026</p>
+    <h1>Đưa MetaBoard lên production</h1>
+    <p class="lede">
+      Web ở Vercel, API ở Render, Postgres ở Supabase, giọng đọc ở VieNeu cloud.
+      Làm đúng thứ tự dưới đây; mỗi bước đều có lệnh kiểm tra ngay tại chỗ để không phải
+      đoán xem bước trước đã đúng chưa.
+    </p>
+    <ul class="chips">
+      <li>Next.js → Vercel</li>
+      <li>Express → Render</li>
+      <li>Postgres → Supabase</li>
+      <li>TTS → VieNeu cloud</li>
+    </ul>
+    <dl class="conf">
+      <div><dt>Domain</dt><dd>Mặc định: *.vercel.app + *.onrender.com</dd></div>
+      <div><dt>Mailer</dt><dd>Chưa có — xem bước 7 trước khi mở đăng ký</dd></div>
+      <div><dt>TTS</dt><dd>VieNeu cloud là engine chính</dd></div>
+      <div><dt>Region</dt><dd>Singapore cho cả Supabase và Render</dd></div>
+    </dl>
+  </div>
+</header>
+
+<div class="wrap layout">
+
+<nav class="toc" aria-label="Mục lục">
+  <h2>Mục lục</h2>
+  <ol>
+    <li><a href="#chuan-bi">0. Chuẩn bị</a></li>
+    <li><a href="#supabase">1. Supabase</a></li>
+    <li><a href="#seed">2. Seed dữ liệu</a></li>
+    <li><a href="#render">3. Render (API)</a></li>
+    <li><a href="#vercel">4. Vercel (web)</a></li>
+    <li><a href="#noi">5. Nối hai đầu</a></li>
+    <li><a href="#kiem-tra">6. Kiểm tra</a></li>
+    <li><a href="#mailer">7. Mailer còn nợ</a></li>
+    <li><a href="#van-hanh">8. Vận hành</a></li>
+    <li><a href="#env">A. Biến môi trường</a></li>
+    <li><a href="#loi">B. Lỗi thường gặp</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="chuan-bi">
+  <h2 class="step"><span class="num">0</span> Chuẩn bị (10 phút)</h2>
+  <p class="sub">Chỉ cần làm một lần. Thiếu mục nào thì bước tương ứng sẽ dừng.</p>
+
+  <ul class="check">
+    <li>Repo đã push lên GitHub, nhánh <code>main</code> (repo hiện tại: <code>kingsley1996/meta-board-tft</code>).</li>
+    <li>Tài khoản <a href="https://vercel.com/signup">Vercel</a>, <a href="https://dashboard.render.com/">Render</a>, <a href="https://supabase.com/dashboard">Supabase</a>.</li>
+    <li>Thẻ thanh toán cho Render — service dùng plan <strong>Starter</strong>, không dùng free (free ngủ sau 15 phút, trang public gọi API phía server sẽ chậm hoặc lỗi).</li>
+    <li>Email + mật khẩu mạnh cho account admin đầu tiên.</li>
+  </ul>
+
+  <h3>Ba API key cần lấy trước</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Key</th><th>Lấy ở đâu</th><th>Dùng cho</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>DEEPGRAM_API_KEY</code></td>
+          <td>console.deepgram.com → API Keys → Create Key</td>
+          <td>Nhận dạng giọng nói (STT) tiếng Việt; đồng thời là engine TTS dự phòng</td>
+        </tr>
+        <tr>
+          <td><code>GOOGLE_API_KEY</code></td>
+          <td>aistudio.google.com/apikey</td>
+          <td>LLM cho Coach AI (<code>ASSISTANT_PROVIDER=google</code> đã đặt trong blueprint)</td>
+        </tr>
+        <tr>
+          <td><code>VIENEU_TTS_API_KEY</code></td>
+          <td>vieneu.io → đăng ký → tạo key <code>vn_sk_…</code></td>
+          <td>Đọc câu trả lời (engine chính trong cấu hình này)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout warn">
+    <span class="tag">Cảnh báo</span>
+    Key thử nghiệm của VieNeu (<code>vn_test_…</code>) bị giới hạn <strong>100 từ và 30 request/ngày</strong>.
+    Đã đo thực tế: chạm trần thì mọi request trả <code>429</code>. Đừng dùng key thử cho production —
+    hoặc nâng cấp, hoặc đổi <code>TTS_PROVIDER=deepgram</code> tạm.
+  </div>
+
+  <h3>Tạo token cho cron</h3>
+  <pre><code>openssl rand -hex 32</code></pre>
+  <p>Lưu kết quả thành <code>REFRESH_TOKEN</code> — dùng cho cả service API và cron refresh.</p>
+</section>
+
+<section id="supabase">
+  <h2 class="step"><span class="num">1</span> Supabase — tạo Postgres (5 phút)</h2>
+
+  <ol>
+    <li>Vào <a href="https://supabase.com/dashboard">supabase.com/dashboard</a> → <strong>New project</strong>.</li>
+    <li>Đặt tên <code>metaboard</code>, region <strong>Southeast Asia (Singapore)</strong>, mật khẩu database mạnh. Lưu mật khẩu này.</li>
+    <li>Đợi project chuyển sang <strong>Active</strong> (khoảng 2 phút).</li>
+    <li>Vào <strong>Project Settings → Database → Connection string → Connection pooling</strong>, chọn <strong>Session mode</strong>, copy nguyên URI:</li>
+  </ol>
+
+  <pre><code>postgres://postgres.&lt;ref&gt;:&lt;password&gt;@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require</code></pre>
+
+  <p>Đây là <code>DATABASE_URL</code>. Giữ nguyên <code>?sslmode=require</code> — driver đọc được, không cần sửa code.</p>
+
+  <div class="callout danger">
+    <span class="tag">Đừng chọn</span>
+    <strong>Direct connection</strong> <code>db.&lt;ref&gt;.supabase.co:5432</code> là IPv6-only; Render không có IPv6 nên
+    API sẽ không bao giờ kết nối được. <strong>Transaction mode</strong> <code>:6543</code> thì cắt prepared statement,
+    cursor và session state — code này có transaction giữ client và DDL lazy lúc chạy, nên chỉ
+    <strong>Session mode <code>:5432</code></strong> là đúng.
+  </div>
+
+  <div class="callout">
+    <span class="tag">Ghi chú</span>
+    Nếu tự ghép URL thay vì copy: <strong>URL-encode mật khẩu</strong> — key random của Supabase chứa
+    <code>+</code>, <code>/</code>, <code>%</code> và sẽ làm URL sai.
+  </div>
+</section>
+
+<section id="seed">
+  <h2 class="step"><span class="num">2</span> Seed dữ liệu lần đầu (5 phút)</h2>
+  <p class="sub">Chạy từ máy local, trỏ vào DB Supabase. DB đang trắng nên đây là lần duy nhất cần seed.</p>
+
+  <pre><code>cd ~/ai-projects/tft-comps
+
+DATABASE_URL='postgres://postgres.&lt;ref&gt;:&lt;password&gt;@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require' \
+ADMIN_EMAIL='you@example.com' \
+ADMIN_SEED_PASSWORD='&lt;mật-khẩu-mạnh&gt;' \
+npm run seed --workspace @metaboard/api</code></pre>
+
+  <p>Kỳ vọng: log tạo schema, đồng bộ game data và nạp comps/guides, không có cảnh báo
+  <code>ADMIN_EMAIL/ADMIN_SEED_PASSWORD not set</code>.</p>
+
+  <div class="callout danger">
+    <span class="tag">Chỉ chạy một lần</span>
+    Seed <strong>thay thế toàn bộ comps và guides</strong>. DB đã có nội dung tạo qua <code>/admin</code> thì
+    tuyệt đối không seed lại — mọi thứ soạn tay sẽ mất, log vẫn báo thành công. Patch day chỉ gọi
+    <code>POST /api/tft/refresh</code>.
+  </div>
+
+  <div class="callout">
+    <span class="tag">Ghi chú</span>
+    <code>ADMIN_EMAIL</code> và <code>ADMIN_SEED_PASSWORD</code> phải trùng với giá trị bạn nhập ở Render
+    (bước 3): lúc API khởi động, nó “adopt” account admin đã tồn tại thay vì tạo account thứ hai.
+  </div>
+</section>
+
+<section id="render">
+  <h2 class="step"><span class="num">3</span> Render — dựng API + cron (10 phút)</h2>
+
+  <ol>
+    <li>Vào <a href="https://dashboard.render.com/">dashboard.render.com</a> → <strong>New +</strong> → <strong>Blueprint</strong>.</li>
+    <li>Connect GitHub, chọn repo này, nhánh <code>main</code> → <strong>Apply</strong>.</li>
+    <li>Render đọc <code>render.yaml</code> và tạo hai resource:
+      <ul>
+        <li><code>metaboard-api</code> — web service, plan Starter, region Singapore, health check <code>/api/health</code>, auto deploy khi push.</li>
+        <li><code>metaboard-tft-refresh</code> — cron 12:00 UTC (19:00 giờ Việt Nam), gọi <code>/api/tft/refresh</code>.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h3>Nhập các biến <code>sync: false</code> khi Render hỏi</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Biến</th><th>Giá trị</th></tr></thead>
+      <tbody>
+        <tr><td><code>DATABASE_URL</code></td><td>URI pooler session ở bước 1 (có <code>?sslmode=require</code>)</td></tr>
+        <tr><td><code>ADMIN_EMAIL</code></td><td>Email admin, trùng bước 2</td></tr>
+        <tr><td><code>ADMIN_SEED_PASSWORD</code></td><td>Mật khẩu admin, trùng bước 2 — xoá được sau lần đăng nhập đầu</td></tr>
+        <tr><td><code>REFRESH_TOKEN</code></td><td>Chuỗi <code>openssl rand -hex 32</code> ở bước 0</td></tr>
+        <tr><td><code>AUTH_WEB_ORIGIN</code></td><td>Tạm <code>https://example.vercel.app</code>; sửa thật ở bước 5</td></tr>
+        <tr><td><code>DEEPGRAM_API_KEY</code></td><td>Key Deepgram</td></tr>
+        <tr><td><code>GOOGLE_API_KEY</code></td><td>Key Google AI Studio</td></tr>
+        <tr><td><code>VIENEU_TTS_API_KEY</code></td><td>Key <code>vn_sk_…</code></td></tr>
+        <tr><td><code>VIENEU_TTS_VOICE</code></td><td><code>Hải Đăng</code> (hoặc <code>Trúc Ly</code>, <code>Thiện Minh</code>, <code>Mai Anh</code>)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Các biến còn lại đã có giá trị trong blueprint, không cần nhập:</p>
+  <pre><code>NODE_ENV=production
+TRUST_PROXY=1
+AUTH_SECURE_COOKIES=true
+PG_POOL_MAX=6
+ASSISTANT_ENABLED=true
+ASSISTANT_PROVIDER=google
+TTS_PROVIDER=vieneu
+VIENEU_TTS_URL=https://api.vieneu.io/api
+VIENEU_TTS_PROBE_TIMEOUT_MS=6000</code></pre>
+
+  <p>Bấm <strong>Deploy Blueprint</strong> và đợi log có <code>metaboard server on http://…</code> cùng health check xanh.
+  Sau đó copy URL service (dạng <code>https://metaboard-api.onrender.com</code>, có thể có hậu tố).</p>
+
+  <h3>Kiểm tra ngay</h3>
+  <pre><code>curl -s -o /dev/null -w '%{http_code}\n' https://&lt;api&gt;.onrender.com/api/health
+curl -s https://&lt;api&gt;.onrender.com/api/health/ready</code></pre>
+  <p><code>/api/health</code> phải trả <code>200</code>. <code>/api/health/ready</code> trả <code>200</code> kèm số comp —
+  nếu <code>503</code> thì <code>DATABASE_URL</code> sai hoặc đang dùng direct/transaction mode.</p>
+
+  <div class="callout">
+    <span class="tag">Cron</span>
+    Cron chưa chạy được cho tới khi có <code>API_ORIGIN</code> và <code>REFRESH_TOKEN</code> trong env của
+    chính cron — làm ở bước 5. Nó không chặn deploy API.
+  </div>
+</section>
+
+<section id="vercel">
+  <h2 class="step"><span class="num">4</span> Vercel — dựng web (10 phút)</h2>
+
+  <ol>
+    <li>Vào <a href="https://vercel.com/new">vercel.com/new</a> → import repo GitHub.</li>
+    <li><strong>Root Directory: để trống (gốc repo).</strong> Đây là chỗ hay sai nhất — chọn <code>apps/web</code> là
+      <code>@metaboard/shared</code> không resolve được, vì npm workspaces phải install từ gốc.</li>
+    <li>Framework Preset: <strong>Next.js</strong> (Vercel tự nhận từ <code>vercel.json</code>). Không sửa
+      install/build/output — <code>vercel.json</code> đã khai
+      <code>npm ci</code> → <code>npm run build --workspace @metaboard/web</code> → <code>apps/web/.next</code>.</li>
+    <li>Thêm Environment Variables cho <strong>Production</strong>:</li>
+  </ol>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Biến</th><th>Giá trị</th><th>Vì sao</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>BACKEND_URL</code></td>
+          <td><code>https://&lt;api&gt;.onrender.com</code></td>
+          <td>Đích của rewrite <code>/api/*</code> và của các lệnh server-side</td>
+        </tr>
+        <tr>
+          <td><code>SITE_URL</code></td>
+          <td><code>https://&lt;project&gt;.vercel.app</code></td>
+          <td><code>sitemap.xml</code>, <code>robots.txt</code>, canonical URL</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warn">
+    <span class="tag">Bắt buộc</span>
+    <code>BACKEND_URL</code> phải có <strong>trước khi build</strong>, không chỉ lúc chạy: Next biên dịch rewrite
+    vào build output, và server components gọi thẳng API. Thiếu hoặc sai → build vẫn xanh, site 500 lúc chạy.
+  </div>
+
+  <p>Bấm <strong>Deploy</strong>, đợi khoảng 2–4 phút, rồi copy domain production.</p>
+  <p>Nếu chưa biết domain Vercel trước lúc build: đặt <code>SITE_URL</code> tạm, deploy, lấy domain thật rồi sửa
+  và redeploy — chỉ ảnh hưởng sitemap/canonical, không ảnh hưởng API.</p>
+</section>
+
+<section id="noi">
+  <h2 class="step"><span class="num">5</span> Nối hai đầu (5 phút)</h2>
+  <p class="sub">Sau bước này web mới đăng nhập được và cron mới chạy đúng.</p>
+
+  <ol>
+    <li><strong>Render → metaboard-api → Environment:</strong> sửa <code>AUTH_WEB_ORIGIN</code> thành domain Vercel thật
+      (<code>https://&lt;web&gt;.vercel.app</code>). Save — Render tự redeploy.
+      <br><span class="sub">Biến này là gốc của link xác minh email và OAuth redirect; để sai thì link trỏ về
+      <code>example.vercel.app</code>.</span></li>
+    <li><strong>Render → metaboard-tft-refresh → Environment:</strong> đặt
+      <code>API_ORIGIN=https://&lt;api&gt;.onrender.com</code> và <code>REFRESH_TOKEN</code> cùng giá trị với service API.</li>
+    <li><strong>Chỉ khi dùng Google OAuth:</strong> Google Cloud Console → OAuth client → Authorized redirect URI
+      thêm <code>https://&lt;web&gt;.vercel.app/api/auth/google/callback</code>, rồi nhập
+      <code>GOOGLE_OAUTH_CLIENT_ID</code> / <code>GOOGLE_OAUTH_CLIENT_SECRET</code> vào Render. Không dùng OAuth thì bỏ qua.</li>
+  </ol>
+
+  <div class="callout ok">
+    <span class="tag">Xong</span>
+    Từ đây mọi push lên <code>main</code> tự deploy: Render cho API, Vercel cho web. Không cần build tay.
+  </div>
+</section>
+
+<section id="kiem-tra">
+  <h2 class="step"><span class="num">6</span> Kiểm tra sau deploy (10 phút)</h2>
+  <p class="sub">Chạy hết bảng này trước khi gửi link cho ai. Cột “kỳ vọng” là điều kiện dừng.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Kiểm</th><th>Kỳ vọng</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>curl -s https://&lt;api&gt;/api/health/ready</code></td>
+          <td><code>200</code> + số comp &gt; 0. Số 0 nghĩa là bước 2 chưa chạy.</td>
+        </tr>
+        <tr>
+          <td><code>curl -s https://&lt;api&gt;/api/comps</code></td>
+          <td><code>200</code>, JSON comps của patch hiện tại.</td>
+        </tr>
+        <tr>
+          <td><code>curl -s https://&lt;api&gt;/api/voice/tts/status</code></td>
+          <td><code>{"available":true,"provider":"vieneu","primary":"vieneu",…}</code>. Nếu <code>false</code>: <code>reason</code> chỉ có ở dev, nên xem log Render — <code>tts_unavailable</code> là thiếu URL/key, <code>tts_credentials_rejected</code> là key sai.</td>
+        </tr>
+        <tr>
+          <td><code>curl -s https://&lt;api&gt;/api/voice/status</code></td>
+          <td><code>available: true</code> + danh sách provider STT có key. <code>false</code> = thiếu toàn bộ key STT.</td>
+        </tr>
+        <tr>
+          <td><code>curl -sI https://&lt;web&gt;/en</code></td>
+          <td><code>200</code>. Mở cả <code>/vi</code>, console không có lỗi, không request ra domain lạ.</td>
+        </tr>
+        <tr>
+          <td><code>curl -s https://&lt;web&gt;/api/health</code></td>
+          <td><code>200</code> — chứng minh rewrite Vercel → Render hoạt động.</td>
+        </tr>
+        <tr>
+          <td><code>curl -s https://&lt;web&gt;/sitemap.xml | head</code></td>
+          <td>URL là domain thật, không phải <code>localhost:4173</code>.</td>
+        </tr>
+        <tr>
+          <td>Đăng nhập <code>https://&lt;web&gt;/en/login</code> bằng <code>ADMIN_EMAIL</code></td>
+          <td>Vào được <code>/admin</code>; account thường bị đá về login.</td>
+        </tr>
+        <tr>
+          <td><code>curl -X POST https://&lt;api&gt;/api/tft/refresh</code> (không token)</td>
+          <td><code>401</code>. <code>503</code> nghĩa là <code>REFRESH_TOKEN</code> chưa được cấu hình.</td>
+        </tr>
+        <tr>
+          <td><code>curl -X POST -H "Authorization: Bearer $REFRESH_TOKEN" https://&lt;api&gt;/api/tft/refresh</code></td>
+          <td><code>200</code>; gọi lại ngay thì <code>409 a refresh is already running</code> — đúng thiết kế.</td>
+        </tr>
+        <tr>
+          <td><code>PLAYWRIGHT_BASE_URL=https://&lt;web&gt; npm run test:e2e</code></td>
+          <td>E2E xanh trên deployment thật.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <span class="tag">Cookie</span>
+    Sau khi đăng nhập, mở DevTools → Application → Cookies: <code>mb_session</code> phải có <code>Secure</code> và
+    <code>SameSite</code>. Nếu đăng nhập xong vẫn như chưa đăng nhập, kiểm tra bạn đang mở đúng domain Vercel
+    (không gọi thẳng domain Render) và site chạy HTTPS.
+  </div>
+</section>
+
+<section id="mailer">
+  <h2 class="step"><span class="num">7</span> Mailer — việc còn nợ trước khi mở đăng ký</h2>
+
+  <p>Hiện tại chưa có mailer production. Điều đó có nghĩa là:</p>
+  <ul>
+    <li><code>getMailer()</code> <strong>throw</strong> khi <code>NODE_ENV=production</code>; không có console mailer
+      để rò link xác minh ra log host.</li>
+    <li>Đăng ký / đăng nhập vẫn chạy vì <code>AUTH_REQUIRE_EMAIL_VERIFICATION</code> đang để trống (= <code>false</code>):
+      đăng ký là tự xác minh.</li>
+    <li>Không có luồng reset mật khẩu qua email trong code hiện tại. Quên mật khẩu = sửa trực tiếp trong DB
+      hoặc thêm mailer.</li>
+  </ul>
+
+  <div class="callout danger">
+    <span class="tag">Đừng bật sớm</span>
+    Không đặt <code>AUTH_REQUIRE_EMAIL_VERIFICATION=true</code> trước khi cắm mailer thật: route đăng ký sẽ
+    <code>500</code> vì <code>getMailer()</code> ném lỗi.
+  </div>
+
+  <h3>Khi có mailer (Resend / Postmark / SMTP)</h3>
+  <ol>
+    <li>Implement interface <code>Mailer</code> trong <span class="file">apps/api/src/mailer.ts</span> và trả về từ
+      <code>getMailer()</code> theo một biến env (ví dụ <code>MAILER=resend</code>). Auth routes không phải sửa.</li>
+    <li>Thêm API key / SMTP credential vào Environment của Render.</li>
+    <li>Đặt <code>AUTH_REQUIRE_EMAIL_VERIFICATION=true</code> → deploy lại.</li>
+    <li>Đăng ký thử một account thật, bấm link trong mail, rồi mới mở đăng ký công khai.</li>
+  </ol>
+</section>
+
+<section id="van-hanh">
+  <h2 class="step"><span class="num">8</span> Vận hành &amp; chi phí</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Patch day</h3>
+      <p>Thứ tự bắt buộc: dữ liệu static lên web <strong>trước</strong>, rồi mới refresh API — vì icon path trong
+      Postgres trỏ vào <code>apps/web/public/tft</code>.</p>
+      <pre><code>npm run fetch-data &amp;&amp; npm run fetch-wisps &amp;&amp; npm run fetch-loot
+npm run fetch-comp-tips
+git add packages/shared/data apps/web/public/tft
+git commit -m "chore: patch data" &amp;&amp; git push</code></pre>
+      <p>Đợi Vercel xanh, rồi cron 19:00 (hoặc gọi tay) refresh API.</p>
+    </div>
+    <div class="card">
+      <h3>Refresh tay</h3>
+      <pre><code>curl -X POST \
+  -H "Authorization: Bearer $REFRESH_TOKEN" \
+  https://&lt;api&gt;/api/tft/refresh</code></pre>
+      <p>Cron chạy 12:00 UTC mỗi ngày. Đọc log job trong Render dashboard — <code>curl</code> không
+      <code>--fail</code> nên job vẫn xanh dù API trả 401/409/503.</p>
+    </div>
+    <div class="card">
+      <h3>Log &amp; rollback</h3>
+      <p>Log: Render → service → Logs; Vercel → Deployment → Functions/Runtime Logs.</p>
+      <p>Rollback web: Vercel → Deployments → chọn bản trước → <strong>Promote</strong>. Rollback API: Render →
+      Events → deploy lại commit cũ, hoặc revert trên <code>main</code>.</p>
+    </div>
+    <div class="card">
+      <h3>Giới hạn cần nhớ</h3>
+      <ul>
+        <li>Vercel rewrite ra ngoài: trần <strong>120 s</strong> mọi plan; <code>proxyTimeout</code> 90 s chỉ có
+          giá trị trong trần đó.</li>
+        <li>Coach AI: 45 s/câu; TTS 45 s/chunk. Câu dài nhiều chunk thì cộng dồn — đo trên deployment thật.</li>
+        <li>Supabase Free: 500 MB, project <strong>pause sau 7 ngày không hoạt động</strong>.</li>
+        <li>Vercel Hobby <strong>cấm dùng thương mại</strong>; có ads/donate là phải Pro.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Chi phí ước tính</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Chỗ</th><th>Phí</th></tr></thead>
+      <tbody>
+        <tr><td>Render web service (Starter)</td><td>~$7/tháng; cron tính riêng theo thời gian chạy</td></tr>
+        <tr><td>Supabase</td><td>Free cho giai đoạn đầu</td></tr>
+        <tr><td>Vercel</td><td>Hobby free (phi thương mại) hoặc Pro $20/tháng</td></tr>
+        <tr><td>Deepgram</td><td>Theo phút audio (STT); có credit free lúc đăng ký</td></tr>
+        <tr><td>VieNeu cloud</td><td>Theo ký tự; ~$0.01 cho một câu trả lời với <code>vieneu-v4</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="sub">Giá kiểm tra tại 10/2026 — xem lại bảng giá của từng platform trước khi chốt ngân sách.</p>
+
+  <h3>Dọn sau lần đăng nhập đầu</h3>
+  <ul class="check">
+    <li>Xoá <code>ADMIN_SEED_PASSWORD</code> (và có thể cả <code>ADMIN_EMAIL</code>) khỏi Render env — hai biến này
+      chỉ dùng để bootstrap admin đầu tiên.</li>
+    <li>Không bao giờ đặt <code>DATABASE_URL</code> hay key API vào env của Vercel — web không cần.</li>
+    <li>Xác nhận <code>/admin</code> chỉ vào được bằng account <code>role = admin</code>.</li>
+  </ul>
+</section>
+
+<section id="env">
+  <h2 class="step"><span class="num">A</span> Biến môi trường</h2>
+  <p class="sub">Chỉ nhập phần này vào đúng nơi. Web không cần key nào của API.</p>
+
+  <h3>Vercel (web)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Biến</th><th>Bắt buộc</th><th>Ghi chú</th></tr></thead>
+      <tbody>
+        <tr><td><code>BACKEND_URL</code></td><td>Có</td><td>Domain API; cần cả lúc build lẫn runtime</td></tr>
+        <tr><td><code>SITE_URL</code></td><td>Có</td><td>Domain web; dùng cho sitemap/robots</td></tr>
+        <tr><td><code>BACKEND_FETCH_TIMEOUT_MS</code></td><td>Không</td><td>Mặc định 8000; timeout gọi API khi render server</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Render (API)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Biến</th><th>Bắt buộc</th><th>Ghi chú</th></tr></thead>
+      <tbody>
+        <tr><td><code>DATABASE_URL</code></td><td>Có</td><td>Pooler session <code>:5432</code></td></tr>
+        <tr><td><code>REFRESH_TOKEN</code></td><td>Có</td><td>Bảo vệ <code>POST /api/tft/refresh</code></td></tr>
+        <tr><td><code>AUTH_WEB_ORIGIN</code></td><td>Có</td><td>Domain web; link xác minh + OAuth redirect</td></tr>
+        <tr><td><code>ADMIN_EMAIL</code> + <code>ADMIN_SEED_PASSWORD</code></td><td>Lần đầu</td><td>Bootstrap admin; xoá sau khi đăng nhập</td></tr>
+        <tr><td><code>DEEPGRAM_API_KEY</code></td><td>Tính năng voice</td><td>STT + TTS dự phòng</td></tr>
+        <tr><td><code>GOOGLE_API_KEY</code></td><td>Tính năng Coach AI</td><td>LLM provider <code>google</code></td></tr>
+        <tr><td><code>TTS_PROVIDER</code></td><td>Có</td><td><code>vieneu</code> trong cấu hình này; đổi <code>deepgram</code> chỉ cần sửa biến</td></tr>
+        <tr><td><code>VIENEU_TTS_URL</code></td><td>Có</td><td><code>https://api.vieneu.io/api</code>; không có URL thì VieNeu bị bỏ qua</td></tr>
+        <tr><td><code>VIENEU_TTS_API_KEY</code></td><td>Có</td><td>Key <code>vn_sk_…</code></td></tr>
+        <tr><td><code>VIENEU_TTS_VOICE</code></td><td>Không</td><td>Mặc định <code>Hải Đăng</code></td></tr>
+        <tr><td><code>GOOGLE_OAUTH_*</code></td><td>Không</td><td>Chỉ khi bật đăng nhập Google</td></tr>
+        <tr><td><code>AUTH_REQUIRE_EMAIL_VERIFICATION</code></td><td>Không</td><td>Để trống cho tới khi có mailer (bước 7)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="loi">
+  <h2 class="step"><span class="num">B</span> Lỗi thường gặp</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Triệu chứng</th><th>Nguyên nhân thường gặp</th><th>Xử lý</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Web 500 mọi trang, log <code>fetch failed</code></td>
+          <td><code>BACKEND_URL</code> sai hoặc thiếu lúc build</td>
+          <td>Sửa env rồi <strong>redeploy</strong> (rewrite đã biên dịch vào build cũ)</td>
+        </tr>
+        <tr>
+          <td><code>/api/health/ready</code> trả 503, log timeout/ECONNREFUSED</td>
+          <td>Dùng direct connection (IPv6) hoặc transaction mode</td>
+          <td>Đổi sang pooler session <code>:5432</code></td>
+        </tr>
+        <tr>
+          <td>API deploy đỏ ở <code>npm ci</code></td>
+          <td><code>package-lock.json</code> lệch với <code>package.json</code></td>
+          <td>Chạy <code>npm install</code> ở local, commit lock file</td>
+        </tr>
+        <tr>
+          <td><code>Cannot find module '@metaboard/shared'</code></td>
+          <td>Root Directory / <code>rootDir</code> không phải gốc repo</td>
+          <td>Vercel: để trống Root Directory. Render: <code>rootDir: .</code> (đã có trong blueprint)</td>
+        </tr>
+        <tr>
+          <td>CSS/JS 404, trang trắng sau deploy</td>
+          <td>Output directory hoặc framework preset bị sửa tay</td>
+          <td>Để nguyên <code>vercel.json</code>: <code>apps/web/.next</code> + Next.js</td>
+        </tr>
+        <tr>
+          <td><code>sitemap.xml</code> ra <code>localhost:4173</code></td>
+          <td>Thiếu <code>SITE_URL</code></td>
+          <td>Thêm biến rồi redeploy</td>
+        </tr>
+        <tr>
+          <td>Đăng nhập xong vẫn như chưa đăng nhập</td>
+          <td>Cookie <code>Secure</code> nhưng test qua HTTP, hoặc gọi API domain trực tiếp</td>
+          <td>Dùng HTTPS và đúng domain web; kiểm tra cookie <code>mb_session</code></td>
+        </tr>
+        <tr>
+          <td><code>/api/tft/refresh</code> trả 401</td>
+          <td><code>REFRESH_TOKEN</code> của cron khác service</td>
+          <td>Đặt cùng một giá trị ở cả hai nơi</td>
+        </tr>
+        <tr>
+          <td><code>/api/tft/refresh</code> trả 503</td>
+          <td>Token chưa được cấu hình nên endpoint tự khoá</td>
+          <td>Thêm <code>REFRESH_TOKEN</code>, redeploy</td>
+        </tr>
+        <tr>
+          <td><code>/api/voice/tts/status</code> <code>available:false</code></td>
+          <td>Thiếu <code>VIENEU_TTS_URL</code>/key, hoặc key bị từ chối</td>
+          <td>Xem log Render: <code>tts_unavailable</code> vs <code>tts_credentials_rejected</code></td>
+        </tr>
+        <tr>
+          <td>TTS trả 429 liên tục</td>
+          <td>Key thử VieNeu chạm 30 request/ngày</td>
+          <td>Nâng cấp key, hoặc tạm đặt <code>TTS_PROVIDER=deepgram</code></td>
+        </tr>
+        <tr>
+          <td><code>/admin</code> trả 404/redirect lung tung</td>
+          <td>Chưa có account <code>role = admin</code>, hoặc đang mở route theo locale</td>
+          <td>Đăng nhập bằng <code>ADMIN_EMAIL</code>; <code>/admin</code> là route English-only, không có tiền tố locale</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <div class="wrap">
+    MetaBoard deploy runbook · nguồn chi tiết: <span class="file">docs/DEPLOYMENT.md</span>,
+    <span class="file">render.yaml</span>, <span class="file">vercel.json</span>,
+    <span class="file">docs/ai-assistant/voice.md</span> §6.
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('pre').forEach(function (pre) {
+    var button = document.createElement('button');
+    button.className = 'copy';
+    button.type = 'button';
+    button.textContent = 'Copy';
+    button.addEventListener('click', function () {
+      var text = pre.querySelector('code') ? pre.querySelector('code').innerText : pre.innerText;
+      navigator.clipboard.writeText(text).then(function () {
+        button.textContent = 'Đã copy';
+        button.classList.add('done');
+        setTimeout(function () {
+          button.textContent = 'Copy';
+          button.classList.remove('done');
+        }, 1600);
+      }, function () {
+        button.textContent = 'Ctrl+C';
+      });
+    });
+    pre.appendChild(button);
+  });
+</script>
+</body>
+</html>
