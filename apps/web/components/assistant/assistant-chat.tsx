@@ -41,6 +41,10 @@ type VoiceTtsStatus = { available: boolean; maxChars: number };
 
 type SpeechRecognitionResultLike = ArrayLike<{ transcript: string }> & { isFinal: boolean };
 
+// Flux Vietnamese reads slowly and Deepgram's `speed` is ignored for vi, so the
+// pace is adjusted on the client; pitch is preserved by the browser.
+const speechPlaybackRate = 1.15;
+
 type SpeechRecognitionEventLike = {
   resultIndex: number;
   results: ArrayLike<SpeechRecognitionResultLike>;
@@ -355,6 +359,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   function playChunkAudio(url: string, seq: number): Promise<void> {
     return new Promise((resolve, reject) => {
       const audio = new Audio(url);
+      audio.playbackRate = speechPlaybackRate;
       audioRef.current = audio;
       const settle = () => {
         if (audioRef.current === audio) audioRef.current = null;

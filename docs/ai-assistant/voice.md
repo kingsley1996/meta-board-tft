@@ -179,6 +179,9 @@ dev; mỗi chunk vẫn đi qua cùng pipeline nên độ trễ do engine quyết
   trắng. Giới hạn chunk là `min(TTS_CHUNK_CHARACTERS từ /tts/status, 180)`.
 - Chunk được phát nối tiếp qua Audio element; chỉ khi chunk cuối kết thúc mới tắt
   trạng thái "đang đọc".
+- Audio đặt `playbackRate = 1.15` để bù tốc độ đọc chậm của Flux tiếng Việt
+  (Deepgram nhận tham số `speed` nhưng hiện bỏ qua với `vi`); trình duyệt giữ
+  nguyên pitch khi tăng rate.
 
 ### 3.4 Dừng và thay thế
 
