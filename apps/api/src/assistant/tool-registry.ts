@@ -259,12 +259,14 @@ function lootTablePayload(table: LootTableData, lang: Lang) {
     })),
     outcomes: table.outcomes.map((outcome) => ({
       chance: outcome.chance,
+      // Null-heavy item objects blow the tool-message budget on multi-table
+      // pages; omit fields the row does not carry.
       items: outcome.items.map((item) => ({
         kind: item.kind,
         name: translateLoot(item.name, 'outcome-item', lang),
-        count: item.count,
-        cost: item.cost,
-        stars: item.stars,
+        ...(item.count !== null ? { count: item.count } : {}),
+        ...(item.cost !== null ? { cost: item.cost } : {}),
+        ...(item.stars !== null ? { stars: item.stars } : {}),
       })),
     })),
   };

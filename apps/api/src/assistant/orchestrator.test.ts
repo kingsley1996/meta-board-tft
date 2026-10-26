@@ -9,11 +9,13 @@ import {
   isPromptInjection,
   isReferenceDataQuestion,
   resolveFollowUpText,
+  shouldStreamAnswer,
   tomoPersonaReply,
   traceSystem,
   ungroundedNumbers,
 } from './orchestrator.ts';
 import type { Evidence } from './prompt.ts';
+import type { MechanicsEvidence } from './mechanics-knowledge.ts';
 
 const ahri = { type: 'champion', id: 'champion:DA_18_Ahri' } as unknown as CatalogEntity;
 const comp = { slug: 'ahri-spellweaver', title: 'Ahri & Morgana Blossom' } as unknown as CompData;
@@ -133,6 +135,7 @@ test('mechanic answers cannot add numbers missing from evidence', () => {
     itemHolders: [],
     unitBuilds: [],
     itemUsage: [],
+    dataVersions: { activePatch: '18.5b', statsPatch: '18.5b', mechanicsPatch: '18.4' },
     stats: [],
     candidates: [],
     comparison: null,
@@ -141,6 +144,18 @@ test('mechanic answers cannot add numbers missing from evidence', () => {
   } satisfies Evidence;
   assert.deepEqual(ungroundedNumbers('Coven gains 22 Essence at 3 units.', evidence), ['22', '3']);
   assert.deepEqual(ungroundedNumbers('Set 18 uses patch 18.4.', evidence), []);
+});
+
+test('buffers streaming where validation rewrites answers, streams plain lookups', () => {
+  const mechanics = { setId: '18', setName: 'Enchanted Wilds', topic: 'coven', patch: '18.4', rules: ['x'] } as MechanicsEvidence;
+  assert.equal(shouldStreamAnswer('entity_lookup', null), true);
+  assert.equal(shouldStreamAnswer('comp_search', null), true);
+  assert.equal(shouldStreamAnswer('comp_recommendation', null), true);
+  assert.equal(shouldStreamAnswer('gameplay_knowledge', mechanics), false);
+  assert.equal(shouldStreamAnswer('gameplay_knowledge', null), true);
+  assert.equal(shouldStreamAnswer('meta_query', null), false);
+  assert.equal(shouldStreamAnswer('comp_comparison', null), false);
+  assert.equal(shouldStreamAnswer('strategy_analysis', null), false);
 });
 
 test('fingerprints the near-constant system prompt instead of storing it', () => {

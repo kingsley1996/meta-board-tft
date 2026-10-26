@@ -13,6 +13,14 @@ import type {
 import type { StatEvidence } from './meta-stats.ts';
 import { mechanicsPrimer, type MechanicsEvidence } from './mechanics-knowledge.ts';
 
+// Per-source data patches so the model can label numbers instead of silently
+// mixing sources updated at different times.
+export type DataVersions = {
+  activePatch: string;
+  statsPatch: string | null;
+  mechanicsPatch: string | null;
+};
+
 export type Evidence = {
   intent: AssistantIntent;
   setId: string;
@@ -27,6 +35,7 @@ export type Evidence = {
   itemHolders: ItemHolder[];
   unitBuilds: UnitBuildEvidence[];
   itemUsage: ItemUsageEvidence[];
+  dataVersions: DataVersions;
   stats: StatEvidence[];
   candidates: RankedComp[];
   comparison: CompComparison | null;
@@ -126,6 +135,7 @@ function evidenceBody(evidence: Evidence, localize: LocalizeName = identity, loc
     itemHolders: evidence.itemHolders
       .slice(0, 6)
       .map((holder) => ({ ...holder, item: localize(holder.item), holders: holder.holders.map(localize) })),
+    dataVersions: evidence.dataVersions,
     unitBuilds: evidence.unitBuilds
       .slice(0, 3)
       .map((build) => ({
@@ -187,6 +197,7 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
     'If relatedComps are present, mention them as comps that use the item.',
     'When championBuilds or unitBuilds are present, base item recommendations on them: unitBuilds are winrate-backed builds from live match data (count is the sample size, avg the average placement), championBuilds are curated comp builds — name the items and the source of each build. Say a champion has no recorded build only when both lists are empty.',
     'When itemHolders or itemUsage are present, name the champions that hold the asked item: itemUsage ranks champions by placement while holding it (delta is the change versus that champion overall average; negative is better) and stages gives win rate by the stage the item was completed. Say no holder is recorded only when both lists are empty.',
+    'When a build or statistic has a small sample next to others in the evidence (its count is much lower, or only a few hundred games), flag the limited confidence instead of declaring it best; on close comparisons prefer the larger-sample number and say so.',
     'For augment questions about a champion, recommend from the augments of the comps that field that champion and say the recommendation is comp-level.',
     'When candidates are present, rank 1 is the top pick. Follow rank order and name rank 1 first, even when scores tie. Never call a higher rank number better.',
     'Use the comp tier exactly as written in evidence. Never output a placeholder such as "Hạng X" or invent a meta rank.',
@@ -195,7 +206,7 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
     'If the evidence is missing or insufficient, say so plainly instead of guessing.',
     'An empty tool result means no match was found in this data — say exactly that, and never claim the champion, comp or interaction does not exist in the game.',
     'A tool error or timeout means the value could not be verified — say so and answer only from the remaining evidence; never turn an error into a game fact.',
-    'If evidence entries carry different patch versions (e.g. mechanics tables vs live stats), do not merge them as one version; label each patch or use only the current-patch data.',
+    'If evidence entries carry different patch versions (e.g. mechanics tables vs live stats), do not merge them as one version; label each patch or use only the current-patch data. dataVersions names the active game patch plus the stats and mechanics data patches; when either lags activePatch, say which patch each number comes from instead of presenting it as current.',
     'If the user asks for a decision and key state (level, gold, HP, board) is missing, ask one short clarifying question; for lookups and factual questions, answer from evidence without asking for game state. A conditional answer under explicit assumptions beats refusing.',
     'If the user asks for a short or quick answer, keep the summary under 60 words and use at most 1 section.',
     'Separate facts (directly supported by evidence), inference (your reasoning — name the evidence it relies on) and recommendations (state the conditions they apply under). Never present an inference as a verified game mechanic.',

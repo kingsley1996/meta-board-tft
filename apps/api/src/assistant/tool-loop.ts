@@ -54,6 +54,11 @@ function envInt(name: string, fallback: number, min: number, max: number): numbe
   return Number.isInteger(value) ? Math.min(max, Math.max(min, value)) : fallback;
 }
 
+function toolResultChars(): number {
+  const value = Number(process.env.ASSISTANT_TOOL_RESULT_CHARS);
+  return Number.isFinite(value) && value > 0 ? Math.trunc(value) : 12_000;
+}
+
 export function toolLoopConfig(): ToolLoopConfig {
   return {
     maxRounds: envInt('ASSISTANT_MAX_TOOL_ROUNDS', 3, 1, 5),
@@ -223,7 +228,9 @@ export async function runToolLoop(input: {
         comps: result?.comps?.length ?? 0,
         stats: result?.stats?.length ?? 0,
       });
-      messages.push({ role: 'tool', tool_name: call.name, content: truncate(content, 8_000) });
+      // Inline loot pages (nine Coven cashout tables) exceed 8k chars; a cut
+      // payload is broken JSON the model reads as missing data.
+      messages.push({ role: 'tool', tool_name: call.name, content: truncate(content, toolResultChars()) });
     }
 
     if (input.finalizeModel === false && results.length) {

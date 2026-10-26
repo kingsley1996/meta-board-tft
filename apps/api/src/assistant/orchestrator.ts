@@ -508,6 +508,16 @@ export function ungroundedNumbers(answer: string, evidence: Evidence): string[] 
   return [...new Set(answer.match(/\d+/g) ?? [])].filter((number) => !allowed.has(number));
 }
 
+// Streaming shows the answer field before parse/ungrounded-number validation
+// completes, and those validators can rewrite the whole answer. Branches where
+// that rewrite is common (stats, mechanics, comparisons, strategy) buffer
+// instead; plain lookups and comp lists stream as usual.
+export function shouldStreamAnswer(intent: AssistantIntent, mechanics: MechanicsEvidence | null): boolean {
+  if (intent === 'meta_query' || intent === 'comp_comparison' || intent === 'strategy_analysis') return false;
+  if (intent === 'gameplay_knowledge' && mechanics) return false;
+  return true;
+}
+
 function sourceForMechanics(setId: string, lang: Lang): AssistantSource {
   const source = mechanicsSource(setId, lang);
   return {
@@ -842,7 +852,9 @@ export function detectIntent(text: string, entities: CatalogEntity[], comps: Com
       // the item "Blue Buff", so the Vietnamese forms must be contiguous.
       /\b(?:bi|duoc|vua)\s+buff\b|\b(?:got|was|just|heard)\b[^.?!]*\bbuff\b/.test(text)) &&
     /\b(change|changed|thay doi|buff|buffed|nerf|nerfed|notes?|moi|new)\b/.test(text);
-  const hasCurrentPatch = /\b(patch|phien ban|set|mua)\b/.test(text) && /\b(hien tai|current|now|nay)\b/.test(text);
+  const hasCurrentPatch =
+    (/\b(patch|phien ban|set|mua)\b/.test(text) && /\b(hien tai|current|now|nay)\b/.test(text)) ||
+    /\b(?:set|patch|phien ban)\s*nao\b/.test(text);
   const hasLookup = /\b(la gi|what is|whats|ability|ky nang|skill|mana|noi tai|toc he|trait|item|trang bi|augment|nang cap|gia|cost|mo ta|describe|tell me about|thong tin)\b/.test(text);
   const hasRecommendation = RECOMMEND_WORD.test(text) || HAVE_WORD.test(text) || COMP_WORD.test(text);
 
@@ -1323,6 +1335,13 @@ export async function answerAssistant(
     };
   }
 
+  // Per-source patches: the mechanics tables and MetaBoard stats refresh on
+  // their own schedules, so the model must label which patch numbers come from.
+  const dataVersions = {
+    activePatch: meta.patch,
+    statsPatch: metaStats.source.patch ?? null,
+    mechanicsPatch: mechanics?.patch ?? null,
+  };
   const agentEvidence: Evidence = {
     intent,
     setId: meta.setId,
@@ -1337,6 +1356,7 @@ export async function answerAssistant(
     itemHolders: itemHolderEvidence,
     unitBuilds: unitBuildEvidence,
     itemUsage: itemUsageEvidence,
+    dataVersions,
     stats,
     candidates,
     comparison,
@@ -1571,6 +1591,7 @@ export async function answerAssistant(
     itemHolders: itemHolderEvidence,
     unitBuilds: unitBuildEvidence,
     itemUsage: itemUsageEvidence,
+    dataVersions,
     stats,
     candidates,
     comparison,
@@ -1627,7 +1648,7 @@ export async function answerAssistant(
   try {
     let result = toolFinal;
     if (!result || !parseGeneratedAnswer(result.text)) {
-      const onDelta = deps.onAnswerDelta;
+      const onDelta = shouldStreamAnswer(intent, mechanics) ? deps.onAnswerDelta : undefined;
       result = await withInferenceSlot(() =>
         tracedGenerate('answer', {
           system: buildSystemPrompt(request.lang, evidence),

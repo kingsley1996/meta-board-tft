@@ -1,0 +1,11 @@
+{"id": "reg-akali-build-vi", "question": "Akali nên lên trang bị gì", "lang": "vi", "expect": {"status": "answered", "intent": "entity_lookup", "mode": "llm", "forbidden": ["Dữ liệu hiện có chưa đủ"]}}
+{"id": "reg-akali-build-en", "question": "What items should Akali build?", "lang": "en", "expect": {"status": "answered", "intent": "comp_recommendation", "mode": "llm", "forbidden": ["not enough data", "insufficient data"]}}
+{"id": "reg-item-holders-vi", "question": "Edge of Night lên cho ai", "lang": "vi", "expect": {"status": "answered", "intent": "gameplay_knowledge", "forbidden": ["Dữ liệu hiện có chưa đủ"]}}
+{"id": "reg-item-holders-en", "question": "Who should hold Edge of Night?", "lang": "en", "expect": {"status": "answered", "mode": "llm"}}
+{"id": "reg-coven-cashout-vi", "question": "Coven nên nổ hũ mốc bao nhiêu, mốc đó có phần thưởng gì?", "lang": "vi", "expect": {"status": "answered", "intent": "gameplay_knowledge", "matches": ["Tinh Hoa|Tinh túy|Essence|Thu hoạch"], "forbidden": ["Dữ liệu hiện có chưa đủ", "không có chi tiết"]}}
+{"id": "reg-coven-vi-name", "question": "Tiên Hắc Ám nên nổ hũ mốc bao nhiêu", "lang": "vi", "expect": {"status": "answered", "matches": ["mốc|Thu hoạch|Tinh"], "forbidden": ["Dữ liệu hiện có chưa đủ"]}}
+{"id": "reg-tinh-tuy-topic-vi", "question": "Tinh Túy tích như thế nào?", "lang": "vi", "expect": {"status": "answered", "intent": "gameplay_knowledge"}}
+{"id": "reg-followup-negation-vi", "question": "Nếu không chơi với Tà Thuật thì sao", "lang": "vi", "history": [{"role": "user", "content": "Tiên Hắc Ám nên nổ hũ mốc bao nhiêu"}, {"role": "assistant", "content": "Với Tiên Hắc Ám, nên nhắm mốc thu hoạch 250+ trước để lấy AP, rồi mới nổ các mốc 40 nếu cần tích lũy thêm."}], "expect": {"status": "answered", "intent": "gameplay_knowledge", "forbidden": ["chưa tìm thấy comp nào khớp"]}}
+{"id": "reg-comp-detail-vi", "question": "Comp Akali Mặt Trời lên đồ thế nào?", "lang": "vi", "expect": {"status": "answered", "contains": ["Akali"]}}
+{"id": "reg-bare-cashout-vi", "question": "Nên nổ hũ mốc bao nhiêu?", "lang": "vi", "expect": {"status": "needs_clarification"}}
+{"id": "reg-set-patch-vi", "question": "MetaBoard đang dùng set nào?", "lang": "vi", "expect": {"status": "answered", "intent": "set_patch", "mode": "deterministic", "contains": ["Set 18"]}}
