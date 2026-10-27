@@ -4,6 +4,15 @@ import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { currentUser } from '@/lib/session';
 
+// ?next arrives from the URL and is pushed after a successful sign-in, so it is
+// honoured only for an in-app path. A protocol-relative or absolute value would
+// turn login into an open redirect to someone else's site.
+function safeNextPath(raw: string | undefined, lang: Lang): string {
+  const fallback = `/${lang}/assistant`;
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.includes('\\')) return fallback;
+  return raw;
+}
+
 export default async function LoginPage({
   params,
   searchParams,
@@ -26,7 +35,7 @@ export default async function LoginPage({
       <p className="text-center text-sm text-mist">{t.subtitle}</p>
       <LoginPanel
         lang={lang}
-        nextPath={query.next ?? `/${lang}/assistant`}
+        nextPath={safeNextPath(query.next, lang)}
         initialMode={query.mode === 'signup' ? 'signup' : 'login'}
         googleState={query.google === 'error' ? 'error' : query.google === 'success' ? 'success' : null}
       />
