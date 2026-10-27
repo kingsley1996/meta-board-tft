@@ -9,6 +9,7 @@ import type { Tier } from '@/lib/tiers';
 import {
   AssistantApiError,
   askAssistantStream,
+  deleteAssistantConversation,
   getAssistantConversation,
   listAssistantConversations,
   sendAssistantFeedback,
@@ -155,6 +156,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [conversations, setConversations] = useState<AssistantConversation[]>([]);
   const [conversationsLoading, setConversationsLoading] = useState(false);
+  const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tomoCue, setTomoCue] = useState<TomoCue | null>(null);
 
@@ -788,6 +790,26 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     }
   }
 
+  // Deleting from the sidebar removes history only. If the deleted row is the
+  // conversation on screen, newChat() has to run too: leaving its id behind would
+  // send the next question to a conversation the database no longer has.
+  async function removeConversation(conversation: AssistantConversation) {
+    if (deletingConversationId) return;
+    const title = conversation.title || t.untitledConversation;
+    if (!window.confirm(t.conversationDeleteConfirm(title))) return;
+    setDeletingConversationId(conversation.id);
+    setError(null);
+    try {
+      await deleteAssistantConversation(conversation.id);
+      setConversations((current) => current.filter((entry) => entry.id !== conversation.id));
+      if (conversation.id === conversationId) newChat();
+    } catch {
+      setError(t.conversationDeleteFailed);
+    } finally {
+      setDeletingConversationId(null);
+    }
+  }
+
   function newChat() {
     setSidebarOpen(false);
     if (loading) return;
@@ -874,9 +896,12 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
           <button
             type="button"
             onClick={newChat}
-            className="smooth flex-1 rounded-lg border border-line bg-util px-3 py-2 text-left text-sm font-semibold text-fog hover:border-brand-soft"
+            className="smooth flex flex-1 items-center gap-2 rounded-lg border border-line bg-util px-3 py-2 text-left text-sm font-semibold text-fog hover:border-brand-soft"
           >
-            {t.clear}
+            <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 shrink-0 fill-none stroke-current stroke-[1.9]">
+              <path d="M10 4.5v11M4.5 10h11" strokeLinecap="round" />
+            </svg>
+            <span className="truncate">{t.clear}</span>
           </button>
           <button
             type="button"
@@ -888,22 +913,37 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
           </button>
         </div>
         <p className="px-1 text-[10px] font-semibold uppercase tracking-wide text-mist">{t.history}</p>
-        <nav aria-label={t.history} aria-busy={conversationsLoading} className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto">
+        <nav aria-label={t.history} aria-busy={conversationsLoading} className="min-h-0 flex-1 overflow-y-auto">
           {conversations.length ? (
-            conversations.map((conversation) => (
-              <button
-                key={conversation.id}
-                type="button"
-                onClick={() => void openConversation(conversation.id)}
-                aria-current={conversation.id === conversationId ? 'true' : undefined}
-                title={conversation.title || t.untitledConversation}
-                className={`smooth shrink-0 truncate rounded-md px-2 py-2 text-left text-xs font-semibold ${
-                  conversation.id === conversationId ? 'bg-util text-brand-soft' : 'text-mist hover:bg-util hover:text-fog'
-                }`}
-              >
-                {conversation.title || t.untitledConversation}
-              </button>
-            ))
+            <ul className="flex flex-col gap-0.5">
+              {conversations.map((conversation) => (
+                <li key={conversation.id} className="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => void openConversation(conversation.id)}
+                    aria-current={conversation.id === conversationId ? 'true' : undefined}
+                    title={conversation.title || t.untitledConversation}
+                    className={`smooth min-w-0 flex-1 truncate rounded-md px-2 py-2 text-left text-xs font-semibold ${
+                      conversation.id === conversationId ? 'bg-util text-brand-soft' : 'text-mist hover:bg-util hover:text-fog'
+                    }`}
+                  >
+                    {conversation.title || t.untitledConversation}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void removeConversation(conversation)}
+                    disabled={deletingConversationId === conversation.id}
+                    aria-label={`${t.conversationDelete}: ${conversation.title || t.untitledConversation}`}
+                    title={t.conversationDelete}
+                    className="smooth shrink-0 rounded-md p-1.5 text-mist hover:bg-util hover:text-tier-s disabled:opacity-40"
+                  >
+                    <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 fill-none stroke-current stroke-[1.6]">
+                      <path d="M3.5 5.5h13M8 5.5V3.5h4v2M5.5 5.5l.9 10a1 1 0 0 0 1 .9h5.2a1 1 0 0 0 1-.9l.9-10M8.5 8.5v6M11.5 8.5v6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                </li>
+              ))}
+            </ul>
           ) : (
             <p className="px-2 py-1 text-xs text-mist">{conversationsLoading ? '…' : t.noConversations}</p>
           )}
