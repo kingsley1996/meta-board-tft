@@ -11,7 +11,9 @@
     "fetch-loot": "node scripts/fetch-loot-tables.mjs",
     "fetch-comp-tips": "node scripts/fetch-tftacademy-tips.mjs",
     "extract-translations": "node scripts/extract-translation-tasks.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "fetch-meta": "node scripts/fetch-metatft.mjs",
+    "fetch-economy": "node scripts/fetch-economy.mjs"
   },
   "dependencies": {
     "@metaboard/shared": "*",

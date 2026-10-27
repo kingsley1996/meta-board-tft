@@ -29,7 +29,10 @@
     "build:knowledge": "npm run build:knowledge --workspace @metaboard/api",
     "test:rag": "npm run test:rag --workspace @metaboard/api",
     "test:quality": "npm run test:quality --workspace @metaboard/api",
-    "test:accuracy": "npm run test:accuracy --workspace @metaboard/api"
+    "test:accuracy": "npm run test:accuracy --workspace @metaboard/api",
+    "data:pull": "npm run fetch-data && npm run fetch-meta && npm run fetch-comp-tips && npm run fetch-wisps && npm run fetch-loot && npm run fetch-economy && npm run build:knowledge",
+    "fetch-meta": "npm run fetch-meta --workspace @metaboard/web",
+    "fetch-economy": "npm run fetch-economy --workspace @metaboard/web"
   },
   "devDependencies": {
     "playwright": "^1.64.1",
