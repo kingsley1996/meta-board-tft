@@ -419,7 +419,7 @@ export function findFuzzyEntityMentions(catalog: Catalog, text: string, limit = 
     for (let start = 0; start + size <= tokens.length; start += 1) {
       const window = tokens.slice(start, start + size).join(' ');
       if (window.length < 4) continue;
-      for (const [alias, ids] of catalog.aliases) {
+      for (const [alias, ids] of catalog.aliasesSpaced) {
         if (Math.abs(alias.length - window.length) > 2) continue;
         const distance = editDistance(window, alias);
         const allowed = alias.length >= 8 ? 2 : 1;

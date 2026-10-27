@@ -170,7 +170,7 @@ function traceMessages(messages: ProviderChatMessage[]): unknown[] {
 
 const SIMPLE_INTENTS: AssistantIntent[] = ['entity_lookup', 'comp_search', 'gameplay_knowledge'];
 const COMP_WORD = /\b(comp|comps|doi hinh|team|build|composition)\b/;
-const RECOMMEND_WORD = /\b(tim|find|recommend|goi y|phu hop|nen choi|choi gi|item nao|trang bi nao|which items?|what items?|best|strongest|manh nhat|tot nhat|easiest|de choi|don gian|build|meta)\b/;
+const RECOMMEND_WORD = /\b(tim|find|recommend|goi y|phu hop|nen choi|choi gi|item nao|trang bi nao|which items?|what items?|best|strongest|manh nhat|tot nhat|easiest|de choi|don gian|build|meta|trau bo|trau nhat|tank)\b/;
 const HAVE_WORD = /\b(toi co|minh co|i have|with|voi|using|dung)\b/;
 // Champion + item wording ("Akali nên lên trang bị gì", "what items on Akali");
 // without it those questions fall back to bare entity lookup with no builds.
@@ -855,7 +855,7 @@ export function tomoPersonaReply(text: string, lang: Lang): string | null {
 }
 
 export function detectIntent(text: string, entities: CatalogEntity[], comps: CompData[], setId?: string): AssistantIntent {
-  const hasCompare = /\b(so sanh|compare|versus|vs|khac nhau|difference)\b/.test(text);
+  const hasCompare = /\b(so sanh|compare|versus|vs|khac nhau|khac gi|khac biet|diem khac|difference)\b/.test(text);
   const hasMeta = /\b(win ?rate|winrate|top ?4|top4|avg|average|placement|thong ke|ti le thang|ty le thang)\b/.test(text);
   const hasPatchChange =
     (/\b(patch|phien ban|what changed|notes?|co gi moi|whats new|what is new|nerfed|nerfs?|buffed)\b/.test(text) ||
@@ -910,7 +910,7 @@ export function detectIntent(text: string, entities: CatalogEntity[], comps: Com
     RECOMMEND_WORD.test(text) &&
     (styleOf(text) ||
       /\b(?:tier|hang)\s*[sabcx]\b/.test(text) ||
-      /\b(?:manh nhat|strongest|tot nhat|best)\b/.test(text) ||
+      /\b(?:manh nhat|strongest|tot nhat|best|trau nhat|trau bo|tank)\b/.test(text) ||
       difficultyOf(text) !== null)
   ) {
     return 'comp_recommendation';
@@ -1387,7 +1387,7 @@ async function answerAssistantImpl(
       !rankingQuery.augmentIds.length &&
       !rankingQuery.style &&
       rankingQuery.difficulty === null &&
-      /\b(?:manh nhat|strongest|tot nhat|best)\b/.test(text)
+      /\b(?:manh nhat|strongest|tot nhat|best|trau nhat|trau bo|tank)\b/.test(text)
     ) {
       candidates = comps.filter((comp) => comp.tier === 'S').slice(0, 5).map(candidateFromComp);
     }
@@ -1748,9 +1748,9 @@ async function answerAssistantImpl(
 
   try {
     let result = toolFinal;
-    if (!result || !parseGeneratedAnswer(result.text)) {
-      const onDelta = shouldStreamAnswer(intent, mechanics) ? deps.onAnswerDelta : undefined;
-      result = await withInferenceSlot(() =>
+    let parsed = result ? parseGeneratedAnswer(result.text) : null;
+    const callAnswer = () =>
+      withInferenceSlot(() =>
         tracedGenerate('answer', {
           system: buildSystemPrompt(request.lang, evidence),
           messages: [
@@ -1765,11 +1765,22 @@ async function answerAssistantImpl(
           ],
           maxOutputTokens: 800,
           signal,
-          ...(onDelta ? { onDelta: createAnswerFieldStreamer(onDelta) } : {}),
+          ...(shouldStreamAnswer(intent, mechanics) && deps.onAnswerDelta
+            ? { onDelta: createAnswerFieldStreamer(deps.onAnswerDelta) }
+            : {}),
         })
       );
+    if (!parsed) {
+      result = await callAnswer();
+      parsed = parseGeneratedAnswer(result.text);
+      if (!parsed) {
+        // Gateway models occasionally emit invalid JSON (unescaped quotes,
+        // raw newlines in Vietnamese prose); one regeneration recovers most of
+        // them before the deterministic fallback has to take over.
+        result = await callAnswer();
+        parsed = parseGeneratedAnswer(result.text);
+      }
     }
-    const parsed = parseGeneratedAnswer(result.text);
     if (!parsed) {
       logReasoningStep({
         step: 'validation',
@@ -1788,7 +1799,7 @@ async function answerAssistantImpl(
         outputSummary: summarizeReasoningText(referenceAnswer || deterministic.answer),
         details: { reason: 'invalid_llm_answer' },
       });
-      assistantLog('invalid_answer', { length: result.text.length, sample: summarizeReasoningText(result.text, 300) });
+      assistantLog('invalid_answer', { length: (result?.text ?? '').length, sample: summarizeReasoningText(result?.text ?? '', 300) });
       return {
         ...base,
         answer: referenceAnswer || deterministic.answer,

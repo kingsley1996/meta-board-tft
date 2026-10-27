@@ -200,7 +200,7 @@ test('findFuzzyEntityMentions resolves typos and STT errors within edit distance
   const catalog = {
     byId: new Map(entities.map((entity) => [entity.id, entity])),
     byName: new Map(entities.map((entity) => [entity.name, entity])),
-    aliases: new Map(
+    aliasesSpaced: new Map(
       entities.flatMap((entity) =>
         [entity.name, entity.nameVi].map((alias) => [normalizeSpaced(alias), new Set([entity.id])])
       )

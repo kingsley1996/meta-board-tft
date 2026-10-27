@@ -86,7 +86,7 @@ for (const entry of cases) {
       if (!answer.sources.some((item) => item.id === source)) problems.push(`missing source ${source}`);
     }
     const fallback = answer.limitations.some((item) =>
-      /temporarily unavailable|tạm thời không khả dụng|generated answer was invalid|contained numbers not in the data/i.test(item)
+      /temporarily unavailable|tạm thời không khả dụng|generated answer was invalid|câu trả lời tự động không hợp lệ|contained numbers not in the data|chứa số liệu không có trong dữ liệu/i.test(item)
     );
     results.push({
       id: entry.id,

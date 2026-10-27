@@ -67,7 +67,11 @@ export function parseStrategyState(text: string): StrategyState {
     level: bounded(matchInt(cleaned, /\b(?:level|lvl|lv|cap)\s*(\d{1,2})\b/), 1, MAX_LEVEL),
     xp: bounded(matchInt(cleaned, /\b(\d{1,3})\s*(?:xp|kn|kinh nghiem)\b/), 0, 300),
     gold: bounded(matchInt(cleaned, /\b(\d{1,3})\s*(?:vang|gold|g)\b/), 0, 300),
-    hp: bounded(matchInt(cleaned, /\b(\d{1,3})\s*(?:hp|mau)\b/), 1, 200),
+    hp: bounded(
+      matchInt(cleaned, /\b(\d{1,3})\s*(?:hp|mau)\b/) ?? matchInt(cleaned, /\b(?:hp|mau)\s*(\d{1,3})\b/),
+      1,
+      200
+    ),
     stage: stage ? `${stage[1]}${stage[2] ? `-${stage[2]}` : ''}` : null,
     streak: streak
       ? { kind: /win|thang/.test(streak[2]) ? 'win' : 'loss', count: Number(streak[1]) }
