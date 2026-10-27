@@ -33,6 +33,7 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
     { key: 'all', label: t.all },
     { key: 'completed', label: t.completed },
     { key: 'component', label: t.components },
+    { key: 'emblem', label: t.emblems },
     { key: 'radiant', label: t.radiant },
     { key: 'artifact', label: t.ornn },
   ];
@@ -89,7 +90,7 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
                     ))}
                   </span>
                 ) : (
-                  <Chip>{category === 'radiant' ? t.radiant : category === 'artifact' ? t.ornn : t.components}</Chip>
+                  <Chip>{category === 'radiant' ? t.radiant : category === 'artifact' ? t.ornn : category === 'emblem' ? t.emblems : t.components}</Chip>
                 )}
                 {tip?.kind === 'item' ? <p className="text-xs leading-relaxed text-mist">{tip.desc}</p> : null}
               </div>

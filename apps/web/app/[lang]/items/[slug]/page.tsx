@@ -73,7 +73,15 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
   const tip = getTip('item', item.name, lang);
   const stats = itemMetaByName[item.name];
   const category =
-    item.category === 'radiant' ? t.radiant : item.category === 'artifact' ? t.ornn : item.category === 'completed' ? t.completed : t.components;
+    item.category === 'radiant'
+      ? t.radiant
+      : item.category === 'artifact'
+        ? t.ornn
+        : item.category === 'emblem'
+          ? t.emblems
+          : item.category === 'completed'
+            ? t.completed
+            : t.components;
   const buildsInto = tft.items.filter((entry) => (entry.composition as string[]).includes(item.name));
   const description = tip?.kind === 'item' && tip.desc ? tip.desc : vi ? item.descVi || item.desc : item.desc;
   // Same-category peers with the closest average placement ("best similar items").

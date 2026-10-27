@@ -64,14 +64,14 @@ export const itemMetaByName: Record<string, ItemMetaStats> = Object.fromEntries(
   meta.items.map((item) => [item.name, item as unknown as ItemMetaStats])
 );
 
-// The tier-list board renders three groups — completed items plus Ornn
-// artifacts and Radiant upgrades, each with its own per-group tiers
+// The tier-list board renders three groups — completed gear (emblems included)
+// plus Ornn artifacts and Radiant upgrades, each with its own per-group tiers
 // (their smaller samples use MetaTFT's adjusted thresholds).
 const itemTiersFor = (category: string): TierItem[] => meta.items
   .filter((item) => item.category === category)
   .map((item) => ({ name: item.name, tier: item.tier as Tier, note: item.note }));
 
-export const itemTiers: TierItem[] = itemTiersFor('completed');
+export const itemTiers: TierItem[] = [...itemTiersFor('completed'), ...itemTiersFor('emblem')];
 export const artifactTiers: TierItem[] = itemTiersFor('artifact');
 export const radiantTiers: TierItem[] = itemTiersFor('radiant');
 

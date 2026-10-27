@@ -57,7 +57,15 @@ function buildIndex(lang: Lang): Entry[] {
   for (const item of tft.items) {
     const name = itemName(item.name, lang);
     const category =
-      item.category === 'radiant' ? t.itemsDb.radiant : item.category === 'artifact' ? t.itemsDb.ornn : item.category === 'completed' ? t.itemsDb.completed : t.itemsDb.components;
+      item.category === 'radiant'
+        ? t.itemsDb.radiant
+        : item.category === 'artifact'
+          ? t.itemsDb.ornn
+          : item.category === 'emblem'
+            ? t.itemsDb.emblems
+            : item.category === 'completed'
+              ? t.itemsDb.completed
+              : t.itemsDb.components;
     entries.push({
       id: `item:${item.slug}`,
       kind: 'item',

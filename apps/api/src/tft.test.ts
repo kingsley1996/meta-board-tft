@@ -43,6 +43,22 @@ test("the patch label is MetaTFT's, and provenance rides with it", async () => {
   assert.equal(data.provenance.metatft_fetched_at, String(meta.source.fetchedAt));
 });
 
+test('the catalog lists every item the tier stats rank, with text on each special', () => {
+  const raw = JSON.parse(readFileSync(sharedDataPath('tft.json'), 'utf8'));
+  const meta = JSON.parse(readFileSync(sharedDataPath('meta.json'), 'utf8'));
+  const catalog = new Map(raw.items.map((item: any) => [item.name.toLowerCase(), item]));
+
+  // The two files come from different crawlers, so an item MetaTFT still ranks
+  // can disappear from the catalog — the way four emblems did.
+  for (const entry of meta.items) {
+    assert.ok(catalog.has(entry.name.toLowerCase()), `catalog is missing ${entry.name} (${entry.category} tier row)`);
+  }
+  for (const item of raw.items.filter((entry: any) => ['emblem', 'artifact', 'radiant'].includes(entry.category))) {
+    assert.ok(item.desc, `${item.name} has no description`);
+    assert.ok(item.nameVi, `${item.name} has no Vietnamese name`);
+  }
+});
+
 test('the release id is stable for one snapshot and 12 hex chars', async () => {
   const first = await readSnapshot();
   const second = await readSnapshot();
