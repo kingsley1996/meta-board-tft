@@ -165,6 +165,29 @@ Google email matches. Conversations created while signed in attach to the
 account, so Coach AI history follows the user across devices. See
 `apps/api/.env.example` for `AUTH_*` variables.
 
+### Admin accounts and **Admin → Users**
+
+Admin is a role on the same `users` table — there is no second admin password
+and no admin cookie. `/admin` is English-only; its shell layout asks
+`/api/auth/me` and sends anyone who is not an admin to `/en/login?next=/admin`.
+That redirect is convenience only: every `/api/admin/*` route runs through
+`adminGuard` (`src/index.ts`), which answers `401 unauthenticated` without a
+valid `mb_session` and `403 admin_only` for a signed-in non-admin.
+
+**Admin → Users** (`/admin/users`) lists accounts (email, name, join date,
+role, newest first) and does exactly one write: change a role. Two guards keep
+an operator out of an empty admin table — you cannot demote your own account,
+and the last remaining admin cannot be demoted. Nothing else about an account is
+editable from the UI: there is no block, delete, or admin-set password, and no
+self-service password reset flow exists yet, so those are SQL operations for
+now (see `docs/DEPLOYMENT.md` §3). First owner on a fresh database: set
+`ADMIN_EMAIL` + `ADMIN_SEED_PASSWORD`, sign in once, then delete both variables
+(they are no-ops while any admin exists).
+
+Covered by `npm run test:server` (`src/accounts.test.ts`: listing shape, role
+validation, guard messages) and `npx playwright test apps/web/tests/admin.spec.ts`
+(gate: page redirect, `401` on read and write, forged cookie).
+
 ### Coach AI decision traces
 
 Admin users can inspect recent Coach AI events at **Admin → Assistant

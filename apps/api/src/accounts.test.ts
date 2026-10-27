@@ -123,6 +123,54 @@ test(
 );
 
 test(
+  'listAccountUsers returns exactly the rows the /admin/users table renders',
+  { skip: !hasDb },
+  async () => {
+    const { pool } = await import('./db.ts');
+    const { createUser, ensureAccountTables, listAccountUsers } = await import('./accounts.ts');
+    await ensureAccountTables();
+    // A Google-only account has no password_hash and no name: the page must
+    // still render it as a plain "user" row rather than drop or break on it.
+    const admin = await createUser({ email: `test-${randomUUID()}@example.com`, name: 'Case Admin', emailVerified: true, role: 'admin' });
+    const guest = await createUser({ email: `test-${randomUUID()}@example.com`, googleId: 'case-google-id' });
+    try {
+      const listed = await listAccountUsers(1000);
+      const adminRow = listed.find((row) => row.id === admin.id);
+      const guestRow = listed.find((row) => row.id === guest.id);
+      assert.equal(adminRow?.email, admin.email);
+      assert.equal(adminRow?.name, 'Case Admin');
+      assert.equal(adminRow?.role, 'admin');
+      assert.equal(guestRow?.name, null);
+      assert.equal(guestRow?.role, 'user');
+      assert.equal(Object.keys(guestRow ?? {}).sort().join(','), 'createdAt,email,id,name,role');
+
+      assert.match(adminRow?.createdAt ?? '', /^\d{4}-\d{2}-\d{2}T/);
+      assert.ok(Date.parse(guestRow?.createdAt ?? '') > 0, 'createdAt parses as an instant');
+      // newest first, which is what the operator reads at the top of the page.
+      for (let i = 1; i < listed.length; i += 1) {
+        assert.ok(Date.parse(listed[i - 1].createdAt) >= Date.parse(listed[i].createdAt), 'joined column is descending');
+      }
+      assert.equal((await listAccountUsers(1)).length, 1, 'limit caps the read');
+    } finally {
+      await pool.query('DELETE FROM users WHERE id = ANY($1::uuid[])', [[admin.id, guest.id]]);
+    }
+  }
+);
+
+test(
+  'setUserRole reports no such user for an id that is valid but absent',
+  { skip: !hasDb },
+  async () => {
+    const { ensureAccountTables, setUserRole } = await import('./accounts.ts');
+    await ensureAccountTables();
+    // The route maps this exact message to 404; a typo'd or already deleted id
+    // must not look like a blocked demotion (409) to the operator.
+    const result = await setUserRole(randomUUID(), 'admin', randomUUID());
+    assert.deepEqual(result, { ok: false, error: 'no such user' });
+  }
+);
+
+test(
   'ensureAdminFromEnv never resets an admin that already exists',
   { skip: !hasDb },
   async () => {

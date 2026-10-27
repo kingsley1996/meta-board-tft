@@ -150,6 +150,39 @@ cho cả project — tăng `PG_POOL_MAX` là tăng phần mình chiếm.
 | `ensureCatalogCurrent()` lúc boot | so `catalog_release` rồi mới ghi | catalog theo đúng commit đang chạy; cùng lô data thì không ghi gì |
 | `backendJson()` (web) | timeout 8 s + retry 1 lần (chỉ network/5xx) | cold start của API không còn biến trang public thành 500 |
 
+### Account admin, phiên, và /admin/users
+
+| Route | Quyền | Hành vi |
+|---|---|---|
+| `GET /api/admin/users` | admin | `listAccountUsers()` — id/email/name/role/createdAt, mới nhất trước, mặc định 200 dòng |
+| `PATCH /api/admin/users/:id/role` | admin | chỉ đổi role. `400` role lạ · `404 no such user` · `409` bị guard chặn · `200 {ok,user}` |
+| `/admin/users` (web) | admin | bảng + dropdown role; chính mình hiện chữ "you", không đổi được |
+
+`adminGuard` (`index.ts`) chạy cho toàn bộ prefix `/api/admin`: cookie `mb_session`
+hợp lệ nhưng role thường → `403 admin_only`; không có cookie / cookie rác → `401
+unauthenticated`. Trang web không phải biên an toàn — layout redirect là tiện nghi,
+kẻ gọi thẳng endpoint vẫn bị API chặn.
+
+Hai guard trong `setUserRole()` (`accounts.ts`) sinh ra `409`:
+**không tự hạ chính mình** và **không hạ admin cuối cùng** — hai đường duy nhất
+làm DB còn 0 admin và đá mọi người khỏi `/admin`.
+
+Đường cứu khi không còn cách nào vào `/admin` là SQL (dev: `psql "$DATABASE_URL"`
+trong `apps/api/.env`; prod: Supabase SQL editor):
+
+```sql
+update users set role = 'admin' where email = 'owner@example.com';  -- mở khoá /admin cho một account đã có
+select id, email, role from users order by created_at desc limit 20;
+```
+
+Quên mật khẩu của account admin *duy nhất* thì chưa có đường nào khác: schema có
+purpose `password_reset` nhưng **chưa có endpoint** nào dùng nó, và
+`ADMIN_EMAIL`/`ADMIN_SEED_PASSWORD` chỉ còn tác dụng khi DB chưa có admin nào.
+
+Test tự động (không cần credential, không ghi dòng nào vào DB):
+`npm run test:server` → `src/accounts.test.ts`; `npx playwright test
+apps/web/tests/admin.spec.ts` → gate trang, `401` cho cả đọc và ghi, cookie giả.
+
 ### Voice không phải tính năng miễn phí
 
 - STT: **chỉ cloud**, hết đường local. Một lượt nói đi hết chuỗi provider có key theo
@@ -232,7 +265,8 @@ nghĩa là catalog vẫn giữ lô cũ cho tới lần khởi động kế tiế
 | `GET <api>/api/tft/set` | `catalog_release` khớp lô data vừa commit; số champion/item/augment bằng đúng snapshot | hai nửa web/API lệch nhau |
 | Một request `/api/*` xuyên qua Vercel | header `Set-Cookie` còn nguyên `Secure` và cookie được gửi lại ở request kế — đây là test thật cho `AUTH_SECURE_COOKIES` + proxy |
 | `X-Forwarded-For` hai IP khác nhau (vote 2 lần) | hai `counted: true` — xác nhận `TRUST_PROXY` đang bật; hai lần cùng IP trả `counted: false` lần thứ hai |
-| `/en/login` → `/admin` | đăng nhập bằng account `role = admin` **và** vào được `/admin`; user thường bị đá lại login |
+| `/en/login` → `/admin` | đăng nhập bằng account `role = admin` **và** vào được `/admin`; user thường bị đá lại login. Mọi deep link `/admin/…` đều về `/en/login?next=/admin` (layout giữ trang tổng quan, không giữ trang đích) |
+| `/admin/users` với cookie của admin | trang render được danh sách email + dropdown role; đổi role một account thử và thấy `router.refresh` cập nhật ngay. `401`/`403`/redirect đã có test tự động, nên ở đây chỉ cần kiểm phần *thật* |
 | `GET <web>/sitemap.xml` | URL là domain thật — quên `SITE_URL` là nó trả `http://localhost:4173` |
 | `npm run test:e2e` với `PLAYWRIGHT_BASE_URL=https://<web>` | xanh trên deployment thật |
 
@@ -241,6 +275,7 @@ nghĩa là catalog vẫn giữ lô cũ cho tới lần khởi động kế tiế
 | Cái | Triệu chứng | nơi chốt |
 |---|---|---|
 | Không có account `role = admin` | `/admin` luôn redirect về `/en/login` dù đăng nhập đúng | bootstrap `ADMIN_EMAIL`/`ADMIN_SEED_PASSWORD` (`accounts.ts`) |
+| Phiên `mb_session` không thu hồi được từ admin | role đọc theo từng request nên hạ quyền có tác dụng ngay, nhưng **không có cách đăng xuất hộ người khác**: cookie đánh cắp vẫn sống đủ 30 ngày. Còn đường cuối là xoá dòng `user_sessions` của user đó bằng SQL | `accounts.ts` `sessionUser`/`deleteSession` |
 | Chạy `seed` trên DB đã có nội dung | **mọi comp/guide soạn qua admin biến mất**, không lỗi nào | đầu `seed.ts` |
 | API boot lúc DB chưa tới | catalog giữ lô cũ tới lần khởi động kế tiếp; log in `game catalog sync failed` | `index.ts` `applyCatalog()` · `/api/tft/set` → `catalog_release` |
 | `proxyTimeout` bị bỏ | câu trả lời Coach AI dài chết 502 đúng 30 s | `next.config.ts` |
@@ -272,6 +307,11 @@ treo, không phải chỗ trống của tài liệu:
   blueprint `sync: false` không tự xoá resource đã tạo.
 - **Google sign-in:** redirect `<site>/api/auth/google/callback`, `AUTH_WEB_ORIGIN`
   phải khớp origin web thật — cấu hình sau khi có domain, không phải trước.
+- **Quản lý user mới chỉ có đổi role.** `/admin/users` không chặn, không xoá, không
+  thu hồi phiên hộ, không đặt lại mật khẩu; quên mật khẩu cũng chưa có endpoint
+  `password_reset` dù schema đã chừa purpose đó. Tất cả đang là việc SQL
+  (§3 "Account admin, phiên, và /admin/users") — thêm hay không là quyết định của
+  chủ project, đừng tự dựng.
 - Newsletter gửi thủ công (export từ `/admin/subscribers`); PWA service worker là
   passthrough — **không** bật offline cache cho data comp, data cũ còn hại hơn một
   request phụ.
