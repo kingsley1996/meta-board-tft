@@ -1,9 +1,12 @@
 # Voice: nhận dạng giọng nói (STT) và đọc câu trả lời (TTS) của Coach AI
 
-> Cập nhật: 2026-10-26. Số liệu STT là số đo thực tế trên môi trường dev
-> (macOS arm64, API Node 22). TTS chạy engine chính theo `TTS_PROVIDER`
-> (`deepgram` mặc định hoặc `vieneu`), engine còn lại là dự phòng;
-> không còn fallback Web Speech API.
+> Cập nhật: 2026-10-27. Số liệu STT là số đo thực tế trên môi trường dev
+> (macOS arm64, API Node 22). **Ngôn ngữ nói/thống được lấy từ request** (`lang`),
+> không phải từ cấu hình deployment: tiếng Việt dùng `STT_LANGUAGE` cho STT và
+> engine chọn bằng `TTS_PROVIDER` (`deepgram` mặc định hoặc `vieneu`) cho TTS;
+> tiếng Anh dùng `language=en` cho STT và Deepgram Aura-2 `/v1/speak` cho TTS
+> (không có engine thứ hai vì VieNeu chỉ nói tiếng Việt). Không còn fallback Web
+> Speech API cho cả hai ngôn ngữ.
 
 ## 1. Luồng tổng thể
 
@@ -12,19 +15,22 @@
 │  Mic → AudioWorklet (audio-capture-processor.js)                        │
 │      → Float32 mono @ device rate, tối đa 60 giây                       │
 │      → resample về 16 kHz (OfflineAudioContext)                         │
-│      → POST /api/voice/transcribe  (octet-stream, X-Sample-Rate: 16000) │
+│      → POST /api/voice/transcribe  (octet-stream, X-Sample-Rate: 16000, │
+│                                      X-Language: en | vi)               │
 │  Nhận { text } → ghép vào input → gửi câu hỏi cho Coach AI              │
 │      → answer → spokenText() làm sạch + cắt 500 ký tự                   │
-│      → GET  /api/voice/tts/status  (cache 60 s)                         │
-│      → available: chunkForSpeech() → POST /api/voice/tts/speech (wav)   │
+│      → GET  /api/voice/tts/status?lang=…  (cache 60 s theo lang)        │
+│      → available: chunkForSpeech() → POST /tts/speech ({ input, lang })  │
 │                  → phát tuần tự, prefetch trước 1 chunk                 │
 │      → không available / lỗi: hiện voiceSpeechError, không đọc          │
 └─────────────────────────────────────────────────────────────────────────┘
           │
           ▼
 ┌─ API (apps/api/src/voice.ts) ───────────────────────────────────────────┐
+│  STT language: X-Language: en → language=en; còn lại → STT_LANGUAGE (vi)│
 │  STT failover: deepgram → groq → elevenlabs → openai → gemini           │
-│  TTS failover: TTS_PROVIDER (deepgram | vieneu) → engine còn lại           │
+│  TTS vi: engine theo TTS_PROVIDER (deepgram | vieneu) → engine còn lại  │
+│  TTS en: Deepgram Aura-2 trên /v1/speak, không có engine thứ hai        │
 │  slot dùng chung; audio trả về đúng Content-Type engine                 │
 │  (wav/mp3/pcm/opus); lỗi/timeout → 429/502/503/504 cho client báo lỗi   │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -46,13 +52,20 @@ Cấu hình STT qua biến môi trường trong `apps/api/.env` (mẫu đầy đ
 
 ---
 
-## 2. STT — nhận dạng giọng nói tiếng Việt
+## 2. STT — nhận dạng giọng nói (vi và en)
 
 ### 2.1 Provider và chuỗi failover
 
 Khi không đặt `STT_PROVIDER`, API dựng danh sách provider **có key** theo thứ tự
 đã đo (xem `apps/api/scripts/stt-bench.mjs`) và đi hết danh sách đó cho mỗi lượt
 nói, thay vì chỉ thử một provider:
+
+Ngôn ngữ gửi lên provider lấy từ request, không phải từ deployment: header
+`X-Language: en` → `language=en` trên mọi provider trong chain, mọi giá trị khác
+→ `STT_LANGUAGE` (mặc định `vi`). Trước đây chuỗi ghim `STT_LANGUAGE` cho tất cả
+lượt nên người dùng tiếng Anh phải dựa vào Web Speech API của trình duyệt; giờ
+một đường server duy nhất phục vụ cả hai locale. Ngoại lệ: Gemini không nhận tham
+số ngôn ngữ (nó được prompt "transcribe in its original language").
 
 | # | Provider | Key | Model mặc định | Ghi chú |
 | --- | --- | --- | --- | --- |
@@ -82,7 +95,8 @@ Cơ chế failover (`transcribeWithFailover` trong `apps/api/src/voice.ts`):
 ### 2.2 Ràng buộc dữ liệu gửi lên `/api/voice/transcribe`
 
 - Body: Float32 little-endian mono 16 kHz, tối đa 60 giây (4 MB).
-- Header bắt buộc: `X-Sample-Rate: 16000`.
+- Header bắt buộc: `X-Sample-Rate: 16000`. Tuỳ chọn: `X-Language: en|vi` (khác
+  `en` đều được hiểu là `vi`).
 - Gate RMS < 0.001 → `422 no_speech` **trước khi** gọi provider (chặn luôn hiện
   tượng hallucination trên audio im lặng của model cloud).
 - Text rỗng hoặc không có chữ/số → `422 no_speech`.
@@ -114,15 +128,25 @@ cd apps/api && node --env-file-if-exists=.env scripts/stt-bench.mjs --load # bur
 
 ## 3. TTS — đọc câu trả lời
 
-Engine chính chọn bằng `TTS_PROVIDER` (`deepgram` mặc định, hoặc `vieneu`); engine
-còn lại tự động đọc thay từng chunk khi engine chính lỗi. Cả hai lỗi thì client
-hiện `voiceSpeechError`; **không còn Web Speech API**. Mọi câu trả lời đều có nút
-**Nghe lại**, kể cả câu trả lời gõ bằng text; chỉ câu hỏi nhập bằng giọng nói mới
-tự động đọc ngay.
+Ngôn ngữ trong body (`lang`) quyết định engine:
 
-Deepgram Aura/Aura-2 chỉ có tiếng Anh; tiếng Việt nằm trên **Flux TTS** — batch
-`POST /v2/speak` với `model=flux-minh-vi` (nam, mặc định) hoặc `flux-hoa-vi` (nữ). Flux
-tiếng Việt đang Early Access và chưa chuẩn hoá số/ngày, nên số được đọc như chữ.
+- **vi** — engine chính chọn bằng `TTS_PROVIDER` (`deepgram` mặc định, hoặc
+  `vieneu`); engine còn lại tự động đọc thay từng chunk khi engine chính lỗi.
+- **en** — Deepgram **Aura-2** trên batch `POST /v1/speak`
+  (`model=aura-2-thalia-en`, đổi bằng `DEEPGRAM_TTS_MODEL_EN`). VieNeu là engine
+  tiếng Việt nên English **không có engine thứ hai**: Deepgram lỗi là client hiện
+  `voiceSpeechError`, chứ không đọc câu tiếng Anh bằng giọng tiếng Việt.
+
+Cả hai engine lỗi thì client hiện `voiceSpeechError`; **không còn Web Speech API**.
+Mọi câu trả lời đều có nút **Nghe lại**, kể cả câu trả lời gõ bằng text; chỉ câu
+hỏi nhập bằng giọng nói mới tự động đọc ngay.
+
+Deepgram không trộn hai model family trên cùng endpoint: `/v2/speak` chỉ nhận Flux
+(trả `V1_MODEL_ON_V2_SPEAK_ENDPOINT` với model Aura) và `/v1/speak` từ chối Flux
+(`V2_MODEL_ON_V1_SPEAK_ENDPOINT`) — đã xác nhận bằng request thật với key của
+account. Tiếng Việt vì thế nằm trên **Flux TTS** — `POST /v2/speak` với
+`model=flux-minh-vi` (nam, mặc định) hoặc `flux-hoa-vi` (nữ). Flux tiếng Việt đang
+Early Access và chưa chuẩn hoá số/ngày, nên số được đọc như chữ.
 VieNeu nói cùng contract OpenAI-compatible nhưng chỉ còn bản cloud.
 Đo trên máy dev: Deepgram Flux batch ~4 s cho 60 ký tự và ~5–6 s cho 130–150 ký tự;
 VieNeu (bản local, trước khi bị loại khỏi runtime) warm ~2–4 s/chunk. Vì vậy khi
@@ -135,14 +159,17 @@ lỗi và để người dùng bấm **Nghe lại**.
 
 ### 3.1 Pipeline phía server (engine chính → engine dự phòng)
 
-- `speakAnswer()` đọc `GET /api/voice/tts/status` (cache 60 s, và được gọi warm-up
-  ngay khi mount để cú bấm không phải chờ thêm một round trip). Status trả
-  `provider` (engine sẽ trả lời), `primary` (theo `TTS_PROVIDER`) và `maxChars`.
+- `speakAnswer()` đọc `GET /api/voice/tts/status?lang=…` (cache 60 s, và được gọi
+  warm-up ngay khi mount để cú bấm không phải chờ thêm một round trip). Status trả
+  `provider` (engine sẽ trả lời), `primary` (`deepgram` với English; với tiếng Việt
+  thì theo `TTS_PROVIDER`) và `maxChars`.
 - `available: false` (không engine nào dùng được) → hiện `voiceSpeechError`,
   không phát.
 - `available: true` → `chunkForSpeech(spoken, min(status.maxChars, 180))`, mỗi chunk
-  một request `POST /api/voice/tts/speech` trả audio đúng Content-Type của engine.
-- Server thử engine **chính** trước (mặc định Deepgram). Nếu engine chính không có
+  một request `POST /api/voice/tts/speech` ({ input, lang }) trả audio đúng
+  Content-Type của engine.
+- Server thử engine **chính** trước (mặc định Deepgram; English chỉ có Deepgram).
+  Nếu engine chính không có
   key, đang cooldown, trả 429/401/403/4xx/5xx hoặc audio không hợp lệ thì **cùng chunk**
   đó chuyển sang engine còn lại; header `X-TTS-Provider` cho biết engine đã trả lời.
   Timeout của engine chính không fallback (đã chờ hết `TTS_TIMEOUT_MS`) mà trả 504.
@@ -151,7 +178,7 @@ lỗi và để người dùng bấm **Nghe lại**.
 - **Prefetch đúng một chunk trước**: slot synthesis dùng chung cho cả hai engine,
   nên gửi nhiều hơn là tự chuốc 429. Chunk kế tiếp đã sẵn audio khi chunk hiện tại
   kết thúc → tai nghe liền mạch.
-- Audio mỗi chunk là `URL.createObjectURL(blob)` và được cache theo **text** (tối
+- Audio mỗi chunk là `URL.createObjectURL(blob)` và được cache theo **lang + text** (tối
   đa 12 chunk, eviction revoke URL cũ). Bấm **Nghe lại** câu vừa nghe vì thế phát
   gần như tức thì, không tổng hợp lại.
 - Request thất bại bị xoá khỏi cache để lần sau thử lại; khi người dùng bấm Dừng
@@ -187,9 +214,9 @@ chọn khi ưu tiên độ trễ; chunk nhỏ hơn (`TTS_CHUNK_CHARACTERS`) cũn
   trắng. Giới hạn chunk là `min(TTS_CHUNK_CHARACTERS từ /tts/status, 180)`.
 - Chunk được phát nối tiếp qua Audio element; chỉ khi chunk cuối kết thúc mới tắt
   trạng thái "đang đọc".
-- Audio đặt `playbackRate = 1.15` để bù tốc độ đọc chậm của Flux tiếng Việt
-  (Deepgram nhận tham số `speed` nhưng hiện bỏ qua với `vi`); trình duyệt giữ
-  nguyên pitch khi tăng rate.
+- Chỉ câu trả lời **tiếng Việt** được đặt `playbackRate = 1.15` để bù tốc độ đọc
+  chậm của Flux (Deepgram nhận tham số `speed` nhưng hiện bỏ qua với `vi`);
+  Aura-2 tiếng Anh phát ở rate 1.
 
 ### 3.4 Dừng và thay thế
 
@@ -218,9 +245,9 @@ của trình duyệt.
 | Endpoint | Method | Input | Output |
 | --- | --- | --- | --- |
 | `/api/voice/status` | GET | — | `{ available, provider, providers: [{ provider, coolingDown }] }` — chain STT và vendor nào đang chờ |
-| `/api/voice/transcribe` | POST | Float32 LE mono 16 kHz + `X-Sample-Rate: 16000` | `{ text }` + header `X-STT-Provider` (vendor đã trả lời) |
-| `/api/voice/tts/status` | GET | — | `{ available, provider: 'deepgram' \| 'vieneu', primary, maxChars }` (+ `reason` ở chế độ dev) |
-| `/api/voice/tts/speech` | POST | JSON `{ input }`, `input` ≤ `maxChars` | Audio nguyên Content-Type từ engine, header `X-TTS-Provider` (engine đã trả lời), `Cache-Control: no-store` |
+| `/api/voice/transcribe` | POST | Float32 LE mono 16 kHz + `X-Sample-Rate: 16000` (+ `X-Language: en\|vi`) | `{ text }` + header `X-STT-Provider` (vendor đã trả lời) |
+| `/api/voice/tts/status` | GET | `?lang=en\|vi` (mặc định `vi`) | `{ available, provider: 'deepgram' \| 'vieneu', primary, maxChars }` (+ `reason` ở chế độ dev) |
+| `/api/voice/tts/speech` | POST | JSON `{ input, lang }`, `input` ≤ `maxChars` | Audio nguyên Content-Type từ engine, header `X-TTS-Provider` (engine đã trả lời), `Cache-Control: no-store` |
 
 ### Bảng lỗi `/transcribe` → thông báo client (vi)
 
@@ -267,7 +294,7 @@ Nếu đã phát được ít nhất một chunk rồi lỗi giữa chừng, cli
 | Biến | Mặc định | Ý nghĩa |
 | --- | --- | --- |
 | `STT_PROVIDER` | auto (`deepgram → groq → elevenlabs → openai → gemini`) | Ép một provider; ép provider không có key → `stt_not_configured` |
-| `STT_LANGUAGE` | `vi` | Ngôn ngữ ghim cho provider cloud |
+| `STT_LANGUAGE` | `vi` | Code ngôn ngữ gửi lên provider cho request không phải `X-Language: en` (en luôn là `en`, không biến này không ảnh hưởng) |
 | `STT_MAX_CONCURRENCY` | `4` | Số request song song lên cloud |
 | `STT_BUSY_COOLDOWN_MS` | `30000` | Thời gian bỏ qua một provider vừa trả 429; `Retry-After` được tôn trọng trong trần 1 s – 10 phút |
 | `STT_CHAIN_BUDGET_MS` | `45000` | Tổng thời gian cho một lượt đi hết chain; hết ngân sách thì dừng ở provider đang gọi và trả `transcription_failed` |
@@ -280,13 +307,14 @@ Nếu đã phát được ít nhất một chunk rồi lỗi giữa chừng, cli
 | `STT_OPENROUTER_MODEL` | `openai/whisper-large-v3-turbo` | |
 | `STT_GEMINI_MODEL` | `gemini-3.1-flash-lite` | |
 
-### 5.2 TTS (engine chính chọn bằng `TTS_PROVIDER`)
+### 5.2 TTS (engine theo ngôn ngữ; với tiếng Việt, engine chính chọn bằng `TTS_PROVIDER`)
 
 | Biến | Mặc định | Ý nghĩa |
 | --- | --- | --- |
-| `TTS_PROVIDER` | `deepgram` | `deepgram` hoặc `vieneu`: engine trả lời trước. Engine còn lại tự động đọc thay từng chunk khi engine chính lỗi |
-| `DEEPGRAM_API_KEY` | — | Key cho Deepgram (dùng chung với STT). Không có key thì bỏ qua Deepgram, đi thẳng VieNeu |
-| `DEEPGRAM_TTS_MODEL` | `flux-minh-vi` | Model Flux; `flux-hoa-vi` cho giọng nữ. Aura/Aura-2 không có tiếng Việt |
+| `TTS_PROVIDER` | `deepgram` | `deepgram` hoặc `vieneu`: engine trả lời trước cho **tiếng Việt**. Engine còn lại tự động đọc thay từng chunk khi engine chính lỗi. English luôn dùng Deepgram, bỏ qua biến này |
+| `DEEPGRAM_API_KEY` | — | Key cho Deepgram (dùng chung với STT). Không có key thì bỏ qua Deepgram, đi thẳng VieNeu; English vì thế không đọc được |
+| `DEEPGRAM_TTS_MODEL` | `flux-minh-vi` | Model Flux cho tiếng Việt (`/v2/speak`); `flux-hoa-vi` cho giọng nữ. Aura/Aura-2 không có tiếng Việt |
+| `DEEPGRAM_TTS_MODEL_EN` | `aura-2-thalia-en` | Giọng Aura-2 tiếng Anh cho câu trả lời `lang=en` (`/v1/speak`); nhận mọi `aura-2-*-en`, vd. `aura-2-helena-en` |
 | `VIENEU_TTS_URL` | — (tắt VieNeu) | Base URL engine VieNeu cloud: `https://api.vieneu.io/api`. Không đặt thì VieNeu bị bỏ qua hoàn toàn |
 | `VIENEU_TTS_MODEL` | `vieneu-v4` | Model gửi lên `/v1/audio/speech` |
 | `VIENEU_TTS_FORMAT` | `wav` | `wav` \| `mp3` \| `pcm` \| `opus` \| `ulaw` |
@@ -338,7 +366,8 @@ nào trỏ về localhost. Những gì cloud xử lý:
 5. **TTS cần ít nhất một engine:** Deepgram Flux (key dùng chung với STT) hoặc
    VieNeu cloud (`VIENEU_TTS_URL` + key). Không engine nào thì hệ thống vẫn hoạt
    động — `/tts/status` báo `available: false` và client hiện `voiceSpeechError` —
-   nhưng không còn đường đọc bằng trình duyệt.
+   nhưng không còn đường đọc bằng trình duyệt. Câu trả lời **tiếng Anh** cần
+   riêng Deepgram: VieNeu không nói tiếng Anh nên không có engine dự phòng cho `en`.
 6. **Tải TTS:** engine mặc định là dịch vụ ngoài nên API không giữ slot CPU; các
    con số cũ về số câu/phút trên một instance chỉ còn đúng nếu tự dựng engine local
    (không nằm trong luồng chạy). `TTS_MAX_CONCURRENCY=2` bảo vệ quota
@@ -386,6 +415,18 @@ hạn của key là 300 request/phút và 300 stream đồng thời mỗi IP —
 `TTS_MAX_CONCURRENCY=2` của API, nên muốn phục vụ nhiều user cùng lúc thì tăng
 `TTS_MAX_CONCURRENCY`/`TTS_QUEUE_WAIT_MS` cho đúng với quota, không phải thêm máy.
 Độ trễ đo qua API ở môi trường dev: audio đầu tiên ~1.2 s cho một chunk ngắn.
+
+**C. English (Aura-2, không cần cấu hình thêm)**
+
+`lang=en` luôn dùng Deepgram `/v1/speak` với `aura-2-thalia-en`; `TTS_PROVIDER` và
+toàn bộ block VieNeu ở trên không ảnh hưởng đường này. Chỉ cần `DEEPGRAM_API_KEY`.
+
+```
+DEEPGRAM_TTS_MODEL_EN=aura-2-thalia-en   # đổi sang giọng khác: aura-2-helena-en, aura-2-juno-en, …
+```
+
+Không có key Deepgram thì `GET /api/voice/tts/status?lang=en` trả
+`available: false` và client hiện `voiceSpeechError` cho câu trả lời tiếng Anh.
 
 Engine local (`VIENEU_TTS_URL=http://127.0.0.1:8001`) **không còn được dùng**: code
 vẫn còn nhưng runtime bỏ qua mọi URL rỗng, và không có default trỏ về localhost.

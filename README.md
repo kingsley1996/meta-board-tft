@@ -38,9 +38,12 @@ same-origin.
 Full voice reference — providers, env vars, error codes, measured latencies,
 and production notes: [docs/ai-assistant/voice.md](docs/ai-assistant/voice.md).
 
-Coach AI transcribes Vietnamese voice questions server-side. The API walks a
-failover chain of every speech-to-text provider whose key is configured, in the
-order measured on this project's corpus (`apps/api/scripts/stt-bench.mjs`):
+Coach AI transcribes voice questions server-side, in the locale of the page: the
+browser sends `X-Language: en|vi` and the API asks every provider in the chain in
+that language (`en`, or `STT_LANGUAGE` — default `vi` — for everything else). The
+API walks a failover chain of every speech-to-text provider whose key is
+configured, in the order measured on this project's corpus
+(`apps/api/scripts/stt-bench.mjs`):
 
 1. Deepgram — `DEEPGRAM_API_KEY` (model `nova-3`); lowest Vietnamese WER
    (0.063 on a 14 s clip) and the highest rate limit of the group.
@@ -60,21 +63,24 @@ and who is cooling down; every `/api/voice/transcribe` response carries
 
 Set `STT_PROVIDER` to force one provider (OpenRouter is only reachable this way —
 its audio endpoint needs a separate prepaid balance), `STT_LANGUAGE` to change the
-pinned language (default `vi`), and `STT_MAX_CONCURRENCY` to cap parallel cloud
-requests (default 4). The remaining tunables (`STT_*_MODEL`, `STT_OPENAI_BASE_URL`)
-are listed in `apps/api/.env.example`. English speech input continues to use the
-browser's speech-recognition service. Finishing a voice question submits it
-automatically; the corresponding Coach AI reply is then read aloud by the
-server-side TTS (engine chosen by `TTS_PROVIDER`); when both engines fail the
-client shows an error instead of switching to the browser's Web Speech API.
+language used for requests that are not English (default `vi`), and
+`STT_MAX_CONCURRENCY` to cap parallel cloud requests (default 4). The remaining
+tunables (`STT_*_MODEL`, `STT_OPENAI_BASE_URL`) are listed in
+`apps/api/.env.example`. Both locales use this server chain — the browser's own
+speech-recognition service is no longer part of the English path. Finishing a
+voice question submits it automatically; the corresponding Coach AI reply is then
+read aloud by the server-side TTS (engine chosen by `TTS_PROVIDER`, Aura-2 for
+English); when the engine fails the client shows an error instead of switching to
+the browser's Web Speech API.
 
-Vietnamese speech input is cloud-only: recordings are forwarded from the API to
-the provider that answers. Without any STT key the voice button reports
-`stt_not_configured` and text questions keep working. The reply a user hears is
-read server-side by the engine set in `TTS_PROVIDER` (`deepgram` by default, or
-`vieneu`); if the primary engine has no key, is cooling down after a rate limit,
-or fails on a chunk, the API retries that chunk on the other engine. When both
-engines fail the assistant shows an error; there is no browser speech fallback.
+Voice input is cloud-only: recordings are forwarded from the API to the provider
+that answers. Without any STT key the voice button reports `stt_not_configured`
+and text questions keep working. The reply a user hears is read server-side —
+`lang=vi` by the engine set in `TTS_PROVIDER` (`deepgram` by default, or `vieneu`),
+`lang=en` always by Deepgram Aura-2 because VieNeu speaks Vietnamese; if a
+Vietnamese primary engine has no key, is cooling down after a rate limit, or fails
+on a chunk, the API retries that chunk on the other engine. When both engines fail
+the assistant shows an error; there is no browser speech fallback.
 
 Curated legacy item names, trait synonyms, and shortened comp names live in
 `apps/api/src/assistant/entity-aliases.ts`. Add aliases there against canonical
@@ -85,8 +91,7 @@ Custom Coach AI aliases can be managed from **Admin → Aliases**. Select an
 entity, add an alternate name, and remove outdated aliases from the same page.
 These aliases are stored in PostgreSQL and loaded by the Coach AI catalog;
 the required tables are created automatically when needed and are also included in
-`apps/api/src/schema.sql`. The page also provides a microphone test using the configured Vietnamese
-speech-to-text provider; review or edit its
+`apps/api/src/schema.sql`. The page also provides a microphone test using the configured speech-to-text provider; review or edit its
 transcript and select **Use transcript as alias** to prefill the alias form.
 After each non-injection Coach AI query, a background entity-extraction pass
 checks for explicitly mentioned champion, item, trait, augment, and comp names
@@ -98,21 +103,24 @@ original user question is not stored. This background pass uses the configured
 local assistant model and does not delay the response; capture failures are
 logged by the API.
 
-### Coach AI speech output (Deepgram Flux / VieNeu, switchable)
+### Coach AI speech output (Vietnamese: Flux / VieNeu switchable; English: Aura-2)
 
-`TTS_PROVIDER` picks the engine that speaks first: `deepgram` (default) or
-`vieneu`. The other engine remains the per-chunk fallback, so switching does not
-need a code change. On this dev machine the Flux batch endpoint measured ~4 s for
-a 60-character chunk and ~5–6 s for 130–150 characters, while warm VieNeu
-measured ~2–4 s per chunk — set `TTS_PROVIDER=vieneu` when latency matters more
-than the Flux voice.
+For `lang=vi`, `TTS_PROVIDER` picks the engine that speaks first: `deepgram`
+(default) or `vieneu`. The other engine remains the per-chunk fallback, so
+switching does not need a code change. On this dev machine the Flux batch endpoint
+measured ~4 s for a 60-character chunk and ~5–6 s for 130–150 characters, while
+warm VieNeu measured ~2–4 s per chunk — set `TTS_PROVIDER=vieneu` when latency
+matters more than the Flux voice.
 
-Coach AI answers are proxied on `/api/voice/tts/speech`. Vietnamese is not on
-Aura/Aura-2 (English-only), so the API uses Flux's batch endpoint
-`POST https://api.deepgram.com/v2/speak` with `model=flux-minh-vi` (or
-`flux-hoa-vi` via `DEEPGRAM_TTS_MODEL`) and the same `DEEPGRAM_API_KEY` as
-speech-to-text. Flux Vietnamese is Early Access without text normalization, so
-numbers and dates are read as written.
+Coach AI answers are proxied on `/api/voice/tts/speech`, and the language in the
+body picks the endpoint because Deepgram does not mix its model families:
+Vietnamese goes to Flux `POST https://api.deepgram.com/v2/speak` with
+`model=flux-minh-vi` (or `flux-hoa-vi` via `DEEPGRAM_TTS_MODEL`), English goes to
+Aura-2 `POST https://api.deepgram.com/v1/speak` with `model=aura-2-thalia-en`
+(override with `DEEPGRAM_TTS_MODEL_EN`) — `/v2/speak` answers
+`V1_MODEL_ON_V2_SPEAK_ENDPOINT` for an Aura model, and vice versa. Both share the
+same `DEEPGRAM_API_KEY` as speech-to-text. Flux Vietnamese is Early Access without
+text normalization, so numbers and dates are read as written.
 
 When the primary engine has no key, answers `429`, rejects its key, or fails a
 chunk, the API retries that same chunk on the other engine. VieNeu is the hosted

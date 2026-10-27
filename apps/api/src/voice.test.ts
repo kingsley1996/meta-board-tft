@@ -3,7 +3,9 @@ import { afterEach, describe, it } from 'node:test';
 import {
   clearSttCooldowns,
   clearTtsFaults,
+  deepgramEnglishTtsModel,
   deepgramTtsModel,
+  speechLang,
   sttProviderCandidates,
   sttProviderStatus,
   synthDeepgramChunk,
@@ -17,6 +19,7 @@ import {
   ttsModel,
   ttsProbeTimeoutMs,
   ttsPrimaryProvider,
+  ttsProviderOrder,
   vieneuAvailable,
   vieneuConfigured,
   encodeWavPcm16,
@@ -48,6 +51,7 @@ function envWith(overrides: Record<string, string | undefined>): NodeJS.ProcessE
     'VIENEU_TTS_API_KEY',
     'VIENEU_TTS_PROBE_TIMEOUT_MS',
     'DEEPGRAM_TTS_MODEL',
+    'DEEPGRAM_TTS_MODEL_EN',
     'TTS_PROVIDER',
     'TTS_CHUNK_CHARACTERS',
     'TTS_MAX_CONCURRENCY',
@@ -187,6 +191,11 @@ function headersOf(call: RecordedCall): Record<string, string> {
   return (call.init?.headers ?? {}) as Record<string, string>;
 }
 
+function formOf(call: RecordedCall): FormData {
+  assert.ok(call.init?.body instanceof FormData, 'the multipart providers must send FormData');
+  return call.init.body as FormData;
+}
+
 const cloudEnv = envWith({ VIENEU_TTS_URL: 'https://cloud.test/api', VIENEU_TTS_API_KEY: 'vn_sk_unit' });
 
 describe('tts engine configuration', () => {
@@ -317,6 +326,19 @@ describe('Deepgram TTS and the VieNeu fallback', () => {
     assert.equal(deepgramTtsModel(envWith({ DEEPGRAM_TTS_MODEL: 'flux-hoa-vi' })), 'flux-hoa-vi');
   });
 
+  it('defaults to an Aura-2 English voice and honours an override', () => {
+    assert.equal(deepgramEnglishTtsModel(envWith({})), 'aura-2-thalia-en');
+    assert.equal(deepgramEnglishTtsModel(envWith({ DEEPGRAM_TTS_MODEL_EN: 'aura-2-helena-en' })), 'aura-2-helena-en');
+  });
+
+  it('treats only an explicit English request as English', () => {
+    assert.equal(speechLang('en'), 'en');
+    assert.equal(speechLang('vi'), 'vi');
+    assert.equal(speechLang(undefined), 'vi');
+    assert.equal(speechLang(['en', 'vi']), 'vi');
+    assert.equal(speechLang('de'), 'vi');
+  });
+
   it('posts the Flux batch shape and returns wav audio', async () => {
     const { calls, impl } = fakeFetch(okAudio);
     const env = envWith({ DEEPGRAM_API_KEY: 'dg_key' });
@@ -332,6 +354,33 @@ describe('Deepgram TTS and the VieNeu fallback', () => {
     assert.deepEqual(jsonBody(calls[0]!), { text: 'Xin chào' });
     assert.equal(result.audio.length, 5_000);
     assert.equal(result.contentType, 'audio/wav');
+  });
+
+  it('sends an English chunk to the Aura-2 endpoint', async () => {
+    const { calls, impl } = fakeFetch(okAudio);
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg_key' });
+    await synthDeepgramChunk('Which comp should I play?', new AbortController().signal, env, impl, 'en');
+
+    const url = new URL(calls[0]!.url);
+    assert.equal(`${url.origin}${url.pathname}`, 'https://api.deepgram.com/v1/speak');
+    assert.equal(url.searchParams.get('model'), 'aura-2-thalia-en');
+    assert.equal(url.searchParams.get('sample_rate'), '24000');
+  });
+
+  it('has no second engine for English, because VieNeu speaks Vietnamese', async () => {
+    const { calls, impl } = fakeFetch(() => new Response('', { status: 500 }));
+    const env = envWith({
+      DEEPGRAM_API_KEY: 'dg_key',
+      VIENEU_TTS_URL: 'https://cloud.test/api',
+      TTS_PROVIDER: 'vieneu',
+    });
+
+    assert.deepEqual(ttsProviderOrder('en', env), ['deepgram']);
+    const error = await rejection(synthSpeechChunk('Hello there', new AbortController().signal, env, impl, 'en'));
+
+    assert.match(error.message, /HTTP 500/);
+    assert.equal(calls.length, 1, 'the English chunk must not be handed to the Vietnamese engine');
+    assert.ok(calls[0]!.url.includes('/v1/speak'));
   });
 
   it('hands the chunk to VieNeu when Deepgram fails', async () => {
@@ -454,6 +503,7 @@ describe('transcribeWithFailover', () => {
     assert.equal(`${url.origin}${url.pathname}`, 'https://api.deepgram.com/v1/listen');
     assert.equal(url.searchParams.get('model'), 'nova-3');
     assert.equal(url.searchParams.get('smart_format'), 'true');
+    assert.equal(url.searchParams.get('language'), 'vi', 'a request that does not say is still Vietnamese');
     assert.equal(headersOf(calls[0]!).Authorization, 'Token dg_key');
     assert.ok(Buffer.compare(calls[0]!.init!.body as Buffer, sttWav) === 0, 'the audio must be the raw wav body');
   });
@@ -472,6 +522,26 @@ describe('transcribeWithFailover', () => {
     const audio = body.input_audio as { data: string; format: string };
     assert.equal(audio.format, 'wav');
     assert.equal(Buffer.from(audio.data, 'base64').compare(sttWav), 0);
+  });
+
+  it('asks the whole chain in the language of the request', async () => {
+    const { calls, impl } = fakeFetch((call) =>
+      call.url.startsWith('https://api.deepgram.com') ? jsonResponse({}, 500) : jsonResponse({ text: 'what should i play' })
+    );
+    const env = envWith({ DEEPGRAM_API_KEY: 'dg', GROQ_API_KEY: 'gq' });
+    const outcome = await transcribeWithFailover(sttWav, env, impl, 'en');
+
+    assert.equal(outcome.provider, 'groq');
+    assert.equal(new URL(calls[0]!.url).searchParams.get('language'), 'en');
+    assert.equal(formOf(calls[1]!).get('language'), 'en');
+  });
+
+  it('still honours the operator pin on the Vietnamese branch', async () => {
+    const { calls, impl } = fakeFetch(() =>
+      jsonResponse({ results: { channels: [{ alternatives: [{ transcript: 'ok' }] }] } })
+    );
+    await transcribeWithFailover(sttWav, envWith({ DEEPGRAM_API_KEY: 'dg', STT_LANGUAGE: 'de' }), impl, 'vi');
+    assert.equal(new URL(calls[0]!.url).searchParams.get('language'), 'de');
   });
 
   it('hands a rate limited turn to the next provider and cools the first', async () => {

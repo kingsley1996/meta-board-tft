@@ -1,6 +1,7 @@
-// Helpers for reading Coach AI answers aloud. Server synthesis (Deepgram, then
-// VieNeu) caps the text length, so the client chunks the answer at sentence
-// boundaries and streams one chunk while the next is synthesized.
+// Helpers for reading Coach AI answers aloud. Server synthesis (Aura-2 for
+// English, Flux/VieNeu for Vietnamese) caps the text length, so the client chunks
+// the answer at sentence boundaries and streams one chunk while the next is
+// synthesized.
 
 const maxSpokenCharacters = 500;
 export const maxSpeechChunkCharacters = 180;

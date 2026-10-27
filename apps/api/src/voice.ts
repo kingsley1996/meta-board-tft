@@ -13,7 +13,23 @@ type SttProvider = 'deepgram' | 'groq' | 'openrouter' | 'elevenlabs' | 'openai' 
 // ~17 requests/minute and rewrites pronouns it "knows better" — so it is now a
 // last cloud resort.
 const cloudProviderOrder: readonly SttProvider[] = ['deepgram', 'groq', 'openrouter', 'elevenlabs', 'openai', 'gemini'];
-const sttLanguage = (process.env.STT_LANGUAGE?.trim() || 'vi').toLowerCase();
+
+// The spoken language of one request. The UI locale decides it and travels on the
+// request, so a Vietnamese and an English user get different providers' language
+// codes from the same chain instead of one deployment-wide setting.
+export type SpeechLang = 'en' | 'vi';
+
+export function speechLang(value: unknown): SpeechLang {
+  return value === 'en' ? 'en' : 'vi';
+}
+
+// Every provider in the chain accepts plain ISO-639-1, and Deepgram answers 200
+// for language=en on nova-3 (a bogus code is the only thing it rejects), so one
+// code per language covers the whole chain. STT_LANGUAGE still pins the non-English
+// side for requests that do not say what they want.
+function sttLanguageFor(lang: SpeechLang, env: NodeJS.ProcessEnv = process.env): string {
+  return lang === 'en' ? 'en' : (env.STT_LANGUAGE?.trim().toLowerCase() || 'vi');
+}
 const sttMaxConcurrency = Math.max(1, Number(process.env.STT_MAX_CONCURRENCY) || 4);
 
 // A provider that just refused us stays skipped for a while, so one rate-limited
@@ -145,6 +161,7 @@ export function wavFromPcm16(pcm: Buffer, rate: number): Buffer {
 
 async function transcribeWithElevenLabs(
   wav: Buffer,
+  language: string,
   env: NodeJS.ProcessEnv = process.env,
   fetchImpl: typeof fetch = fetch
 ): Promise<string> {
@@ -153,7 +170,7 @@ async function transcribeWithElevenLabs(
   const form = new FormData();
   form.append('file', new Blob([new Uint8Array(wav)], { type: 'audio/wav' }), 'speech.wav');
   form.append('model_id', env.STT_ELEVENLABS_MODEL?.trim() || 'scribe_v2');
-  if (sttLanguage) form.append('language_code', sttLanguage);
+  if (language) form.append('language_code', language);
   const response = await fetchImpl('https://api.elevenlabs.io/v1/speech-to-text', {
     method: 'POST',
     headers: { 'xi-api-key': apiKey },
@@ -176,6 +193,7 @@ async function transcribeWithElevenLabs(
 async function transcribeWithOpenAiCompatible(
   provider: 'openai' | 'groq',
   wav: Buffer,
+  language: string,
   env: NodeJS.ProcessEnv = process.env,
   fetchImpl: typeof fetch = fetch
 ): Promise<string> {
@@ -193,7 +211,7 @@ async function transcribeWithOpenAiCompatible(
   const form = new FormData();
   form.append('file', new Blob([new Uint8Array(wav)], { type: 'audio/wav' }), 'speech.wav');
   form.append('model', model);
-  if (sttLanguage) form.append('language', sttLanguage);
+  if (language) form.append('language', language);
   const response = await fetchImpl(`${baseUrl}/audio/transcriptions`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}` },
@@ -219,13 +237,14 @@ async function transcribeWithOpenAiCompatible(
 // .alternatives[0].transcript (the legacy results.transcripts path is gone).
 async function transcribeWithDeepgram(
   wav: Buffer,
+  language: string,
   env: NodeJS.ProcessEnv = process.env,
   fetchImpl: typeof fetch = fetch
 ): Promise<string> {
   const apiKey = envValue(env, 'DEEPGRAM_API_KEY');
   if (!apiKey) throw new SpeechUnavailableError('DEEPGRAM_API_KEY is not configured');
   const query = new URLSearchParams({ model: env.STT_DEEPGRAM_MODEL?.trim() || 'nova-3', smart_format: 'true' });
-  if (sttLanguage) query.set('language', sttLanguage);
+  if (language) query.set('language', language);
   const response = await fetchImpl(`https://api.deepgram.com/v1/listen?${query.toString()}`, {
     method: 'POST',
     headers: { Authorization: `Token ${apiKey}`, 'Content-Type': 'audio/wav' },
@@ -252,6 +271,7 @@ async function transcribeWithDeepgram(
 // in JSON instead of multipart, which also dodges the 25 MB multipart ceiling.
 async function transcribeWithOpenRouter(
   wav: Buffer,
+  language: string,
   env: NodeJS.ProcessEnv = process.env,
   fetchImpl: typeof fetch = fetch
 ): Promise<string> {
@@ -263,7 +283,7 @@ async function transcribeWithOpenRouter(
     body: JSON.stringify({
       model: env.STT_OPENROUTER_MODEL?.trim() || 'openai/whisper-large-v3-turbo',
       input_audio: { data: wav.toString('base64'), format: 'wav' },
-      ...(sttLanguage ? { language: sttLanguage } : {}),
+      ...(language ? { language } : {}),
       response_format: 'json',
     }),
     signal: AbortSignal.timeout(30_000),
@@ -338,21 +358,24 @@ function isCredentialStatus(status: number): boolean {
 async function transcribeCloud(
   provider: SttProvider,
   wav: Buffer,
+  language: string,
   env: NodeJS.ProcessEnv,
   fetchImpl: typeof fetch
 ): Promise<string> {
   switch (provider) {
     case 'elevenlabs':
-      return transcribeWithElevenLabs(wav, env, fetchImpl);
+      return transcribeWithElevenLabs(wav, language, env, fetchImpl);
     case 'openai':
-      return transcribeWithOpenAiCompatible('openai', wav, env, fetchImpl);
+      return transcribeWithOpenAiCompatible('openai', wav, language, env, fetchImpl);
     case 'groq':
-      return transcribeWithOpenAiCompatible('groq', wav, env, fetchImpl);
+      return transcribeWithOpenAiCompatible('groq', wav, language, env, fetchImpl);
     case 'openrouter':
-      return transcribeWithOpenRouter(wav, env, fetchImpl);
+      return transcribeWithOpenRouter(wav, language, env, fetchImpl);
     case 'deepgram':
-      return transcribeWithDeepgram(wav, env, fetchImpl);
+      return transcribeWithDeepgram(wav, language, env, fetchImpl);
     case 'gemini':
+      // Gemini is prompted to transcribe "in its original language" and takes no
+      // language option, so the request language cannot be pinned here.
       return transcribeWithGemini(wav, env, fetchImpl);
   }
 }
@@ -373,9 +396,11 @@ function sttChainBudgetMs(env: NodeJS.ProcessEnv = process.env): number {
 export async function transcribeWithFailover(
   wav: Buffer,
   env: NodeJS.ProcessEnv = process.env,
-  fetchImpl: typeof fetch = fetch
+  fetchImpl: typeof fetch = fetch,
+  lang: SpeechLang = 'vi'
 ): Promise<{ text: string; provider: SttProvider }> {
   const candidates = sttProviderCandidates(env);
+  const language = sttLanguageFor(lang, env);
   const deadline = Date.now() + sttChainBudgetMs(env);
   let lastError: unknown = null;
   for (const provider of candidates) {
@@ -384,7 +409,7 @@ export async function transcribeWithFailover(
       throw new SpeechUnavailableError('the transcription provider chain ran out of time');
     }
     try {
-      const text = await transcribeCloud(provider, wav, env, fetchImpl);
+      const text = await transcribeCloud(provider, wav, language, env, fetchImpl);
       return { text, provider };
     } catch (error) {
       if (!(error instanceof SpeechBusyError) && !(error instanceof SpeechUnavailableError)) throw error;
@@ -448,7 +473,7 @@ router.post(
 
     activeTranscriptions += 1;
     try {
-      const outcome = await transcribeWithFailover(encodeWavPcm16(samples));
+      const outcome = await transcribeWithFailover(encodeWavPcm16(samples), process.env, fetch, speechLang(req.header('x-language')));
       const text = outcome.text.trim();
       if (!text || !/[\p{L}\p{N}]/u.test(text)) return res.status(422).json({ error: 'no_speech' });
       res.setHeader('x-stt-provider', outcome.provider);
@@ -470,9 +495,16 @@ router.post(
 
 // --- TTS: Deepgram Flux (primary), VieNeu (fallback), one chunk per request ---
 //
-// Aura/Aura-2 are English-only, so Vietnamese uses Flux TTS on the /v2/speak
-// batch REST endpoint (`flux-minh-vi`). Flux Vietnamese is Early Access without
-// text normalization: numbers and dates are read as written.
+// The language picks the engine and the endpoint, which Deepgram does not mix:
+// Vietnamese uses Flux TTS on the /v2/speak batch REST endpoint (`flux-minh-vi`)
+// because Aura/Aura-2 have no Vietnamese voice, and English uses Aura-2 on
+// /v1/speak (`aura-2-*`) because /v2/speak rejects anything but Flux. Flux
+// Vietnamese is Early Access without text normalization: numbers and dates are
+// read as written.
+//
+// VieNeu is a Vietnamese engine, so an English chunk has no second engine; when
+// Deepgram cannot answer, the route says so instead of handing the text to a
+// voice that would read English words as Vietnamese.
 //
 // The client splits an answer into short chunks and plays one while the next is
 // still synthesizing. VieNeu uses the OpenAI-compatible POST /v1/audio/speech
@@ -494,6 +526,12 @@ const ttsContentTypes: Record<TtsFormat, string> = {
 // Deepgram's Vietnamese voices; override to `flux-hoa-vi` for the female voice.
 export function deepgramTtsModel(env: NodeJS.ProcessEnv = process.env): string {
   return env.DEEPGRAM_TTS_MODEL?.trim() || 'flux-minh-vi';
+}
+
+// Any Aura-2 English voice (verified against this account's key: /v1/speak answers
+// a valid 24 kHz wav). Override to change the presenter without a redeploy.
+export function deepgramEnglishTtsModel(env: NodeJS.ProcessEnv = process.env): string {
+  return env.DEEPGRAM_TTS_MODEL_EN?.trim() || 'aura-2-thalia-en';
 }
 
 function deepgramTtsConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
@@ -774,21 +812,24 @@ export async function synthVieneuChunk(
   throw new SpeechBusyError();
 }
 
-// Deepgram Flux batch REST. 24 kHz mono WAV keeps the same <audio> path as
-// VieNeu, so a fallback chunk is indistinguishable to the client.
+// Deepgram batch REST. 24 kHz mono WAV keeps the same <audio> path as VieNeu, so
+// a fallback chunk is indistinguishable to the client.
 export async function synthDeepgramChunk(
   input: string,
   signal: AbortSignal,
   env: NodeJS.ProcessEnv = process.env,
-  fetchImpl: typeof fetch = fetch
+  fetchImpl: typeof fetch = fetch,
+  lang: SpeechLang = 'vi'
 ): Promise<{ audio: Buffer; contentType: string }> {
   const apiKey = env.DEEPGRAM_API_KEY?.trim();
   if (!apiKey) throw new SpeechUnavailableError('DEEPGRAM_API_KEY is not configured', 503, 'tts_unavailable');
   const knownFault = deepgramTtsFault();
   if (knownFault) throw new SpeechUnavailableError(knownFault.reason, 503, knownFault.code);
   const limits = ttsLimits(env);
-  const url = new URL('https://api.deepgram.com/v2/speak');
-  url.searchParams.set('model', deepgramTtsModel(env));
+  // /v2/speak is Flux-only and /v1/speak rejects Flux, so the language chooses
+  // the path as well as the model.
+  const url = new URL(`https://api.deepgram.com/${lang === 'en' ? 'v1' : 'v2'}/speak`);
+  url.searchParams.set('model', lang === 'en' ? deepgramEnglishTtsModel(env) : deepgramTtsModel(env));
   url.searchParams.set('encoding', 'linear16');
   url.searchParams.set('container', 'wav');
   url.searchParams.set('sample_rate', '24000');
@@ -838,12 +879,14 @@ export type TtsProvider = 'deepgram' | 'vieneu';
 
 // Which engine answers first; the other one stays as the per-chunk fallback.
 // `TTS_PROVIDER=vieneu` is the quick switch when the Flux batch endpoint is
-// slower than the local/cloud VieNeu engine.
+// slower than the local/cloud VieNeu engine. English has one engine only, because
+// VieNeu speaks Vietnamese.
 export function ttsPrimaryProvider(env: NodeJS.ProcessEnv = process.env): TtsProvider {
   return env.TTS_PROVIDER?.trim().toLowerCase() === 'vieneu' ? 'vieneu' : 'deepgram';
 }
 
-export function ttsProviderOrder(env: NodeJS.ProcessEnv = process.env): [TtsProvider, TtsProvider] {
+export function ttsProviderOrder(lang: SpeechLang = 'vi', env: NodeJS.ProcessEnv = process.env): TtsProvider[] {
+  if (lang === 'en') return ['deepgram'];
   const primary = ttsPrimaryProvider(env);
   return [primary, primary === 'deepgram' ? 'vieneu' : 'deepgram'];
 }
@@ -856,17 +899,18 @@ export async function synthSpeechChunk(
   input: string,
   signal: AbortSignal,
   env: NodeJS.ProcessEnv = process.env,
-  fetchImpl: typeof fetch = fetch
+  fetchImpl: typeof fetch = fetch,
+  lang: SpeechLang = 'vi'
 ): Promise<{ audio: Buffer; contentType: string; provider: TtsProvider }> {
   let lastError: unknown = null;
-  for (const provider of ttsProviderOrder(env)) {
+  for (const provider of ttsProviderOrder(lang, env)) {
     // No key/URL means the engine cannot start at all; skip without a request.
     if (provider === 'deepgram' && !deepgramTtsConfigured(env)) continue;
     if (provider === 'vieneu' && !vieneuConfigured(env)) continue;
     try {
       const audio =
         provider === 'deepgram'
-          ? await synthDeepgramChunk(input, signal, env, fetchImpl)
+          ? await synthDeepgramChunk(input, signal, env, fetchImpl, lang)
           : await synthVieneuChunk(input, ttsVoice(env), signal, env, fetchImpl);
       return { ...audio, provider };
     } catch (error) {
@@ -885,30 +929,35 @@ export async function synthSpeechChunk(
 async function ttsProviderAvailable(provider: TtsProvider, env: NodeJS.ProcessEnv = process.env): Promise<boolean> {
   return provider === 'deepgram' ? deepgramTtsConfigured(env) && !deepgramTtsFault() : vieneuAvailable(env);
 }
-router.get('/tts/status', async (_req, res) => {
-  const [primary, fallback] = ttsProviderOrder();
-  const provider = (await ttsProviderAvailable(primary))
-    ? primary
-    : (await ttsProviderAvailable(fallback))
-      ? fallback
-      : null;
-  const primaryFault = primary === 'deepgram' ? deepgramTtsFault() : ttsFault();
-  const fallbackFault = primary === 'deepgram' ? ttsFault() : deepgramTtsFault();
+
+function engineFault(provider: TtsProvider): { reason: string; code: string } | null {
+  return provider === 'deepgram' ? deepgramTtsFault() : ttsFault();
+}
+
+router.get('/tts/status', async (req, res) => {
+  const order = ttsProviderOrder(speechLang(req.query.lang));
+  let provider: TtsProvider | null = null;
+  for (const candidate of order) {
+    if (await ttsProviderAvailable(candidate)) {
+      provider = candidate;
+      break;
+    }
+  }
+  const fault = order.map(engineFault).find((entry) => entry !== null);
   res.json({
     available: provider !== null,
-    provider: provider ?? primary,
-    primary,
+    provider: provider ?? order[0],
+    primary: order[0],
     maxChars: ttsChunkCharacters(),
     // The upstream message can name hosts and key ids; dev-only so the browser
     // console is enough to diagnose "why is the voice grey".
-    ...(provider || process.env.NODE_ENV === 'production'
-      ? {}
-      : { reason: primaryFault?.reason ?? fallbackFault?.reason ?? 'no TTS engine answered' }),
+    ...(provider || process.env.NODE_ENV === 'production' ? {} : { reason: fault?.reason ?? 'no TTS engine answered' }),
   });
 });
 
 router.post('/tts/speech', async (req, res) => {
   const input = typeof req.body?.input === 'string' ? req.body.input.trim() : '';
+  const lang = speechLang(req.body?.lang);
   const maxChars = ttsChunkCharacters();
   if (!input || input.length > maxChars) {
     return res.status(400).json({ error: 'invalid_speech_text', maxChars });
@@ -929,7 +978,7 @@ router.post('/tts/speech', async (req, res) => {
   };
   res.on('close', onClose);
   try {
-    const { audio, contentType, provider } = await synthSpeechChunk(input, clientGone.signal);
+    const { audio, contentType, provider } = await synthSpeechChunk(input, clientGone.signal, process.env, fetch, lang);
     if (clientGone.signal.aborted || res.writableEnded || res.destroyed) return;
     res.type(contentType).setHeader('Cache-Control', 'no-store').setHeader('X-TTS-Provider', provider).send(audio);
   } catch (error) {

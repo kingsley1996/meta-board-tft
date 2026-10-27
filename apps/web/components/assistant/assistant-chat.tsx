@@ -40,33 +40,9 @@ type StoredChat = { conversationId?: string; messages?: ChatMessage[] };
 // client never sends a request the server would reject.
 type VoiceTtsStatus = { available: boolean; maxChars: number };
 
-type SpeechRecognitionResultLike = ArrayLike<{ transcript: string }> & { isFinal: boolean };
-
 // Flux Vietnamese reads slowly and Deepgram's `speed` is ignored for vi, so the
-// pace is adjusted on the client; pitch is preserved by the browser.
-const speechPlaybackRate = 1.15;
-
-type SpeechRecognitionEventLike = {
-  resultIndex: number;
-  results: ArrayLike<SpeechRecognitionResultLike>;
-};
-
-type SpeechRecognitionLike = {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onend: (() => void) | null;
-  onerror: ((event: { error: string }) => void) | null;
-  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
-  onstart: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-};
-
-type SpeechRecognitionWindow = Window & {
-  SpeechRecognition?: new () => SpeechRecognitionLike;
-  webkitSpeechRecognition?: new () => SpeechRecognitionLike;
-};
+// pace is adjusted on the client; Aura-2 English is already at a normal pace.
+const vietnameseSpeechPlaybackRate = 1.15;
 
 type VoiceSession = {
   stream: MediaStream;
@@ -160,7 +136,6 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tomoCue, setTomoCue] = useState<TomoCue | null>(null);
 
-  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const voiceSessionRef = useRef<VoiceSession | null>(null);
   // Speech callbacks outlive the request that created them; the sequence token
   // lets a stopped or superseded playback ignore its own late events.
@@ -170,11 +145,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   // Chunk audio is cached by voice+text so "Listen again" is instant, and the
   // status probe is cached too — a click should not pay for two round trips.
   const ttsCacheRef = useRef<Map<string, Promise<string>>>(new Map());
-  const ttsStatusRef = useRef<{ task: Promise<VoiceTtsStatus | null>; at: number } | null>(null);
+  const ttsStatusRef = useRef<{ lang: Lang; task: Promise<VoiceTtsStatus | null>; at: number } | null>(null);
 
   const voiceBaseRef = useRef('');
-  const voiceTranscriptRef = useRef('');
-  const autoSubmitVoiceRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const pendingVoiceRef = useRef<HTMLDivElement>(null);
@@ -232,9 +205,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
 
   useEffect(
     () => () => {
-      autoSubmitVoiceRef.current = false;
       speechSeqRef.current += 1;
-      recognitionRef.current?.stop();
       const session = voiceSessionRef.current;
       voiceSessionRef.current = null;
       if (session) void closeVoiceSession(session).catch((caught: unknown) => console.error('Could not close audio capture session', caught));
@@ -305,11 +276,12 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   async function readTtsStatus(): Promise<VoiceTtsStatus | null> {
     const cached = ttsStatusRef.current;
     // The in-flight promise is shared, so React's double mount in dev and a
-    // click that lands while the warm-up is still running cost one probe.
-    if (cached && Date.now() - cached.at < 60_000) return cached.task;
+    // click that lands while the warm-up is still running cost one probe. The
+    // language is part of the identity because it picks the engine.
+    if (cached && cached.lang === lang && Date.now() - cached.at < 60_000) return cached.task;
     const task = (async (): Promise<VoiceTtsStatus | null> => {
       try {
-        const response = await fetch('/api/voice/tts/status', { cache: 'no-store' });
+        const response = await fetch(`/api/voice/tts/status?lang=${lang}`, { cache: 'no-store' });
         if (!response.ok) return null;
         const payload = (await response.json()) as { available?: unknown; maxChars?: unknown };
         return {
@@ -321,20 +293,22 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         return null;
       }
     })();
-    ttsStatusRef.current = { task, at: Date.now() };
+    ttsStatusRef.current = { lang, task, at: Date.now() };
     return task;
   }
 
   function fetchChunkAudio(text: string, signal: AbortSignal): Promise<string> {
     const cache = ttsCacheRef.current;
-    const key = text;
+    // The same sentence is different audio in each language, so the voice is part
+    // of the cache key.
+    const key = `${lang}:${text}`;
     const existing = cache.get(key);
     if (existing) return existing;
     const task = (async () => {
       const response = await fetch('/api/voice/tts/speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: text }),
+        body: JSON.stringify({ input: text, lang }),
         signal,
       });
       if (!response.ok) throw new Error(`Speech request failed with ${response.status}`);
@@ -361,7 +335,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   function playChunkAudio(url: string, seq: number): Promise<void> {
     return new Promise((resolve, reject) => {
       const audio = new Audio(url);
-      audio.playbackRate = speechPlaybackRate;
+      audio.playbackRate = lang === 'vi' ? vietnameseSpeechPlaybackRate : 1;
       audioRef.current = audio;
       const settle = () => {
         if (audioRef.current === audio) audioRef.current = null;
@@ -389,8 +363,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     });
   }
 
-  // The server owns the engine choice (Deepgram, then VieNeu). A playback error
-  // is reported to the user; there is no browser speech engine anymore.
+  // The server owns the engine choice — Aura-2 for English, Flux then VieNeu for
+  // Vietnamese. A playback error is reported to the user; there is no browser
+  // speech engine anymore.
   async function playWithServerTts(spoken: string, status: VoiceTtsStatus, seq: number): Promise<void> {
     const controller = new AbortController();
     ttsAbortRef.current = controller;
@@ -635,7 +610,11 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       const resampled = await offlineContext.startRendering();
       const response = await fetch('/api/voice/transcribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/octet-stream', 'X-Sample-Rate': '16000' },
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'X-Sample-Rate': '16000',
+          'X-Language': lang,
+        },
         body: floatSamplesToBuffer(resampled.getChannelData(0)),
       });
       if (response.status === 413) {
@@ -685,91 +664,8 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   }
 
   function toggleVoiceInput() {
-    if (lang === 'vi') {
-      if (voiceSessionRef.current) void stopVoiceInput();
-      else if (!voiceStarting && !voiceTranscribing) void startVoiceInput();
-      return;
-    }
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      return;
-    }
-
-    const speechWindow = window as SpeechRecognitionWindow;
-    const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-    if (!Recognition) {
-      setVoiceError(t.voiceUnsupported);
-      return;
-    }
-
-    setVoiceError(null);
-    setSpeechError(null);
-    stopAnswerSpeech();
-    voiceBaseRef.current = input.trim();
-    voiceTranscriptRef.current = '';
-    autoSubmitVoiceRef.current = true;
-    const recognition = new Recognition();
-    recognition.lang = 'en-US';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.onstart = () => setListening(true);
-    recognition.onresult = (event) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
-      for (let index = 0; index < event.results.length; index += 1) {
-        const result = event.results[index];
-        const transcript = result[0]?.transcript ?? '';
-        if (result.isFinal) finalTranscript += transcript;
-        else interimTranscript += transcript;
-      }
-      const transcript = `${finalTranscript}${interimTranscript}`.trim();
-      voiceTranscriptRef.current = finalTranscript.trim();
-      const base = voiceBaseRef.current;
-      setInput(`${base}${base && transcript ? ' ' : ''}${transcript}`.slice(0, 2000));
-    };
-    recognition.onerror = (event) => {
-      if (event.error !== 'aborted') autoSubmitVoiceRef.current = false;
-      if (event.error === 'not-allowed') {
-        setVoiceError(t.voicePermission);
-      } else if (event.error === 'service-not-allowed') {
-        setVoiceError(t.voiceServiceUnavailable);
-      } else if (event.error === 'no-speech') {
-        setVoiceError(t.voiceNoSpeech);
-      } else if (event.error === 'audio-capture') {
-        setVoiceError(t.voiceNoMicrophone);
-      } else if (event.error === 'network') {
-        setVoiceError(t.voiceNetwork);
-      } else if (event.error === 'language-not-supported') {
-        setVoiceError(t.voiceLanguageUnavailable);
-      } else if (event.error !== 'aborted') {
-        setVoiceError(t.voiceError);
-      }
-    };
-    recognition.onend = () => {
-      recognitionRef.current = null;
-      setListening(false);
-      const transcript = voiceTranscriptRef.current;
-      const shouldAutoSubmit = autoSubmitVoiceRef.current;
-      const shouldSubmit = shouldAutoSubmit && !!transcript;
-      autoSubmitVoiceRef.current = false;
-      voiceTranscriptRef.current = '';
-      if (shouldSubmit) {
-        const base = voiceBaseRef.current;
-        void submitRef.current?.(`${base}${base ? ' ' : ''}${transcript}`, true, true);
-      } else if (shouldAutoSubmit && !transcript) {
-        setVoiceError(t.voiceNoSpeech);
-      }
-    };
-    recognitionRef.current = recognition;
-    setListening(true);
-
-    try {
-      recognition.start();
-    } catch {
-      recognitionRef.current = null;
-      setListening(false);
-      setVoiceError(t.voiceError);
-    }
+    if (voiceSessionRef.current) void stopVoiceInput();
+    else if (!voiceStarting && !voiceTranscribing) void startVoiceInput();
   }
 
   async function openConversation(id: string) {
@@ -814,8 +710,6 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     setSidebarOpen(false);
     if (loading) return;
     stopAnswerSpeech();
-    autoSubmitVoiceRef.current = false;
-    recognitionRef.current?.stop();
     cancelVoiceInput();
     setMessages([]);
     setConversationId(undefined);
@@ -874,9 +768,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       : speaking
         ? t.voiceSpeaking
         : listening
-          ? lang === 'vi'
-            ? t.voiceRecording
-            : t.voiceListening
+          ? t.voiceRecording
           : t.voiceNotice;
 
   return (
