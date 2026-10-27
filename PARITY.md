@@ -53,13 +53,13 @@ Stats: `psql -U metaboard -h localhost -d metaboard -c "SELECT (SELECT count(*) 
 
 All set entities are real, from CommunityDragon (Riot's public game-data mirror). Two consumers, one source:
 
-- Postgres (backend's copy — used for API responses + validation): `cd server && npm run seed` syncs game tables; `POST /api/tft/refresh` re-syncs later.
-- `lib/tft.json` + `public/tft/**` (Next's copy — used by statically generated pages: champions grid, item/augment boards, admin form datalists — and by the client-side hover detail cards): `npm run fetch-data` in the repo root. Run it after a set update, then rebuild Next.
+- Postgres (backend's copy — used for API responses + validation): a projection of `packages/shared/data/tft.json`, written by `syncTft()` (seed) and by `ensureCatalogCurrent()` at every API boot. The API never contacts CommunityDragon itself.
+- `packages/shared/data/tft.json` + `apps/web/public/tft/**` (the source — used by statically generated pages: champions grid, item/augment boards, admin form datalists — and by the client-side hover detail cards): `npm run data:pull` in the repo root, then commit.
 
 - Set 18 / patch 16.20.1: 65 champions (PVE monsters and placeholder units filtered, Lux trait variants collapsed), 36 traits, 57 completed items + 10 components + 36 radiant + 32 Ornn artifacts, 592 augments. Augment rarity decoded from tag GUIDs (silver/gold/prismatic), noted as a heuristic. Items keep the richest duplicate api entry (DA_* variants carry no text) and their descriptions are cleaned (placeholders substituted, multipliers resolved, floats rounded, keyword refs stripped); champions carry ability name/description/keywords/mana; traits carry activation thresholds/styles plus resolved per-breakpoint tooltip rows.
 - Extra sources merged into `lib/tft.json` on top of the cdragon tft dump: **trait tooltips** from the LCU export (`plugins/.../v1/tfttraits.json` — resolved `<row>` text with constants, tier names bronze/silver/gold/prismatic/unique, flavour line) and **ability icons** matched by ability name against the LCU champion spells/passives (28/65 units; remixed/monster abilities have no LoL counterpart). Keyword **definitions** ("Wound: Reduces healing received.") are harvested from Riot's own item/ability text into a `keywords` map (7 entries).
 - Upstream gaps left in place (nothing invented): set-18 ability numbers exist for only 10/91 units in cdragon (Unreal migration), so most ability texts render without their `@Var@` values; `role` is null for real champions, so the source's role tag has no data source; per-champion recommended items are authored by the source site and have no public dataset.
-- Icon paths in Postgres (`/tft/<folder>/<slug>.png`) point into the Next app's `public/tft`; the sync nulls them out if the file is missing (run `npm run fetch-data` to download).
+- Icon paths in the catalog (`/tft/<folder>/<slug>.png`) point into the Next app's `public/tft`; both halves ship from the same commit, so the paths and the files move together.
 - Meta snapshot: comps/boards, comp style/trend, item and augment tiers, and per-champion stats/items come from MetaTFT (`node scripts/fetch-metatft.mjs` → `lib/meta.json` + `apps/api/seed/comps.json`). Comp tips, stage texts, augment lists, augment priority and alt builds are merged from TFT Academy guides (`node scripts/fetch-tftacademy-tips.mjs`). Ratings are live averages, not hand-authored. The snapshot is static until the scripts are re-run. Radiant and artifact items are added to the catalog from MetaTFT's live tags by `scripts/fetch-metatft-items.mjs`; their icons are downloaded by `npm run fetch-data`.
 
 ## Backend API (`apps/api/`, :4000)
@@ -67,8 +67,8 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 - `GET /api/comps` — all comps read from Postgres, enriched with unit cost + icon and item/augment icons, plus computed **active traits** (counts from board unit traits; activation thresholds/styles from the `traits` table, populated from CommunityDragon effects: 1 bronze / 3 silver / 4 unique / 5 gold / 6 prismatic) and resolved matchups (slug → title/tier; dangling references dropped). `?sort=popular` orders by votes. `GET /api/comps/:slug` — one comp, 404 if absent.
 - `POST /api/comps/:slug/vote` / `POST /api/comps/:slug/view` — community counters; one bump per visitor per comp, deduped **in memory** (resets with the process — move to a table if it ever matters).
 - `POST /api/subscribe` — `{email, lang}` from the footer form; regex-validated, 400 on bad email, inserts into `subscribers` (duplicates ignored).
-- `GET /api/tft/set` — full set payload from Postgres.
-- `POST /api/tft/refresh` — `Authorization: Bearer $REFRESH_TOKEN` (`apps/api/.env`; 503 if unset, 401 on mismatch). Re-fetches CommunityDragon and replaces the game tables in one transaction; comps are untouched.
+- `GET /api/tft/set` — full set payload from Postgres, including `catalog_release`, the id of the data snapshot the database is holding.
+- The game catalog is re-projected from the committed snapshot when the API boots (`ensureCatalogCurrent()`), which rewrites the four tables in one transaction only when `catalog_release` differs. There is no refresh endpoint, no cron and no `REFRESH_TOKEN`; comps are never touched by it.
 - `GET /api/guides` / `GET /api/guides/:slug` — guides from Postgres (same `?lang=` rule as comps; the response also carries the raw English `titleEn` / `excerptEn` / `sectionsEn` for the admin editor prefill).
 - Admin: `POST /api/admin/comps` (201/400/409), `PUT|DELETE /api/admin/comps/:slug` (404 on unknown), `POST /api/admin/guides` (201/400/409), `PUT|DELETE /api/admin/guides/:slug`, `GET /api/admin/subscribers` + `DELETE /api/admin/subscribers/:email`, `GET /api/admin/users` + `PATCH /api/admin/users/:id/role` (404 unknown, 409 blocked demotion). `comps.trend` (`up`/`down`/null) is editable in the form and returned by the API. Guide validation: slug format (immutable on PUT), ISO `publishedOn` (`YYYY-MM-DD`), non-empty title/excerpt/author, sections with heading + body (bullets optional); `featured` flips the index hero.
 - Auth: sign-in sets an httpOnly `mb_session` cookie (30 days). `/api/admin/*` requires an account whose `role` is `admin` (401 unauthenticated, 403 `admin_only`); the admin shell layout asks `/api/auth/me` and redirects everyone else to `/en/login?next=/admin`. The first admin comes from `ADMIN_EMAIL`/`ADMIN_SEED_PASSWORD` at seed time or API boot; once any admin exists the bootstrap is a no-op.
@@ -122,7 +122,7 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 
 ## Owner to do
 
-- Re-run `node scripts/fetch-metatft.mjs` for fresh MetaTFT comps/tiers/stats, then `node scripts/fetch-tftacademy-tips.mjs` to merge TFT Academy tips/stages/augments/priority/alt builds, then `npm run seed` in `apps/api/`; check next set rotation by re-running `npm run fetch-data` (the script picks the highest set number automatically).
+- Re-run `npm run data:pull` for fresh MetaTFT comps/tiers/stats plus TFT Academy tips/stages/augments/priority/alt builds; commit the data paths; on an empty database follow it with `npm run seed --workspace @metaboard/api`. `fetch-tft.mjs` picks the highest set number automatically.
 - Replace placeholder emails in `legal/*` and `about`.
 - Wire real YouTube/Spotify embeds on `/media` if desired.
 - Add real social links in `lib/data.ts` (`socials`) and a real favicon if `app/icon.svg` is not wanted (PWA icons in `public/icons/` are generated by `scripts/make-icons.mjs`).
@@ -152,11 +152,11 @@ npm run start --workspace @metaboard/api
 curl http://localhost:4173/en/tierlist/comps                  # public site (vi at /vi/...)
 curl http://localhost:4173/api/comps                          # through the Next proxy
 curl http://localhost:4000/api/comps                          # direct to the backend
-curl -X POST -H "Authorization: Bearer $REFRESH_TOKEN" http://localhost:4000/api/tft/refresh   # REFRESH_TOKEN in apps/api/.env
+curl http://localhost:4000/api/tft/set | jq '.catalog_release'   # which data snapshot the DB holds
 
 # admin: open http://localhost:4173/en/login and sign in with an admin account (bootstrap from ADMIN_EMAIL/ADMIN_SEED_PASSWORD in apps/api/.env)
-# full set update: npm run fetch-data → rebuild web → POST /api/tft/refresh
-# meta snapshot: npm run fetch-data → npm run seed --workspace @metaboard/api
+# full set update: npm run data:pull → commit data → push (web rebuilds, API self-applies on boot)
+# empty database: npm run data:pull → npm run seed --workspace @metaboard/api
 node capture/shots.mjs capture/sources-rebuild.json capture/sections-rebuild.json capture/rebuild http://localhost:4173   # recapture rebuild
 node capture/check-rebuild.mjs http://localhost:4173   # console/network/focus sanity check
 ```

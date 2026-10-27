@@ -193,7 +193,7 @@ npm run start --workspace @metaboard/api
 ```
 
 Configure `BACKEND_URL` on the web deployment, at build and runtime, to the deployed API origin. The
-API deployment needs its own `DATABASE_URL`, `REFRESH_TOKEN`, and a one-time
+API deployment needs its own `DATABASE_URL` and a one-time
 `ADMIN_EMAIL`/`ADMIN_SEED_PASSWORD` pair to bootstrap the first admin account,
 plus optional assistant settings; the web deployment should receive only the
 settings it uses. Both environments are supplied by the hosting platform, not

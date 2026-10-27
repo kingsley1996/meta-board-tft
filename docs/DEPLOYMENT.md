@@ -147,7 +147,7 @@ cho cả project — tăng `PG_POOL_MAX` là tăng phần mình chiếm.
 | Cookie `Secure` | bật khi production (`AUTH_SECURE_COOKIES`) | `mb_session` và OAuth state chứa credential, phải chỉ đi qua HTTPS |
 | `getMailer()` ở production | **throw** | console mailer in link xác minh ra log của host = credential lộ; và đăng ký "thành công" mà không có mail thì mất user im lặng |
 | `withInferenceSlot` | `ASSISTANT_MAX_CONCURRENCY=2` | trước đây mutex 1 slot: một câu 45 s chặn mọi câu khác trên cùng instance |
-| `POST /api/tft/refresh` | 409 khi đang có refresh | hai lần ghi đè comps/guides/game data chồng nhau |
+| `ensureCatalogCurrent()` lúc boot | so `catalog_release` rồi mới ghi | catalog theo đúng commit đang chạy; cùng lô data thì không ghi gì |
 | `backendJson()` (web) | timeout 8 s + retry 1 lần (chỉ network/5xx) | cold start của API không còn biến trang public thành 500 |
 
 ### Voice không phải tính năng miễn phí
@@ -166,53 +166,58 @@ cho cả project — tăng `PG_POOL_MAX` là tăng phần mình chiếm.
   VieNeu local đã bị bỏ khỏi luồng chạy; code vẫn giữ nhưng chỉ cloud URL được
   cấu hình mới bật. Số đo, quota, chi phí: `voice.md` §6.
 
-## 4. Dữ liệu: hai bản copy, một nguồn — và seed thì xoá
+## 4. Dữ liệu: một nguồn, một số lô
 
-| Bản copy | Ai dùng | Ai sinh | Cập nhật bằng |
+`packages/shared/data/tft.json` (kèm ảnh trong `apps/web/public/tft/**`) là **nguồn duy
+nhất** cho game catalog. Postgres chỉ giữ một **projection** của nó: API đọc snapshot từ
+deployment của chính mình — không gọi CommunityDragon — tính `catalog_release` (sha256 của
+các dòng sắp ghi), so với `meta('catalog_release')` trong DB, và chỉ ghi lại 4 bảng khi
+hai số khác nhau. Việc đó chạy **lúc boot** (`index.ts` → `applyCatalog()`), nên:
+
+- Không còn `POST /api/tft/refresh`, không còn cron `metaboard-tft-refresh`, không còn
+  `REFRESH_TOKEN`. Deploy chính là bước sync.
+- Web và API đọc **cùng một commit**, nên không thể lệch nhau vì người ta bấm thiếu.
+- Lệch vẫn thấy được: `GET /api/tft/set` trả `catalog_release`, log boot in
+  `game catalog: applied|already current release <12 hex> (…)`.
+
+| Bản | Ai dùng | Ai sinh | Cập nhật bằng |
 |---|---|---|---|
-| Postgres (API) | responses động, admin, validation | `seed.ts` / `syncTft()` | patch day: `POST /api/tft/refresh` (Bearer `$REFRESH_TOKEN`) — **không đụng comps** |
-| `packages/shared/data/tft.json` + `apps/web/public/tft/**` (commit trong git) | trang static (champions/items grid, hover cards) | `npm run fetch-data` / `fetch-metatft` / `fetch-comp-tips` / `fetch-loot` | chạy script rồi **rebuild web** (icon path trong DB trỏ vào `public/tft` của web — thiếu file là sync null chúng đi) |
+| `tft.json` + `apps/web/public/tft/**` (commit) | trang static (champions/items grid, hover cards) **và** API | `npm run data:pull` | chạy crawl ở dev, commit, push |
+| 4 bảng catalog trong Postgres | responses động, admin, validation | `syncTft()` / `ensureCatalogCurrent()` từ snapshot | **không có bước thủ công** — API tự nạp khi boot |
+| `comps`, `guides` trong Postgres | nội dung biên tập | `seed.ts` (DB trắng) / admin UI (về sau) | admin UI; `seed:economy` để nạp thêm economy comps |
 
 Quy tắc chọn đường, theo trạng thái DB đích:
 
 - **DB trắng (mới deploy):** `npm run seed --workspace @metaboard/api` — apply schema,
-  sync CommunityDragon, nạp comps/guides/tips từ `apps/api/seed/`.
+  ghi catalog từ snapshot, nạp comps/guides/tips từ `apps/api/seed/`.
 - **DB đã có nội dung admin tạo: ĐỪNG seed.** Dòng đầu của `seed.ts` ghi rõ: nó
   *replaces* comps và guides — mọi thứ soạn qua `/admin` bị xoá, log vẫn báo thành
-  công. Patch day thì gọi `/api/tft/refresh`; nội dung comps/guides sửa qua admin UI.
-  Muốn nạp thêm economy comps: `seed:economy` (bổ sung, không wipe).
+  công. Catalog thì không cần seed: API tự nạp. Nội dung comps/guides sửa qua admin UI.
 - **RAG corpus:** sửa nguồn (`mechanics-knowledge.json`, `seed/guides.ts`, `seed/tips.ts`)
   rồi `npm run build:knowledge`; `chunks.jsonl` là output đã commit — không sửa tay.
 
 ## 5. Patch day (runbook rút gọn)
 
+Bản agent dùng được (kể cả script kiểm data): `.qoder/skills/tft-data-refresh/`.
+
 ```sh
-npm run fetch-data && npm run fetch-wisps && npm run fetch-loot   # web workspace
-npm run fetch-comp-tips                                          # gộp tips TFT Academy
-git add packages/shared/data apps/web/public/tft                 # data là tài sản commit
-npm run build:knowledge --workspace @metaboard/api               # nếu sửa nguồn guide/tip
-# push → Vercel rebuild web → RỒI API lấy game data mới:
-curl -X POST -H "Authorization: Bearer $REFRESH_TOKEN" https://<api-host>/api/tft/refresh
+npm run data:pull        # crawl đúng thứ tự: catalog → MetaTFT → tips → wisps → loot → economy → RAG
+npm run test:server      # test đọc snapshot, không đọc mạng
+git add packages/shared/data apps/web/public/tft apps/web/lib/wisps.json apps/api/seed
+git commit -m "chore(data): set <N> patch <P>"
+git push                 # Vercel rebuild web; Render redeploy API và tự nạp catalog
 ```
 
-Thứ tự là bắt buộc: dữ liệu static phải nằm trên web **trước hoặc cùng lượt** với
-refresh API, vì icon path trong Postgres trỏ vào asset của web — refresh trước là trang
-render ảnh 404 cho tới lượt deploy web kế tiếp.
+Hết. Không có câu curl nào ở bước cuối.
 
-`render.yaml` đã khai báo cron `metaboard-tft-refresh` chạy chính câu curl đó lúc 12:00
-UTC (= 19:00 giờ Việt Nam) mỗi ngày, nên bản thân refresh không cần ai nhớ bấm. Nó cần
-hai env riêng: `API_ORIGIN` (origin thật của service API) và `REFRESH_TOKEN`. Ba hệ quả
-cần biết:
+Còn một điểm nối giữa hai halves: DB lưu đường dẫn icon trỏ vào asset của web. Nếu Render
+kéo API lên trước khi Vercel xong, vày phút đầu các view động có thể 404 ảnh — không ai
+bấm nhầm được nữa, chỉ còn thứ tự của platform. Muốn chắc thì publish Vercel trước khi
+push cho Render, hoặc đơn giản là nhìn `catalog_release` và ảnh thật trên staging.
 
-- Cron **không** chờ web deploy. Nó an toàn là vì `syncTft()` thay toàn bộ 4 bảng game
-  data trong **một transaction** (`tft.ts:141-181` — DELETE rồi INSERT, ROLLBACK khi lỗi)
-  và không đụng comps/guides; chưa có lần nào nó để DB ở trạng thái nửa vời. Đường tự do
-  của bạn là tắt cron và bấm tay sau khi web lên, nếu muốn đúng thứ tự §5.
-- Trùng giờ với một refresh khác ⇒ API trả **409 `a refresh is already running`** thay
-  vì ghi đè song song.
-- `curl` chỉ in `tft-refresh:<mã>` ra log, không `--fail`, nên 401/409/503 **không** làm
-  Render đánh dấu job đỏ. Đọc log cron định kỳ, hoặc thêm `--fail` nếu muốn platform
-  báo thay — quyết định đó thuộc về chủ project, đừng tự đổi một mình.
+Boot mà DB chưa tới thì `applyCatalog` thử lại **một** lần sau 30 s; thất bại cả hai lần
+nghĩa là catalog vẫn giữ lô cũ cho tới lần khởi động kế tiếp — kiểm bằng
+`GET /api/tft/set` (`catalog_release`) hoặc log process.
 
 ## 6. Sau khi deploy — cổng kiểm
 
@@ -224,7 +229,7 @@ cần biết:
 | `GET <web>/en` và `/vi` | 200, console sạch, **zero request ra ngoài** (rule của lane reference-build: không hotlink tài sản third-party) |
 | `GET <api>/api/voice/tts/status` | `available: true` + `provider` = `deepgram` (Flux) hoặc `vieneu`; nếu false, `reason` phân biệt engine tắt (`tts_unavailable`) vs key sai (`tts_credentials_rejected`) |
 | `GET <api>/api/voice/status` | `available: true` + `providers` list đúng chuỗi key đã cấu hình; `available: false` = thiếu hết `DEEPGRAM_API_KEY`/`GROQ_API_KEY`/… (không còn đường local nào để rơi) |
-| `POST /api/tft/refresh` thiếu/sai token | 401 (503 nếu `REFRESH_TOKEN` chưa cấu hình — nghĩa là endpoint đang chết im lặng) |
+| `GET <api>/api/tft/set` | `catalog_release` khớp lô data vừa commit; số champion/item/augment bằng đúng snapshot | hai nửa web/API lệch nhau |
 | Một request `/api/*` xuyên qua Vercel | header `Set-Cookie` còn nguyên `Secure` và cookie được gửi lại ở request kế — đây là test thật cho `AUTH_SECURE_COOKIES` + proxy |
 | `X-Forwarded-For` hai IP khác nhau (vote 2 lần) | hai `counted: true` — xác nhận `TRUST_PROXY` đang bật; hai lần cùng IP trả `counted: false` lần thứ hai |
 | `/en/login` → `/admin` | đăng nhập bằng account `role = admin` **và** vào được `/admin`; user thường bị đá lại login |
@@ -237,7 +242,7 @@ cần biết:
 |---|---|---|
 | Không có account `role = admin` | `/admin` luôn redirect về `/en/login` dù đăng nhập đúng | bootstrap `ADMIN_EMAIL`/`ADMIN_SEED_PASSWORD` (`accounts.ts`) |
 | Chạy `seed` trên DB đã có nội dung | **mọi comp/guide soạn qua admin biến mất**, không lỗi nào | đầu `seed.ts` |
-| Quên rebuild web sau `fetch-data` | trang static hiện data set cũ, API thì mới — hai nửa lệch nhau | README §Game data |
+| API boot lúc DB chưa tới | catalog giữ lô cũ tới lần khởi động kế tiếp; log in `game catalog sync failed` | `index.ts` `applyCatalog()` · `/api/tft/set` → `catalog_release` |
 | `proxyTimeout` bị bỏ | câu trả lời Coach AI dài chết 502 đúng 30 s | `next.config.ts` |
 | Vote/view dedupe **in-memory** | restart là từng visitor bump lại được — chấp nhận được, nhưng đừng tưởng nó là rate limit | PARITY §Backend API |
 | `DATABASE_URL` bản **Direct** của Supabase | API Render treo 10 s rồi 503 ở mọi route chạm DB: direct host IPv6-only, Render không có IPv6. Không có message nào ngoài `connection timeout` | §3 Database |
@@ -262,9 +267,9 @@ treo, không phải chỗ trống của tài liệu:
 - **Vercel Hobby vs Pro.** Site có ads/newsletter/donate là vi phạm điều khoản Hobby
   (platform có quyền suspend), nên trước khi public phải chốt gói — đây là quyết định
   chi phí, không phải kỹ thuật.
-- **Cron của Render chưa có ai đọc log.** `tft-refresh:<mã>` chỉ hiện trong log; 401 vì
-  `REFRESH_TOKEN` lệch sẽ im lặng tới ngày ai đó thắc mắc sao data cũ. Bật alert của
-  Render service, hoặc bỏ.
+- **Việc prod (khi site lên).** Cron `metaboard-tft-refresh` đã bị gỡ cùng
+  `/api/tft/refresh` — nếu dashboard Render vẫn còn service cron đó thì xoá thủ công,
+  blueprint `sync: false` không tự xoá resource đã tạo.
 - **Google sign-in:** redirect `<site>/api/auth/google/callback`, `AUTH_WEB_ORIGIN`
   phải khớp origin web thật — cấu hình sau khi có domain, không phải trước.
 - Newsletter gửi thủ công (export từ `/admin/subscribers`); PWA service worker là
