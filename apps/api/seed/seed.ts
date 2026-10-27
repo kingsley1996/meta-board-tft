@@ -19,34 +19,23 @@ await pool.query(await readFile(join(here, '../src/schema.sql'), 'utf8'));
 console.log('schema applied');
 
 const data = await syncTft(pool);
-console.log(`synced set ${data.set.number} (${data.set.mutator}): ${data.champions.length} champions, ${data.traits.length} traits, ${data.items.length} items, ${data.augments.length} augments (patch ${data.patch})`);
+console.log(`synced set ${data.set.number}: ${data.champions.length} champions, ${data.traits.length} traits, ${data.items.length} items, ${data.augments.length} augments (patch ${data.patch}, release ${data.release})`);
 
-// CommunityDragon's patch stamp lags; the public UI reads MetaTFT's patch.
-const metaSnapshot = JSON.parse(await readFile(sharedDataPath('meta.json'), 'utf8'));
-await pool.query("UPDATE meta SET value = $1 WHERE key = 'patch'", [metaSnapshot.source.patch]);
-console.log(`patch label set to ${metaSnapshot.source.patch} (MetaTFT)`);
-
+// The catalog apply already carries MetaTFT's stamps; the Academy sidecar is
+// about comps, which only a seed touches.
 let tftAcademySource: { retrievedAt?: string } | null = null;
 try {
   tftAcademySource = JSON.parse(await readFile(join(here, 'tftacademy-source.json'), 'utf8'));
 } catch {
   console.warn('TFT Academy source sidecar missing; run npm run fetch-comp-tips');
 }
-const provenance = {
-  metatft_updated: metaSnapshot.source.updated,
-  metatft_fetched_at: metaSnapshot.source.fetchedAt,
-  metatft_cluster_id: metaSnapshot.source.clusterId,
-  metatft_queue: metaSnapshot.source.queue,
-  tftacademy_retrieved_at: tftAcademySource?.retrievedAt,
-};
-const provenanceRows = Object.entries(provenance)
-  .filter(([, value]) => value !== undefined && value !== null && value !== '')
-  .map(([key, value]) => ({ key, value: String(value) }));
-await pool.query(
-  `INSERT INTO meta (key, value) SELECT key, value FROM jsonb_to_recordset($1) AS x(key text, value text)
-   ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
-  [JSON.stringify(provenanceRows)]
-);
+if (tftAcademySource?.retrievedAt) {
+  await pool.query(
+    `INSERT INTO meta (key, value) VALUES ('tftacademy_retrieved_at', $1)
+     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+    [String(tftAcademySource.retrievedAt)]
+  );
+}
 
 const seedComps = JSON.parse(await readFile(join(here, 'comps.json'), 'utf8'));
 await pool.query('DELETE FROM comps');

@@ -1,7 +1,6 @@
 import express from 'express';
-import { timingSafeEqual } from 'node:crypto';
 import { pool, getMeta } from './db.ts';
-import { syncTft } from './tft.ts';
+import { ensureCatalogCurrent } from './tft.ts';
 import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
 import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
 import { assistantRouter } from './assistant/index.ts';
@@ -54,14 +53,6 @@ app.get('/api/health/ready', async (_req, res) => {
     res.status(503).json({ ok: false, error: error instanceof Error ? error.message : 'database unavailable' });
   }
 });
-
-const bearerOk = (header: string | undefined, expected: string | undefined): boolean => {
-  if (!expected) return false;
-  const provided = (header ?? '').replace(/^Bearer\s+/i, '');
-  const a = Buffer.from(provided);
-  const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
-};
 
 const readLang = (value: unknown): 'en' | 'vi' => (value === 'vi' ? 'vi' : 'en');
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -144,40 +135,12 @@ app.get('/api/tft/set', async (req, res) => {
   res.json({
     patch: meta.patch ?? 'latest',
     set: Number(meta.set_number ?? 0),
+    catalog_release: meta.catalog_release ?? 'unknown',
     set_name: translateText(lang, 'tft', 'set-name', setName),
     champions: champions.rows,
     traits: traits.rows,
     items: items.rows,
     augments: augments.rows,
-  });
-});
-
-// A refresh rewrites comps, guides and the whole game catalog, so two runs
-// overlapping would interleave writes over the same tables. The endpoint is
-// called by a patch-day runbook and by a cron; either can fire while a slow run
-// is still going, and the second one costs nothing to refuse.
-let refreshInFlight: Promise<Awaited<ReturnType<typeof syncTft>>> | null = null;
-
-app.post('/api/tft/refresh', async (req, res) => {
-  const expected = process.env.REFRESH_TOKEN;
-  if (!expected) return res.status(503).json({ error: 'REFRESH_TOKEN is not configured' });
-  if (!bearerOk(req.headers.authorization, expected)) return res.status(401).json({ error: 'unauthorized' });
-  if (refreshInFlight) return res.status(409).json({ error: 'a refresh is already running' });
-
-  refreshInFlight = syncTft(pool);
-  let data: Awaited<ReturnType<typeof syncTft>>;
-  try {
-    data = await refreshInFlight;
-  } finally {
-    refreshInFlight = null;
-  }
-  res.json({
-    ok: true,
-    summary: [
-      `set ${data.set.number} (${data.set.mutator})`,
-      `${data.champions.length} champions, ${data.traits.length} traits, ${data.items.length} items, ${data.augments.length} augments`,
-      `patch ${data.patch}`,
-    ],
   });
 });
 
@@ -422,9 +385,29 @@ async function applyStoredSettings(): Promise<void> {
   }
 }
 
+// The game catalog is a projection of the data snapshot committed with the code,
+// so a deploy is the sync step: compare the snapshot's release id with the one
+// the database holds and rewrite the catalog only when they differ. A database
+// that is still waking up gets one retry — after that the catalog stays on the
+// previous release, which /api/tft/set reports through catalog_release.
+async function applyCatalog(retry = true): Promise<void> {
+  try {
+    const { applied, data } = await ensureCatalogCurrent(pool);
+    console.log(
+      `game catalog: ${applied ? 'applied' : 'already current'} release ${data.release} ` +
+        `(set ${data.set.number}, patch ${data.patch}, ${data.champions.length} champions, ` +
+        `${data.items.length} items, ${data.augments.length} augments)`
+    );
+  } catch (error) {
+    console.error('game catalog sync failed', error instanceof Error ? error.message : error);
+    if (retry) setTimeout(() => void applyCatalog(false), 30_000);
+  }
+}
+
 const port = Number(process.env.PORT ?? 4000);
 const server = app.listen(port, () => {
   console.log(`metaboard server on http://localhost:${port}`);
+  void applyCatalog();
   void bootstrapAdmin();
   void applyStoredSettings();
 });

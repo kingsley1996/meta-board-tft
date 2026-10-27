@@ -1,141 +1,94 @@
-// Ported from the Next app's scripts/fetch-tft.mjs. Same filters and icon path
-// formula, except icons are not downloaded here — they live in the Next app's
-// public/tft (run `npm run fetch-data` there after a set update).
+// The game catalog in Postgres is a projection of `packages/shared/data/tft.json`
+// — the snapshot that apps/web/scripts/fetch-tft.mjs crawls and commits. The API
+// never contacts CommunityDragon itself: the web bundle, the API bundle and the
+// database all read the same bytes from the same commit, so the two halves of the
+// site cannot drift apart.
+import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { invalidateCachePrefix } from './cache.ts';
-
-const CDRAGON = 'https://raw.communitydragon.org/latest/cdragon/tft/en_us.json';
-
-// Augment rarity is not exposed as a field; these tag GUIDs decode to the
-// silver/gold/prismatic tiers (verified against known i/ii/iii augment chains).
-const RARITY_TAGS: Record<string, number> = { '{d11fd6d5}': 1, '{ce1fd21c}': 2, '{cf1fd3af}': 3 };
-
-const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
-async function fetchWithRetry(url: string, tries = 3): Promise<Response> {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      const res = await fetch(url);
-      if (res.ok) return res;
-      throw new Error(`HTTP ${res.status}`);
-    } catch (error) {
-      if (attempt >= tries) throw error;
-      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
-    }
-  }
-}
-
-function cleanDesc(desc: string | undefined, effects: Record<string, unknown> | undefined): string {
-  return (desc ?? '')
-    .replace(/<br\s*\/?>/gi, ' ')
-    .replace(/<\/?(row|showIf|tip|rules|TFTKeyword|i)[^>]*>/gi, '')
-    .replace(/%i:[^%]*%/g, '')
-    .replace(/@(\w+)@/g, (_, key) => (effects?.[key] != null ? String(effects[key]) : ''))
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function pickSet(data: any): any {
-  const max = Math.max(...data.setData.map((entry: any) => entry.number));
-  const candidates = data.setData.filter((entry: any) => entry.number === max);
-  return candidates.find((entry: any) => entry.mutator === `TFTSet${max}`) ?? candidates[0];
-}
-
-function iconPath(folder: string, slug: string): string {
-  return `/tft/${folder}/${slug}.png`;
-}
+import { sharedDataPath } from './shared-data.ts';
 
 export type SetData = {
+  release: string;
   patch: string;
-  set: any;
+  set: { number: number; mutator?: string; name?: string };
   traits: any[];
   champions: any[];
   items: any[];
   augments: any[];
+  provenance: Record<string, string>;
 };
 
-export async function fetchSetData(): Promise<SetData> {
-  const raw: any = await (await fetchWithRetry(CDRAGON)).json();
-  const set = pickSet(raw);
-  const itemsByName = new Map<string, any>(raw.items.map((item: any) => [item.apiName, item]));
+const readJson = async (path: string): Promise<any> => JSON.parse(await readFile(path, 'utf8'));
 
-  const traits = set.traits.map((trait: any) => {
-    // Activation tiers: effects carry minUnits (e.g. 2/4/6) and a style id
-    // (1 bronze, 3 silver, 5 gold) per tier.
-    const effects = (Array.isArray(trait.effects) ? trait.effects : [])
-      .filter((effect: any) => Number.isFinite(effect?.minUnits))
-      .sort((a: any, b: any) => a.minUnits - b.minUnits);
-    return {
-      api_name: trait.apiName,
-      name: trait.name,
-      description: cleanDesc(trait.desc, trait.effects),
-      thresholds: effects.map((effect: any) => effect.minUnits),
-      styles: effects.map((effect: any) => effect.style ?? 1),
-      icon: iconPath('traits', slugify(trait.apiName)),
-    };
-  });
-
-  const champions = set.champions
-    .filter((c: any) => c.cost >= 1 && c.cost <= 5 && c.traits.length > 0 && !/^Lux \(/.test(c.name))
-    .map((c: any) => {
-      const slug = slugify(c.apiName);
-      return { api_name: c.apiName, name: c.name, cost: c.cost, traits: c.traits, icon: iconPath('champions', slug) };
-    });
-
-  const setItemIds = new Set(set.items);
-  const seenItemNames = new Set();
-  const items = raw.items
-    .filter((item: any) =>
-      setItemIds.has(item.apiName) &&
-      !item.isAugment &&
-      (item.composition.length > 0 || /Artifact|Emblem/.test(item.apiName) || /^Radiant /.test(item.name ?? ''))
-    )
-    .sort((a: any, b: any) => (b.apiName.startsWith('DA_') ? 1 : 0) - (a.apiName.startsWith('DA_') ? 1 : 0))
-    .filter((item: any) => {
-      const key = item.name.toLowerCase();
-      if (seenItemNames.has(key)) return false;
-      seenItemNames.add(key);
-      return true;
-    })
-    .map((item: any) => {
-      const slug = slugify(item.apiName);
-      return {
-        api_name: item.apiName,
-        name: item.name,
-        description: cleanDesc(item.desc, item.effects),
-        composition: item.composition.map((id: string) => itemsByName.get(id)?.name ?? id),
-        icon: iconPath('items', slug),
-      };
-    });
-
-  const setAugmentIds = new Set(set.augments);
-  const seenAugmentIds = new Set();
-  const augments = raw.items
-    .filter((item: any) => setAugmentIds.has(item.apiName) && item.isAugment && !seenAugmentIds.has(item.apiName) && seenAugmentIds.add(item.apiName))
-    .map((aug: any) => {
-      const rarities = aug.tags.map((tag: string) => RARITY_TAGS[tag]).filter(Boolean);
-      const slug = slugify(aug.apiName);
-      return {
-        api_name: aug.apiName,
-        name: aug.name,
-        description: cleanDesc(aug.desc, aug.effects),
-        rarity: rarities.length ? Math.max(...rarities) : null,
-        icon: iconPath('augments', slug),
-      };
-    });
-
-  let patch = 'latest';
-  try {
-    const versions: any = await (await fetchWithRetry('https://ddragon.leagueoflegends.com/api/versions.json', 2)).json();
-    patch = versions[0];
-  } catch {
-    console.warn('could not fetch patch version, keeping "latest"');
-  }
-
-  return { patch, set, traits, champions, items, augments };
+// The public UI shows MetaTFT's patch label because CommunityDragon's own stamp
+// lags a few days behind the live game.
+function patchLabel(catalogPatch: string, meta: any): string {
+  return meta?.source?.patch || catalogPatch;
 }
 
-export async function syncTft(pool: any): Promise<SetData> {
-  const data = await fetchSetData();
+export async function readSnapshot(): Promise<SetData> {
+  const raw = await readJson(sharedDataPath('tft.json'));
+  let meta: any = null;
+  try {
+    meta = await readJson(sharedDataPath('meta.json'));
+  } catch {
+    // Catalog-only checkouts still sync; they just carry no MetaTFT provenance.
+  }
+
+  const patch = patchLabel(raw.patch ?? 'latest', meta);
+  const champions = (raw.champions ?? []).map((c: any) => ({
+    api_name: c.apiName,
+    name: c.name,
+    cost: c.cost,
+    traits: c.traits ?? [],
+    icon: c.icon,
+  }));
+  const traits = (raw.traits ?? []).map((t: any) => ({
+    api_name: t.apiName,
+    name: t.name,
+    description: t.desc ?? null,
+    thresholds: t.thresholds ?? [],
+    styles: t.styles ?? [],
+    icon: t.icon,
+  }));
+  const items = (raw.items ?? []).map((i: any) => ({
+    api_name: i.apiName,
+    name: i.name,
+    description: i.desc ?? null,
+    composition: i.composition ?? [],
+    icon: i.icon,
+  }));
+  const augments = (raw.augments ?? []).map((a: any) => ({
+    api_name: a.apiName,
+    name: a.name,
+    description: a.desc ?? null,
+    rarity: a.rarity ?? null,
+    icon: a.icon,
+  }));
+
+  const provenance: Record<string, string> = {};
+  for (const [key, value] of [
+    ['metatft_updated', meta?.source?.updated],
+    ['metatft_fetched_at', meta?.source?.fetchedAt],
+    ['metatft_cluster_id', meta?.source?.clusterId],
+    ['metatft_queue', meta?.source?.queue],
+  ] as const) {
+    if (value) provenance[key] = String(value);
+  }
+
+  // The release id changes exactly when the rows the database will hold change,
+  // so re-applying the same snapshot costs nothing and a stale database is one
+  // number to spot.
+  const release = createHash('sha256')
+    .update(JSON.stringify({ patch, set: raw.set, champions, traits, items, augments }))
+    .digest('hex')
+    .slice(0, 12);
+
+  return { release, patch, set: raw.set ?? { number: 0 }, traits, champions, items, augments, provenance };
+}
+
+async function writeCatalog(pool: any, data: SetData): Promise<void> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -167,10 +120,17 @@ export async function syncTft(pool: any): Promise<SetData> {
       [JSON.stringify(data.augments)]
     );
     await client.query(
-      `INSERT INTO meta (key, value) VALUES ('patch', $1), ('set_number', $2), ('set_name', $3), ('synced_at', now()::text)
+      `INSERT INTO meta (key, value) VALUES ('patch', $1), ('set_number', $2), ('set_name', $3), ('catalog_release', $4), ('synced_at', now()::text)
        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
-      [data.patch, String(data.set.number), data.set.name]
+      [data.patch, String(data.set.number), data.set.name ?? '', data.release]
     );
+    if (Object.keys(data.provenance).length) {
+      await client.query(
+        `INSERT INTO meta (key, value) SELECT key, value FROM jsonb_to_recordset($1)
+         AS x(key text, value text) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+        [JSON.stringify(Object.entries(data.provenance).map(([key, value]) => ({ key, value })))]
+      );
+    }
     await client.query('COMMIT');
     // champions/traits/items/augments rows feed both the catalog and the
     // icon/trait maps listComps builds — drop their cached entries.
@@ -182,5 +142,21 @@ export async function syncTft(pool: any): Promise<SetData> {
   } finally {
     client.release();
   }
+}
+
+// Force path, for a database that has never held the catalog (the seed script).
+export async function syncTft(pool: any): Promise<SetData> {
+  const data = await readSnapshot();
+  await writeCatalog(pool, data);
   return data;
+}
+
+// Boot path: apply the committed snapshot only when the database is holding a
+// different release, so redeploying the same data costs nothing.
+export async function ensureCatalogCurrent(pool: any): Promise<{ applied: boolean; data: SetData }> {
+  const data = await readSnapshot();
+  const stored = await pool.query('SELECT value FROM meta WHERE key = $1', ['catalog_release']);
+  if (stored.rows[0]?.value === data.release) return { applied: false, data };
+  await writeCatalog(pool, data);
+  return { applied: true, data };
 }
