@@ -26,6 +26,7 @@ import {
   parseReasoningListQuery,
   scheduleReasoningLogCleanup,
 } from './assistant/assistant-reasoning-store.ts';
+import { getAssistantSettingsView, loadAssistantSettingsIntoEnv, updateAssistantSettings } from './settings.ts';
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -358,6 +359,19 @@ app.delete('/api/admin/aliases/unresolved/:id', async (req, res) => {
   res.status(204).end();
 });
 
+// Runtime model/provider config. Writing a value updates this process right away
+// because every config reader in the assistant re-reads process.env per request.
+app.get('/api/admin/settings/assistant', async (_req, res) => {
+  res.json(await getAssistantSettingsView());
+});
+
+app.put('/api/admin/settings/assistant', async (req, res) => {
+  const actor = (req as AuthedRequest).authUser;
+  const result = await updateAssistantSettings(req.body?.values, actor?.email ?? 'admin');
+  if (!result.ok) return res.status(400).json({ error: 'Invalid setting value.', fields: result.errors });
+  res.json(result.view);
+});
+
 app.use('/api/auth', authRouter);
 // Resolve the signed-in user (if any) for assistant routes so conversations
 // attach to the account and history follows the user across devices.
@@ -395,10 +409,24 @@ async function bootstrapAdmin(): Promise<void> {
   }
 }
 
+// Admin picks made in /admin/settings survive a redeploy this way: the database
+// holds the override and gets copied onto process.env before the first assistant
+// request can be served. A database that is still waking up is not fatal — the
+// host environment keeps driving until the next save.
+async function applyStoredSettings(): Promise<void> {
+  try {
+    const applied = await loadAssistantSettingsIntoEnv();
+    if (applied) console.log(`assistant settings: ${applied} override(s) loaded from database`);
+  } catch (error) {
+    console.error('assistant settings load failed; host environment stays in charge', error instanceof Error ? error.message : error);
+  }
+}
+
 const port = Number(process.env.PORT ?? 4000);
 const server = app.listen(port, () => {
   console.log(`metaboard server on http://localhost:${port}`);
   void bootstrapAdmin();
+  void applyStoredSettings();
 });
 
 // Render sends SIGTERM on every deploy and scale event. Draining first means an

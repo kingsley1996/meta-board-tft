@@ -435,3 +435,45 @@ export async function setUserRole(id: string, role: UserRole): Promise<{ ok: tru
   const data = (await res.json().catch(() => ({}))) as { error?: string };
   return { ok: false, error: data.error ?? 'role change failed' };
 }
+
+// --- Admin: assistant runtime configuration ---
+
+export type AssistantProviderName = 'ollama' | 'google' | 'openai';
+
+export type AssistantSettingEntry = {
+  env: string;
+  label: string;
+  hint: string;
+  kind: 'provider' | 'model' | 'baseUrl' | 'ollamaUrl' | 'int' | 'bool';
+  provider?: AssistantProviderName;
+  options?: string[];
+  min?: number;
+  max?: number;
+  placeholder?: string;
+  value: string;
+  // database = an admin saved it here, environment = the host env still owns it.
+  source: 'database' | 'environment' | 'unset';
+  databaseValue: string | null;
+};
+
+export type AssistantSettingsView = {
+  settings: AssistantSettingEntry[];
+  credentials: { env: string; providers: AssistantProviderName[]; note: string; present: boolean }[];
+  active: { provider: AssistantProviderName; model: string };
+  warnings: string[];
+};
+
+export type SettingsSaveResult =
+  | { ok: true; view: AssistantSettingsView }
+  | { ok: false; error: string; fields: Record<string, string> };
+
+export async function saveAssistantSettings(values: Record<string, string | null>): Promise<SettingsSaveResult> {
+  const res = await fetch('/api/admin/settings/assistant', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values }),
+  });
+  const data = (await res.json().catch(() => ({}))) as Partial<AssistantSettingsView> & { error?: string; fields?: Record<string, string> };
+  if (res.ok) return { ok: true, view: data as AssistantSettingsView };
+  return { ok: false, error: data.error ?? 'save failed', fields: data.fields ?? {} };
+}

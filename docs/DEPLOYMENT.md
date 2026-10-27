@@ -71,10 +71,9 @@ Check trước khi ship: `npm run typecheck && npm run test:server && npm run te
 | web | `npm run build --workspace @metaboard/web` | `npm run start --workspace @metaboard/web` | `BACKEND_URL` (build + run), `SITE_URL` | — |
 | api | không | `npm run start --workspace @metaboard/api` | `DATABASE_URL`, `REFRESH_TOKEN`, `PORT`; `ADMIN_EMAIL` + `ADMIN_SEED_PASSWORD` chỉ lần đầu | `ASSISTANT_*`, `*_API_KEY`, `STT_*`, `VIENEU_TTS_*`, `TTS_*`, `AUTH_*`, `GOOGLE_OAUTH_*` |
 
-Ba thứ hay dựng sai:
+Bốn thứ hay dựng sai:
 
-- **`/admin` là role của account, không phải mật khẩu thứ hai.** Không còn
-  `ADMIN_PASSWORD`/`mb_admin`: đăng nhập ở `/en/login` bằng account có `role = admin`.
+- **`/admin` là role của account, không phải mật khẩu thứ hai.** Không còn `ADMIN_PASSWORD`/`mb_admin`: đăng nhập ở `/en/login` bằng account có `role = admin`.
   DB trắng thì đặt `ADMIN_EMAIL` + `ADMIN_SEED_PASSWORD` một lần (seed hoặc lúc API
   boot tạo account đầu tiên); khi đã có admin, hai biến đó là no-op và nên xoá khỏi host.
 - **Biến web chỉ web dùng, biến API chỉ API dùng** — đưa `DATABASE_URL`/keys vào env
@@ -83,6 +82,14 @@ Ba thứ hay dựng sai:
   false — đăng ký là tự xác minh, chủ ý cho giai đoạn dev) **và** cắm mailer thật trong
   `apps/api/src/mailer.ts` (mặc định là console mailer, in link ra log). Thiếu một
   trong hai là mở đăng ký không kiểm soát email cho người dùng thật.
+
+- **Model/provider đổi được mà không redeploy.** Bảng `app_settings` (UI
+  `/admin/settings`, code ở `apps/api/src/settings.ts`) được copy lên `process.env`
+  lúc API boot và ngay sau mỗi lần lưu, vì assistant đọc env theo từng request.
+  Row thắng env; xoá row là trả về giá trị env mà process nhận lúc khởi động.
+  Danh sách key là allow-list và **không có credential**: `*_API_KEY` luôn nằm ở
+  env của host, UI chỉ báo đã set hay chưa.
+  Lưu ý `OPENAI_BASE_URL` dùng chung với STT (`voice.ts` fallback về nó).
 
 ### Bản đồ host (đã chốt)
 

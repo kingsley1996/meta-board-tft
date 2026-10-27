@@ -259,3 +259,12 @@ CREATE TABLE IF NOT EXISTS email_tokens (
 -- Personal Coach AI history: conversations attach to the signed-in user.
 ALTER TABLE assistant_conversations ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES users(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS assistant_conversations_user_id_idx ON assistant_conversations (user_id, updated_at DESC);
+
+-- Admin-editable runtime configuration (src/settings.ts). Keys are an allow-list
+-- enforced in code, and a row beats the host environment until it is deleted.
+CREATE TABLE IF NOT EXISTS app_settings (
+  key text PRIMARY KEY,
+  value text NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by text
+);

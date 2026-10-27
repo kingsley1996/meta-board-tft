@@ -10,6 +10,7 @@ const items = [
   { href: '/admin/guides', label: 'Guides' },
   { href: '/admin/aliases', label: 'Aliases' },
   { href: '/admin/users', label: 'Users' },
+  { href: '/admin/settings', label: 'Assistant settings' },
   { href: '/admin/assistant-reasoning', label: 'Assistant reasoning' },
   { href: '/admin/subscribers', label: 'Subscribers' },
 ];
