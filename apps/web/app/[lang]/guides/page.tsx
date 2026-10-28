@@ -7,7 +7,9 @@ import { guideTag } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
-export const dynamic = 'force-dynamic';
+// The `?tag` filter keeps this route dynamic, so the win here is the data cache:
+// the guides list is read from Next's store rather than re-fetched per view.
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
   const { lang } = await params;
@@ -21,7 +23,7 @@ export default async function GuidesPage({ params, searchParams }: { params: Pro
   const { lang } = await params;
   const { tag } = await searchParams;
   const t = messages[lang].guides;
-  const data = await backendJson<GuidesResponse>(`/api/guides?lang=${lang}`);
+  const data = await backendJson<GuidesResponse>(`/api/guides?lang=${lang}`, { revalidate: 300 });
   if (!data) throw new Error('backend is unreachable');
   const guides = data.guides;
   if (!guides.length) throw new Error('no guides in the store');

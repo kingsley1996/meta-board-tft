@@ -11,8 +11,9 @@ import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { championDetail, championSlugToName, keywordsFor } from '@/lib/tips';
 
-// Champion pages read live comps from the backend (admin edits show up immediately).
-export const dynamic = 'force-dynamic';
+// Same list URL the comps routes fetch, so this render reads it from Next's data
+// store instead of paying the hop again.
+export const revalidate = 60;
 
 async function detail(slug: string, lang: Lang) {
   const name = championSlugToName[slug];
@@ -87,7 +88,7 @@ export default async function ChampionPage({
     return labels[label] ?? label;
   };
 
-  const data = await backendJson<CompsResponse>(`/api/comps?lang=${lang}`);
+  const data = await backendJson<CompsResponse>(`/api/comps?lang=${lang}`, { revalidate: 60 });
   const comps = (data?.comps ?? []).filter((comp) =>
     [...comp.units, ...comp.early, ...comp.alt].some((unit) => unit.name === champion.name)
   );

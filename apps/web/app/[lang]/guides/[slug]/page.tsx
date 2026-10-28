@@ -8,11 +8,14 @@ import { guideTag } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
-export const dynamic = 'force-dynamic';
+// Articles change far less often than the meta data, so they can sit at the edge
+// for five minutes. generateMetadata and the page ask for the same guide; with a
+// revalidate the second read comes from the data store instead of the API.
+export const revalidate = 300;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang; slug: string }> }): Promise<Metadata> {
   const { lang, slug } = await params;
-  const guide = await backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`);
+  const guide = await backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`, { revalidate: 300 });
   if (!guide) return {};
   return { title: guide.title, description: guide.excerpt };
 }
@@ -21,8 +24,8 @@ export default async function GuideArticlePage({ params }: { params: Promise<{ l
   const { lang, slug } = await params;
   const t = messages[lang].guides;
   const [guide, list] = await Promise.all([
-    backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`),
-    backendJson<GuidesResponse>(`/api/guides?lang=${lang}`),
+    backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`, { revalidate: 300 }),
+    backendJson<GuidesResponse>(`/api/guides?lang=${lang}`, { revalidate: 300 }),
   ]);
   if (!guide) notFound();
   const related = (list?.guides ?? []).filter((candidate) => candidate.slug !== guide.slug).slice(0, 3);

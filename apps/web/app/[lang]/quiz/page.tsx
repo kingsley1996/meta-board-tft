@@ -7,7 +7,9 @@ import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import type { Tier } from '@/lib/tiers';
 
-export const dynamic = 'force-dynamic';
+// Same list URL the comps routes fetch, so this render reads it from Next's data
+// store instead of paying the hop again.
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
   const { lang } = await params;
@@ -29,7 +31,7 @@ function toQuizComp(comp: ApiComp): QuizComp {
 
 export default async function QuizPage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
-  const data = await backendJson<CompsResponse>(`/api/comps?lang=${lang}`);
+  const data = await backendJson<CompsResponse>(`/api/comps?lang=${lang}`, { revalidate: 60 });
   const comps = (data?.comps ?? []).map(toQuizComp);
   return (
     <div className="flex flex-col gap-6">
