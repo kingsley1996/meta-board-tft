@@ -33,6 +33,44 @@ The API loads `apps/api/.env` when present. The web app proxies `/api/*` to
 `BACKEND_URL` (default `http://127.0.0.1:4000`), keeping browser requests
 same-origin.
 
+### Colour tokens
+
+`apps/web` has one palette. Every colour is a Tailwind v4 token declared once in
+the `@theme` block of `apps/web/app/globals.css`, which is what generates
+`bg-panel`, `text-mist`, `border-brand` and the rest — so restyling the site
+means editing that block, and no component carries a hex.
+
+Two gates keep that palette honest, and they cover different things.
+
+`lib/palette-tokens.test.ts` (run by `npm run test:web`) reads the `@theme` block
+and recomputes WCAG contrast per token against the surfaces it can land on: 4.5:1
+for the ink tokens (`fog`, `mist`, `brand`, `brand-deep`, and `on-brand` on the
+action fills), 3:1 for the data colours (`tier-*`, `cost-*`), which paint as
+badges and hex rims rather than body copy. It refuses any `:root[data-theme]`
+override — nothing in the app can switch palettes, so one would ship dead — and
+pins the PWA `theme_color` and `viewport.themeColor` to the `--color-page`
+ground. Colour values came from `docs/DESIGN-SYSTEM.md` §3.2, a transplant from
+another project whose dark palette is the only part that applies here.
+
+A token table cannot see text painted over a picture, so
+`tests/contrast.spec.ts` measures the real thing: it hides the ink, screenshots the
+two homepage sections that have one behind them — the hero banner and the feature
+cards that carry a 3D render — and holds every text run to its WCAG bar against
+the pixels actually behind it (5th percentile, so one bright pixel in the art
+cannot fail a build). It runs both languages at 1440, 1024 and 390, plus the
+hovered grid, which is where the render escapes its frame. Both washes in
+`app/[lang]/page.tsx` are sized by that test: thinning the headline wash back to
+`from-page/90 via-page/65` drops the orange accent word to 2.4:1, and a
+directional reveal cannot be the only scrim below `xl` — under that width the
+headline is wider than the dark half of the gradient, which measured 1.13:1 on
+mobile.
+
+Focus is one indicator, not two: `:focus-visible` paints a 2px brand outline, and
+no input adds a `focus:border-*` of its own. That rule has to stay inside
+`@layer base` — an unlayered rule beats Tailwind's utilities whatever its
+specificity, which is why `focus:outline-none` used to be silently dead and every
+focused field wore a border and an outline at once.
+
 ### Vietnamese speech input (cloud STT with local fallback)
 
 Full voice reference — providers, env vars, error codes, measured latencies,
