@@ -100,10 +100,14 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
         className={`sticky top-0 z-50 border-b border-line bg-page/95 backdrop-blur transition-transform duration-200 ${hidden ? 'lg:-translate-y-full' : ''}`}
       >
         <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center gap-3 px-6">
-          <Link href={`/${lang}`} className="flex shrink-0 items-center gap-2.5" aria-label={t.homeAria}>
-            <span className="hex flex h-9 w-9 items-center justify-center bg-brand">
-              <span className="hex flex h-full w-full items-center justify-center bg-panel font-display text-base font-bold text-brand">M</span>
-            </span>
+          <Link href={`/${lang}`} data-section="brand" className="flex shrink-0 items-center gap-2.5" aria-label={t.homeAria}>
+            {/* The same mark as app/icon.svg, cropped to its own box: a board cell
+                with the M cut out of it. Token colours, so a palette change
+                reaches the favicon and this pixel-for-pixel the same way. */}
+            <svg aria-hidden="true" viewBox="6.89 3 50.22 58" className="h-9 w-[31.2px] shrink-0">
+              <polygon className="fill-brand" points="32,3 57.11,17.5 57.11,46.5 32,61 6.89,46.5 6.89,17.5" />
+              <path className="stroke-on-brand" d="M21.2 43.25 L21.2 20.75 L32 33.35 L42.8 20.75 L42.8 43.25" fill="none" strokeWidth={8.4} />
+            </svg>
             <span className="hidden font-display text-2xl font-bold tracking-tight text-fog sm:inline">MetaBoard</span>
           </Link>
           <div className="flex min-w-0 flex-1 justify-center">

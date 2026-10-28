@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <polygon points="32,4 60,20 60,44 32,60 4,44 4,20" fill="#6a45ff"/>
-  <polygon points="32,14 51,25 51,39 32,50 13,39 13,25" fill="#121722"/>
-  <text x="32" y="39" text-anchor="middle" font-family="Verdana, sans-serif" font-size="20" font-weight="bold" fill="#b9a8ff">M</text>
+  <!-- MetaBoard mark: one regular pointy-top hexagon, the shape of a TFT board
+       cell, with the M cut out of it. Both numbers are shared with the navbar
+       mark in components/nav.tsx; keep them in step. -->
+  <polygon points="32,3 57.11,17.5 57.11,46.5 32,61 6.89,46.5 6.89,17.5" fill="#ff6b3d"/>
+  <path d="M21.2 43.25 L21.2 20.75 L32 33.35 L42.8 20.75 L42.8 43.25" fill="none" stroke="#160b05" stroke-width="8.4"/>
 </svg>

@@ -1,45 +1,30 @@
-// Generates public/icons/icon-{192,512}.png: brand background + white hexagon.
-// Run: node scripts/make-icons.mjs
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { PNG } from 'pngjs';
+// Renders public/icons/icon-{192,512}.png and the maskable variant from
+// app/icon.svg, so the installed-app icon can never drift from the tab icon.
+// Run from apps/web: node scripts/make-icons.mjs
+// sharp is reached through Next's optional dependency; nothing here is declared
+// in package.json because promoting it to a direct devDependency makes npm drop
+// the `libc` selector on the platform binaries in the lockfile.
+import { mkdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import sharp from 'sharp';
 
-const BG = [0x7c, 0x5c, 0xff];
-const HEX = [0xff, 0xff, 0xff];
+const GROUND = { alpha: 255, r: 0x0d, g: 0x13, b: 0x17 }; // --color-page
+const MARK_BOX = 64; // app/icon.svg viewBox
+const svg = readFileSync(join(process.cwd(), 'app/icon.svg'));
 
-function hexagonVertices(size) {
-  const cx = size / 2;
-  const cy = size / 2;
-  const radius = size * 0.32;
-  return Array.from({ length: 6 }, (_, index) => {
-    const angle = (Math.PI / 180) * (60 * index - 90);
-    return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];
-  });
+// `box` is the mark's edge in the final square, so the maskable variant can pull
+// it inside the 80% safe zone instead of letting the hexagon's vertices be cut.
+async function tile(file, size, box) {
+  const offset = Math.round((size - box) / 2);
+  await sharp({ create: { width: size, height: size, channels: 4, background: GROUND } })
+    .composite([{ density: (72 * box) / MARK_BOX, input: svg, left: offset, top: offset }])
+    .png()
+    .toFile(file);
+  console.log(file);
 }
 
-function insidePolygon(polygon, x, y) {
-  let inside = false;
-  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    const [xi, yi] = polygon[i];
-    const [xj, yj] = polygon[j];
-    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
-}
-
+mkdirSync('public/icons', { recursive: true });
 for (const size of [192, 512]) {
-  const polygon = hexagonVertices(size);
-  const png = new PNG({ width: size, height: size });
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const color = insidePolygon(polygon, x + 0.5, y + 0.5) ? HEX : BG;
-      const index = (size * y + x) << 2;
-      png.data[index] = color[0];
-      png.data[index + 1] = color[1];
-      png.data[index + 2] = color[2];
-      png.data[index + 3] = 255;
-    }
-  }
-  mkdirSync('public/icons', { recursive: true });
-  writeFileSync(`public/icons/icon-${size}.png`, PNG.sync.write(png));
-  console.log(`public/icons/icon-${size}.png`);
+  await tile(join('public/icons', `icon-${size}.png`), size, size);
 }
+await tile(join('public/icons', 'icon-maskable-512.png'), 512, Math.round(512 * 0.78));
