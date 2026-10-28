@@ -27,11 +27,15 @@ let glidePending = false;
 // useLayoutEffect while hydrating in the browser, useEffect during SSR.
 const useScrollEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
-export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lang }) {
+export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; lang: Lang; initial?: CompsResponse }) {
   const t = messages[lang].explorer;
   const [sort, setSort] = useState<'default' | 'popular'>('default');
   const cacheKey = `${lang}:${sort}`;
-  const [data, setData] = useState<CompsResponse | null>(() => cache[cacheKey] ?? null);
+  // `initial` is the payload the page already paid for while rendering, so the
+  // list paints out of the document instead of waiting on a second round-trip.
+  // The mount effect still refetches; this only removes the loading state in
+  // front of it.
+  const [data, setData] = useState<CompsResponse | null>(() => cache[cacheKey] ?? initial ?? null);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState('');

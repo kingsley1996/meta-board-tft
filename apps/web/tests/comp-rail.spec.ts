@@ -112,3 +112,14 @@ test('the round plan opens on four rounds and ramps the rest in', async ({ page 
     .poll(() => details.evaluate((d) => Math.round(d.getBoundingClientRect().height)))
     .toBe(Math.round(closed.height));
 });
+
+// The explorer used to ship an empty shell and wait for the browser to refetch
+// the list, so the detail page paid for a second cross-region round-trip before
+// anything appeared. The panel only renders once the payload is in state, so
+// finding it in the raw document is what proves the data shipped with it.
+test('the comp detail ships its data in the document, not behind a client fetch', async ({ page }) => {
+  const res = await page.goto('/vi/tierlist/comps/azir-reroll');
+  const html = (await res!.body()).toString();
+  expect(html).toContain('data-section="comp-panel"');
+  expect(html).toContain('Tộc hệ kích hoạt');
+});
