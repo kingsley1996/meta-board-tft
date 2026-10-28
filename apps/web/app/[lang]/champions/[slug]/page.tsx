@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ItemRanking, ItemTile, Panel, UnitHex, itemHref, tierColor } from '@/components/ui';
+import { ItemTile, Panel, UnitHex, itemHref, tierColor } from '@/components/ui';
+import { ChampionStatsPanel, type StatBlock } from '@/components/champion-stats-panel';
 import { HexBoard } from '@/components/hex-board';
 import { PatchBar } from '@/components/patch-bar';
 import type { CompsResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
-import { compStatsBySlug, iconByName, itemTierByName, itemTiers, unitAbilityAttributes, unitRoles, unitStats } from '@/lib/data';
+import { compStatsBySlug, iconByName, itemTierByName, itemTiers, unitAbilityAttributes, unitRoles, type UnitStatBlock, unitStats } from '@/lib/data';
 import { locales, type Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { championDetail, championSlugToName, keywordsFor } from '@/lib/tips';
@@ -37,31 +38,27 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
   };
 }
 
-export default async function ChampionPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ lang: Lang; slug: string }>;
-  searchParams: Promise<{ rank?: string }>;
-}) {
-  const [{ lang, slug }, query] = await Promise.all([params, searchParams]);
+export default async function ChampionPage({ params }: { params: Promise<{ lang: Lang; slug: string }> }) {
+  const { lang, slug } = await params;
   const champion = await detail(slug, lang);
   if (!champion) notFound();
   const t = messages[lang].champion;
   const keywords = keywordsFor(lang);
   const stats = unitStats[champion.name];
-  const rank = query.rank === 'master' ? 'master' : 'all';
-  const rankStats = stats?.ranks?.[rank] ?? stats ?? null;
-  const rankHref = (nextRank: string) => {
-    const qs = new URLSearchParams();
-    if (nextRank === 'master') qs.set('rank', 'master');
-    const search = qs.toString();
-    return `/${lang}/champions/${slug}${search ? `?${search}` : ''}`;
-  };
-  const rankTabs = [
-    { key: 'all', label: t.rankAll, href: rankHref('all') },
-    { key: 'master', label: t.rankMaster, href: rankHref('master') },
-  ];
+  // Both rank blocks ship with the document; the panel below switches between
+  // them in state. Reading `?rank=` here used to force this route to render on
+  // every request, which silently dropped the revalidate above.
+  const block = (entry?: UnitStatBlock | null): StatBlock | null =>
+    entry ? { avg: entry.avg, top4: entry.top4, win: entry.win, pick: entry.pick ?? null, games: entry.games } : null;
+  const ranks: { key: 'all' | 'master'; stats: StatBlock }[] = [];
+  if (stats?.ranks?.master) {
+    const all = block(stats.ranks.all) ?? block(stats);
+    const master = block(stats.ranks.master);
+    if (all && master) ranks.push({ key: 'all', stats: all }, { key: 'master', stats: master });
+  } else {
+    const single = block(stats);
+    if (single) ranks.push({ key: 'all', stats: single });
+  }
   const abilityAttributes = unitAbilityAttributes[champion.name] ?? [];
   const role = unitRoles[champion.name] ?? null;
   const roleLabel = (value: string) => {
@@ -273,56 +270,7 @@ export default async function ChampionPage({
             </Panel>
           </div>
 
-          <div data-section="champion-stats" className="min-w-0 lg:col-span-2 xl:col-span-1">
-            <Panel className="flex flex-col overflow-hidden">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand">{t.statsTab}</p>
-                {stats?.ranks?.master ? (
-                  <div className="flex overflow-hidden rounded-md border border-line">
-                    {rankTabs.map((rankTab) => (
-                      <Link
-                        key={rankTab.key}
-                        href={rankTab.href}
-                        scroll={false}
-                        className={`smooth px-2.5 py-1 text-[11px] font-semibold ${rank === rankTab.key ? 'bg-brand text-on-brand' : 'text-mist hover:text-fog'}`}
-                        aria-current={rank === rankTab.key ? 'page' : undefined}
-                      >
-                        {rankTab.label}
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-              <div className="flex flex-col gap-3 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-mist">{t.stats}</p>
-                {rankStats ? (
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { label: t.avg, value: rankStats.avg.toFixed(2) },
-                      { label: t.top4, value: `${(rankStats.top4 * 100).toFixed(1)}%` },
-                      { label: t.win, value: `${(rankStats.win * 100).toFixed(1)}%` },
-                      rankStats.pick != null ? { label: t.pick, value: `${(rankStats.pick * 100).toFixed(1)}%` } : null,
-                      { label: t.games, value: compact(rankStats.games) },
-                    ].filter((row): row is { label: string; value: string } => row !== null).map((row) => (
-                      <div key={row.label} className="rounded-lg border border-line bg-ink/40 p-2 text-center last:col-span-2">
-                        <p className="font-display text-lg font-bold text-fog">{row.value}</p>
-                        <p className="text-[11px] uppercase tracking-wide text-mist">{row.label}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-                {itemRows.length ? (
-                  <>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.items}</p>
-                    <ItemRanking items={itemRows} showTier={false} lang={lang} />
-                    <p className="text-xs leading-relaxed text-mist">{t.itemsNote}</p>
-                  </>
-                ) : (
-                  <p className="text-sm text-mist">{t.noComps}</p>
-                )}
-              </div>
-            </Panel>
-          </div>
+          <ChampionStatsPanel lang={lang} ranks={ranks} itemRows={itemRows} />
         </div>
       </div>
 
