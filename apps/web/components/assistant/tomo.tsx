@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { Mascot } from 'page-mascot';
 
-export const TOMO_DIRECTIONS = '/mascots/drone-directions.webp';
-export const TOMO_REACTIONS = '/mascots/drone-reactions.webp';
+// Tomo is our own drawing: a Set-18 armoured penguin, built from two 3x3 sprite
+// sheets with .qoder/skills/page-mascot (sources in apps/web/characters/coach).
+export const TOMO_DIRECTIONS = '/mascots/coach-directions.webp';
+export const TOMO_REACTIONS = '/mascots/coach-reactions.webp';
 
 // Cell names and order match the reactions sheet shipped with page-mascot characters.
 export type TomoReaction =

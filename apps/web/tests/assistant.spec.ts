@@ -65,3 +65,24 @@ test('mobile assistant has no horizontal overflow', async ({ page }) => {
   );
   expect(overflow).toBe(false);
 });
+
+test('Tomo is the house penguin: its sheets serve and the sprite answers the cursor', async ({ page }) => {
+  await page.goto('/en/assistant');
+  const boop = page.getByRole('button', { name: 'Boop the Tomo' });
+  await expect(boop).toBeVisible();
+
+  // The atlases are CSS background-images, so a renamed file leaves no error
+  // anywhere — it just draws nothing.
+  for (const sheet of ['coach-directions', 'coach-reactions']) {
+    const body = await (await page.request.get(`/mascots/${sheet}.webp`)).body();
+    expect(body.length, sheet).toBeGreaterThan(10_000);
+  }
+
+  const layers = boop.locator('> span > span');
+  const box = await boop.boundingBox();
+  await page.mouse.move(box!.x - 200, box!.y + box!.height / 2);
+  await expect(layers.nth(0)).toHaveCSS('background-position', '0% 50%');
+
+  await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
+  await expect(layers.nth(1)).toHaveCSS('opacity', '1');
+});

@@ -46,3 +46,9 @@ coverage/
 # playwright
 test-results/
 playwright-report/
+
+# Qoder ImageGen scratch output — the sheets that matter live in apps/web/characters
+vibe_images/
+
+# python byte caches from the page-mascot skill scripts
+__pycache__/
