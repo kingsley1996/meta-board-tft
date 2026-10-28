@@ -185,9 +185,32 @@ body {
     animation: none;
   }
 
-  .card-art {
+  .card-art,
+  .smooth-disclosure::details-content {
     transition: none;
   }
+}
+
+/* Animated disclosure. The comp page's economy plan is the tallest block on the
+   page, so it ramps its height instead of snapping: `interpolate-size` is what
+   makes `height: auto` animatable, and `allow-discrete` keeps the content
+   painted for the whole close ramp. Browsers without ::details-content just
+   toggle instantly. Scroll anchoring is left alone on purpose: with it disabled
+   the browser shifts the page ~25px mid-ramp instead of letting the block grow. */
+.smooth-disclosure {
+  interpolate-size: allow-keywords;
+}
+
+.smooth-disclosure::details-content {
+  height: 0;
+  overflow: clip;
+  transition:
+    height 0.26s ease,
+    content-visibility 0.26s ease allow-discrete;
+}
+
+.smooth-disclosure[open]::details-content {
+  height: auto;
 }
 
 /* The homepage comps card carries a 3D render of the little legends centred on

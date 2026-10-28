@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Fragment } from 'react';
 import type { ApiComp, ApiUnit } from '@/lib/api';
 import { itemTierByName, unitStats, units } from '@/lib/data';
 import { economyForComp, economyStrategyByName } from '@/lib/economy';
@@ -8,7 +9,7 @@ import { translateText } from '@/lib/translate';
 import { championNameToSlug, traitStyleColors } from '@/lib/tips';
 import { HexBoard } from './hex-board';
 import { VoteButton } from './vote-button';
-import { AugmentTile, Chip, CostDots, ItemHex, ItemRanking, Panel, tierColor, UnitHex } from './ui';
+import { AugmentTile, Chip, CostDots, ItemHex, itemHref, ItemTile, Panel, tierColor, UnitHex } from './ui';
 
 // Fallback hexes (row-major index) for comps saved before the board editor existed.
 const fallbackCells = [3, 9, 10, 17, 23, 24, 30];
@@ -96,18 +97,43 @@ function TraitChip({ trait }: { trait: ApiComp['traits'][number] }) {
 export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
   const t = messages[lang].compPanel;
   const economy = economyForComp({ style: comp.style, carry: comp.carry, units: comp.units });
+  const tier = tierColor[comp.tier];
+  // Built once because the plan splits across two lists: four rounds visible,
+  // the remainder inside the disclosure.
+  const rounds = economy.levelCurve.map((entry) => (
+    <li key={entry.stage} className="flex flex-col gap-1 border-b border-line/50 pb-2 last:border-b-0 last:pb-0 sm:flex-row sm:gap-4">
+      <span className="w-16 shrink-0 font-display text-sm font-bold text-brand">{entry.stage}</span>
+      <span className="text-sm leading-relaxed text-mist">{translateText(lang, 'economy', 'round-plan', entry.text)}</span>
+    </li>
+  ));
   return (
     <div data-section="comp-panel" className="grid gap-4 rounded-xl border border-line bg-page p-4 lg:grid-cols-[300px_1fr]">
       {/* Left rail after TFT Academy's comp card, in MetaBoard's palette:
           carry portrait → name → playstyle → meta chips, then sectioned
-          traits / augments / augment priority / matchups. */}
-      <aside className="flex flex-col gap-4 rounded-lg border border-line bg-panel p-4">
+          traits / augments / augment priority / matchups. The rail is washed in
+          the comp's tier colour and carries a ghost tier letter, so a row of
+          comps reads as a tier before any text is parsed. `isolate` keeps the
+          negative-z watermark inside this background instead of behind the page. */}
+      <aside
+        className="isolate relative flex flex-col gap-4 overflow-hidden rounded-lg border bg-panel p-4"
+        style={{
+          borderColor: `color-mix(in srgb, ${tier} 40%, var(--color-line))`,
+          backgroundImage: `linear-gradient(180deg, color-mix(in srgb, ${tier} 24%, transparent) 0px, color-mix(in srgb, ${tier} 9%, transparent) 240px, transparent 520px)`,
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -top-12 -left-7 -z-10 select-none font-display text-[280px] font-black leading-[0.8] tracking-tighter"
+          style={{ color: `color-mix(in srgb, ${tier} 18%, transparent)` }}
+        >
+          {comp.tier}
+        </span>
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="relative" style={{ filter: `drop-shadow(0 0 12px ${tierColor[comp.tier]}55)` }}>
-            <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} />
+          <div className="relative" style={{ filter: `drop-shadow(0 0 14px color-mix(in srgb, ${tier} 45%, transparent))` }}>
+            <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} frame={tier} />
             <span
               className="absolute -bottom-1 -right-1 rounded-md border border-black/40 px-1.5 py-px font-display text-xs font-bold text-black/80"
-              style={{ background: tierColor[comp.tier] }}
+              style={{ background: tier }}
             >
               {comp.tier}
             </span>
@@ -197,9 +223,10 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
         ) : null}
       </aside>
       <div className="flex flex-col gap-4">
-        <Panel className="p-4">
-          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.finalBoard}</p>
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
+        {/* The row of carries is its own label, so this panel drops the heading
+            and its vertical padding: it reads as the team strip, not a section. */}
+        <Panel className="px-4 py-2.5">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             {comp.units.map((unit) => (
               <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth shrink-0">
                 <UnitTile unit={unit} size={54} context={unitTipContext(comp, unit)} />
@@ -220,7 +247,16 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
           </Panel>
           <Panel className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.itemPriority}</p>
-            <ItemRanking items={comp.items.map(({ name, icon }) => ({ name, icon }))} size={30} lang={lang} />
+            {/* One row, same ▸ language as the rail's augment priority; the tier
+                ring on each tile still carries ItemRanking's colour information. */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {comp.items.map(({ name, icon }, index) => (
+                <Fragment key={`${name}-${index}`}>
+                  {index > 0 ? <span className="text-xs text-mist">{'\u25B8'}</span> : null}
+                  <ItemTile name={name} icon={icon} tier={itemTierByName[name]} size={38} href={itemHref(name, lang)} />
+                </Fragment>
+              ))}
+            </div>
           </Panel>
         </div>
         <div className="grid gap-4 md:grid-cols-[1fr_200px]">
@@ -266,16 +302,27 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
                 {messages[lang].economy.plan} · {translateText(lang, 'economy', 'strategy-name', economy.strategy)}
               </span>
             </p>
-            <ol className="flex flex-col gap-2">
-              {economy.levelCurve.map((entry) => (
-                <li key={entry.stage} className="flex flex-col gap-1 border-b border-line/50 pb-2 last:border-b-0 last:pb-0 sm:flex-row sm:gap-4">
-                  <span className="w-16 shrink-0 font-display text-sm font-bold text-brand">{entry.stage}</span>
-                  <span className="text-sm leading-relaxed text-mist">
-                    {translateText(lang, 'economy', 'round-plan', entry.text)}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            {/* Nine to twelve rounds is the longest thing on the page, so the
+                plan opens on its first four and the rest sits behind a
+                disclosure. `details` rather than state: this stays a server
+                component and the toggle still works without a JS chunk. */}
+            <div className="flex flex-col gap-2">
+              <ol className="flex flex-col gap-2">{rounds.slice(0, 4)}</ol>
+              {rounds.length > 4 ? (
+                /* The button has to be the details' first child, so it is pinned
+                   to the bottom edge instead and pb-8 reserves its row. Flex on
+                   the details would look the same but kills the height ramp: the
+                   content box then gets its size from the flex algorithm, which
+                   Chrome recomputes in one step instead of transitioning. */
+                <details className="smooth-disclosure group relative pb-8">
+                  <summary className="smooth absolute inset-x-0 bottom-0 cursor-pointer list-none rounded-full border border-line bg-util px-3 py-1 text-center text-xs font-semibold text-mist hover:border-brand hover:text-fog">
+                    <span className="group-open:hidden">{t.showAll}</span>
+                    <span className="hidden group-open:inline">{t.hide}</span>
+                  </summary>
+                  <ol className="flex flex-col gap-2">{rounds.slice(4)}</ol>
+                </details>
+              ) : null}
+            </div>
           </Panel>
         ) : null}
       </div>

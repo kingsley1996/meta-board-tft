@@ -76,12 +76,12 @@ export function CostDots({ cost }: { cost: number }) {
   );
 }
 
-export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = false, className = '' }: { name: string; cost: number; size?: number; stars?: number; icon?: string | null; fill?: boolean; className?: string }) {
+export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = false, frame, className = '' }: { name: string; cost: number; size?: number; stars?: number; icon?: string | null; fill?: boolean; frame?: string; className?: string }) {
   // Regular pointy-top hexagons are taller than wide: height = width * 2/√3.
   const height = fill ? undefined : Math.round(size * 1.1547);
   return (
     <div data-tip={`champion:${name}`} className={`group/hex relative shrink-0 ${fill ? 'h-full w-full' : ''} ${className}`} style={fill ? undefined : { width: size, height }}>
-      <div className={`hex smooth relative h-full w-full ${costBg[cost] ?? 'bg-cost-1'} group-hover/hex:scale-110`}>
+      <div className={`hex smooth relative h-full w-full ${frame ? '' : costBg[cost] ?? 'bg-cost-1'} group-hover/hex:scale-110`} style={frame ? { background: frame } : undefined}>
         <div className="hex absolute inset-0 flex scale-[0.91] items-center justify-center overflow-hidden bg-[linear-gradient(180deg,var(--color-line)_0%,var(--color-panel)_100%)] font-display text-xs font-bold text-fog">
           {icon ? (
             <img src={icon} alt="" draggable={false} loading="lazy" className="h-full w-full object-cover" />
