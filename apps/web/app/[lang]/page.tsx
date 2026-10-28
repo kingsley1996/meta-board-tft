@@ -4,15 +4,16 @@ import { CtaLink } from '@/components/ui';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
-// One ground for every card: the brand wash at the top, panel below. A card with
-// a render carries its own art in that space, so it drops the glyph.
+// Every card is a card with a render: the brand wash at the top, panel below, and
+// the art sitting in that space. The plates are all ~400px tall because the art
+// renders 184px on a 2x screen; anything smaller gets resampled by the browser.
 const features = [
   { key: 'comps', href: '/tierlist/comps', art3d: { src: '/images/tft/penguin-board.webp', width: 1075, height: 969 } },
-  { key: 'items', href: '/tierlist/items', art3d: { src: '/images/tft/items-rank.webp', width: 381, height: 380 } },
-  { key: 'augments', href: '/tierlist/augments', glyph: '\u2726' },
-  { key: 'guides', href: '/guides', glyph: '\u2261' },
-  { key: 'media', href: '/media', glyph: '\u25B6' },
-  { key: 'champions', href: '/learn/champions', glyph: '\u25CE' },
+  { key: 'items', href: '/tierlist/items', art3d: { src: '/images/tft/items-armor.webp', width: 401, height: 400 } },
+  { key: 'augments', href: '/tierlist/augments', art3d: { src: '/images/tft/augment-crystal-hd.webp', width: 241, height: 400 } },
+  { key: 'guides', href: '/guides', art3d: { src: '/images/tft/spellbook-hd.webp', width: 517, height: 400 } },
+  { key: 'tables', href: '/tables', art3d: { src: '/images/tft/mechanics-table-hd.webp', width: 584, height: 400 } },
+  { key: 'champions', href: '/learn/champions', art3d: { src: '/images/tft/penguin-gem-hd.webp', width: 424, height: 400 } },
 ] as const;
 
 export default async function Home({ params }: { params: Promise<{ lang: Lang }> }) {
@@ -53,13 +54,13 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
         <div className="hex absolute -top-16 -right-12 -z-10 h-56 w-48 rotate-12 bg-brand/10" />
         <div className="flex min-w-0 flex-1 items-start gap-4">
           <Image
-            src="/images/tft/coach-mascot.webp"
+            src="/images/tft/coach-penguin.webp"
             alt=""
-            width={1232}
-            height={978}
-            sizes="96px"
+            width={771}
+            height={1209}
+            sizes="104px"
             loading="eager"
-            className="-ml-2 -mt-3 h-20 w-20 shrink-0 object-contain md:h-24 md:w-24"
+            className="-ml-1 h-24 w-[61px] shrink-0 object-contain md:h-32 md:w-[82px]"
           />
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand">{t.assistantKicker}</p>
@@ -84,59 +85,48 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
         </div>
       </section>
 
-      {/* The extra top margin is the runway for the render, which breaks the
-          card's top edge from sm up. */}
-      <section data-section="features" className="grid grid-cols-1 gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-3">
-        {features.map((entry) => {
-          const art = 'art3d' in entry ? entry.art3d : undefined;
-          const glyph = 'glyph' in entry ? entry.glyph : undefined;
-          return (
-            <Link
-              key={entry.key}
-              href={`/${lang}${entry.href}`}
-              className={`group relative flex min-h-[220px] flex-col justify-end gap-1 rounded-xl border border-line bg-gradient-to-b from-brand/30 via-panel to-panel p-5 ${
-                art ? 'overflow-hidden sm:z-10 sm:overflow-visible' : 'overflow-hidden'
-              }`}
-            >
-              {/* The card itself cannot clip, because the render is meant to break
-                  its edge — so the decoration that must stay inside gets its own
-                  frame. */}
-              <span aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[11px]">
-                <span className="hex smooth absolute -top-6 -right-6 h-32 w-28 bg-fog/5 group-hover:bg-fog/10" />
-              </span>
-              {art ? (
-                <>
-                  {/* No pointer-events-none anywhere in here: the part of the render
-                      that hangs outside the frame is still inside this <a> in the
-                      box tree, so clicking the overhang follows the card. */}
-                  <span aria-hidden="true" className="absolute inset-x-0 top-0 bottom-2 flex justify-center sm:top-[-26%]">
-                    <Image
-                      src={art.src}
-                      alt=""
-                      width={art.width}
-                      height={art.height}
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      className="card-art h-full w-auto max-w-none object-contain"
-                    />
-                  </span>
-                  {/* Bottom-up, because the copy now sits under the middle of the
-                      render rather than beside it. */}
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-panel via-panel/85 via-45% to-transparent"
-                  />
-                </>
-              ) : null}
-              {art || !glyph ? null : <span className="absolute top-5 left-5 z-10 font-display text-3xl text-brand">{glyph}</span>}
-              <span className={`relative z-10 font-display text-3xl font-bold uppercase tracking-tight text-fog ${art ? 'text-center' : ''}`}>
-                {t.features[entry.key]}
-              </span>
-              <span className={`relative z-10 text-xs font-semibold uppercase tracking-wide text-mist ${art ? 'text-center' : ''}`}>
-                {t.openBoard}
-              </span>
-            </Link>
-          );
-        })}
+      {/* The gap has to clear the overhang, and the extra top margin is the
+          runway for the render where it breaks the card's edge from sm up. */}
+      <section data-section="features" className="grid grid-cols-1 gap-4 sm:mt-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-3">
+        {features.map((entry) => (
+          <Link
+            key={entry.key}
+            href={`/${lang}${entry.href}`}
+            className="group relative flex min-h-[220px] flex-col justify-end gap-1 overflow-hidden rounded-xl border border-line bg-gradient-to-b from-brand/30 via-panel to-panel p-5 sm:z-10 sm:overflow-visible"
+          >
+            {/* The card itself cannot clip, because the render is meant to break
+                its edge — so the decoration that must stay inside gets its own
+                frame. */}
+            <span aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-[11px]">
+              <span className="hex smooth absolute -top-6 -right-6 h-32 w-28 bg-fog/5 group-hover:bg-fog/10" />
+            </span>
+            {/* A fixed height, not a share of the card, so every plate lands on the
+                same art line and the wide ones never grow past their own pixels.
+                No pointer-events-none anywhere in here: the part of the render that
+                hangs outside the frame is still inside this <a> in the box tree, so
+                clicking the overhang follows the card. */}
+            <span aria-hidden="true" className="absolute inset-x-0 top-2 flex h-[148px] justify-center sm:top-[-30px] sm:h-[184px]">
+              <Image
+                src={entry.art3d.src}
+                alt=""
+                width={entry.art3d.width}
+                height={entry.art3d.height}
+                sizes="(min-width: 640px) 270px, 250px"
+                className="card-art h-full w-auto max-w-none object-contain"
+              />
+            </span>
+            {/* Bottom-up, because the copy sits under the middle of the render
+                rather than beside it. */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-panel via-panel/85 via-45% to-transparent"
+            />
+            <span className="relative z-10 text-center font-display text-3xl font-bold uppercase tracking-tight text-fog">
+              {t.features[entry.key]}
+            </span>
+            <span className="relative z-10 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.openBoard}</span>
+          </Link>
+        ))}
       </section>
 
       <section data-section="promo" className="mx-auto w-full max-w-[720px] rounded-xl border border-line bg-panel p-6 text-center">

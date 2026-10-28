@@ -60,7 +60,7 @@ test('assistant is promoted on the home page and directly linked from desktop na
   const bannerResponse = await page.request.get('/images/tft/enchanted-wilds-banner.webp');
   expect(bannerResponse.ok()).toBeTruthy();
   await expect.poll(() => hero.evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('enchanted-wilds-banner.webp');
-  const coachMascot = page.locator('img[src*="coach-mascot"]');
+  const coachMascot = page.locator('img[src*="coach-penguin"]');
   await expect(coachMascot).toBeVisible();
   await expect.poll(() => coachMascot.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
 
@@ -79,26 +79,36 @@ test('assistant is promoted on the home page and directly linked from desktop na
   await expect(page.locator('[data-section="assistant-spotlight"]').getByRole('link', { name: 'Hỏi Coach AI' })).toBeVisible();
 });
 
-test('the comps card render breaks its frame and the overhang still routes the click', async ({ page }) => {
+test('every card render breaks its frame and the overhang still routes the click', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/vi');
-  const card = page.locator('[data-section="features"] a').first();
-  const art = card.locator('img.card-art');
-  await card.scrollIntoViewIfNeeded();
+  const cards = page.locator('[data-section="features"] a:has(img.card-art)');
+  // Four art cards today; a card losing its render is fine, the guard is that
+  // whatever does carry art carries it outside the frame.
+  expect(await cards.count()).toBeGreaterThan(1);
 
-  const overhang = async () => {
+  for (let i = 0; i < (await cards.count()); i++) {
+    const card = cards.nth(i);
+    const art = card.locator('img.card-art');
+    const href = await card.getAttribute('href');
+    await card.scrollIntoViewIfNeeded();
+
+    const overhang = async () => {
+      const box = await card.boundingBox();
+      const image = await art.boundingBox();
+      return box && image ? box.y - image.y : 0;
+    };
+    await expect
+      .poll(overhang, { message: `${href}: the render has to escape the top edge of the card, not sit inside it` })
+      .toBeGreaterThan(20);
+
+    // The overhang is still a descendant of the same <a>, so the empty-looking air
+    // above the frame opens that board too.
     const box = await card.boundingBox();
     const image = await art.boundingBox();
-    return box && image ? box.y - image.y : 0;
-  };
-  await expect
-    .poll(overhang, { message: 'the render has to escape the top edge of the card, not sit inside it' })
-    .toBeGreaterThan(20);
-
-  // The overhang is still a descendant of the same <a>, so the empty-looking air
-  // above the frame opens the board too.
-  const box = await card.boundingBox();
-  const image = await art.boundingBox();
-  await page.mouse.click(image!.x + image!.width / 2, box!.y - 12);
-  await expect(page).toHaveURL(/\/vi\/tierlist\/comps$/);
+    await page.mouse.click(image!.x + image!.width / 2, box!.y - 12);
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await page.goBack();
+    await page.waitForLoadState('networkidle');
+  }
 });
