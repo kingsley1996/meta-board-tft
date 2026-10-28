@@ -23,15 +23,34 @@ test('the carry frame, the rail wash and the ghost letter all follow the comp ti
   // The carry's frame is normally its cost colour; on the rail it is the tier.
   await expect(aside.locator('div.hex').first()).toHaveCSS('background-color', await paint(page, 'var(--color-tier-s)'));
 
-  // A ghost tier letter sits behind the portrait: same hue, translucent.
-  const ghost = aside.locator('> span[aria-hidden="true"]');
+  // A clipped layer carries the tier wash and, behind the crest, a ghost tier
+  // letter: same hue, translucent. It is its own layer because the crest breaks
+  // the rail's top edge, so the rail itself cannot clip.
+  const wash = aside.locator('> span[aria-hidden="true"]');
+  const ghost = wash.locator('> span').nth(1);
   await expect(ghost).toHaveText('S');
   const ghostPaint = await ghost.evaluate((el) => getComputedStyle(el).color);
   expect(ghostPaint).toMatch(/^color\(srgb [\d.]+ [\d.]+ [\d.]+ \/ 0\.\d+\)$/);
 
   // ...and the rail fades from that same hue down to the plain panel.
   const hue = escapeRe(ghostPaint.split(' /')[0]);
-  await expect(aside).toHaveCSS('background-image', new RegExp(`^linear-gradient\\((180deg, )?${hue} / 0\\.\\d+\\) 0px`));
+  await expect(wash.locator('> span').first()).toHaveCSS('background-image', new RegExp(`^linear-gradient\\((180deg, )?${hue} / 0\\.\\d+\\) 0px`));
+
+  // The top edge is perforated, so the crest has something to tear through.
+  await expect(wash.locator('> span').nth(2)).toHaveCSS('background-image', /^repeating-linear-gradient/);
+
+  // The tier is also stamped, cocked into the top-right corner of the rail. The
+  // wording is the same "S Tier" the TierChip rows use, in both locales.
+  const stamp = aside.locator('> span:not([aria-hidden])');
+  await expect(stamp).toContainText('S Tier');
+  await expect(stamp).toHaveCSS('border-color', await paint(page, 'var(--color-tier-s)'));
+  expect(await stamp.evaluate((el) => getComputedStyle(el).rotate)).not.toBe('none');
+
+  // The crest leaves the rail through that top edge, so the panel keeps room
+  // above the rail for it and the rail itself must not clip.
+  expect(await aside.evaluate((el) => getComputedStyle(el).overflow)).toBe('visible');
+  const crest = aside.locator('div.hex').first();
+  expect((await crest.boundingBox())!.y).toBeLessThan((await aside.boundingBox())!.y);
 });
 
 test('only the carry is re-framed; every other hex keeps its cost colour', async ({ page }) => {

@@ -107,37 +107,52 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
     </li>
   ));
   return (
-    <div data-section="comp-panel" className="grid gap-4 rounded-xl border border-line bg-page p-4 lg:grid-cols-[300px_1fr]">
+    <div data-section="comp-panel" className="grid gap-4 rounded-xl border border-line bg-page p-4 pt-16 lg:grid-cols-[300px_1fr]">
       {/* Left rail after TFT Academy's comp card, in MetaBoard's palette:
-          carry portrait → name → playstyle → meta chips, then sectioned
-          traits / augments / augment priority / matchups. The rail is washed in
-          the comp's tier colour and carries a ghost tier letter, so a row of
-          comps reads as a tier before any text is parsed. `isolate` keeps the
-          negative-z watermark inside this background instead of behind the page. */}
+          a crest that breaks out through the rail's perforated top edge, a tier
+          stamp cocked into the opposite corner, then the meta chips and the
+          sectioned traits / augments / augment priority / matchups exactly as
+          before. The wash, the ghost tier letter and the perforation live in
+          their own clipped layer so the rail itself does not have to cut the
+          crest off; `isolate` keeps that negative-z background inside the rail
+          instead of behind the page. The panel's extra top padding is the room
+          the crest escapes into. */}
       <aside
-        className="isolate relative flex flex-col gap-4 overflow-hidden rounded-lg border bg-panel p-4"
-        style={{
-          borderColor: `color-mix(in srgb, ${tier} 40%, var(--color-line))`,
-          backgroundImage: `linear-gradient(180deg, color-mix(in srgb, ${tier} 24%, transparent) 0px, color-mix(in srgb, ${tier} 9%, transparent) 240px, transparent 520px)`,
-        }}
+        className="isolate relative flex flex-col gap-4 rounded-lg border bg-panel p-4 pt-[88px]"
+        style={{ borderColor: `color-mix(in srgb, ${tier} 40%, var(--color-line))` }}
       >
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -top-12 -left-7 -z-10 select-none font-display text-[280px] font-black leading-[0.8] tracking-tighter"
-          style={{ color: `color-mix(in srgb, ${tier} 18%, transparent)` }}
-        >
-          {comp.tier}
+        <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-lg">
+          <span
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `linear-gradient(180deg, color-mix(in srgb, ${tier} 38%, transparent) 0px, color-mix(in srgb, ${tier} 17%, transparent) 260px, transparent 560px)`,
+            }}
+          />
+          <span
+            className="absolute -top-2 -right-4 select-none font-display text-[230px] font-black leading-[0.8] tracking-tighter"
+            style={{ color: `color-mix(in srgb, ${tier} 18%, transparent)` }}
+          >
+            {comp.tier}
+          </span>
+          <span
+            className="absolute inset-x-0 top-0 h-3 border-b border-dashed"
+            style={{
+              borderColor: `color-mix(in srgb, ${tier} 45%, var(--color-line))`,
+              backgroundImage: 'repeating-linear-gradient(90deg, var(--color-page) 0 5px, transparent 5px 11px)',
+            }}
+          />
         </span>
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div className="relative" style={{ filter: `drop-shadow(0 0 14px color-mix(in srgb, ${tier} 45%, transparent))` }}>
-            <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} frame={tier} />
-            <span
-              className="absolute -bottom-1 -right-1 rounded-md border border-black/40 px-1.5 py-px font-display text-xs font-bold text-black/80"
-              style={{ background: tier }}
-            >
-              {comp.tier}
-            </span>
-          </div>
+        <div className="absolute -top-[52px] left-4" style={{ filter: `drop-shadow(0 10px 22px rgba(0,0,0,.55))` }}>
+          <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} frame={tier} />
+        </div>
+        <span
+          className="absolute -top-4 right-3 -rotate-[10deg] rounded border-2 border-double px-3 py-1.5 text-center font-display text-[14px] font-bold uppercase leading-none tracking-[0.18em]"
+          style={{ borderColor: tier, color: tier, background: `color-mix(in srgb, var(--color-panel) 80%, transparent)` }}
+        >
+          {comp.tier} Tier
+          <small className="mt-1 block text-[9px] tracking-[0.24em] opacity-75">MetaBoard</small>
+        </span>
+        <div className="flex flex-col items-start gap-2">
           <h3 className="font-display text-2xl font-bold uppercase leading-tight tracking-tight text-fog">{comp.title}</h3>
           <p className="text-xs font-semibold uppercase tracking-wide text-brand">
             {t.playstyleLabel}: {comp.playstyle}
