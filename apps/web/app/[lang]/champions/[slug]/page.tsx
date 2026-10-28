@@ -7,13 +7,19 @@ import { PatchBar } from '@/components/patch-bar';
 import type { CompsResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import { compStatsBySlug, iconByName, itemTierByName, itemTiers, unitAbilityAttributes, unitRoles, unitStats } from '@/lib/data';
-import type { Lang } from '@/lib/i18n';
+import { locales, type Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { championDetail, championSlugToName, keywordsFor } from '@/lib/tips';
 
 // Same list URL the comps routes fetch, so this render reads it from Next's data
 // store instead of paying the hop again.
 export const revalidate = 60;
+
+// The champion roster is static in lib/tips, so every page can be built up front
+// instead of being left dynamic — which would drop the revalidate above.
+export function generateStaticParams() {
+  return locales.flatMap((lang) => Object.keys(championSlugToName).map((slug) => ({ lang, slug })));
+}
 
 async function detail(slug: string, lang: Lang) {
   const name = championSlugToName[slug];

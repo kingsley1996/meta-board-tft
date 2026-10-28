@@ -5,7 +5,7 @@ import { Chip } from '@/components/ui';
 import type { ApiGuide, GuidesResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import { guideTag } from '@/lib/data';
-import type { Lang } from '@/lib/i18n';
+import { locales, type Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
 // Articles change far less often than the meta data, so they can sit at the edge
@@ -13,9 +13,23 @@ import { messages } from '@/lib/messages';
 // revalidate the second read comes from the data store instead of the API.
 export const revalidate = 300;
 
+const loadGuide = (slug: string, lang: Lang) =>
+  backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`, { revalidate: 300 });
+const loadGuides = (lang: Lang) =>
+  backendJson<GuidesResponse>(`/api/guides?lang=${lang}`, { revalidate: 300 });
+
+// Same reason as the comps route: no params list means Next keeps the route
+// dynamic and the revalidate above never gets a cached entry to serve.
+export async function generateStaticParams() {
+  const perLang = await Promise.all(
+    locales.map(async (lang) => ((await loadGuides(lang))?.guides ?? []).map((guide) => ({ lang, slug: guide.slug }))),
+  );
+  return perLang.flat();
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang; slug: string }> }): Promise<Metadata> {
   const { lang, slug } = await params;
-  const guide = await backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`, { revalidate: 300 });
+  const guide = await loadGuide(slug, lang);
   if (!guide) return {};
   return { title: guide.title, description: guide.excerpt };
 }
@@ -23,10 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
 export default async function GuideArticlePage({ params }: { params: Promise<{ lang: Lang; slug: string }> }) {
   const { lang, slug } = await params;
   const t = messages[lang].guides;
-  const [guide, list] = await Promise.all([
-    backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`, { revalidate: 300 }),
-    backendJson<GuidesResponse>(`/api/guides?lang=${lang}`, { revalidate: 300 }),
-  ]);
+  const [guide, list] = await Promise.all([loadGuide(slug, lang), loadGuides(lang)]);
   if (!guide) notFound();
   const related = (list?.guides ?? []).filter((candidate) => candidate.slug !== guide.slug).slice(0, 3);
 
