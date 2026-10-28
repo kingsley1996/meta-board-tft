@@ -97,7 +97,7 @@ function stepBadgeClass(step: ReasoningStep): string {
   if (step.status === 'error' || step.status === 'insufficient_data') return 'border-tier-s/40 bg-tier-s/10 text-tier-s';
   if (step.step === 'fallback') return 'border-tier-a/40 bg-tier-a/10 text-tier-a';
   if (step.step === 'deterministic_answer') return 'border-tier-c/40 bg-tier-c/10 text-tier-c';
-  return 'border-brand-soft/40 bg-brand-soft/10 text-brand-soft';
+  return 'border-brand/40 bg-brand/10 text-brand';
 }
 
 function DetailRow({ name, text }: { name?: string; text: string }) {
@@ -169,7 +169,7 @@ function TraceCard({ trace }: { trace: ReasoningTrace }) {
       <ol className="flex flex-col gap-4 border-l border-line pl-4">
         {trace.steps.map((step) => (
           <li key={step.id} className="relative flex flex-col gap-1">
-            <span className="absolute top-2 -left-[21px] h-2 w-2 rounded-full border border-panel bg-brand-soft" aria-hidden />
+            <span className="absolute top-2 -left-[21px] h-2 w-2 rounded-full border border-panel bg-brand" aria-hidden />
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold text-mist">#{step.step_index}</span>
               <span className={`rounded border px-2 py-0.5 text-[11px] font-bold ${stepBadgeClass(step)}`}>

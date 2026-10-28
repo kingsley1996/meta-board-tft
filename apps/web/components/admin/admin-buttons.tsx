@@ -73,7 +73,7 @@ export function AdminLogout() {
         router.push('/en/login');
         router.refresh();
       }}
-      className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+      className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
     >
       Log out
     </button>

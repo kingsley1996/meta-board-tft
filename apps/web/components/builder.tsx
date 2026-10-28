@@ -148,10 +148,10 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
           {full ? <span className="text-xs font-semibold text-tier-b">{t.full}</span> : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button type="button" onClick={copyLink} className="smooth rounded-full border border-brand-hot bg-brand-hot px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-deep">
+          <button type="button" onClick={copyLink} className="smooth rounded-full border border-brand bg-brand px-4 py-1.5 text-xs font-semibold text-on-brand hover:bg-brand-deep">
             {copied === 'link' ? t.copied : t.copyLink}
           </button>
-          <button type="button" onClick={copyText} disabled={!units.length} className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-fog hover:border-brand-soft disabled:opacity-50">
+          <button type="button" onClick={copyText} disabled={!units.length} className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-fog hover:border-brand disabled:opacity-50">
             {copied === 'text' ? t.copyTextDone : t.copyText}
           </button>
           <button
@@ -161,7 +161,7 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
               setCarry('');
               setSelectedName('');
             }}
-            className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+            className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
           >
             {t.clear}
           </button>
@@ -171,14 +171,14 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
       <div className="grid gap-4 xl:grid-cols-[240px_1fr_250px]">
         <div className="flex flex-col gap-2 rounded-xl border border-line bg-panel p-4">
           <input
-            className="smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+            className="smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist"
             placeholder={t.searchChampions}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
           <select
             aria-label={t.allTraits}
-            className="smooth w-full rounded-lg border border-line bg-page px-2 py-1.5 text-xs font-semibold text-fog focus:border-brand-soft focus:outline-none"
+            className="smooth w-full rounded-lg border border-line bg-page px-2 py-1.5 text-xs font-semibold text-fog"
             value={traitFilter}
             onChange={(event) => setTraitFilter(event.target.value)}
           >
@@ -200,7 +200,7 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
                   onDragStart={(event) => event.dataTransfer.setData('text/plain', `champ:${champion.name}`)}
                   onClick={() => setPending(isPending ? '' : champion.name)}
                   title={champion.name}
-                  className={`rounded-lg p-0.5 transition ${isPending ? 'bg-brand-hot/40 ring-2 ring-brand-soft' : 'hover:bg-util'} ${onBoard ? 'cursor-not-allowed opacity-25' : ''}`}
+                  className={`rounded-lg p-0.5 transition ${isPending ? 'bg-brand/40 ring-2 ring-brand' : 'hover:bg-util'} ${onBoard ? 'cursor-not-allowed opacity-25' : ''}`}
                   disabled={onBoard}
                 >
                   <UnitHex name={champion.name} cost={champion.cost} icon={champion.icon} size={36} />
@@ -243,9 +243,9 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
                         </span>
                       ) : null}
                     </span>
-                    {isSelected ? <span className="hex pointer-events-none absolute inset-0 z-10 border-2 border-brand-hot" /> : null}
+                    {isSelected ? <span className="hex pointer-events-none absolute inset-0 z-10 border-2 border-brand" /> : null}
                     {unit.name === carry ? (
-                      <span className="pointer-events-none absolute -top-2 right-0 z-10 rounded-full border border-line bg-util px-1 text-[10px] font-bold text-brand-soft">
+                      <span className="pointer-events-none absolute -top-2 right-0 z-10 rounded-full border border-line bg-util px-1 text-[10px] font-bold text-brand">
                         {'\u2605'}
                       </span>
                     ) : null}
@@ -258,7 +258,7 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={(event) => drop(event, row, col)}
                   onClick={() => (pending ? place(pending, row, col) : undefined)}
-                  className={`hex absolute inset-[2px] transition ${pending ? 'hover:bg-brand-hot/25' : ''}`}
+                  className={`hex absolute inset-[2px] transition ${pending ? 'hover:bg-brand/25' : ''}`}
                   aria-label={`row ${row + 1} col ${col + 1}`}
                 />
               );
@@ -284,7 +284,7 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
                     key={option.label}
                     type="button"
                     onClick={() => updateSelected({ stars: option.value })}
-                    className={`smooth rounded-full border px-2 py-0.5 text-xs font-semibold ${selected.stars === option.value ? 'border-brand-hot text-tier-b' : 'border-line text-mist hover:border-brand-soft'}`}
+                    className={`smooth rounded-full border px-2 py-0.5 text-xs font-semibold ${selected.stars === option.value ? 'border-brand text-tier-b' : 'border-line text-mist hover:border-brand'}`}
                   >
                     {option.label}
                   </button>
@@ -305,7 +305,7 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
                           setActiveSlot(Math.min(slot, MAX_ITEMS - 1));
                         }}
                         title={itemName(name, lang)}
-                        className={`rounded p-0.5 ${activeSlot === slot ? 'ring-2 ring-brand-soft' : 'hover:bg-util'}`}
+                        className={`rounded p-0.5 ${activeSlot === slot ? 'ring-2 ring-brand' : 'hover:bg-util'}`}
                       >
                         <MiniItem icon={option?.icon} name={itemName(name, lang)} tier={option?.tier} size={30} />
                       </button>
@@ -314,7 +314,7 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
                         key={slot}
                         type="button"
                         onClick={() => setActiveSlot(slot)}
-                        className={`rounded p-0.5 ${activeSlot === slot ? 'bg-util ring-2 ring-brand-soft' : 'hover:bg-util'}`}
+                        className={`rounded p-0.5 ${activeSlot === slot ? 'bg-util ring-2 ring-brand' : 'hover:bg-util'}`}
                       >
                         <MiniItem size={30} dashed />
                       </button>
@@ -322,7 +322,7 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
                   })}
                 </div>
                 <input
-                  className="smooth w-full rounded-lg border border-line bg-page px-2.5 py-1.5 text-xs text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+                  className="smooth w-full rounded-lg border border-line bg-page px-2.5 py-1.5 text-xs text-fog placeholder:text-mist"
                   placeholder={t.filterItems}
                   value={itemFilter}
                   onChange={(event) => setItemFilter(event.target.value)}
@@ -334,7 +334,7 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
                       type="button"
                       onClick={() => assignItem(item.name)}
                       title={itemName(item.name, lang)}
-                      className={`rounded p-0.5 hover:bg-util ${selected.items[activeSlot] === item.name ? 'bg-brand-hot/30 ring-2 ring-brand-soft' : ''}`}
+                      className={`rounded p-0.5 hover:bg-util ${selected.items[activeSlot] === item.name ? 'bg-brand/30 ring-2 ring-brand' : ''}`}
                     >
                       <MiniItem icon={item.icon} name={itemName(item.name, lang)} tier={item.tier} size={24} />
                     </button>
@@ -346,7 +346,7 @@ export function Builder({ lang, champions, items, initial }: { lang: Lang; champ
                   type="button"
                   onClick={() => setCarry(selected.name)}
                   disabled={carry === selected.name}
-                  className="smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-fog hover:border-brand-soft disabled:opacity-50"
+                  className="smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-fog hover:border-brand disabled:opacity-50"
                 >
                   {carry === selected.name ? `${t.carry} \u2605` : t.makeCarry}
                 </button>

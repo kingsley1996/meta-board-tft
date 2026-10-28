@@ -28,7 +28,7 @@ export default async function TraitPage({ params }: { params: Promise<{ lang: La
   return (
     <div className="flex flex-col gap-6">
       <PatchBar lang={lang} />
-      <Link href={`/${lang}/champions`} className="w-fit text-sm font-semibold text-mist hover:text-brand-soft">
+      <Link href={`/${lang}/champions`} className="w-fit text-sm font-semibold text-mist hover:text-brand">
         {'\u2190'} {t.back}
       </Link>
       <Panel className="flex flex-wrap items-center gap-5 p-5">
@@ -55,7 +55,7 @@ export default async function TraitPage({ params }: { params: Promise<{ lang: La
         <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.champions}</p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {champions.map((champion) => (
-            <Link key={champion.slug} href={`/${lang}/champions/${championNameToSlug[champion.name]}`} className="smooth flex items-center gap-3 rounded-xl border border-line bg-panel p-4 hover:border-brand-soft">
+            <Link key={champion.slug} href={`/${lang}/champions/${championNameToSlug[champion.name]}`} className="smooth flex items-center gap-3 rounded-xl border border-line bg-panel p-4 hover:border-brand">
               <UnitHex name={champion.name} cost={champion.cost} icon={champion.icon} size={44} />
               <span className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold text-fog">{unitName(champion.name, lang)}</span>

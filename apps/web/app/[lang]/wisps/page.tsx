@@ -125,9 +125,9 @@ export default async function WispsPage({ params, searchParams }: { params: Prom
             defaultValue={q}
             placeholder={t.search}
             aria-label={t.search}
-            className="smooth h-9 w-56 rounded-lg border border-line bg-panel px-4 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+            className="smooth h-9 w-56 rounded-lg border border-line bg-panel px-4 text-sm text-fog placeholder:text-mist"
           />
-          <button type="submit" className="smooth h-9 rounded-lg border border-brand-hot bg-brand-hot px-4 text-sm font-semibold text-white hover:bg-brand-deep">
+          <button type="submit" className="smooth h-9 rounded-lg border border-brand bg-brand px-4 text-sm font-semibold text-on-brand hover:bg-brand-deep">
             {'\u2315'}
           </button>
         </form>
@@ -140,7 +140,7 @@ export default async function WispsPage({ params, searchParams }: { params: Prom
             <Link
               key={key}
               href={`/${lang}/wisps?${new URLSearchParams({ ...(q ? { q } : {}), ...(key !== 'all' ? { tier: key } : {}) })}`}
-              className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${selected ? 'border-brand-hot bg-brand-hot text-white' : 'border-line bg-panel text-mist hover:border-brand-soft'}`}
+              className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${selected ? 'border-brand bg-brand text-on-brand' : 'border-line bg-panel text-mist hover:border-brand'}`}
               style={selected ? undefined : color ? { color } : undefined}
             >
               {key === 'all' ? t.all : key}
@@ -178,7 +178,7 @@ export default async function WispsPage({ params, searchParams }: { params: Prom
                     return (
                       <div key={variant} className="rounded-lg bg-util/40 px-3 py-2">
                         <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-brand-soft">{t.variants[variant]}</span>
+                          <span className="text-xs font-semibold uppercase tracking-wide text-brand">{t.variants[variant]}</span>
                           {data.round ? <span className="shrink-0 text-[11px] text-mist">{t.round(data.round)}</span> : null}
                         </div>
                         <p className="mt-1 text-sm leading-relaxed text-fog/80">{description}</p>

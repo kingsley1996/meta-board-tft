@@ -234,13 +234,13 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t.search}
             aria-label={t.search}
-            className="smooth h-9 w-56 rounded-lg border border-line bg-panel px-4 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+            className="smooth h-9 w-56 rounded-lg border border-line bg-panel px-4 text-sm text-fog placeholder:text-mist"
           />
           <select
             value={style}
             onChange={(event) => setStyle(event.target.value)}
             aria-label={t.style}
-            className="smooth h-9 rounded-lg border border-line bg-panel px-3 text-sm font-semibold text-fog focus:border-brand-soft focus:outline-none"
+            className="smooth h-9 rounded-lg border border-line bg-panel px-3 text-sm font-semibold text-fog"
           >
             {styles.map((option) => (
               <option key={option} value={option}>{option === 'All' ? t.style : option}</option>
@@ -250,7 +250,7 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
             value={sort}
             onChange={(event) => setSort(event.target.value as 'default' | 'popular')}
             aria-label={t.sort}
-            className="smooth h-9 rounded-lg border border-line bg-panel px-3 text-sm font-semibold text-fog focus:border-brand-soft focus:outline-none"
+            className="smooth h-9 rounded-lg border border-line bg-panel px-3 text-sm font-semibold text-fog"
           >
             <option value="default">{t.sortDefault}</option>
             <option value="popular">{t.sortPopular}</option>
@@ -261,9 +261,9 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
             aria-checked={showNames}
             title={t.showNames}
             onClick={() => setShowNames((value) => !value)}
-            className="smooth flex h-9 items-center gap-2 rounded-lg border border-line bg-panel px-3 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+            className="smooth flex h-9 items-center gap-2 rounded-lg border border-line bg-panel px-3 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
           >
-            <span className={`relative h-4 w-7 rounded-full transition-colors ${showNames ? 'bg-brand-hot' : 'bg-mist/40'}`}>
+            <span className={`relative h-4 w-7 rounded-full transition-colors ${showNames ? 'bg-brand' : 'bg-mist/40'}`}>
               <span className={`smooth absolute top-0.5 h-3 w-3 rounded-full bg-white ${showNames ? 'left-3.5' : 'left-0.5'}`} />
             </span>
             <span className="hidden whitespace-nowrap sm:inline">{t.showNames}</span>
@@ -276,7 +276,7 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
           <button
             type="button"
             onClick={() => setAttempt((value) => value + 1)}
-            className="smooth rounded-full border border-brand-hot bg-brand-hot px-4 py-1 text-xs font-semibold text-white hover:bg-brand-deep"
+            className="smooth rounded-full border border-brand bg-brand px-4 py-1 text-xs font-semibold text-on-brand hover:bg-brand-deep"
           >
             {t.retry}
           </button>
@@ -316,7 +316,7 @@ export function CompsExplorer({ openSlug, lang }: { openSlug?: string; lang: Lan
                       onClick={() => router.push(`/${lang}/tierlist/comps`, { scroll: false })}
                       aria-label={t.close}
                       title={t.close}
-                      className="smooth absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-brand-hot bg-brand-hot text-sm font-bold text-white shadow-lg hover:bg-brand-deep"
+                      className="smooth absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-brand bg-brand text-sm font-bold text-on-brand shadow-lg hover:bg-brand-deep"
                     >
                       {'\u2715'}
                     </button>
@@ -352,7 +352,7 @@ function CompCluster({ comp, active, lang, showNames }: { comp: ApiComp; active:
         scroll={false}
         aria-label={aria}
         title={comp.title}
-        className={`smooth block rounded-lg p-1.5 ${active ? 'bg-util ring-1 ring-brand-soft' : 'hover:bg-util'}`}
+        className={`smooth block rounded-lg p-1.5 ${active ? 'bg-util ring-1 ring-brand' : 'hover:bg-util'}`}
       >
         <span className="relative block">
           <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={64} />
@@ -372,7 +372,7 @@ function CompCluster({ comp, active, lang, showNames }: { comp: ApiComp; active:
       href={`/${lang}/tierlist/comps/${comp.slug}`}
       scroll={false}
       aria-label={aria}
-      className={`flex items-center gap-3 rounded-lg p-2 ${active ? 'bg-util ring-1 ring-brand-soft' : 'smooth hover:bg-util'}`}
+      className={`flex items-center gap-3 rounded-lg p-2 ${active ? 'bg-util ring-1 ring-brand' : 'smooth hover:bg-util'}`}
     >
       <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={52} />
       <span className="flex flex-col gap-0.5">

@@ -16,12 +16,12 @@ export default async function MediaPage({ params }: { params: Promise<{ lang: La
       <section data-section="hero-panel" className="grid gap-6 rounded-xl border border-line bg-panel p-6 lg:grid-cols-2">
         <div className="flex flex-col justify-center gap-4">
           <p className="font-display text-5xl leading-none font-bold uppercase tracking-tight text-fog md:text-6xl">
-            MetaBoard<br /><span className="text-brand-soft">{t.heading}</span>
+            MetaBoard<br /><span className="text-brand">{t.heading}</span>
           </p>
-          <p className="text-sm font-semibold uppercase tracking-widest text-brand-soft">{t.tagline}</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-brand">{t.tagline}</p>
           <p className="text-sm leading-relaxed text-mist">{t.body}</p>
           <div className="flex gap-2">
-            <span className="rounded-full border border-brand-hot bg-brand-hot px-4 py-1.5 text-xs font-semibold text-white">{t.showVideo}</span>
+            <span className="rounded-full border border-brand bg-brand px-4 py-1.5 text-xs font-semibold text-on-brand">{t.showVideo}</span>
             <span className="rounded-full border border-line bg-util px-4 py-1.5 text-xs font-semibold text-mist">{t.showPodcast}</span>
           </div>
         </div>
@@ -29,7 +29,7 @@ export default async function MediaPage({ params }: { params: Promise<{ lang: La
           <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-lg border-2 border-brand/60 bg-gradient-to-br from-util via-panel to-page">
             <span className="hex absolute -top-6 -left-6 h-40 w-32 bg-brand/15" />
             <span className="hex absolute -right-8 -bottom-10 h-48 w-40 bg-cost-3/15" />
-            <span className="flex h-14 w-14 items-center justify-center rounded-full border border-brand-soft bg-panel text-xl text-brand-soft">{'\u25B6'}</span>
+            <span className="flex h-14 w-14 items-center justify-center rounded-full border border-brand bg-panel text-xl text-brand">{'\u25B6'}</span>
             <span className="absolute bottom-3 left-3">
               <Chip>{t.nowPlaying}</Chip>
             </span>

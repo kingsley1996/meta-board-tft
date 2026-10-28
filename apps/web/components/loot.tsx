@@ -12,7 +12,7 @@ export function LootHubCard({ href, name, icon, splash }: { href: string } & Hub
     return (
       <Link
         href={href}
-        className="group relative block aspect-[16/9] overflow-hidden rounded-xl border border-line bg-panel hover:border-brand-soft"
+        className="group relative block aspect-[16/9] overflow-hidden rounded-xl border border-line bg-panel hover:border-brand"
       >
         <img src={splash} alt="" loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
         <span className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-transparent" />
@@ -26,7 +26,7 @@ export function LootHubCard({ href, name, icon, splash }: { href: string } & Hub
   return (
     <Link
       href={href}
-      className="smooth flex aspect-[16/9] flex-col items-center justify-center gap-2 rounded-xl border border-line bg-panel p-3 text-center hover:border-brand-soft"
+      className="smooth flex aspect-[16/9] flex-col items-center justify-center gap-2 rounded-xl border border-line bg-panel p-3 text-center hover:border-brand"
     >
       {icon ? <img src={icon} alt="" loading="lazy" className="h-14 w-14 object-contain" /> : null}
       <span className="font-display text-sm font-bold text-fog">{name}</span>
@@ -58,9 +58,9 @@ export function LootHub({ lang }: { lang: Lang }) {
         return (
           <section key={category.heading} data-section={`loot-${category.heading.toLowerCase()}`} className="flex flex-col gap-3">
             <h2 className="flex items-center gap-2 font-display text-2xl font-bold tracking-tight text-fog">
-              <span className="text-brand-soft">{'\u25C8'}</span>
+              <span className="text-brand">{'\u25C8'}</span>
               {translateText(lang, 'loot', 'category-heading', category.heading, t.categories[category.heading])}
-              <span className="text-brand-soft">{'\u25C8'}</span>
+              <span className="text-brand">{'\u25C8'}</span>
             </h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {cards.map((card) => (
@@ -90,7 +90,7 @@ export function LootOutcomes({ outcomes, lang }: { outcomes: LootOutcome[]; lang
     <ul className="flex flex-col gap-1.5">
       {outcomes.map((outcome, index) => (
         <li key={`${outcome.chance ?? index}`} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line/50 pb-1.5 last:border-b-0">
-          <span className="w-16 shrink-0 text-xs font-semibold text-brand-soft">{outcome.chance ?? '—'}</span>
+          <span className="w-16 shrink-0 text-xs font-semibold text-brand">{outcome.chance ?? '—'}</span>
           <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {outcome.items.map((item, itemIndex) => <LootItemRow key={`${item.name}-${itemIndex}`} item={item} lang={lang} />)}
           </span>

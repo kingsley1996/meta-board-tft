@@ -9,7 +9,7 @@ export function UserAvatar({ user, sizeClass }: { user: AuthUser; sizeClass: str
   const [failed, setFailed] = useState(false);
   if (!user.avatarUrl || failed) {
     return (
-      <span className={`flex items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white ${sizeClass}`}>
+      <span className={`flex items-center justify-center rounded-full bg-brand text-[10px] font-bold text-on-brand ${sizeClass}`}>
         {(user.name ?? user.email).charAt(0).toUpperCase()}
       </span>
     );

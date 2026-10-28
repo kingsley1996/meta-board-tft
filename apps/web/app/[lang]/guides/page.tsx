@@ -54,7 +54,7 @@ export default async function GuidesPage({ params, searchParams }: { params: Pro
         <div className="flex flex-wrap gap-2">
           <Link
             href={`/${lang}/guides`}
-            className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${active ? 'border-line bg-panel text-mist hover:border-brand-soft' : 'border-brand-hot bg-brand-hot text-white'}`}
+            className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${active ? 'border-line bg-panel text-mist hover:border-brand' : 'border-brand bg-brand text-on-brand'}`}
           >
             {t.all}
           </Link>
@@ -62,7 +62,7 @@ export default async function GuidesPage({ params, searchParams }: { params: Pro
             <Link
               key={tag}
               href={`/${lang}/guides?tag=${encodeURIComponent(tag)}`}
-              className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${active === tag ? 'border-brand-hot bg-brand-hot text-white' : 'border-line bg-panel text-mist hover:border-brand-soft'}`}
+              className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${active === tag ? 'border-brand bg-brand text-on-brand' : 'border-line bg-panel text-mist hover:border-brand'}`}
             >
               {guideTag(tag, lang)}
             </Link>

@@ -113,12 +113,12 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
             </span>
           </div>
           <h3 className="font-display text-2xl font-bold uppercase leading-tight tracking-tight text-fog">{comp.title}</h3>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-soft">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand">
             {t.playstyleLabel}: {comp.playstyle}
           </p>
           <Link
             href={`/${lang}/assistant?comp=${comp.slug}`}
-            className="smooth mt-1 inline-flex rounded-full border border-line bg-util px-3 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+            className="smooth mt-1 inline-flex rounded-full border border-line bg-util px-3 py-1.5 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
           >
             {t.askAssistant}
           </Link>
@@ -126,7 +126,7 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
         <div className="flex flex-wrap items-center justify-center gap-1.5">
           <Chip>{comp.style}</Chip>
           <Link href={`/${lang}/economy#${economyStrategyByName[economy.strategy]?.id ?? ''}`} className="smooth">
-            <Chip className="border-brand-soft/60 text-brand-soft">
+            <Chip className="border-brand/60 text-brand">
               {translateText(lang, 'economy', 'strategy-name', economy.strategy)}
             </Chip>
           </Link>
@@ -162,7 +162,7 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
               return (
                 <span key={type} className="flex items-center gap-1">
                   {index > 0 ? <span className="text-mist">{'\u25B8'}</span> : null}
-                  <span className="rounded-full border border-brand-soft/60 bg-util px-3 py-1 text-brand-soft">{label}</span>
+                  <span className="rounded-full border border-brand/60 bg-util px-3 py-1 text-brand">{label}</span>
                 </span>
               );
             })}
@@ -184,7 +184,7 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
                       <Link
                         key={entry.slug}
                         href={`/${lang}/tierlist/comps/${entry.slug}`}
-                        className="smooth rounded-md border border-line bg-util px-2 py-0.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+                        className="smooth rounded-md border border-line bg-util px-2 py-0.5 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
                       >
                         {entry.title}
                       </Link>
@@ -262,14 +262,14 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
         {economy.levelCurve.length ? (
           <Panel className="flex flex-col gap-3 p-4">
             <p className="flex items-center justify-center gap-2">
-              <span className="rounded-full border border-brand-soft/60 bg-util px-3 py-0.5 text-xs font-semibold text-brand-soft">
+              <span className="rounded-full border border-brand/60 bg-util px-3 py-0.5 text-xs font-semibold text-brand">
                 {messages[lang].economy.plan} · {translateText(lang, 'economy', 'strategy-name', economy.strategy)}
               </span>
             </p>
             <ol className="flex flex-col gap-2">
               {economy.levelCurve.map((entry) => (
                 <li key={entry.stage} className="flex flex-col gap-1 border-b border-line/50 pb-2 last:border-b-0 last:pb-0 sm:flex-row sm:gap-4">
-                  <span className="w-16 shrink-0 font-display text-sm font-bold text-brand-soft">{entry.stage}</span>
+                  <span className="w-16 shrink-0 font-display text-sm font-bold text-brand">{entry.stage}</span>
                   <span className="text-sm leading-relaxed text-mist">
                     {translateText(lang, 'economy', 'round-plan', entry.text)}
                   </span>

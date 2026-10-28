@@ -28,7 +28,7 @@ export default async function AugmentPage({ params }: { params: Promise<{ lang: 
   return (
     <div className="flex flex-col gap-6">
       <PatchBar lang={lang} />
-      <Link href={`/${lang}/augments`} className="w-fit text-sm font-semibold text-mist hover:text-brand-soft">
+      <Link href={`/${lang}/augments`} className="w-fit text-sm font-semibold text-mist hover:text-brand">
         {'\u2190'} {t.back}
       </Link>
       <Panel className="flex flex-wrap items-start gap-5 p-5">

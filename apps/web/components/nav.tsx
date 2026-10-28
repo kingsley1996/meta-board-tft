@@ -103,7 +103,7 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
         <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center gap-3 px-6">
           <Link href={`/${lang}`} className="flex shrink-0 items-center gap-2.5" aria-label={t.homeAria}>
             <span className="hex flex h-9 w-9 items-center justify-center bg-brand">
-              <span className="hex flex h-full w-full items-center justify-center bg-panel font-display text-base font-bold text-brand-soft">M</span>
+              <span className="hex flex h-full w-full items-center justify-center bg-panel font-display text-base font-bold text-brand">M</span>
             </span>
             <span className="hidden font-display text-2xl font-bold tracking-tight text-fog sm:inline">MetaBoard</span>
           </Link>
@@ -111,7 +111,7 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
             <Search lang={lang} labels={t} />
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <span className="hidden items-center rounded-md border border-brand/40 bg-brand/10 px-3.5 py-1.5 text-sm font-semibold text-brand-soft lg:inline-flex">
+            <span className="hidden items-center rounded-md border border-brand/40 bg-brand/10 px-3.5 py-1.5 text-sm font-semibold text-brand lg:inline-flex">
               {t.patch} <span className="ml-1 text-fog">{patch}</span>
             </span>
             <div className="hidden lg:block">
@@ -126,7 +126,7 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
               aria-label={t.menuAria}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
-              className="smooth flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-panel text-fog hover:border-brand-soft lg:hidden"
+              className="smooth flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-panel text-fog hover:border-brand lg:hidden"
             >
               <svg viewBox="0 0 20 20" aria-hidden className="h-5 w-5 fill-none stroke-current stroke-[1.8]">
                 {menuOpen ? (
@@ -153,8 +153,8 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                       href={item.href}
                       onClick={() => setMenuOpen(false)}
                       aria-current={isCurrent(item.href) ? 'page' : undefined}
-                      className={`smooth block rounded-md px-2 py-2 text-sm font-semibold hover:bg-util hover:text-brand-soft ${
-                        isActive(item.href) ? 'bg-util text-brand-soft' : 'text-fog'
+                      className={`smooth block rounded-md px-2 py-2 text-sm font-semibold hover:bg-util hover:text-brand ${
+                        isActive(item.href) ? 'bg-util text-brand' : 'text-fog'
                       }`}
                     >
                       {item.label}
@@ -169,8 +169,8 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
                     aria-current={isCurrent(link.href) ? 'page' : undefined}
-                    className={`smooth rounded-md bg-util px-3 py-2 text-sm font-semibold hover:text-brand-soft ${
-                      isActive(link.href) ? 'text-brand-soft' : 'text-fog'
+                    className={`smooth rounded-md bg-util px-3 py-2 text-sm font-semibold hover:text-brand ${
+                      isActive(link.href) ? 'text-brand' : 'text-fog'
                     }`}
                   >
                     {link.label}
@@ -179,7 +179,7 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
               </div>
               <div className="flex items-center justify-between gap-3 border-t border-line/70 pt-3" onClick={() => setMenuOpen(false)}>
                 <AuthNav lang={lang} variant="mobile" />
-                <span className="inline-flex items-center rounded-md border border-brand/40 bg-brand/10 px-3.5 py-1.5 text-sm font-semibold text-brand-soft">
+                <span className="inline-flex items-center rounded-md border border-brand/40 bg-brand/10 px-3.5 py-1.5 text-sm font-semibold text-brand">
                   {t.patch} <span className="ml-1 text-fog">{patch}</span>
                 </span>
                 <LangSwitch lang={lang} />
@@ -207,8 +207,8 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
               >
                 <button
                   type="button"
-                  className={`smooth flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold group-hover:text-brand-soft ${
-                    groupActive(dropdown.items) ? 'bg-util text-brand-soft' : 'text-fog'
+                  className={`smooth flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold group-hover:text-brand ${
+                    groupActive(dropdown.items) ? 'bg-util text-brand' : 'text-fog'
                   }`}
                 >
                   {dropdown.label}
@@ -228,8 +228,8 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                           event.currentTarget.blur();
                         }}
                         aria-current={isCurrent(item.href) ? 'page' : undefined}
-                        className={`smooth px-4 py-2 text-sm hover:bg-util hover:text-brand-soft ${
-                          isActive(item.href) ? 'bg-util text-brand-soft' : 'text-mist'
+                        className={`smooth px-4 py-2 text-sm hover:bg-util hover:text-brand ${
+                          isActive(item.href) ? 'bg-util text-brand' : 'text-mist'
                         }`}
                       >
                         {item.label}
@@ -244,8 +244,8 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                 key={link.href}
                 href={link.href}
                 aria-current={isCurrent(link.href) ? 'page' : undefined}
-                className={`smooth rounded-md px-3 py-2 text-sm font-semibold hover:text-brand-soft ${
-                  isActive(link.href) ? 'bg-util text-brand-soft' : 'text-fog'
+                className={`smooth rounded-md px-3 py-2 text-sm font-semibold hover:text-brand ${
+                  isActive(link.href) ? 'bg-util text-brand' : 'text-fog'
                 }`}
               >
                 {link.label}
@@ -256,8 +256,8 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
               aria-current={isCurrent(`/${lang}/assistant`) ? 'page' : undefined}
               className={`smooth ml-auto inline-flex items-center gap-2 rounded-lg border px-4 py-1.5 text-sm font-bold ${
                 isActive(`/${lang}/assistant`)
-                  ? 'border-brand-soft bg-brand/25 text-brand-soft'
-                  : 'border-brand/50 bg-brand/15 text-brand-soft hover:border-brand-soft hover:bg-brand/25'
+                  ? 'border-brand bg-brand/25 text-brand'
+                  : 'border-brand/50 bg-brand/15 text-brand hover:border-brand hover:bg-brand/25'
               }`}
             >
               <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 fill-none stroke-current stroke-[1.7]">

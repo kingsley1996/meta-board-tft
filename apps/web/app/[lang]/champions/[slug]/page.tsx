@@ -136,7 +136,7 @@ export default async function ChampionPage({
     <div className="flex flex-col gap-6">
       <PatchBar lang={lang} />
       <div data-section="page-head" className="flex flex-col gap-3">
-        <Link href={`/${lang}/champions`} className="w-fit text-sm font-semibold text-mist hover:text-brand-soft">
+        <Link href={`/${lang}/champions`} className="w-fit text-sm font-semibold text-mist hover:text-brand">
           {'\u2190'} {t.allChampions}
         </Link>
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,400px)_minmax(0,1fr)_minmax(0,380px)]">
@@ -177,7 +177,7 @@ export default async function ChampionPage({
               {champion.cost}
             </span>
           </div>
-          <div className="border-b border-line py-3 text-center text-sm font-semibold text-brand-soft">{t.abilityTab}</div>
+          <div className="border-b border-line py-3 text-center text-sm font-semibold text-brand">{t.abilityTab}</div>
           <div className="p-5">
             {champion.ability ? (
               <div className="flex flex-col gap-4">
@@ -186,7 +186,7 @@ export default async function ChampionPage({
                     {champion.icon ? (
                       <img src={champion.icon} alt="" className="h-full w-full object-cover" />
                     ) : (
-                      <span className="flex h-full items-center justify-center text-xl text-brand-soft">{'\u2726'}</span>
+                      <span className="flex h-full items-center justify-center text-xl text-brand">{'\u2726'}</span>
                     )}
                   </span>
                   <p className="min-w-0 flex-1 font-display text-lg font-semibold text-fog">{champion.ability.name}</p>
@@ -209,7 +209,7 @@ export default async function ChampionPage({
                           <span className="font-display text-sm font-bold text-fog">{attribute.values.join('/')}</span>
                           <span className="flex items-center gap-1 text-[11px] font-semibold text-[#58b7ff]">
                             {attribute.values.join('/')} <span aria-hidden="true">×</span>
-                            <span className="rounded border border-brand/40 bg-brand/10 px-1 text-[9px] font-bold text-brand-soft">AP</span>
+                            <span className="rounded border border-brand/40 bg-brand/10 px-1 text-[9px] font-bold text-brand">AP</span>
                           </span>
                         </span>
                       </div>
@@ -222,7 +222,7 @@ export default async function ChampionPage({
                     <ul className="flex flex-col gap-1 text-xs leading-relaxed text-mist">
                       {champion.ability.keywords.map((keyword) => (
                         <li key={keyword}>
-                          <span className="font-semibold text-brand-soft">{keyword}</span>
+                          <span className="font-semibold text-brand">{keyword}</span>
                           {keywords[keyword] ? ` — ${keywords[keyword]}` : ''}
                         </li>
                       ))}
@@ -269,7 +269,7 @@ export default async function ChampionPage({
           <div data-section="champion-stats" className="min-w-0 lg:col-span-2 xl:col-span-1">
             <Panel className="flex flex-col overflow-hidden">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-soft">{t.statsTab}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand">{t.statsTab}</p>
                 {stats?.ranks?.master ? (
                   <div className="flex overflow-hidden rounded-md border border-line">
                     {rankTabs.map((rankTab) => (
@@ -277,7 +277,7 @@ export default async function ChampionPage({
                         key={rankTab.key}
                         href={rankTab.href}
                         scroll={false}
-                        className={`smooth px-2.5 py-1 text-[11px] font-semibold ${rank === rankTab.key ? 'bg-brand-hot text-white' : 'text-mist hover:text-fog'}`}
+                        className={`smooth px-2.5 py-1 text-[11px] font-semibold ${rank === rankTab.key ? 'bg-brand text-on-brand' : 'text-mist hover:text-fog'}`}
                         aria-current={rank === rankTab.key ? 'page' : undefined}
                       >
                         {rankTab.label}
@@ -331,8 +331,13 @@ export default async function ChampionPage({
                   const ratio = maxPosition ? cell.count / maxPosition : 0;
                   return (
                     <span
-                      className="hex absolute inset-[2px] flex items-center justify-center font-display text-[10px] font-bold text-white"
-                      style={{ backgroundColor: `rgba(124, 92, 255, ${0.18 + ratio * 0.72})` }}
+                      className="hex absolute inset-[2px] flex items-center justify-center font-display text-[10px] font-bold text-fog"
+                      style={{
+                        // The blend stops short of a full brand fill on purpose:
+                        // text-fog stays ≥ 4.5 on the mix in every palette, while
+                        // solid brand needs the dark on-brand ink.
+                        backgroundColor: `color-mix(in srgb, var(--color-brand) ${Math.round((0.14 + ratio * 0.48) * 100)}%, var(--color-panel))`,
+                      }}
                       title={`${(cell.pct * 100).toFixed(1)}%`}
                     >
                       {cell.pct >= 0.1 ? `${Math.round(cell.pct * 100)}%` : ''}

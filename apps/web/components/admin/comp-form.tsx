@@ -6,7 +6,7 @@ import { tierColor } from '@/components/ui';
 import { BoardEditor, type BoardUnit, type ChampionOption, type ItemOption } from './board-editor';
 
 const inputCls =
-  'smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none';
+  'smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist';
 
 const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
@@ -429,7 +429,7 @@ export function CompForm({
               }));
               setMatchSlug('');
             }}
-            className="smooth h-9 rounded-lg border border-line bg-page px-4 text-sm font-semibold text-fog hover:border-brand-soft"
+            className="smooth h-9 rounded-lg border border-line bg-page px-4 text-sm font-semibold text-fog hover:border-brand"
           >
             Add
           </button>
@@ -516,14 +516,14 @@ export function CompForm({
         <button
           type="submit"
           disabled={busy}
-          className="smooth rounded-full border border-brand-hot bg-brand-hot px-6 py-2 text-sm font-semibold text-white hover:bg-brand-deep disabled:opacity-50"
+          className="smooth rounded-full border border-brand bg-brand px-6 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep disabled:opacity-50"
         >
           {busy ? 'Saving…' : comp ? 'Save changes' : 'Create comp'}
         </button>
         <button
           type="button"
           onClick={() => router.push('/admin/comps')}
-          className="smooth rounded-full border border-line bg-panel px-5 py-2 text-sm font-semibold text-mist hover:border-brand-soft hover:text-fog"
+          className="smooth rounded-full border border-line bg-panel px-5 py-2 text-sm font-semibold text-mist hover:border-brand hover:text-fog"
         >
           Cancel
         </button>

@@ -34,7 +34,7 @@ function ChampionCard({ tip, context, lang }: { tip: Extract<TipData, { kind: 'c
           <div className="min-w-0">
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-bold text-fog">{tip.ability.name}</span>
-              {tip.mana ? <span className="shrink-0 text-xs font-semibold whitespace-nowrap text-brand-soft">{tip.mana.start} / {tip.mana.max}</span> : null}
+              {tip.mana ? <span className="shrink-0 text-xs font-semibold whitespace-nowrap text-brand">{tip.mana.start} / {tip.mana.max}</span> : null}
             </div>
             <p className="mt-1 text-xs leading-relaxed text-mist">{tip.ability.desc}</p>
             {keywordDefs.map((keyword) => (

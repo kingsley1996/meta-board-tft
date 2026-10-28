@@ -51,7 +51,7 @@ export default async function EconomyPage({ params }: { params: Promise<{ lang: 
               <ol className="flex flex-col gap-2">
                 {strategy.rounds.map((round) => (
                   <li key={round.round} className="flex flex-col gap-1 border-b border-line/50 pb-2 last:border-b-0 last:pb-0 sm:flex-row sm:gap-4">
-                    <span className="w-20 shrink-0 font-display text-sm font-bold text-brand-soft">{round.round}</span>
+                    <span className="w-20 shrink-0 font-display text-sm font-bold text-brand">{round.round}</span>
                     <span className="text-sm leading-relaxed text-mist">
                       {translateText(lang, 'economy', 'round-plan', round.text)}
                     </span>
@@ -65,7 +65,7 @@ export default async function EconomyPage({ params }: { params: Promise<{ lang: 
                   <Link
                     key={comp.slug}
                     href={`/${lang}/tierlist/comps/${comp.slug}`}
-                    className="smooth rounded-lg border border-line bg-panel px-3 py-1.5 text-sm font-semibold text-fog hover:border-brand-soft"
+                    className="smooth rounded-lg border border-line bg-panel px-3 py-1.5 text-sm font-semibold text-fog hover:border-brand"
                   >
                     {comp.title}
                   </Link>

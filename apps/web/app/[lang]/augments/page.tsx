@@ -55,9 +55,9 @@ export default async function AugmentsDbPage({ params, searchParams }: { params:
             defaultValue={q}
             placeholder={t.search}
             aria-label={t.search}
-            className="smooth h-9 w-56 rounded-lg border border-line bg-panel px-4 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+            className="smooth h-9 w-56 rounded-lg border border-line bg-panel px-4 text-sm text-fog placeholder:text-mist"
           />
-          <button type="submit" className="smooth h-9 rounded-lg border border-brand-hot bg-brand-hot px-4 text-sm font-semibold text-white hover:bg-brand-deep">
+          <button type="submit" className="smooth h-9 rounded-lg border border-brand bg-brand px-4 text-sm font-semibold text-on-brand hover:bg-brand-deep">
             {'\u2315'}
           </button>
         </form>
@@ -70,7 +70,7 @@ export default async function AugmentsDbPage({ params, searchParams }: { params:
             <Link
               key={key}
               href={`/${lang}/augments?${new URLSearchParams({ ...(q ? { q } : {}), ...(key !== 'all' ? { rarity: key } : {}) })}`}
-              className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${rarity === key ? 'border-brand-hot bg-brand-hot text-white' : 'border-line bg-panel text-mist hover:border-brand-soft'}`}
+              className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${rarity === key ? 'border-brand bg-brand text-on-brand' : 'border-line bg-panel text-mist hover:border-brand'}`}
               style={rarity === key ? undefined : color ? { color } : undefined}
             >
               {label}

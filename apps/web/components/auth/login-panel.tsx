@@ -8,7 +8,7 @@ import type { Lang } from '@/lib/i18n';
 import { Panel } from '@/components/ui';
 
 const inputClass =
-  'smooth rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog focus:border-brand-soft focus:outline-none';
+  'smooth rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog';
 
 export function LoginPanel({
   lang,
@@ -94,7 +94,7 @@ export function LoginPanel({
       <form onSubmit={submit} className="flex flex-col gap-4">
         <a
           href={`/api/auth/google/start?lang=${lang}`}
-          className="smooth flex items-center justify-center gap-2 rounded-full border border-line bg-util px-5 py-2 text-sm font-semibold text-fog hover:border-brand-soft"
+          className="smooth flex items-center justify-center gap-2 rounded-full border border-line bg-util px-5 py-2 text-sm font-semibold text-fog hover:border-brand"
         >
           <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4">
             <path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.1h6.5c-.1 1.1-.8 2.7-2.4 3.8l3.7 2.9c2.2-2.1 3.7-5.1 3.7-8.6z" />
@@ -139,7 +139,7 @@ export function LoginPanel({
           />
         </label>
         {error ? <p className="text-sm text-tier-s">{error}</p> : null}
-        {notice ? <p className="text-sm text-brand-soft">{notice}</p> : null}
+        {notice ? <p className="text-sm text-brand">{notice}</p> : null}
         {unverifiedEmail ? (
           <button type="button" onClick={() => void resend()} className="smooth text-sm text-mist underline underline-offset-2 hover:text-fog">
             {t.resend}
@@ -148,7 +148,7 @@ export function LoginPanel({
         <button
           type="submit"
           disabled={busy || !email || !password}
-          className="smooth rounded-full border border-brand-hot bg-brand-hot px-5 py-2 text-sm font-semibold text-white hover:bg-brand-deep disabled:opacity-50"
+          className="smooth rounded-full border border-brand bg-brand px-5 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep disabled:opacity-50"
         >
           {busy ? (mode === 'login' ? t.signingIn : t.creatingAccount) : mode === 'login' ? t.signIn : t.createAccount}
         </button>

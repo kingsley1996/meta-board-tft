@@ -39,7 +39,7 @@ function ItemSlots({
         const name = unit.items[slot];
         const option = name ? items.find((item) => item.name === name) : null;
         return name ? (
-          <button key={slot} type="button" onClick={() => onClearSlot(slot)} title={`${name} — click to remove`} className={`rounded p-0.5 ${activeSlot === slot ? 'ring-2 ring-brand-soft' : 'hover:bg-util'}`}>
+          <button key={slot} type="button" onClick={() => onClearSlot(slot)} title={`${name} — click to remove`} className={`rounded p-0.5 ${activeSlot === slot ? 'ring-2 ring-brand' : 'hover:bg-util'}`}>
             <MiniItem icon={option?.icon} name={name} tier={option?.tier} size={30} />
           </button>
         ) : (
@@ -48,7 +48,7 @@ function ItemSlots({
             type="button"
             onClick={() => onPickSlot(slot)}
             title={`Empty slot ${slot + 1} — pick an item below`}
-            className={`rounded p-0.5 ${activeSlot === slot ? 'bg-util ring-2 ring-brand-soft' : 'hover:bg-util'}`}
+            className={`rounded p-0.5 ${activeSlot === slot ? 'bg-util ring-2 ring-brand' : 'hover:bg-util'}`}
           >
             <MiniItem size={30} dashed />
           </button>
@@ -144,14 +144,14 @@ export function BoardEditor({
     <div className="grid gap-4 xl:grid-cols-[240px_1fr_250px]">
       <div className="flex flex-col gap-2 rounded-xl border border-line bg-panel p-4">
         <input
-          className="smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+          className="smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist"
           placeholder="Search champions…"
           value={championSearch}
           onChange={(event) => setChampionSearch(event.target.value)}
         />
         <select
           aria-label="Filter by trait"
-          className="smooth w-full rounded-lg border border-line bg-page px-2 py-1.5 text-xs font-semibold text-fog focus:border-brand-soft focus:outline-none"
+          className="smooth w-full rounded-lg border border-line bg-page px-2 py-1.5 text-xs font-semibold text-fog"
           value={championTrait}
           onChange={(event) => setChampionTrait(event.target.value)}
         >
@@ -175,7 +175,7 @@ export function BoardEditor({
                 onDragStart={(event) => event.dataTransfer.setData('text/plain', `champ:${champion.name}`)}
                 onClick={() => setPending(isPending ? '' : champion.name)}
                 title={onBoard ? `${champion.name} (on board)` : champion.name}
-                className={`rounded-lg p-0.5 transition ${isPending ? 'bg-brand-hot/40 ring-2 ring-brand-soft' : 'hover:bg-util'} ${onBoard ? 'cursor-not-allowed opacity-25' : ''}`}
+                className={`rounded-lg p-0.5 transition ${isPending ? 'bg-brand/40 ring-2 ring-brand' : 'hover:bg-util'} ${onBoard ? 'cursor-not-allowed opacity-25' : ''}`}
                 disabled={onBoard}
               >
                 <UnitHex name={champion.name} cost={champion.cost} icon={champion.icon} size={36} />
@@ -198,7 +198,7 @@ export function BoardEditor({
               onCarry('');
               setSelectedName('');
             }}
-            className="smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+            className="smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
           >
             Clear board
           </button>
@@ -233,9 +233,9 @@ export function BoardEditor({
                       </span>
                     ) : null}
                   </span>
-                  {isSelected ? <span className="hex pointer-events-none absolute inset-0 z-10 border-2 border-brand-hot" /> : null}
+                  {isSelected ? <span className="hex pointer-events-none absolute inset-0 z-10 border-2 border-brand" /> : null}
                   {unit.name === carry ? (
-                    <span className="pointer-events-none absolute -top-2 right-0 z-10 rounded-full border border-line bg-util px-1 text-[10px] font-bold text-brand-soft">
+                    <span className="pointer-events-none absolute -top-2 right-0 z-10 rounded-full border border-line bg-util px-1 text-[10px] font-bold text-brand">
                       ★
                     </span>
                   ) : null}
@@ -248,7 +248,7 @@ export function BoardEditor({
                 onDragOver={(event) => event.preventDefault()}
                 onDrop={(event) => drop(event, row, col)}
                 onClick={() => (pending ? place(pending, row, col) : undefined)}
-                className={`hex absolute inset-[2px] transition ${pending ? 'hover:bg-brand-hot/25' : ''}`}
+                className={`hex absolute inset-[2px] transition ${pending ? 'hover:bg-brand/25' : ''}`}
                 aria-label={`Place at row ${row + 1} column ${col + 1}`}
               />
             );
@@ -274,7 +274,7 @@ export function BoardEditor({
                   key={option.label}
                   type="button"
                   onClick={() => updateSelected({ stars: option.value })}
-                  className={`smooth rounded-full border px-2 py-0.5 text-xs font-semibold ${selected.stars === option.value ? 'border-brand-hot text-tier-b' : 'border-line text-mist hover:border-brand-soft'}`}
+                  className={`smooth rounded-full border px-2 py-0.5 text-xs font-semibold ${selected.stars === option.value ? 'border-brand text-tier-b' : 'border-line text-mist hover:border-brand'}`}
                 >
                   {option.label}
                 </button>
@@ -293,7 +293,7 @@ export function BoardEditor({
                 }}
               />
               <input
-                className="smooth w-full rounded-lg border border-line bg-page px-2.5 py-1.5 text-xs text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+                className="smooth w-full rounded-lg border border-line bg-page px-2.5 py-1.5 text-xs text-fog placeholder:text-mist"
                 placeholder="Filter items…"
                 value={itemSearch}
                 onChange={(event) => setItemSearch(event.target.value)}
@@ -305,7 +305,7 @@ export function BoardEditor({
                     type="button"
                     onClick={() => assignItem(item.name)}
                     title={item.name}
-                    className={`rounded p-0.5 hover:bg-util ${selected.items[activeSlot] === item.name ? 'bg-brand-hot/30 ring-2 ring-brand-soft' : ''}`}
+                    className={`rounded p-0.5 hover:bg-util ${selected.items[activeSlot] === item.name ? 'bg-brand/30 ring-2 ring-brand' : ''}`}
                   >
                     <MiniItem icon={item.icon} name={item.name} tier={item.tier} size={24} />
                   </button>
@@ -317,7 +317,7 @@ export function BoardEditor({
                 type="button"
                 onClick={() => onCarry(selected.name)}
                 disabled={carry === selected.name}
-                className="smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-fog hover:border-brand-soft disabled:opacity-50"
+                className="smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-fog hover:border-brand disabled:opacity-50"
               >
                 {carry === selected.name ? 'Carry ★' : 'Make carry'}
               </button>

@@ -6,7 +6,7 @@ import { saveAssistantSettings, type AssistantSettingEntry, type AssistantSettin
 import { btnGhost, btnPrimary, inputCls } from '@/components/admin/ui';
 
 const sourceBadge: Record<AssistantSettingEntry['source'], string> = {
-  database: 'border-brand-hot/40 bg-brand-hot/15 text-fog',
+  database: 'border-brand/40 bg-brand/15 text-fog',
   environment: 'border-line bg-page text-mist',
   unset: 'border-dashed border-line text-mist',
 };
@@ -110,10 +110,10 @@ export function AssistantSettingsForm({ initial }: { initial: AssistantSettingsV
   return (
     <div className="flex flex-col gap-5">
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-xl border border-brand-hot/40 bg-panel p-4">
+        <div className="rounded-xl border border-brand/40 bg-panel p-4">
           <p className="text-[11px] font-bold uppercase tracking-widest text-mist">Answering right now</p>
           <p className="font-display text-2xl font-bold text-fog">
-            {view.active.provider} <span className="text-brand-soft">/</span> {view.active.model}
+            {view.active.provider} <span className="text-brand">/</span> {view.active.model}
           </p>
           <p className="mt-1 text-xs text-mist">
             Read back from the live process after the last save, so it is what the next answer uses.

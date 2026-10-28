@@ -24,7 +24,7 @@ export function SubscribeForm({ lang }: { lang: Lang }) {
     }
   };
 
-  if (status === 'done') return <p className="text-xs font-semibold text-brand-soft">{t.done}</p>;
+  if (status === 'done') return <p className="text-xs font-semibold text-brand">{t.done}</p>;
 
   return (
     <form onSubmit={submit} className="flex flex-wrap items-center justify-center gap-2">
@@ -35,12 +35,12 @@ export function SubscribeForm({ lang }: { lang: Lang }) {
         onChange={(event) => setEmail(event.target.value)}
         placeholder={t.placeholder}
         aria-label={t.placeholder}
-        className="smooth h-9 w-60 rounded-lg border border-line bg-panel px-3 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+        className="smooth h-9 w-60 rounded-lg border border-line bg-panel px-3 text-sm text-fog placeholder:text-mist"
       />
       <button
         type="submit"
         disabled={status === 'busy'}
-        className="smooth h-9 rounded-lg border border-brand-hot bg-brand-hot px-4 text-sm font-semibold text-white hover:bg-brand-deep disabled:opacity-50"
+        className="smooth h-9 rounded-lg border border-brand bg-brand px-4 text-sm font-semibold text-on-brand hover:bg-brand-deep disabled:opacity-50"
       >
         {t.button}
       </button>

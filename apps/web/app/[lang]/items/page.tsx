@@ -54,9 +54,9 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
             defaultValue={q}
             placeholder={t.search}
             aria-label={t.search}
-            className="smooth h-9 w-56 rounded-lg border border-line bg-panel px-4 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+            className="smooth h-9 w-56 rounded-lg border border-line bg-panel px-4 text-sm text-fog placeholder:text-mist"
           />
-          <button type="submit" className="smooth h-9 rounded-lg border border-brand-hot bg-brand-hot px-4 text-sm font-semibold text-white hover:bg-brand-deep">
+          <button type="submit" className="smooth h-9 rounded-lg border border-brand bg-brand px-4 text-sm font-semibold text-on-brand hover:bg-brand-deep">
             {'\u2315'}
           </button>
         </form>
@@ -66,7 +66,7 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
           <Link
             key={tab.key}
             href={`/${lang}/items?${new URLSearchParams({ ...(q ? { q } : {}), ...(tab.key !== 'all' ? { type: tab.key } : {}) })}`}
-            className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${type === tab.key ? 'border-brand-hot bg-brand-hot text-white' : 'border-line bg-panel text-mist hover:border-brand-soft'}`}
+            className={`smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${type === tab.key ? 'border-brand bg-brand text-on-brand' : 'border-line bg-panel text-mist hover:border-brand'}`}
           >
             {tab.label}
           </Link>
@@ -75,7 +75,7 @@ export default async function ItemsDbPage({ params, searchParams }: { params: Pr
       {items.length ? (
         <div data-section="item-grid" className="grid w-full gap-4 [grid-template-columns:repeat(auto-fill,minmax(300px,1fr))]">
           {items.map(({ name, category, tip }) => (
-            <Link key={name} href={`/${lang}/items/${itemSlugByName[name]}`} className="smooth flex gap-4 rounded-xl border border-line bg-panel p-4 hover:border-brand-soft">
+            <Link key={name} href={`/${lang}/items/${itemSlugByName[name]}`} className="smooth flex gap-4 rounded-xl border border-line bg-panel p-4 hover:border-brand">
               <ItemTile name={name} icon={iconByName[name] ?? null} size={52} />
               <div className="flex min-w-0 flex-col gap-1.5">
                 <p className="font-display text-base font-semibold text-fog">{itemName(name, lang)}</p>

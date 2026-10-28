@@ -41,14 +41,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ lang: 
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/${lang}/assistant`}
-            className="smooth rounded-full border border-brand-hot bg-brand-hot px-5 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+            className="smooth rounded-full border border-brand bg-brand px-5 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep"
           >
             {messages[lang].nav.assistant}
           </Link>
           {user.role === 'admin' ? (
             <Link
               href="/admin"
-              className="smooth rounded-full border border-line px-4 py-2 text-sm font-semibold text-mist hover:border-brand-soft hover:text-fog"
+              className="smooth rounded-full border border-line px-4 py-2 text-sm font-semibold text-mist hover:border-brand hover:text-fog"
             >
               {t.admin}
             </Link>

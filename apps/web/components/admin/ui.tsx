@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 
 export const btnPrimary =
-  'smooth rounded-full border border-brand-hot bg-brand-hot px-5 py-2 text-sm font-semibold text-white hover:bg-brand-deep';
+  'smooth rounded-full border border-brand bg-brand px-5 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep';
 export const btnGhost =
-  'smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-fog hover:border-brand-soft';
+  'smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-fog hover:border-brand';
 export const btnQuiet =
-  'smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog';
+  'smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-mist hover:border-brand hover:text-fog';
 export const inputCls =
-  'smooth rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog focus:border-brand-soft focus:outline-none';
+  'smooth rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog';
 
 export function AdminPageHeader({ title, sub, children }: { title: string; sub?: ReactNode; children?: ReactNode }) {
   return (

@@ -18,7 +18,9 @@ export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
 
-export const viewport: Viewport = { themeColor: '#0b0e14' };
+// The Slate ground, i.e. --color-page in app/globals.css. PWA chrome and the
+// first painted frame have to agree or the browser bar flashes.
+export const viewport: Viewport = { themeColor: '#0d1317' };
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;

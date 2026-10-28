@@ -124,7 +124,7 @@ export function Search({ lang, labels }: { lang: Lang; labels: SearchLabels }) {
           aria-controls="site-search-results"
           aria-activedescendant={show && ordered[active] ? `search-option-${ordered[active].id}` : undefined}
           role="combobox"
-          className="smooth h-9 w-full rounded-lg border border-line bg-panel pr-3 pl-9 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+          className="smooth h-9 w-full rounded-lg border border-line bg-panel pr-3 pl-9 text-sm text-fog placeholder:text-mist"
         />
       </form>
 
@@ -152,7 +152,7 @@ export function Search({ lang, labels }: { lang: Lang; labels: SearchLabels }) {
                       aria-selected={index === active}
                       onMouseEnter={() => setActive(index)}
                       onClick={() => setOpen(false)}
-                      className={`smooth flex items-center gap-3 px-3 py-2 ${index === active ? 'bg-util text-brand-soft' : 'text-fog hover:bg-util'}`}
+                      className={`smooth flex items-center gap-3 px-3 py-2 ${index === active ? 'bg-util text-brand' : 'text-fog hover:bg-util'}`}
                     >
                       {result.icon ? (
                         <img src={result.icon} alt="" loading="lazy" className="h-8 w-8 shrink-0 rounded-md object-cover" />

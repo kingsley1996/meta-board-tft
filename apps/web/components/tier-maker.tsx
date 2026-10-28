@@ -66,13 +66,13 @@ export function TierMaker({ lang, champions, initial }: { lang: Lang; champions:
           <p className="max-w-2xl text-sm leading-relaxed text-mist">{t.hint}</p>
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={copyLink} className="smooth rounded-full border border-brand-hot bg-brand-hot px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-deep">
+          <button type="button" onClick={copyLink} className="smooth rounded-full border border-brand bg-brand px-4 py-1.5 text-xs font-semibold text-on-brand hover:bg-brand-deep">
             {copied ? t.copied : t.copyLink}
           </button>
           <button
             type="button"
             onClick={() => setRanks({})}
-            className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+            className="smooth rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
           >
             {t.clear}
           </button>
@@ -94,7 +94,7 @@ export function TierMaker({ lang, champions, initial }: { lang: Lang; champions:
                 else if (selected) assign(selected, tier);
               }}
               onClick={() => (selected ? assign(selected, tier) : undefined)}
-              className={`flex min-h-[72px] flex-1 flex-wrap items-center gap-1.5 rounded-lg border border-line bg-panel p-2 ${selected ? 'cursor-pointer hover:border-brand-soft' : ''}`}
+              className={`flex min-h-[72px] flex-1 flex-wrap items-center gap-1.5 rounded-lg border border-line bg-panel p-2 ${selected ? 'cursor-pointer hover:border-brand' : ''}`}
             >
               {byTier(tier).map((champion) => (
                 <button
@@ -128,7 +128,7 @@ export function TierMaker({ lang, champions, initial }: { lang: Lang; champions:
               onDragStart={(event) => event.dataTransfer.setData('text/plain', `unit:${champion.name}`)}
               onClick={() => setSelected((current) => (current === champion.name ? '' : champion.name))}
               title={unitName(champion.name, lang)}
-              className={`rounded-lg p-0.5 transition ${selected === champion.name ? 'bg-brand-hot/40 ring-2 ring-brand-soft' : 'hover:bg-util'}`}
+              className={`rounded-lg p-0.5 transition ${selected === champion.name ? 'bg-brand/40 ring-2 ring-brand' : 'hover:bg-util'}`}
             >
               <UnitHex name={champion.name} cost={champion.cost} icon={champion.icon} size={40} />
             </button>

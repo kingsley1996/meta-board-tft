@@ -36,7 +36,7 @@ export function TierTabs({ current, lang }: { current: 'comps' | 'items' | 'augm
         <Link
           key={tab.key}
           href={tab.href}
-          className={`smooth -mb-px border-b-2 px-4 py-2 text-sm font-semibold ${tab.key === current ? 'border-brand text-brand-soft' : 'border-transparent text-mist hover:text-fog'}`}
+          className={`smooth -mb-px border-b-2 px-4 py-2 text-sm font-semibold ${tab.key === current ? 'border-brand text-brand' : 'border-transparent text-mist hover:text-fog'}`}
         >
           {tab.label}
         </Link>
@@ -59,7 +59,7 @@ export function DisplayTitle({ small, big, accent, sub, compact = false }: { sma
       <div className="flex flex-wrap items-baseline gap-3">
         <span className={`font-display font-bold uppercase tracking-tight text-fog ${compact ? 'text-lg' : 'text-4xl md:text-6xl'}`}>{small}</span>
         <span className={compact ? 'text-base text-brand' : 'text-3xl text-brand'}>{'\u25B8'}</span>
-        <span className={`font-display font-bold uppercase tracking-tight text-brand-soft ${compact ? 'text-lg' : 'text-4xl md:text-6xl'}`}>{big}</span>
+        <span className={`font-display font-bold uppercase tracking-tight text-brand ${compact ? 'text-lg' : 'text-4xl md:text-6xl'}`}>{big}</span>
       </div>
       {sub ? <p className="max-w-2xl text-sm text-mist">{sub}</p> : null}
     </div>
@@ -82,7 +82,7 @@ export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = fals
   return (
     <div data-tip={`champion:${name}`} className={`group/hex relative shrink-0 ${fill ? 'h-full w-full' : ''} ${className}`} style={fill ? undefined : { width: size, height }}>
       <div className={`hex smooth relative h-full w-full ${costBg[cost] ?? 'bg-cost-1'} group-hover/hex:scale-110`}>
-        <div className="hex absolute inset-0 flex scale-[0.91] items-center justify-center overflow-hidden bg-[linear-gradient(180deg,#2a3245_0%,#121722_100%)] font-display text-xs font-bold text-fog">
+        <div className="hex absolute inset-0 flex scale-[0.91] items-center justify-center overflow-hidden bg-[linear-gradient(180deg,var(--color-line)_0%,var(--color-panel)_100%)] font-display text-xs font-bold text-fog">
           {icon ? (
             <img src={icon} alt="" draggable={false} loading="lazy" className="h-full w-full object-cover" />
           ) : (
@@ -138,7 +138,7 @@ export function ItemRanking({
           <ItemTile name={item.name} icon={item.icon} tier={item.tier} size={size} href={itemHref(item.name, lang)} />
           <span className="min-w-0 flex-1">
             {itemHref(item.name, lang) ? (
-              <Link href={itemHref(item.name, lang)!} className="smooth block truncate text-sm font-semibold text-fog hover:text-brand-soft">
+              <Link href={itemHref(item.name, lang)!} className="smooth block truncate text-sm font-semibold text-fog hover:text-brand">
                 {lang ? itemName(item.name, lang) : item.name}
               </Link>
             ) : (
@@ -206,8 +206,8 @@ export function TierChip({ tier, label }: { tier: Tier; label: string }) {
 
 export function CtaLink({ href, children, kind = 'solid' }: { href: string; children: ReactNode; kind?: 'solid' | 'ghost' }) {
   const styles = kind === 'solid'
-    ? 'border-brand-hot bg-brand-hot text-white hover:bg-brand-deep'
-    : 'border-line bg-panel text-fog hover:border-brand-soft';
+    ? 'border-brand bg-brand text-on-brand hover:bg-brand-deep'
+    : 'border-line bg-panel text-fog hover:border-brand';
   return (
     <Link href={href} className={`smooth rounded-full border px-5 py-2 text-sm font-semibold ${styles}`}>
       {children}

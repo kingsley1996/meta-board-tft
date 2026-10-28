@@ -788,7 +788,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
           <button
             type="button"
             onClick={newChat}
-            className="smooth flex flex-1 items-center gap-2 rounded-lg border border-line bg-util px-3 py-2 text-left text-sm font-semibold text-fog hover:border-brand-soft"
+            className="smooth flex flex-1 items-center gap-2 rounded-lg border border-line bg-util px-3 py-2 text-left text-sm font-semibold text-fog hover:border-brand"
           >
             <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 shrink-0 fill-none stroke-current stroke-[1.9]">
               <path d="M10 4.5v11M4.5 10h11" strokeLinecap="round" />
@@ -799,7 +799,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
             type="button"
             onClick={() => setSidebarOpen(false)}
             aria-label={t.sidebarClose}
-            className="smooth rounded-lg border border-line px-2.5 py-2 text-sm text-mist hover:border-brand-soft hover:text-fog lg:hidden"
+            className="smooth rounded-lg border border-line px-2.5 py-2 text-sm text-mist hover:border-brand hover:text-fog lg:hidden"
           >
             ×
           </button>
@@ -816,7 +816,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
                     aria-current={conversation.id === conversationId ? 'true' : undefined}
                     title={conversation.title || t.untitledConversation}
                     className={`smooth min-w-0 flex-1 truncate rounded-md px-2 py-2 text-left text-xs font-semibold ${
-                      conversation.id === conversationId ? 'bg-util text-brand-soft' : 'text-mist hover:bg-util hover:text-fog'
+                      conversation.id === conversationId ? 'bg-util text-brand' : 'text-mist hover:bg-util hover:text-fog'
                     }`}
                   >
                     {conversation.title || t.untitledConversation}
@@ -847,7 +847,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
             type="button"
             onClick={() => setSidebarOpen(true)}
             aria-label={t.sidebarOpen}
-            className="smooth rounded-md border border-line bg-util px-2.5 py-2 text-sm font-semibold text-mist hover:border-brand-soft hover:text-fog lg:hidden"
+            className="smooth rounded-md border border-line bg-util px-2.5 py-2 text-sm font-semibold text-mist hover:border-brand hover:text-fog lg:hidden"
           >
             <span aria-hidden>☰</span>
           </button>
@@ -877,7 +877,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
                     key={sample}
                     type="button"
                     onClick={() => void submit(sample)}
-                    className="smooth rounded-full border border-line bg-util px-3 py-1.5 text-left text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+                    className="smooth rounded-full border border-line bg-util px-3 py-1.5 text-left text-xs font-semibold text-mist hover:border-brand hover:text-fog"
                   >
                     {sample}
                   </button>
@@ -889,8 +889,8 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
           {messages.map((message) =>
             message.role === 'user' ? (
               <div key={message.id} className="flex justify-end">
-                <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-brand-hot px-4 py-2.5 text-sm leading-relaxed text-white">
-                  <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-white/70">{t.you}</span>
+                <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-brand px-4 py-2.5 text-sm leading-relaxed text-on-brand">
+                  <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-on-brand/70">{t.you}</span>
                   <span className="whitespace-pre-wrap">{message.content}</span>
                 </div>
               </div>
@@ -919,8 +919,8 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
 
           {listening || voiceTranscribing ? (
             <div ref={pendingVoiceRef} className="flex justify-end" role="status">
-              <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-brand-hot px-4 py-2.5 text-sm text-white">
-                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-white/70">{t.you}</span>
+              <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-brand px-4 py-2.5 text-sm text-on-brand">
+                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-on-brand/70">{t.you}</span>
                 <span className="flex items-center gap-1 py-1" aria-hidden>
                   <span className="chat-typing-dot" style={{ animationDelay: '0s' }} />
                   <span className="chat-typing-dot" style={{ animationDelay: '0.2s' }} />
@@ -943,7 +943,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
           <div role="alert" className="flex flex-wrap items-center justify-between gap-2 border-t border-tier-s/40 bg-tier-s/10 px-4 py-2.5 text-sm text-fog">
             <span>{error}</span>
             {retryText ? (
-              <button type="button" onClick={() => void submit(retryText, false)} className="smooth rounded-md border border-line bg-panel px-3 py-1 text-xs font-semibold hover:border-brand-soft">
+              <button type="button" onClick={() => void submit(retryText, false)} className="smooth rounded-md border border-line bg-panel px-3 py-1 text-xs font-semibold hover:border-brand">
                 {t.retry}
               </button>
             ) : null}
@@ -971,7 +971,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
               maxLength={2000}
               placeholder={t.placeholder}
               aria-label={t.placeholder}
-              className="min-h-12 flex-1 resize-none rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog outline-none placeholder:text-mist focus:border-brand-soft"
+              className="min-h-12 flex-1 resize-none rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist"
             />
             <button
               type="button"
@@ -983,7 +983,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
               className={`smooth inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 ${
                 listening
                   ? 'border-tier-s bg-tier-s/20 text-tier-s'
-                  : 'border-line bg-page text-mist hover:border-brand-soft hover:text-fog'
+                  : 'border-line bg-page text-mist hover:border-brand hover:text-fog'
               }`}
             >
               {listening ? (
@@ -998,7 +998,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="smooth h-12 rounded-lg border border-brand-hot bg-brand-hot px-5 text-sm font-semibold text-white hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-40"
+              className="smooth h-12 rounded-lg border border-brand bg-brand px-5 text-sm font-semibold text-on-brand hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-40"
             >
               {loading ? '…' : t.send}
             </button>
@@ -1035,7 +1035,7 @@ function RecommendationCard({ recommendation, lang }: { recommendation: Assistan
     <li className="rounded-xl border border-line bg-panel p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <Link href={`/${lang}/tierlist/comps/${slug}`} className="smooth flex min-w-0 flex-1 items-start gap-2 text-sm font-semibold text-fog hover:text-brand-soft">
+          <Link href={`/${lang}/tierlist/comps/${slug}`} className="smooth flex min-w-0 flex-1 items-start gap-2 text-sm font-semibold text-fog hover:text-brand">
             {tier ? (
               <span className="rounded border px-1.5 py-0.5 font-display text-xs font-bold" style={{ borderColor: tierColor[tier], color: tierColor[tier] }}>
                 {tier}
@@ -1100,7 +1100,7 @@ function RecommendationCard({ recommendation, lang }: { recommendation: Assistan
       {recommendation.reasons.length ? (
         <p className="mt-2 text-xs leading-relaxed text-mist">{recommendation.reasons.slice(0, 2).join(' ')}</p>
       ) : null}
-      <Link href={`/${lang}/tierlist/comps/${slug}`} className="smooth mt-2 inline-flex text-xs font-semibold text-brand-soft hover:text-fog">
+      <Link href={`/${lang}/tierlist/comps/${slug}`} className="smooth mt-2 inline-flex text-xs font-semibold text-brand hover:text-fog">
         {t.viewComp} {'\u2192'}
       </Link>
     </li>
@@ -1139,9 +1139,9 @@ function AssistantBubble({
       <div className="max-w-[92%] rounded-2xl rounded-bl-sm border border-line bg-util px-4 py-3 text-sm leading-relaxed text-fog sm:max-w-[85%]">
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <TomoSprite />
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-soft">{t.mascotName}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-brand">{t.mascotName}</span>
           {message.voiceResponse ? (
-            <span className="inline-flex items-center gap-1 rounded border border-brand-soft/40 bg-brand-soft/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-soft" title={t.voiceAnswer}>
+            <span className="inline-flex items-center gap-1 rounded border border-brand/40 bg-brand/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand" title={t.voiceAnswer}>
               <svg viewBox="0 0 20 20" aria-hidden className="h-3.5 w-3.5 fill-none stroke-current stroke-[1.7]">
                 <path d="M3 8v4h3l4 3V5L6 8H3Z" strokeLinejoin="round" />
                 <path d="M13 7.5a4 4 0 0 1 0 5M15 5a7.5 7.5 0 0 1 0 10" strokeLinecap="round" />
@@ -1162,7 +1162,7 @@ function AssistantBubble({
           <div className="mt-2 flex flex-col gap-2">
             {response.sections.map((section, index) => (
               <div key={`${section.heading}-${index}`}>
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-soft">{section.heading}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-brand">{section.heading}</p>
                 <ul className="mt-1 list-inside list-disc text-xs leading-relaxed text-mist">
                   {section.points.map((point, pointIndex) => (
                     <li key={`${point}-${pointIndex}`}>{point}</li>
@@ -1193,7 +1193,7 @@ function AssistantBubble({
                 <Link
                   key={ref.id}
                   href={href}
-                  className="smooth flex items-center gap-1.5 rounded-full border border-line bg-panel py-0.5 pr-2 pl-0.5 text-[11px] font-medium text-mist hover:border-brand-soft hover:text-fog"
+                  className="smooth flex items-center gap-1.5 rounded-full border border-line bg-panel py-0.5 pr-2 pl-0.5 text-[11px] font-medium text-mist hover:border-brand hover:text-fog"
                 >
                   {tile}
                   <span className="max-w-44 truncate">{ref.name}</span>
@@ -1219,7 +1219,7 @@ function AssistantBubble({
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-mist">{t.sources}</p>
             <div className="flex flex-wrap gap-2">
               {response.sources.map((source) => (
-                <Link key={source.id} href={source.url} className="smooth rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog">
+                <Link key={source.id} href={source.url} className="smooth rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand hover:text-fog">
                   {source.title}
                   <span className="ml-1 font-normal text-[10px] text-mist/70">{source.version}</span>
                 </Link>
@@ -1248,7 +1248,7 @@ function AssistantBubble({
                   key={question}
                   type="button"
                   onClick={() => onFollowUp(question)}
-                  className="smooth rounded-full border border-line bg-panel px-2.5 py-1 text-left text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+                  className="smooth rounded-full border border-line bg-panel px-2.5 py-1 text-left text-xs font-semibold text-mist hover:border-brand hover:text-fog"
                 >
                   {question}
                 </button>
@@ -1263,7 +1263,7 @@ function AssistantBubble({
               type="button"
               onClick={onSpeak}
               aria-label={speaking ? t.voiceStopSpeaking : t.voiceReplay}
-              className="smooth inline-flex items-center gap-1.5 rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog"
+              className="smooth inline-flex items-center gap-1.5 rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
             >
               <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 fill-none stroke-current stroke-[1.7]">
                 {speaking ? (
@@ -1277,7 +1277,7 @@ function AssistantBubble({
               </svg>
               {speaking ? t.voiceStopSpeaking : t.voiceReplay}
             </button>
-            <button type="button" onClick={onCopy} className="smooth rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand-soft hover:text-fog">
+            <button type="button" onClick={onCopy} className="smooth rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand hover:text-fog">
               {copied ? t.copied : t.copy}
             </button>
             <span className="text-[11px] text-mist">{t.feedbackPrompt}</span>

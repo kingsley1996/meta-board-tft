@@ -83,7 +83,7 @@ export function Tomo({
   return (
     <span className={`relative inline-block shrink-0 ${busy ? 'tomo-float' : ''}`} style={{ width: size, height: size }}>
       <Mascot directions={TOMO_DIRECTIONS} reactions={TOMO_REACTIONS} size={size} label={label} />
-      {busy ? <span aria-hidden className="pointer-events-none absolute inset-0 animate-ping rounded-full border-2 border-brand-soft/40" /> : null}
+      {busy ? <span aria-hidden className="pointer-events-none absolute inset-0 animate-ping rounded-full border-2 border-brand/40" /> : null}
       {shown ? (
         <span
           aria-hidden

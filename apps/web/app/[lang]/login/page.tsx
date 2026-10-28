@@ -22,7 +22,7 @@ export default async function LoginPage({
   return (
     <div className="mx-auto flex min-h-[70dvh] w-full max-w-sm flex-col justify-center gap-6 px-6 pb-16">
       <h1 className="text-center font-display text-3xl font-bold uppercase tracking-tight text-fog">
-        MetaBoard <span className="text-brand-soft">{t.title}</span>
+        MetaBoard <span className="text-brand">{t.title}</span>
       </h1>
       <p className="text-center text-sm text-mist">{t.subtitle}</p>
       <LoginPanel

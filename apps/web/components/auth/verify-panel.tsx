@@ -21,7 +21,7 @@ export function VerifyPanel({ lang, token }: { lang: Lang; token: string }) {
   return (
     <div className="mx-auto flex min-h-[70dvh] w-full max-w-sm flex-col justify-center gap-6 px-6 pb-16">
       <h1 className="text-center font-display text-3xl font-bold uppercase tracking-tight text-fog">
-        MetaBoard <span className="text-brand-soft">{t.account}</span>
+        MetaBoard <span className="text-brand">{t.account}</span>
       </h1>
       <Panel className="p-6 text-center">
         <p className="text-sm text-fog">
@@ -30,7 +30,7 @@ export function VerifyPanel({ lang, token }: { lang: Lang; token: string }) {
         {state === 'success' ? (
           <Link
             href={`/${lang}/assistant`}
-            className="smooth mt-4 inline-block rounded-full border border-brand-hot bg-brand-hot px-5 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+            className="smooth mt-4 inline-block rounded-full border border-brand bg-brand px-5 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep"
           >
             {messages[lang].nav.assistant}
           </Link>

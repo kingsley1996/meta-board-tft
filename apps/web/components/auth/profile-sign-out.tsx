@@ -14,7 +14,7 @@ export function ProfileSignOut({ lang, label }: { lang: Lang; label: string }) {
         router.push(`/${lang}`);
         router.refresh();
       }}
-      className="smooth rounded-full border border-line px-4 py-2 text-sm font-semibold text-mist hover:border-brand-soft hover:text-fog"
+      className="smooth rounded-full border border-line px-4 py-2 text-sm font-semibold text-mist hover:border-brand hover:text-fog"
     >
       {label}
     </button>

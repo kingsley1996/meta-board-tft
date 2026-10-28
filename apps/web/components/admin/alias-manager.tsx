@@ -26,7 +26,7 @@ export type UnresolvedAlias = {
 };
 
 const inputCls =
-  'smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none';
+  'smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist';
 
 type AudioCaptureSession = {
   stream: MediaStream;
@@ -396,7 +396,7 @@ export function AliasManager({
           </button>
         </div>
         {error ? <p role="alert" className="text-sm text-tier-s">{error}</p> : null}
-        {notice ? <p role="status" className="text-sm text-brand-soft">{notice}</p> : null}
+        {notice ? <p role="status" className="text-sm text-brand">{notice}</p> : null}
       </form>
       <section className="flex flex-col gap-4 rounded-xl border border-line bg-panel p-5" aria-labelledby="alias-audio-test-title">
         <div>
@@ -452,7 +452,7 @@ export function AliasManager({
         <div>
           <h2 id="unresolved-aliases-title" className="font-display text-xl font-bold uppercase tracking-tight text-fog">
             Unresolved names
-            {unresolved.length ? <span className="ml-2 rounded-full bg-brand-hot/15 px-2 py-0.5 text-sm text-brand-soft">{unresolved.length}</span> : null}
+            {unresolved.length ? <span className="ml-2 rounded-full bg-brand/15 px-2 py-0.5 text-sm text-brand">{unresolved.length}</span> : null}
           </h2>
           <p className="mt-1 text-xs text-mist">
             Coach AI adds a name here when its entity lookup cannot resolve an LLM-extracted name. Review the suggestion, select the correct entity, or dismiss it. Unreviewed names are not used as aliases.

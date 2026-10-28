@@ -33,7 +33,7 @@ export function VoteButton({ slug, votes, lang }: { slug: string; votes: number;
       onClick={vote}
       aria-label={t.vote}
       disabled={voted}
-      className={`smooth inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-semibold ${voted ? 'border-brand-hot/60 bg-brand-hot/15 text-brand-soft' : 'border-line bg-util text-mist hover:border-brand-soft hover:text-fog'}`}
+      className={`smooth inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-semibold ${voted ? 'border-brand/60 bg-brand/15 text-brand' : 'border-line bg-util text-mist hover:border-brand hover:text-fog'}`}
     >
       {'\u2665'} {count}
     </button>

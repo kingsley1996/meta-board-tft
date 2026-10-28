@@ -64,7 +64,7 @@ export default async function GuideArticlePage({ params }: { params: Promise<{ l
         <h2 className="font-display text-xl font-bold tracking-tight text-fog">{t.keepReading}</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           {related.map((candidate) => (
-            <Link key={candidate.slug} href={`/${lang}/guides/${candidate.slug}`} className="smooth rounded-xl border border-line bg-panel p-4 hover:border-brand-soft">
+            <Link key={candidate.slug} href={`/${lang}/guides/${candidate.slug}`} className="smooth rounded-xl border border-line bg-panel p-4 hover:border-brand">
               <p className="font-display text-sm font-semibold text-fog">{candidate.title}</p>
               <p className="mt-1 text-xs text-mist">{candidate.author} &middot; {candidate.date}</p>
             </Link>

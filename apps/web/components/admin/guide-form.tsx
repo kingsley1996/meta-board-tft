@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const inputCls =
-  'smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none';
+  'smooth w-full rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist';
 
 type SectionDraft = {
   heading: string;
@@ -189,7 +189,7 @@ export function GuideForm({ guide }: { guide?: GuideFormGuide }) {
               type="checkbox"
               checked={form.featured}
               onChange={(event) => setForm((current) => ({ ...current, featured: event.target.checked }))}
-              className="h-4 w-4 accent-[#7c5cff]"
+              className="h-4 w-4 accent-[var(--color-brand)]"
             />
             Featured on the guides index
           </label>
@@ -202,7 +202,7 @@ export function GuideForm({ guide }: { guide?: GuideFormGuide }) {
           <button
             type="button"
             onClick={() => setSections((current) => [...current, emptySection()])}
-            className="smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-fog hover:border-brand-soft"
+            className="smooth rounded-full border border-line bg-page px-3 py-1 text-xs font-semibold text-fog hover:border-brand"
           >
             + Add section
           </button>
@@ -271,14 +271,14 @@ export function GuideForm({ guide }: { guide?: GuideFormGuide }) {
         <button
           type="submit"
           disabled={busy}
-          className="smooth rounded-full border border-brand-hot bg-brand-hot px-6 py-2 text-sm font-semibold text-white hover:bg-brand-deep disabled:opacity-50"
+          className="smooth rounded-full border border-brand bg-brand px-6 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep disabled:opacity-50"
         >
           {busy ? 'Saving…' : guide ? 'Save changes' : 'Create guide'}
         </button>
         <button
           type="button"
           onClick={() => router.push('/admin/guides')}
-          className="smooth rounded-full border border-line bg-panel px-5 py-2 text-sm font-semibold text-mist hover:border-brand-soft hover:text-fog"
+          className="smooth rounded-full border border-line bg-panel px-5 py-2 text-sm font-semibold text-mist hover:border-brand hover:text-fog"
         >
           Cancel
         </button>

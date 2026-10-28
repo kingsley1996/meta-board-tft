@@ -14,7 +14,7 @@ export function Footer({ lang }: { lang: Lang }) {
       </div>
       <div className="flex items-center gap-4 text-sm font-semibold">
         {socials.map((social) => (
-          <a key={social.label} href={social.href} className="smooth text-mist hover:text-brand-soft">{social.label}</a>
+          <a key={social.label} href={social.href} className="smooth text-mist hover:text-brand">{social.label}</a>
         ))}
       </div>
       <div className="flex items-center gap-4 text-xs text-mist">

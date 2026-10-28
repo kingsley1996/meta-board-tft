@@ -50,7 +50,7 @@ export default async function EditCompPage({ params }: { params: Promise<{ slug:
   return (
     <>
       <div className="flex flex-col gap-1">
-        <Link href="/admin/comps" className="text-xs font-semibold text-brand-soft hover:text-brand">
+        <Link href="/admin/comps" className="text-xs font-semibold text-brand hover:text-brand-deep">
           ← Back to comps
         </Link>
         <h1 className="font-display text-3xl font-bold uppercase tracking-tight text-fog">Edit · {comp.title}</h1>

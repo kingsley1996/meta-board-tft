@@ -61,7 +61,7 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
   };
 
   const chipCls = (active: boolean, disabled: boolean) =>
-    `smooth flex flex-col items-center gap-1 rounded-lg border p-2 text-center ${active ? 'border-brand-hot bg-brand-hot/15' : disabled ? 'border-line bg-panel opacity-40' : 'border-line bg-panel hover:border-brand-soft'}`;
+    `smooth flex flex-col items-center gap-1 rounded-lg border p-2 text-center ${active ? 'border-brand bg-brand/15' : disabled ? 'border-line bg-panel opacity-40' : 'border-line bg-panel hover:border-brand'}`;
 
   return (
     <div className="flex flex-col gap-6">
@@ -72,7 +72,7 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
             value={unitSearch}
             onChange={(event) => setUnitSearch(event.target.value)}
             placeholder={t.search}
-            className="smooth h-9 w-52 rounded-lg border border-line bg-page px-3 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+            className="smooth h-9 w-52 rounded-lg border border-line bg-page px-3 text-sm text-fog placeholder:text-mist"
           />
         </div>
         <div className="grid max-h-80 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-6 lg:grid-cols-8">
@@ -101,7 +101,7 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
             value={itemSearch}
             onChange={(event) => setItemSearch(event.target.value)}
             placeholder={t.search}
-            className="smooth h-9 w-52 rounded-lg border border-line bg-page px-3 text-sm text-fog placeholder:text-mist focus:border-brand-soft focus:outline-none"
+            className="smooth h-9 w-52 rounded-lg border border-line bg-page px-3 text-sm text-fog placeholder:text-mist"
           />
         </div>
         <div className="grid max-h-64 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-6 lg:grid-cols-8">
@@ -128,14 +128,14 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
           type="button"
           onClick={() => setShowResults(true)}
           disabled={!unitPicks.length}
-          className="smooth rounded-full border border-brand-hot bg-brand-hot px-6 py-2 text-sm font-semibold text-white hover:bg-brand-deep disabled:opacity-40"
+          className="smooth rounded-full border border-brand bg-brand px-6 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep disabled:opacity-40"
         >
           {t.find}
         </button>
         <button
           type="button"
           onClick={reset}
-          className="smooth rounded-full border border-line bg-panel px-5 py-2 text-sm font-semibold text-mist hover:border-brand-soft hover:text-fog"
+          className="smooth rounded-full border border-line bg-panel px-5 py-2 text-sm font-semibold text-mist hover:border-brand hover:text-fog"
         >
           {t.again}
         </button>
@@ -157,7 +157,7 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
                   <p className="font-semibold text-fog">{comp.title}</p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {comp.units.slice(0, 8).map((name) => (
-                      <span key={name} className={`text-xs font-semibold ${unitPicks.includes(name) ? 'text-brand-soft' : 'text-mist'}`}>
+                      <span key={name} className={`text-xs font-semibold ${unitPicks.includes(name) ? 'text-brand' : 'text-mist'}`}>
                         {unitName(name, lang)}
                       </span>
                     ))}
@@ -166,7 +166,7 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
                 <span className="rounded-full border border-line bg-util px-2 py-0.5 text-xs font-semibold text-mist">{score} {t.match}</span>
                 <Link
                   href={`/${lang}/tierlist/comps/${comp.slug}`}
-                  className="smooth rounded-full border border-line bg-page px-4 py-1.5 text-sm font-semibold text-fog hover:border-brand-soft"
+                  className="smooth rounded-full border border-line bg-page px-4 py-1.5 text-sm font-semibold text-fog hover:border-brand"
                 >
                   {t.view}
                 </Link>

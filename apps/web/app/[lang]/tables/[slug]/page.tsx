@@ -35,7 +35,7 @@ export default async function LootTablePage({ params }: { params: Promise<{ lang
     <div className="flex flex-col gap-6">
       <PatchBar lang={lang} />
       <div data-section="page-head" className="flex flex-col gap-3">
-        <Link href={`/${lang}/tables`} className="w-fit text-sm font-semibold text-mist hover:text-brand-soft">
+        <Link href={`/${lang}/tables`} className="w-fit text-sm font-semibold text-mist hover:text-brand">
           {'\u2190'} {t.back}
         </Link>
         <h1 className="font-display text-3xl font-bold tracking-tight text-fog">

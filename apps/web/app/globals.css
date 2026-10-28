@@ -1,16 +1,25 @@
 @import "tailwindcss";
 
+/* The one palette. Components never carry a colour: they use the utilities
+   Tailwind generates from these names (bg-panel, text-mist, border-brand), so a
+   change here is the whole restyle. lib/palette-tokens.test.ts recomputes WCAG
+   contrast against these values on every npm run test:web. */
 @theme {
-  --color-page: #0b0e14;
-  --color-panel: #121722;
-  --color-util: #1b2130;
-  --color-line: #2a3245;
-  --color-fog: #eef1f8;
-  --color-mist: #9aa7c2;
-  --color-brand: #7c5cff;
-  --color-brand-hot: #6a45ff;
-  --color-brand-deep: #5732d6;
-  --color-brand-soft: #b9a8ff;
+  --color-page: #0d1317; /* ground */
+  --color-panel: #151d22;
+  --color-util: #243037; /* rule doubles as the hover surface */
+  --color-line: #243037; /* rule */
+  --color-fog: #e8eef2; /* ink */
+  --color-mist: #9aaab5; /* ink-muted */
+  /* One orange does every brand job: the solid action fills, the accent ink for
+     kickers and the active nav item, and the hover/focus borders. #ff6b3d is the
+     last step that still clears 4.5:1 on --color-util, the binding surface for
+     accent text. */
+  --color-brand: #ff6b3d;
+  --color-brand-deep: #ff8355; /* fill hover; lighter, as suits a dark ground */
+  /* Text sitting on the brand fills. White on #ff6b3d is 2.83, so the ink has to
+     be near-black (§3.2). */
+  --color-on-brand: #160b05;
 
   --color-tier-s: #ff5470;
   --color-tier-a: #ff9f43;
@@ -35,9 +44,28 @@ body {
   font-family: var(--font-body);
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-brand-soft);
-  outline-offset: 2px;
+/* Cost colours are the UnitHex rim, a graphic sitting behind the inner hexagon's
+   line→panel gradient; tier colours double as text and as thin borders. Both
+   ladders are checked as graphics against every surface they touch. */
+
+/* The one focus indicator for the whole app: a 2px brand outline outside the
+   box. It lives in @layer base so a component can still cancel it with
+   focus:outline-none — unlayered rules beat Tailwind's utilities layer
+   whatever their specificity, which is how inputs ended up wearing a border
+   and an outline at the same time.
+
+   The ring is already sized and offset on every element, transparent, so
+   focusing only changes its colour. `smooth` transitions `all`, so an outline
+   that appeared from nothing faded in through the browser's default white. */
+@layer base {
+  * {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  :focus-visible {
+    outline-color: var(--color-brand);
+  }
 }
 
 @utility hex {
@@ -156,6 +184,30 @@ body {
   .chat-typing-dot {
     animation: none;
   }
+
+  .card-art {
+    transition: none;
+  }
+}
+
+/* The homepage comps card carries a 3D render of the little legends centred on
+   its top edge, so it leans toward the pointer instead of only brightening like
+   its neighbours. The resting tilt is what sells the depth on a static
+   screenshot; the hover straightens it and lifts it further out. The shadow rides
+   in the same filter as the saturation because this rule is unlayered — a
+   drop-shadow utility would never win against it. */
+.card-art {
+  transform: perspective(900px) rotateY(-9deg) rotateX(4deg);
+  transform-origin: 50% 62%;
+  transition:
+    transform 0.35s ease,
+    filter 0.35s ease;
+  filter: saturate(0.96) drop-shadow(0 18px 22px rgb(0 0 0 / 0.55));
+}
+
+.group:hover .card-art {
+  transform: perspective(900px) rotateY(-2deg) rotateX(1deg) translateY(-7px) scale(1.04);
+  filter: saturate(1.04) drop-shadow(0 26px 30px rgb(0 0 0 / 0.6));
 }
 
 /* Agent-harness step spinner: a small square hopping the four corners of its

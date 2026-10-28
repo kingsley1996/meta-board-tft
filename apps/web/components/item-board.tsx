@@ -47,7 +47,7 @@ export function ItemBoard({
                         <AugmentTile name={item.name} icon={iconByName[item.name] ?? null} size={44} />
                       )}
                       {current === 'items' && itemSlugByName[item.name] ? (
-                        <Link href={`/${lang}/items/${itemSlugByName[item.name]}`} className="smooth hidden text-sm font-semibold text-fog hover:text-brand-soft lg:block">{displayName(item.name, lang)}</Link>
+                        <Link href={`/${lang}/items/${itemSlugByName[item.name]}`} className="smooth hidden text-sm font-semibold text-fog hover:text-brand lg:block">{displayName(item.name, lang)}</Link>
                       ) : (
                         <span className="hidden text-sm font-semibold text-fog lg:block">{displayName(item.name, lang)}</span>
                       )}

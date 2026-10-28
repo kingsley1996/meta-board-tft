@@ -33,7 +33,7 @@ export function AuthNav({ lang, variant }: { lang: Lang; variant: 'desktop' | 'm
     return (
       <Link
         href={`/${lang}/login`}
-        className="smooth inline-flex items-center rounded-full border border-line bg-panel px-3 py-1.5 text-sm font-semibold text-mist hover:border-brand-soft hover:text-fog"
+        className="smooth inline-flex items-center rounded-full border border-line bg-panel px-3 py-1.5 text-sm font-semibold text-mist hover:border-brand hover:text-fog"
       >
         {t.signIn}
       </Link>
@@ -93,7 +93,7 @@ function UserMenu({
 
   const trigger =
     variant === 'desktop' ? (
-      <span className="smooth inline-flex items-center gap-2 rounded-full border border-line bg-panel px-3 py-1.5 text-sm font-semibold text-fog hover:border-brand-soft">
+      <span className="smooth inline-flex items-center gap-2 rounded-full border border-line bg-panel px-3 py-1.5 text-sm font-semibold text-fog hover:border-brand">
         <UserAvatar user={user} sizeClass="h-5 w-5" />
         <span className="max-w-24 truncate">{user.name ?? t.account}</span>
         <svg viewBox="0 0 12 12" aria-hidden="true" className={`h-3 w-3 text-mist transition-transform ${open ? 'rotate-180' : ''}`}>
@@ -138,7 +138,7 @@ function UserMenu({
               href={item.href}
               role="menuitem"
               onClick={() => setOpen(false)}
-              className="block px-3 py-2 text-sm font-semibold text-fog hover:bg-util hover:text-brand-soft"
+              className="block px-3 py-2 text-sm font-semibold text-fog hover:bg-util hover:text-brand"
             >
               {item.label}
             </Link>

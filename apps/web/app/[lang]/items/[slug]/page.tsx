@@ -97,7 +97,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
   return (
     <div className="flex flex-col gap-6">
       <PatchBar lang={lang} />
-      <Link href={`/${lang}/items`} className="w-fit text-sm font-semibold text-mist hover:text-brand-soft">
+      <Link href={`/${lang}/items`} className="w-fit text-sm font-semibold text-mist hover:text-brand">
         {'\u2190'} {t.back}
       </Link>
       <Panel className="flex flex-wrap items-start gap-5 p-5">
@@ -149,7 +149,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
                       <tr key={row.champion} className="border-b border-line/60 last:border-b-0 even:bg-ink/40">
                         <td className="px-3 py-2">
                           {champion ? (
-                            <Link href={`/${lang}/champions/${champion.slug}`} className="smooth flex items-center gap-2 font-semibold text-fog hover:text-brand-soft">
+                            <Link href={`/${lang}/champions/${champion.slug}`} className="smooth flex items-center gap-2 font-semibold text-fog hover:text-brand">
                               {champion.icon ? <img src={champion.icon} alt="" loading="lazy" className="h-7 w-7 rounded-full" /> : null}
                               {vi && champion.nameVi ? champion.nameVi : champion.name}
                             </Link>
@@ -188,7 +188,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
                 <Link
                   key={champion.name}
                   href={`/${lang}/champions/${champion.slug}`}
-                  className="smooth flex items-center gap-2 rounded-lg border border-line bg-ink/40 px-3 py-2 text-sm font-semibold text-fog hover:border-brand-soft"
+                  className="smooth flex items-center gap-2 rounded-lg border border-line bg-ink/40 px-3 py-2 text-sm font-semibold text-fog hover:border-brand"
                 >
                   {champion.icon ? <img src={champion.icon} alt="" loading="lazy" className="h-7 w-7 rounded-full" /> : null}
                   {vi && champion.nameVi ? champion.nameVi : champion.name}
@@ -208,7 +208,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
                   <Link
                     key={entry.name}
                     href={`/${lang}/items/${target.slug}`}
-                    className="smooth flex items-center gap-2 rounded-lg border border-line bg-ink/40 px-3 py-2 text-sm font-semibold text-fog hover:border-brand-soft"
+                    className="smooth flex items-center gap-2 rounded-lg border border-line bg-ink/40 px-3 py-2 text-sm font-semibold text-fog hover:border-brand"
                   >
                     <ItemTile name={entry.name} icon={target.icon} tier={entry.tier} size={24} />
                     {itemName(entry.name, lang)}
@@ -264,7 +264,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
             <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.buildsInto}</p>
             <div className="flex flex-wrap gap-2">
               {buildsInto.map((entry) => (
-                <Link key={entry.slug} href={`/${lang}/items/${entry.slug}`} className="smooth flex items-center gap-2 rounded-lg border border-line bg-ink/40 px-3 py-2 text-sm font-semibold text-fog hover:border-brand-soft">
+                <Link key={entry.slug} href={`/${lang}/items/${entry.slug}`} className="smooth flex items-center gap-2 rounded-lg border border-line bg-ink/40 px-3 py-2 text-sm font-semibold text-fog hover:border-brand">
                   <ItemTile name={entry.name} icon={entry.icon} size={24} />
                   {itemName(entry.name, lang)}
                 </Link>

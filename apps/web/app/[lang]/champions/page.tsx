@@ -22,7 +22,7 @@ export default async function ChampionsPage({ params }: { params: Promise<{ lang
       <PatchBar lang={lang} />
       <div data-section="page-head" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-brand-hot bg-brand-hot px-4 py-1.5 text-xs font-semibold text-white">{t.allCosts}</span>
+          <span className="rounded-full border border-brand bg-brand px-4 py-1.5 text-xs font-semibold text-on-brand">{t.allCosts}</span>
           {costs.map((cost) => (
             <span key={cost} className="flex items-center gap-2 rounded-full border border-line bg-panel px-4 py-1.5 text-xs font-semibold text-mist">
               {t.cost(cost)} <CostDots cost={cost} />
@@ -35,7 +35,7 @@ export default async function ChampionsPage({ params }: { params: Promise<{ lang
           <Link
             key={unit.name}
             href={`/${lang}/champions/${championNameToSlug[unit.name]}`}
-            className="smooth flex flex-col items-center gap-3 rounded-xl border border-line bg-panel p-4 hover:border-brand-soft"
+            className="smooth flex flex-col items-center gap-3 rounded-xl border border-line bg-panel p-4 hover:border-brand"
           >
             <UnitHex name={unit.name} cost={unit.cost} size={72} icon={unit.icon} />
             <p className="font-display text-lg font-semibold text-fog">{unitName(unit.name, lang)}</p>
