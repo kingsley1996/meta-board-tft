@@ -5,6 +5,10 @@ import { messages } from '@/lib/messages';
 import { augmentName, itemName } from '@/lib/tips';
 import { AugmentTile, ItemTile, tierColor, TierChip, TierTabs } from './ui';
 
+// Both tabs of this board share one tile size, so switching between them does not
+// move the grid.
+const TILE = 56;
+
 export function ItemBoard({
   items,
   current,
@@ -38,13 +42,13 @@ export function ItemBoard({
                 <div className="flex flex-wrap gap-3">
                   {tierItems.map((item) => (
                     <div key={item.name} className="group/hex relative flex items-center gap-2">
-                      <span className="pointer-events-none absolute -top-9 left-0 z-10 rounded-md border border-line bg-panel px-2 py-1 text-xs font-semibold whitespace-nowrap text-fog opacity-0 transition-opacity group-hover/hex:opacity-100">
+                      <span className="pointer-events-none absolute -top-9 left-0 z-10 hidden rounded-md border border-line bg-panel px-2 py-1 text-xs font-semibold whitespace-nowrap text-fog opacity-0 transition-opacity group-hover/hex:opacity-100 lg:block">
                         {displayName(item.name, lang)} <span className="ml-1 font-normal text-mist">{item.note[lang]}</span>
                       </span>
                       {current === 'items' ? (
-                        <ItemTile name={item.name} icon={iconByName[item.name] ?? null} tier={item.tier} size={44} href={`/${lang}/items/${itemSlugByName[item.name]}`} />
+                        <ItemTile name={item.name} icon={iconByName[item.name] ?? null} tier={item.tier} size={TILE} href={`/${lang}/items/${itemSlugByName[item.name]}`} />
                       ) : (
-                        <AugmentTile name={item.name} icon={iconByName[item.name] ?? null} size={44} />
+                        <AugmentTile name={item.name} icon={iconByName[item.name] ?? null} size={TILE} />
                       )}
                       {current === 'items' && itemSlugByName[item.name] ? (
                         <Link href={`/${lang}/items/${itemSlugByName[item.name]}`} className="smooth hidden text-sm font-semibold text-fog hover:text-brand lg:block">{displayName(item.name, lang)}</Link>

@@ -100,10 +100,13 @@ export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = fals
 }
 
 export function ItemTile({ name, icon, tier, size = 44, href }: { name: string; icon?: string | null; tier?: Tier | null; size?: number; href?: string }) {
+  // One ring fraction for every tile size, so a 24px chip and an 88px hero read
+  // as the same object. 18% keeps the inner corners concentric with the outer 22%.
+  const ring = size * 0.055;
   const tile = (
     <span data-tip={`item:${name}`} className="relative block shrink-0" style={{ width: size, height: size }}>
       <span className="absolute inset-0 rounded-[22%]" style={{ background: tier ? tierColor[tier] : 'var(--color-line)' }} />
-      <span className="absolute overflow-hidden rounded-[16%] bg-panel" style={{ inset: size * 0.09 }}>
+      <span className="absolute overflow-hidden rounded-[18%] bg-panel" style={{ inset: ring }}>
         {icon ? <img src={icon} alt="" draggable={false} loading="lazy" className="h-full w-full object-cover" /> : null}
       </span>
     </span>
