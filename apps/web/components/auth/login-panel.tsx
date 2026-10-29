@@ -5,11 +5,10 @@ import { useEffect, useState } from 'react';
 import { loginUser, registerUser, resendVerification } from '@/lib/api';
 import { messages } from '@/lib/messages';
 import type { Lang } from '@/lib/i18n';
-import { Panel } from '@/components/ui';
 import { TurnstileUnavailable, useTurnstile } from './turnstile';
 
 const inputClass =
-  'smooth rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog';
+  'smooth h-[46px] w-full rounded-lg border border-line bg-page px-3 text-sm font-normal text-fog';
 
 export function LoginPanel({
   lang,
@@ -94,12 +93,37 @@ export function LoginPanel({
     setNotice(t.resendSent);
   }
 
+  function switchMode(nextMode: 'login' | 'signup') {
+    setMode(nextMode);
+    setError(null);
+    setNotice(null);
+    setUnverifiedEmail(null);
+  }
+
   return (
-    <Panel className="p-6">
+    <div className="min-w-0 p-6 max-[370px]:px-0 max-[370px]:py-5 min-[900px]:p-[34px]">
+      <h1 className="mb-2 font-display text-[32px] leading-tight font-bold tracking-tight max-[370px]:text-[28px]">
+        {mode === 'login' ? t.welcome : t.createAccount}
+      </h1>
+      <p className="mb-6 text-sm leading-relaxed text-mist">{mode === 'login' ? t.loginIntro : t.signupIntro}</p>
+      <div role="group" aria-label={t.account} className="mb-[22px] flex gap-1 rounded-[10px] border border-line bg-page p-1">
+        {(['login', 'signup'] as const).map((nextMode) => (
+          <button
+            key={nextMode}
+            type="button"
+            aria-pressed={mode === nextMode}
+            disabled={busy}
+            onClick={() => switchMode(nextMode)}
+            className="smooth min-h-10 flex-1 rounded-md px-2 text-[13px] font-medium text-mist hover:text-fog aria-pressed:bg-util aria-pressed:text-fog disabled:opacity-50"
+          >
+            {nextMode === 'login' ? t.signIn : t.createAccount}
+          </button>
+        ))}
+      </div>
       <form onSubmit={submit} className="flex flex-col gap-4">
         <a
           href={`/api/auth/google/start?lang=${lang}`}
-          className="smooth flex items-center justify-center gap-2 rounded-full border border-line bg-util px-5 py-2 text-sm font-semibold text-fog hover:border-brand"
+          className="smooth flex min-h-[46px] items-center justify-center gap-2.5 rounded-[10px] border border-line bg-panel px-5 text-sm font-medium text-fog hover:border-brand"
         >
           <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4">
             <path fill="#4285F4" d="M23.5 12.3c0-.9-.1-1.5-.3-2.2H12v4.1h6.5c-.1 1.1-.8 2.7-2.4 3.8l3.7 2.9c2.2-2.1 3.7-5.1 3.7-8.6z" />
@@ -109,18 +133,18 @@ export function LoginPanel({
           </svg>
           {t.googleButton}
         </a>
-        <div className="flex items-center gap-3 text-[11px] uppercase tracking-wide text-mist">
+        <div className="my-1 flex items-center gap-3 text-xs text-mist">
           <span className="h-px flex-1 bg-line" />
-          {mode === 'login' ? t.signIn : t.createAccount}
+          {t.emailAlternative}
           <span className="h-px flex-1 bg-line" />
         </div>
         {mode === 'signup' ? (
-          <label className="flex flex-col gap-1 text-sm font-semibold text-mist">
+          <label className="flex flex-col gap-2 text-[13px] font-medium text-fog">
             {t.nameLabel}
             <input type="text" value={name} onChange={(event) => setName(event.target.value)} maxLength={80} autoComplete="name" className={inputClass} />
           </label>
         ) : null}
-        <label className="flex flex-col gap-1 text-sm font-semibold text-mist">
+        <label className="flex flex-col gap-2 text-[13px] font-medium text-fog">
           {t.emailLabel}
           <input
             type="email"
@@ -131,7 +155,7 @@ export function LoginPanel({
             className={inputClass}
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm font-semibold text-mist">
+        <label className="flex flex-col gap-2 text-[13px] font-medium text-fog">
           {t.passwordLabel}
           <input
             type="password"
@@ -154,23 +178,22 @@ export function LoginPanel({
         <button
           type="submit"
           disabled={busy || gate.loading || !email || !password}
-          className="smooth rounded-full border border-brand bg-brand px-5 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep disabled:opacity-50"
+          className="smooth flex min-h-12 items-center justify-between gap-3 rounded-[10px] border border-brand bg-brand px-4 text-sm font-bold text-on-brand hover:bg-brand-deep disabled:opacity-50"
         >
-          {busy ? (mode === 'login' ? t.signingIn : t.creatingAccount) : mode === 'login' ? t.signIn : t.createAccount}
+          <span>{busy ? (mode === 'login' ? t.signingIn : t.creatingAccount) : mode === 'login' ? t.signIn : t.createAccount}</span>
+          <svg aria-hidden="true" viewBox="0 0 20 20" className="h-5 w-5 fill-none stroke-current stroke-[1.5]">
+            <path d="M3 10h13m-5-5 5 5-5 5" />
+          </svg>
         </button>
         <button
           type="button"
-          onClick={() => {
-            setMode(mode === 'login' ? 'signup' : 'login');
-            setError(null);
-            setNotice(null);
-            setUnverifiedEmail(null);
-          }}
-          className="smooth text-sm text-mist underline underline-offset-2 hover:text-fog"
+          disabled={busy}
+          onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
+          className="smooth min-h-8 text-xs leading-relaxed text-brand hover:underline hover:underline-offset-2 disabled:opacity-50"
         >
           {mode === 'login' ? t.noAccount : t.haveAccount}
         </button>
       </form>
-    </Panel>
+    </div>
   );
 }

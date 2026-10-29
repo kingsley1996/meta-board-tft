@@ -21,7 +21,10 @@ async function widget(page: Page) {
           window.challenge = options;
           host.dataset.testid = 'challenge';
           const box = document.createElement('div');
-          box.style.width = options.size === 'compact' ? '150px' : '300px';
+          host.dataset.size = options.size;
+          box.style.width = options.size === 'flexible' ? '100%' : options.size === 'compact' ? '150px' : '300px';
+          box.style.minWidth = options.size === 'flexible' ? '300px' : '';
+          box.style.height = options.size === 'compact' ? '140px' : '65px';
           box.style.flexShrink = '0';
           box.textContent = 'Browser verified (test widget)';
           host.append(box);
@@ -90,6 +93,7 @@ for (const lang of ['en', 'vi']) {
     await fill(page, lang);
     const challenge = page.getByTestId('challenge');
     await expect(challenge).toBeVisible();
+    await expect(challenge).toHaveAttribute('data-size', 'flexible');
     expect(await challenge.evaluate((host) => {
       const box = host.firstElementChild!.getBoundingClientRect();
       const bounds = host.getBoundingClientRect();
@@ -224,4 +228,65 @@ test('register still asks for email verification when the API sends no user', as
   await expect(page).toHaveURL(/\/en\/login\?/);
   await expect(submit(page)).toBeEnabled();
   await expect(page.getByText(/verification link/i)).toBeVisible();
+});
+
+for (const lang of ['en', 'vi']) {
+  test(`${lang}: horizontal widget fits through mobile and split-layout breakpoints`, async ({ page }) => {
+    await widget(page);
+    await fill(page, lang);
+    const challenge = page.getByTestId('challenge');
+    await expect(challenge).toBeVisible();
+    await expect(challenge).toHaveAttribute('data-size', 'flexible');
+    for (const width of [320, 370, 371, 390, 425, 480, 481, 768, 899, 900, 1280]) {
+      await page.setViewportSize({ width, height: 900 });
+      const geometry = await challenge.evaluate((host) => {
+        const box = host.firstElementChild!.getBoundingClientRect();
+        const bounds = host.getBoundingClientRect();
+        return {
+          width: box.width,
+          height: box.height,
+          contained: box.left >= bounds.left && box.right <= bounds.right,
+          overflow: document.documentElement.scrollWidth > window.innerWidth,
+        };
+      });
+      expect(geometry, `viewport ${width}`).toEqual({
+        width: expect.any(Number), height: 65, contained: true, overflow: false,
+      });
+      expect(geometry.width).toBeGreaterThanOrEqual(300);
+      if (width >= 900) await expect(page.locator('[data-login] aside')).toBeVisible();
+      else await expect(page.locator('[data-login] aside')).toBeHidden();
+    }
+  });
+}
+
+test('account controls switch modes without losing fields or recreating the challenge', async ({ page }) => {
+  await widget(page);
+  await fill(page);
+  const controls = page.getByRole('group', { name: 'Account', exact: true });
+  const signup = controls.getByRole('button', { name: 'Create account', exact: true });
+  const login = controls.getByRole('button', { name: 'Sign in', exact: true });
+  await expect(page.getByTestId('challenge')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Continue with Google' })).toHaveAttribute('href', '/api/auth/google/start?lang=en');
+  await signup.click();
+  await expect(signup).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Create account');
+  await page.getByRole('textbox', { name: 'Display name (optional)', exact: true }).fill('Test');
+  await expect(page.locator('input[type=password]')).toHaveAttribute('autocomplete', 'new-password');
+  await login.click();
+  await expect(login).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Welcome back.');
+  await expect(page.getByRole('textbox', { name: 'Display name (optional)', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: 'Email', exact: true })).toHaveValue(USER.email);
+  await expect(page.locator('input[type=password]')).toHaveValue('valid-password');
+  await expect(page.locator('input[type=password]')).toHaveAttribute('autocomplete', 'current-password');
+  await signup.click();
+  await expect(page.getByRole('textbox', { name: 'Display name (optional)', exact: true })).toHaveValue('Test');
+  let token: string | undefined;
+  await page.route('**/api/auth/register', (route) => {
+    token = route.request().headers()['cf-turnstile-response'];
+    return route.fulfill({ json: { ok: true } });
+  });
+  await submit(page).click();
+  await expect(page.getByText(/verification link/i)).toBeVisible();
+  expect(token).toBe('token-1');
 });

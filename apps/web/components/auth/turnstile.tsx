@@ -63,7 +63,7 @@ export function useTurnstile(lang: Lang) {
       sitekey: siteKey,
       theme: 'dark',
       language: lang,
-      size: 'compact',
+      size: 'flexible',
       callback: (token: string) => {
         failed.current = false;
         settle(token);
@@ -112,7 +112,7 @@ export function useTurnstile(lang: Lang) {
           onReady={() => setScriptReady(true)}
           onError={() => { failed.current = true; settle(null); }}
         />
-        <div ref={host} className="flex w-full justify-center" />
+        <div ref={host} className="w-full" />
       </>
     ) : null,
   };
