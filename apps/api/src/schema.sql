@@ -342,7 +342,9 @@ BEGIN
         USING ERRCODE = 'check_violation';
     END IF;
   END IF;
-  RETURN NEW;
+  -- A BEFORE DELETE trigger that returns NEW deletes nothing at all: the row has
+  -- to be handed back as OLD for the delete to go through.
+  RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
 END;
 $$;
 CREATE OR REPLACE TRIGGER plan_versions_keep_history

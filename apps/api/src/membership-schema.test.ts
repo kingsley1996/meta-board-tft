@@ -191,6 +191,21 @@ test('membership and usage schema holds the invariants the ledger depends on', {
       assert.match(await errorOf(() => pool.query('DELETE FROM plan_versions WHERE id = $1', [kase.planId])), /referenced by orders/);
       // Renaming and retiring stay allowed: they change nothing already paid for.
       await pool.query("UPDATE plan_versions SET label = 'Renamed', status = 'retired' WHERE id = $1", [kase.planId]);
+
+      // The guard must not swallow the ordinary case. A BEFORE DELETE trigger that
+      // answers the wrong tuple deletes nothing at all, and an offer nobody bought
+      // has to be removable or the ledger can never be cleaned up.
+      const spare = randomUUID();
+      await pool.query(
+        `INSERT INTO plan_versions (id, code, version, label, price_vnd, chat_per_period)
+         VALUES ($1, $2, 1, 'Spare', 0, 10)`,
+        [spare, `spare-${spare.slice(0, 8)}`],
+      );
+      assert.equal(
+        (await pool.query('DELETE FROM plan_versions WHERE id = $1', [spare])).rowCount,
+        1,
+        'an unreferenced offer deletes',
+      );
     } finally {
       await kase.cleanup();
     }

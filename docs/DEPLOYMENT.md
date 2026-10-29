@@ -237,7 +237,7 @@ hai số khác nhau. Việc đó chạy **lúc boot** (`index.ts` → `applyCata
 | `tft.json` + `apps/web/public/tft/**` (commit) | trang static (champions/items grid, hover cards) **và** API | repo crawler riêng (private) | chạy crawl ở repo đó, commit vào đây, push |
 | 4 bảng catalog trong Postgres | responses động, admin, validation | `syncTft()` / `ensureCatalogCurrent()` từ snapshot | **không có bước thủ công** — API tự nạp khi boot |
 | `comps`, `guides` trong Postgres | nội dung biên tập | `seed.ts` (DB trắng) / admin UI (về sau) | admin UI; `seed:economy` để nạp thêm economy comps |
-| `plan_versions` trong Postgres | chưa có code nào đọc — membership là #81/#86, bán hàng là gate #92/#95 | `seed/membership-plans.ts` | `npm run seed:membership` — idempotent, tạo hai offer `draft`; bật `active` là quyết định thương mại, không phải bước deploy |
+| `plan_versions` trong Postgres | [quota.ts](../apps/api/src/membership/quota.ts) chỉ đọc khi có membership resolution (#86); chưa có route nào gọi — bán hàng là gate #92/#95 | `seed/membership-plans.ts` | `npm run seed:membership` — idempotent, tạo hai offer `draft`; bật `active` là quyết định thương mại, không phải bước deploy |
 
 Quy tắc chọn đường, theo trạng thái DB đích:
 

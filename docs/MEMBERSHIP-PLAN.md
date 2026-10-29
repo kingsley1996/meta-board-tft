@@ -1,7 +1,7 @@
 # Plan triển khai hội viên MetaBoard
 
 Ngày lập: 2026-10-29.
-Trạng thái: đã chốt #79, hoàn thành payment provider layer #97 và schema membership/usage #80; chưa có code nào đọc các bảng mới, chưa mount quota/checkout HTTP và chưa mở thanh toán thật.
+Trạng thái: đã chốt #79, hoàn thành payment provider layer #97, schema membership/usage #80 và core quota reserve–settle #81; chưa có route HTTP nào đọc các bảng mới, chưa mount quota/checkout và chưa mở thanh toán thật.
 
 ## 1. Mục tiêu và phạm vi
 
@@ -126,6 +126,10 @@ Financial/quota ledger không phụ thuộc reasoning traces, conversation FK ca
 
 Recovery phân biệt chưa dispatch, có result và outcome chưa rõ. Không dispatch lại outcome chưa rõ. Reservation không treo vô hạn: có deadline và quy tắc release/credit theo policy. Không có deliverable do lỗi hệ thống thì không giữ debit user chỉ vì chưa biết provider đã tính tiền bao nhiêu; provider liability vẫn là unknown để đối soát.
 
+Module [quota.ts](../apps/api/src/membership/quota.ts) là bản implement đầu tiên của trình tự trên (task #81) và [quota.test.ts](../apps/api/src/membership/quota.test.ts) kiểm 17 case trên PostgreSQL dev: một turn chat giữ chỗ trên cả bucket kỳ hạn lẫn bucket ngày Asia/Ho_Chi_Minh; hai request tranh lượt cuối chỉ một bên thắng; retry cùng idempotency key trả `in_progress`/`duplicate` kèm request ID và result reference cũ, payload khác hash trả `conflict`; `locked` (feature không có trong gói) tách khỏi `exhausted` và `daily_cap`; `rate_limited`/`too_many_in_flight`/`too_long` là policy chứ không phải số dư; settle consume `min(reserved, wanted)` rồi release phần thừa và chỉ một lần, nên một lượt giữ hai window vẫn tính là một lượt tiêu; recovery phân loại chưa-dispatch → release, có result → consume, không giải thích được sau 24h → release, còn lại → `needs_recovery` với backoff, và `FOR UPDATE SKIP LOCKED` khiến hai worker không cùng settle một request. `markDispatched` phải trả `ok` trước khi gọi provider, và không hàm nào giữ SQL transaction qua network wait.
+
+Fail closed là mặc định của mọi hàm: plan draft/thiếu/malformed, tài khoản không tồn tại, connection lỗi hay write bị CHECK chặn đều trả `unavailable` chứ không cho request đi mà không đếm. `0` trong cột execution limit nghĩa là "đóng cửa", SQL `NULL` mới là "không giới hạn"; một giá trị vô lý (âm, thiếu cột) làm hỏng cả offer chứ không đọc thành uncapped. Feature không có trong gói trả `locked` trước mọi check chính sách, nên UI không bao giờ nói "thử lại sau một phút" với thứ gói đó không bao giờ có. Reason codes: `locked`, `exhausted`, `daily_cap`, `too_long`, `rate_limited`, `too_many_in_flight`, `expired`, `conflict`, `in_progress`, `duplicate`, `unavailable`. Thứ tự lock bucket là hằng số theo period kind (dài nhất trước) chứ không phụ thuộc window suy ra từ thời điểm, vì một reserve và một settle trên cùng hai bucket phải lấy lock theo đúng trình tự đó mới không deadlock.
+
 Chỉ bảo đảm idempotency của hệ thống nội bộ, không tuyên bố exactly-once execution ở API bên ngoài.
 
 Quyền/quota không đọc được thì trả lỗi tạm thời trước spend, không fail-open. UI phân biệt không đăng nhập, feature locked, quota exhausted, service unavailable và request đang xử lý.
@@ -200,7 +204,7 @@ State dự kiến: `pending`, `paid`, `expired`, `review`, `refund_pending`, `re
 
 Các vị trí hiện có đã khảo sát; module mới chỉ tạo khi bước tương ứng cần.
 
-- [Schema](../apps/api/src/schema.sql): membership/payment/usage tables và constraints đã có từ #80; [seed offer](../apps/api/seed/membership-plans.ts) tạo hai plan_versions draft. Các module #81/#86/#87 là chỗ đầu tiên đọc chúng.
+- [Schema](../apps/api/src/schema.sql): membership/payment/usage tables và constraints đã có từ #80; [seed offer](../apps/api/seed/membership-plans.ts) tạo hai plan_versions draft. [quota.ts](../apps/api/src/membership/quota.ts) là module đầu tiên đọc chúng (#81); #86 và #87 vẫn chưa có code.
 - [Role account](../apps/api/src/accounts.ts#L10): giữ nguyên user/admin, bổ sung membership riêng.
 - [API mounting](../apps/api/src/index.ts#L342): auth/entitlement boundaries cho assistant và voice; payment/webhook/admin routes.
 - [Assistant query](../apps/api/src/assistant/index.ts#L102): account quota, request identity, SSE, persistence và settlement.
@@ -271,7 +275,7 @@ Thứ tự thực tế: foundation/metering trước; policy và UI mock có th�
 
 - [x] #79 Chính sách, gateway và phạm vi thử nghiệm được chốt; merchant/live offer vẫn chờ các gate sau.
 - [x] #80 Schema và local migration được kiểm (fresh apply + re-apply + 12 invariant case trên PostgreSQL dev; offer để draft, chưa chạy prod migration).
-- [ ] #81 Quota concurrent/idempotent/recovery được kiểm.
+- [x] #81 Quota concurrent/idempotent/recovery được kiểm (17 case trên PostgreSQL dev: lượt cuối tranh nhau, replay/conflict/duplicate, locked khác exhausted, ngày rolled theo Asia/Ho_Chi_Minh, settle đúng một lần, hai recovery worker không cùng claim, mọi đường lỗi trả `unavailable` thay vì cho qua; chưa mount vào route nào).
 - [ ] #82 Cost instrumentation không bỏ sót đường spend.
 - [x] #97 Contract/registry/payOS/SePay adapters và switch/signature tests qua; HTTP integration còn #87.
 - [ ] #86 Membership và kỳ hạn được kiểm.
