@@ -454,6 +454,38 @@ CREATE TABLE IF NOT EXISTS memberships (
 CREATE UNIQUE INDEX IF NOT EXISTS memberships_order_idx ON memberships (order_id) WHERE order_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS memberships_user_ends_idx ON memberships (user_id, ends_at DESC);
 
+-- A membership row only says what coverage a user has; it can never say who gave
+-- it, why, or whether the same click was replayed. Every state change therefore
+-- writes its own append-only row, and an adjustment without an actor and a reason
+-- is refused by the database rather than by a code review.
+-- The actor is NULL only for a purchase the account owner made themselves: an
+-- admin or system action always names one.
+CREATE TABLE IF NOT EXISTS membership_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES users (id),
+  -- The period the action produced or ended. A credit that changes no period
+  -- still has to name the plan it was measured against.
+  membership_id uuid REFERENCES memberships (id),
+  plan_version_id uuid NOT NULL REFERENCES plan_versions (id),
+  action text NOT NULL CHECK (action IN ('grant', 'renew', 'revoke', 'credit')),
+  actor_id uuid REFERENCES users (id),
+  source text NOT NULL CHECK (source IN ('purchase', 'admin', 'system')),
+  reason text NOT NULL CHECK (char_length(reason) BETWEEN 3 AND 500),
+  -- Snapshot of the coverage the action created or removed, so a report reads the
+  -- history without joining a row that later moved on.
+  period_start timestamptz,
+  period_end timestamptz,
+  -- A retried fulfilment or a double-clicked admin button must not mint a second
+  -- period, so the caller's key is unique for as long as it exists. Scoped to the
+  -- account like usage_requests: two people may invent the same string.
+  idempotency_key text CHECK (idempotency_key IS NULL OR char_length(idempotency_key) BETWEEN 8 AND 200),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (user_id, idempotency_key),
+  CONSTRAINT membership_events_admin_has_actor CHECK (source <> 'admin' OR actor_id IS NOT NULL),
+  CONSTRAINT membership_events_grant_has_period CHECK (action <> 'grant' OR (period_start IS NOT NULL AND period_end IS NOT NULL))
+);
+CREATE INDEX IF NOT EXISTS membership_events_user_created_idx ON membership_events (user_id, created_at DESC);
+
 CREATE TABLE IF NOT EXISTS usage_buckets (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES users (id),

@@ -89,6 +89,7 @@ test('membership and usage schema holds the invariants the ledger depends on', {
       await pool.query(`DELETE FROM usage_attempts WHERE request_id IN (SELECT id FROM usage_requests WHERE user_id = $1)`, [userId]);
       await pool.query('DELETE FROM usage_requests WHERE user_id = $1', [userId]);
       await pool.query('DELETE FROM usage_buckets WHERE user_id = $1', [userId]);
+      await pool.query('DELETE FROM membership_events WHERE user_id = $1', [userId]);
       await pool.query('DELETE FROM memberships WHERE user_id = $1', [userId]);
       await pool.query('DELETE FROM payment_events WHERE account_id = $1', [accountId]);
       await pool.query('DELETE FROM payment_orders WHERE user_id = $1', [userId]);
@@ -350,6 +351,82 @@ test('membership and usage schema holds the invariants the ledger depends on', {
       const { rows } = await pool.query('SELECT status, source FROM memberships WHERE user_id = $1', [kase.userId]);
       assert.equal(rows.length, 1);
       assert.deepEqual(rows[0], { status: 'active', source: 'purchase' });
+    } finally {
+      await kase.cleanup();
+    }
+  });
+
+  await t.test('every membership change is auditable and an adjustment names its author', async () => {
+    const kase = await makeCase();
+    const membershipId = randomUUID();
+    await pool.query(
+      `INSERT INTO memberships (id, user_id, plan_version_id, starts_at, ends_at, source, order_id)
+       VALUES ($1,$2,$3,'2026-11-01T00:00:00.000Z','2026-12-01T00:00:00.000Z','purchase',$4)`,
+      [membershipId, kase.userId, kase.planId, await kase.order()],
+    );
+    const event = (overrides: Record<string, unknown> = {}) =>
+      pool.query(
+        `INSERT INTO membership_events
+           (id, user_id, membership_id, plan_version_id, action, actor_id, source, reason, period_start, period_end, idempotency_key)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+        [
+          randomUUID(),
+          overrides.userId ?? kase.userId,
+          overrides.membershipId === undefined ? membershipId : overrides.membershipId,
+          kase.planId,
+          overrides.action ?? 'grant',
+          overrides.actorId,
+          overrides.source ?? 'purchase',
+          overrides.reason ?? 'payOS payment verified',
+          overrides.periodStart === undefined ? '2026-11-01T00:00:00.000Z' : overrides.periodStart,
+          overrides.periodEnd === undefined ? '2026-12-01T00:00:00.000Z' : overrides.periodEnd,
+          overrides.idempotencyKey,
+        ],
+      );
+    try {
+      await event();
+      assert.match(await errorOf(() => event({ action: 'refund' })), /membership_events_action_check/, 'only the four known changes');
+      assert.match(await errorOf(() => event({ source: 'gateway' })), /membership_events_source_check/);
+      assert.match(await errorOf(() => event({ source: 'admin' })), /admin_has_actor/, 'an admin action with no author is not an audit');
+      assert.match(await errorOf(() => event({ periodStart: null })), /grant_has_period/, 'a grant says what it granted');
+      assert.match(await errorOf(() => event({ reason: 'ab' })), /membership_events_reason_check/);
+      assert.match(await errorOf(() => event({ reason: 'x'.repeat(600) })), /membership_events_reason_check/);
+
+      // A replayed fulfilment must not mint a second period, and the key that proves
+      // it was tried belongs to one account: two users may invent the same string.
+      await event({ action: 'renew', idempotencyKey: 'fulfilment-run-twice' });
+      assert.match(
+        await errorOf(() => event({ action: 'renew', idempotencyKey: 'fulfilment-run-twice' })),
+        /user_id_idempotency_key_key/,
+        'the same key cannot write a second event for one account',
+      );
+      const otherUserId = randomUUID();
+      await pool.query('INSERT INTO users (id, email) VALUES ($1, $2)', [otherUserId, `test-${otherUserId}@example.com`]);
+      try {
+        await event({
+          userId: otherUserId,
+          membershipId: null,
+          action: 'credit',
+          actorId: otherUserId,
+          source: 'admin',
+          reason: 'same key, different account',
+          periodStart: null,
+          periodEnd: null,
+          idempotencyKey: 'fulfilment-run-twice',
+        });
+        // A credit that changes no period is still readable: it names the plan it was
+        // measured against, which is what lets #91 explain an adjustment.
+        const { rows } = await pool.query(
+          "SELECT membership_id, plan_version_id = $1 AS names_plan FROM membership_events WHERE user_id = $2 AND action = 'credit'",
+          [kase.planId, otherUserId],
+        );
+        assert.equal(rows.length, 1);
+        assert.equal(rows[0].names_plan, true);
+        assert.equal(rows[0].membership_id, null);
+      } finally {
+        await pool.query('DELETE FROM membership_events WHERE user_id = $1', [otherUserId]);
+        await pool.query('DELETE FROM users WHERE id = $1', [otherUserId]);
+      }
     } finally {
       await kase.cleanup();
     }

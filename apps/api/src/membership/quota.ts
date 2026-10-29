@@ -129,13 +129,19 @@ function limitOf(value: unknown): number | null | undefined {
 
 /** Validates a plan_versions row into the shape quota needs. Returns null for a
  *  malformed, incomplete or non-active row so the caller fails closed rather than
- *  inventing an allowance. */
+ *  inventing an allowance.
+ *
+ *  `acceptRetired` is for an entitlement the user already owns: retiring an offer
+ *  stops new sales, it does not take back a period that was paid for. A `draft`
+ *  row is never readable either way - it was never sellable, so a period pointing
+ *  at one is a bug, not a grandfathered right. */
 export function planQuotaFromRow(
   row: Record<string, unknown> | null | undefined,
   window: { start: number; end: number },
+  acceptRetired = false,
 ): PlanQuota | null {
   if (!row) return null;
-  if (row.status !== 'active') return null;
+  if (row.status !== 'active' && !(acceptRetired && row.status === 'retired')) return null;
   if (!UUID.test(String(row.id ?? ''))) return null;
   if (!Number.isSafeInteger(window.start) || !Number.isSafeInteger(window.end) || window.end <= window.start) return null;
   const termDays = row.term_days === null || row.term_days === undefined ? null : Number(row.term_days);
@@ -174,7 +180,15 @@ function cleanUnits(units: Partial<Record<Metric, number>>): Partial<Record<Metr
 }
 
 /** Calendar windows are computed in Asia/Ho_Chi_Minh and stored as UTC instants,
- *  so a bucket boundary is the same instant for every replica. */
+ *  so a bucket boundary is the same instant for every replica. Exported because
+ *  the Free entitlement (#86) has to offer the same window the buckets count. */
+export function calendarMonthWindow(now: number): { start: number; end: number } {
+  const date = new Date(now + VN_OFFSET_MS);
+  const start = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1);
+  const end = Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1);
+  return { start: start - VN_OFFSET_MS, end: end - VN_OFFSET_MS };
+}
+
 function bucketWindow(kind: BucketPeriodKind, plan: PlanQuota, now: number): { start: number; end: number } {
   if (kind === 'membership_period') return { start: plan.periodStart, end: plan.periodEnd };
   const local = now + VN_OFFSET_MS;
@@ -182,10 +196,7 @@ function bucketWindow(kind: BucketPeriodKind, plan: PlanQuota, now: number): { s
     const start = Math.floor(local / DAY_MS) * DAY_MS;
     return { start: start - VN_OFFSET_MS, end: start + DAY_MS - VN_OFFSET_MS };
   }
-  const date = new Date(local);
-  const start = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1);
-  const end = Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1);
-  return { start: start - VN_OFFSET_MS, end: end - VN_OFFSET_MS };
+  return calendarMonthWindow(now);
 }
 
 function allowanceFor(metric: Metric, kind: BucketPeriodKind, plan: PlanQuota): number {

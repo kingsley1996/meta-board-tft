@@ -7,6 +7,7 @@ import { assistantRouter } from './assistant/index.ts';
 import { translateText } from './assistant/translate.ts';
 import { voiceRouter } from './voice.ts';
 import { authRouter, currentSessionUser, type AuthedRequest } from './auth-routes.ts';
+import { membershipRouter } from './membership/routes.ts';
 import { ensureAdminFromEnv, listAccountUsers, setUserRole } from './accounts.ts';
 import { ENTITY_TYPES } from './assistant/contracts.ts';
 import { loadCatalog } from './assistant/tools.ts';
@@ -340,6 +341,10 @@ app.put('/api/admin/settings/assistant', async (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+// Membership reads (task #86): the price list at /api/membership/catalog and the
+// account's own plan, balance and history at /api/me/*. #83 gates Coach on the same
+// resolveEntitlement this router reads, so the entitlement code lives in one place.
+app.use('/api', membershipRouter);
 // Resolve the signed-in user (if any) for assistant routes so conversations
 // attach to the account and history follows the user across devices.
 app.use('/api/assistant', async (req, _res, next) => {

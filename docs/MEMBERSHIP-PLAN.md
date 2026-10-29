@@ -1,7 +1,7 @@
 # Plan triển khai hội viên MetaBoard
 
 Ngày lập: 2026-10-29.
-Trạng thái: đã chốt #79, hoàn thành payment provider layer #97, schema membership/usage #80, core quota reserve–settle #81 và cost instrumentation #82; chưa có route HTTP nào đọc các bảng mới, chưa mount quota/checkout/spend meter và chưa mở thanh toán thật.
+Trạng thái: đã chốt #79, hoàn thành payment provider layer #97, schema membership/usage #80, core quota reserve–settle #81, cost instrumentation #82 và membership lifecycle + API đọc #86; bốn route đọc membership/usage đã mount ở `/api`, nhưng chưa route AI/voice nào resolve entitlement hay trừ quota, chưa mount spend meter và chưa mở thanh toán thật.
 
 ## 1. Mục tiêu và phạm vi
 
@@ -98,12 +98,13 @@ Giữ burst/IP protection riêng với allowance. Cookie không còn là nguồn
 
 Additive schema và migration có kiểm tra. Đồng bộ schema cho DB mới và upgrade DB hiện có; không tạo migration framework tổng quát cho riêng tính năng này.
 
-Đã triển khai ở #80 trong [schema.sql](../apps/api/src/schema.sql) và kiểm bằng [membership-schema.test.ts](../apps/api/src/membership-schema.test.ts) trên PostgreSQL dev (12 case): apply mới, apply lại lần hai không lỗi, và các invariant dưới đây do DB chứ không do code giữ.
+Đã triển khai ở #80 và #86 trong [schema.sql](../apps/api/src/schema.sql) và kiểm bằng [membership-schema.test.ts](../apps/api/src/membership-schema.test.ts) trên PostgreSQL dev (13 case): apply mới, apply lại lần hai không lỗi, và các invariant dưới đây do DB chứ không do code giữ.
 
 | Entity đã có | Dữ liệu và invariant |
 | --- | --- |
 | `plan_versions` | code/version, integer VND, term, allowances, execution limits; một `active` mỗi code; trigger `plan_versions_keep_history` chặn đổi giá/quota hoặc xoá một offer đã có order/membership/bucket |
 | `memberships` | User, plan version, nguồn order/grant, `[starts_at, ends_at)`, `active/revoked`; riêng với `role`; `memberships_order_idx` để một order không mint hai kỳ |
+| `membership_events` | Audit append-only cho mỗi `grant/renew/revoke/credit`: reason 3-500 ký tự, `admin_has_actor` buộc action của admin nêu tên người làm, `grant_has_period` buộc một kỳ được cấp nêu snapshot `[period_start, period_end]`, `UNIQUE (user_id, idempotency_key)` scope theo account để một fulfilment chạy hai lần không mint hai kỳ |
 | `payment_orders` | Owner, unique reference, amount/currency, snapshot, deadline, trạng thái; pin provider/account ID và external checkout ID từ lúc tạo |
 | `payment_events` | Pin provider/account, gateway transaction id (text, không parse), bank `transaction_reference`, sha256 digest, result; unique theo bank reference chống cấp đôi giữa webhook và reconciliation; `payment_events_granted_is_reconcilable`/`granted_has_order` buộc thiếu reference ở lại `review` |
 | `usage_buckets` | User, metric, period kind, allowance/consumed/reserved integer; `usage_buckets_balance_never_negative` nên số dư không bao giờ âm kể cả khi settle sai |
@@ -145,6 +146,20 @@ Nguyên tắc bảo thủ: unknown không phải free. `chargeForFailure` chỉ 
 Phủ đường spend được kiểm bằng chính đường gọi: mọi LLM spend đi qua `generateAssistantAnswer` (ba adapter), mọi voice spend đi qua vòng failover của `transcribeWithFailover` và `synthSpeechChunk`, nên test lặp qua 3 adapter + 6 provider STT + cả hai engine TTS (vi: Flux với VieNeu dự phòng, en: Deepgram Aura-2) và xác nhận mỗi bước mở line trước fetch, đóng với `audio_second`/`character`/token tương ứng; Tool loop và background extraction được phủ theo vì chúng gọi lại đúng mấy hàm đó. Chain Deepgram 429 → Groq thành công để lại đúng hai attempt: bước bị từ chối mang `charged:false` và không để lại charge nào, bước giao hàng bill clip một lần.
 
 #82 chưa mount vào route nào: tích hợp #83/#84/#85 chỉ tạo `createSpendMeter(requestId, { tariff })` và truyền vào tham số `meter` tùy chọn đã có sẵn. Thay đổi schema chỉ là additive/idempotent, dev đã re-apply `schema.sql`; production migration vẫn chưa được phép.
+
+### Membership lifecycle
+
+Module [lifecycle.ts](../apps/api/src/membership/lifecycle.ts) là bản implement đầu tiên của quyền và kỳ hạn (task #86); [lifecycle.test.ts](../apps/api/src/membership/lifecycle.test.ts) kiểm 17 case trên PostgreSQL dev, ba case trong số đó gọi HTTP thật qua router.
+
+Trạng thái kỳ hạn suy ra từ đồng hồ, không từ cron: `resolveEntitlement(userId, now)` đọc `[starts_at, ends_at)` của mọi kỳ và tự dẫn `scheduled`/`expired`, nên một kỳ đã kết thúc ngừng cấp quyền ngay trong request nhận ra nó — không có bước nào phải "chuyển về Free" và cũng không có giây nào cron chạy muộn làm đổi kết quả. `active` và `revoked` là hai giá trị duy nhất được ghi. Quyền chỉ tồn tại khi `planQuotaFromRow` đọc được gói của chính kỳ đó: gói draft hoặc malformed trả `unavailable` (HTTP 503) chứ không giáng user xuống Free, vì số tiền đã trả trở nên không giải thích được; gói `retired` thì ngược lại, vẫn honour kỳ nó đã bán (`acceptRetired`) trong khi `grantPeriod` từ chối mint thêm kỳ mới trên đó. Một kỳ chưa tới hạn vẫn không cho tiêu gì, và `nextPeriodStartsAt` cho UI nói "Plus bắt đầu sau 4 ngày".
+
+Free fallback là một dòng `plan_versions` `active` tra theo code cấu hình được (`MEMBERSHIP_FREE_PLAN_CODE`, mặc định `free`) với window là tháng lịch Asia/Ho_Chi_Minh tính bằng `calendarMonthWindow`; không có dòng active nào nghĩa là chưa có gói để bán, và câu trả lời là 503 chứ không phải một allowance bịa ra. Vì `usage_buckets` unique theo `(user_id, metric, period_kind, period_start)`, bucket tháng lịch dùng chung giữa các plan version: thời gian paid không cộng thêm và không reset phần Free đã dùng trong cùng tháng (đã kiểm bằng một lượt Free tiêu trước khi mua rồi refund).
+
+`grantPeriod` chạy trong một transaction khoá row `users` của account (`FOR UPDATE`), nên hai webhook xác minh cùng giây xếp hàng chứ không cùng nối đuôi sau một `MAX(ends_at)` cũ. Kỳ mới bắt đầu sau kỳ cuối còn hiệu lực; nếu không còn coverage thì bắt đầu lúc xác minh — mua sớm không bao giờ biến hai lần mua thành hai allowance 150 lượt chạy song song, và `action` ghi `grant` hay `renew` đúng theo khoảng nối đó. Order phải `paid`, đúng account, đúng plan và chỉ mint tối đa một kỳ (hoạt động cả khi caller không mang idempotency key, nhờ `memberships_order_idx`). `revokePeriod` kết thúc đúng một kỳ và không dịch các kỳ mua sau: tự động trừ lại thời gian của những gì user đã tiêu là quyết định #6 để cho manual review, không phải việc của refund.
+
+Audit sống ở `membership_events`: mỗi grant/renew/revoke/credit một row append-only, reason tối thiểu 3 ký tự, actor bắt buộc với mọi action `admin`, snapshot `[period_start, period_end]` cho action `grant`, và key unique theo account chứ không toàn bàn — hai người có quyền nghĩ ra cùng một chuỗi. `memberships.source` trả lời "kỳ này mua hay được cấp", `membership_events.source` trả lời "ai cho phép": `purchase` / `admin` / `system`. Lifecycle không chạm `users.role` và không xoá `assistant_conversations` (đã kiểm), nên hết hạn hoặc refund không làm mất lịch sử đọc.
+
+Bốn route đọc trong [routes.ts](../apps/api/src/membership/routes.ts) mount tại `/api`: `membership/catalog` là bảng giá public (`public, max-age=60, must-revalidate`, không một byte dữ liệu account, offer `term_days NULL` hiển thị nhưng `buyable: false` vì fallback tier không có kỳ để mua); `me/membership`, `me/usage`, `me/membership/history` là `no-store` + `Vary: Cookie` vì một số dư đọc từ cache là một bug quota. `me/usage` trả theo đúng tên metric của ledger (`chat`, `stt_seconds`, `tts_characters`) kèm `chatToday`, `limits` và `requestsInFlight`; `remaining = allowance - consumed - reserved` vì lượt đang bay không còn để tiêu. `me/membership/history` đọc bảng của chính account nên không cần entitlement: entitlement không đọc được là 503 ở hai route kia, còn history vẫn trả 200 danh sách rỗng — che một kỳ đã trả tiền để phản ánh lỗi của service là sai theo hướng ngược lại. #87 là bên gọi `grantPeriod` sau khi webhook được xác minh; #83-#85 là bên gọi `resolveEntitlement` rồi `quota.reserve`.
 
 ### Ownership lịch sử
 
@@ -216,9 +231,9 @@ State dự kiến: `pending`, `paid`, `expired`, `review`, `refund_pending`, `re
 
 Các vị trí hiện có đã khảo sát; module mới chỉ tạo khi bước tương ứng cần.
 
-- [Schema](../apps/api/src/schema.sql): membership/payment/usage tables và constraints đã có từ #80; [seed offer](../apps/api/seed/membership-plans.ts) tạo hai plan_versions draft. [quota.ts](../apps/api/src/membership/quota.ts) (#81) và [cost.ts](../apps/api/src/membership/cost.ts) (#82) là hai module đọc/ghi ledger; #86 và #87 vẫn chưa có code.
-- [Role account](../apps/api/src/accounts.ts#L10): giữ nguyên user/admin, bổ sung membership riêng.
-- [API mounting](../apps/api/src/index.ts#L342): auth/entitlement boundaries cho assistant và voice; payment/webhook/admin routes.
+- [Schema](../apps/api/src/schema.sql): membership/payment/usage tables và constraints đã có từ #80, thêm `membership_events` ở #86; [seed offer](../apps/api/seed/membership-plans.ts) tạo hai plan_versions draft. [quota.ts](../apps/api/src/membership/quota.ts) (#81) và [cost.ts](../apps/api/src/membership/cost.ts) (#82) là hai module đọc/ghi ledger; [lifecycle.ts](../apps/api/src/membership/lifecycle.ts) (#86) resolve entitlement, cấp và thu hồi kỳ hạn; [routes.ts](../apps/api/src/membership/routes.ts) (#86) là API đọc. #87 vẫn chưa có code.
+- [Role account](../apps/api/src/accounts.ts#L10): giữ nguyên user/admin, bổ sung membership riêng. `grantPeriod`/`revokePeriod` không kiểm role — gate admin thuộc route #91, không thuộc module kỳ hạn.
+- [API mounting](../apps/api/src/index.ts#L348): `app.use('/api', membershipRouter)` cho catalog và `/api/me/*`; auth/entitlement boundaries cho assistant và voice vẫn chờ #83-#85, payment/webhook/admin routes chờ #87/#90/#91.
 - [Assistant query](../apps/api/src/assistant/index.ts#L102): account quota, request identity, SSE, persistence và settlement.
 - [Rate limit](../apps/api/src/assistant/rate-limit.ts#L16): bỏ quota ngày theo cookie khi thay bằng account buckets; giữ execution/burst protection, không giữ hai hệ thống số dư.
 - [Inference trace](../apps/api/src/assistant/orchestrator.ts#L1110) và [provider boundary](../apps/api/src/assistant/provider.ts): durable spend instrumentation tách khỏi best-effort tracing đã có ở #82 — ba adapter nhận `meter` tùy chọn; việc của #83 là tạo `usage_requests` và truyền meter.
@@ -228,7 +243,7 @@ Các vị trí hiện có đã khảo sát; module mới chỉ tạo khi bước
 - [Chat voice client](../apps/web/components/assistant/assistant-chat.tsx#L300): voice turn, chunk refs, cache, quota errors và prefetch.
 - [Profile](../apps/web/app/[lang]/profile/page.tsx#L18) và web API/messages: membership/usage/order display, EN/VI.
 
-API mới dự kiến: plan catalog, membership/usage me, create/read orders, request status và admin membership/payment review. Chốt contracts ở các task backend, không coi các route này đã tồn tại.
+API đã có từ #86: `GET /api/membership/catalog`, `GET /api/me/membership`, `GET /api/me/usage`, `GET /api/me/membership/history`. Còn dự kiến: create/read orders, request status và admin membership/payment review. Chốt contracts ở các task backend, không coi các route này đã tồn tại.
 
 Đọc guide Next.js cài trong repo trước sửa routes/components. Không thay CI/CD hoặc shared infra như một bước ngầm của feature.
 
@@ -242,7 +257,7 @@ Mock cùng token/font/assets thật trước code UI, EN/VI desktop/mobile 320px
 - Checkout: QR, đúng số tiền/reference/deadline, pending/paid/expired/review/refund, bounded refresh và manual refresh.
 - Admin: term grants, adjustments, payment review, known/unknown cost, stale requests và audit; không mở rộng account role screen.
 
-Personal APIs/pages không cache public; pricing public có thể cache theo catalog approved không chứa dữ liệu account. Giữ keyboard/focus/mobile và không phá caching phần tra cứu.
+Personal APIs/pages không cache public — `/api/me/*` đã là `no-store` + `Vary: Cookie` từ #86; pricing public có thể cache theo catalog approved không chứa dữ liệu account (catalog hiện cache 60 giây và chỉ liệt kê plan đang `active`). Giữ keyboard/focus/mobile và không phá caching phần tra cứu.
 
 ## 9. Unit economics gate
 
@@ -292,7 +307,7 @@ Thứ tự thực tế: foundation/metering trước; policy và UI mock có th�
 - [x] #81 Quota concurrent/idempotent/recovery được kiểm (17 case trên PostgreSQL dev: lượt cuối tranh nhau, replay/conflict/duplicate, locked khác exhausted, ngày rolled theo Asia/Ho_Chi_Minh, settle đúng một lần, hai recovery worker không cùng claim, mọi đường lỗi trả `unavailable` thay vì cho qua; chưa mount vào route nào).
 - [x] #82 Cost instrumentation không bỏ sót đường spend (11 case trong `cost.test.ts`: 7 case ledger trên PostgreSQL dev + 4 case phủ đường gọi — 3 adapter LLM, 6 provider STT, cả hai engine TTS, chain failover và fail-closed khi ledger không ghi được; typecheck và 393 API test pass; chưa route nào tạo meter, schema mới cần re-apply `schema.sql`, chưa chạy prod migration).
 - [x] #97 Contract/registry/payOS/SePay adapters và switch/signature tests qua; HTTP integration còn #87.
-- [ ] #86 Membership và kỳ hạn được kiểm.
+- [x] #86 Membership và kỳ hạn được kiểm (17 case trong `lifecycle.test.ts` trên PostgreSQL dev, 3 case trong số đó gọi HTTP thật: entitlement đọc theo đồng hồ nên kỳ hết hạn ngừng cấp quyền mà không cần cron, gói không đọc được là 503 chứ không phải Free, retired vẫn honour kỳ đã bán nhưng không bán thêm, renewal nối sau `MAX(ends_at)` chứ không chồng allowance, hai webhook cùng giây vẫn xếp hàng, một order chỉ mint một kỳ, refund thu hồi đúng một kỳ và không đụng `users.role`/lịch sử, `/api/me/*` là `no-store` còn catalog cache được; typecheck và 411 API test pass. Bảng mới `membership_events` cần re-apply `schema.sql` ở dev, chưa chạy prod migration; #87/#83-#85 là bên gọi `grantPeriod` và `resolveEntitlement`.)
 - [ ] #83 Text/SSE/history ownership được kiểm.
 - [ ] #84 STT linked turn được kiểm.
 - [ ] #85 TTS/chunk/cache/prefetch được kiểm.
