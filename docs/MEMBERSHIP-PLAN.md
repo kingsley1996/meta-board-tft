@@ -1,7 +1,7 @@
 # Plan triển khai hội viên MetaBoard
 
 Ngày lập: 2026-10-29.
-Trạng thái: đã chốt #79 và hoàn thành payment provider layer #97; membership/quota/checkout HTTP còn theo todo, chưa mở thanh toán thật.
+Trạng thái: đã chốt #79, hoàn thành payment provider layer #97 và schema membership/usage #80; chưa có code nào đọc các bảng mới, chưa mount quota/checkout HTTP và chưa mở thanh toán thật.
 
 ## 1. Mục tiêu và phạm vi
 
@@ -98,15 +98,20 @@ Giữ burst/IP protection riêng với allowance. Cookie không còn là nguồn
 
 Additive schema và migration có kiểm tra. Đồng bộ schema cho DB mới và upgrade DB hiện có; không tạo migration framework tổng quát cho riêng tính năng này.
 
-| Entity dự kiến | Dữ liệu và invariant |
+Đã triển khai ở #80 trong [schema.sql](../apps/api/src/schema.sql) và kiểm bằng [membership-schema.test.ts](../apps/api/src/membership-schema.test.ts) trên PostgreSQL dev (12 case): apply mới, apply lại lần hai không lỗi, và các invariant dưới đây do DB chứ không do code giữ.
+
+| Entity đã có | Dữ liệu và invariant |
 | --- | --- |
-| `plan_versions` | Immutable code/version, integer VND, term, allowances, execution limits; order giữ offer snapshot |
-| `memberships` | User, plan version, nguồn order/grant, starts/ends, trạng thái; riêng với role |
+| `plan_versions` | code/version, integer VND, term, allowances, execution limits; một `active` mỗi code; trigger `plan_versions_keep_history` chặn đổi giá/quota hoặc xoá một offer đã có order/membership/bucket |
+| `memberships` | User, plan version, nguồn order/grant, `[starts_at, ends_at)`, `active/revoked`; riêng với `role`; `memberships_order_idx` để một order không mint hai kỳ |
 | `payment_orders` | Owner, unique reference, amount/currency, snapshot, deadline, trạng thái; pin provider/account ID và external checkout ID từ lúc tạo |
-| `payment_events` | Pin provider/account, gateway event/transaction identity, bank transaction reference, verified digest, processing result; dedupe và audit |
-| `usage_buckets` | User, metric, period, allowance, consumed, reserved; unique bucket, integer units không âm |
-| `usage_requests` | User-scoped idempotency key, payload hash, linked turn, bucket snapshot, reservation, outcome, recovery deadline, result reference |
-| `usage_attempts` | Request, purpose/provider/model, dispatch state, retries, units/cost/currency/tariff version, known/unknown, timing/outcome |
+| `payment_events` | Pin provider/account, gateway transaction id (text, không parse), bank `transaction_reference`, sha256 digest, result; unique theo bank reference chống cấp đôi giữa webhook và reconciliation; `payment_events_granted_is_reconcilable`/`granted_has_order` buộc thiếu reference ở lại `review` |
+| `usage_buckets` | User, metric, period kind, allowance/consumed/reserved integer; `usage_buckets_balance_never_negative` nên số dư không bao giờ âm kể cả khi settle sai |
+| `usage_requests` | Idempotency key unique theo user, payload sha256, linked turn, outcome, deadline recovery; `completed_is_settled` và `dispatched_has_time` buộc trạng thái có bằng chứng thời gian |
+| `usage_reservations` | Mỗi request giữ chỗ trên từng bucket một lần; request xoá thì reservation mất, bucket còn lại |
+| `usage_attempts` | Request/provider/model, dispatch state, retry số, units/cost micro-VND/tariff version; `cost_has_tariff` giữ nguyên tắc "không có số nào mà không rõ bảng giá", NULL là unknown chứ không phải 0 |
+
+Ledger tham chiếu `users` bằng NO ACTION: không xoá được tài khoản còn order/quota, và xoá lịch sử chat không chạm tới ledger (đã kiểm). Price/quota pilot là data, seed bằng `npm run seed:membership`; cả hai row để `draft` — bật `active` là gate #92/#95, code phải fail closed khi chưa có offer active.
 
 Financial/quota ledger không phụ thuộc reasoning traces, conversation FK cascade hoặc retention 30 ngày của traces. Xoá chat không hoàn quota hoặc xoá payment events. Ledger không cần raw prompt, raw audio hay secrets.
 
@@ -195,7 +200,7 @@ State dự kiến: `pending`, `paid`, `expired`, `review`, `refund_pending`, `re
 
 Các vị trí hiện có đã khảo sát; module mới chỉ tạo khi bước tương ứng cần.
 
-- [Schema](../apps/api/src/schema.sql): membership/payment/usage tables và constraints.
+- [Schema](../apps/api/src/schema.sql): membership/payment/usage tables và constraints đã có từ #80; [seed offer](../apps/api/seed/membership-plans.ts) tạo hai plan_versions draft. Các module #81/#86/#87 là chỗ đầu tiên đọc chúng.
 - [Role account](../apps/api/src/accounts.ts#L10): giữ nguyên user/admin, bổ sung membership riêng.
 - [API mounting](../apps/api/src/index.ts#L342): auth/entitlement boundaries cho assistant và voice; payment/webhook/admin routes.
 - [Assistant query](../apps/api/src/assistant/index.ts#L102): account quota, request identity, SSE, persistence và settlement.
@@ -265,7 +270,7 @@ Thứ tự thực tế: foundation/metering trước; policy và UI mock có th�
 ### Checklist bàn giao
 
 - [x] #79 Chính sách, gateway và phạm vi thử nghiệm được chốt; merchant/live offer vẫn chờ các gate sau.
-- [ ] #80 Schema và local migration được kiểm.
+- [x] #80 Schema và local migration được kiểm (fresh apply + re-apply + 12 invariant case trên PostgreSQL dev; offer để draft, chưa chạy prod migration).
 - [ ] #81 Quota concurrent/idempotent/recovery được kiểm.
 - [ ] #82 Cost instrumentation không bỏ sót đường spend.
 - [x] #97 Contract/registry/payOS/SePay adapters và switch/signature tests qua; HTTP integration còn #87.
