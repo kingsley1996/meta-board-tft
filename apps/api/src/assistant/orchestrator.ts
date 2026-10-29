@@ -58,6 +58,7 @@ import {
 import { analyzeStrategy, buildStrategyPlan, isStrategyQuestion } from './strategy.ts';
 import { parseGeneratedAnswer } from './validate.ts';
 import { withInferenceSlot } from './rate-limit.ts';
+import type { SpendMeter } from '../membership/cost.ts';
 import { assistantLog } from './logger.ts';
 import { ASSISTANT_TOOLS } from './tool-registry.ts';
 import { runToolLoop, type ToolFailure, type ToolLoopResult } from './tool-loop.ts';
@@ -928,6 +929,10 @@ async function answerAssistantImpl(
     // Streaming hook: receives decoded prose of the LLM answer field as it
     // generates. Deterministic paths never call it.
     onAnswerDelta?: (chunk: string) => void;
+    // Cost ledger (task #83): every model call of this turn — tool planning,
+    // regeneration, the answer — is metered under the one ledger request the route
+    // reserved, so internal retries cost us money but never cost the user a turn.
+    meter?: SpendMeter;
   } = {}
 ): Promise<Omit<AssistantResponse, 'requestId' | 'mentions'>> {
   const generate = deps.generate ?? generateAssistantAnswer;
@@ -1139,6 +1144,7 @@ async function answerAssistantImpl(
 
     return generate({
       ...providerRequest,
+      ...(deps.meter ? { meter: deps.meter } : {}),
       trace: (event) => {
         traceStep({
           status: event.type === 'retry' ? 'error' : undefined,

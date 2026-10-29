@@ -116,15 +116,6 @@ export const ASSISTANT_SETTING_SPECS: readonly AssistantSettingSpec[] = [
     placeholder: '12',
   },
   {
-    env: 'ASSISTANT_DAILY_REQUESTS',
-    label: 'Requests per client per day',
-    hint: 'Caps a single visitor’s daily spend.',
-    kind: 'int',
-    min: 1,
-    max: 100_000,
-    placeholder: '200',
-  },
-  {
     env: 'ASSISTANT_TOOL_RESULT_CHARS',
     label: 'Tool result budget (chars)',
     hint: 'How much comp/item data one tool round may put in the prompt. Bigger prompt, slower and more expensive answers.',

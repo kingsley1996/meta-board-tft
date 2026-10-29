@@ -153,6 +153,9 @@ export type AssistantQueryRequest = {
   message: string;
   lang: Lang;
   conversationId?: string;
+  // Per-turn idempotency key. Retrying a turn that may already have been answered
+  // reuses it, so the server replays the stored answer instead of charging twice.
+  requestKey?: string;
   history: { role: 'user' | 'assistant'; content: string }[];
   context: {
     pageType: 'comp' | 'champion' | 'item' | 'augment' | 'assistant' | null;
@@ -193,12 +196,17 @@ export async function askAssistant(body: AssistantQueryRequest, signal?: AbortSi
   return res.json();
 }
 
+// Errors the server can emit *inside* the stream, after the headers were sent. Denials
+// (quota, sign-in) always arrive as a normal JSON response before the stream opens.
 const STREAM_FAILURE_STATUS: Record<string, number> = {
   invalid_context: 400,
   invalid_request: 400,
   rate_limited: 429,
   assistant_disabled: 503,
   unavailable: 503,
+  assistant_unavailable: 503,
+  provider_timeout: 504,
+  provider_error: 502,
   timeout: 504,
 };
 

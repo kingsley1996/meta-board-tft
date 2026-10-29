@@ -72,12 +72,17 @@ File chính:
 
 - Route nhận `AssistantQueryInput` (`message`, `lang`, `history`, `context{entityIds, compSlug}`),
   sinh `requestId` + `conversationId`, gắn `AbortController` (client ngắt connection → abort).
-- **Rate limit** `checkRateLimit` (`rate-limit.ts`): theo `clientId(req)` (client/IP, không phải
-  conversation), mặc định `ASSISTANT_RATE_LIMIT=12` request/phút và `ASSISTANT_DAILY_REQUESTS=200`
-  /ngày; vượt → HTTP 429 kèm `Retry-After`.
+- **Tài khoản và quota** (`index.ts`, task #83): `requireUser` → 401 `unauthenticated` khi chưa
+  đăng nhập — lịch sử chat thuộc account nên cookie trình duyệt không còn đủ. `checkRateLimit`
+  (`rate-limit.ts`) chỉ còn burst theo `clientId(req)` (cookie `mb_assistant`, chỉ chống flood,
+  không phải số dư), mặc định `ASSISTANT_RATE_LIMIT=12` request/phút → 429 `rate_limited`. Số dư
+  nằm ở ledger theo account: `resolveEntitlement`
+  (503 `membership_unavailable` nếu plan không đọc được) → `reserve` một lượt `coach_turn`
+  theo `requestKey` (idempotency) trước mọi lời gọi model, settle sau khi persist.
 - **Streaming**: nếu client yêu cầu SSE → header `text/event-stream`, sự kiện `delta` (text prose
   của trường `answer` khi đang sinh) rồi `final` (response đầy đủ); keepalive `: ping` mỗi 5s.
-  Non-streaming → JSON một lần.
+  Non-streaming → JSON một lần. Header SSE chỉ mở sau khi `reserve` và `markDispatched` thành
+  công, nên mọi denial luôn là JSON thường trước khi stream bắt đầu.
 - `writeReasoningLog = createReasoningLogWriter(conversationId, requestId)` — mọi bước ghi vào
   `assistant_reasoning_logs` kiểu **fire-and-forget** (`void insert(...).catch(...)`,
   `assistant-reasoning-store.ts`), lỗi insert chỉ log, không bao giờ làm hỏng câu trả lời.
@@ -341,14 +346,16 @@ Mỗi request ghi dãy step vào `assistant_reasoning_logs` (JSONB `details`, re
 | `ASSISTANT_PROVIDER` | `ollama` | google / openai / ollama |
 | `ASSISTANT_MODEL`, `OPENAI_MODEL`, `GOOGLE_MODEL` | — | model theo provider |
 | `OPENAI_BASE_URL`, `OPENAI_API_KEY` | — | gateway OpenAI-compatible |
-| `ASSISTANT_RATE_LIMIT` | 12 | request/phút/conversation |
-| `ASSISTANT_DAILY_REQUESTS` | 200 | cap ngày/conversation |
+| `ASSISTANT_RATE_LIMIT` | 12 | burst request/phút/client — không phải số dư |
 | `ASSISTANT_MAX_CONCURRENCY` | 2 | slot gọi model đồng thời/instance |
 | `ASSISTANT_MAX_TOOL_ROUNDS` / `MAX_TOOL_CALLS` / `MAX_TOOL_CALLS_PER_ROUND` | 3 / 5 / 2 | trần tool loop |
 | `ASSISTANT_TOOL_TIMEOUT_MS` | 15000 | timeout một tool |
 | `ASSISTANT_TOOL_RESULT_CHARS` | 12000 | trần ký tự một tool message trong context |
 | `ASSISTANT_REQUEST_TIMEOUT_MS` | 90000 | deadline provider |
 | `TTS_*`, `STT_*` | — | voice pipeline — xem `docs/ai-assistant/voice.md` |
+
+Quota chat theo ngày và theo kỳ không còn là biến env: đọc từ `plan_versions` của account
+(task #83). Admin sửa giá trị trong `/admin/settings` cũng không đổi được số dư của ai.
 
 ---
 

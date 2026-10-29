@@ -4,6 +4,7 @@ import { findEntityMentions, normalize, normalizeSpaced } from './entities.ts';
 import { isPromptInjection } from './orchestrator.ts';
 import { generateAssistantAnswer } from './provider.ts';
 import { withInferenceSlot } from './rate-limit.ts';
+import type { SpendMeter } from '../membership/cost.ts';
 import { listComps } from '../comps.ts';
 import { loadCatalog } from './tools.ts';
 import { queueUnresolvedEntityMentions } from './entity-alias-store.ts';
@@ -56,7 +57,11 @@ export function parseEntityExtraction(
   return candidates;
 }
 
-export async function captureUnresolvedEntityMentions(request: AssistantRequest): Promise<void> {
+/** Alias extraction runs after the answer is delivered. It is billed as an attempt
+ *  under the turn that produced the message — the same ledger request, so a background
+ *  call costs us money but never a second user turn. Without a meter nothing is
+ *  recorded, which is why the route hands it the turn's meter. */
+export async function captureUnresolvedEntityMentions(request: AssistantRequest, meter?: SpendMeter): Promise<void> {
   if (isPromptInjection(request.message)) return;
   const result = await withInferenceSlot(() =>
     generateAssistantAnswer({
@@ -65,6 +70,7 @@ export async function captureUnresolvedEntityMentions(request: AssistantRequest)
       maxOutputTokens: 250,
       signal: new AbortController().signal,
       format: 'json',
+      ...(meter ? { meter } : {}),
     })
   );
   const extracted = parseEntityExtraction(result.text, request.message);

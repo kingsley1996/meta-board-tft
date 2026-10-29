@@ -59,6 +59,14 @@ function makeId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
 }
 
+// The ledger's idempotency key: 8-64 characters from [A-Za-z0-9_-], so the
+// Math.random fallback is base-36 digits only (no decimal point).
+function newRequestKey(): string {
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
 // The server owns the chunk size it will synthesize; anything implausible falls
 // back to the size the local VieNeu engine answers in about a second.
 function chunkLimitFrom(value: unknown): number {
@@ -119,7 +127,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [retryText, setRetryText] = useState<string | null>(null);
+  // The turn that failed, with the key it was sent under: retrying reuses the key so
+  // a turn the server already completed is replayed instead of charged again.
+  const [retryTurn, setRetryTurn] = useState<{ text: string; requestKey: string } | null>(null);
   const [feedback, setFeedback] = useState<Record<string, boolean>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -251,8 +261,31 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
 
   function errorText(caught: unknown): string {
     if (caught instanceof AssistantApiError) {
-      if (caught.status === 429) return t.errors.rate;
-      if (caught.code === 'assistant_disabled') return t.errors.disabled;
+      switch (caught.code) {
+        case 'unauthenticated':
+          return t.errors.signIn;
+        case 'quota_exhausted':
+          return t.errors.quota;
+        case 'daily_cap':
+          return t.errors.dailyCap;
+        case 'feature_locked':
+          return t.errors.locked;
+        case 'period_expired':
+          return t.errors.expired;
+        case 'request_in_progress':
+          return t.errors.inProgress;
+        case 'request_conflict':
+          return t.errors.conflict;
+        case 'membership_unavailable':
+          return t.errors.membership;
+        case 'assistant_disabled':
+          return t.errors.disabled;
+        case 'rate_limited':
+        case 'too_many_in_flight':
+          return t.errors.rate;
+        default:
+          break;
+      }
       if (caught.status === 504) return t.errors.timeout;
     }
     return t.errors.generic;
@@ -419,22 +452,24 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     await playWithServerTts(spoken, status, seq);
   }
 
-  async function submit(raw: string, addUser = true, speakResponse = false) {
+  async function submit(raw: string, addUser = true, speakResponse = false, retryKey?: string) {
     const text = raw.trim();
     if (!text || loading) return;
     if (addUser) stopAnswerSpeech();
     setError(null);
-    setRetryText(null);
+    setRetryTurn(null);
     setSpeechError(null);
     if (addUser) {
       setMessages((current) => [...current, { id: makeId(), role: 'user', content: text }]);
       setInput('');
     }
     setLoading(true);
+    const turnKey = retryKey ?? newRequestKey();
     const request: AssistantQueryRequest = {
       message: text,
       lang,
       conversationId,
+      requestKey: turnKey,
       history: historyFor(messages, !addUser),
       context: { pageType: compSlug ? 'comp' : 'assistant', compSlug, entityIds: [] },
     };
@@ -480,7 +515,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     } catch (caught) {
       if (streamed) setMessages((current) => current.filter((message) => message.id !== streamId));
       setError(errorText(caught));
-      setRetryText(text);
+      setRetryTurn({ text, requestKey: turnKey });
       cueTomo('surprised');
     } finally {
       setLoading(false);
@@ -717,7 +752,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     setError(null);
     setVoiceError(null);
     setSpeechError(null);
-    setRetryText(null);
+    setRetryTurn(null);
     setFeedback({});
     try {
       sessionStorage.removeItem(storageKey);
@@ -942,8 +977,12 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         {error ? (
           <div role="alert" className="flex flex-wrap items-center justify-between gap-2 border-t border-tier-s/40 bg-tier-s/10 px-4 py-2.5 text-sm text-fog">
             <span>{error}</span>
-            {retryText ? (
-              <button type="button" onClick={() => void submit(retryText, false)} className="smooth rounded-md border border-line bg-panel px-3 py-1 text-xs font-semibold hover:border-brand">
+            {retryTurn ? (
+              <button
+                type="button"
+                onClick={() => void submit(retryTurn.text, false, false, retryTurn.requestKey)}
+                className="smooth rounded-md border border-line bg-panel px-3 py-1 text-xs font-semibold hover:border-brand"
+              >
                 {t.retry}
               </button>
             ) : null}

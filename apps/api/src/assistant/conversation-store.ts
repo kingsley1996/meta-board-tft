@@ -24,10 +24,13 @@ export type AssistantConversationRow = {
 };
 
 /**
- * Create a new conversation or return existing one by ID.
- * Ownership matches the client cookie or, when signed in, the user account.
- * A signed-in user adopts a client-created conversation so the history follows
- * the account across devices.
+ * Create a new conversation or return the one this account already owns.
+ *
+ * Ownership is the account, not the browser (task #83): a conversation that
+ * already belongs to someone is never readable by whoever happens to hold the
+ * same cookie. Pre-sign-in guest rows have no owner, and continuing one adopts
+ * it for the account that was already using it — the old history is carried
+ * over instead of being deleted or handed to a stranger.
  */
 export async function getOrCreateConversation(
   conversationId: string | undefined,
@@ -38,8 +41,9 @@ export async function getOrCreateConversation(
   if (conversationId) {
     const existing = await pool.query<AssistantConversationRow>(
       `SELECT id, client_id, lang, title, created_at, updated_at FROM assistant_conversations
-       WHERE id = $1 AND (client_id = $2 OR ($3::uuid IS NOT NULL AND user_id = $3))`,
-      [conversationId, clientId, userId ?? null],
+       WHERE id = $1
+         AND (user_id = $2::uuid OR (user_id IS NULL AND client_id = $3))`,
+      [conversationId, userId ?? null, clientId],
     );
     if (existing.rows.length) {
       if (userId) {
@@ -50,7 +54,8 @@ export async function getOrCreateConversation(
       }
       return existing.rows[0];
     }
-    // Conversation exists but not owned by this client — create a new one instead of leaking.
+    // Conversation exists but not owned by this account — create a new one
+    // instead of leaking it.
     assistantLog('conversation_ownership_mismatch', {
       conversationId,
       clientId,
@@ -114,13 +119,14 @@ export async function getConversationHistory(
   limit = 6,
   userId?: string | null,
 ): Promise<AssistantMessageRow[]> {
-  // Verify ownership first (client cookie or signed-in user).
+  // Verify ownership first: the account it belongs to, or an unclaimed guest
+  // conversation on this exact browser.
   const owner = await pool.query<{ client_id: string; user_id: string | null }>(
     'SELECT client_id, user_id FROM assistant_conversations WHERE id = $1',
     [conversationId],
   );
   const row = owner.rows[0];
-  if (!row || (row.client_id !== clientId && (!userId || row.user_id !== userId))) {
+  if (!row || (row.user_id ? row.user_id !== userId : row.client_id !== clientId)) {
     return [];
   }
 
@@ -137,19 +143,24 @@ export async function getConversationHistory(
 }
 
 /**
- * List recent conversations for a client or signed-in user (most recently
- * updated first). Signed-in users see every conversation attached to their
- * account plus the ones created on this client.
+ * List recent conversations for one account (most recently updated first).
+ *
+ * A signed-in caller claims the guest conversations sitting on this browser as a
+ * side effect, so history made before sign-in follows the account instead of
+ * vanishing from the list. Rows already owned by someone else are never claimed.
  */
 export async function listConversations(
   clientId: string,
   limit = 20,
   userId?: string | null,
 ): Promise<AssistantConversationRow[]> {
+  if (userId) {
+    await pool.query('UPDATE assistant_conversations SET user_id = $2 WHERE user_id IS NULL AND client_id = $1', [clientId, userId]);
+  }
   const { rows } = await pool.query<AssistantConversationRow>(
     `SELECT id, client_id, lang, title, created_at, updated_at
      FROM assistant_conversations
-     WHERE client_id = $1 OR ($2::uuid IS NOT NULL AND user_id = $2)
+     WHERE user_id = $2::uuid OR ($2::uuid IS NULL AND user_id IS NULL AND client_id = $1)
      ORDER BY updated_at DESC
      LIMIT $3`,
     [clientId, userId ?? null, limit],
@@ -158,7 +169,8 @@ export async function listConversations(
 }
 
 /**
- * Delete a conversation and all its messages (cascade).
+ * Delete a conversation and all its messages (cascade). An account can also clear
+ * the unclaimed guest conversations on its own browser.
  */
 export async function deleteConversation(
   conversationId: string,
@@ -166,10 +178,24 @@ export async function deleteConversation(
   userId?: string | null,
 ): Promise<boolean> {
   const result = await pool.query(
-    `DELETE FROM assistant_conversations WHERE id = $1 AND (client_id = $2 OR ($3::uuid IS NOT NULL AND user_id = $3))`,
+    `DELETE FROM assistant_conversations
+     WHERE id = $1 AND (user_id = $3::uuid OR (user_id IS NULL AND client_id = $2))`,
     [conversationId, clientId, userId ?? null],
   );
   return (result.rowCount ?? 0) > 0;
+}
+
+/**
+ * The stored answer for a ledger request that already completed. A replayed turn
+ * is answered from here instead of generating a second one.
+ */
+export async function getAssistantMessage(messageId: string): Promise<AssistantMessageRow | null> {
+  const { rows } = await pool.query<AssistantMessageRow>(
+    `SELECT id, conversation_id, role, content, intent, mode, status, response, created_at
+     FROM assistant_messages WHERE id = $1 AND role = 'assistant'`,
+    [messageId],
+  );
+  return rows[0] ?? null;
 }
 
 /**

@@ -264,6 +264,9 @@ export type AssistantQueryInput = {
   message: string;
   lang: Lang;
   conversationId?: string;
+  // Per-turn idempotency key. A retry of the same turn must carry the same key so
+  // the ledger can hand back the answer it already produced instead of paying twice.
+  requestKey?: string;
   history: AssistantHistoryMessage[];
   context: AssistantContext;
 };
@@ -356,6 +359,9 @@ export type AssistantFeedback = {
 export type QueryValidation = { ok: true; value: AssistantQueryInput } | { ok: false; error: string };
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// The quota ledger requires an idempotency key of 8-200 characters. A client mints
+// one per turn; a UUID fits, so the same shape serves a hand-written tag.
+const REQUEST_KEY_PATTERN = /^[A-Za-z0-9_-]{8,64}$/;
 
 export function validateAssistantQuery(input: unknown): QueryValidation {
   if (!input || typeof input !== 'object') return { ok: false, error: 'body must be an object' };
@@ -372,6 +378,10 @@ export function validateAssistantQuery(input: unknown): QueryValidation {
 
   if (raw.conversationId !== undefined && (typeof raw.conversationId !== 'string' || !UUID_PATTERN.test(raw.conversationId))) {
     return { ok: false, error: 'conversationId must be a UUID' };
+  }
+
+  if (raw.requestKey !== undefined && (typeof raw.requestKey !== 'string' || !REQUEST_KEY_PATTERN.test(raw.requestKey))) {
+    return { ok: false, error: 'requestKey must be 8-64 characters from [A-Za-z0-9_-]' };
   }
 
   const history: AssistantHistoryMessage[] = [];
@@ -424,6 +434,7 @@ export function validateAssistantQuery(input: unknown): QueryValidation {
       message,
       lang,
       conversationId: raw.conversationId as string | undefined,
+      requestKey: raw.requestKey as string | undefined,
       history,
       context: {
         pageType: (pageType as AssistantPageType | null | undefined) ?? null,

@@ -47,7 +47,19 @@ const planIds: string[] = [];
 
 async function applySchema(): Promise<void> {
   if (schemaApplied) return;
-  await pool.query(await readFile(join(import.meta.dirname, '../schema.sql'), 'utf8'));
+  // Test files run as parallel processes and all of them can reach this DDL at once;
+  // Postgres picks one as the deadlock victim, and the script is idempotent, so
+  // retrying is enough.
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      await pool.query(await readFile(join(import.meta.dirname, '../schema.sql'), 'utf8'));
+      break;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (attempt >= 3 || !/deadlock|serialized|concurrent access/i.test(message)) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 80 * (attempt + 1)));
+    }
+  }
   schemaApplied = true;
 }
 
