@@ -549,8 +549,8 @@ curl -s https://&lt;api&gt;.onrender.com/api/health/ready</code></pre>
       <h3>Patch day</h3>
       <p>Thứ tự bắt buộc: dữ liệu static lên web <strong>trước</strong>, rồi mới refresh API — vì icon path trong
       Postgres trỏ vào <code>apps/web/public/tft</code>.</p>
-      <pre><code>npm run fetch-data &amp;&amp; npm run fetch-wisps &amp;&amp; npm run fetch-loot
-npm run fetch-comp-tips
+      <pre><code># ở repo crawler (private): npm run data:pull &amp;&amp; npm run verify
+# rồi về repo app:
 git add packages/shared/data apps/web/public/tft
 git commit -m "chore: patch data" &amp;&amp; git push</code></pre>
       <p>Đợi Vercel xanh, rồi cron 19:00 (hoặc gọi tay) refresh API.</p>

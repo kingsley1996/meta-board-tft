@@ -252,7 +252,7 @@ Không dùng LLM classifier trong MVP. Nếu rules không khớp nhưng có enti
 - Chuẩn hóa: lowercase, NFD bỏ dấu tiếng Việt, bỏ punctuation/khoảng trắng; giữ bản gốc để hiển thị.
 - Alias nguồn:
   - slug (`ahri-spellweaver`), api_name đã bỏ prefix (`DA_`, `TFT_Item_`), display name EN/VI.
-  - Item alias đã có trong `scripts/fetch-metatft.mjs` (`ITEM_ALIASES`, `EMBLEM_ALIASES`) — chuyển thành module dùng chung hoặc copy có kiểm soát.
+  - Item alias đã có trong script meta của repo crawler (`ITEM_ALIASES`, `EMBLEM_ALIASES`) — chuyển thành module dùng chung hoặc copy có kiểm soát.
   - Comp title/slug.
 - Nếu match >1: trả `needs_clarification` + danh sách lựa chọn; không tự chọn.
 - Stable ID trả về:
@@ -479,7 +479,7 @@ Không thay đổi layout/nav hiện có ngoài link mới. Không dựng global
 Không cần migration; thêm meta keys khi seed/refresh:
 
 - MetaTFT: `lib/meta.json.source` đã có `updated`, `fetchedAt`, `clusterId`, `queue`; `server/seed/seed.ts` ghi thành `metatft_updated`, `metatft_fetched_at`, `metatft_cluster_id`, `metatft_queue`.
-- TFT Academy: `scripts/fetch-tftacademy-tips.mjs` ghi sidecar `server/seed/tftacademy-source.json` với `retrievedAt`; seed ghi `tftacademy_retrieved_at`.
+- TFT Academy: script tips của repo crawler ghi sidecar `server/seed/tftacademy-source.json` với `retrievedAt`; seed ghi `tftacademy_retrieved_at`.
 - CommunityDragon: `synced_at` đã có trong `meta`.
 
 Assistant đọc các key này để hiển thị version/freshness. Không có timestamp thật thì bỏ `retrievedAt`, không bịa.
@@ -692,7 +692,7 @@ RAG retrieval eval: `server/src/assistant/eval/rag-cases.jsonl`, 32 positive + 4
 | `app/sitemap.ts` | route assistant | M2 |
 | `server/seed/seed.ts` | ghi meta provenance keys | M1 |
 | `server/seed/tftacademy-source.json` | sidecar `retrievedAt` do script tạo | M1 |
-| `scripts/fetch-tftacademy-tips.mjs` | ghi sidecar timestamp | M1 |
+| script tips (repo crawler) | ghi sidecar timestamp | M1 |
 
 ### Không thay đổi trong MVP
 

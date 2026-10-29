@@ -16,10 +16,6 @@ next-env.d.ts
 .vscode/
 .bash_profile
 
-# icon downloads — regenerate with `npm run fetch-data` (lib/tft.json is tracked; it's small and the build imports it)
-# loot table art — regenerate with `npm run fetch-loot`
-#apps/web/public/tft/
-apps/web/scripts/.cache/
 apps/api/models/
 
 # capture artefacts (source-site screenshots and rebuild output are large)

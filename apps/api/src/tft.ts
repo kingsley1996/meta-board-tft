@@ -1,5 +1,5 @@
 // The game catalog in Postgres is a projection of `packages/shared/data/tft.json`
-// — the snapshot that apps/web/scripts/fetch-tft.mjs crawls and commits. The API
+// — the snapshot the private crawler repo fetches and commits here. The API
 // never contacts CommunityDragon itself: the web bundle, the API bundle and the
 // database all read the same bytes from the same commit, so the two halves of the
 // site cannot drift apart.

@@ -27,7 +27,7 @@ let tftAcademySource: { retrievedAt?: string } | null = null;
 try {
   tftAcademySource = JSON.parse(await readFile(join(here, 'tftacademy-source.json'), 'utf8'));
 } catch {
-  console.warn('TFT Academy source sidecar missing; run npm run fetch-comp-tips');
+  console.warn('TFT Academy source sidecar missing; refresh it from the crawler repo');
 }
 if (tftAcademySource?.retrievedAt) {
   await pool.query(
@@ -86,7 +86,7 @@ try {
   console.log(`seeded ${seededTftflow}/${tftflowComps.length} tftflow comps (${skipped.length} skipped)`);
   for (const entry of skipped) console.log(`  skipped ${entry.slug}: ${entry.reason}`);
 } catch (error) {
-  console.warn(`tftflow comps unavailable (${(error as Error).message}); run npm run fetch-economy`);
+  console.warn(`tftflow comps unavailable (${(error as Error).message}); run the economy fetch in the crawler repo`);
 }
 
 await pool.query('DELETE FROM guides');

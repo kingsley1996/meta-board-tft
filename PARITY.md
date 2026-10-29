@@ -21,8 +21,8 @@ Acceptance test for this lane: user review + side-by-side confirming brand diffe
 | Items database | (extended build) | `/items` | every item, including emblems, radiant and Ornn (artifact) gear, with build path + description; search + completed/component/emblem/radiant/Ornn tabs, server-side via query params (linkable) |
 | Augments database | (extended build) | `/augments` | search + rarity filter (rarity = highest decoded tier per display name) |
 | Mechanics tables | (own addition) | `/tables/gold-income` | gold income (base per round, interest, streak bonus) from `lib/mechanics.ts`, hand-checked; shop odds, pool sizes and XP now live in the mirrored tftflow table page `/tables/shop-odds-pool-size-xp-table` (same numbers, XP 7→8 corrected to 56) |
-| Loot & drop tables | (own addition) | `/tables`, `/tables/<slug>` | 30 Set 18 loot tables mirrored from tftflow.com (`lib/loot-tables.json`, rebuilt by `npm run fetch-loot`); index mirrors the tftflow hub layout (System / Traits / Augments / Items / Champions / Encounters, trait splash cards), every table has its own page with weighted outcomes, stage groups, trait boards and augment odds; all art is copied into `public/tft/loot` so nothing hotlinks the source site |
-| Economy strategies | (own addition) | `/economy` | the eight Set 18 economy strategies with their round-by-round plan (`lib/economy.json`, rebuilt by `npm run fetch-economy`); every comp shows its strategy chip and level curve, comps that only exist on tftflow are added with `npm run seed:economy` |
+| Loot & drop tables | (own addition) | `/tables`, `/tables/<slug>` | 30 Set 18 loot tables mirrored from tftflow.com (`lib/loot-tables.json`, rebuilt by the private crawler repo); index mirrors the tftflow hub layout (System / Traits / Augments / Items / Champions / Encounters, trait splash cards), every table has its own page with weighted outcomes, stage groups, trait boards and augment odds; all art is copied into `public/tft/loot` so nothing hotlinks the source site |
+| Economy strategies | (own addition) | `/economy` | the eight Set 18 economy strategies with their round-by-round plan (`lib/economy.json`, rebuilt by the private crawler repo); every comp shows its strategy chip and level curve, comps that only exist on tftflow are added with `npm run seed:economy` |
 | Team builder | (own addition) | `/builder` | public board builder reusing the hex board: palette with search + trait filter, drag/click placement, stars/items/carry, 12-unit cap; share via `?b=` (base64url) |
 | Tier list maker | (own addition) | `/tier-maker` | rank champions into S/A/B/C/X by drag or click, share via `?t=` |
 | Comp quiz | (own addition) | `/quiz` | pick ≤3 starting units + ≤2 items; comps scored (early ×3, board ×2, items ×2), top 3 with links |
@@ -54,13 +54,13 @@ Stats: `psql -U metaboard -h localhost -d metaboard -c "SELECT (SELECT count(*) 
 All set entities are real, from CommunityDragon (Riot's public game-data mirror). Two consumers, one source:
 
 - Postgres (backend's copy — used for API responses + validation): a projection of `packages/shared/data/tft.json`, written by `syncTft()` (seed) and by `ensureCatalogCurrent()` at every API boot. The API never contacts CommunityDragon itself.
-- `packages/shared/data/tft.json` + `apps/web/public/tft/**` (the source — used by statically generated pages: champions grid, item/augment boards, admin form datalists — and by the client-side hover detail cards): `npm run data:pull` in the repo root, then commit.
+- `packages/shared/data/tft.json` + `apps/web/public/tft/**` (the source — used by statically generated pages: champions grid, item/augment boards, admin form datalists — and by the client-side hover detail cards): refreshed by the private crawler repo, which writes into this checkout; commit the data paths here.
 
 - Set 18 / patch 16.21.1: 65 champions (PVE monsters and placeholder units filtered, Lux trait variants collapsed), 36 traits, 41 completed items + 10 components + 21 emblems + 37 radiant + 43 Ornn artifacts, 595 augments. Augment rarity decoded from tag GUIDs (silver/gold/prismatic), noted as a heuristic. Items keep the richest duplicate api entry (DA_* variants carry no text) and their descriptions are cleaned (placeholders substituted, multipliers resolved, floats rounded, keyword refs stripped); emblem and artifact effect text — which CommunityDragon leaves blank on its `DA_` stubs — comes from MetaTFT's lookups, with `<TFTCurveTable row=…>` numbers resolved from `curveValues` (percent rows are stored as fractions). Champions carry ability name/description/keywords/mana; traits carry activation thresholds/styles plus resolved per-breakpoint tooltip rows.
 - Extra sources merged into `lib/tft.json` on top of the cdragon tft dump: **trait tooltips** from the LCU export (`plugins/.../v1/tfttraits.json` — resolved `<row>` text with constants, tier names bronze/silver/gold/prismatic/unique, flavour line) and **ability icons** matched by ability name against the LCU champion spells/passives (28/65 units; remixed/monster abilities have no LoL counterpart). Keyword **definitions** ("Wound: Reduces healing received.") are harvested from Riot's own item/ability text into a `keywords` map (7 entries).
 - Upstream gaps left in place (nothing invented): set-18 ability numbers exist for only 10/91 units in cdragon (Unreal migration), so most ability texts render without their `@Var@` values; `role` is null for real champions, so the source's role tag has no data source; per-champion recommended items are authored by the source site and have no public dataset.
 - Icon paths in the catalog (`/tft/<folder>/<slug>.png`) point into the Next app's `public/tft`; both halves ship from the same commit, so the paths and the files move together.
-- Meta snapshot: comps/boards, comp style/trend, item and augment tiers, and per-champion stats/items come from MetaTFT (`node scripts/fetch-metatft.mjs` → `lib/meta.json` + `apps/api/seed/comps.json`). Comp tips, stage texts, augment lists, augment priority and alt builds are merged from TFT Academy guides (`node scripts/fetch-tftacademy-tips.mjs`). Ratings are live averages, not hand-authored. The snapshot is static until the scripts are re-run. Radiant and artifact items are added to the catalog from MetaTFT's live tags by `scripts/fetch-metatft-items.mjs`; their icons are downloaded by `npm run fetch-data`.
+- Meta snapshot: comps/boards, comp style/trend, item and augment tiers, and per-champion stats/items come from MetaTFT (`lib/meta.json` + `apps/api/seed/comps.json`). Comp tips, stage texts, augment lists, augment priority and alt builds are merged from TFT Academy guides. Both come from the private crawler repo, which writes those files into this checkout. Ratings are live averages, not hand-authored. The snapshot is static until the crawler runs again. Radiant and artifact items are added to the catalog from MetaTFT's live tags, icons included.
 
 ## Backend API (`apps/api/`, :4000)
 
@@ -122,7 +122,7 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 
 ## Owner to do
 
-- Re-run `npm run data:pull` for fresh MetaTFT comps/tiers/stats plus TFT Academy tips/stages/augments/priority/alt builds; commit the data paths; on an empty database follow it with `npm run seed --workspace @metaboard/api`. `fetch-tft.mjs` picks the highest set number automatically.
+- Refresh the data with the private crawler repo (comps/tiers/stats + tips/stages/augments/priority/alt builds), commit the data paths here, push; on an empty database follow it with `npm run seed --workspace @metaboard/api`.
 - Replace placeholder emails in `legal/*` and `about`.
 - Wire real YouTube/Spotify embeds on `/media` if desired.
 - Add real social links in `lib/data.ts` (`socials`). The brand mark is `app/icon.svg` (also drawn inline in `components/nav.tsx`); PWA icons in `public/icons/` are rendered from it by `scripts/make-icons.mjs`.
@@ -155,8 +155,8 @@ curl http://localhost:4000/api/comps                          # direct to the ba
 curl http://localhost:4000/api/tft/set | jq '.catalog_release'   # which data snapshot the DB holds
 
 # admin: open http://localhost:4173/en/login and sign in with an admin account (bootstrap from ADMIN_EMAIL/ADMIN_SEED_PASSWORD in apps/api/.env)
-# full set update: npm run data:pull → commit data → push (web rebuilds, API self-applies on boot)
-# empty database: npm run data:pull → npm run seed --workspace @metaboard/api
+# full set update: run the private crawler repo → commit data → push (web rebuilds, API self-applies on boot)
+# empty database: commit fresh data → npm run seed --workspace @metaboard/api
 node capture/shots.mjs capture/sources-rebuild.json capture/sections-rebuild.json capture/rebuild http://localhost:4173   # recapture rebuild
 node capture/check-rebuild.mjs http://localhost:4173   # console/network/focus sanity check
 ```

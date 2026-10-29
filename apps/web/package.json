@@ -6,14 +6,8 @@
     "dev": "next dev -p 4173",
     "build": "next build",
     "start": "next start -p 4173",
-    "fetch-data": "node scripts/fetch-tft.mjs && node scripts/fetch-metatft-items.mjs",
-    "fetch-wisps": "node scripts/fetch-wisps.mjs",
-    "fetch-loot": "node scripts/fetch-loot-tables.mjs",
-    "fetch-comp-tips": "node scripts/fetch-tftacademy-tips.mjs",
     "extract-translations": "node scripts/extract-translation-tasks.mjs",
-    "typecheck": "tsc --noEmit",
-    "fetch-meta": "node scripts/fetch-metatft.mjs",
-    "fetch-economy": "node scripts/fetch-economy.mjs"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@metaboard/shared": "*",

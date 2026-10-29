@@ -286,7 +286,7 @@ const en = {
     cost: (cost: number) => `${cost}g`,
     round: (span: string) => `Stage ${span}`,
     missing: 'The MetaBoard lookup has no effect text for this wisp.',
-    source: 'MetaBoard · Wisp tier list + Set 18 charm lookup · snapshot refreshed by scripts/fetch-wisps.mjs',
+    source: 'MetaBoard · Wisp tier list + Set 18 charm lookup',
   },
   tables: {
     sub: 'Every number behind a roll, a level-up and a gold decision this set — plus the full list of loot tables and drop rates.',
@@ -826,7 +826,7 @@ const vi: typeof en = {
     cost: (cost: number) => `${cost} vàng`,
     round: (span: string) => `Vòng ${span}`,
     missing: 'Lookup MetaBoard chưa có mô tả cho wisp này.',
-    source: 'MetaBoard · bảng xếp hạng Wisp + lookup charm mùa 18 · làm mới bằng scripts/fetch-wisps.mjs',
+    source: 'MetaBoard · bảng xếp hạng Wisp + lookup charm mùa 18',
   },
   tables: {
     sub: 'Toàn bộ con số đằng sau mỗi lần roll, lên cấp và quyết định vàng trong mùa này — cùng danh sách bảng loot và tỉ lệ rơi.',

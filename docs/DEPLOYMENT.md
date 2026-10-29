@@ -215,7 +215,7 @@ hai số khác nhau. Việc đó chạy **lúc boot** (`index.ts` → `applyCata
 
 | Bản | Ai dùng | Ai sinh | Cập nhật bằng |
 |---|---|---|---|
-| `tft.json` + `apps/web/public/tft/**` (commit) | trang static (champions/items grid, hover cards) **và** API | `npm run data:pull` | chạy crawl ở dev, commit, push |
+| `tft.json` + `apps/web/public/tft/**` (commit) | trang static (champions/items grid, hover cards) **và** API | repo crawler riêng (private) | chạy crawl ở repo đó, commit vào đây, push |
 | 4 bảng catalog trong Postgres | responses động, admin, validation | `syncTft()` / `ensureCatalogCurrent()` từ snapshot | **không có bước thủ công** — API tự nạp khi boot |
 | `comps`, `guides` trong Postgres | nội dung biên tập | `seed.ts` (DB trắng) / admin UI (về sau) | admin UI; `seed:economy` để nạp thêm economy comps |
 
@@ -231,10 +231,17 @@ Quy tắc chọn đường, theo trạng thái DB đích:
 
 ## 5. Patch day (runbook rút gọn)
 
-Bản agent dùng được (kể cả script kiểm data): `.qoder/skills/tft-data-refresh/`.
+Bản agent dùng được (kể cả script kiểm data): skill `tft-data-refresh` trong **repo crawler**
+— repo đó đứng cạnh repo app và ghi trực tiếp vào checkout này, không có npm script crawl nào
+sống ở đây nữa.
 
 ```sh
-npm run data:pull        # crawl đúng thứ tự: catalog → MetaTFT → tips → wisps → loot → economy → RAG
+cd ../tft-comps-crawler
+npm run data:pull        # crawl đúng thứ tự: catalog → MetaTFT → tips → wisps → loot → economy
+npm run verify           # lô data trong app checkout là gì
+
+cd ../tft-comps          # repo app
+npm run build:knowledge  # corpus RAG từ guides.ts + tips.ts
 npm run test:server      # test đọc snapshot, không đọc mạng
 git add packages/shared/data apps/web/public/tft apps/web/lib/wisps.json apps/api/seed
 git commit -m "chore(data): set <N> patch <P>"
