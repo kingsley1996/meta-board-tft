@@ -1,4 +1,6 @@
 import { assistantLog } from './logger.ts';
+import { chargeForFailure, meterClose, meterOpen, tokenCharges } from '../membership/cost.ts';
+import type { AttemptClose, AttemptHandle, SpendMeter } from '../membership/cost.ts';
 
 export type ProviderTool = {
   type: 'function';
@@ -52,6 +54,12 @@ export type ProviderRequest = {
   // Observability hook: records each provider attempt and retry. Success and
   // failure are traced by the caller, which owns the request id and purpose.
   trace?: (event: ProviderTraceEvent) => void;
+  // Cost ledger (task #82): a meter that owns the ledger request this generation
+  // belongs to. Every provider call is opened in the ledger before the fetch and
+  // closed with what the provider reported afterwards, so a spend exists even when
+  // the response never did. Without a meter the caller has no ledger line to attach
+  // the spend to, which is why a meter that cannot write refuses the call.
+  meter?: SpendMeter;
 };
 
 export type ProviderResult = {
@@ -74,6 +82,20 @@ export class ProviderError extends Error {
 }
 
 let modelLoaded = false;
+
+/** Opens the ledger line for one provider call, before the fetch. A meter that cannot
+ *  write refuses the call rather than letting a spend go untracked. */
+async function beginCall(request: ProviderRequest, provider: string, model: string): Promise<AttemptHandle | null> {
+  if (!request.meter) return null;
+  const handle = await meterOpen(request.meter, provider, model);
+  if (!handle) throw new ProviderError('unavailable', 'the cost ledger is not writable');
+  return handle;
+}
+
+/** Closes the ledger line for one provider call. */
+async function endCall(request: ProviderRequest, handle: AttemptHandle | null, close: AttemptClose): Promise<void> {
+  await meterClose(request.meter, handle, close);
+}
 
 function toMs(value: unknown): number | null {
   return typeof value === 'number' && value > 0 ? Math.round(value / 1_000_000) : null;
@@ -223,94 +245,108 @@ async function generateWithOllama(request: ProviderRequest): Promise<ProviderRes
     const remaining = deadline - Date.now();
     if (remaining <= 0) throw new ProviderError('timeout', 'Ollama request timed out');
     request.trace?.({ type: 'attempt', provider: 'ollama', model, attempt: attempt + 1 });
-    const timeout = AbortSignal.timeout(remaining);
-    const signal = AbortSignal.any([request.signal, timeout]);
-    let response: Response;
+    const handle = await beginCall(request, 'ollama', model);
+    // The ledger line opened above is closed by the finally, whatever this attempt
+    // does next. Only a path that names its own outcome counts as explained.
+    let settled: AttemptClose | null = null;
     try {
-      response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        signal,
-        body: JSON.stringify({
-          model,
-          messages: [{ role: 'system', content: request.system }, ...request.messages],
-          stream: streaming,
-          ...(request.format === null ? {} : { format: request.format ?? 'json' }),
-          think: false,
-          keep_alive: '30m',
-          ...(request.tools?.length ? { tools: request.tools } : {}),
-          options: {
-            num_ctx: 8192,
-            num_predict: Math.min(800, Math.max(64, request.maxOutputTokens)),
-            temperature: 0.2,
-          },
-        }),
-      });
-    } catch (error) {
+      const timeout = AbortSignal.timeout(remaining);
+      const signal = AbortSignal.any([request.signal, timeout]);
+      let response: Response;
+      try {
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          signal,
+          body: JSON.stringify({
+            model,
+            messages: [{ role: 'system', content: request.system }, ...request.messages],
+            stream: streaming,
+            ...(request.format === null ? {} : { format: request.format ?? 'json' }),
+            think: false,
+            keep_alive: '30m',
+            ...(request.tools?.length ? { tools: request.tools } : {}),
+            options: {
+              num_ctx: 8192,
+              num_predict: Math.min(800, Math.max(64, request.maxOutputTokens)),
+              temperature: 0.2,
+            },
+          }),
+        });
+      } catch (error) {
+        if (request.signal.aborted) throw new ProviderError('aborted', 'Assistant request was cancelled');
+        if (timeout.aborted) throw new ProviderError('timeout', 'Ollama request timed out');
+        if (abortError(error) || signal.aborted) throw new ProviderError('timeout', 'Ollama request timed out');
+        // No status came back, so whether the model started work is unknowable.
+        settled ??= chargeForFailure(error, false);
+        if (attempt === 0 && Date.now() + 500 < deadline) {
+          assistantLog('provider_retry', { attempt: attempt + 1, reason: 'network', durationMs: Date.now() - started });
+          request.trace?.({ type: 'retry', provider: 'ollama', model, attempt: attempt + 1, reason: 'network', durationMs: Date.now() - started });
+          await new Promise((resolve) => setTimeout(resolve, 400));
+          continue;
+        }
+        throw new ProviderError('unavailable', 'Ollama is not reachable');
+      }
       if (request.signal.aborted) throw new ProviderError('aborted', 'Assistant request was cancelled');
-      if (timeout.aborted) throw new ProviderError('timeout', 'Ollama request timed out');
-      if (abortError(error) || signal.aborted) throw new ProviderError('timeout', 'Ollama request timed out');
-      if (attempt === 0 && Date.now() + 500 < deadline) {
-        assistantLog('provider_retry', { attempt: attempt + 1, reason: 'network', durationMs: Date.now() - started });
-        request.trace?.({ type: 'retry', provider: 'ollama', model, attempt: attempt + 1, reason: 'network', durationMs: Date.now() - started });
-        await new Promise((resolve) => setTimeout(resolve, 400));
-        continue;
-      }
-      throw new ProviderError('unavailable', 'Ollama is not reachable');
-    }
-    if (request.signal.aborted) throw new ProviderError('aborted', 'Assistant request was cancelled');
 
-    if (!response.ok) {
-      const detail = (await response.text().catch(() => '')).slice(0, 500);
-      if (response.status === 404 || /model.*not found|not found.*model/i.test(detail)) {
-        throw new ProviderError('unavailable', 'Ollama model is not available');
+      if (!response.ok) {
+        const detail = (await response.text().catch(() => '')).slice(0, 500);
+        // The vendor answered with a status, so it refused the work and billed nothing.
+        settled = { outcome: 'error', charged: false, error: `http_${response.status}: ${detail.slice(0, 120)}` };
+        if (response.status === 404 || /model.*not found|not found.*model/i.test(detail)) {
+          throw new ProviderError('unavailable', 'Ollama model is not available');
+        }
+        if (response.status >= 500 && attempt === 0 && Date.now() + 500 < deadline) {
+          assistantLog('provider_retry', { attempt: attempt + 1, reason: `http_${response.status}`, durationMs: Date.now() - started });
+          request.trace?.({ type: 'retry', provider: 'ollama', model, attempt: attempt + 1, reason: `http_${response.status}`, durationMs: Date.now() - started });
+          await new Promise((resolve) => setTimeout(resolve, 400));
+          continue;
+        }
+        assistantLog('provider_error', { code: 'provider_error', status: response.status, durationMs: Date.now() - started });
+        throw new ProviderError('error', `Ollama responded ${response.status}`);
       }
-      if (response.status >= 500 && attempt === 0 && Date.now() + 500 < deadline) {
-        assistantLog('provider_retry', { attempt: attempt + 1, reason: `http_${response.status}`, durationMs: Date.now() - started });
-        request.trace?.({ type: 'retry', provider: 'ollama', model, attempt: attempt + 1, reason: `http_${response.status}`, durationMs: Date.now() - started });
-        await new Promise((resolve) => setTimeout(resolve, 400));
-        continue;
-      }
-      assistantLog('provider_error', { code: 'provider_error', status: response.status, durationMs: Date.now() - started });
-      throw new ProviderError('error', `Ollama responded ${response.status}`);
-    }
 
-    if (streaming && request.onDelta) {
-      const result = await readOllamaStream(response, request.onDelta, request.signal, timeout);
+      if (streaming && request.onDelta) {
+        const result = await readOllamaStream(response, request.onDelta, request.signal, timeout);
+        assistantLog('provider_usage', {
+          model,
+          inputTokens: result.usage.inputTokens,
+          outputTokens: result.usage.outputTokens,
+          durationMs: Date.now() - started,
+          streamed: true,
+        });
+        settled = { outcome: 'success', charges: tokenCharges(result.usage) };
+        return result;
+      }
+
+      const contentLength = Number(response.headers.get('content-length'));
+      if (Number.isFinite(contentLength) && contentLength > 2_000_000) {
+        throw new ProviderError('error', 'Ollama response was too large');
+      }
+      const data = (await response.json().catch(() => null)) as OllamaChunk | null;
+      if (!data) throw new ProviderError('error', 'Ollama returned invalid JSON');
+      const text = typeof data.message?.content === 'string' ? data.message.content : '';
+      const toolCalls = parseToolCalls(data.message?.tool_calls);
+      if (!text.trim() && !toolCalls.length) {
+        throw new ProviderError('error', 'Ollama returned an empty answer');
+      }
+
+      modelLoaded = true;
+      const usage = providerUsage(data);
       assistantLog('provider_usage', {
         model,
-        inputTokens: result.usage.inputTokens,
-        outputTokens: result.usage.outputTokens,
+        inputTokens: usage.inputTokens,
+        outputTokens: usage.outputTokens,
         durationMs: Date.now() - started,
-        streamed: true,
+        loadMs: toMs(data.load_duration),
+        promptEvalMs: toMs(data.prompt_eval_duration),
+        evalMs: toMs(data.eval_duration),
       });
-      return result;
+      settled = { outcome: 'success', charges: tokenCharges(usage) };
+      return { text, model, usage, toolCalls };
+    } finally {
+      await endCall(request, handle, settled ?? chargeForFailure(new Error('attempt ended without a result'), false));
     }
-
-    const contentLength = Number(response.headers.get('content-length'));
-    if (Number.isFinite(contentLength) && contentLength > 2_000_000) {
-      throw new ProviderError('error', 'Ollama response was too large');
-    }
-    const data = (await response.json().catch(() => null)) as OllamaChunk | null;
-    if (!data) throw new ProviderError('error', 'Ollama returned invalid JSON');
-    const text = typeof data.message?.content === 'string' ? data.message.content : '';
-    const toolCalls = parseToolCalls(data.message?.tool_calls);
-    if (!text.trim() && !toolCalls.length) {
-      throw new ProviderError('error', 'Ollama returned an empty answer');
-    }
-
-    modelLoaded = true;
-    const usage = providerUsage(data);
-    assistantLog('provider_usage', {
-      model,
-      inputTokens: usage.inputTokens,
-      outputTokens: usage.outputTokens,
-      durationMs: Date.now() - started,
-      loadMs: toMs(data.load_duration),
-      promptEvalMs: toMs(data.prompt_eval_duration),
-      evalMs: toMs(data.eval_duration),
-    });
-    return { text, model, usage, toolCalls };
   }
 
   throw new ProviderError('error', 'Ollama failed after retry');
@@ -636,6 +672,11 @@ async function generateWithGoogle(request: ProviderRequest): Promise<ProviderRes
   const started = Date.now();
   for (let attempt = 0; ; attempt++) {
     request.trace?.({ type: 'attempt', provider: 'google', model, attempt: attempt + 1 });
+    const handle = await beginCall(request, 'google', model);
+    // Whether the vendor answered with a status decides whether the failed attempt
+    // can be recorded as unbilled; a request that died before any status is unknown.
+    let refused = false;
+    let settled: AttemptClose | null = null;
     try {
       const result = await runRemote('Google API', request, async (signal) => {
         const endpoint = streaming
@@ -648,6 +689,7 @@ async function generateWithGoogle(request: ProviderRequest): Promise<ProviderRes
           body: JSON.stringify(googleRequestBody(request)),
         });
         if (!response.ok) {
+          refused = true;
           throw remoteHttpError(response.status, await response.text().catch(() => ''), 'Google API');
         }
         return emit
@@ -662,8 +704,10 @@ async function generateWithGoogle(request: ProviderRequest): Promise<ProviderRes
         durationMs: Date.now() - started,
         streamed,
       });
+      settled = { outcome: 'success', charges: tokenCharges(result.usage) };
       return result;
     } catch (error) {
+      settled ??= chargeForFailure(error, refused);
       if (
         attempt < 2 &&
         !streamed &&
@@ -683,6 +727,8 @@ async function generateWithGoogle(request: ProviderRequest): Promise<ProviderRes
         continue;
       }
       throw error;
+    } finally {
+      await endCall(request, handle, settled ?? chargeForFailure(new Error('attempt ended without a result'), refused));
     }
   }
 }
@@ -914,8 +960,15 @@ async function generateWithOpenAI(request: ProviderRequest): Promise<ProviderRes
       }
     : null;
   const started = Date.now();
+  // The ledger keys prices by a stable lowercase id, not by the human label the
+  // retry traces show. A custom OPENAI_BASE_URL (a reseller gateway) keeps the
+  // 'openai' dialect id and is separated by its model id.
+  const ledgerProvider = config.openrouter ? 'openrouter' : 'openai';
   for (let attempt = 0; ; attempt++) {
     request.trace?.({ type: 'attempt', provider: providerName, model: config.model, attempt: attempt + 1 });
+    const handle = await beginCall(request, ledgerProvider, config.model);
+    let refused = false;
+    let settled: AttemptClose | null = null;
     try {
       const result = await runRemote(providerName, request, async (signal) => {
         const response = await fetch(`${config.base}/chat/completions`, {
@@ -925,6 +978,7 @@ async function generateWithOpenAI(request: ProviderRequest): Promise<ProviderRes
           body: JSON.stringify(body),
         });
         if (!response.ok) {
+          refused = true;
           throw remoteHttpError(response.status, await response.text().catch(() => ''), providerName);
         }
         return streaming && emit
@@ -941,8 +995,10 @@ async function generateWithOpenAI(request: ProviderRequest): Promise<ProviderRes
         durationMs: Date.now() - started,
         streamed,
       });
+      settled = { outcome: 'success', charges: tokenCharges(result.usage) };
       return result;
     } catch (error) {
+      settled ??= chargeForFailure(error, refused);
       if (attempt < 2 && !streamed && error instanceof ProviderError && error.code === 'error') {
         assistantLog('provider_retry', { provider: providerName, attempt: attempt + 1, durationMs: Date.now() - started });
         request.trace?.({
@@ -957,6 +1013,8 @@ async function generateWithOpenAI(request: ProviderRequest): Promise<ProviderRes
         continue;
       }
       throw error;
+    } finally {
+      await endCall(request, handle, settled ?? chargeForFailure(new Error('attempt ended without a result'), refused));
     }
   }
 }

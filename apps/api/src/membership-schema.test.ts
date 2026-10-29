@@ -512,7 +512,9 @@ test('membership and usage schema holds the invariants the ledger depends on', {
       );
     try {
       await attempt();
-      assert.match(await errorOf(() => attempt({ provider: 'groq' })), /request_attempt_idx/, 'one row per attempt number');
+      // The line key is (attempt, unit), so the same unit twice under one call is the
+      // duplicate - which is what lets one LLM answer hold two billing lines.
+      assert.match(await errorOf(() => attempt({ provider: 'groq' })), /request_line_idx/, 'one billing line per unit per attempt');
       await attempt({ attempt: 2, provider: 'groq', dispatchState: 'unknown', outcome: 'unknown' });
       assert.match(await errorOf(() => attempt({ attempt: 3, dispatchState: 'guessed' })), /dispatch_state/);
       assert.match(

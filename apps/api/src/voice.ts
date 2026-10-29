@@ -1,4 +1,6 @@
 import express, { Router, type NextFunction, type Request, type Response as ExpressResponse } from 'express';
+import { chargeForFailure, characterCharges, durationCharges, meterClose, meterOpen } from './membership/cost.ts';
+import type { AttemptClose, Charge, SpendMeter } from './membership/cost.ts';
 
 const router = Router();
 const sampleRate = 16_000;
@@ -46,6 +48,9 @@ let activeTranscriptions = 0;
 
 class SpeechBusyError extends Error {
   readonly retryAfterMs: number | null;
+  /** A 429 is an answer from the vendor, and a vendor that refuses to work has
+   *  billed nothing. Every throw site of this class read a status from the wire. */
+  readonly refused = true;
   constructor(message = 'provider is busy', retryAfterMs: number | null = null) {
     super(message);
     this.retryAfterMs = retryAfterMs;
@@ -54,10 +59,15 @@ class SpeechBusyError extends Error {
 class SpeechUnavailableError extends Error {
   readonly httpStatus: number;
   readonly code: string;
-  constructor(message: string, httpStatus = 502, code = 'speech_generation_failed') {
+  /** True only when the message came from a status the provider answered with.
+   *  A missing key, an unreachable host or a body nobody read proves nothing was
+   *  billed, so the cost ledger keeps those as unexplained rather than free. */
+  readonly refused: boolean;
+  constructor(message: string, httpStatus = 502, code = 'speech_generation_failed', refused = false) {
     super(message);
     this.httpStatus = httpStatus;
     this.code = code;
+    this.refused = refused;
   }
 }
 
@@ -106,6 +116,45 @@ export function sttProviderCandidates(env: NodeJS.ProcessEnv = process.env): Stt
   return cloudProviderOrder.filter(
     (provider) => cloudConfigured(provider, env) && !optInOnlyProviders.includes(provider)
   );
+}
+
+// One table for the whole chain instead of a `env.STT_*_MODEL?.trim() || '<default>'`
+// at each call site. The cost ledger prices by (provider, model), so the id written to
+// the ledger and the id sent on the wire must come from the same place.
+const sttModelDefaults: Record<SttProvider, string> = {
+  deepgram: 'nova-3',
+  groq: 'whisper-large-v3-turbo',
+  openrouter: 'openai/whisper-large-v3-turbo',
+  elevenlabs: 'scribe_v2',
+  openai: 'gpt-4o-transcribe',
+  gemini: 'gemini-3.1-flash-lite',
+};
+
+const sttModelEnvNames: Record<SttProvider, string> = {
+  deepgram: 'STT_DEEPGRAM_MODEL',
+  groq: 'STT_GROQ_MODEL',
+  openrouter: 'STT_OPENROUTER_MODEL',
+  elevenlabs: 'STT_ELEVENLABS_MODEL',
+  openai: 'STT_OPENAI_MODEL',
+  gemini: 'STT_GEMINI_MODEL',
+};
+
+export function sttModelFor(provider: SttProvider, env: NodeJS.ProcessEnv = process.env): string {
+  return env[sttModelEnvNames[provider]]?.trim() || sttModelDefaults[provider];
+}
+
+// The length of the clip every provider in the chain is offered, rounded up because
+// vendors bill a partial second as a whole one. The 44-byte header is the only part
+// that is not audio.
+export function wavDurationSeconds(wav: Buffer): number {
+  return Math.max(0, Math.ceil((wav.byteLength - 44) / 2 / sampleRate));
+}
+
+// A call the vendor may have billed owes its quantity: the clip length (STT) or the
+// text length (TTS) is what the provider prices. A refusal carries no billing line -
+// the absence of a line is what the cost report reads as "nothing was billed".
+function priced(close: AttemptClose, charges: Charge[]): AttemptClose {
+  return close.charged === false ? close : { ...close, charges };
 }
 
 function providerCooldown(provider: SttProvider): string | null {
@@ -169,7 +218,7 @@ async function transcribeWithElevenLabs(
   if (!apiKey) throw new SpeechUnavailableError('ELEVENLABS_API_KEY is not configured');
   const form = new FormData();
   form.append('file', new Blob([new Uint8Array(wav)], { type: 'audio/wav' }), 'speech.wav');
-  form.append('model_id', env.STT_ELEVENLABS_MODEL?.trim() || 'scribe_v2');
+  form.append('model_id', sttModelFor('elevenlabs', env));
   if (language) form.append('language_code', language);
   const response = await fetchImpl('https://api.elevenlabs.io/v1/speech-to-text', {
     method: 'POST',
@@ -183,7 +232,8 @@ async function transcribeWithElevenLabs(
     throw new SpeechUnavailableError(
       detail,
       response.status,
-      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed',
+      true
     );
   }
   const result = (await response.json()) as { text?: unknown };
@@ -205,9 +255,7 @@ async function transcribeWithOpenAiCompatible(
   const baseUrl = isGroq
     ? 'https://api.groq.com/openai/v1'
     : (envValue(env, 'STT_OPENAI_BASE_URL', 'OPENAI_BASE_URL') ?? 'https://api.openai.com/v1').replace(/\/+$/, '');
-  const model = isGroq
-    ? env.STT_GROQ_MODEL?.trim() || 'whisper-large-v3-turbo'
-    : env.STT_OPENAI_MODEL?.trim() || 'gpt-4o-transcribe';
+  const model = sttModelFor(provider, env);
   const form = new FormData();
   form.append('file', new Blob([new Uint8Array(wav)], { type: 'audio/wav' }), 'speech.wav');
   form.append('model', model);
@@ -225,7 +273,8 @@ async function transcribeWithOpenAiCompatible(
     throw new SpeechUnavailableError(
       `${provider} transcription responded ${response.status}`,
       response.status,
-      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed',
+      true
     );
   }
   const result = (await response.json()) as { text?: unknown };
@@ -243,7 +292,7 @@ async function transcribeWithDeepgram(
 ): Promise<string> {
   const apiKey = envValue(env, 'DEEPGRAM_API_KEY');
   if (!apiKey) throw new SpeechUnavailableError('DEEPGRAM_API_KEY is not configured');
-  const query = new URLSearchParams({ model: env.STT_DEEPGRAM_MODEL?.trim() || 'nova-3', smart_format: 'true' });
+  const query = new URLSearchParams({ model: sttModelFor('deepgram', env), smart_format: 'true' });
   if (language) query.set('language', language);
   const response = await fetchImpl(`https://api.deepgram.com/v1/listen?${query.toString()}`, {
     method: 'POST',
@@ -257,7 +306,8 @@ async function transcribeWithDeepgram(
     throw new SpeechUnavailableError(
       detail,
       response.status,
-      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed',
+      true
     );
   }
   const result = (await response.json()) as {
@@ -281,7 +331,7 @@ async function transcribeWithOpenRouter(
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: env.STT_OPENROUTER_MODEL?.trim() || 'openai/whisper-large-v3-turbo',
+      model: sttModelFor('openrouter', env),
       input_audio: { data: wav.toString('base64'), format: 'wav' },
       ...(language ? { language } : {}),
       response_format: 'json',
@@ -294,7 +344,8 @@ async function transcribeWithOpenRouter(
     throw new SpeechUnavailableError(
       detail,
       response.status,
-      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed',
+      true
     );
   }
   const result = (await response.json()) as { text?: unknown };
@@ -308,7 +359,7 @@ async function transcribeWithGemini(
 ): Promise<string> {
   const apiKey = envValue(env, 'GOOGLE_API_KEY');
   if (!apiKey) throw new SpeechUnavailableError('GOOGLE_API_KEY is not configured');
-  const model = env.STT_GEMINI_MODEL?.trim() || 'gemini-3.1-flash-lite';
+  const model = sttModelFor('gemini', env);
   const response = await fetchImpl(
     `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
     {
@@ -339,7 +390,8 @@ async function transcribeWithGemini(
     throw new SpeechUnavailableError(
       detail,
       response.status,
-      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed'
+      isCredentialStatus(response.status) ? 'stt_credentials_rejected' : 'transcription_failed',
+      true
     );
   }
   const result = (await response.json()) as {
@@ -397,26 +449,46 @@ export async function transcribeWithFailover(
   wav: Buffer,
   env: NodeJS.ProcessEnv = process.env,
   fetchImpl: typeof fetch = fetch,
-  lang: SpeechLang = 'vi'
+  lang: SpeechLang = 'vi',
+  meter?: SpendMeter
 ): Promise<{ text: string; provider: SttProvider }> {
   const candidates = sttProviderCandidates(env);
   const language = sttLanguageFor(lang, env);
   const deadline = Date.now() + sttChainBudgetMs(env);
+  const audioSeconds = wavDurationSeconds(wav);
   let lastError: unknown = null;
   for (const provider of candidates) {
     if (providerCooldown(provider)) continue;
     if (lastError && Date.now() >= deadline) {
       throw new SpeechUnavailableError('the transcription provider chain ran out of time');
     }
+    // The call row is written before the clip leaves. A step the ledger could not
+    // record is a step nobody could later explain, so that step does not run.
+    const handle = await meterOpen(meter, provider, sttModelFor(provider, env));
+    if (meter && !handle) {
+      throw new SpeechUnavailableError(`${provider} was not metered`, 503, 'cost_ledger_unavailable');
+    }
+    let settled: AttemptClose | null = null;
     try {
       const text = await transcribeCloud(provider, wav, language, env, fetchImpl);
+      settled = priced({ outcome: text.trim() ? 'success' : 'empty' }, durationCharges(audioSeconds));
       return { text, provider };
     } catch (error) {
-      if (!(error instanceof SpeechBusyError) && !(error instanceof SpeechUnavailableError)) throw error;
+      if (!(error instanceof SpeechBusyError) && !(error instanceof SpeechUnavailableError)) {
+        settled = chargeForFailure(error, false);
+        throw error;
+      }
+      settled = priced(chargeForFailure(error, error.refused), durationCharges(audioSeconds));
       const credentialFailure = error instanceof SpeechUnavailableError && error.code === 'stt_credentials_rejected';
       const window = credentialFailure ? 60_000 : (error instanceof SpeechBusyError ? error.retryAfterMs : null) ?? sttCooldownMs(env);
       coolProvider(provider, `${provider}: ${error.message}`, window);
       lastError = error;
+    } finally {
+      await meterClose(
+        meter,
+        handle,
+        settled ?? chargeForFailure(new Error(`${provider} attempt ended without a result`), false)
+      );
     }
   }
   if (lastError) throw lastError;
@@ -734,7 +806,7 @@ export async function synthVieneuChunk(
   fetchImpl: typeof fetch = fetch
 ): Promise<{ audio: Buffer; contentType: string }> {
   if (!vieneuConfigured(env)) {
-    throw new SpeechUnavailableError('VieNeu is not configured', 503, 'tts_unavailable');
+    throw new SpeechUnavailableError('VieNeu is not configured', 503, 'tts_unavailable', true);
   }
   const limits = ttsLimits(env);
   const format = ttsFormat(env);
@@ -744,7 +816,7 @@ export async function synthVieneuChunk(
     // A rejected key or a saturated queue stays cheap: the browser gets the
     // answer from the engine it already knows is gone, without another doomed
     // upstream request per chunk.
-    throw new SpeechUnavailableError(knownFault.reason, 503, knownFault.code);
+    throw new SpeechUnavailableError(knownFault.reason, 503, knownFault.code, true);
   }
   const maxAttempts = 3;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -783,20 +855,20 @@ export async function synthVieneuChunk(
       const detail = await upstreamErrorText(upstream);
       rememberFault(origin, detail, 60_000, 'tts_credentials_rejected');
       console.error('VieNeu rejected credentials', detail);
-      throw new SpeechUnavailableError(detail, 503, 'tts_credentials_rejected');
+      throw new SpeechUnavailableError(detail, 503, 'tts_credentials_rejected', true);
     }
     if (!upstream.ok) {
       const detail = await upstreamErrorText(upstream);
       if (upstream.status === 404) {
-        throw new SpeechUnavailableError('VieNeu is not running', 503, 'tts_unavailable');
+        throw new SpeechUnavailableError('VieNeu is not running', 503, 'tts_unavailable', true);
       }
       // 400 on this route means the engine refused this particular text (its
       // docs reject long consonant-only runs and non-Latin scripts); it is not a
       // reason to stop using the engine for the next answer.
       if (upstream.status === 400) {
-        throw new SpeechUnavailableError(detail, 400, 'speech_text_rejected');
+        throw new SpeechUnavailableError(detail, 400, 'speech_text_rejected', true);
       }
-      throw new SpeechUnavailableError(detail);
+      throw new SpeechUnavailableError(detail, 502, 'speech_generation_failed', true);
     }
     const audio = Buffer.from(await upstream.arrayBuffer());
     // A full chunk is tens of kilobytes at 48 kHz; anything outside that range is
@@ -822,14 +894,14 @@ export async function synthDeepgramChunk(
   lang: SpeechLang = 'vi'
 ): Promise<{ audio: Buffer; contentType: string }> {
   const apiKey = env.DEEPGRAM_API_KEY?.trim();
-  if (!apiKey) throw new SpeechUnavailableError('DEEPGRAM_API_KEY is not configured', 503, 'tts_unavailable');
+  if (!apiKey) throw new SpeechUnavailableError('DEEPGRAM_API_KEY is not configured', 503, 'tts_unavailable', true);
   const knownFault = deepgramTtsFault();
-  if (knownFault) throw new SpeechUnavailableError(knownFault.reason, 503, knownFault.code);
+  if (knownFault) throw new SpeechUnavailableError(knownFault.reason, 503, knownFault.code, true);
   const limits = ttsLimits(env);
   // /v2/speak is Flux-only and /v1/speak rejects Flux, so the language chooses
   // the path as well as the model.
   const url = new URL(`https://api.deepgram.com/${lang === 'en' ? 'v1' : 'v2'}/speak`);
-  url.searchParams.set('model', lang === 'en' ? deepgramEnglishTtsModel(env) : deepgramTtsModel(env));
+  url.searchParams.set('model', ttsModelFor('deepgram', lang, env));
   url.searchParams.set('encoding', 'linear16');
   url.searchParams.set('container', 'wav');
   url.searchParams.set('sample_rate', '24000');
@@ -857,13 +929,13 @@ export async function synthDeepgramChunk(
     const detail = await upstreamErrorText(upstream);
     rememberFault('deepgram', detail, 60_000, 'tts_credentials_rejected');
     console.error('Deepgram rejected TTS credentials', detail);
-    throw new SpeechUnavailableError(detail, 503, 'tts_credentials_rejected');
+    throw new SpeechUnavailableError(detail, 503, 'tts_credentials_rejected', true);
   }
   if (!upstream.ok) {
     const detail = await upstreamErrorText(upstream);
     // A rejected chunk is not an engine outage, same rule as VieNeu.
-    if (upstream.status === 400) throw new SpeechUnavailableError(detail, 400, 'speech_text_rejected');
-    throw new SpeechUnavailableError(detail);
+    if (upstream.status === 400) throw new SpeechUnavailableError(detail, 400, 'speech_text_rejected', true);
+    throw new SpeechUnavailableError(detail, 502, 'speech_generation_failed', true);
   }
   const audio = Buffer.from(await upstream.arrayBuffer());
   if (audio.length < 4_000 || audio.length > 30 * 1024 * 1024) {
@@ -891,6 +963,13 @@ export function ttsProviderOrder(lang: SpeechLang = 'vi', env: NodeJS.ProcessEnv
   return [primary, primary === 'deepgram' ? 'vieneu' : 'deepgram'];
 }
 
+// The voice id the engine is asked for, from the same table the ledger writes, so a
+// price keyed on (provider, model) can be matched to the call that was billed.
+export function ttsModelFor(provider: TtsProvider, lang: SpeechLang = 'vi', env: NodeJS.ProcessEnv = process.env): string {
+  if (provider === 'deepgram') return lang === 'en' ? deepgramEnglishTtsModel(env) : deepgramTtsModel(env);
+  return ttsModel(env);
+}
+
 // Deepgram first by default; any failure that is not the caller aborting or a
 // timeout hands the same chunk to the other engine. When both fail the last
 // error surfaces to the client, which reports it instead of switching to the
@@ -900,27 +979,49 @@ export async function synthSpeechChunk(
   signal: AbortSignal,
   env: NodeJS.ProcessEnv = process.env,
   fetchImpl: typeof fetch = fetch,
-  lang: SpeechLang = 'vi'
+  lang: SpeechLang = 'vi',
+  meter?: SpendMeter
 ): Promise<{ audio: Buffer; contentType: string; provider: TtsProvider }> {
+  const characters = characterCharges(input.length);
   let lastError: unknown = null;
   for (const provider of ttsProviderOrder(lang, env)) {
     // No key/URL means the engine cannot start at all; skip without a request.
     if (provider === 'deepgram' && !deepgramTtsConfigured(env)) continue;
     if (provider === 'vieneu' && !vieneuConfigured(env)) continue;
+    const handle = await meterOpen(meter, provider, ttsModelFor(provider, lang, env));
+    if (meter && !handle) {
+      throw new SpeechUnavailableError(`${provider} was not metered`, 503, 'cost_ledger_unavailable', true);
+    }
+    let settled: AttemptClose | null = null;
     try {
       const audio =
         provider === 'deepgram'
           ? await synthDeepgramChunk(input, signal, env, fetchImpl, lang)
           : await synthVieneuChunk(input, ttsVoice(env), signal, env, fetchImpl);
+      settled = priced({ outcome: 'success' }, characters);
       return { ...audio, provider };
     } catch (error) {
-      if (signal.aborted) throw error;
+      if (signal.aborted) {
+        // The listener walked away. The chunk may or may not have been generated,
+        // and only one of those readings is free, so it is recorded as unexplained.
+        settled = priced({ outcome: 'cancelled', charged: true, error: 'cancelled by the listener' }, characters);
+        throw error;
+      }
       // The timeout already spent the whole chunk budget; trying the other
       // engine would double the wait, so the route answers 504 instead.
-      if (error instanceof Error && error.name === 'TimeoutError') throw error;
-      if (!(error instanceof SpeechUnavailableError) && !(error instanceof SpeechBusyError)) throw error;
+      if (error instanceof Error && error.name === 'TimeoutError') {
+        settled = chargeForFailure(error, false);
+        throw error;
+      }
+      if (!(error instanceof SpeechUnavailableError) && !(error instanceof SpeechBusyError)) {
+        settled = chargeForFailure(error, false);
+        throw error;
+      }
+      settled = priced(chargeForFailure(error, error.refused), characters);
       lastError = error;
       console.error(`${provider} speech failed, trying the other engine`, error.message);
+    } finally {
+      await meterClose(meter, handle, settled ?? chargeForFailure(new Error(`${provider} chunk ended without a result`), false));
     }
   }
   throw lastError ?? new SpeechUnavailableError('No TTS engine is configured', 503, 'tts_unavailable');

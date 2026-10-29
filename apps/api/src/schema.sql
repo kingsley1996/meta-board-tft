@@ -534,6 +534,9 @@ CREATE INDEX IF NOT EXISTS usage_reservations_bucket_idx ON usage_reservations (
 CREATE TABLE IF NOT EXISTS usage_attempts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   request_id uuid NOT NULL REFERENCES usage_requests (id) ON DELETE CASCADE,
+  -- Assigned by the ledger as a per-request counter, not by the caller's retry
+  -- loop: one turn makes several model calls (tool plan, answer, extraction) and
+  -- each of them numbers from one, so a caller-supplied index would collide.
   attempt int NOT NULL CHECK (attempt >= 1),
   -- Written before the call, so a spend exists even when the response never did.
   provider text NOT NULL,
@@ -555,8 +558,29 @@ CREATE TABLE IF NOT EXISTS usage_attempts (
   started_at timestamptz NOT NULL DEFAULT now(),
   finished_at timestamptz,
   CONSTRAINT usage_attempts_cost_has_tariff CHECK (cost_micro_vnd IS NULL OR tariff_version IS NOT NULL),
-  CONSTRAINT usage_attempts_quantity_has_unit CHECK (billed_unit IS NULL OR billed_quantity IS NOT NULL),
+  CONSTRAINT usage_attempts_quantity_has_unit CHECK ((billed_unit IS NULL) = (billed_quantity IS NULL)),
   CONSTRAINT usage_attempts_time_order CHECK (finished_at IS NULL OR finished_at >= started_at)
 );
-CREATE UNIQUE INDEX IF NOT EXISTS usage_attempts_request_attempt_idx ON usage_attempts (request_id, attempt);
 CREATE INDEX IF NOT EXISTS usage_attempts_provider_started_idx ON usage_attempts (provider, started_at DESC);
+
+-- One provider call is not one row. An LLM answer bills an input-token line and an
+-- output-token line, so a call owns one attempt number and the rows under it are
+-- its billing lines: the call row itself carries no unit. Without the unit in the
+-- key the second line of the same call would be rejected as a duplicate.
+DROP INDEX IF EXISTS usage_attempts_request_attempt_idx;
+CREATE UNIQUE INDEX IF NOT EXISTS usage_attempts_request_line_idx
+  ON usage_attempts (request_id, attempt, COALESCE(billed_unit, ''));
+
+-- The call row holds only the state of the call. Money that does not say what it
+-- bought cannot be summed, re-priced or audited, so a cost only ever lives on a
+-- billing line. Written as ALTER so an existing database gets the rule too.
+ALTER TABLE usage_attempts DROP CONSTRAINT IF EXISTS usage_attempts_cost_needs_line;
+ALTER TABLE usage_attempts ADD CONSTRAINT usage_attempts_cost_needs_line
+  CHECK (cost_micro_vnd IS NULL OR billed_unit IS NOT NULL);
+
+-- The pairing runs both ways: a quantity that does not name its unit is the same
+-- unreadable number as a cost that does not. A call row has neither, a billing line
+-- has both. Also ALTER, for the same reason.
+ALTER TABLE usage_attempts DROP CONSTRAINT IF EXISTS usage_attempts_quantity_has_unit;
+ALTER TABLE usage_attempts ADD CONSTRAINT usage_attempts_quantity_has_unit
+  CHECK ((billed_unit IS NULL) = (billed_quantity IS NULL));

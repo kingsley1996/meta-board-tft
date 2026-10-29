@@ -1,7 +1,7 @@
 # Plan triển khai hội viên MetaBoard
 
 Ngày lập: 2026-10-29.
-Trạng thái: đã chốt #79, hoàn thành payment provider layer #97, schema membership/usage #80 và core quota reserve–settle #81; chưa có route HTTP nào đọc các bảng mới, chưa mount quota/checkout và chưa mở thanh toán thật.
+Trạng thái: đã chốt #79, hoàn thành payment provider layer #97, schema membership/usage #80, core quota reserve–settle #81 và cost instrumentation #82; chưa có route HTTP nào đọc các bảng mới, chưa mount quota/checkout/spend meter và chưa mở thanh toán thật.
 
 ## 1. Mục tiêu và phạm vi
 
@@ -109,7 +109,7 @@ Additive schema và migration có kiểm tra. Đồng bộ schema cho DB mới v
 | `usage_buckets` | User, metric, period kind, allowance/consumed/reserved integer; `usage_buckets_balance_never_negative` nên số dư không bao giờ âm kể cả khi settle sai |
 | `usage_requests` | Idempotency key unique theo user, payload sha256, linked turn, outcome, deadline recovery; `completed_is_settled` và `dispatched_has_time` buộc trạng thái có bằng chứng thời gian |
 | `usage_reservations` | Mỗi request giữ chỗ trên từng bucket một lần; request xoá thì reservation mất, bucket còn lại |
-| `usage_attempts` | Request/provider/model, dispatch state, retry số, units/cost micro-VND/tariff version; `cost_has_tariff` giữ nguyên tắc "không có số nào mà không rõ bảng giá", NULL là unknown chứ không phải 0 |
+| `usage_attempts` | Request/provider/model, dispatch state, retry số, units/cost micro-VND/tariff version. Một provider call owns một `attempt` number và N billing lines dưới nó, unique theo functional index `(request_id, attempt, COALESCE(billed_unit,''))` — nên một câu trả lời LLM giữ được cả `input_token` lẫn `output_token`; call row là dòng duy nhất không có unit. `billed_unit` và `billed_quantity` bắt buộc đi đôi cả hai chiều (`quantity_has_unit`), `cost_has_tariff` giữ nguyên tắc "không có số nào mà không rõ bảng giá", và `cost_needs_line` cấm tiền nằm trên call row: cost chỉ sống trên billing line. NULL là unknown chứ không phải 0 |
 
 Ledger tham chiếu `users` bằng NO ACTION: không xoá được tài khoản còn order/quota, và xoá lịch sử chat không chạm tới ledger (đã kiểm). Price/quota pilot là data, seed bằng `npm run seed:membership`; cả hai row để `draft` — bật `active` là gate #92/#95, code phải fail closed khi chưa có offer active.
 
@@ -133,6 +133,18 @@ Fail closed là mặc định của mọi hàm: plan draft/thiếu/malformed, t�
 Chỉ bảo đảm idempotency của hệ thống nội bộ, không tuyên bố exactly-once execution ở API bên ngoài.
 
 Quyền/quota không đọc được thì trả lỗi tạm thời trước spend, không fail-open. UI phân biệt không đăng nhập, feature locked, quota exhausted, service unavailable và request đang xử lý.
+
+### Cost ledger
+
+Module [cost.ts](../apps/api/src/membership/cost.ts) là bản implement đầu tiên của việc đếm tiền (task #82) và [cost.test.ts](../apps/api/src/membership/cost.test.ts) kiểm 11 case — 7 case trên PostgreSQL dev về cơ chế ledger, 4 case về phủ đường spend. `openAttempt` ghi call row (`dispatch_state='dispatching'`, không unit, không tiền) trước khi caller chạm mạng, nên trạng thái sống sót khi process chết giữa call; attempt number do ledger cấp (`FOR UPDATE` trên request + `MAX(attempt)+1`) chứ không tin retry index của caller. `closeAttempt` đóng đúng một lần: lần hai trả `firstTime:false` và không thêm line, nên một turn được giao hai lần không thành hai lần tiền. Không mở được meter thì không gọi provider — STT/TTS trả `cost_ledger_unavailable`, adapter LLM trả `ProviderError('unavailable')`.
+
+Tiền chỉ sống trên billing line và luôn tự giải thích được: `cost_needs_line`, `cost_has_tariff` và `quantity_has_unit` (hai chiều) là CHECK của DB, không phải quy ước code. Một provider call là một attempt number với N line mang đơn vị riêng, nên câu trả lời LLM có `input_token` lẫn `output_token`. Chi phí suy ra từ bảng giá đã duyệt (`usableTariff` từ chối sheet malformed, `costOf` làm tròn lên); repo chưa có sheet giá nào được duyệt nên các line hiện ghi số lượng và để `cost_micro_vnd` NULL — đối soát lại sau bằng `tariff_version`, không giả định 0.
+
+Nguyên tắc bảo thủ: unknown không phải free. `chargeForFailure` chỉ cho là chưa tốn tiền khi vendor trả về bằng HTTP status (cờ `refused` do từng throw site đặt, vì 502 của vendor và 502 tự dựng không phân biệt được); từ socket hang-up, timeout hay "200 nhưng audio hỏng" trở đi đều `dispatch_state='unknown'` và line thừa kế sự không chắc chắn đó — tiền không bao giờ chắc hơn call đã sinh ra nó. Một refusal không để lại billing line; một bước có thể đã bill ghi nhận trọn độ dài clip, là cận trên chi phí cho #92. `markStuckAttempts` lật call chưa đóng thành `unknown`/`stuck_dispatch` và cấm dispatch lại; `0/0` token không tạo line nào mà hiện trong bucket `withoutUsage` của `costLedger`, report giữ `unexplained` và cost-unknown ở cột riêng chứ không cộng vào chi phí.
+
+Phủ đường spend được kiểm bằng chính đường gọi: mọi LLM spend đi qua `generateAssistantAnswer` (ba adapter), mọi voice spend đi qua vòng failover của `transcribeWithFailover` và `synthSpeechChunk`, nên test lặp qua 3 adapter + 6 provider STT + cả hai engine TTS (vi: Flux với VieNeu dự phòng, en: Deepgram Aura-2) và xác nhận mỗi bước mở line trước fetch, đóng với `audio_second`/`character`/token tương ứng; Tool loop và background extraction được phủ theo vì chúng gọi lại đúng mấy hàm đó. Chain Deepgram 429 → Groq thành công để lại đúng hai attempt: bước bị từ chối mang `charged:false` và không để lại charge nào, bước giao hàng bill clip một lần.
+
+#82 chưa mount vào route nào: tích hợp #83/#84/#85 chỉ tạo `createSpendMeter(requestId, { tariff })` và truyền vào tham số `meter` tùy chọn đã có sẵn. Thay đổi schema chỉ là additive/idempotent, dev đã re-apply `schema.sql`; production migration vẫn chưa được phép.
 
 ### Ownership lịch sử
 
@@ -204,12 +216,12 @@ State dự kiến: `pending`, `paid`, `expired`, `review`, `refund_pending`, `re
 
 Các vị trí hiện có đã khảo sát; module mới chỉ tạo khi bước tương ứng cần.
 
-- [Schema](../apps/api/src/schema.sql): membership/payment/usage tables và constraints đã có từ #80; [seed offer](../apps/api/seed/membership-plans.ts) tạo hai plan_versions draft. [quota.ts](../apps/api/src/membership/quota.ts) là module đầu tiên đọc chúng (#81); #86 và #87 vẫn chưa có code.
+- [Schema](../apps/api/src/schema.sql): membership/payment/usage tables và constraints đã có từ #80; [seed offer](../apps/api/seed/membership-plans.ts) tạo hai plan_versions draft. [quota.ts](../apps/api/src/membership/quota.ts) (#81) và [cost.ts](../apps/api/src/membership/cost.ts) (#82) là hai module đọc/ghi ledger; #86 và #87 vẫn chưa có code.
 - [Role account](../apps/api/src/accounts.ts#L10): giữ nguyên user/admin, bổ sung membership riêng.
 - [API mounting](../apps/api/src/index.ts#L342): auth/entitlement boundaries cho assistant và voice; payment/webhook/admin routes.
 - [Assistant query](../apps/api/src/assistant/index.ts#L102): account quota, request identity, SSE, persistence và settlement.
 - [Rate limit](../apps/api/src/assistant/rate-limit.ts#L16): bỏ quota ngày theo cookie khi thay bằng account buckets; giữ execution/burst protection, không giữ hai hệ thống số dư.
-- [Inference trace](../apps/api/src/assistant/orchestrator.ts#L1110) và provider boundary: durable spend instrumentation, tách khỏi best-effort tracing.
+- [Inference trace](../apps/api/src/assistant/orchestrator.ts#L1110) và [provider boundary](../apps/api/src/assistant/provider.ts): durable spend instrumentation tách khỏi best-effort tracing đã có ở #82 — ba adapter nhận `meter` tùy chọn; việc của #83 là tạo `usage_requests` và truyền meter.
 - [Background extraction](../apps/api/src/assistant/unresolved-entity-detection.ts#L59): truyền billing context và ghi cost, không phát sinh một lượt user mới.
 - [STT](../apps/api/src/voice.ts#L442) và [TTS](../apps/api/src/voice.ts#L958): auth, linked reservation, authoritative units, retry/cancel.
 - [Conversation ownership](../apps/api/src/assistant/conversation-store.ts#L111): account-only access và migration guest history an toàn.
@@ -237,6 +249,8 @@ Personal APIs/pages không cache public; pricing public có thể cache theo cat
 Giá và quota chỉ approved khi có báo cáo: average/p95 text, STT/phút, TTS/1.000 ký tự từng locale/provider, extraction/retry/failure/unknown costs, full-quota user và Free fleet budget.
 
 Nguồn tariff phải có ngày, provider/model, đơn vị và currency. Nếu dùng key theo gói, tính chi phí hiệu dụng và quota mua thực tế; không mặc định mọi vendor tính theo token. Cost estimate khác actual billing phải thể hiện rõ.
+
+Báo cáo #92 đọc từ rollup `costLedger` (group theo provider/model/locale-independent unit, có `unexplained`, `withoutUsage` và cost-unknown riêng), không từ log ad hoc; nhưng ledger hiện chỉ có số lượng vì chưa có sheet giá nào được duyệt, nên giá phải nhập ở bước này chứ không suy ra từ code.
 
 Mục tiêu thử nghiệm: biến phí không quá 30% doanh thu ròng. Tính cả payment fees, AI/voice và chi phí biến đổi phân bổ; báo riêng fixed infrastructure/support để không gọi gross margin là lợi nhuận ròng.
 
@@ -276,7 +290,7 @@ Thứ tự thực tế: foundation/metering trước; policy và UI mock có th�
 - [x] #79 Chính sách, gateway và phạm vi thử nghiệm được chốt; merchant/live offer vẫn chờ các gate sau.
 - [x] #80 Schema và local migration được kiểm (fresh apply + re-apply + 12 invariant case trên PostgreSQL dev; offer để draft, chưa chạy prod migration).
 - [x] #81 Quota concurrent/idempotent/recovery được kiểm (17 case trên PostgreSQL dev: lượt cuối tranh nhau, replay/conflict/duplicate, locked khác exhausted, ngày rolled theo Asia/Ho_Chi_Minh, settle đúng một lần, hai recovery worker không cùng claim, mọi đường lỗi trả `unavailable` thay vì cho qua; chưa mount vào route nào).
-- [ ] #82 Cost instrumentation không bỏ sót đường spend.
+- [x] #82 Cost instrumentation không bỏ sót đường spend (11 case trong `cost.test.ts`: 7 case ledger trên PostgreSQL dev + 4 case phủ đường gọi — 3 adapter LLM, 6 provider STT, cả hai engine TTS, chain failover và fail-closed khi ledger không ghi được; typecheck và 393 API test pass; chưa route nào tạo meter, schema mới cần re-apply `schema.sql`, chưa chạy prod migration).
 - [x] #97 Contract/registry/payOS/SePay adapters và switch/signature tests qua; HTTP integration còn #87.
 - [ ] #86 Membership và kỳ hạn được kiểm.
 - [ ] #83 Text/SSE/history ownership được kiểm.
