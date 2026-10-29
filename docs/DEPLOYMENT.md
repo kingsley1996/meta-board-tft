@@ -150,6 +150,25 @@ cho cả project — tăng `PG_POOL_MAX` là tăng phần mình chiếm.
 | `ensureCatalogCurrent()` lúc boot | so `catalog_release` rồi mới ghi | catalog theo đúng commit đang chạy; cùng lô data thì không ghi gì |
 | `backendJson()` (web) | timeout 8 s + retry 1 lần (chỉ network/5xx) | cold start của API không còn biến trang public thành 500 |
 
+### Cloudflare Turnstile cho đăng nhập và đăng ký
+
+Tạo widget **Managed**, cho phép hostname `meta-board-tft.vercel.app` (và `localhost`
+nếu dùng key đó ở local). Đặt **cả** `TURNSTILE_SITE_KEY` và `TURNSTILE_SECRET_KEY`
+trong env của **API trên Render**, rồi redeploy API. Không đặt key ở Vercel, không
+copy credential từ project khác. Web lấy public site key từ `GET /api/auth/turnstile`
+lúc chạy: `200 {site_key}` khi bật, `204` khi cả hai biến trống; thiếu một biến thì
+API từ chối boot. Vì vậy bật/tắt Turnstile không cần rebuild web.
+
+Login/register gửi token một lần qua header `cf-turnstile-response`; retry lấy token
+mới kể cả lần trước sai mật khẩu. Thiếu/token sai → `403 turnstile_rejected`. Lỗi
+mạng, timeout hoặc phản hồi hỏng từ Cloudflare thì **fail-open**, giống ToeicPilot;
+rate limit theo IP vẫn chạy **trước** khi gọi siteverify. Google OAuth không đổi và
+không có QA bypass. Trang login cần tải script/iframe của Cloudflare khi tính năng bật.
+
+Kiểm local không cần key thật: `node --test apps/api/src/turnstile.test.ts` và
+`npx playwright test apps/web/tests/turnstile.spec.ts` (mock siteverify ở API,
+mock widget và phản hồi auth trong browser).
+
 ### Account admin, phiên, và /admin/users
 
 | Route | Quyền | Hành vi |

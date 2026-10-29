@@ -19,6 +19,7 @@ import {
   type AuthUser,
 } from './accounts.ts';
 import { getMailer } from './mailer.ts';
+import { readTurnstileConfig, verifyTurnstile } from './turnstile.ts';
 
 export const SESSION_COOKIE = 'mb_session';
 const OAUTH_STATE_COOKIE = 'mb_oauth_state';
@@ -104,6 +105,14 @@ export async function currentSessionUser(req: Request): Promise<AuthUser | null>
 
 export const authRouter = Router();
 
+// Public configuration must remain available even when the database is down.
+authRouter.get('/turnstile', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const config = readTurnstileConfig();
+  if (!config) return res.status(204).end();
+  return res.json({ site_key: config.siteKey });
+});
+
 authRouter.use(async (_req, _res, next) => {
   try {
     await ensureAccountTables();
@@ -115,6 +124,9 @@ authRouter.use(async (_req, _res, next) => {
 
 authRouter.post('/register', async (req, res) => {
   if (!attemptAllowed(attemptKey('register', req))) return res.status(429).json({ error: 'too many attempts', code: 'rate_limited' });
+  if (!(await verifyTurnstile(req.get('cf-turnstile-response'), req.ip))) {
+    return res.status(403).json({ error: 'Turnstile verification failed', code: 'turnstile_rejected' });
+  }
   const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
   const password = typeof req.body?.password === 'string' ? req.body.password : '';
   const name = typeof req.body?.name === 'string' ? req.body.name.trim().slice(0, 80) : '';
@@ -168,6 +180,9 @@ authRouter.post('/verify', async (req, res) => {
 
 authRouter.post('/login', async (req, res) => {
   if (!attemptAllowed(attemptKey('login', req))) return res.status(429).json({ error: 'too many attempts', code: 'rate_limited' });
+  if (!(await verifyTurnstile(req.get('cf-turnstile-response'), req.ip))) {
+    return res.status(403).json({ error: 'Turnstile verification failed', code: 'turnstile_rejected' });
+  }
   const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
   const password = typeof req.body?.password === 'string' ? req.body.password : '';
   const user = await findUserByEmail(email);

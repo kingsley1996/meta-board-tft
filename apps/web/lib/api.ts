@@ -359,21 +359,30 @@ export async function getMe(): Promise<AuthUser | null> {
 
 export type AuthResult = { ok: true; user: AuthUser | null } | { ok: false; status: number; code: string };
 
-export async function registerUser(email: string, password: string, name: string, lang: Lang): Promise<AuthResult> {
+export async function registerUser(email: string, password: string, name: string, lang: Lang, turnstileToken: string | null): Promise<AuthResult> {
   const res = await fetch('/api/auth/register', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(turnstileToken ? { 'cf-turnstile-response': turnstileToken } : {}),
+    },
     body: JSON.stringify({ email, password, name, lang }),
   });
-  if (res.ok) return { ok: true, user: null };
+  if (res.ok) {
+    const data = await res.json() as { user?: AuthUser };
+    return { ok: true, user: data.user ?? null };
+  }
   const body = await res.json().catch(() => ({}));
   return { ok: false, status: res.status, code: body.code ?? 'generic_error' };
 }
 
-export async function loginUser(email: string, password: string): Promise<AuthResult> {
+export async function loginUser(email: string, password: string, turnstileToken: string | null): Promise<AuthResult> {
   const res = await fetch('/api/auth/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(turnstileToken ? { 'cf-turnstile-response': turnstileToken } : {}),
+    },
     body: JSON.stringify({ email, password }),
   });
   if (res.ok) {

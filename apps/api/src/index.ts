@@ -26,6 +26,10 @@ import {
   scheduleReasoningLogCleanup,
 } from './assistant/assistant-reasoning-store.ts';
 import { getAssistantSettingsView, loadAssistantSettingsIntoEnv, updateAssistantSettings } from './settings.ts';
+import { readTurnstileConfig } from './turnstile.ts';
+
+// A half-configured challenge must fail startup, not silently disable protection.
+readTurnstileConfig();
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));

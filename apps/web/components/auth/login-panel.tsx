@@ -6,6 +6,7 @@ import { loginUser, registerUser, resendVerification } from '@/lib/api';
 import { messages } from '@/lib/messages';
 import type { Lang } from '@/lib/i18n';
 import { Panel } from '@/components/ui';
+import { TurnstileUnavailable, useTurnstile } from './turnstile';
 
 const inputClass =
   'smooth rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog';
@@ -23,6 +24,7 @@ export function LoginPanel({
 }) {
   const t = messages[lang].auth;
   const router = useRouter();
+  const gate = useTurnstile(lang);
 
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
@@ -50,6 +52,8 @@ export function LoginPanel({
         return t.invalidEmail;
       case 'invalid_password':
         return t.invalidPassword;
+      case 'turnstile_rejected':
+        return t.turnstileRejected;
       default:
         return t.genericError;
     }
@@ -61,26 +65,27 @@ export function LoginPanel({
     setError(null);
     setNotice(null);
     setUnverifiedEmail(null);
-    const result = mode === 'login' ? await loginUser(email, password) : await registerUser(email, password, name, lang);
-    setBusy(false);
-    if (!result.ok) {
-      setError(errorFor(result.code));
-      if (result.code === 'email_unverified') setUnverifiedEmail(email);
-      return;
-    }
-    if (mode === 'signup') {
-      // When verification is enforced the API answers without a user; with
-      // verification skipped the fresh account is already signed in.
-      if (result.user) {
-        router.push(nextPath);
-        router.refresh();
+    try {
+      const token = await gate.take();
+      const result = mode === 'login'
+        ? await loginUser(email, password, token)
+        : await registerUser(email, password, name, lang, token);
+      if (!result.ok) {
+        setError(errorFor(result.code));
+        if (result.code === 'email_unverified') setUnverifiedEmail(email);
         return;
       }
-      setNotice(t.verifySent);
-      return;
+      if (mode === 'signup' && !result.user) {
+        setNotice(t.verifySent);
+        return;
+      }
+      router.push(nextPath);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof TurnstileUnavailable ? t.turnstileUnavailable : t.genericError);
+    } finally {
+      setBusy(false);
     }
-    router.push(nextPath);
-    router.refresh();
   }
 
   async function resend() {
@@ -145,9 +150,10 @@ export function LoginPanel({
             {t.resend}
           </button>
         ) : null}
+        {gate.widget}
         <button
           type="submit"
-          disabled={busy || !email || !password}
+          disabled={busy || gate.loading || !email || !password}
           className="smooth rounded-full border border-brand bg-brand px-5 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep disabled:opacity-50"
         >
           {busy ? (mode === 'login' ? t.signingIn : t.creatingAccount) : mode === 'login' ? t.signIn : t.createAccount}
