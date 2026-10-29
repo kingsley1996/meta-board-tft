@@ -6,6 +6,7 @@
   "exports": {
     "./mechanics": "./src/mechanics.ts",
     "./economy-match": "./src/economy-match.ts",
+    "./speech-text": "./src/speech-text.ts",
     "./translation-id": "./src/translation-id.ts",
     "./data/*.json": "./data/*.json"
   }

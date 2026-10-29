@@ -213,8 +213,10 @@ test('the Coach text route pays with account quota', { skip: !hasDb }, async (t)
     'ASSISTANT_LOAD_TIMEOUT_MS',
     'ASSISTANT_REQUEST_TIMEOUT_MS',
     'MEMBERSHIP_FREE_PLAN_CODE',
+    'MEMBERSHIP_ENFORCEMENT',
   );
   process.env.ASSISTANT_ENABLED = 'true';
+  process.env.MEMBERSHIP_ENFORCEMENT = 'enforce';
   process.env.ASSISTANT_PROVIDER = 'ollama';
   process.env.ASSISTANT_MODEL = 'test-model';
   process.env.ASSISTANT_RATE_LIMIT = '100';

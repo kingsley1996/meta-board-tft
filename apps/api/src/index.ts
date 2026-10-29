@@ -8,6 +8,8 @@ import { translateText } from './assistant/translate.ts';
 import { voiceRouter } from './voice.ts';
 import { authRouter, currentSessionUser, type AuthedRequest } from './auth-routes.ts';
 import { membershipRouter } from './membership/routes.ts';
+import { membershipEnforced } from './membership/enforcement.ts';
+import { scheduleQuotaRecovery } from './membership/quota.ts';
 import { ensureAdminFromEnv, listAccountUsers, setUserRole } from './accounts.ts';
 import { ENTITY_TYPES } from './assistant/contracts.ts';
 import { loadCatalog } from './assistant/tools.ts';
@@ -345,16 +347,19 @@ app.use('/api/auth', authRouter);
 // account's own plan, balance and history at /api/me/*. #83 gates Coach on the same
 // resolveEntitlement this router reads, so the entitlement code lives in one place.
 app.use('/api', membershipRouter);
-// Resolve the signed-in user (if any) for assistant routes so conversations
-// attach to the account and history follows the user across devices.
-app.use('/api/assistant', async (req, _res, next) => {
+// Resolve the signed-in user (if any) for the routes that bill an account: the
+// Coach and its history, and voice input (task #83/#84). A guest still reaches the
+// public status endpoints; the routes themselves answer 401.
+const resolveSessionUser = async (req: express.Request, _res: express.Response, next: express.NextFunction) => {
   try {
     (req as AuthedRequest).authUser = await currentSessionUser(req);
   } catch {
     (req as AuthedRequest).authUser = null;
   }
   next();
-});
+};
+app.use('/api/assistant', resolveSessionUser);
+app.use('/api/voice', resolveSessionUser);
 app.use('/api/assistant', assistantRouter);
 app.use('/api/voice', voiceRouter);
 
@@ -447,3 +452,7 @@ process.on('SIGINT', shutdown);
 
 const configuredRetentionDays = Number(process.env.ASSISTANT_REASONING_RETENTION_DAYS ?? '30');
 scheduleReasoningLogCleanup(Number.isSafeInteger(configuredRetentionDays) && configuredRetentionDays >= 1 ? configuredRetentionDays : 30);
+// The sweeper only has work while the paid pilot is on; before that the ledger
+// tables may not exist in production at all, and a minute-by-minute failed query
+// is noise, not recovery.
+if (membershipEnforced()) scheduleQuotaRecovery();

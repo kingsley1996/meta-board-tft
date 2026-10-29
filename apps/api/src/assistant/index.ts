@@ -3,9 +3,10 @@ import { Router, type Response } from 'express';
 import { cookieValue } from '../auth.ts';
 import type { AuthUser } from '../accounts.ts';
 import type { AuthedRequest } from '../auth-routes.ts';
+import { membershipEnforced } from '../membership/enforcement.ts';
 import { resolveEntitlement } from '../membership/lifecycle.ts';
-import { markDispatched, markResultReference, reserve, settle } from '../membership/quota.ts';
-import type { QuotaReason } from '../membership/quota.ts';
+import { claimTurn, markDispatched, markResultReference, releaseExpiredTurns, reserve, settle } from '../membership/quota.ts';
+import { quotaDenial, sendDenial } from '../membership/denial.ts';
 import { createSpendMeter } from '../membership/cost.ts';
 import { validateAssistantQuery, type AssistantRequest, type AssistantHistoryMessage, type AssistantResponse } from './contracts.ts';
 import { assistantLog } from './logger.ts';
@@ -46,11 +47,23 @@ function sessionUser(req: { authUser?: AuthUser | null }): AuthUser | null {
 }
 
 /** The Coach and its history are account data (task #83), so a browser cookie is no
- *  longer proof that a conversation belongs to whoever holds it. */
+ *  longer proof that a conversation belongs to whoever holds it. Until the pilot is
+ *  enforced the cookie-owned history production has always served stays available. */
 function requireUser(req: AuthedRequest, res: Response): AuthUser | null {
   const user = sessionUser(req);
-  if (!user) res.status(401).json({ error: 'Sign in to use the Coach.', code: 'unauthenticated' });
+  if (!user && membershipEnforced()) res.status(401).json({ error: 'Sign in to use the Coach.', code: 'unauthenticated' });
   return user;
+}
+
+/** Enforcement is opt-in, so one type answers both questions the query asks first:
+ *  which account is asking (a guest only while the pilot is off) and whether the
+ *  ledger is in the path at all. `null` means requireUser already answered 401. */
+type CoachAccess = { enforced: false; user: AuthUser | null } | { enforced: true; user: AuthUser };
+
+function coachAccess(req: AuthedRequest, res: Response): CoachAccess | null {
+  const user = requireUser(req, res);
+  if (!membershipEnforced()) return { enforced: false, user };
+  return user ? { enforced: true, user } : null;
 }
 
 function clientId(req: { headers: { cookie?: string } }, res: { append: (name: string, value: string) => void }): string {
@@ -136,51 +149,18 @@ function payloadFingerprint(request: AssistantRequest): string {
     .digest('hex');
 }
 
-/** A refusal the account can act on. `exhausted` is a paywall, `daily_cap` and the
- *  admission codes are waits, `locked` is a feature the plan never had, and
- *  `unavailable` is our outage — the UI has to tell those apart, so they never share
- *  a code, and none of them is allowed to look like the others. */
-function quotaDenial(
-  reason: QuotaReason,
-  retryAfterMs: number | null | undefined,
-): { status: number; code: string; error: string; retryAfter: number | null } {
-  const retryAfter = retryAfterMs === undefined || retryAfterMs === null ? null : Math.max(1, Math.ceil(retryAfterMs / 1000));
-  const denial = (status: number, code: string, error: string) => ({ status, code, error, retryAfter });
-  switch (reason) {
-    case 'exhausted':
-      return denial(402, 'quota_exhausted', 'You have used every Coach turn in this period.');
-    case 'daily_cap':
-      return denial(429, 'daily_cap', "Today's Coach turns are used up. The count resets at midnight in Vietnam.");
-    case 'locked':
-      return denial(403, 'feature_locked', 'The Coach is not part of your plan.');
-    case 'rate_limited':
-      return denial(429, 'rate_limited', 'Too many Coach requests in one minute.');
-    case 'too_many_in_flight':
-      return denial(429, 'too_many_in_flight', 'Another Coach request is already running for this account.');
-    case 'expired':
-      return denial(403, 'period_expired', 'This membership period has ended.');
-    default:
-      return denial(503, 'membership_unavailable', 'Membership data is unavailable. Try again shortly.');
-  }
-}
-
-/** Denials carry Retry-After whenever the answer is "wait", and the ledger request id
- *  whenever the client needs to correlate a replay. */
-function sendDenial(res: Response, denial: { status: number; code: string; error: string; retryAfter: number | null }, requestId?: string): void {
-  if (denial.retryAfter !== null) res.setHeader('Retry-After', String(denial.retryAfter));
-  res.status(denial.status).json({ error: denial.error, code: denial.code, ...(requestId ? { requestId } : {}) });
-}
-
 assistantRouter.post('/query', async (req, res) => {
   const started = Date.now();
   const streaming = req.body?.stream === true;
   const validation = validateAssistantQuery(req.body);
   if (!validation.ok) return res.status(400).json({ error: validation.error, code: 'invalid_request' });
 
-  const user = requireUser(req as AuthedRequest, res);
+  const access = coachAccess(req as AuthedRequest, res);
   // A Coach turn is account quota and account history (task #83), so holding a
-  // browser cookie is no longer enough to ask a question.
-  if (!user) return;
+  // browser cookie is no longer enough to ask a question - until the pilot is
+  // switched on, where the pre-#83 open path is what production still runs.
+  if (!access) return;
+  const { enforced, user } = access;
 
   const client = clientId(req, res);
   const burst = checkRateLimit(client);
@@ -196,48 +176,82 @@ assistantRouter.post('/query', async (req, res) => {
     requestKey,
   };
 
-  const entitlement = await resolveEntitlement(user.id);
-  if (!entitlement.ok) {
-    assistantLog('query_error', { requestKey, code: 'membership_unavailable', durationMs: Date.now() - started });
-    return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+  // A turn held for a query that never came must not keep the account's slot or its
+  // units: releasing it here is what makes an abandoned voice turn harmless.
+  if (enforced) await releaseExpiredTurns(user.id);
+
+  // A voice turn (#84) already reserved its chat unit before transcription, so the
+  // query spends that hold instead of booking a second turn. Only a hold that is
+  // gone or already used falls through to a reservation of its own. Without the
+  // ledger there is no hold to claim, so the id is ignored.
+  const voiceTurnId = enforced ? validation.value.voiceTurnId : undefined;
+  let claimedId: string | null = null;
+  if (enforced && voiceTurnId) {
+    const claim = await claimTurn({ userId: user.id, requestId: voiceTurnId });
+    if (claim.ok) {
+      claimedId = claim.requestId;
+    } else if (claim.reason === 'duplicate') {
+      const stored = claim.resultReference ? await getAssistantMessage(claim.resultReference).catch(() => null) : null;
+      if (stored?.response) return res.json({ ...stored.response, requestId: claim.requestId });
+      return res.status(409).json({ error: 'That request was already answered.', code: 'already_answered', requestId: claim.requestId });
+    } else if (claim.reason === 'in_progress') {
+      return res.status(409).json({ error: 'That request is still running.', code: 'request_in_progress', requestId: claim.requestId });
+    } else if (claim.reason === 'unavailable') {
+      assistantLog('query_error', { requestKey, code: 'membership_unavailable', durationMs: Date.now() - started });
+      return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+    }
   }
 
-  // The ledger row is the request's identity: the answer, the provider cost lines and
-  // a replay all hang off its id, so nothing reaches a model before it exists.
-  const reserved = await reserve({
-    userId: user.id,
-    purpose: 'coach_turn',
-    idempotencyKey: requestKey,
-    payloadSha256: payloadFingerprint(request),
-    plan: entitlement.plan,
-    units: { chat: 1 },
-  });
-  if (!reserved.ok) {
-    assistantLog('query_error', { requestKey, code: reserved.reason, durationMs: Date.now() - started });
-    if (reserved.reason === 'duplicate' && reserved.status === 'completed' && reserved.resultReference) {
-      // Same key, same payload, already answered: replay the stored answer instead of
-      // paying for and debiting a second one.
-      const stored = await getAssistantMessage(reserved.resultReference).catch(() => null);
-      if (stored?.response) return res.json({ ...stored.response, requestId: reserved.requestId });
-      return res.status(409).json({ error: 'That request was already answered.', code: 'already_answered', requestId: reserved.requestId });
+  let requestId: string;
+  if (!enforced) {
+    // Open path: the request id is only a correlation id for logs and traces.
+    requestId = randomUUID();
+  } else if (claimedId) {
+    requestId = claimedId;
+  } else {
+    const entitlement = await resolveEntitlement(user.id);
+    if (!entitlement.ok) {
+      assistantLog('query_error', { requestKey, code: 'membership_unavailable', durationMs: Date.now() - started });
+      return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
     }
-    if (reserved.reason === 'in_progress') {
-      return res.status(409).json({ error: 'That request is still running.', code: 'request_in_progress', requestId: reserved.requestId });
+
+    // The ledger row is the request's identity: the answer, the provider cost lines and
+    // a replay all hang off its id, so nothing reaches a model before it exists.
+    const reserved = await reserve({
+      userId: user.id,
+      purpose: 'coach_turn',
+      idempotencyKey: requestKey,
+      payloadSha256: payloadFingerprint(request),
+      plan: entitlement.plan,
+      units: { chat: 1 },
+    });
+    if (!reserved.ok) {
+      assistantLog('query_error', { requestKey, code: reserved.reason, durationMs: Date.now() - started });
+      if (reserved.reason === 'duplicate' && reserved.status === 'completed' && reserved.resultReference) {
+        // Same key, same payload, already answered: replay the stored answer instead of
+        // paying for and debiting a second one.
+        const stored = await getAssistantMessage(reserved.resultReference).catch(() => null);
+        if (stored?.response) return res.json({ ...stored.response, requestId: reserved.requestId });
+        return res.status(409).json({ error: 'That request was already answered.', code: 'already_answered', requestId: reserved.requestId });
+      }
+      if (reserved.reason === 'in_progress') {
+        return res.status(409).json({ error: 'That request is still running.', code: 'request_in_progress', requestId: reserved.requestId });
+      }
+      if (reserved.reason === 'conflict') {
+        return res.status(409).json({
+          error: 'That request key was already used for a different question.',
+          code: 'request_conflict',
+          requestId: reserved.requestId,
+        });
+      }
+      return sendDenial(res, quotaDenial(reserved.reason, reserved.retryAfterMs));
     }
-    if (reserved.reason === 'conflict') {
-      return res.status(409).json({
-        error: 'That request key was already used for a different question.',
-        code: 'request_conflict',
-        requestId: reserved.requestId,
-      });
-    }
-    return sendDenial(res, quotaDenial(reserved.reason, reserved.retryAfterMs));
+    requestId = reserved.requestId;
   }
-  const requestId = reserved.requestId;
 
   let conversationId: string;
   try {
-    const result = await ensureConversationAndHistory(request, client, user.id);
+    const result = await ensureConversationAndHistory(request, client, user?.id ?? null);
     conversationId = result.id;
     // Sync request.conversationId with the DB conversation so answerAssistant returns the correct ID.
     request.conversationId = conversationId;
@@ -252,11 +266,13 @@ assistantRouter.post('/query', async (req, res) => {
 
   // A spend with no durable dispatch intent is one nobody can prove or price, so the
   // reservation is given back and the request stops here.
-  const dispatched = await markDispatched(requestId);
-  if (!dispatched.ok) {
-    await settle(requestId, 'released', { errorCode: 'dispatch_not_recorded' });
-    assistantLog('query_error', { requestId, code: 'assistant_unavailable', durationMs: Date.now() - started });
-    return res.status(503).json({ error: 'assistant is unavailable', code: 'assistant_unavailable', requestId });
+  if (enforced) {
+    const dispatched = await markDispatched(requestId);
+    if (!dispatched.ok) {
+      await settle(requestId, 'released', { errorCode: 'dispatch_not_recorded' });
+      assistantLog('query_error', { requestId, code: 'assistant_unavailable', durationMs: Date.now() - started });
+      return res.status(503).json({ error: 'assistant is unavailable', code: 'assistant_unavailable', requestId });
+    }
   }
 
   const abort = new AbortController();
@@ -289,9 +305,11 @@ assistantRouter.post('/query', async (req, res) => {
   // Every model call of this turn — tool planning, regeneration, the answer, the
   // background alias extraction — is metered under this one ledger request. No
   // approved price sheet exists yet (#92), so the lines record quantities with the
-  // cost left unknown rather than guessed at zero.
-  const meter = createSpendMeter(requestId);
+  // cost left unknown rather than guessed at zero. Without enforcement there is no
+  // ledger row to bill, so the adapter runs meterless.
+  const meter = enforced ? createSpendMeter(requestId) : undefined;
   const closeTurn = async (outcome: 'completed' | 'released', errorCode: string | null): Promise<void> => {
+    if (!enforced) return;
     const result = await settle(requestId, outcome, { errorCode }).catch(() => null);
     if (!result || !result.ok) assistantLog('quota_settle_error', { requestId, reason: result ? result.reason : 'settle_failed' });
   };
@@ -339,7 +357,7 @@ assistantRouter.post('/query', async (req, res) => {
       });
       return null;
     });
-    if (messageId) await markResultReference(requestId, messageId).catch(() => false);
+    if (enforced && messageId) await markResultReference(requestId, messageId).catch(() => false);
     await closeTurn('completed', null);
 
     void captureUnresolvedEntityMentions(request, meter).catch((error: unknown) => {
@@ -416,11 +434,12 @@ assistantRouter.post('/query', async (req, res) => {
 });
 
 assistantRouter.get('/conversations', async (req, res) => {
+  const enforced = membershipEnforced();
   const user = requireUser(req as AuthedRequest, res);
-  if (!user) return;
+  if (enforced && !user) return;
   const client = clientId(req, res);
   try {
-    const conversations = await listConversations(client, 20, user.id);
+    const conversations = await listConversations(client, 20, user?.id);
     res.json({ conversations });
   } catch (error) {
     assistantLog('conversation_list_error', {
@@ -431,15 +450,16 @@ assistantRouter.get('/conversations', async (req, res) => {
 });
 
 assistantRouter.get('/conversations/:conversationId', async (req, res) => {
+  const enforced = membershipEnforced();
   const user = requireUser(req as AuthedRequest, res);
-  if (!user) return;
+  if (enforced && !user) return;
   const client = clientId(req, res);
   const { conversationId } = req.params;
   if (!UUID_PATTERN.test(conversationId)) {
     return res.status(400).json({ error: 'invalid conversation id', code: 'invalid_request' });
   }
   try {
-    const messages = await getConversationHistory(conversationId, client, 50, user.id);
+    const messages = await getConversationHistory(conversationId, client, 50, user?.id);
     res.json({ conversationId, messages });
   } catch (error) {
     assistantLog('conversation_get_error', {
@@ -451,15 +471,16 @@ assistantRouter.get('/conversations/:conversationId', async (req, res) => {
 });
 
 assistantRouter.delete('/conversations/:conversationId', async (req, res) => {
+  const enforced = membershipEnforced();
   const user = requireUser(req as AuthedRequest, res);
-  if (!user) return;
+  if (enforced && !user) return;
   const client = clientId(req, res);
   const { conversationId } = req.params;
   if (!UUID_PATTERN.test(conversationId)) {
     return res.status(400).json({ error: 'invalid conversation id', code: 'invalid_request' });
   }
   try {
-    const deleted = await deleteConversation(conversationId, client, user.id);
+    const deleted = await deleteConversation(conversationId, client, user?.id);
     if (!deleted) {
       return res.status(404).json({ error: 'conversation not found', code: 'not_found' });
     }

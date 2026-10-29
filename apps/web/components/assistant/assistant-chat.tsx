@@ -40,6 +40,18 @@ type StoredChat = { conversationId?: string; messages?: ChatMessage[] };
 // client never sends a request the server would reject.
 type VoiceTtsStatus = { available: boolean; maxChars: number };
 
+// A refused speech request carries the server's code, so the UI can say "not in
+// your plan" or "out of characters" instead of a generic failure.
+class SpeechDenied extends Error {
+  readonly status: number;
+  readonly code: string | null;
+  constructor(status: number, code: string | null) {
+    super(`Speech request failed with ${status}`);
+    this.status = status;
+    this.code = code;
+  }
+}
+
 // Flux Vietnamese reads slowly and Deepgram's `speed` is ignored for vi, so the
 // pace is adjusted on the client; Aura-2 English is already at a normal pace.
 const vietnameseSpeechPlaybackRate = 1.15;
@@ -119,7 +131,17 @@ function historyFor(messages: ChatMessage[], excludeLastUser: boolean): { role: 
   return base.slice(-6).map(({ role, content }) => ({ role, content }));
 }
 
-export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compSlug: string | null; compTitle: string | null }) {
+export function AssistantChat({
+  lang,
+  compSlug,
+  compTitle,
+  membershipEnforced,
+}: {
+  lang: Lang;
+  compSlug: string | null;
+  compTitle: string | null;
+  membershipEnforced: boolean;
+}) {
   const t = uiMessages[lang].assistant;
   const storageKey = `metaboard:assistant:${lang}`;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -128,8 +150,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // The turn that failed, with the key it was sent under: retrying reuses the key so
-  // a turn the server already completed is replayed instead of charged again.
-  const [retryTurn, setRetryTurn] = useState<{ text: string; requestKey: string } | null>(null);
+  // a turn the server already completed is replayed instead of charged again. A voice
+  // turn keeps its id too, so the retry spends the chat unit the recording reserved.
+  const [retryTurn, setRetryTurn] = useState<{ text: string; requestKey: string; voiceTurnId?: string } | null>(null);
   const [feedback, setFeedback] = useState<Record<string, boolean>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -164,7 +187,9 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
   // Voice callbacks fire long after the render that created them (speech end,
   // async transcription); they must submit with the latest conversationId and
   // messages, not the ones captured when recording started.
-  const submitRef = useRef<((raw: string, addUser?: boolean, speakResponse?: boolean) => Promise<void>) | null>(null);
+  const submitRef = useRef<
+    ((raw: string, addUser?: boolean, speakResponse?: boolean, retryKey?: string, voiceTurnId?: string) => Promise<void>) | null
+  >(null);
 
   useEffect(() => {
     let mounted = true;
@@ -291,6 +316,50 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     return t.errors.generic;
   }
 
+  // Voice denials arrive as {code} on the transcribe response, not as an
+  // AssistantApiError; a recording also has no retry turn to attach to.
+  function voiceDenialText(status: number, code: string | null): string | null {
+    switch (code) {
+      case 'unauthenticated':
+        return t.errors.signIn;
+      case 'feature_locked':
+        return t.voicePlanRequired;
+      case 'quota_exhausted':
+        return t.errors.quota;
+      case 'daily_cap':
+        return t.errors.dailyCap;
+      case 'period_expired':
+        return t.errors.expired;
+      case 'membership_unavailable':
+        return t.errors.membership;
+      case 'rate_limited':
+        return t.errors.rate;
+      case 'too_many_in_flight':
+      case 'transcription_busy':
+        return t.voiceBusy;
+      case 'audio_too_long':
+        return t.voiceTooLong;
+      case 'no_speech':
+        return t.voiceNoSpeech;
+      case 'voice_unavailable':
+        return t.voiceSttUnavailable;
+      case 'invalid_audio':
+      case 'transcription_failed':
+      case 'already_answered':
+      case 'request_in_progress':
+      case 'request_conflict':
+        return t.voiceSttError;
+      default:
+        break;
+    }
+    if (status === 401) return t.errors.signIn;
+    if (status === 413) return t.voiceTooLong;
+    if (status === 422) return t.voiceNoSpeech;
+    if (status === 429) return t.voiceBusy;
+    if (status === 503) return t.voiceSttUnavailable;
+    return null;
+  }
+
   function cueTomo(name: TomoReaction) {
     setTomoCue({ name, id: `${Date.now()}-${Math.random()}` });
   }
@@ -330,21 +399,16 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     return task;
   }
 
-  function fetchChunkAudio(text: string, signal: AbortSignal): Promise<string> {
+  function fetchChunkAudio(key: string, request: () => Promise<Response>): Promise<string> {
     const cache = ttsCacheRef.current;
-    // The same sentence is different audio in each language, so the voice is part
-    // of the cache key.
-    const key = `${lang}:${text}`;
     const existing = cache.get(key);
     if (existing) return existing;
     const task = (async () => {
-      const response = await fetch('/api/voice/tts/speech', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: text, lang }),
-        signal,
-      });
-      if (!response.ok) throw new Error(`Speech request failed with ${response.status}`);
+      const response = await request();
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { code?: unknown } | null;
+        throw new SpeechDenied(response.status, typeof body?.code === 'string' ? body.code : null);
+      }
       return URL.createObjectURL(await response.blob());
     })().catch((caught: unknown) => {
       // A failed request must not poison the key: a later replay asks again.
@@ -363,6 +427,56 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
         .catch(() => {});
     }
     return task;
+  }
+
+  // Pre-pilot playback: the browser owns the text and sends it. The same sentence is
+  // different audio in each language, so the voice is part of the cache key.
+  function legacyChunkAudio(text: string, signal: AbortSignal): Promise<string> {
+    return fetchChunkAudio(`${lang}:${text}`, () =>
+      fetch('/api/voice/tts/speech', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: text, lang }),
+        signal,
+      })
+    );
+  }
+
+  // Enforced playback (task #85): the server owns the text and the chunking, so the
+  // browser sends the ledger request, its version and an index. The key is per
+  // playback attempt plus chunk, so a transport retry replays the same ledger row
+  // instead of buying a second synthesis.
+  function plannedChunkAudio(
+    requestId: string,
+    version: string,
+    chunk: number,
+    attemptKey: string,
+    signal: AbortSignal
+  ): Promise<string> {
+    return fetchChunkAudio(`${lang}:${requestId}:${version}:${chunk}`, () =>
+      fetch('/api/voice/tts/speech', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Request-Key': `${attemptKey}-${chunk}` },
+        body: JSON.stringify({ requestId, version, chunk, lang }),
+        signal,
+      })
+    );
+  }
+
+  async function fetchSpeechPlan(requestId: string, signal: AbortSignal): Promise<{ version: string; chunks: number }> {
+    const response = await fetch(`/api/voice/tts/plan?requestId=${encodeURIComponent(requestId)}`, {
+      cache: 'no-store',
+      signal,
+    });
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as { code?: unknown } | null;
+      throw new SpeechDenied(response.status, typeof body?.code === 'string' ? body.code : null);
+    }
+    const body = (await response.json()) as { version?: unknown; chunks?: unknown };
+    return {
+      version: typeof body.version === 'string' ? body.version : '',
+      chunks: Number.isSafeInteger(body.chunks) ? Math.max(0, body.chunks as number) : 0,
+    };
   }
 
   function playChunkAudio(url: string, seq: number): Promise<void> {
@@ -396,6 +510,28 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     });
   }
 
+  // A refusal names the reason so auto-read stops with a specific message instead
+  // of retrying a chunk the plan will never cover.
+  function speechDenialText(error: SpeechDenied): string {
+    switch (error.code) {
+      case 'unauthenticated':
+        return t.errors.signIn;
+      case 'feature_locked':
+        return t.voiceReadPlanRequired;
+      case 'quota_exhausted':
+        return t.voiceReadQuota;
+      case 'membership_unavailable':
+        return t.errors.membership;
+      default:
+        return t.voiceSpeechError;
+    }
+  }
+
+  function playbackErrorText(caught: unknown): string {
+    if (caught instanceof SpeechDenied) return speechDenialText(caught);
+    return caught instanceof DOMException && caught.name === 'NotAllowedError' ? t.voiceSpeechBlocked : t.voiceSpeechError;
+  }
+
   // The server owns the engine choice — Aura-2 for English, Flux then VieNeu for
   // Vietnamese. A playback error is reported to the user; there is no browser
   // speech engine anymore.
@@ -405,11 +541,11 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     const chunks = chunkForSpeech(spoken, Math.min(status.maxChars, maxSpeechChunkCharacters));
     try {
       for (let index = 0; index < chunks.length; index += 1) {
-        const current = fetchChunkAudio(chunks[index], controller.signal);
+        const current = legacyChunkAudio(chunks[index], controller.signal);
         if (index + 1 < chunks.length) {
           // The server caps concurrent synthesis; prefetch exactly one chunk
           // ahead so the next sentence is ready when the current one ends.
-          void fetchChunkAudio(chunks[index + 1], controller.signal).catch(() => {});
+          void legacyChunkAudio(chunks[index + 1], controller.signal).catch(() => {});
         }
         const url = await current;
         if (seq !== speechSeqRef.current) return;
@@ -420,9 +556,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     } catch (caught: unknown) {
       if (seq !== speechSeqRef.current || controller.signal.aborted) return;
       console.error('Server speech playback failed', caught);
-      setSpeechError(
-        caught instanceof DOMException && caught.name === 'NotAllowedError' ? t.voiceSpeechBlocked : t.voiceSpeechError
-      );
+      setSpeechError(playbackErrorText(caught));
       setSpeaking(false);
       setSpeakingMessageId(null);
     } finally {
@@ -430,10 +564,47 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     }
   }
 
-  async function speakAnswer(answer: string, messageId: string) {
+  // Enforced playback (task #85): the plan comes from the server, which also owns
+  // the text and the character count, so a synthesized-but-unheard chunk may cost
+  // quota and an exhausted allowance stops auto-read with the answer still on screen.
+  async function playWithPlannedTts(requestId: string, seq: number): Promise<void> {
+    const controller = new AbortController();
+    ttsAbortRef.current = controller;
+    const attemptKey = newRequestKey();
+    try {
+      const plan = await fetchSpeechPlan(requestId, controller.signal);
+      if (seq !== speechSeqRef.current) return;
+      if (plan.chunks === 0) {
+        setSpeaking(false);
+        setSpeakingMessageId(null);
+        return;
+      }
+      for (let index = 0; index < plan.chunks; index += 1) {
+        const current = plannedChunkAudio(requestId, plan.version, index, attemptKey, controller.signal);
+        if (index + 1 < plan.chunks) {
+          void plannedChunkAudio(requestId, plan.version, index + 1, attemptKey, controller.signal).catch(() => {});
+        }
+        const url = await current;
+        if (seq !== speechSeqRef.current) return;
+        await playChunkAudio(url, seq);
+      }
+      setSpeaking(false);
+      setSpeakingMessageId(null);
+    } catch (caught: unknown) {
+      if (seq !== speechSeqRef.current || controller.signal.aborted) return;
+      console.error('Server speech playback failed', caught);
+      setSpeechError(playbackErrorText(caught));
+      setSpeaking(false);
+      setSpeakingMessageId(null);
+    } finally {
+      if (ttsAbortRef.current === controller) ttsAbortRef.current = null;
+    }
+  }
+
+  async function speakAnswer(message: { content: string; response?: AssistantResponse }, messageId: string) {
     stopAnswerSpeech();
     setSpeechError(null);
-    const spoken = spokenText(answer);
+    const spoken = spokenText(message.content);
     // Nothing audible after stripping markdown and symbols (emoji-only or
     // table-only answers); skip synthesis instead of surfacing an error.
     if (!spoken) return;
@@ -449,10 +620,22 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       setSpeechError(t.voiceSpeechError);
       return;
     }
-    await playWithServerTts(spoken, status, seq);
+    if (!membershipEnforced) {
+      await playWithServerTts(spoken, status, seq);
+      return;
+    }
+    // Without a ledger request there is no text the server is willing to read.
+    const requestId = message.response?.requestId;
+    if (!requestId) {
+      setSpeaking(false);
+      setSpeakingMessageId(null);
+      setSpeechError(t.voiceSpeechError);
+      return;
+    }
+    await playWithPlannedTts(requestId, seq);
   }
 
-  async function submit(raw: string, addUser = true, speakResponse = false, retryKey?: string) {
+  async function submit(raw: string, addUser = true, speakResponse = false, retryKey?: string, voiceTurnId?: string) {
     const text = raw.trim();
     if (!text || loading) return;
     if (addUser) stopAnswerSpeech();
@@ -470,6 +653,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       lang,
       conversationId,
       requestKey: turnKey,
+      ...(voiceTurnId ? { voiceTurnId } : {}),
       history: historyFor(messages, !addUser),
       context: { pageType: compSlug ? 'comp' : 'assistant', compSlug, entityIds: [] },
     };
@@ -506,7 +690,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
               { id: streamId, role: 'assistant' as const, content: response.answer, response, voiceResponse: speakResponse },
             ]
       );
-      if (speakResponse) void speakAnswer(response.answer, streamId);
+      if (speakResponse) void speakAnswer({ content: response.answer, response }, streamId);
       cueTomo('sparkle');
       // Refresh conversation list so the new conversation appears with its title.
       void listAssistantConversations().then((list) => setConversations(list)).catch(() => {
@@ -515,7 +699,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
     } catch (caught) {
       if (streamed) setMessages((current) => current.filter((message) => message.id !== streamId));
       setError(errorText(caught));
-      setRetryTurn({ text, requestKey: turnKey });
+      setRetryTurn({ text, requestKey: turnKey, ...(voiceTurnId ? { voiceTurnId } : {}) });
       cueTomo('surprised');
     } finally {
       setLoading(false);
@@ -649,24 +833,15 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
           'Content-Type': 'application/octet-stream',
           'X-Sample-Rate': '16000',
           'X-Language': lang,
+          // One key per recording, so a retried upload cannot be billed twice.
+          'X-Request-Key': newRequestKey(),
         },
         body: floatSamplesToBuffer(resampled.getChannelData(0)),
       });
-      if (response.status === 413) {
-        setVoiceError(t.voiceTooLong);
-        return;
-      }
-      if (response.status === 503) {
-        setVoiceError(t.voiceSttUnavailable);
-        return;
-      }
-      if (response.status === 429) {
-        setVoiceError(t.voiceBusy);
-        return;
-      }
-      const result = (await response.json()) as { text?: unknown; error?: unknown };
-      if (response.status === 422 || result.error === 'no_speech') {
-        setVoiceError(t.voiceNoSpeech);
+      const result = (await response.json().catch(() => ({}))) as { text?: unknown; code?: unknown; turnId?: unknown };
+      const denial = voiceDenialText(response.status, typeof result.code === 'string' ? result.code : null);
+      if (denial) {
+        setVoiceError(denial);
         return;
       }
       if (!response.ok || typeof result.text !== 'string') {
@@ -682,7 +857,10 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
       const question = `${base}${base ? ' ' : ''}${transcript}`.slice(0, 2000);
       setVoiceError(null);
       setVoiceTranscribing(false);
-      await submitRef.current?.(question, true, true);
+      // The server held a chat turn for this recording; sending its id with the
+      // question spends that hold instead of booking a second turn.
+      const turnId = typeof result.turnId === 'string' ? result.turnId : undefined;
+      await submitRef.current?.(question, true, true, undefined, turnId);
     } catch (caught) {
       console.error('Voice transcription failed', caught);
       setVoiceError(t.voiceSttError);
@@ -943,7 +1121,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
                     stopAnswerSpeech();
                     return;
                   }
-                  void speakAnswer(message.content, message.id);
+                  void speakAnswer(message, message.id);
                 }}
                 onRate={rate}
                 onFollowUp={(question) => void submit(question)}
@@ -980,7 +1158,7 @@ export function AssistantChat({ lang, compSlug, compTitle }: { lang: Lang; compS
             {retryTurn ? (
               <button
                 type="button"
-                onClick={() => void submit(retryTurn.text, false, false, retryTurn.requestKey)}
+                onClick={() => void submit(retryTurn.text, false, false, retryTurn.requestKey, retryTurn.voiceTurnId)}
                 className="smooth rounded-md border border-line bg-panel px-3 py-1 text-xs font-semibold hover:border-brand"
               >
                 {t.retry}

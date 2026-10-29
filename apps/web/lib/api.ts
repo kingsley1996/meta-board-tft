@@ -156,6 +156,9 @@ export type AssistantQueryRequest = {
   // Per-turn idempotency key. Retrying a turn that may already have been answered
   // reuses it, so the server replays the stored answer instead of charging twice.
   requestKey?: string;
+  // The chat unit a voice turn reserved before transcription. Sending it means the
+  // question spends that hold instead of booking a second turn.
+  voiceTurnId?: string;
   history: { role: 'user' | 'assistant'; content: string }[];
   context: {
     pageType: 'comp' | 'champion' | 'item' | 'augment' | 'assistant' | null;

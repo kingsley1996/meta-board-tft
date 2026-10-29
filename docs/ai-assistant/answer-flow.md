@@ -72,13 +72,20 @@ File chính:
 
 - Route nhận `AssistantQueryInput` (`message`, `lang`, `history`, `context{entityIds, compSlug}`),
   sinh `requestId` + `conversationId`, gắn `AbortController` (client ngắt connection → abort).
-- **Tài khoản và quota** (`index.ts`, task #83): `requireUser` → 401 `unauthenticated` khi chưa
+- **Tài khoản và quota** (`index.ts`, task #83): chỉ chạy khi
+  `MEMBERSHIP_ENFORCEMENT=enforce`; chưa bật thì route giữ nguyên đường trước #83
+  (guest vẫn được trả lời, không reserve/settle/cost ledger). Khi bật:
+  `requireUser` → 401 `unauthenticated` khi chưa
   đăng nhập — lịch sử chat thuộc account nên cookie trình duyệt không còn đủ. `checkRateLimit`
   (`rate-limit.ts`) chỉ còn burst theo `clientId(req)` (cookie `mb_assistant`, chỉ chống flood,
   không phải số dư), mặc định `ASSISTANT_RATE_LIMIT=12` request/phút → 429 `rate_limited`. Số dư
   nằm ở ledger theo account: `resolveEntitlement`
   (503 `membership_unavailable` nếu plan không đọc được) → `reserve` một lượt `coach_turn`
   theo `requestKey` (idempotency) trước mọi lời gọi model, settle sau khi persist.
+  Query có `voiceTurnId` (task #84) thì `claimTurn` đúng lượt mà `/api/voice/transcribe`
+  đã giữ chỗ (`reserved → dispatched`, 409 `request_in_progress` nếu người khác đang giữ),
+  nên câu hỏi thoại không trừ lượt chat lần hai; `releaseExpiredTurns` chạy trước đó trả
+  lại các hold bỏ quên.
 - **Streaming**: nếu client yêu cầu SSE → header `text/event-stream`, sự kiện `delta` (text prose
   của trường `answer` khi đang sinh) rồi `final` (response đầy đủ); keepalive `: ping` mỗi 5s.
   Non-streaming → JSON một lần. Header SSE chỉ mở sau khi `reserve` và `markDispatched` thành

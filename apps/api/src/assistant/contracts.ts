@@ -267,6 +267,9 @@ export type AssistantQueryInput = {
   // Per-turn idempotency key. A retry of the same turn must carry the same key so
   // the ledger can hand back the answer it already produced instead of paying twice.
   requestKey?: string;
+  // The chat unit a voice turn already reserved before transcription (task #84).
+  // The query spends that hold instead of booking a second turn.
+  voiceTurnId?: string;
   history: AssistantHistoryMessage[];
   context: AssistantContext;
 };
@@ -384,6 +387,10 @@ export function validateAssistantQuery(input: unknown): QueryValidation {
     return { ok: false, error: 'requestKey must be 8-64 characters from [A-Za-z0-9_-]' };
   }
 
+  if (raw.voiceTurnId !== undefined && (typeof raw.voiceTurnId !== 'string' || !UUID_PATTERN.test(raw.voiceTurnId))) {
+    return { ok: false, error: 'voiceTurnId must be a UUID' };
+  }
+
   const history: AssistantHistoryMessage[] = [];
   if (raw.history !== undefined) {
     if (!Array.isArray(raw.history)) return { ok: false, error: 'history must be an array' };
@@ -435,6 +442,7 @@ export function validateAssistantQuery(input: unknown): QueryValidation {
       lang,
       conversationId: raw.conversationId as string | undefined,
       requestKey: raw.requestKey as string | undefined,
+      voiceTurnId: raw.voiceTurnId as string | undefined,
       history,
       context: {
         pageType: (pageType as AssistantPageType | null | undefined) ?? null,

@@ -424,6 +424,74 @@ export async function markDispatched(requestId: string, at = Date.now()): Promis
   return result ?? { ok: false, firstTime: false };
 }
 
+export type TurnClaim =
+  | { ok: true; requestId: string }
+  | { ok: false; reason: 'in_progress' | 'duplicate' | 'expired' | 'conflict' | 'unavailable'; requestId?: string; resultReference?: string | null };
+
+/** Claims a reserved turn for the request that will now run it (task #84: the chat
+ *  unit a voice turn held before transcription is spent by the query that follows).
+ *  The reserved -> dispatched transition is the gate: two requests holding the same
+ *  turn id cannot both become its owner. */
+export async function claimTurn(input: { userId: string; requestId: string; now?: number }): Promise<TurnClaim> {
+  if (!UUID.test(input.userId) || !UUID.test(input.requestId)) return { ok: false, reason: 'conflict' };
+  const now = input.now ?? Date.now();
+  const result = await withTransaction<TurnClaim | null>(async (client) => {
+    await lockAccount(client, input.userId);
+    const { rows } = await client.query(
+      'SELECT status, reserve_expires_at, result_reference FROM usage_requests WHERE id = $1 AND user_id = $2 FOR UPDATE',
+      [input.requestId, input.userId],
+    );
+    const row = rows[0];
+    if (!row) return { ok: false, reason: 'conflict' };
+    if (row.status === 'completed') {
+      return { ok: false, reason: 'duplicate', requestId: input.requestId, resultReference: row.result_reference };
+    }
+    if (row.status === 'released') return { ok: false, reason: 'expired', requestId: input.requestId };
+    if (row.status !== 'reserved') return { ok: false, reason: 'in_progress', requestId: input.requestId };
+    if (Date.parse(row.reserve_expires_at) <= now) return { ok: false, reason: 'expired', requestId: input.requestId };
+    await client.query(
+      "UPDATE usage_requests SET status = 'dispatched', dispatched_at = $2, updated_at = now() WHERE id = $1",
+      [input.requestId, new Date(now).toISOString()],
+    );
+    return { ok: true, requestId: input.requestId };
+  });
+  return result ?? { ok: false, reason: 'unavailable' };
+}
+
+/** Moves the deadline of a still-reserved turn. A voice turn holds its chat unit
+ *  before transcription (so a user with no turns left never spends speech minutes),
+ *  and transcription itself can take a while; the client only gets the chance to
+ *  spend that unit once the text comes back, so the hold is refreshed at that point
+ *  instead of being sized for the worst provider chain. */
+export async function extendTurn(requestId: string, ttlMs: number, now = Date.now()): Promise<boolean> {
+  if (!UUID.test(requestId) || !Number.isSafeInteger(ttlMs) || ttlMs <= 0) return false;
+  const { rowCount } = await pool.query(
+    "UPDATE usage_requests SET reserve_expires_at = $2, updated_at = now() WHERE id = $1 AND status = 'reserved'",
+    [requestId, new Date(now + ttlMs).toISOString()],
+  );
+  return (rowCount ?? 0) > 0;
+}
+
+/** Gives back turns that were held and never used, so an abandoned voice turn stops
+ *  counting against the account's in-flight limit and its units return to the
+ *  window. The account row is locked first, the same order reserve and settle take. */
+export async function releaseExpiredTurns(userId: string, now = Date.now()): Promise<number> {
+  if (!UUID.test(userId)) return 0;
+  const result = await withTransaction(async (client) => {
+    await lockAccount(client, userId);
+    const { rows } = await client.query(
+      `SELECT id FROM usage_requests
+        WHERE user_id = $1 AND status = 'reserved' AND reserve_expires_at <= $2
+        ORDER BY reserve_expires_at
+        FOR UPDATE`,
+      [userId, new Date(now).toISOString()],
+    );
+    for (const row of rows) await settleLocked(client, row.id, 'released', now);
+    return rows.length;
+  });
+  return result ?? 0;
+}
+
 /** Turns a reservation into consumption, or gives it back. Exactly once: a second
  *  settle on a terminal row changes nothing and answers settled: false.
  *
@@ -568,6 +636,29 @@ export async function reconcileStale(options: { limit?: number; now?: number } =
     client.release();
   }
   return outcome;
+}
+
+/** Expiry has to happen without an operator: a reservation that outlived its
+ *  deadline gives its units back even if the account never comes back. Every
+ *  instance may run this - the claim is FOR UPDATE SKIP LOCKED. */
+export function scheduleQuotaRecovery(intervalMs = 60_000): void {
+  const sweep = (): void => {
+    void reconcileStale({ limit: 100 })
+      .then((result) => {
+        if (result.unavailable) {
+          console.error('quota recovery unavailable');
+        } else if (result.released.length || result.consumed.length) {
+          console.log('quota recovery', {
+            released: result.released.length,
+            consumed: result.consumed.length,
+            needsRecovery: result.needsRecovery.length,
+          });
+        }
+      })
+      .catch((error: unknown) => console.error('quota recovery failed', error instanceof Error ? error.message : error));
+  };
+  sweep();
+  setInterval(sweep, intervalMs).unref();
 }
 
 export async function markResultReference(requestId: string, resultReference: string): Promise<boolean> {

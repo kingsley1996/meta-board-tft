@@ -1,7 +1,7 @@
 # Plan triển khai hội viên MetaBoard
 
 Ngày lập: 2026-10-29.
-Trạng thái: đã chốt #79, hoàn thành payment provider layer #97, schema membership/usage #80, core quota reserve–settle #81, cost instrumentation #82 và membership lifecycle + API đọc #86; bốn route đọc membership/usage đã mount ở `/api`, nhưng chưa route AI/voice nào resolve entitlement hay trừ quota, chưa mount spend meter và chưa mở thanh toán thật.
+Trạng thái: đã chốt #79, hoàn thành payment provider layer #97, schema membership/usage #80, core quota reserve–settle #81, cost instrumentation #82, membership lifecycle + API đọc #86, Coach text #83, STT voice turn #84 và TTS #85; bốn route đọc membership/usage đã mount ở `/api`, text/STT/TTS đã resolve entitlement và trừ quota. Toàn bộ đường account/quota nằm sau cờ `MEMBERSHIP_ENFORCEMENT=enforce` (mặc định tắt, production vẫn chạy như trước #83); thanh toán thật (#87) chưa nối.
 
 ## 1. Mục tiêu và phạm vi
 
@@ -25,6 +25,7 @@ Task #79 đã được user chốt ngày 2026-10-29:
 
 Các gate còn lại:
 
+- Cờ triển khai: chỉ `MEMBERSHIP_ENFORCEMENT=enforce` (đặt ở **cả** API/Render và web/Vercel) mới bật session bắt buộc, entitlement, reserve/settle và cost ledger. Thiếu cờ, `off` hay gõ sai giữ nguyên hành vi trước #83: guest vẫn dùng Coach, không ghi ledger, `/api/voice/tts/plan` trả 404. Hai bên phải bật cùng lúc ở #95 — bật API trước sẽ khiến web chưa đổi nhận 401. Đây là lý do production vẫn chạy được Coach trong lúc hoàn thiện membership.
 - Task #88: duyệt mock trước khi sửa UI thật.
 - Task #92: xác nhận offer cuối cùng sau khi có tariff và báo cáo unit economics.
 - Task #95: cho phép commit/push, migration/config production và phạm vi giao dịch kiểm thử thật, nếu có.
@@ -82,6 +83,7 @@ Giữ burst/IP protection riêng với allowance. Cookie không còn là nguồn
 - Transcript sang query dùng reservation của cùng turn, không trừ chat lần hai; token tham chiếu scoped user, payload và thời hạn.
 - Transcribe xong nhưng user không gửi query: settle STT theo kết quả, release lượt chat chưa dispatch khi reservation hết hạn.
 - Silent/invalid audio bị loại trước provider không tiêu STT. Provider failure, empty transcript và user cancellation tuân theo chính sách lỗi đã chốt; ghi riêng cost thực tế/unknown.
+- Đã implement ở #84 với hai dòng ledger thay vì một: `stt_transcribe` settle ngay theo kết quả của clip, `coach_turn` giữ chỗ 5 phút (rút còn 60 giây khi transcript về) và bị claim bởi query kế tiếp (`reserved → dispatched`), nên lượt chat chưa dùng không bao giờ bị tính tiền theo clip và cũng không thể bị hai client cùng tiêu. Tham chiếu là `turnId` scoped theo account + hạn dùng; ràng buộc payload nằm ở dòng STT (fingerprint của clip, cùng `X-Request-Key` là replay), còn query trong cùng account không cần khớp lại transcript vì hold đã thuộc chính account đó. Hold bỏ quên được release ở request kế tiếp và bởi sweeper `reconcileStale` mỗi 60 giây.
 
 ### TTS
 
@@ -233,14 +235,16 @@ Các vị trí hiện có đã khảo sát; module mới chỉ tạo khi bước
 
 - [Schema](../apps/api/src/schema.sql): membership/payment/usage tables và constraints đã có từ #80, thêm `membership_events` ở #86; [seed offer](../apps/api/seed/membership-plans.ts) tạo hai plan_versions draft. [quota.ts](../apps/api/src/membership/quota.ts) (#81) và [cost.ts](../apps/api/src/membership/cost.ts) (#82) là hai module đọc/ghi ledger; [lifecycle.ts](../apps/api/src/membership/lifecycle.ts) (#86) resolve entitlement, cấp và thu hồi kỳ hạn; [routes.ts](../apps/api/src/membership/routes.ts) (#86) là API đọc. #87 vẫn chưa có code.
 - [Role account](../apps/api/src/accounts.ts#L10): giữ nguyên user/admin, bổ sung membership riêng. `grantPeriod`/`revokePeriod` không kiểm role — gate admin thuộc route #91, không thuộc module kỳ hạn.
-- [API mounting](../apps/api/src/index.ts#L348): `app.use('/api', membershipRouter)` cho catalog và `/api/me/*`; auth/entitlement boundary của assistant đã nối ở #83, voice vẫn chờ #84-#85; payment/webhook/admin routes chờ #87/#90/#91.
+- [API mounting](../apps/api/src/index.ts#L348): `app.use('/api', membershipRouter)` cho catalog và `/api/me/*`; auth/entitlement boundary của assistant đã nối ở #83, của `/api/voice/transcribe` ở #84 và của `/api/voice/tts/plan|speech` ở #85 (cùng một `resolveSessionUser` mount trước cả hai router); payment/webhook/admin routes chờ #87/#90/#91. `scheduleQuotaRecovery()` chỉ chạy khi cờ enforcement bật.
 - [Assistant query](../apps/api/src/assistant/index.ts#L174): #83 — `requireUser` → 401, burst theo `clientId` (cookie `mb_assistant`, chỉ chống flood chứ không phải số dư), `resolveEntitlement`, `reserve` theo `requestKey`, `markDispatched` trước khi mở SSE, persist → `markResultReference` → `settle` trước `final`. Denial map ở `quotaDenial` (402/403/429/503).
 - [Rate limit](../apps/api/src/assistant/rate-limit.ts#L16): quota ngày theo cookie đã bỏ cùng #83; chỉ còn burst execution, không giữ hai hệ thống số dư. Biến `ASSISTANT_DAILY_REQUESTS` đã xoá khỏi `.env.example` và registry `/admin/settings`.
 - [Inference trace](../apps/api/src/assistant/orchestrator.ts#L1110) và [provider boundary](../apps/api/src/assistant/provider.ts): durable spend instrumentation tách khỏi best-effort tracing đã có ở #82 — ba adapter nhận `meter` tùy chọn; #83 tạo `usage_requests` và truyền meter từ route.
 - [Background extraction](../apps/api/src/assistant/unresolved-entity-detection.ts#L59): chạy dưới cùng ledger request và meter của turn (#83), không phát sinh một lượt user mới.
-- [STT](../apps/api/src/voice.ts#L442) và [TTS](../apps/api/src/voice.ts#L958): auth, linked reservation, authoritative units, retry/cancel.
+- [STT](../apps/api/src/voice.ts#L529): #84 — session → `resolveEntitlement` → reserve giây từ sample count → reserve `chat:1` (TTL 5 phút) → `markDispatched` → vendor; `settle` ngay khi có transcript, `extendTurn` còn 60 giây cho query. `voiceTurnId` đi qua [contracts](../apps/api/src/assistant/contracts.ts#L263) và [claimTurn](../apps/api/src/membership/quota.ts#L435).
+- [TTS](../apps/api/src/voice.ts#L1160): #85 — `GET /tts/plan?requestId` chỉ trả `{ version: sha256(spokenText(answer)), chunks }`; text lấy từ `usage_requests.result_reference → assistant_messages` và chỉ khi conversation thuộc account (join `c.user_id`). `POST /tts/speech` enforced nhận `{ requestId, version, chunk, lang }`, tự chunk theo `TTS_CHUNK_CHARACTERS`, reserve `tts_characters` bằng số ký tự server đếm, `X-Request-Key + chunk` làm idempotency; chunk đã synthesize (hoặc client dừng sau dispatch) là `completed`, lỗi engine là `released`. Chưa bật cờ: route giữ `{ input, lang }` cũ, `/tts/plan` 404.
+- [Shared speech text](../packages/shared/src/speech-text.ts): #85 — một định nghĩa `spokenText()`/`chunkForSpeech()` cho API và web, nên version và ranh giới chunk không lệch giữa hai bên.
 - [Conversation ownership](../apps/api/src/assistant/conversation-store.ts#L111): account-only access đã nối ở #83 (đọc/xoá theo `user_id`, guest conversation được claim bởi account đầu tiên list nó); dữ liệu lịch sử cũ giữ nguyên.
-- [Chat voice client](../apps/web/components/assistant/assistant-chat.tsx#L300): #83 đã có `requestKey` mỗi turn (dùng lại khi retry) và copy EN/VI cho mọi denial code; voice turn, chunk refs, cache và prefetch còn ở #84/#85/#89.
+- [Chat voice client](../apps/web/components/assistant/assistant-chat.tsx#L300): #83 có `requestKey` mỗi turn (dùng lại khi retry) và copy EN/VI cho mọi denial code; #84 gửi `X-Request-Key` khi transcribe và chuyển `turnId` thành `voiceTurnId` của query (giữ lại khi retry); #85 có hai đường phát — enforced đi `plan` + `{ requestId, version, chunk }` (một `X-Request-Key` cho cả lượt, suffix chunk), chưa enforced đi `{ input }`; cache blob theo request/version/chunk, prefetch đúng một chunk, 402/403 dừng đọc nhưng giữ câu trả lời. Browser verification để #89.
 - [Profile](../apps/web/app/[lang]/profile/page.tsx#L18) và web API/messages: membership/usage/order display, EN/VI.
 
 API đã có từ #86: `GET /api/membership/catalog`, `GET /api/me/membership`, `GET /api/me/usage`, `GET /api/me/membership/history`. Còn dự kiến: create/read orders, request status và admin membership/payment review. Chốt contracts ở các task backend, không coi các route này đã tồn tại.
@@ -309,8 +313,8 @@ Thứ tự thực tế: foundation/metering trước; policy và UI mock có th�
 - [x] #97 Contract/registry/payOS/SePay adapters và switch/signature tests qua; HTTP integration còn #87.
 - [x] #86 Membership và kỳ hạn được kiểm (17 case trong `lifecycle.test.ts` trên PostgreSQL dev, 3 case trong số đó gọi HTTP thật: entitlement đọc theo đồng hồ nên kỳ hết hạn ngừng cấp quyền mà không cần cron, gói không đọc được là 503 chứ không phải Free, retired vẫn honour kỳ đã bán nhưng không bán thêm, renewal nối sau `MAX(ends_at)` chứ không chồng allowance, hai webhook cùng giây vẫn xếp hàng, một order chỉ mint một kỳ, refund thu hồi đúng một kỳ và không đụng `users.role`/lịch sử, `/api/me/*` là `no-store` còn catalog cache được; typecheck và 411 API test pass. Bảng mới `membership_events` cần re-apply `schema.sql` ở dev, chưa chạy prod migration; #87/#83-#85 là bên gọi `grantPeriod` và `resolveEntitlement`.)
 - [x] #83 Coach text đi qua account được kiểm (13 case trong `coach-quota.test.ts` trên PostgreSQL dev + fetch stub: 401 khi chưa đăng nhập và không ghi ledger; budget theo account chứ không theo cookie — hai browser khác cookie dùng chung số dư; `plan`/`entitlement` client khai bị bỏ qua; kỳ lapsed rơi về Free theo clock; `requestKey` replay trả câu trả lời đã lưu với một debit, cùng key khác payload là 409; provider refusal hoàn lượt nhưng giữ `usage_attempts`; SSE disconnect sau dispatch vẫn tính lượt; `too_many_in_flight` + Retry-After không đặt chỗ; plan code hỏng là 503 chứ không Free; burst `rate_limited`; đọc/xoá lịch sử chéo account bị chặn và guest conversation được claim đúng một lần. 424 API test, 17 web test, typecheck sạch. Web gửi `requestKey` mỗi turn, map đủ denial code EN/VI và `/assistant` chặn khi chưa đăng nhập; chưa verify browser vì không tự bật dev server — để #89.)
-- [ ] #84 STT linked turn được kiểm.
-- [ ] #85 TTS/chunk/cache/prefetch được kiểm.
+- [x] #84 Voice turn được kiểm (12 case trong `voice-quota.test.ts` trên PostgreSQL dev, gọi HTTP thật qua router voice + assistant: 401 khi thiếu session và vendor không bị gọi; Free trả 403 `feature_locked` còn Coach text vẫn chạy; Plus reserve 2 dòng trước khi clip rời máy, `turnId` được query claim nên chỉ một lượt chat bị trừ, số giây = ceil(samples/16000) và clip 1,5 s tính 2 s; im lặng và clip vượt `max_stt_seconds_per_request` bị loại trước ledger; vendor lỗi và transcript rỗng release cả hai dòng nhưng giữ `usage_attempts`; replay cùng `X-Request-Key` chỉ gọi vendor một lần; `turnId` của account khác không claim được; hold bỏ quên hết hạn được release và không chiếm slot; hai client tranh một turn chỉ một bên thắng claim. Sweeper `reconcileStale` có caller định kỳ 60 giây từ boot. Typecheck API + web sạch, 437 API test pass liên tiếp 3 lần; browser verification để #89.)
+- [x] #85 TTS/chunk/cache/prefetch được kiểm (8 case mới trong `voice-quota.test.ts` trên PostgreSQL dev + HTTP router thật: `GET /tts/plan` chỉ trả `version = sha256(spokenText(answer))` và **số** chunk của answer đã lưu; `input` browser gửi kèm bị bỏ qua, engine nhận đúng chunk server dựng và `tts_characters` trừ theo số ký tự server đếm; guest 401, Free 403 `feature_locked` không mở bucket, account khác 404 và không bị trừ; version cũ 409 `speech_version_mismatch`, chunk vượt plan 400 trước khi gọi engine; retry cùng `X-Request-Key` 409 `already_answered` không trừ thêm, bấm **Nghe lại** là lượt mới và tính lại; hết ký tự 402 `quota_exhausted` trước vendor, câu trả lời vẫn đọc được; tắt cờ thì `/tts/plan` 404, đường `{ input }` cũ chạy và không ghi ledger. `spokenText`/`chunkForSpeech` chuyển sang `packages/shared/src/speech-text.ts` dùng chung API + web để version không lệch. 20 case trong file, 445 API test, 17 web test, typecheck sạch. Browser verification để #89.)
 - [ ] #87 Payment/refund/reconciliation được kiểm.
 - [ ] #88 UI mock được duyệt.
 - [ ] #89 Pricing/profile/Coach UI được kiểm browser.
@@ -319,7 +323,7 @@ Thứ tự thực tế: foundation/metering trước; policy và UI mock có th�
 - [ ] #92 Offer qua cost gate và được user duyệt.
 - [ ] #93 Full validation có bằng chứng.
 - [ ] #94 Runbook/readiness/rollback hoàn chỉnh.
-- [ ] #95 Production được triển khai và xác minh có phép.
+- [ ] #95 Production được triển khai và xác minh có phép (gồm bật `MEMBERSHIP_ENFORCEMENT=enforce` đồng thời ở API/Render và web/Vercel, rồi xác minh guest bị chặn đúng và đường `{ input }` không còn mở).
 - [ ] #96 Pilot report và nghiệm thu kết thúc.
 
 ## 11. Test matrix và bằng chứng
@@ -347,7 +351,7 @@ Không tự đo throughput hosted hoặc dùng payment live để chữa một t
 
 ### Rollback
 
-Tắt offer mới trước, giữ financial/usage ledger. Không rollback bằng DROP bảng đã có giao dịch. Nếu cần ngừng inference, có thông báo và refund/credit policy. Code rollback phải được kiểm tương thích schema additive và không mở lại đường AI thiếu quota; nếu không thể giữ invariant thì tạm dừng assistant/voice, phần tra cứu vẫn hoạt động.
+Tắt offer mới trước, giữ financial/usage ledger. Không rollback bằng DROP bảng đã có giao dịch. Nếu cần ngừng inference, có thông báo và refund/credit policy. Code rollback phải được kiểm tương thích schema additive và không mở lại đường AI thiếu quota; nếu không thể giữ invariant thì tạm dừng assistant/voice, phần tra cứu vẫn hoạt động. Cờ `MEMBERSHIP_ENFORCEMENT` không phải rollback miễn phí: tắt cờ (hoặc quay về code trước #83) sẽ mở lại đường AI không quota, nên chỉ dùng như emergency có ghi nhận, không dùng để "thử lại" deploy.
 
 ### Done kỹ thuật
 

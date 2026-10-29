@@ -17,6 +17,7 @@
     "paths": {
       "@metaboard/shared/mechanics": ["../../packages/shared/src/mechanics.ts"],
       "@metaboard/shared/economy-match": ["../../packages/shared/src/economy-match.ts"],
+      "@metaboard/shared/speech-text": ["../../packages/shared/src/speech-text.ts"],
       "@metaboard/shared/translation-id": ["../../packages/shared/src/translation-id.ts"],
       "@metaboard/shared/data/*": ["../../packages/shared/data/*"]
     }

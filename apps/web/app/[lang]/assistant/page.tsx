@@ -26,11 +26,15 @@ export default async function AssistantPage({
   const compSlug = requested && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(requested) ? requested : null;
   const t = messages[lang].assistant;
   const user = await currentUser();
+  // The paid pilot is opt-in (docs/MEMBERSHIP-PLAN.md §2): until the API enforces
+  // accounts and quota, the Coach keeps answering guests exactly as production does.
+  // This flag must be flipped together with the API's MEMBERSHIP_ENFORCEMENT.
+  const enforced = process.env.MEMBERSHIP_ENFORCEMENT === 'enforce';
 
   // A turn is account quota and the history is account data (task #83), so the chat is
   // rendered only for a signed-in account: a box that answers every question with 401
   // is worse than asking for the sign-in first.
-  if (!user) {
+  if (enforced && !user) {
     return (
       <div data-assistant className="flex flex-col gap-4">
         <aside className="flex items-center gap-3 rounded-xl border border-line bg-panel px-4 py-3">
@@ -65,7 +69,12 @@ export default async function AssistantPage({
           <p className="text-xs leading-relaxed text-mist">{t.intro}</p>
         </div>
       </aside>
-      <AssistantChat lang={lang} compSlug={comp ? compSlug : null} compTitle={comp?.title ?? null} />
+      <AssistantChat
+        lang={lang}
+        compSlug={comp ? compSlug : null}
+        compTitle={comp?.title ?? null}
+        membershipEnforced={enforced}
+      />
     </div>
   );
 }

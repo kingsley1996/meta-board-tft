@@ -199,6 +199,29 @@ export async function getAssistantMessage(messageId: string): Promise<AssistantM
 }
 
 /**
+ * The answer behind a completed ledger request, only when its conversation belongs
+ * to the asking account (task #85). Voice output reads text from here; the browser
+ * sends ids, never prose, so the route cannot be used as a text-to-speech proxy.
+ */
+export async function getAssistantAnswerForRequest(
+  requestId: string,
+  userId: string,
+): Promise<{ messageId: string; answer: string } | null> {
+  const { rows } = await pool.query<{ id: string; answer: string | null; content: string }>(
+    `SELECT m.id, m.response->>'answer' AS answer, m.content
+       FROM usage_requests r
+       JOIN assistant_messages m ON m.id::text = r.result_reference
+       JOIN assistant_conversations c ON c.id = m.conversation_id
+      WHERE r.id = $1 AND r.user_id = $2 AND c.user_id = $2 AND m.role = 'assistant'`,
+    [requestId, userId],
+  );
+  const row = rows[0];
+  if (!row) return null;
+  const answer = typeof row.answer === 'string' && row.answer ? row.answer : row.content;
+  return { messageId: row.id, answer };
+}
+
+/**
  * Count total messages for a conversation (used for pagination metadata).
  */
 export async function countMessages(conversationId: string): Promise<number> {

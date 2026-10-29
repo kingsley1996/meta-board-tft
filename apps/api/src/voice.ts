@@ -1,10 +1,29 @@
 import express, { Router, type NextFunction, type Request, type Response as ExpressResponse } from 'express';
-import { chargeForFailure, characterCharges, durationCharges, meterClose, meterOpen } from './membership/cost.ts';
+import { createHash, randomUUID } from 'node:crypto';
+import { chunkForSpeech, spokenText } from '@metaboard/shared/speech-text';
+import type { AuthedRequest } from './auth-routes.ts';
+import { getAssistantAnswerForRequest } from './assistant/conversation-store.ts';
+import { chargeForFailure, characterCharges, durationCharges, meterClose, meterOpen, createSpendMeter } from './membership/cost.ts';
 import type { AttemptClose, Charge, SpendMeter } from './membership/cost.ts';
+import { quotaDenial, sendDenial } from './membership/denial.ts';
+import { membershipEnforced } from './membership/enforcement.ts';
+import { resolveEntitlement } from './membership/lifecycle.ts';
+import { extendTurn, markDispatched, releaseExpiredTurns, reserve, settle } from './membership/quota.ts';
 
 const router = Router();
 const sampleRate = 16_000;
 const maxSamples = sampleRate * 60;
+
+// A voice turn is a chat turn with a transcription in front of it (task #84). The
+// chat unit is reserved before the clip leaves, and the client spends it by sending
+// the transcript to /api/assistant/query with `voiceTurnId`.
+const REQUEST_KEY = /^[A-Za-z0-9_-]{8,64}$/;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// The hold must outlive the provider chain before the text comes back...
+const VOICE_TURN_RESERVE_MS = 5 * 60_000;
+// ...and only until the client sends the question after it does. A short window
+// means a turn nobody used stops blocking the account quickly.
+const VOICE_TURN_CLAIM_MS = 60_000;
 
 type SttProvider = 'deepgram' | 'groq' | 'openrouter' | 'elevenlabs' | 'openai' | 'gemini';
 
@@ -515,48 +534,151 @@ router.post(
   '/transcribe',
   express.raw({ type: 'application/octet-stream', limit: '4mb' }),
   async (req, res) => {
+    // A recording is account spend and account data (task #84), so the route reads
+    // the session itself: calling it directly from a script cannot borrow a quota.
+    // Enforcement is opt-in, so production keeps the open route until the pilot is
+    // switched on (membership/enforcement.ts).
+    const enforced = membershipEnforced();
+    const user = (req as AuthedRequest).authUser ?? null;
+    if (enforced && !user) return res.status(401).json({ error: 'Sign in to use voice input.', code: 'unauthenticated' });
     if (sttProviderCandidates().length === 0) {
-      return res.status(503).json({ error: 'stt_not_configured' });
+      return res.status(503).json({ error: 'stt_not_configured', code: 'voice_unavailable' });
     }
     if (!Buffer.isBuffer(req.body) || req.body.byteLength < 4 || req.body.byteLength % 4 !== 0) {
-      return res.status(400).json({ error: 'invalid_audio' });
+      return res.status(400).json({ error: 'invalid_audio', code: 'invalid_audio' });
     }
     if (Number(req.header('x-sample-rate')) !== sampleRate) {
-      return res.status(400).json({ error: 'unsupported_sample_rate' });
+      return res.status(400).json({ error: 'unsupported_sample_rate', code: 'invalid_audio' });
     }
 
     const samplesCount = req.body.byteLength / Float32Array.BYTES_PER_ELEMENT;
-    if (samplesCount > maxSamples) return res.status(413).json({ error: 'audio_too_long' });
+    if (samplesCount > maxSamples) return res.status(413).json({ error: 'audio_too_long', code: 'audio_too_long' });
     if (activeTranscriptions >= sttMaxConcurrency) {
-      return res.status(429).json({ error: 'transcription_busy' });
+      return res.status(429).json({ error: 'transcription_busy', code: 'transcription_busy' });
     }
 
     const samples = new Float32Array(samplesCount);
     let squaredAmplitude = 0;
     for (let index = 0; index < samplesCount; index += 1) {
       const value = req.body.readFloatLE(index * Float32Array.BYTES_PER_ELEMENT);
-      if (!Number.isFinite(value)) return res.status(400).json({ error: 'invalid_audio' });
+      if (!Number.isFinite(value)) return res.status(400).json({ error: 'invalid_audio', code: 'invalid_audio' });
       samples[index] = value;
       squaredAmplitude += value * value;
     }
+    // Silence is decided before any booking, so a pocket-dial spends nothing.
     if (Math.sqrt(squaredAmplitude / samplesCount) < 0.001) {
-      return res.status(422).json({ error: 'no_speech' });
+      return res.status(422).json({ error: 'no_speech', code: 'no_speech' });
+    }
+
+    // The voice turn's ledger pair (task #84): the clip's seconds and the chat unit
+    // the question will spend are both held before any audio leaves, so an account
+    // that cannot pay learns that before a vendor is called. Without enforcement
+    // there is no ledger and the clip is transcribed as it always was.
+    let ledger: { transcriptionId: string; turnId: string; seconds: number } | null = null;
+    if (enforced && user) {
+      const entitlement = await resolveEntitlement(user.id);
+      if (!entitlement.ok) {
+        return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+      }
+      await releaseExpiredTurns(user.id);
+
+      // Seconds come from the validated sample count, never from the client's word.
+      const seconds = Math.ceil(samplesCount / sampleRate);
+      const headerKey = req.header('x-request-key');
+      const requestKey = headerKey && REQUEST_KEY.test(headerKey) ? headerKey : randomUUID();
+      // The clip identifies the payload, so a retried upload under the same key is a
+      // replay rather than a different question.
+      const fingerprint = createHash('sha256')
+        .update(req.body)
+        .update(`|${req.header('x-sample-rate') ?? ''}|${req.header('x-language') ?? ''}`)
+        .digest('hex');
+
+      const speech = await reserve({
+        userId: user.id,
+        purpose: 'stt_transcribe',
+        idempotencyKey: `stt:${requestKey}`,
+        payloadSha256: fingerprint,
+        plan: entitlement.plan,
+        units: { stt_seconds: seconds },
+      });
+      if (!speech.ok) {
+        if (speech.reason === 'duplicate' || speech.reason === 'in_progress') {
+          return res.status(409).json({
+            error: speech.reason === 'duplicate' ? 'That recording was already transcribed.' : 'That recording is still being transcribed.',
+            code: speech.reason === 'duplicate' ? 'already_answered' : 'request_in_progress',
+            requestId: speech.requestId,
+          });
+        }
+        if (speech.reason === 'conflict') {
+          return res.status(409).json({ error: 'That request key was already used for a different recording.', code: 'request_conflict', requestId: speech.requestId });
+        }
+        return sendDenial(res, quotaDenial(speech.reason, speech.retryAfterMs), speech.requestId);
+      }
+
+      // The chat unit is held before the clip leaves, so an account that cannot pay
+      // for the turn learns that before any speech minutes are spent.
+      const turn = await reserve({
+        userId: user.id,
+        purpose: 'coach_turn',
+        idempotencyKey: `turn:${requestKey}`,
+        payloadSha256: fingerprint,
+        plan: entitlement.plan,
+        units: { chat: 1 },
+        reservationTtlMs: VOICE_TURN_RESERVE_MS,
+      });
+      if (!turn.ok) {
+        await settle(speech.requestId, 'released', { errorCode: turn.reason });
+        return sendDenial(res, quotaDenial(turn.reason, turn.retryAfterMs), turn.requestId);
+      }
+
+      const dispatched = await markDispatched(speech.requestId);
+      if (!dispatched.ok) {
+        await settle(speech.requestId, 'released', { errorCode: 'dispatch_not_recorded' });
+        await settle(turn.requestId, 'released', { errorCode: 'dispatch_not_recorded' });
+        return res.status(503).json({ error: 'assistant is unavailable', code: 'assistant_unavailable' });
+      }
+      ledger = { transcriptionId: speech.requestId, turnId: turn.requestId, seconds };
     }
 
     activeTranscriptions += 1;
     try {
-      const outcome = await transcribeWithFailover(encodeWavPcm16(samples), process.env, fetch, speechLang(req.header('x-language')));
+      const outcome = await transcribeWithFailover(
+        encodeWavPcm16(samples),
+        process.env,
+        fetch,
+        speechLang(req.header('x-language')),
+        ledger ? createSpendMeter(ledger.transcriptionId) : undefined,
+      );
       const text = outcome.text.trim();
-      if (!text || !/[\p{L}\p{N}]/u.test(text)) return res.status(422).json({ error: 'no_speech' });
+      if (!text || !/[\p{L}\p{N}]/u.test(text)) {
+        // The vendor's attempts stay in the cost ledger; the user is not charged
+        // seconds for a clip that produced no words.
+        if (ledger) {
+          await settle(ledger.transcriptionId, 'released', { errorCode: 'no_speech' });
+          await settle(ledger.turnId, 'released', { errorCode: 'no_speech' });
+        }
+        return res.status(422).json({ error: 'no_speech', code: 'no_speech' });
+      }
+      if (ledger) {
+        // The whole clip left the building and was billed, so its seconds stand even
+        // if the question that follows fails.
+        await settle(ledger.transcriptionId, 'completed', { consumed: { stt_seconds: ledger.seconds }, resultReference: outcome.provider });
+        await extendTurn(ledger.turnId, VOICE_TURN_CLAIM_MS);
+      }
       res.setHeader('x-stt-provider', outcome.provider);
-      return res.json({ text });
+      return res.json({ text, ...(ledger ? { turnId: ledger.turnId } : {}) });
     } catch (error) {
+      const errorCode = error instanceof SpeechBusyError ? 'transcription_busy' : 'transcription_failed';
+      if (ledger) {
+        await settle(ledger.transcriptionId, 'released', { errorCode });
+        await settle(ledger.turnId, 'released', { errorCode });
+      }
       if (error instanceof SpeechBusyError) {
-        return res.status(429).json({ error: 'transcription_busy' });
+        return res.status(429).json({ error: 'transcription_busy', code: 'transcription_busy' });
       }
       if (error instanceof SpeechUnavailableError) {
         console.error('Voice transcription unavailable', error.message);
-        return res.status(502).json({ error: 'transcription_failed' });
+        return res.status(502).json({ error: 'transcription_failed', code: 'transcription_failed' });
       }
       throw error;
     } finally {
@@ -1056,15 +1178,123 @@ router.get('/tts/status', async (req, res) => {
   });
 });
 
+// The server owns what may be read aloud (task #85): the text is the stored answer
+// of the account's own ledger request, normalised and chunked by the shared
+// definition, so the browser sends ids and an index and never prose. `version`
+// embeds the normalised text, so a client holding a stale chunk list is told to
+// re-plan instead of playing audio for a sentence that changed.
+type SpeechPlan = { version: string; chunks: string[] };
+
+async function speechPlanFor(userId: string, requestId: string): Promise<SpeechPlan | null> {
+  if (!UUID_PATTERN.test(requestId)) return null;
+  const source = await getAssistantAnswerForRequest(requestId, userId);
+  if (!source) return null;
+  const spoken = spokenText(source.answer);
+  return {
+    version: createHash('sha256').update(spoken).digest('hex'),
+    chunks: chunkForSpeech(spoken, ttsChunkCharacters()),
+  };
+}
+
+router.get('/tts/plan', async (req, res) => {
+  if (!membershipEnforced()) {
+    return res.status(404).json({ error: 'speech plan is unavailable', code: 'tts_plan_unavailable' });
+  }
+  const user = (req as AuthedRequest).authUser ?? null;
+  if (!user) return res.status(401).json({ error: 'Sign in to read answers aloud.', code: 'unauthenticated' });
+  const entitlement = await resolveEntitlement(user.id);
+  if (!entitlement.ok) {
+    return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+  }
+  // TTS is a paid feature; say so before the client asks for a chunk it can never buy.
+  if (entitlement.plan.ttsCharactersPerPeriod <= 0) {
+    return res.status(403).json({ error: 'Reading answers aloud is not part of your plan.', code: 'feature_locked' });
+  }
+  const requestId = typeof req.query.requestId === 'string' ? req.query.requestId : '';
+  const plan = await speechPlanFor(user.id, requestId);
+  if (!plan) return res.status(404).json({ error: 'That answer is not available for playback.', code: 'not_found' });
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ version: plan.version, chunks: plan.chunks.length });
+});
+
 router.post('/tts/speech', async (req, res) => {
-  const input = typeof req.body?.input === 'string' ? req.body.input.trim() : '';
   const lang = speechLang(req.body?.lang);
   const maxChars = ttsChunkCharacters();
+  let input: string;
+  // One ledger row per chunk. `characters` is the server's count of the chunk it
+  // synthesizes, not anything the client says, and it is also the quota unit.
+  let ledger: { requestId: string; characters: number } | null = null;
+
+  if (membershipEnforced()) {
+    const user = (req as AuthedRequest).authUser ?? null;
+    if (!user) return res.status(401).json({ error: 'Sign in to read answers aloud.', code: 'unauthenticated' });
+    const requestId = typeof req.body?.requestId === 'string' ? req.body.requestId : '';
+    const version = typeof req.body?.version === 'string' ? req.body.version : '';
+    const chunk = Number(req.body?.chunk);
+    if (!UUID_PATTERN.test(requestId) || !/^[0-9a-f]{64}$/.test(version) || !Number.isSafeInteger(chunk) || chunk < 0) {
+      return res.status(400).json({ error: 'invalid_speech_request', code: 'invalid_request' });
+    }
+
+    const entitlement = await resolveEntitlement(user.id);
+    if (!entitlement.ok) {
+      return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+    }
+    const plan = await speechPlanFor(user.id, requestId);
+    if (!plan) return res.status(404).json({ error: 'That answer is not available for playback.', code: 'not_found' });
+    if (plan.version !== version) {
+      return res.status(409).json({ error: 'That answer changed. Ask for the speech plan again.', code: 'speech_version_mismatch' });
+    }
+    const text = plan.chunks[chunk];
+    if (!text) return res.status(400).json({ error: 'invalid_speech_chunk', code: 'invalid_request', maxChars });
+
+    // One key per playback attempt, suffixed with the chunk index: a transport retry
+    // of the same chunk is a replay, a replay the listener asks for again is a new
+    // synthesis (and may be charged again, as the public policy says).
+    const headerKey = req.header('x-request-key');
+    const requestKey = headerKey && REQUEST_KEY.test(headerKey) ? headerKey : randomUUID();
+    const payload = createHash('sha256').update(`${requestId}|${version}|${chunk}|${lang}`).digest('hex');
+    const reserved = await reserve({
+      userId: user.id,
+      purpose: 'tts_synthesize',
+      idempotencyKey: `tts:${requestKey}:${chunk}`,
+      payloadSha256: payload,
+      plan: entitlement.plan,
+      units: { tts_characters: text.length },
+    });
+    if (!reserved.ok) {
+      if (reserved.reason === 'duplicate' || reserved.reason === 'in_progress') {
+        return res.status(409).json({
+          error: reserved.reason === 'duplicate' ? 'That chunk was already read aloud.' : 'That chunk is still being synthesized.',
+          code: reserved.reason === 'duplicate' ? 'already_answered' : 'request_in_progress',
+          requestId: reserved.requestId,
+        });
+      }
+      if (reserved.reason === 'conflict') {
+        return res.status(409).json({ error: 'That request key was already used for a different chunk.', code: 'request_conflict', requestId: reserved.requestId });
+      }
+      return sendDenial(res, quotaDenial(reserved.reason, reserved.retryAfterMs), reserved.requestId);
+    }
+
+    const dispatched = await markDispatched(reserved.requestId);
+    if (!dispatched.ok) {
+      await settle(reserved.requestId, 'released', { errorCode: 'dispatch_not_recorded' });
+      return res.status(503).json({ error: 'assistant is unavailable', code: 'assistant_unavailable' });
+    }
+    ledger = { requestId: reserved.requestId, characters: text.length };
+    input = text;
+  } else {
+    // Pre-pilot path: production still synthesizes the prose the browser already
+    // has, because no ledger exists there to authorize a message id.
+    input = typeof req.body?.input === 'string' ? req.body.input.trim() : '';
+  }
+
   if (!input || input.length > maxChars) {
+    if (ledger) await settle(ledger.requestId, 'released', { errorCode: 'invalid_speech_text' });
     return res.status(400).json({ error: 'invalid_speech_text', maxChars });
   }
   const limits = ttsLimits();
   if (!(await acquireSpeechSlot(limits.maxConcurrency, limits.queueWaitMs))) {
+    if (ledger) await settle(ledger.requestId, 'released', { errorCode: 'speech_busy' });
     return res.status(429).json({ error: 'speech_busy' });
   }
 
@@ -1079,11 +1309,27 @@ router.post('/tts/speech', async (req, res) => {
   };
   res.on('close', onClose);
   try {
-    const { audio, contentType, provider } = await synthSpeechChunk(input, clientGone.signal, process.env, fetch, lang);
+    const { audio, contentType, provider } = await synthSpeechChunk(
+      input,
+      clientGone.signal,
+      process.env,
+      fetch,
+      lang,
+      ledger ? createSpendMeter(ledger.requestId) : undefined,
+    );
+    // The chunk exists, so its characters are spent whether or not the listener is
+    // still there to hear it (public policy: a synthesized chunk may cost quota).
+    if (ledger) await settle(ledger.requestId, 'completed', { consumed: { tts_characters: ledger.characters }, resultReference: provider });
     if (clientGone.signal.aborted || res.writableEnded || res.destroyed) return;
     res.type(contentType).setHeader('Cache-Control', 'no-store').setHeader('X-TTS-Provider', provider).send(audio);
   } catch (error) {
-    if (clientGone.signal.aborted || res.writableEnded || res.destroyed) return;
+    const aborted = clientGone.signal.aborted;
+    if (ledger) {
+      // A user who stops after dispatch keeps the chunk (it may already have been
+      // billed by the engine); a failure that produced no audio gives it back.
+      await settle(ledger.requestId, aborted ? 'completed' : 'released', { errorCode: aborted ? 'client_closed_request' : 'speech_generation_failed' });
+    }
+    if (aborted || res.writableEnded || res.destroyed) return;
     if (error instanceof SpeechBusyError) return res.status(429).json({ error: 'speech_busy' });
     if (error instanceof SpeechUnavailableError) {
       console.error('Speech synthesis unavailable', error.message);

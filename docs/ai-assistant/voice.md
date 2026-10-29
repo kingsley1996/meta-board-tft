@@ -1,6 +1,6 @@
 # Voice: nhận dạng giọng nói (STT) và đọc câu trả lời (TTS) của Coach AI
 
-> Cập nhật: 2026-10-27. Số liệu STT là số đo thực tế trên môi trường dev
+> Cập nhật: 2026-10-29. Số liệu STT là số đo thực tế trên môi trường dev
 > (macOS arm64, API Node 22). **Ngôn ngữ nói/thống được lấy từ request** (`lang`),
 > không phải từ cấu hình deployment: tiếng Việt dùng `STT_LANGUAGE` cho STT và
 > engine chọn bằng `TTS_PROVIDER` (`deepgram` mặc định hoặc `vieneu`) cho TTS;
@@ -16,19 +16,27 @@
 │      → Float32 mono @ device rate, tối đa 60 giây                       │
 │      → resample về 16 kHz (OfflineAudioContext)                         │
 │      → POST /api/voice/transcribe  (octet-stream, X-Sample-Rate: 16000, │
-│                                      X-Language: en | vi)               │
-│  Nhận { text } → ghép vào input → gửi câu hỏi cho Coach AI              │
-│      → answer → spokenText() làm sạch + cắt 500 ký tự                   │
-│      → GET  /api/voice/tts/status?lang=…  (cache 60 s theo lang)        │
-│      → available: chunkForSpeech() → POST /tts/speech ({ input, lang })  │
-│                  → phát tuần tự, prefetch trước 1 chunk                 │
-│      → không available / lỗi: hiện voiceSpeechError, không đọc          │
+│              X-Language: en | vi, X-Request-Key, cookie mb_session)     │
+│  Nhận { text, turnId } → ghép vào input → POST /api/assistant/query     │
+│              kèm voiceTurnId=turnId (dùng lại lượt chat đã giữ chỗ)     │
+│      → answer → GET /api/voice/tts/status?lang=…  (cache 60 s theo lang)  │
+│      → enforced: GET /tts/plan?requestId → { version, chunks }           │
+│                  → POST /tts/speech { requestId, version, chunk, lang }  │
+│                    kèm X-Request-Key của lượt phát                       │
+│      → chưa enforced: spokenText()/chunkForSpeech() → { input, lang }    │
+│      → phát tuần tự, prefetch trước 1 chunk                              │
+│      → không available / lỗi: hiện voiceSpeechError, không đọc           │
 └─────────────────────────────────────────────────────────────────────────┘
           │
           ▼
 ┌─ API (apps/api/src/voice.ts) ───────────────────────────────────────────┐
+│  /transcribe: session → entitlement → reserve STT seconds + 1 chat unit │
 │  STT language: X-Language: en → language=en; còn lại → STT_LANGUAGE (vi)│
 │  STT failover: deepgram → groq → elevenlabs → openai → gemini           │
+│  /tts/plan: session → entitlement (TTS > 0) → answer đã lưu của         │
+│             requestId thuộc account → { version: sha256, chunks }       │
+│  /tts/speech enforced: reserve tts_characters của chunk server tự chia  │
+│  /tts/speech chưa enforced: nhận { input } như trước, không ghi ledger  │
 │  TTS vi: engine theo TTS_PROVIDER (deepgram | vieneu) → engine còn lại  │
 │  TTS en: Deepgram Aura-2 trên /v1/speak, không có engine thứ hai        │
 │  slot dùng chung; audio trả về đúng Content-Type engine                 │
@@ -42,10 +50,12 @@ File liên quan:
 | --- | --- |
 | `apps/api/src/voice.ts` | Routes `/api/voice/*`, chọn provider STT, gọi API đám mây, TTS theo `TTS_PROVIDER` + engine dự phòng |
 | `apps/web/components/assistant/assistant-chat.tsx` | Ghi âm, resample, gọi transcribe, pipeline phát audio theo chunk (không còn Web Speech) |
-| `apps/web/lib/speech.ts` | Làm sạch text và chia chunk cho TTS server |
+| `packages/shared/src/speech-text.ts` | Một định nghĩa `spokenText()`/`chunkForSpeech()` dùng chung cho API và web (task #85) |
+| `apps/web/lib/speech.ts` | Re-export hai hàm trên cho client |
 | `apps/web/public/audio-capture-processor.js` | AudioWorklet thu PCM thô từ mic |
 | `apps/web/components/admin/alias-manager.tsx` | Mic test trong Admin → Aliases (dùng chung `/transcribe`) |
 | `apps/api/src/voice.test.ts` | Unit test WAV encoder + logic chọn provider STT |
+| `apps/api/src/voice-quota.test.ts` | Auth, entitlement, voice turn và TTS plan/speech trên PostgreSQL thật (task #84-#85) |
 
 Cấu hình STT qua biến môi trường trong `apps/api/.env` (mẫu đầy đủ ở
 `apps/api/.env.example`).
@@ -94,14 +104,50 @@ Cơ chế failover (`transcribeWithFailover` trong `apps/api/src/voice.ts`):
 
 ### 2.2 Ràng buộc dữ liệu gửi lên `/api/voice/transcribe`
 
+- Phải có session (`mb_session`): route tự resolve user, nên gọi thẳng từ script
+  cũng không mượn được quota của ai (401 `unauthenticated`). Voice là quyền của
+  Plus: Free trả 403 `feature_locked` trước khi provider được gọi. Khi
+  `MEMBERSHIP_ENFORCEMENT` chưa bật (production hiện tại), các gate này không chạy
+  và clip được transcribe như trước #84 — không có ledger để trừ.
 - Body: Float32 little-endian mono 16 kHz, tối đa 60 giây (4 MB).
 - Header bắt buộc: `X-Sample-Rate: 16000`. Tuỳ chọn: `X-Language: en|vi` (khác
-  `en` đều được hiểu là `vi`).
+  `en` đều được hiểu là `vi`), `X-Request-Key` (8-64 ký tự `[A-Za-z0-9_-]`, client
+  mint mỗi lần ghi âm; thiếu thì server tự sinh UUID).
 - Gate RMS < 0.001 → `422 no_speech` **trước khi** gọi provider (chặn luôn hiện
   tượng hallucination trên audio im lặng của model cloud).
-- Text rỗng hoặc không có chữ/số → `422 no_speech`.
+- Text rỗng hoặc không có chữ/số → `422 no_speech`; lượt chat và số giây đã giữ
+  chỗ được trả lại.
+- Số giây tính từ `sampleCount / 16000` làm tròn lên; không có header duration để
+  client khai. Vượt `max_stt_seconds_per_request` của gói → 413 `audio_too_long`
+  trước khi ghi ledger.
 
-### 2.3 Độ trễ đo thực tế
+### 2.3 Voice turn — một lần nói, một lượt chat
+
+Một voice turn là một lượt chat có thêm bước transcribe, nên nó ghi hai dòng
+`usage_requests` trong cùng transaction-reserve (task #84):
+
+1. `stt_transcribe`, reserve `stt_seconds`, `markDispatched` rồi mới gọi vendor;
+   settle ngay sau khi vendor trả lời — số giây đứng kể cả khi câu hỏi sau đó thất bại.
+2. `coach_turn`, reserve `chat: 1` với TTL 5 phút. Response trả `turnId`; query
+   kế tiếp gửi `voiceTurnId` và route claim đúng dòng đó (`reserved → dispatched`),
+   nên không có lượt chat thứ hai. Khi transcript về, TTL được rút còn 60 giây:
+   người dùng không gửi câu hỏi thì lượt được trả lại nhanh.
+
+Hệ quả đã kiểm trong `voice-quota.test.ts`:
+
+- Hai client cùng gửi `voiceTurnId` chỉ một bên thắng claim; bên kia nhận 409
+  `request_in_progress` và không ghi dòng nào.
+- `voiceTurnId` của account khác không claim được (route lọc theo `user_id`), bên
+  kia tự trả bằng lượt của mình.
+- Cùng `X-Request-Key` + cùng clip → 409 `already_answered`, vendor chỉ bị gọi
+  một lần; cùng key nhưng clip khác → `request_conflict`.
+- Vendor lỗi/hết giờ → cả hai dòng `released`, attempt vẫn nằm trong
+  `usage_attempts`; transcript rỗng → trả cả hai, 422 `no_speech`.
+- Lượt bị bỏ quên được release ngay ở request kế tiếp của account
+  (`releaseExpiredTurns`) và bởi sweeper `reconcileStale` mỗi 60 giây, nên không
+  chiếm slot `max_concurrent_requests`.
+
+### 2.4 Độ trễ đo thực tế
 
 Qua `POST /api/voice/transcribe` trên máy dev, audio 3.0 s tổng hợp bằng VieNeu
 local (26-10-2026):
@@ -127,6 +173,16 @@ cd apps/api && node --env-file-if-exists=.env scripts/stt-bench.mjs --load # bur
 ---
 
 ## 3. TTS — đọc câu trả lời
+
+Có hai chế độ, chọn bởi `MEMBERSHIP_ENFORCEMENT` (phải bật **cùng lúc** ở API và web):
+
+- **`enforce`** — server sở hữu văn bản đọc (task #85). Client gửi `requestId` của
+  câu trả lời, `version` và `chunk` index; server đọc lại answer đã lưu của chính
+  account đó, tự làm sạch/chia chunk và trừ `tts_characters` theo số ký tự nó
+  tổng hợp. Guest 401, Free 403, hết ký tự 402 — câu trả lời vẫn nằm trong bubble
+  để đọc.
+- **chưa bật cờ** — production hiện tại. `/tts/plan` trả 404 và `/tts/speech` vẫn
+  nhận `{ input, lang }` do browser gửi như trước, không ghi ledger.
 
 Ngôn ngữ trong body (`lang`) quyết định engine:
 
@@ -165,8 +221,15 @@ lỗi và để người dùng bấm **Nghe lại**.
   thì theo `TTS_PROVIDER`) và `maxChars`.
 - `available: false` (không engine nào dùng được) → hiện `voiceSpeechError`,
   không phát.
-- `available: true` → `chunkForSpeech(spoken, min(status.maxChars, 180))`, mỗi chunk
-  một request `POST /api/voice/tts/speech` ({ input, lang }) trả audio đúng
+- **Enforced:** `GET /api/voice/tts/plan?requestId=…` trả `{ version, chunks }`;
+  `version` là `sha256(spokenText(answer))` và `chunks` chỉ là số chunk, không
+  phải văn bản. Mỗi chunk là một `POST /api/voice/tts/speech`
+  (`{ requestId, version, chunk, lang }`) kèm `X-Request-Key` mint một lần cho
+  lượt phát; server ghép khoá idempotency `tts:<key>:<chunk>`, nên retry transport
+  là replay (409 `already_answered`, không trừ thêm), còn bấm **Nghe lại** là lượt
+  mới.
+- **Chưa enforced:** `chunkForSpeech(spoken, min(status.maxChars, 180))`, mỗi chunk
+  một request `POST /api/voice/tts/speech` (`{ input, lang }`) trả audio đúng
   Content-Type của engine.
 - Server thử engine **chính** trước (mặc định Deepgram; English chỉ có Deepgram).
   Nếu engine chính không có
@@ -178,12 +241,15 @@ lỗi và để người dùng bấm **Nghe lại**.
 - **Prefetch đúng một chunk trước**: slot synthesis dùng chung cho cả hai engine,
   nên gửi nhiều hơn là tự chuốc 429. Chunk kế tiếp đã sẵn audio khi chunk hiện tại
   kết thúc → tai nghe liền mạch.
-- Audio mỗi chunk là `URL.createObjectURL(blob)` và được cache theo **lang + text** (tối
-  đa 12 chunk, eviction revoke URL cũ). Bấm **Nghe lại** câu vừa nghe vì thế phát
-  gần như tức thì, không tổng hợp lại.
+- Audio mỗi chunk là `URL.createObjectURL(blob)` và được cache theo **lang + nội
+  dung chunk** (khi enforced: `lang + requestId + version + chunk`; tối đa 12
+  chunk, eviction revoke URL cũ). Bấm **Nghe lại** câu vừa nghe vì thế phát gần
+  như tức thì, không tổng hợp lại — và cache replay không đi qua ledger.
 - Request thất bại bị xoá khỏi cache để lần sau thử lại; khi người dùng bấm Dừng
   hoặc chuyển câu, `AbortController` huỷ fetch và API cũng huỷ job đang chạy trên
-  engine (giải phóng slot ngay thay vì giữ đủ timeout).
+  engine (giải phóng slot ngay thay vì giữ đủ timeout). Chunk đã dispatch mà
+  người dùng dừng vẫn được tính (policy: audio có thể đã được engine tính tiền);
+  lỗi engine chưa có audio thì release.
 
 Độ trễ đo trên máy dev (VieNeu local warm — engine này không còn trong luồng chạy,
 số chỉ để tham khảo, answer 356 ký tự → 3 chunk): audio đầu tiên ~1.5–2 s, tổng 6 s
@@ -211,7 +277,12 @@ chọn khi ưu tiên độ trễ; chunk nhỏ hơn (`TTS_CHUNK_CHARACTERS`) cũn
   hàng phân cách bảng, emoji/★/→… rồi gộp khoảng trắng và **cắt ở ranh giới câu
   với cap 500 ký tự**. Phần còn lại vẫn hiển thị đầy đủ trong bubble chat.
 - `chunkForSpeech()` chia text thành từng chunk, ưu tiên dấu câu rồi tới khoảng
-  trắng. Giới hạn chunk là `min(TTS_CHUNK_CHARACTERS từ /tts/status, 180)`.
+  trắng. Cả hai hàm nằm trong `packages/shared/src/speech-text.ts` để API và web
+  không thể lệch định nghĩa (task #85).
+- Khi enforced, API tự chia theo `TTS_CHUNK_CHARACTERS` và client chỉ gửi index;
+  khi chưa enforced, client chia theo `min(TTS_CHUNK_CHARACTERS từ /tts/status,
+  180)`. `version` chỉ phụ thuộc text nên hai phía luôn khớp; ranh giới chunk khớp
+  khi cùng giới hạn.
 - Chunk được phát nối tiếp qua Audio element; chỉ khi chunk cuối kết thúc mới tắt
   trạng thái "đang đọc".
 - Chỉ câu trả lời **tiếng Việt** được đặt `playbackRate = 1.15` để bù tốc độ đọc
@@ -245,19 +316,24 @@ của trình duyệt.
 | Endpoint | Method | Input | Output |
 | --- | --- | --- | --- |
 | `/api/voice/status` | GET | — | `{ available, provider, providers: [{ provider, coolingDown }] }` — chain STT và vendor nào đang chờ |
-| `/api/voice/transcribe` | POST | Float32 LE mono 16 kHz + `X-Sample-Rate: 16000` (+ `X-Language: en\|vi`) | `{ text }` + header `X-STT-Provider` (vendor đã trả lời) |
+| `/api/voice/transcribe` | POST | Session cookie + Float32 LE mono 16 kHz + `X-Sample-Rate: 16000` (+ `X-Language: en\|vi`, `X-Request-Key`) | `{ text, turnId }` + header `X-STT-Provider` (vendor đã trả lời); `turnId` là lượt chat đã giữ chỗ cho `/api/assistant/query` |
 | `/api/voice/tts/status` | GET | `?lang=en\|vi` (mặc định `vi`) | `{ available, provider: 'deepgram' \| 'vieneu', primary, maxChars }` (+ `reason` ở chế độ dev) |
-| `/api/voice/tts/speech` | POST | JSON `{ input, lang }`, `input` ≤ `maxChars` | Audio nguyên Content-Type từ engine, header `X-TTS-Provider` (engine đã trả lời), `Cache-Control: no-store` |
+| `/api/voice/tts/plan` | GET | Session cookie + `?requestId=<uuid>` | `{ version, chunks }` — `version = sha256(spokenText(answer))`, `chunks` là **số** chunk. 404 khi chưa bật `MEMBERSHIP_ENFORCEMENT` hoặc requestId không thuộc account |
+| `/api/voice/tts/speech` | POST | Enforced: `{ requestId, version, chunk, lang }` + `X-Request-Key`; chưa enforced: `{ input, lang }`, `input` ≤ `maxChars` | Audio nguyên Content-Type từ engine, header `X-TTS-Provider` (engine đã trả lời), `Cache-Control: no-store` |
 
 ### Bảng lỗi `/transcribe` → thông báo client (vi)
 
 | HTTP | `error` | Nguyên nhân | Thông báo |
 | --- | --- | --- | --- |
 | 400 | `invalid_audio` / `unsupported_sample_rate` | Body/rate sai | `voiceError` |
-| 413 | `audio_too_long` | > 60 giây | `voiceTooLong` |
+| 401 | `unauthenticated` | Không có session | `voiceSignIn` |
+| 402 | `quota_exhausted` | Hết số giây STT của kỳ | `quota` |
+| 403 | `feature_locked` / `period_expired` | Gói không có STT (Free), hoặc kỳ đã kết thúc | `voicePlanRequired` / `expired` |
+| 409 | `already_answered` / `request_in_progress` / `request_conflict` | Replay cùng `X-Request-Key`, đang chạy, hoặc cùng key khác clip | `voiceSttError` |
+| 413 | `audio_too_long` | > 60 giây, hoặc dài hơn `max_stt_seconds_per_request` của gói | `voiceTooLong` |
 | 422 | `no_speech` | Im lặng / không nhận ra chữ | `voiceNoSpeech` |
-| 429 | `transcription_busy` | Hết slot, hoặc **mọi** provider đang trong thời gian chờ sau khi trả 429 | `voiceBusy` |
-| 503 | `stt_not_configured` | Không provider khả dụng | `voiceSttUnavailable` |
+| 429 | `transcription_busy` / `daily_cap` / `rate_limited` / `too_many_in_flight` | Hết slot transcription, **mọi** provider đang chờ sau 429, hoặc quota chat của account | `voiceBusy` / `dailyCap` / `rate` |
+| 503 | `stt_not_configured` / `membership_unavailable` | Không provider khả dụng, hoặc không đọc được entitlement | `voiceSttUnavailable` / `membership` |
 | 502 | `transcription_failed` | Mọi provider trong chain đều lỗi/timeout ở lượt đó | `voiceSttError` |
 
 Lỗi phía đọc câu trả lời: client hiện `voiceSpeechError` khi không engine nào
@@ -268,11 +344,19 @@ chặn autoplay.
 
 | HTTP | `error` | Nguyên nhân | client |
 | --- | --- | --- | --- |
-| 400 | `invalid_speech_text` (+ `maxChars`) | `input` rỗng hoặc dài hơn giới hạn chunk | bug chia chunk — không xảy ra |
+| 400 | `invalid_request` | Enforced: `requestId`/`version`/`chunk` sai định dạng, hoặc `chunk` vượt số chunk của plan | bug client — hiện `voiceSpeechError` |
+| 400 | `invalid_speech_text` (+ `maxChars`) | Chưa enforced: `input` rỗng hoặc dài hơn giới hạn chunk | bug chia chunk — không xảy ra |
+| 401 | `unauthenticated` | Enforced: không có session | `voiceSignIn` |
+| 402 | `quota_exhausted` | Hết `tts_characters` của kỳ; engine không bị gọi | `voiceReadQuota` — câu trả lời vẫn đọc được bằng mắt |
+| 403 | `feature_locked` | Gói không có TTS (Free) | `voicePlanRequired` |
+| 404 | `not_found` | `requestId` không phải câu trả lời đã lưu của account này | `voiceSpeechError` |
+| 409 | `speech_version_mismatch` | Answer đã đổi so với `version` client giữ; client xin plan lại | tự xin lại plan |
+| 409 | `already_answered` / `request_in_progress` / `request_conflict` | Retry cùng `X-Request-Key`, đang chạy, hoặc cùng key khác payload | retry transport, không phải lỗi user |
 | 400 | `speech_text_rejected` | Cả hai engine từ chối text (VieNeu cloud chặn >34% ký tự ngoài Latin, từ >30 ký tự không dấu cách) | `voiceSpeechError` |
 | 429 | `speech_busy` | Hết slot sau khi đã chờ `TTS_QUEUE_WAIT_MS`, hoặc VieNeu báo queue full sau 3 lần thử | `voiceSpeechError` |
 | 502 | `speech_generation_failed` | Engine trả lỗi khác / audio trả về không hợp lệ | `voiceSpeechError` |
 | 503 | `tts_unavailable` | Cả Deepgram và VieNeu không trả lời (chưa bật container, 404, probe `/v1/voices` fail) | `voiceSpeechError` |
+| 503 | `membership_unavailable` | Enforced: không đọc được entitlement/plan — fail closed, không đoán Free | `membership` |
 | 503 | `tts_credentials_rejected` | Deepgram hoặc VieNeu trả 401/403: key sai hoặc bị thu hồi. Không retry; lỗi được "ghim" 60 s | `voiceSpeechError` |
 | 504 | `speech_generation_timeout` | Quá `TTS_TIMEOUT_MS` cho một chunk | `voiceSpeechError` |
 
