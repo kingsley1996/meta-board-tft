@@ -250,6 +250,9 @@ git push                 # Vercel rebuild web; Render redeploy API và tự nạ
 
 Hết. Không có câu curl nào ở bước cuối.
 
+Bản đầy đủ (vì sao đúng thứ tự, kiểm chứng trước khi commit, `catalog_release` vào Postgres thế
+nào, set rotation, bảng lỗi): `docs/runbook.md` trong repo crawler.
+
 Còn một điểm nối giữa hai halves: DB lưu đường dẫn icon trỏ vào asset của web. Nếu Render
 kéo API lên trước khi Vercel xong, vày phút đầu các view động có thể 404 ảnh — không ai
 bấm nhầm được nữa, chỉ còn thứ tự của platform. Muốn chắc thì publish Vercel trước khi
