@@ -141,4 +141,6 @@ Thứ tự: ngừng bán → giữ dữ liệu → chỉ rollback code khi tươ
 
 Đã kiểm (local, 2026-10-30 — chi tiết ở `docs/MEMBERSHIP-PLAN.md` §11): schema idempotent, seed, catalog/offer, quota và cost ledger trên PostgreSQL thật, API suite 474 case, 67 Playwright case, production build.
 
+Đã chạy trên production (2026-10-30, có phép): **§1.2 + §1.3 một phần** — `seed/membership-plans.ts` hai lần trên Supabase, ra đúng hai offer `draft` ×2 quota, idempotent; catalog 200 `{offers:[]}`; cờ vẫn tắt, `/api/voice/tts/plan` 404. Chưa activate offer nào, nên §1.4 "buyable" và mọi mục từ §2 trở đi vẫn chưa chạy.
+
 Chưa kiểm: merchant account và webhook live, một giao dịch/hoàn tiền thật, migration + seed trên production, cờ enforce trên Render/Vercel, cost thật theo ledger của traffic thật. Các mục này thuộc #95 và cần chủ project cho phép; pass local không được ghi thành live verified.
