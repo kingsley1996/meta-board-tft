@@ -26,7 +26,7 @@ Số liệu đọc trực tiếp từ Supabase production (`memberships`, `payme
 
 Dòng thời gian đáng nhớ: 2 lần chuyển 99.000đ vào **số tài khoản gốc** BIDV (`8843275367`) không tới server vì BIDV cá nhân không có feed tài khoản chính; sau khi checkout phát VA `96247LD0908`, giao dịch đầu tiên tới webhook 07:11:02 và kích hoạt Plus trong 1 giây.
 
-**Cập nhật 07:35 UTC cùng ngày — bảng trên là snapshot trước đó:** có thêm một đơn thật thứ hai `MTFT3111910586` (99.000đ, account `linhdang.dev96@gmail.com`) trả qua VA lúc 07:34:51 và grant Plus đúng hạn, nhưng vì nó đi qua **đường lookup** (`POST /api/me/orders/:id/refresh`) nên landed `paid` với `paid_vnd`/`settled_at` NULL — lỗi đã tìm ra và sửa trong [orders.ts](../apps/api/src/membership/orders.ts) (§#95 của plan). Tổng ledger lúc này: 8 order (2 `paid`), 2 `payment_events`, 2 `memberships` `plus`/`active`; doanh thu thật **198.000đ**. Dòng dữ liệu cũ chưa backfill nên đơn thứ hai hiện **không hoàn tiền được** qua admin cho tới khi có phép sửa.
+**Cập nhật 07:35 UTC cùng ngày — bảng trên là snapshot trước đó:** có thêm một đơn thật thứ hai `MTFT3111910586` (99.000đ, account `linhdang.dev96@gmail.com`) trả qua VA lúc 07:34:51 và grant Plus đúng hạn, nhưng vì nó đi qua **đường lookup** (`POST /api/me/orders/:id/refresh`) nên landed `paid` với `paid_vnd`/`settled_at` NULL — lỗi đã tìm ra và sửa trong [orders.ts](../apps/api/src/membership/orders.ts) (§#95 của plan). Tổng ledger lúc này: 8 order (2 `paid`), 2 `payment_events`, 2 `memberships` `plus`/`active`; doanh thu thật **198.000đ**. Dòng thiếu đã được backfill (`paid_vnd` 99.000, `settled_at` 07:34:58.911Z, event → `granted`) nên đơn thứ hai hoàn tiền được trong cửa sổ 7 ngày.
 
 ## 3. Dùng thật
 
