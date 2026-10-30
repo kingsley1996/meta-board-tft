@@ -1058,7 +1058,7 @@ export function AssistantChat({
         ? t.voiceSpeaking
         : listening
           ? t.voiceRecording
-          : t.voiceNotice;
+          : null;
 
   // Everything below reads the ledger's answer once, so the chip, the banners and
   // the composer cannot disagree about whether a turn is available.
@@ -1284,7 +1284,6 @@ export function AssistantChat({
                     {t.quota.stop}
                   </button>
                 </div>
-                <p className="text-[11.5px] leading-relaxed text-mist">{t.quota.reservedNote}</p>
               </div>
             ) : (
               <div className="flex items-center gap-2.5 text-sm text-mist" role="status">
