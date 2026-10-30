@@ -79,6 +79,7 @@ function vietnamDate(value: string): string {
 export class SePayProvider implements PaymentProvider {
   readonly binding: PaymentBinding;
   readonly capabilities: PaymentCapabilities;
+  readonly transfer: Readonly<{ bankName: string; accountNumber: string }>;
   private readonly apiKey: string;
   private readonly webhookSecret: string;
   private readonly bankAccountId: string;
@@ -98,6 +99,7 @@ export class SePayProvider implements PaymentProvider {
     this.bankAccountNumber = stringValue(config.bankAccountNumber, 'configuration');
     this.bankCode = stringValue(config.bankCode, 'configuration');
     this.bankName = stringValue(config.bankName, 'configuration');
+    this.transfer = Object.freeze({ bankName: this.bankName, accountNumber: this.bankAccountNumber });
     this.fetcher = config.fetch ?? globalThis.fetch;
     this.clock = config.clock ?? Date.now;
     if (typeof this.fetcher !== 'function' || typeof this.clock !== 'function') {

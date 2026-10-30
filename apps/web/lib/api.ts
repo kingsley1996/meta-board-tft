@@ -497,3 +497,232 @@ export async function saveAssistantSettings(values: Record<string, string | null
   if (res.ok) return { ok: true, view: data as AssistantSettingsView };
   return { ok: false, error: data.error ?? 'save failed', fields: data.fields ?? {} };
 }
+
+// --- Membership reads (task #89) ---
+//
+// These mirror GET /api/me/usage and GET /api/me/orders field for field. The UI
+// keeps the ledger's names (used, reserved, remaining) so a number on screen can
+// be traced to one row instead of a computed label that drifts from the API.
+
+export type MembershipBalance = { allowance: number; used: number; reserved: number; remaining: number };
+
+export type MembershipPeriodView = {
+  id: string;
+  planCode: string;
+  planLabel: string;
+  source: 'purchase' | 'grant';
+  orderId: string | null;
+  grantedBy: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  status: string;
+  state: 'active' | 'scheduled' | 'expired' | 'revoked';
+  planStatus: string;
+  remainingMs: number;
+};
+
+export type MembershipView = {
+  asOf: string;
+  plan: { code: string; label: string; priceVnd: number; paid: boolean; termDays: number | null };
+  period: MembershipPeriodView | null;
+  nextPeriodStartsAt: string | null;
+  lastPeriodEndsAt: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+};
+
+export type MembershipUsage = {
+  asOf: string;
+  plan: { code: string; label: string; paid: boolean };
+  period: MembershipPeriodView | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  metrics: { chat: MembershipBalance; stt_seconds: MembershipBalance; tts_characters: MembershipBalance };
+  chatToday: MembershipBalance;
+  limits: {
+    chatRequestsPerMinute: number;
+    maxConcurrentRequests: number;
+    maxSttSecondsPerRequest: number | null;
+    maxConcurrentTtsChunks: number;
+  };
+  requestsInFlight: number;
+};
+
+export type MembershipEventView = {
+  id: string;
+  action: string;
+  planCode: string;
+  planLabel: string;
+  actorId: string | null;
+  source: string;
+  reason: string | null;
+  periodStart: string | null;
+  periodEnd: string | null;
+  createdAt: string | null;
+};
+
+export type MembershipHistory = {
+  asOf: string;
+  periods: MembershipPeriodView[];
+  events: MembershipEventView[];
+};
+
+export type OrderView = {
+  id: string;
+  reference: string;
+  amountVnd: number;
+  currency: string;
+  status: string;
+  provider: string;
+  plan: {
+    code: string;
+    label: string;
+    termDays: number | null;
+    priceVnd: number;
+    allowances: { chatPerPeriod: number | null; sttSecondsPerPeriod: number | null; ttsCharactersPerPeriod: number | null };
+  };
+  checkout: {
+    kind: string | null;
+    url: string | null;
+    qrImageUrl: string | null;
+    bank: { bankName: string; accountNumber: string } | null;
+  };
+  createdAt: string;
+  expiresAt: string;
+  paidAt: string | null;
+  fulfilledAt: string | null;
+  paidVnd: number | null;
+};
+
+export type CatalogOffer = {
+  planVersionId: string;
+  code: string;
+  version: number;
+  label: string;
+  price: { vnd: number; currency: string };
+  termDays: number | null;
+  buyable: boolean;
+  allowances: { chatPerPeriod: number; chatPerDay: number; sttSecondsPerPeriod: number; ttsCharactersPerPeriod: number };
+};
+
+// The Coach chip has to be right after a turn lands, so it reads with no-store and
+// never from a shared cache: another account's balance is not a stale number, it is
+// the wrong one.
+export async function getMembershipUsage(): Promise<MembershipUsage> {
+  const res = await fetch('/api/me/usage', { cache: 'no-store' });
+  if (!res.ok) throw new AssistantApiError(res.status, 'usage_failed');
+  return (await res.json()) as MembershipUsage;
+}
+
+export async function listMyOrders(): Promise<OrderView[]> {
+  const res = await fetch('/api/me/orders', { cache: 'no-store' });
+  if (!res.ok) throw new AssistantApiError(res.status, 'orders_failed');
+  const data = (await res.json()) as { orders?: unknown };
+  return Array.isArray(data.orders) ? (data.orders as OrderView[]) : [];
+}
+
+export type OrderActionResult = { ok: true; order: OrderView } | { ok: false; status: number; code: string };
+
+/** Creates the checkout for a plan the server already resolved from the catalog.
+ *  The request key is what makes a retry land on the same order instead of a
+ *  second QR, so the caller must reuse it for the same attempt. */
+export async function startOrder(planVersionId: string, requestKey: string): Promise<OrderActionResult> {
+  const res = await fetch('/api/orders', {
+    method: 'POST',
+    cache: 'no-store',
+    headers: { 'content-type': 'application/json', 'x-request-key': requestKey },
+    body: JSON.stringify({ planVersionId }),
+  });
+  const data = (await res.json().catch(() => ({}))) as { order?: OrderView; code?: string };
+  if (res.ok && data.order) return { ok: true, order: data.order };
+  return { ok: false, status: res.status, code: typeof data.code === 'string' ? data.code : 'unavailable' };
+}
+
+/** Asks the server to re-check a pending order against the gateway. The server
+ *  throttles this to one provider lookup every few seconds, so polling more
+ *  often only costs a request, never a second lookup. */
+export async function refreshOrder(orderId: string): Promise<OrderActionResult> {
+  const res = await fetch(`/api/me/orders/${orderId}/refresh`, { method: 'POST', cache: 'no-store' });
+  const data = (await res.json().catch(() => ({}))) as { order?: OrderView; code?: string };
+  if (res.ok && data.order) return { ok: true, order: data.order };
+  return { ok: false, status: res.status, code: typeof data.code === 'string' ? data.code : 'unavailable' };
+}
+
+// --- Admin: membership console (task #91) ---
+//
+// Mirrors GET /api/admin/membership/orders and /audit. The console is a read of
+// the same rows the buyer sees, plus the two actions an operator has: refund a
+// paid period and mint one by hand. Both write an audit row with an actor and a
+// reason; neither moves money.
+
+export type AdminMembershipOrder = {
+  id: string;
+  reference: string;
+  status: string;
+  amountVnd: number;
+  paidVnd: number | null;
+  provider: string;
+  createdAt: string | null;
+  expiresAt: string | null;
+  paidAt: string | null;
+  plan: { code: string | null; label: string | null; termDays: number | null };
+  account: { id: string; email: string; name: string | null };
+  membership: { id: string; status: string; startsAt: string | null; endsAt: string | null } | null;
+};
+
+export type AdminMembershipStats = {
+  pending: number;
+  review: number;
+  paid30: number;
+  revenue30: number;
+  activeMembers: number;
+  needsRecovery: number;
+};
+
+export type AdminMembershipAuditEvent = {
+  id: string;
+  action: string;
+  source: string;
+  reason: string;
+  accountEmail: string;
+  actorEmail: string | null;
+  planCode: string;
+  planLabel: string;
+  periodStart: string | null;
+  periodEnd: string | null;
+  createdAt: string | null;
+};
+
+export type AdminActionResult = { ok: true } | { ok: false; status: number; code: string; error: string };
+export type AdminGrantResult = { ok: true; duplicate: boolean } | { ok: false; status: number; code: string; error: string };
+
+/** Refunds revoke the unused period on this side and record the operator's
+ *  reason; the money itself was already sent back through the gateway by hand. */
+export async function refundMembershipOrder(orderId: string, reason: string): Promise<AdminActionResult> {
+  const res = await fetch(`/api/admin/membership/orders/${orderId}/refund`, {
+    method: 'POST',
+    cache: 'no-store',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ reason }),
+  });
+  if (res.ok) return { ok: true };
+  const data = (await res.json().catch(() => ({}))) as { code?: string; error?: string };
+  return { ok: false, status: res.status, code: data.code ?? 'refund_failed', error: data.error ?? 'refund failed' };
+}
+
+/** The request key is the retry guard: the same key can only mint one period,
+ *  so a double click shows the first grant instead of two terms. */
+export async function grantMembershipTerm(input: { email: string; planCode: string; reason: string; requestKey: string }): Promise<AdminGrantResult> {
+  const res = await fetch('/api/admin/membership/grants', {
+    method: 'POST',
+    cache: 'no-store',
+    headers: { 'content-type': 'application/json', 'x-request-key': input.requestKey },
+    body: JSON.stringify({ email: input.email, planCode: input.planCode, reason: input.reason }),
+  });
+  if (res.ok) {
+    const data = (await res.json().catch(() => ({}))) as { duplicate?: boolean };
+    return { ok: true, duplicate: data.duplicate === true };
+  }
+  const data = (await res.json().catch(() => ({}))) as { code?: string; error?: string };
+  return { ok: false, status: res.status, code: data.code ?? 'grant_failed', error: data.error ?? 'grant failed' };
+}

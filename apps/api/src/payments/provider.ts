@@ -42,9 +42,15 @@ export type PaymentCapabilities = Readonly<{
   automatedRefund: boolean;
 }>;
 
+/** Where a manual bank transfer has to go. Present only for providers whose
+ *  checkout is a bank QR; the buyer needs these on screen, and they are printed
+ *  inside the QR itself, so they are not secrets. */
+export type PaymentTransferInfo = Readonly<{ bankName: string; accountNumber: string }>;
+
 export interface PaymentProvider {
   readonly binding: PaymentBinding;
   readonly capabilities: PaymentCapabilities;
+  readonly transfer?: PaymentTransferInfo;
   createCheckout(request: CheckoutRequest, signal?: AbortSignal): Promise<PaymentCheckout>;
   lookup(request: LookupRequest, signal?: AbortSignal): Promise<PaymentLookup>;
   cancel(request: LookupRequest, signal?: AbortSignal): Promise<PaymentLookup>;

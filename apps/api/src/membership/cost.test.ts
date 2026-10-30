@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
 import type { AttemptClose, AttemptDraft, SpendMeter, Tariff } from './cost.ts';
+import { approvedTariff } from './tariff.ts';
 
 // Cost ledger integration (task #82, docs/MEMBERSHIP-PLAN.md sections 5 and 9).
 //
@@ -279,6 +280,54 @@ test('cost ledger rows', { skip: !hasDb }, async (t) => {
     assert.equal(cost.usableTariff({ version: '', entries: [{ provider: 'openai', unit: 'request', microVndPer: 1 }] }), null);
     // Rounding up: a fraction of a billed unit is still billed.
     assert.equal(cost.costOf({ provider: 'openai', unit: 'second', microVndPer: 1_000, per: 3 }, 2), 667);
+  });
+
+  await t.test('the approved tariff prices the paths we actually call, and only those', async () => {
+    const priced = (provider: string, model: string, unit: Tariff['entries'][number]['unit'], quantity: number) => {
+      const entry = approvedTariff.entries.find((candidate) => candidate.provider === provider && candidate.model === model && candidate.unit === unit);
+      return entry ? cost.costOf(entry, quantity) : null;
+    };
+
+    // Each figure is the one the report quotes for that path (§3.1-§3.3), so a typo in
+    // the sheet cannot silently re-price a turn.
+    assert.equal(priced('openai', 'gpt-6-luna', 'input_token', 2_138), 13_255_600);
+    assert.equal(priced('openai', 'gpt-6-luna', 'output_token', 192), 4_464_192);
+    assert.equal(priced('deepgram', 'nova-3', 'audio_second', 60), 198_922_080, '198,92đ per minute');
+    assert.equal(priced('groq', 'whisper-large-v3-turbo', 'audio_second', 60), 17_222_700, '17,22đ per minute');
+    assert.equal(priced('vieneu', 'vieneu-v4', 'character', 1_000), 965_000_000, '965đ per 1.000 characters');
+    assert.equal(priced('deepgram', 'aura-2-thalia-en', 'character', 1_000), 775_021_000);
+    assert.equal(priced('deepgram', 'flux-minh-vi', 'character', 1_000), 1_162_532_000);
+
+    // An id nobody priced stays unknown: the ledger records the quantity and no money.
+    assert.equal(priced('openai', 'gpt-4o-mini', 'input_token', 2_138), null);
+    assert.equal(priced('deepgram', 'nova-2', 'audio_second', 60), null);
+
+    const requestId = await newRequest();
+    const handle = await cost.createSpendMeter(requestId, { tariff: approvedTariff }).open({ provider: 'openai', model: 'gpt-6-luna' });
+    assert.ok(handle);
+    const closed = await cost.closeAttempt(
+      handle,
+      { outcome: 'success', charges: cost.tokenCharges({ inputTokens: 2_138, outputTokens: 192 }) },
+      { tariff: approvedTariff },
+    );
+    assert.equal(closed.costMicroVnd, 17_719_792, 'one answer at p50 costs 17,72đ');
+    const lines = await billingLines(requestId);
+    assert.deepEqual(lineFor(lines, 'input_token'), ['input_token', 2_138, '13255600', '2026-10-30']);
+    assert.deepEqual(lineFor(lines, 'output_token'), ['output_token', 192, '4464192', '2026-10-30']);
+  });
+
+  await t.test('a call on a model the sheet does not list is unpriced, not free', async () => {
+    const requestId = await newRequest();
+    const handle = await cost.createSpendMeter(requestId, { tariff: approvedTariff }).open({ provider: 'openai', model: 'gpt-4o-mini' });
+    assert.ok(handle);
+    const closed = await cost.closeAttempt(
+      handle,
+      { outcome: 'success', charges: cost.tokenCharges({ inputTokens: 2_138, outputTokens: 192 }) },
+      { tariff: approvedTariff },
+    );
+    assert.equal(closed.costMicroVnd, null);
+    const lines = await billingLines(requestId);
+    assert.deepEqual(lineFor(lines, 'input_token'), ['input_token', 2_138, null, null]);
   });
 
   await t.test('the report keeps the unknowns in their own columns', async () => {

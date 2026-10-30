@@ -8,6 +8,7 @@ import { resolveEntitlement } from '../membership/lifecycle.ts';
 import { claimTurn, markDispatched, markResultReference, releaseExpiredTurns, reserve, settle } from '../membership/quota.ts';
 import { quotaDenial, sendDenial } from '../membership/denial.ts';
 import { createSpendMeter } from '../membership/cost.ts';
+import { approvedTariff } from '../membership/tariff.ts';
 import { validateAssistantQuery, type AssistantRequest, type AssistantHistoryMessage, type AssistantResponse } from './contracts.ts';
 import { assistantLog } from './logger.ts';
 import { AssistantContextError, answerAssistant } from './orchestrator.ts';
@@ -307,7 +308,7 @@ assistantRouter.post('/query', async (req, res) => {
   // approved price sheet exists yet (#92), so the lines record quantities with the
   // cost left unknown rather than guessed at zero. Without enforcement there is no
   // ledger row to bill, so the adapter runs meterless.
-  const meter = enforced ? createSpendMeter(requestId) : undefined;
+  const meter = enforced ? createSpendMeter(requestId, { tariff: approvedTariff }) : undefined;
   const closeTurn = async (outcome: 'completed' | 'released', errorCode: string | null): Promise<void> => {
     if (!enforced) return;
     const result = await settle(requestId, outcome, { errorCode }).catch(() => null);

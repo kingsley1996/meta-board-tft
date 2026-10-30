@@ -4,48 +4,14 @@
 //
 // Both rows stay 'draft'. Activating an offer is gate #92/#95, so entitlement and
 // quota code must fail closed until a row is explicitly set to 'active'.
+import { pilotPlans } from '@metaboard/shared/membership-plans';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pool } from '../src/db.ts';
 
-const plans = [
-  {
-    code: 'free',
-    version: 1,
-    label: 'Free',
-    priceVnd: 0,
-    // null term = calendar month, reset with the month.
-    termDays: null,
-    chatPerPeriod: 30,
-    chatPerDay: 5,
-    sttSecondsPerPeriod: 0,
-    ttsCharactersPerPeriod: 0,
-    chatRequestsPerMinute: 3,
-    maxConcurrentRequests: 1,
-    maxSttSecondsPerRequest: null,
-    maxConcurrentTtsChunks: 0,
-  },
-  {
-    code: 'plus',
-    version: 1,
-    label: 'Plus',
-    priceVnd: 99_000,
-    // Plus is exactly 30 days, not a calendar month.
-    termDays: 30,
-    chatPerPeriod: 150,
-    chatPerDay: 30,
-    sttSecondsPerPeriod: 600,
-    ttsCharactersPerPeriod: 5_000,
-    chatRequestsPerMinute: 6,
-    maxConcurrentRequests: 1,
-    maxSttSecondsPerRequest: 60,
-    maxConcurrentTtsChunks: 2,
-  },
-];
-
 await pool.query(await readFile(join(import.meta.dirname, '../src/schema.sql'), 'utf8'));
 
-for (const plan of plans) {
+for (const plan of pilotPlans) {
   const { rowCount } = await pool.query(
     `INSERT INTO plan_versions (
        code, version, label, price_vnd, term_days,

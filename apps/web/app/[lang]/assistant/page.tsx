@@ -44,15 +44,27 @@ export default async function AssistantPage({
             <p className="text-xs leading-relaxed text-mist">{t.intro}</p>
           </div>
         </aside>
-        <section className="rounded-xl border border-line bg-panel px-5 py-6">
-          <h1 className="text-base font-semibold text-fog">{t.signIn.title}</h1>
-          <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-mist">{t.signIn.body}</p>
-          <Link
-            href={`/${lang}/login?next=/${lang}/assistant`}
-            className="smooth mt-5 inline-block rounded-full border border-brand bg-brand px-5 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep"
-          >
-            {t.signIn.cta}
-          </Link>
+        <section className="flex flex-col items-center gap-3 self-center rounded-2xl border border-line bg-panel px-6 py-7 text-center sm:max-w-md">
+          <span className="inline-flex items-center rounded-full border border-line px-3 py-1 text-[11.5px] font-semibold text-mist">
+            {t.freeChip}
+          </span>
+          <h1 className="font-display text-2xl font-bold text-fog">{t.signIn.title}</h1>
+          <p className="text-[13px] leading-relaxed text-mist">{t.signIn.body}</p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Link
+              href={`/${lang}/login?next=/${lang}/assistant`}
+              className="smooth inline-flex items-center rounded-full border border-brand bg-brand px-5 py-2 text-sm font-semibold text-on-brand hover:bg-brand-deep"
+            >
+              {t.signIn.cta}
+            </Link>
+            <Link
+              href={`/${lang}/login?mode=signup&next=/${lang}/assistant`}
+              className="smooth inline-flex items-center rounded-full border border-line px-5 py-2 text-sm font-semibold text-mist hover:border-brand hover:text-fog"
+            >
+              {t.signIn.create}
+            </Link>
+          </div>
+          <p className="text-[11.5px] leading-relaxed text-mist">{t.signIn.fine}</p>
         </section>
       </div>
     );

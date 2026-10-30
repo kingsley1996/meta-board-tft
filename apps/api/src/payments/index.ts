@@ -45,6 +45,13 @@ export class PaymentProviderRegistry {
     return this.forOrder(this.defaultBinding);
   }
 
+  /** Every configured account, for a webhook that has to find the one whose
+   *  signature verifies. Order is registration order, so rotation can try old
+   *  accounts too. */
+  all(): readonly PaymentProvider[] {
+    return [...this.providers.values()];
+  }
+
   forOrder(binding: PaymentBinding): PaymentProvider {
     const provider = this.providers.get(bindingKey(binding));
     if (!provider) throw new PaymentProviderError('configuration');

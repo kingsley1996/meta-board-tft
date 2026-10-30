@@ -391,6 +391,49 @@ test('entitlement is read off the clock', { skip: !hasDb }, async (t) => {
       await kase.cleanup();
     }
   });
+
+  await t.test('a period that starts mid-second still reports what it spent', async () => {
+    const kase = await makeAccount();
+    useFreeCode(`free-${randomUUID().slice(0, 8)}`);
+    try {
+      const plus = await insertPlan({ termDays: 30, chatPerPeriod: 150, chatPerDay: 30 });
+      // Payments land at whatever millisecond they land on. A window is keyed by
+      // that instant, so a reader that rounds it to the second sees no bucket and
+      // reports a paying account as having spent nothing.
+      const startsAt = NOW + 86;
+      const grant = await lifecycle.grantPeriod({
+        userId: kase.userId,
+        planVersionId: plus,
+        source: 'purchase',
+        orderId: await insertOrder(kase.userId, plus),
+        reason: 'payOS payment verified',
+        verifiedAt: startsAt,
+      });
+      assert.ok(grant.ok);
+
+      const at = startsAt + 1_000;
+      const current = await lifecycle.resolveEntitlement(kase.userId, at);
+      if (!current.ok) throw new Error('expected an entitlement');
+      const turn = await quota.reserve({
+        userId: kase.userId,
+        purpose: 'coach_turn',
+        idempotencyKey: `midsecond-${randomUUID().slice(0, 8)}`,
+        payloadSha256: sha('mid-second turn'),
+        plan: current.plan,
+        units: { chat: 3 },
+        now: at,
+      });
+      assert.ok(turn.ok, JSON.stringify(turn));
+      await quota.markDispatched(turn.requestId, at);
+      await quota.settle(turn.requestId, 'completed', { at, resultReference: 'message-2' });
+
+      const balances = await quota.balances(kase.userId, current.plan, at);
+      assert.equal(balances.chat.consumed, 3);
+      assert.equal(balances.chat.allowance - balances.chat.consumed - balances.chat.reserved, 147);
+    } finally {
+      await kase.cleanup();
+    }
+  });
 });
 
 test('granting, renewing and revoking', { skip: !hasDb }, async (t) => {

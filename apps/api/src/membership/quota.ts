@@ -116,6 +116,12 @@ function nonNegativeInteger(value: unknown): number | null {
   return Number.isSafeInteger(number) && number >= 0 ? number : null;
 }
 
+/** pg returns timestamptz as a Date; parsing it back through a string loses the
+ *  milliseconds, which is enough to miss a bucket keyed on an exact instant. */
+function instant(value: unknown): number {
+  return value instanceof Date ? value.getTime() : Date.parse(String(value));
+}
+
 /** An execution limit. SQL NULL is "the plan puts no cap on this metric"; zero is
  *  a closed door. Anything else - a negative count, a fractional value, a missing
  *  column - returns undefined so the caller rejects the row, because reading a
@@ -448,7 +454,7 @@ export async function claimTurn(input: { userId: string; requestId: string; now?
     }
     if (row.status === 'released') return { ok: false, reason: 'expired', requestId: input.requestId };
     if (row.status !== 'reserved') return { ok: false, reason: 'in_progress', requestId: input.requestId };
-    if (Date.parse(row.reserve_expires_at) <= now) return { ok: false, reason: 'expired', requestId: input.requestId };
+    if (instant(row.reserve_expires_at) <= now) return { ok: false, reason: 'expired', requestId: input.requestId };
     await client.query(
       "UPDATE usage_requests SET status = 'dispatched', dispatched_at = $2, updated_at = now() WHERE id = $1",
       [input.requestId, new Date(now).toISOString()],
@@ -612,7 +618,7 @@ export async function reconcileStale(options: { limit?: number; now?: number } =
         outcome.consumed.push(row.id);
         continue;
       }
-      if (now - Date.parse(row.created_at) >= ORPHAN_RELEASE_MS) {
+      if (now - instant(row.created_at) >= ORPHAN_RELEASE_MS) {
         // Nothing can explain it any more: the user is made whole and the provider
         // liability stays unknown in usage_attempts for the #92 report.
         await settleLocked(client, row.id, 'released', now);
@@ -693,7 +699,10 @@ export async function balances(userId: string, plan: PlanQuota, now = Date.now()
   );
   for (const row of rows) {
     const window = windows.get(row.period_kind as BucketPeriodKind);
-    if (!window || Date.parse(row.period_start) !== window.start) continue;
+    // A paid window starts at the millisecond the payment landed, and pg hands the
+    // column back as a Date; Date.parse(Date) goes through toString() and drops the
+    // milliseconds, which made every paid-period balance read as zero.
+    if (!window || instant(row.period_start) !== window.start) continue;
     const balance = { allowance: row.allowance_units, consumed: row.consumed_units, reserved: row.reserved_units };
     if (row.period_kind === 'calendar_day') {
       if (row.metric === 'chat') result.chatToday = balance;

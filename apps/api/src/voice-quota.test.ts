@@ -325,7 +325,7 @@ test('the voice route pays with account quota', { skip: !hasDb }, async (t) => {
 
   async function transcribe(
     audio: Buffer,
-    options: { token?: string; key?: string; signal?: AbortSignal } = {},
+    options: { token?: string; key?: string; signal?: AbortSignal; rate?: number } = {},
   ): Promise<Response> {
     const controller = new AbortController();
     controllers.add(controller);
@@ -333,7 +333,7 @@ test('the voice route pays with account quota', { skip: !hasDb }, async (t) => {
       method: 'POST',
       headers: {
         'content-type': 'application/octet-stream',
-        'x-sample-rate': String(SAMPLE_RATE),
+        'x-sample-rate': String(options.rate ?? SAMPLE_RATE),
         'x-language': 'en',
         'x-request-key': options.key ?? randomUUID(),
         cookie: `mb_assistant=${newBrowser()}; mb_session=${options.token ?? ''}`,
@@ -610,6 +610,56 @@ test('the voice route pays with account quota', { skip: !hasDb }, async (t) => {
     assert.equal((await jsonOf(response)).code, 'audio_too_long');
     assert.equal(sttCalls, before);
     assert.equal((await requestRows(user.userId)).length, 0);
+  });
+
+  await t.test('a malformed clip is refused before the ledger is touched', async () => {
+    const user = await makeUser();
+    cleanups.push(user.cleanup);
+    await givePlan(user, plusPlan);
+    const before = sttCalls;
+
+    // A rate the route does not transcribe, a body that is not whole float samples,
+    // and a sample that is not a number are all "this is not audio". None of them may
+    // reserve seconds, because nothing could ever be transcribed from them.
+    const wrongRate = await transcribe(speech(4), { token: user.token, rate: 8_000 });
+    assert.equal(wrongRate.status, 400);
+    assert.equal((await jsonOf(wrongRate)).code, 'invalid_audio');
+
+    const truncated = await transcribe(Buffer.from([1, 2, 3]), { token: user.token });
+    assert.equal(truncated.status, 400);
+    assert.equal((await jsonOf(truncated)).code, 'invalid_audio');
+
+    const notANumber = new Float32Array(4);
+    notANumber[2] = Number.NaN;
+    const nan = await transcribe(Buffer.from(notANumber.buffer), { token: user.token });
+    assert.equal(nan.status, 400);
+    assert.equal((await jsonOf(nan)).code, 'invalid_audio');
+
+    assert.equal(sttCalls, before, 'no vendor saw a clip that is not audio');
+    assert.equal((await requestRows(user.userId)).length, 0);
+  });
+
+  await t.test('a spent chat allowance stops the clip before its seconds are billed', async () => {
+    const oneTurnPlan = await insertPlan({ chatPerPeriod: 1, chatPerDay: 10 });
+    const user = await makeUser();
+    cleanups.push(user.cleanup);
+    await givePlan(user, oneTurnPlan);
+    const spent = await query({ message: SCRIPTED_QUESTION, lang: 'en' }, { token: user.token });
+    assert.equal(spent.status, 200, await spent.clone().text());
+
+    const before = sttCalls;
+    const response = await transcribe(speech(4), { token: user.token });
+    assert.equal(response.status, 402);
+    assert.equal((await jsonOf(response)).code, 'quota_exhausted');
+    assert.equal(sttCalls, before, 'the clip never leaves when the question behind it cannot be paid for');
+
+    const rows = await requestRows(user.userId);
+    const clip = rows.find((row) => row.purpose === 'stt_transcribe');
+    assert.equal(clip?.status, 'released', 'the hold taken before the chat hold is given back');
+    assert.equal(clip?.error_code, 'exhausted');
+    assert.equal((await bucketsFor(user.userId, 'stt_seconds'))[0]?.consumed, 0, 'no seconds for a clip nobody heard');
+    assert.deepEqual((await bucketsFor(user.userId, 'chat')).map((bucket) => bucket.consumed), [1, 1], 'the one turn was spent by the question on both windows');
+    assert.deepEqual((await bucketsFor(user.userId, 'chat')).map((bucket) => bucket.reserved), [0, 0]);
   });
 
   await t.test('the same recording key replays instead of charging twice', async () => {

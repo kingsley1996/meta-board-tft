@@ -84,7 +84,10 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
   ];
   // Media is reachable but not advertised: the page is videos, which is not a
   // reason to spend a top-level slot on it.
-  const links = [{ label: t.guides, href: `/${lang}/guides` }];
+  const links = [
+    { label: t.guides, href: `/${lang}/guides` },
+    { label: t.membership, href: `/${lang}/membership` },
+  ];
 
   // Section stays active on its detail pages too, e.g. /champions/ahri.
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);

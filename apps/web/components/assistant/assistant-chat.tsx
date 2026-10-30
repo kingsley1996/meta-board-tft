@@ -11,12 +11,14 @@ import {
   askAssistantStream,
   deleteAssistantConversation,
   getAssistantConversation,
+  getMembershipUsage,
   listAssistantConversations,
   sendAssistantFeedback,
   type AssistantConversation,
   type AssistantMessageRecord,
   type AssistantQueryRequest,
   type AssistantResponse,
+  type MembershipUsage,
 } from '@/lib/api';
 import type { Lang } from '@/lib/i18n';
 import { messages as uiMessages } from '@/lib/messages';
@@ -131,6 +133,36 @@ function historyFor(messages: ChatMessage[], excludeLastUser: boolean): { role: 
   return base.slice(-6).map(({ role, content }) => ({ role, content }));
 }
 
+function QuotaBanner({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="flex max-w-[780px] items-start gap-3 rounded-[10px] border border-line border-l-[3px] border-l-brand bg-page px-3.5 py-2.5 text-[12.5px] leading-relaxed text-mist">
+      <div className="min-w-0">
+        <b className="mb-0.5 block text-[13px] font-semibold text-fog">{title}</b>
+        <span>{body}</span>
+      </div>
+    </div>
+  );
+}
+
+function PlusTip({ title, body, href, cta }: { title: string; body: string; href: string; cta: string }) {
+  return (
+    <div className="flex max-w-[480px] flex-wrap items-center gap-3 rounded-xl border border-brand/45 bg-page px-3.5 py-2.5">
+      <div className="min-w-0 text-xs leading-relaxed text-mist">
+        <b className="mb-0.5 block text-[12.5px] font-semibold text-fog">{title}</b>
+        {/* On a phone the chat log is the scarce space; the allowances are one tap
+            away on /membership. */}
+        <span className="hidden sm:inline">{body}</span>
+      </div>
+      <Link
+        href={href}
+        className="smooth ml-auto inline-flex shrink-0 items-center rounded-full border border-brand bg-brand px-3 py-1 text-[11.5px] font-semibold text-on-brand hover:bg-brand-deep"
+      >
+        {cta}
+      </Link>
+    </div>
+  );
+}
+
 export function AssistantChat({
   lang,
   compSlug,
@@ -168,8 +200,15 @@ export function AssistantChat({
   const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tomoCue, setTomoCue] = useState<TomoCue | null>(null);
+  // The ledger's own answer to "how much is left". It is refreshed after every turn
+  // and after voice/read-aloud, never computed locally: a locally decremented
+  // counter drifts from what the next reserve will accept.
+  const [usage, setUsage] = useState<MembershipUsage | null>(null);
 
   const voiceSessionRef = useRef<VoiceSession | null>(null);
+  // One turn at a time: Stop cancels the stream, and the server releases the turn
+  // if Coach never started answering.
+  const answerAbortRef = useRef<AbortController | null>(null);
   // Speech callbacks outlive the request that created them; the sequence token
   // lets a stopped or superseded playback ignore its own late events.
   const speechSeqRef = useRef(0);
@@ -233,10 +272,11 @@ export function AssistantChat({
     // and a click on "Listen again" should not also pay for this round trip.
     void readTtsStatus();
     void load();
+    if (membershipEnforced) void refreshUsage();
     return () => {
       mounted = false;
     };
-  }, [storageKey]);
+  }, [storageKey, membershipEnforced]);
 
   useEffect(
     () => () => {
@@ -364,6 +404,16 @@ export function AssistantChat({
     setTomoCue({ name, id: `${Date.now()}-${Math.random()}` });
   }
 
+  async function refreshUsage(): Promise<void> {
+    if (!membershipEnforced) return;
+    try {
+      setUsage(await getMembershipUsage());
+    } catch {
+      // A failed quota read must not break the chat: the chip keeps its last value
+      // and the next turn asks again.
+    }
+  }
+
   function stopAnswerSpeech(): void {
     speechSeqRef.current += 1;
     setSpeaking(false);
@@ -373,6 +423,27 @@ export function AssistantChat({
     const audio = audioRef.current;
     audioRef.current = null;
     audio?.pause();
+  }
+
+  // Unlike a read-aloud stop, this ends the turn itself; the ledger then decides
+  // whether Coach had already started answering (charged) or not (returned).
+  function stopAnswer(): void {
+    answerAbortRef.current?.abort();
+  }
+
+  // A denial will answer the same way until the clock or the plan changes, so only
+  // failures that can succeed on a second try keep a Retry button.
+  function retryable(caught: unknown): boolean {
+    if (!(caught instanceof AssistantApiError)) return true;
+    return ![
+      'unauthenticated',
+      'quota_exhausted',
+      'daily_cap',
+      'feature_locked',
+      'period_expired',
+      'request_in_progress',
+      'request_conflict',
+    ].includes(caught.code);
   }
 
   async function readTtsStatus(): Promise<VoiceTtsStatus | null> {
@@ -561,6 +632,9 @@ export function AssistantChat({
       setSpeakingMessageId(null);
     } finally {
       if (ttsAbortRef.current === controller) ttsAbortRef.current = null;
+      // Every synthesized chunk is ledger spend; read the balance back once the
+      // playback settles, whether it ended, failed or was stopped.
+      void refreshUsage();
     }
   }
 
@@ -598,6 +672,7 @@ export function AssistantChat({
       setSpeakingMessageId(null);
     } finally {
       if (ttsAbortRef.current === controller) ttsAbortRef.current = null;
+      void refreshUsage();
     }
   }
 
@@ -638,6 +713,12 @@ export function AssistantChat({
   async function submit(raw: string, addUser = true, speakResponse = false, retryKey?: string, voiceTurnId?: string) {
     const text = raw.trim();
     if (!text || loading) return;
+    // The composer is disabled when the day or the period is out, but Enter still
+    // fires; refusing here keeps a doomed request off the wire.
+    if (membershipEnforced && usage) {
+      const dailyOut = usage.chatToday.allowance > 0 && usage.chatToday.remaining <= 0;
+      if (dailyOut || usage.metrics.chat.remaining <= 0) return;
+    }
     if (addUser) stopAnswerSpeech();
     setError(null);
     setRetryTurn(null);
@@ -647,6 +728,8 @@ export function AssistantChat({
       setInput('');
     }
     setLoading(true);
+    const controller = new AbortController();
+    answerAbortRef.current = controller;
     const turnKey = retryKey ?? newRequestKey();
     const request: AssistantQueryRequest = {
       message: text,
@@ -675,7 +758,8 @@ export function AssistantChat({
               : [...current, { id: streamId, role: 'assistant' as const, content }];
           });
           streamed = true;
-        }
+        },
+        controller.signal
       );
       setConversationId(response.conversationId);
       setMessages((current) =>
@@ -698,11 +782,20 @@ export function AssistantChat({
       });
     } catch (caught) {
       if (streamed) setMessages((current) => current.filter((message) => message.id !== streamId));
-      setError(errorText(caught));
-      setRetryTurn({ text, requestKey: turnKey, ...(voiceTurnId ? { voiceTurnId } : {}) });
-      cueTomo('surprised');
+      if (controller.signal.aborted) {
+        // Stopped by the user: not a failure, so no error bar and no Retry. The
+        // server already settled the turn; the balance read below shows the result.
+        setError(null);
+        setRetryTurn(null);
+      } else {
+        setError(errorText(caught));
+        if (retryable(caught)) setRetryTurn({ text, requestKey: turnKey, ...(voiceTurnId ? { voiceTurnId } : {}) });
+        cueTomo('surprised');
+      }
     } finally {
+      if (answerAbortRef.current === controller) answerAbortRef.current = null;
       setLoading(false);
+      void refreshUsage();
     }
   }
 
@@ -866,6 +959,8 @@ export function AssistantChat({
       setVoiceError(t.voiceSttError);
     } finally {
       setVoiceTranscribing(false);
+      // Transcription spends voice-in seconds whether or not it produced text.
+      void refreshUsage();
     }
   }
 
@@ -984,6 +1079,36 @@ export function AssistantChat({
           ? t.voiceRecording
           : t.voiceNotice;
 
+  // Everything below reads the ledger's answer once, so the chip, the banners and
+  // the composer cannot disagree about whether a turn is available.
+  const quota = membershipEnforced ? usage : null;
+  const voiceLocked = !!quota && quota.metrics.stt_seconds.allowance <= 0;
+  const readLocked = !!quota && quota.metrics.tts_characters.allowance <= 0;
+  const readExhausted = !!quota && quota.metrics.tts_characters.allowance > 0 && quota.metrics.tts_characters.remaining <= 0;
+  const dailyExhausted = !!quota && quota.chatToday.allowance > 0 && quota.chatToday.remaining <= 0;
+  const periodExhausted = !!quota && quota.metrics.chat.remaining <= 0;
+  // "Running low" is a quarter of the daily allowance; for Plus (30 a day) the
+  // warning appears with 7 left, which is enough to change how you spend them.
+  const nearDaily =
+    !!quota &&
+    quota.chatToday.allowance > 0 &&
+    quota.chatToday.remaining > 0 &&
+    quota.chatToday.remaining <= Math.max(1, Math.floor(quota.chatToday.allowance / 4));
+  const composerLocked = dailyExhausted || periodExhausted;
+  const speakLabel = readExhausted ? t.quota.readUsedUp : readLocked ? t.quota.readLocked : null;
+  const composerPlaceholder = periodExhausted ? t.quota.composerPeriod : dailyExhausted ? t.quota.composerDaily : t.placeholder;
+  const quotaDate = (iso: string | null): string => {
+    if (!iso) return '';
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', {
+      day: '2-digit',
+      month: lang === 'vi' ? '2-digit' : 'short',
+      year: 'numeric',
+      timeZone: 'Asia/Ho_Chi_Minh',
+    }).format(date);
+  };
+
   return (
     <div className="flex w-full gap-4">
       {sidebarOpen ? (
@@ -1055,7 +1180,7 @@ export function AssistantChat({
         </nav>
       </aside>
       <Panel className="flex h-[calc(100dvh-14rem)] min-h-[20rem] min-w-0 flex-1 flex-col overflow-hidden lg:h-[calc(100dvh-15rem)]">
-        <div className="flex items-center gap-2 border-b border-line px-4 py-3">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-line px-4 py-3">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
@@ -1064,19 +1189,36 @@ export function AssistantChat({
           >
             <span aria-hidden>☰</span>
           </button>
-          <div className="min-w-0">
-            <p className="font-display text-lg font-bold text-fog">{t.assistant}</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-display text-lg font-bold text-fog">{t.assistant}</p>
             {compTitle || compSlug ? <p className="truncate text-xs text-mist">{t.context(compTitle ?? compSlug ?? '')}</p> : null}
           </div>
-          <div className="ml-auto flex items-center gap-1.5">
-            <span
-              aria-hidden
-              className="hidden rounded-full border border-line bg-util px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-mist sm:inline"
-            >
-              Tomo
-            </span>
-            <Tomo cue={tomoCue} busy={loading} />
+          {/* The chip carries a whole sentence in Vietnamese; on a phone it gets its
+              own line instead of squeezing the title and running off the panel. */}
+          <div className="order-last flex w-full min-w-0 items-center gap-1.5 sm:order-none sm:ml-auto sm:w-auto">
+            {quota ? (
+              <span
+                aria-live="polite"
+                className={`inline-flex min-w-0 items-center rounded-full border px-2 py-0.5 text-[10.5px] font-semibold whitespace-nowrap ${
+                  quota.plan.paid ? 'border-brand/55 text-brand' : 'border-line text-mist'
+                }`}
+              >
+                {loading
+                  ? t.quota.chipInFlight(1)
+                  : quota.plan.paid
+                    ? t.quota.chipDaily(quota.chatToday.remaining, quota.chatToday.allowance)
+                    : t.quota.chipMonthly(quota.metrics.chat.remaining, quota.metrics.chat.allowance)}
+              </span>
+            ) : (
+              <span
+                aria-hidden
+                className="hidden rounded-full border border-line bg-util px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-mist sm:inline"
+              >
+                Tomo
+              </span>
+            )}
           </div>
+          <Tomo cue={tomoCue} busy={loading} />
         </div>
 
         <div ref={logRef} role="log" aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-5">
@@ -1126,6 +1268,7 @@ export function AssistantChat({
                 onRate={rate}
                 onFollowUp={(question) => void submit(question)}
                 statusLabel={message.response ? statusLabel(message.response) : null}
+                speechLockedLabel={speakLabel}
               />
             )
           )}
@@ -1144,25 +1287,84 @@ export function AssistantChat({
           ) : null}
 
           {loading ? (
-            <div className="flex items-center gap-2.5 text-sm text-mist" role="status">
-              <span aria-hidden className="agent-step" />
-              {t.sending}
-            </div>
+            quota ? (
+              <div className="flex max-w-[85%] flex-col gap-1.5 self-start" role="status">
+                <div className="flex items-center gap-2.5 rounded-[10px] border border-dashed border-brand/45 px-3 py-2 text-xs text-mist">
+                  <span aria-hidden className="h-3 w-3 shrink-0 animate-spin rounded-full border-2 border-line border-t-brand" />
+                  {t.quota.reserved}
+                  <button
+                    type="button"
+                    onClick={stopAnswer}
+                    className="smooth ml-auto inline-flex shrink-0 items-center gap-1 rounded-md border border-line px-2.5 py-1 text-[11px] font-semibold text-mist hover:border-brand hover:text-fog"
+                  >
+                    <svg viewBox="0 0 16 16" aria-hidden className="h-2.5 w-2.5 fill-current">
+                      <rect x="2" y="2" width="12" height="12" rx="1.5" />
+                    </svg>
+                    {t.quota.stop}
+                  </button>
+                </div>
+                <p className="text-[11.5px] leading-relaxed text-mist">{t.quota.reservedNote}</p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2.5 text-sm text-mist" role="status">
+                <span aria-hidden className="agent-step" />
+                {t.sending}
+              </div>
+            )
           ) : null}
           <div ref={bottomRef} />
         </div>
 
         {error ? (
-          <div role="alert" className="flex flex-wrap items-center justify-between gap-2 border-t border-tier-s/40 bg-tier-s/10 px-4 py-2.5 text-sm text-fog">
-            <span>{error}</span>
+          <div
+            role="alert"
+            className="mx-4 mt-2 flex flex-wrap items-start gap-2.5 rounded-[10px] border border-line px-3 py-2 text-xs text-mist"
+          >
+            <svg viewBox="0 0 20 20" aria-hidden className="mt-0.5 h-4 w-4 shrink-0 fill-none stroke-current stroke-[1.7]">
+              <path d="M10 3.5 18 17H2L10 3.5Z" strokeLinejoin="round" />
+              <path d="M10 8v4M10 14.5v.5" strokeLinecap="round" />
+            </svg>
+            <div className="min-w-0 flex-1">
+              <p className="text-[12.5px] text-fog">{error}</p>
+              {retryTurn ? <p className="mt-0.5 text-[11.5px]">{t.quota.nothingCharged}</p> : null}
+            </div>
             {retryTurn ? (
               <button
                 type="button"
                 onClick={() => void submit(retryTurn.text, false, false, retryTurn.requestKey, retryTurn.voiceTurnId)}
-                className="smooth rounded-md border border-line bg-panel px-3 py-1 text-xs font-semibold hover:border-brand"
+                className="smooth ml-auto inline-flex shrink-0 items-center gap-1 rounded-md border border-line bg-panel px-2.5 py-1 text-[11px] font-semibold text-fog hover:border-brand"
               >
+                <svg viewBox="0 0 20 20" aria-hidden className="h-3 w-3 fill-none stroke-current stroke-[1.8]">
+                  <path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5V6h-2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
                 {t.retry}
               </button>
+            ) : null}
+          </div>
+        ) : null}
+
+        {quota && (periodExhausted || dailyExhausted || nearDaily || readExhausted || voiceLocked) ? (
+          <div className="flex flex-col gap-2 px-4 pt-3">
+            {periodExhausted ? (
+              <QuotaBanner title={t.quota.periodTitle} body={t.quota.periodBody} />
+            ) : dailyExhausted ? (
+              <QuotaBanner title={t.quota.dailyTitle} body={t.quota.dailyBody(quota.metrics.chat.remaining)} />
+            ) : nearDaily ? (
+              <QuotaBanner
+                title={t.quota.nearTitle(quota.chatToday.remaining)}
+                body={t.quota.nearBody(quota.chatToday.allowance, quota.metrics.chat.remaining)}
+              />
+            ) : null}
+            {readExhausted ? (
+              <QuotaBanner title={t.quota.readExhaustedTitle} body={t.quota.readExhaustedBody(quotaDate(quota.periodEnd))} />
+            ) : null}
+            {voiceLocked ? (
+              <PlusTip
+                title={t.quota.voiceTipTitle}
+                body={t.quota.voiceTipBody}
+                href={`/${lang}/membership`}
+                cta={t.quota.seePlus}
+              />
             ) : null}
           </div>
         ) : null}
@@ -1186,18 +1388,19 @@ export function AssistantChat({
               }}
               rows={2}
               maxLength={2000}
-              placeholder={t.placeholder}
-              aria-label={t.placeholder}
-              className="min-h-12 flex-1 resize-none rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist"
+              disabled={composerLocked}
+              placeholder={composerPlaceholder}
+              aria-label={composerPlaceholder}
+              className="min-h-12 flex-1 resize-none rounded-lg border border-line bg-page px-3 py-2 text-sm text-fog placeholder:text-mist disabled:cursor-not-allowed disabled:opacity-60"
             />
             <button
               type="button"
               onClick={toggleVoiceInput}
-              disabled={loading || voiceStarting || voiceTranscribing}
-              aria-label={listening ? t.voiceStop : t.voiceStart}
+              disabled={loading || voiceStarting || voiceTranscribing || composerLocked || voiceLocked}
+              aria-label={voiceLocked ? t.voicePlanRequired : listening ? t.voiceStop : t.voiceStart}
               aria-pressed={listening}
-              title={listening ? t.voiceStop : t.voiceStart}
-              className={`smooth inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 ${
+              title={voiceLocked ? t.voicePlanRequired : listening ? t.voiceStop : t.voiceStart}
+              className={`smooth relative inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 ${
                 listening
                   ? 'border-tier-s bg-tier-s/20 text-tier-s'
                   : 'border-line bg-page text-mist hover:border-brand hover:text-fog'
@@ -1211,10 +1414,18 @@ export function AssistantChat({
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5.5 11a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8" />
                 </svg>
               )}
+              {voiceLocked ? (
+                <span aria-hidden className="absolute -top-1 -right-1 grid h-4 w-4 place-items-center rounded-full border border-line bg-page text-mist">
+                  <svg viewBox="0 0 12 12" aria-hidden className="h-2.5 w-2.5 fill-none stroke-current stroke-[1.5]">
+                    <rect x="2.5" y="5" width="7" height="5" rx="1" />
+                    <path d="M4 5V3.8a2 2 0 0 1 4 0V5" />
+                  </svg>
+                </span>
+              ) : null}
             </button>
             <button
               type="submit"
-              disabled={loading || !input.trim()}
+              disabled={loading || !input.trim() || composerLocked}
               className="smooth h-12 rounded-lg border border-brand bg-brand px-5 text-sm font-semibold text-on-brand hover:bg-brand-deep disabled:cursor-not-allowed disabled:opacity-40"
             >
               {loading ? '…' : t.send}
@@ -1335,6 +1546,7 @@ function AssistantBubble({
   onRate,
   onFollowUp,
   statusLabel,
+  speechLockedLabel,
 }: {
   message: ChatMessage;
   lang: Lang;
@@ -1346,6 +1558,7 @@ function AssistantBubble({
   onRate: (response: AssistantResponse, helpful: boolean) => Promise<void>;
   onFollowUp: (question: string) => void;
   statusLabel: string | null;
+  speechLockedLabel: string | null;
 }) {
   const t = uiMessages[lang].assistant;
   const response = message.response;
@@ -1479,8 +1692,10 @@ function AssistantBubble({
             <button
               type="button"
               onClick={onSpeak}
-              aria-label={speaking ? t.voiceStopSpeaking : t.voiceReplay}
-              className="smooth inline-flex items-center gap-1.5 rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
+              disabled={speechLockedLabel !== null && !speaking}
+              title={speechLockedLabel ?? undefined}
+              aria-label={speechLockedLabel ?? (speaking ? t.voiceStopSpeaking : t.voiceReplay)}
+              className="smooth inline-flex items-center gap-1.5 rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand hover:text-fog disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:border-line disabled:hover:text-mist"
             >
               <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4 fill-none stroke-current stroke-[1.7]">
                 {speaking ? (
@@ -1492,7 +1707,7 @@ function AssistantBubble({
                   </>
                 )}
               </svg>
-              {speaking ? t.voiceStopSpeaking : t.voiceReplay}
+              {speechLockedLabel ?? (speaking ? t.voiceStopSpeaking : t.voiceReplay)}
             </button>
             <button type="button" onClick={onCopy} className="smooth rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-mist hover:border-brand hover:text-fog">
               {copied ? t.copied : t.copy}

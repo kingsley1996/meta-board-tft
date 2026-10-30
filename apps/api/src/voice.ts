@@ -4,6 +4,7 @@ import { chunkForSpeech, spokenText } from '@metaboard/shared/speech-text';
 import type { AuthedRequest } from './auth-routes.ts';
 import { getAssistantAnswerForRequest } from './assistant/conversation-store.ts';
 import { chargeForFailure, characterCharges, durationCharges, meterClose, meterOpen, createSpendMeter } from './membership/cost.ts';
+import { approvedTariff } from './membership/tariff.ts';
 import type { AttemptClose, Charge, SpendMeter } from './membership/cost.ts';
 import { quotaDenial, sendDenial } from './membership/denial.ts';
 import { membershipEnforced } from './membership/enforcement.ts';
@@ -647,7 +648,7 @@ router.post(
         process.env,
         fetch,
         speechLang(req.header('x-language')),
-        ledger ? createSpendMeter(ledger.transcriptionId) : undefined,
+        ledger ? createSpendMeter(ledger.transcriptionId, { tariff: approvedTariff }) : undefined,
       );
       const text = outcome.text.trim();
       if (!text || !/[\p{L}\p{N}]/u.test(text)) {
@@ -1315,7 +1316,7 @@ router.post('/tts/speech', async (req, res) => {
       process.env,
       fetch,
       lang,
-      ledger ? createSpendMeter(ledger.requestId) : undefined,
+      ledger ? createSpendMeter(ledger.requestId, { tariff: approvedTariff }) : undefined,
     );
     // The chunk exists, so its characters are spent whether or not the listener is
     // still there to hear it (public policy: a synthesized chunk may cost quota).

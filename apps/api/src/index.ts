@@ -8,6 +8,8 @@ import { translateText } from './assistant/translate.ts';
 import { voiceRouter } from './voice.ts';
 import { authRouter, currentSessionUser, type AuthedRequest } from './auth-routes.ts';
 import { membershipRouter } from './membership/routes.ts';
+import { adminMembershipRouter } from './membership/admin-routes.ts';
+import { paymentRouter, paymentWebhookRouter } from './payments/routes.ts';
 import { membershipEnforced } from './membership/enforcement.ts';
 import { scheduleQuotaRecovery } from './membership/quota.ts';
 import { ensureAdminFromEnv, listAccountUsers, setUserRole } from './accounts.ts';
@@ -35,6 +37,11 @@ import { readTurnstileConfig } from './turnstile.ts';
 readTurnstileConfig();
 
 const app = express();
+
+// Provider webhooks are mounted before the JSON parser because both gateways sign
+// the bytes they sent: the body has to stay a Buffer until the signature verifies.
+app.use('/api/payments/webhook', express.raw({ type: '*/*', limit: '64kb' }), paymentWebhookRouter);
+
 app.use(express.json({ limit: '1mb' }));
 
 // req.ip is what the vote/view dedupe and the login limiter key on, so behind any
@@ -163,6 +170,9 @@ async function adminGuard(req: express.Request, res: express.Response, next: exp
 }
 
 app.use('/api/admin', adminGuard);
+// Membership console (task #91): orders, manual grants, refunds and the audit
+// feed. The router re-checks the role itself; this mount is the outer gate.
+app.use('/api/admin/membership', adminMembershipRouter);
 
 app.post('/api/admin/comps', async (req, res) => {
   const result = await validateCompPayload(req.body);
@@ -347,6 +357,10 @@ app.use('/api/auth', authRouter);
 // account's own plan, balance and history at /api/me/*. #83 gates Coach on the same
 // resolveEntitlement this router reads, so the entitlement code lives in one place.
 app.use('/api', membershipRouter);
+// Checkout and order history (task #87): POST /api/orders, GET /api/me/orders and
+// the bounded refresh that asks the gateway about one order. Every route reads the
+// session itself; the amount and plan always come from the server's catalog.
+app.use('/api', paymentRouter);
 // Resolve the signed-in user (if any) for the routes that bill an account: the
 // Coach and its history, and voice input (task #83/#84). A guest still reaches the
 // public status endpoints; the routes themselves answer 401.

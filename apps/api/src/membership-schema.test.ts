@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { promisify } from 'node:util';
+import { pilotPlans } from '@metaboard/shared/membership-plans';
 
 const execFileAsync = promisify(execFile);
 
@@ -104,6 +105,30 @@ test('membership and usage schema holds the invariants the ledger depends on', {
   await t.test('the file is idempotent and the pilot offer seeds once per version', async () => {
     await pool.query(await readFile(join(import.meta.dirname, 'schema.sql'), 'utf8'));
     const seedScript = join(import.meta.dirname, '../seed/membership-plans.ts');
+    // The dev database may already carry an activated offer with orders and buckets
+    // against it. The seed is supposed to leave exactly that row alone, so the
+    // expectation is read from the row itself instead of being assumed to be draft.
+    const pilotRows = async () => {
+      const { rows } = await pool.query(
+        `SELECT v.code, v.version, v.status, v.price_vnd, v.term_days, v.chat_per_period,
+                v.chat_per_day, v.stt_seconds_per_period, v.tts_characters_per_period,
+                EXISTS (SELECT 1 FROM payment_orders o WHERE o.plan_version_id = v.id)
+                OR EXISTS (SELECT 1 FROM memberships m WHERE m.plan_version_id = v.id)
+                OR EXISTS (SELECT 1 FROM usage_buckets b WHERE b.plan_version_id = v.id) AS in_use
+           FROM plan_versions v WHERE v.code IN ('free', 'plus') ORDER BY v.code`,
+      );
+      return rows;
+    };
+    const before = await pilotRows();
+    // No row yet means the seed must create it; a draft row with no history is
+    // refreshed; anything already sold or used is left untouched.
+    const sealable = new Map(
+      ['free', 'plus'].map((code) => {
+        const row = before.find((candidate) => candidate.code === code);
+        return [code, !row || (row.status === 'draft' && !row.in_use)] as const;
+      }),
+    );
+
     for (const run of [1, 2]) {
       // Running the real CLI (not a copy of its SQL) is what keeps the seed and
       // this schema honest with each other.
@@ -111,17 +136,30 @@ test('membership and usage schema holds the invariants the ledger depends on', {
         cwd: join(import.meta.dirname, '..'),
         env: process.env as NodeJS.ProcessEnv,
       });
-      assert.match(stdout, /free v1: 1 row\(s\)/, `seed run ${run}`);
-      assert.match(stdout, /plus v1: 1 row\(s\)/, `seed run ${run}`);
+      for (const [code, canRefresh] of sealable) {
+        assert.match(stdout, new RegExp(`${code} v1: ${canRefresh ? 1 : 0} row\\(s\\)`), `seed run ${run}, ${code}`);
+      }
     }
-    const { rows } = await pool.query(
-      `SELECT count(*)::int AS versions, bool_and(status = 'draft') AS all_draft,
-              count(*) FILTER (WHERE price_vnd = 99000 AND term_days = 30)::int AS plus_rows
-         FROM plan_versions WHERE code IN ('free', 'plus')`,
-    );
-    assert.equal(rows[0].versions, 2, 'two seed runs do not duplicate a version');
-    assert.equal(rows[0].all_draft, true, 'both pilot offers stay draft until gate #92');
-    assert.equal(rows[0].plus_rows, 1);
+
+    const after = await pilotRows();
+    assert.equal(after.length, 2, 'two seed runs do not duplicate a version');
+    assert.deepEqual(after.map((row) => row.version), [1, 1]);
+
+    for (const row of after) {
+      const previous = before.find((candidate) => candidate.code === row.code);
+      if (!sealable.get(row.code)) {
+        assert.deepEqual(row, previous, `${row.code} has history and must not be rewritten`);
+        continue;
+      }
+      // A row the seed is allowed to refresh must carry the shared constants, which
+      // is how a quota change here reaches the database at all.
+      const plan = pilotPlans.find((candidate) => candidate.code === row.code);
+      assert.equal(row.price_vnd, plan?.priceVnd);
+      assert.equal(row.chat_per_period, plan?.chatPerPeriod);
+      assert.equal(row.chat_per_day, plan?.chatPerDay);
+      assert.equal(row.stt_seconds_per_period, plan?.sttSecondsPerPeriod);
+      assert.equal(row.tts_characters_per_period, plan?.ttsCharactersPerPeriod);
+    }
   });
 
   await t.test('an offer is priced and allowed in integers, and only one version sells at a time', async () => {
