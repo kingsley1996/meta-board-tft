@@ -7,10 +7,7 @@ export function Footer({ lang }: { lang: Lang }) {
   const t = messages[lang].footer;
   return (
     <footer data-section="footer" className="mt-auto flex w-full flex-col items-center gap-3 px-6 pt-10 pb-6 text-center">
-      <div className="flex flex-col items-center gap-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.subscribe.title}</p>
-        <SubscribeForm lang={lang} />
-      </div>
+      <SubscribeForm lang={lang} />
       <div className="flex items-center gap-4 text-xs text-mist">
         <Link href={`/${lang}/legal/privacy`} className="smooth inline-flex min-h-6 items-center hover:text-fog">{t.privacy}</Link>
         <Link href={`/${lang}/legal/terms`} className="smooth inline-flex min-h-6 items-center hover:text-fog">{t.terms}</Link>

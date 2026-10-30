@@ -18,7 +18,7 @@ const en = {
     tables: { title: 'Tables & odds', description: 'Every Set 18 table: shop odds, pool sizes, gold income, and the full list of loot tables, cashouts and drop rates.' },
     economy: { title: 'Economy strategies', description: 'The eight ways to spend gold in Set 18, with the round-by-round plan and the comps that play each one.' },
     guides: { title: 'Guides', description: 'Fundamentals, economy, positioning and meta reads from TFTIQ coaches.' },
-    media: { title: 'Media', description: 'TFTIQ video and podcast: meta reads, patch breakdowns and coaching sessions.' },
+    media: { title: 'Media', description: 'TFTIQ media: video and podcast are not published yet; read the written guides in the meantime.' },
     assistant: { title: 'Coach AI for TFT', description: 'Ask Coach AI about TFT champions, items, augments and comps. Answers use TFTIQ data and show their sources.' },
     membership: { title: 'Membership', description: 'Free and Plus: what each plan includes, how Coach quota is counted, and what happens when a Plus period ends.' },
     about: { title: 'About' },
@@ -116,7 +116,6 @@ const en = {
     terms: 'Terms of Use',
     about: 'About',
     subscribe: {
-      title: 'Patch alerts by email',
       placeholder: 'you@email.com',
       button: 'Subscribe',
       done: 'Subscribed — talk soon!',
@@ -130,7 +129,7 @@ const en = {
     badge: 'Set 18 · Enchanted Wilds',
     headline: 'Every board that wins,',
     headlineAccent: 'one comp away.',
-    sub: 'TFTIQ ranks the comps, items and augments that actually climb this patch — curated from thousands of matches, rebuilt every morning before you queue.',
+    sub: 'TFTIQ ranks the comps, items and augments that actually climb this patch — curated from thousands of matches and refreshed with each patch and match-data snapshot.',
     browseComps: 'Browse comps',
     readGuides: 'Read the guides',
     assistantKicker: 'YOUR TFT COACH',
@@ -147,7 +146,7 @@ const en = {
       champions: 'Champions',
     },
     promoTitle: 'New patch, new boards.',
-    promoBody: 'Patch 18.4b moved three comps up a tier overnight. See what changed before your next game.',
+    promoBody: 'The new patch moved comps up and down the list. See what changed before your next game.',
     promoCta: 'How to read the list',
   },
   explorer: {
@@ -389,7 +388,7 @@ const en = {
   comps: {
     small: 'Comp',
     big: 'Rankings',
-    sub: 'Ranked daily from high-elo matches. Click any comp on the board for the full game plan.',
+    sub: 'Ranked from high-elo matches. Click any comp on the board for the full game plan.',
     detailSub: (tier: string, playstyle: string) => `Tier ${tier} · ${playstyle}. The board below is expanded in place — the rest of the rankings stay on screen.`,
   },
   items: {
@@ -408,17 +407,9 @@ const en = {
   },
   media: {
     heading: 'Media',
-    tagline: 'The patch, explained out loud',
-    body: 'Video breakdowns and a weekly podcast on where the meta is moving. Every episode is written the morning the patch lands, so the takeaways are live before your first game.',
-    showVideo: 'Show video',
-    showPodcast: 'Show podcast',
-    nowPlaying: 'Now playing · Patch 18.4b first look',
-    episodes: [
-      { title: 'Patch 18.4b first look: the 3-cost shakeup', meta: '18 min · Video' },
-      { title: 'Economy clinic: 10 games, 10 stage 2s', meta: '42 min · Podcast' },
-      { title: 'Positioning workshop with a Challenger lobby', meta: '31 min · Video' },
-      { title: 'Why X-tier comps win tournaments', meta: '26 min · Podcast' },
-    ],
+    tagline: 'Video and podcast are not published yet',
+    body: 'We are not publishing episodes yet, so this page has nothing to play. The written guides cover the same ground: how to read a tier list, economy, positioning and patch changes.',
+    cta: 'Read the guides',
   },
   assistant: {
     small: 'TFT',
@@ -529,7 +520,7 @@ const en = {
     mascotName: 'Tomo',
     mascotBoop: 'Boop Tomo',
     introName: "I'm Tomo — TFTIQ's AI assistant",
-    intro: 'I read live Set 18 data to suggest comps, builds and augments for your board.',
+    intro: 'I read current Set 18 data to suggest comps, builds and augments for your board.',
     dataMode: 'Data summary',
     llmMode: 'Coach AI',
   },
@@ -717,8 +708,12 @@ const en = {
         body: 'Tier placements come from a mix of match data and coaching review. Data finds the strong lines; the review pass removes lines that only win in lobbies nobody plays in. A comp moves tiers when both agree.',
       },
       {
+        heading: 'How item and augment tiers are made',
+        body: "Item tiers combine pick rate with placement against the champion's own average, so a strong item on a weak champion does not top the list. Augment tiers weigh how often a pick fits the comps in the current sample instead of win rate alone.",
+      },
+      {
         heading: 'Where the data comes from',
-        body: "Champions, traits, items, augments and icons come from Riot's published game data files. Match statistics are aggregated from third-party match-data feeds during the pilot and reviewed by our editors. TFTIQ does not call the Riot API in production yet; we plan to move match ingestion there, and this page will say so once that ships.",
+        body: "Champions, traits, items, augments and icons come from Riot's public game data, published through Data Dragon and the CommunityDragon mirror. Match statistics are aggregated from publicly available TFT match data and reviewed by our editors. TFTIQ does not call the Riot API in production yet; we plan to move match ingestion there, and this page will say so once that ships.",
       },
       {
         heading: 'What is ours',
@@ -726,7 +721,11 @@ const en = {
       },
       {
         heading: 'How fresh it is',
-        body: 'Rankings are rebuilt daily and after each patch; the patch bar on every page shows the last update. Static game data follows the live patch.',
+        body: 'Rankings are refreshed when a new patch or match-data snapshot lands; the patch bar on every page shows the date of the data you are reading. Static game data follows the live patch.',
+      },
+      {
+        heading: 'What Coach AI is for',
+        body: 'Coach AI is built for pre-game preparation and post-game review: comps, items, augments, economy and mechanics. It does not give live in-game instructions, run as an overlay, or track opponents during a match.',
       },
       {
         heading: 'Contact',
@@ -754,7 +753,7 @@ const en = {
         },
         {
           heading: 'Who processes it',
-          body: 'Google handles sign-in. Our payment provider handles checkout. AI model providers generate Coach answers and speech providers transcribe voice input and read answers aloud. Our hosting and database providers run the service. Embedded media on the Media page loads from the video platform only after you press play. Each of these processes data on our behalf under its own terms; we do not sell personal data.',
+          body: 'Google handles sign-in. Our payment provider handles checkout. AI model providers generate Coach answers and speech providers transcribe voice input and read answers aloud. Our hosting and database providers run the service. Each of these processes data on our behalf under its own terms; we do not sell personal data.',
         },
         {
           heading: 'How long we keep it',
@@ -796,7 +795,11 @@ const en = {
         },
         {
           heading: 'No warranty',
-          body: 'The site is provided as-is. We update rankings daily, but patches change fast and pages can be stale or wrong. Verify anything tournament-critical yourself.',
+          body: 'The site is provided as-is. We refresh rankings when a new patch or data snapshot lands, but patches change fast and pages can be stale or wrong. Verify anything tournament-critical yourself.',
+        },
+        {
+          heading: 'Scope and liability',
+          body: 'TFTIQ is for preparation and review outside a match. It is not an in-game overlay, does not give live match instructions and does not track opponents. To the extent permitted by law, TFTIQ is not liable for decisions made from its rankings or Coach answers.',
         },
       ],
     },
@@ -817,7 +820,7 @@ const vi: typeof en = {
     tables: { title: 'Bảng cơ chế', description: 'Toàn bộ bảng của mùa 18: tỉ lệ cửa hàng, bể tướng, thu nhập vàng, cùng danh sách bảng loot, cashout và tỉ lệ rơi.' },
     economy: { title: 'Chiến lược kinh tế', description: 'Tám cách tiêu vàng trong mùa 18, kèm kế hoạch theo từng vòng và các đội hình dùng chiến lược đó.' },
     guides: { title: 'Hướng dẫn', description: 'Kiến thức nền tảng, kinh tế, xếp đội hình và đọc meta từ đội ngũ TFTIQ.' },
-    media: { title: 'Media', description: 'Video và podcast TFTIQ: đọc meta, phân tích patch và coaching.' },
+    media: { title: 'Media', description: 'Media TFTIQ: video và podcast chưa ra mắt; trong lúc chờ, đọc hướng dẫn dạng văn bản.' },
     assistant: { title: 'Coach AI TFT', description: 'Hỏi Coach AI về tướng, trang bị, nâng cấp và đội hình TFT. Câu trả lời dùng dữ liệu TFTIQ và hiển thị nguồn.' },
     membership: { title: 'Hội viên', description: 'Miễn phí và Plus: mỗi gói gồm gì, hạn mức Coach được tính thế nào và điều gì xảy ra khi kỳ Plus kết thúc.' },
     about: { title: 'Giới thiệu' },
@@ -915,7 +918,6 @@ const vi: typeof en = {
     terms: 'Điều khoản sử dụng',
     about: 'Giới thiệu',
     subscribe: {
-      title: 'Nhận thông báo patch qua email',
       placeholder: 'email@cua-ban.com',
       button: 'Đăng ký',
       done: 'Đã đăng ký — hẹn gặp ở bản tin tới!',
@@ -929,7 +931,7 @@ const vi: typeof en = {
     badge: 'Mùa 18 · Đại Ngàn Kỳ Bí',
     headline: 'Mọi chiến thắng đều bắt đầu',
     headlineAccent: 'từ một đội hình.',
-    sub: 'TFTIQ xếp hạng đội hình, trang bị và nâng cấp thực sự leo rank trong patch này — chọn lọc từ hàng nghìn trận đấu, cập nhật mỗi sáng trước khi bạn vào trận.',
+    sub: 'TFTIQ xếp hạng đội hình, trang bị và nâng cấp thực sự leo rank trong patch này — chọn lọc từ hàng nghìn trận đấu và làm mới theo từng patch cùng bản dữ liệu trận.',
     browseComps: 'Xem đội hình',
     readGuides: 'Đọc hướng dẫn',
     assistantKicker: 'HUẤN LUYỆN VIÊN TFT CỦA BẠN',
@@ -946,7 +948,7 @@ const vi: typeof en = {
       champions: 'Tướng',
     },
     promoTitle: 'Patch mới, đội hình mới.',
-    promoBody: 'Patch 18.4b đẩy ba đội hình lên hạng chỉ sau một đêm. Xem ngay trước trận tiếp theo.',
+    promoBody: 'Patch mới đẩy một số đội hình lên hạng và kéo một số khác xuống. Xem ngay trước trận tiếp theo.',
     promoCta: 'Cách đọc bảng xếp hạng',
   },
   explorer: {
@@ -1188,7 +1190,7 @@ const vi: typeof en = {
   comps: {
     small: 'Đội hình',
     big: 'Xếp hạng',
-    sub: 'Xếp hạng hằng ngày từ các trận rank cao. Bấm vào đội hình trên bảng để xem toàn bộ kế hoạch trận đấu.',
+    sub: 'Xếp hạng từ các trận rank cao. Bấm vào đội hình trên bảng để xem toàn bộ kế hoạch trận đấu.',
     detailSub: (tier: string, playstyle: string) => `Tier ${tier} · ${playstyle}. Đội hình bên dưới được mở ngay tại chỗ — phần còn lại của bảng vẫn hiển thị.`,
   },
   items: {
@@ -1207,17 +1209,9 @@ const vi: typeof en = {
   },
   media: {
     heading: 'Media',
-    tagline: 'Patch mới, giải thích dễ hiểu',
-    body: 'Video phân tích và podcast hằng tuần về hướng đi của meta. Mỗi tập được viết ngay sáng ngày patch ra mắt, để bạn nắm thay đổi trước trận đầu tiên.',
-    showVideo: 'Xem video',
-    showPodcast: 'Nghe podcast',
-    nowPlaying: 'Đang phát · Patch 18.4b first look',
-    episodes: [
-      { title: 'Patch 18.4b first look: biến động tướng 3 vàng', meta: '18 phút · Video' },
-      { title: 'Phòng khám kinh tế: 10 trận, 10 vòng 2', meta: '42 phút · Podcast' },
-      { title: 'Workshop xếp đội hình cùng sảnh Thách Đấu', meta: '31 phút · Video' },
-      { title: 'Vì sao đội hình tier X thắng giải đấu', meta: '26 phút · Podcast' },
-    ],
+    tagline: 'Video và podcast chưa ra mắt',
+    body: 'Chúng tôi chưa phát hành tập nào, nên trang này chưa có gì để xem. Hướng dẫn dạng văn bản đang bao quát các chủ đề tương tự: cách đọc bảng xếp hạng, kinh tế, xếp đội hình và thay đổi của patch.',
+    cta: 'Đọc hướng dẫn',
   },
   assistant: {
     small: 'TFT',
@@ -1328,7 +1322,7 @@ const vi: typeof en = {
     mascotName: 'Tomo',
     mascotBoop: 'Chạm vào Tomo',
     introName: 'Mình là Tomo — trợ lý AI của TFTIQ',
-    intro: 'Mình đọc trực tiếp dữ liệu Mùa 18 để gợi ý đội hình, cách lên đồ và nâng cấp hợp với bàn cờ của bạn.',
+    intro: 'Mình đọc dữ liệu Mùa 18 hiện hành để gợi ý đội hình, cách lên đồ và nâng cấp hợp với bàn cờ của bạn.',
     dataMode: 'Tóm tắt dữ liệu',
     llmMode: 'Coach AI',
   },
@@ -1512,8 +1506,12 @@ const vi: typeof en = {
         body: 'Thứ hạng đến từ dữ liệu trận đấu kết hợp với đánh giá của HLV. Dữ liệu tìm ra đội mạnh; vòng đánh giá loại bỏ những đội chỉ thắng trong sảnh ít người chơi. Một đội hình lên hạng khi cả hai nguồn đồng thuận.',
       },
       {
+        heading: 'Xếp hạng trang bị và nâng cấp được tạo thế nào',
+        body: 'Hạng trang bị kết hợp tỉ lệ chọn với vị trí trung bình của tướng khi lên món đó so với chính tướng ấy, nên một món mạnh trên tướng yếu không tự động đứng đầu. Hạng nâng cấp dựa trên mức độ hợp với các đội hình trong mẫu hiện tại, không chỉ tỉ lệ thắng.',
+      },
+      {
         heading: 'Dữ liệu lấy từ đâu',
-        body: 'Tướng, tộc hệ, trang bị, lõi và icon lấy từ bộ dữ liệu game chính thức do Riot công bố. Số liệu trận đấu được tổng hợp từ các nguồn dữ liệu trận bên thứ ba trong giai đoạn thử nghiệm và được biên tập viên rà lại. TFTIQ chưa gọi Riot API trên môi trường production; chúng tôi dự định chuyển việc thu thập trận sang Riot API và sẽ ghi rõ trên trang này khi hoàn tất.',
+        body: 'Tướng, tộc hệ, trang bị, lõi và icon lấy từ dữ liệu game công khai của Riot, phát hành qua Data Dragon và bản mirror CommunityDragon. Số liệu trận đấu được tổng hợp từ dữ liệu trận TFT công khai và được biên tập viên rà lại. TFTIQ chưa gọi Riot API trên môi trường production; chúng tôi dự định chuyển việc thu thập trận sang Riot API và sẽ ghi rõ trên trang này khi hoàn tất.',
       },
       {
         heading: 'Phần nào là của TFTIQ',
@@ -1521,7 +1519,11 @@ const vi: typeof en = {
       },
       {
         heading: 'Cập nhật bao lâu một lần',
-        body: 'Bảng xếp hạng được dựng lại hằng ngày và sau mỗi patch; thanh patch trên mỗi trang ghi lần cập nhật gần nhất. Dữ liệu game tĩnh bám theo patch đang chạy.',
+        body: 'Bảng xếp hạng được làm mới khi có patch mới hoặc bản dữ liệu trận mới; thanh patch trên mỗi trang ghi ngày của dữ liệu bạn đang đọc. Dữ liệu game tĩnh bám theo patch đang chạy.',
+      },
+      {
+        heading: 'Coach AI dùng để làm gì',
+        body: 'Coach AI dành cho chuẩn bị trước trận và xem lại sau trận: đội hình, trang bị, nâng cấp, kinh tế và cơ chế. Coach không đưa chỉ dẫn trực tiếp trong trận, không chạy overlay và không theo dõi đối thủ khi đang đấu.',
       },
       {
         heading: 'Liên hệ',
@@ -1549,7 +1551,7 @@ const vi: typeof en = {
         },
         {
           heading: 'Ai xử lý dữ liệu',
-          body: 'Google xử lý đăng nhập. Đơn vị thanh toán xử lý checkout. Các nhà cung cấp mô hình AI tạo câu trả lời cho Coach; nhà cung cấp giọng nói chuyển giọng nói thành văn bản và đọc câu trả lời. Nhà cung cấp hosting và cơ sở dữ liệu vận hành dịch vụ. Media nhúng ở trang Media chỉ tải từ nền tảng video sau khi bạn bấm phát. Các bên này xử lý dữ liệu thay chúng tôi theo điều khoản riêng; chúng tôi không bán dữ liệu cá nhân.',
+          body: 'Google xử lý đăng nhập. Đơn vị thanh toán xử lý checkout. Các nhà cung cấp mô hình AI tạo câu trả lời cho Coach; nhà cung cấp giọng nói chuyển giọng nói thành văn bản và đọc câu trả lời. Nhà cung cấp hosting và cơ sở dữ liệu vận hành dịch vụ. Các bên này xử lý dữ liệu thay chúng tôi theo điều khoản riêng; chúng tôi không bán dữ liệu cá nhân.',
         },
         {
           heading: 'Lưu trong bao lâu',
@@ -1591,7 +1593,11 @@ const vi: typeof en = {
         },
         {
           heading: 'Không bảo hành',
-          body: 'Trang được cung cấp nguyên trạng. Chúng tôi cập nhật xếp hạng hằng ngày, nhưng patch thay đổi nhanh và nội dung có thể cũ hoặc sai. Hãy tự kiểm chứng mọi thứ quan trọng với giải đấu.',
+          body: 'Trang được cung cấp nguyên trạng. Chúng tôi làm mới xếp hạng khi có patch hoặc bản dữ liệu mới, nhưng patch thay đổi nhanh và nội dung có thể cũ hoặc sai. Hãy tự kiểm chứng mọi thứ quan trọng với giải đấu.',
+        },
+        {
+          heading: 'Phạm vi và trách nhiệm',
+          body: 'TFTIQ dùng để chuẩn bị và xem lại ngoài trận đấu. Đây không phải overlay trong trận, không đưa chỉ dẫn trực tiếp khi đang đấu và không theo dõi đối thủ. Trong phạm vi pháp luật cho phép, TFTIQ không chịu trách nhiệm cho các quyết định dựa trên xếp hạng hoặc câu trả lời của Coach.',
         },
       ],
     },

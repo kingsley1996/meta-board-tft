@@ -40,7 +40,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: 'guides', meta: page },
     ...guides.map((entry) => ({ path: `guides/${entry.slug}`, meta: page })),
     { path: 'about', meta: page },
-    { path: 'media', meta: page },
     { path: 'legal/privacy', meta: page },
     { path: 'legal/terms', meta: page },
   ];

@@ -1,7 +1,7 @@
 # Checklist đăng ký TFTIQ TFT trên Riot Developer Portal
 
-**Website hiện tại:** https://meta-board-tft.vercel.app/\
-**Domain riêng (đã có, chờ trỏ DNS):** https://tftiq.com/\
+**Website hiện tại:** https://www.tftiq.com/ (canonical; apex 308 và
+`meta-board-tft.vercel.app` 301 về www)\
 **Sản phẩm:** TFTIQ -- nền tảng đồng hành cùng người chơi Teamfight
 Tactics (TFT)\
 **Mục tiêu:** Chuẩn bị hồ sơ đăng ký sản phẩm và xin Riot API Production
@@ -16,9 +16,9 @@ Key.
 
 ## 1. TFTIQ có bắt buộc phải có domain riêng không?
 
-Website hiện tại đang chạy trên Vercel:
+Website hiện chạy trên Vercel với domain riêng:
 
-`https://meta-board-tft.vercel.app/`
+`https://www.tftiq.com/`
 
 Cần phân biệt hai loại API key:
 
@@ -45,14 +45,17 @@ Vì vậy, lựa chọn an toàn và chuyên nghiệp hơn là mua domain riêng
 
 ### Domain
 
--   `tftiq.com` — đã mua, mail `support@` / `admin@` đang chạy trên domain này
+-   `tftiq.com` — đã mua và **đã live**: `https://www.tftiq.com/` là
+    canonical, HTTPS bật, apex và hostname Vercel cũ đều redirect về www
+-   Mail `support@tftiq.com` công khai trên About/Privacy;
+    `admin@tftiq.com` chỉ dùng nội bộ
 
 Không có yêu cầu phải dùng riêng `.com` hay `.gg`; domain riêng có lợi
 cho việc chứng minh quyền kiểm soát, nhận diện thương hiệu và duy trì
 sản phẩm lâu dài.
 
-**Khuyến nghị:** Trỏ domain riêng về Vercel, bật HTTPS và giữ website
-công khai, ổn định trước khi gửi hồ sơ.
+Website công khai, ổn định, `sitemap.xml` và `robots.txt` đều dựa trên
+`https://www.tftiq.com/`.
 
 ------------------------------------------------------------------------
 
@@ -89,56 +92,61 @@ vì chỉ là landing page ý tưởng. Tuy nhiên, cần rà soát các nội d
 
 Không còn địa chỉ `.example` nào trong `apps/web/lib/messages.ts`.
 
-### 3.2. Bổ sung Riot legal disclaimer nguyên văn
+### 3.2. Bổ sung Riot legal disclaimer nguyên văn — đã xong
 
-Nên bổ sung legal boilerplate của Riot vào footer hoặc trang About. Giữ
-nguyên văn bản tiếng Anh sau:
+Footer và trang Terms hiển thị nguyên văn câu của Riot (không ghép thêm
+bản dịch tự viết), ở cả hai locale:
 
-> This product isn't endorsed by Riot Games and doesn't reflect the
-> views or opinions of Riot Games or anyone officially involved in
-> producing or managing Riot Games properties. Riot Games, and all
-> associated properties are trademarks or registered trademarks of Riot
-> Games, Inc.
+> TFTIQ isn't endorsed by Riot Games and doesn't reflect the views or
+> opinions of Riot Games or anyone officially involved in producing or
+> managing Riot Games properties. Riot Games, and all associated
+> properties are trademarks or registered trademarks of Riot Games, Inc.
 
-Có thể giữ thêm bản dịch tiếng Việt để người dùng dễ hiểu, nhưng không
-thay thế đoạn tiếng Anh bắt buộc bằng bản dịch tự viết.
+Footer có thêm dòng `© 2026 TFTIQ.` phía trước; About cũng nói rõ phần
+phân tích là của TFTIQ và không được Riot bảo trợ.
 
-### 3.3. Làm rõ nguồn dữ liệu và phương pháp xếp hạng
+### 3.3. Làm rõ nguồn dữ liệu và phương pháp xếp hạng — đã xong trên /about
 
-Nên có một phần giải thích ngắn, dễ tìm về:
+Trang About có các mục:
 
--   Nguồn dữ liệu: Riot API, Data Dragon và các nguồn dữ liệu được phép
-    sử dụng.
--   Cách thu thập, xử lý và tổng hợp dữ liệu trận đấu.
--   Phương pháp tính điểm hoặc xếp hạng đội hình.
--   Các yếu tố được dùng để đánh giá trang bị và nâng cấp.
--   Tần suất cập nhật dữ liệu.
--   Phần nào là thống kê, phần nào là phân tích hoặc đánh giá do
-    TFTIQ tạo ra.
+-   **How the tiers are made** — dữ liệu trận + vòng đánh giá của biên
+    tập viên; đội hình chỉ đổi hạng khi cả hai đồng thuận.
+-   **How item and augment tiers are made** — trang bị theo tỉ lệ chọn và
+    chênh lệch vị trí so với chính tướng đó; nâng cấp theo độ hợp với
+    đội hình trong mẫu hiện tại, không chỉ win rate.
+-   **Where the data comes from** — tướng/tộc hệ/trang bị/nâng cấp/icon
+    lấy từ dữ liệu game công khai của Riot qua Data Dragon và
+    CommunityDragon; số liệu trận tổng hợp từ dữ liệu trận TFT công
+    khai, được biên tập viên rà lại; nêu rõ **chưa gọi Riot API trên
+    production** và kế hoạch chuyển sang Riot API.
+-   **How fresh it is** — làm mới theo patch hoặc bản dữ liệu trận mới;
+    thanh patch ghi ngày của dữ liệu đang đọc (không còn claim "hằng
+    ngày").
+-   **What is ours** — phần nào là thống kê, phần nào là phân tích của
+    TFTIQ.
 
-Không nên mô tả dữ liệu là dữ liệu real-time hoặc chính thức nếu thực tế
-không phải như vậy. Cần bảo đảm mô tả trên website khớp với cách hệ
-thống đang vận hành.
+Mô tả trên site khớp với vận hành hiện tại: dữ liệu đang đọc là snapshot
+`2026-10-27`, patch 18.5b, và ngày này hiển thị trên thanh patch.
 
-### 3.4. Rà soát mô hình monetization
+**Còn phải chuẩn bị cho hồ sơ:** câu trả lời về tính hợp lệ của nguồn
+dữ liệu trận công khai đang dùng, và xác nhận quyền dùng asset game
+(CommunityDragon) trên sản phẩm có thu phí theo chính sách hiện hành.
 
-TFTIQ có đề cập gói Plus trong Terms of Service. Cần mô tả rõ giá
-trị của gói miễn phí và gói trả phí.
+### 3.4. Rà soát mô hình monetization — đã xong trên /membership
 
-Ví dụ định hướng:
+Trang Membership mô tả đủ hai gói, hạn mức và chính sách hoàn tiền:
 
-  Free                                Plus
-  ----------------------------------- -------------------------------------------
-  Xem bảng xếp hạng đội hình          AI Coach nâng cao
-  Xem xếp hạng trang bị và nâng cấp   Phân tích chuyên sâu
-  Tra cứu thông tin TFT cơ bản        Hướng dẫn cá nhân hóa
-  Đọc hướng dẫn                       Công cụ học và cải thiện kỹ năng nâng cao
+-   **Free** — 0₫, 60 câu Coach/tháng · 12/ngày, toàn bộ comp/tier
+    list/guide đọc miễn phí, không cần thẻ.
+-   **Plus** — 99.000₫ cho 30 ngày, 300 câu Coach/30 ngày · 60/ngày,
+    20 phút voice in, 10.000 ký tự đọc thành tiếng; không tự gia hạn,
+    không cộng dồn quota.
+-   Hoàn tiền toàn bộ trong 7 ngày nếu chưa dùng quota của kỳ; thanh
+    toán thủ công qua chuyển khoản/QR.
 
-Riot có chính sách riêng về monetization. Cần kiểm tra điều kiện hiện
-hành, bao gồm yêu cầu về trạng thái phê duyệt/ghi nhận sản phẩm, free
-tier và giá trị bổ sung của nội dung trả phí. Không nên triển khai thanh
-toán hoặc quảng bá gói trả phí dựa trên giả định rằng mọi mô hình đều
-được chấp thuận.
+Terms cũng ghi Plus là gói 30 ngày và điều kiện hoàn tiền. **Khi nộp
+hồ sơ phải khai báo mô hình này trong phần mô tả sản phẩm** (xem §8) và
+không giả định Riot đã chấp thuận monetization trước khi được duyệt.
 
 ------------------------------------------------------------------------
 
@@ -193,6 +201,12 @@ post-game learning.
 Bảng trên là định hướng rà soát, không thay thế việc đối chiếu từng tính
 năng với policy mới nhất của Riot.
 
+**Hiện trạng trên site:** About có mục "What Coach AI is for" và Terms có
+mục "Scope and liability", nói rõ Coach dành cho chuẩn bị trước trận và
+xem lại sau trận, không đưa chỉ dẫn trực tiếp trong trận, không chạy
+overlay và không theo dõi đối thủ. Site không có tính năng tự động chơi
+hay đọc trạng thái trận real-time.
+
 ------------------------------------------------------------------------
 
 ## 5. Xác minh website/domain cho Production Key
@@ -242,43 +256,46 @@ vì tên file hoặc quy trình có thể thay đổi.
 
 ### Domain và website
 
--   [ ] Mua domain riêng cho TFTIQ.
--   [ ] Trỏ domain về Vercel và bật HTTPS.
--   [ ] Đảm bảo homepage và các trang chính truy cập công khai.
--   [ ] Kiểm tra website hiển thị tốt trên desktop và mobile.
--   [ ] Chuẩn bị khả năng đặt file xác minh tại root website.
+-   [x] Mua domain riêng cho TFTIQ.
+-   [x] Trỏ domain về Vercel và bật HTTPS (www là canonical).
+-   [x] Đảm bảo homepage và các trang chính truy cập công khai.
+-   [x] Kiểm tra website hiển thị tốt trên desktop và mobile.
+-   [x] Chuẩn bị khả năng đặt file xác minh tại root website
+    (`apps/web/public/riot.txt`, chưa tạo vì chưa có chuỗi từ Riot).
 
 ### Legal và liên hệ
 
--   [ ] Thay email `.example` bằng email thật.
--   [ ] Bổ sung Riot legal disclaimer nguyên văn.
--   [ ] Rà soát Privacy Policy.
--   [ ] Rà soát Terms of Service.
--   [ ] Làm rõ chính sách dữ liệu người dùng và cách liên hệ.
--   [ ] Làm rõ free tier và gói Plus.
+-   [x] Thay email `.example` bằng email thật.
+-   [x] Bổ sung Riot legal disclaimer nguyên văn.
+-   [x] Rà soát Privacy Policy.
+-   [x] Rà soát Terms of Service (có mục scope/liability).
+-   [x] Làm rõ chính sách dữ liệu người dùng và cách liên hệ.
+-   [x] Làm rõ free tier và gói Plus.
 
 ### Product và documentation
 
--   [ ] Mô tả rõ nguồn dữ liệu TFT.
--   [ ] Giải thích phương pháp xếp hạng đội hình.
--   [ ] Giải thích cách đánh giá trang bị và nâng cấp.
+-   [x] Mô tả rõ nguồn dữ liệu TFT (Data Dragon, CommunityDragon; kế
+    hoạch chuyển sang Riot API).
+-   [x] Giải thích phương pháp xếp hạng đội hình.
+-   [x] Giải thích cách đánh giá trang bị và nâng cấp.
 -   [ ] Có hướng dẫn sử dụng Coach AI.
--   [ ] Có ví dụ thực tế về giá trị sản phẩm mang lại.
--   [ ] Kiểm tra các tính năng theo TFT Game Integrity Policy.
--   [ ] Không có tính năng tự động chơi hoặc chỉ đạo người chơi theo
+-   [x] Có ví dụ thực tế về giá trị sản phẩm mang lại.
+-   [x] Kiểm tra các tính năng theo TFT Game Integrity Policy.
+-   [x] Không có tính năng tự động chơi hoặc chỉ đạo người chơi theo
     trạng thái trận đấu real-time.
 
 ### Riot Developer Portal
 
 -   [ ] Đăng ký TFTIQ thành một product riêng.
 -   [ ] Chọn game Teamfight Tactics.
--   [ ] Chuẩn bị mô tả use case bằng tiếng Anh.
--   [ ] Chuẩn bị website URL.
+-   [x] Chuẩn bị mô tả use case bằng tiếng Anh (§8).
+-   [x] Chuẩn bị website URL: `https://www.tftiq.com/`.
 -   [ ] Chuẩn bị screenshots hoặc demo các tính năng chính.
--   [ ] Chuẩn bị thông tin liên hệ của người vận hành.
+-   [x] Chuẩn bị thông tin liên hệ của người vận hành
+    (`support@tftiq.com`).
 -   [ ] Xác minh domain nếu hồ sơ Production yêu cầu.
--   [ ] Kiểm tra yêu cầu RSO nếu có tính năng đăng nhập Riot hoặc truy
-    xuất dữ liệu gắn với tài khoản người chơi.
+-   [x] Kiểm tra yêu cầu RSO: site không đăng nhập Riot và không hiển
+    thị dữ liệu gắn với tài khoản Riot, nên chưa cần RSO.
 
 ------------------------------------------------------------------------
 
@@ -312,7 +329,7 @@ với tính năng và cách vận hành thực tế của TFTIQ.
 
 ### TFTIQ -- Teamfight Tactics Companion
 
-**Product URL:** https://tftiq.com/\
+**Product URL:** https://www.tftiq.com/\
 **Game:** Teamfight Tactics
 
 **Product Description:**
@@ -345,6 +362,22 @@ The platform focuses on pre-game preparation and post-game learning. It
 does not provide real-time gameplay instructions, automate player
 decisions, or track opponents during matches.
 
+**Data sources:** champions, traits, items, augments and icons come from
+Riot's public game data published through Data Dragon and the
+CommunityDragon mirror. Match statistics are aggregated from publicly
+available TFT match data and reviewed by the operator; ingestion is
+planned to move to the Riot API. TFTIQ does not currently call the Riot
+API in production.
+
+**Free and paid tiers:** every comp, tier list, item ranking, augment
+ranking and guide is free to read. An optional Plus pass (99,000 VND for
+30 days) adds voice input, read-aloud answers and a larger Coach quota.
+It does not auto-renew and there are no ads.
+
+**Review access:** Coach AI requires sign-in. Reviewers can sign in with
+Google; a free account includes 60 Coach messages a month. TFTIQ does
+not use Riot Sign On and does not display Riot account data.
+
 TFTIQ is an independent third-party product and is not affiliated
 with or endorsed by Riot Games.
 
@@ -352,19 +385,23 @@ with or endorsed by Riot Games.
 
 ## 9. Thứ tự ưu tiên đề xuất
 
-Nếu chuẩn bị hồ sơ ngay bây giờ, nên làm theo thứ tự:
+Trạng thái và việc còn lại, theo thứ tự:
 
-1.  **Mua domain riêng:** Đây là khoản đầu tư nhỏ nhưng có lợi cho
-    thương hiệu và quy trình xác minh.
-2.  **Sửa email placeholder và legal disclaimer:** Đây là các lỗi dễ
-    nhận thấy trên website công khai.
-3.  **Hoàn thiện mô tả nguồn dữ liệu và ranking methodology:** Giúp Riot
-    hiểu TFTIQ tạo ra giá trị gì.
-4.  **Rà soát Coach AI theo Game Integrity Policy:** Đảm bảo không có
-    tính năng hỗ trợ chơi game theo cách bị hạn chế.
-5.  **Chuẩn bị screenshots, demo và product description tiếng Anh.**
-6.  **Đăng ký Product và xin Production Key:** Thực hiện theo đúng yêu
-    cầu được hiển thị trong Riot Developer Portal.
+1.  ~~Mua domain riêng~~ — xong; www là canonical, HTTPS và redirect
+    đã hoạt động.
+2.  ~~Sửa email placeholder và legal disclaimer~~ — xong; email thật,
+    disclaimer nguyên văn, Terms có scope/liability.
+3.  ~~Hoàn thiện mô tả nguồn dữ liệu và ranking methodology~~ — xong
+    trên /about; còn chuẩn bị câu trả lời về nguồn match data công khai
+    và quyền dùng asset CommunityDragon.
+4.  ~~Rà soát Coach AI theo Game Integrity Policy~~ — xong; site nêu rõ
+    phạm vi pre-game/post-game.
+5.  **Screenshots, demo và product description tiếng Anh** — mô tả đã có
+    ở §8; còn screenshots và kiểm tra luồng đăng nhập Google trên domain
+    mới (cần thêm redirect URI trong Google Console).
+6.  **Đăng ký Product và xin Production Key:** thực hiện theo đúng yêu
+    cầu hiển thị trong Riot Developer Portal; chuẩn bị `riot.txt` khi
+    Riot cấp chuỗi.
 
 ## 10. Tài liệu chính thức cần đối chiếu
 
@@ -386,12 +423,11 @@ Nếu chuẩn bị hồ sơ ngay bây giờ, nên làm theo thứ tự:
 
 ## Kết luận
 
-TFTIQ đã có nền tảng sản phẩm tương đối đầy đủ để bắt đầu chuẩn bị
-hồ sơ Riot Developer Portal. Không cần xây dựng lại website chỉ để đăng
-ký. Việc nên ưu tiên là mua domain riêng, hoàn thiện thông tin liên hệ
-và pháp lý, giải thích minh bạch nguồn dữ liệu và phương pháp ranking,
-sau đó rà soát toàn bộ tính năng Coach AI theo TFT Game Integrity
-Policy.
+TFTIQ đã có domain riêng, thông tin liên hệ, pháp lý và phần giải thích
+nguồn dữ liệu/ranking trên site. Trước khi nộp chỉ còn: thêm redirect URI
+Google cho `https://www.tftiq.com/api/auth/google/callback`, chụp
+screenshots, chuẩn bị câu trả lời về nguồn match data và quyền dùng asset,
+rồi tạo `riot.txt` khi Riot cấp chuỗi xác minh.
 
 Mục tiêu nên là đăng ký TFTIQ như một TFT companion platform độc
 lập, có giá trị phân tích và giáo dục rõ ràng, thay vì chỉ là website
