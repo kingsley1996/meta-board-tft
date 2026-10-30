@@ -3,7 +3,8 @@
 Ngày lập: 2026-10-30. Cập nhật cùng ngày sau khi user nhân đôi quota. Trạng thái: **đã được user
 duyệt ngày 2026-10-30**; bảng giá §2 đã vào code ở [tariff.ts](../apps/api/src/membership/tariff.ts)
 dưới version `2026-10-30`. Bổ sung cùng ngày (user duyệt): giá `google/gemini-3.5-flash-lite`, model
-mà production thực sự đang gọi — hệ quả ở §4.1.
+mà production thực sự đang gọi — hệ quả ở §4.1 — và giá `openai/deepseek-v4-flash` của gateway shopaikey
+(`OPENAI_MODEL` hiện tại), đọc trực tiếp trên shopaikey.com/models.
 Offer đang xét: Plus 99.000đ/30 ngày, 300 chat, 1.200 giây STT, 10.000 ký tự TTS; Free 60 chat/tháng
 (12/ngày). Bản trước khi nhân đôi (150 / 600 s / 5.000 ký tự, Free 30) có biến phí 11,4% cơ sở và
 20,0% p95; §4 ghi lại cả hai để thấy bước nhảy.
@@ -35,8 +36,10 @@ làm tròn lên.
 
 | Provider / model | Đơn vị | Giá công bố | Nguồn | micro-VND/đơn vị |
 | --- | --- | --- | --- | --- |
-| shopaikey `gpt-6-luna` | input token | $0,24 / 1M token | api.shopaikey.com/pricing | 6.200 |
-| shopaikey `gpt-6-luna` | output token | $0,90 / 1M token | api.shopaikey.com/pricing | 23.251 |
+| shopaikey `gpt-6-luna` | input token | $0,24 / 1M token | shopaikey.com/models | 6.200 |
+| shopaikey `gpt-6-luna` | output token | $0,90 / 1M token | shopaikey.com/models | 23.251 |
+| shopaikey `deepseek-v4-flash` | input token | $3,60 / 1M token | shopaikey.com/models | 93.003 |
+| shopaikey `deepseek-v4-flash` | output token | $10,80 / 1M token | shopaikey.com/models | 279.008 |
 | Google `gemini-3.5-flash-lite` | input token | $0,30 / 1M token | ai.google.dev/gemini-api/docs/pricing | 7.750 |
 | Google `gemini-3.5-flash-lite` | output token | $2,50 / 1M token | ai.google.dev/gemini-api/docs/pricing | 64.585 |
 | Deepgram `nova-3` | audio second | $0,0077 / phút | deepgram.com/pricing | 3.315.368 |
@@ -167,8 +170,29 @@ p95 vượt xa (71,5%). Hai lựa chọn, đều cần chủ project quyết: (a
 (quay lại 22,0% / 31,5% / 39,3%), hoặc (b) giữ Gemini cho tốc độ và duyệt lại ngưỡng biên. Free cũng
 tăng theo: 60 lượt × 41,4đ = **2.481đ/user/tháng** ở giả định mọi lượt gọi model.
 
-Hai entry Gemini được thêm vào chính version `2026-10-30` chứ không tạo version mới: trước đó chưa có
-attempt nào được tính giá (toàn bộ 27 dòng đều `NULL`), nên không có số lịch sử nào bị viết lại.
+Đưa text về gateway shopaikey **không** phải phương án (c): model đang cấu hình ở đó là `deepseek-v4-flash`,
+đơn giá gấp 14 lần luna trên cùng số token, nên biến phí nhảy lên **120.459đ (121,7%)** — xem §7.
+
+Hai entry Gemini và hai entry `deepseek-v4-flash` được thêm vào chính version `2026-10-30` chứ không tạo
+version mới: trước đó chưa có attempt nào được tính giá (toàn bộ 27 dòng đều `NULL`), nên không có số lịch
+sử nào bị viết lại.
+
+**Nhưng tiền mặt hiện tại bằng 0.** Project Google của production đang chạy **free tier**, nên mỗi lượt
+Coach hôm nay không phát sinh hoá đơn; con số 49,70đ/lượt trong ledger là **giá list tương đương**, không
+phải chi phí đã trả. Bảng §2/§4.1 vì thế đọc như **trần chi phí khi chuyển sang trả tiền**, không phải
+biến phí đang diễn ra. Ràng buộc thật của free tier là hạn mức request/ngày của Google: vượt hạn mức
+thì request bị từ chối (đi vào nhánh lỗi của API) chứ không tự chuyển sang tính tiền. Hai hệ quả:
+
+- Kịch bản 41,3% chỉ có hiệu lực khi bật billing trên project Google; trước đó rủi ro là **hết quota
+  giữa ngày**, không phải biên lợi nhuận.
+- `cost_micro_vnd` không biểu diễn được giá 0 (`costOf` từ chối `microVndPer = 0`, và ledger cố ý phân
+  biệt "unknown" với "0"), nên free tier buộc phải ghi theo giá list và ghi chú ở đây. Khi bật billing,
+  số trong ledger thành số thật mà không phải sửa code.
+- Model trên gateway shopaikey hiện là `deepseek-v4-flash`; giá đã đọc trực tiếp trên shopaikey.com/models
+  ngày 2026-10-30: **$3,60 / $10,80 per 1M token** (cache $0,24) → `93.003 / 279.008` micro-đồng/token.
+  Một lượt 2.138 in + 192 out vì thế **252,41đ**, gấp **14 lần** luna trên cùng số token. Entry đã có trong
+  `approvedTariff` (provider `openai`, vì gateway giữ dialect id đó), nên nếu text chuyển sang shopaikey thì
+  cost không còn `NULL` — nhưng biến phí mỗi lượt tăng gấp ~14 lần, không phải một thay đổi rẻ.
 
 ## 5. Free fleet
 
@@ -209,6 +233,7 @@ Nếu pilot bán được 20 kỳ Plus/tháng, đóng góp ~1,54 triệu đồng
 | Bỏ alias extraction | Chat −1.070 | 20.727đ (20,9%) |
 | Chuyển text sang key OpenAI trực tiếp | Chat 7.449 → 3.385 | 17.733đ (17,9%) |
 | Text chạy `gemini-3.5-flash-lite` (production) | Chat 7.449 → 12.405 | 26.753đ (27,0%) |
+| Text chạy shopaikey `deepseek-v4-flash` | Chat 7.449 → 106.111 | 120.459đ (121,7%) |
 
 Ở kịch bản xấu nhất (2,6 call/turn + Flux), chuyển text sang key OpenAI trực tiếp kéo tổng từ
 31.214đ xuống **23.069đ (23,3%)** — tức dưới ngưỡng 30% mà không cần hạ quota.
