@@ -925,6 +925,7 @@ function candidatePayload(candidate: RankedComp, index: number, catalog: Catalog
     carry: name(comp.carry.name),
     items: comp.items.map((item) => name(item.name)),
     augments: comp.augments.map((augment) => name(augment.name)),
+    augmentTypes: comp.augmentTypes,
     traits: comp.traits.map((trait) => ({ name: name(trait.name), count: trait.count })),
   };
 }
@@ -949,6 +950,7 @@ function compPayload(comp: CompData, catalog: Catalog, lang: Lang) {
     carry: name(comp.carry.name),
     items: comp.items.map((item) => name(item.name)),
     augments: comp.augments.map((augment) => name(augment.name)),
+    augmentTypes: comp.augmentTypes,
     traits: comp.traits.map((trait) => ({ name: name(trait.name), count: trait.count })),
     matchups: comp.matchups.map((matchup) => ({ slug: matchup.slug, kind: matchup.kind, title: matchup.title, tier: matchup.tier })),
     tips: localizeEntityNames(comp.tips, catalog, lang).slice(0, 400),

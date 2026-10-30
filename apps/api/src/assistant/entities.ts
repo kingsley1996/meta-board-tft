@@ -356,6 +356,7 @@ export function searchCatalog(
 ): EntityMatch[] {
   const normalized = normalize(query);
   if (!normalized) return [];
+  const rawQuery = query.trim().toLowerCase();
   const aliasIds = catalog.aliases.get(normalized);
   const matches: EntityMatch[] = [];
 
@@ -366,6 +367,9 @@ export function searchCatalog(
     );
     let score = 0;
     if (entity.id === query) score = 120;
+    // The raw name beats a name that only equals after punctuation folding:
+    // "Champ Delivery+" and "Champ Delivery++" both normalize to the same key.
+    else if (names.some((name) => name.toLowerCase() === rawQuery)) score = 110;
     else if (names.some((name) => normalize(name) === normalized)) score = 100;
     else if (aliasIds?.has(entity.id)) score = 90;
     else if (names.some((name) => normalize(name).startsWith(normalized))) score = 80;
@@ -395,11 +399,45 @@ export function searchCatalog(
   return matches.slice(0, clampLimit(limit));
 }
 
+// Augment names repeat across modes (standard TFT, Double Up `DA_`, Hyper Roll
+// `HR`) and the rows differ only in wording a user cannot use to choose. A tie
+// on the same name is one augment, so pick the standard row instead of asking
+// which duplicate is meant. Genuinely different names stay ambiguous.
+function augmentNameKey(value: string): string {
+  // Unlike normalize(), the plus signs stay: "Delivery" and "Delivery+" are
+  // different augments.
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/đ/g, 'd')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function preferredAugment(matches: EntityMatch[]): EntityMatch | null {
+  const top = matches[0];
+  const tied = matches.filter((match) => match.score === top.score);
+  if (!tied.every((match) => match.entity.type === 'augment')) return null;
+  if (new Set(tied.map((match) => augmentNameKey(match.entity.name))).size !== 1) return null;
+  const rank = (entity: CatalogEntity): number => {
+    const api = entity.apiName ?? '';
+    if (api.endsWith('HR')) return 3;
+    if (api.startsWith('DA_')) return 2;
+    return 1;
+  };
+  return tied.reduce((best, match) => (rank(match.entity) < rank(best.entity) ? match : best));
+}
+
 export function pickEntityMatch(matches: EntityMatch[]): { entity: CatalogEntity | null; ambiguous: EntityMatch[] } {
   if (!matches.length) return { entity: null, ambiguous: [] };
   const top = matches[0];
   const tied = matches.filter((match) => match.score === top.score);
   if (top.score >= 80 && tied.length === 1) return { entity: top.entity, ambiguous: [] };
+  if (top.score >= 80 && tied.length > 1) {
+    const augment = preferredAugment(matches);
+    if (augment) return { entity: augment.entity, ambiguous: [] };
+  }
   return { entity: null, ambiguous: matches.slice(0, 5) };
 }
 

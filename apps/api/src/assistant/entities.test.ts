@@ -51,7 +51,7 @@ async function fixture(customAliases: { alias: string; entityType: string; entit
         itemRow(data, 'Ravager Emblem'),
         itemRow(data, 'Fae Emblem'),
       ],
-      augments: [augmentRow(data, 'Cursed Crown')],
+      augments: [augmentRow(data, 'Cursed Crown'), augmentRow(data, 'Champ Delivery'), augmentRow(data, 'Champ Delivery+')],
     },
     data,
     customAliases
@@ -92,6 +92,13 @@ test('resolves a unique fuzzy name typo without guessing between candidates', as
   const matches = searchCatalog(catalog, 'Tarci', 'champion');
   assert.equal(matches[0]?.entity.name, 'Taric');
   assert.equal(matches[0]?.score, 80);
+});
+
+test('an exact augment name outranks the longer plus variant', async () => {
+  const catalog = await fixture();
+  const matches = searchCatalog(catalog, 'Champ Delivery+', 'augment');
+  assert.equal(matches[0]?.entity.name, 'Champ Delivery+');
+  assert.equal(matches[0]?.score, 110);
 });
 
 test('search resolves component aliases and returns stable IDs', async () => {
@@ -173,6 +180,20 @@ test('only accepts exact or alias matches and surfaces ambiguous fuzzy names', (
   assert.equal(pickEntityMatch([match('Ahri', 100), match('Ahri', 100)]).entity, null);
   assert.equal(pickEntityMatch([match('Ahri', 80)]).entity?.name, 'Ahri');
   assert.equal(pickEntityMatch([match('Ahri', 80), match('Ahri', 80)]).ambiguous.length, 2);
+});
+
+test('a repeated augment name resolves to the standard row instead of an ambiguous pair', () => {
+  const augment = (apiName: string, name: string): EntityMatch => ({
+    entity: { id: `augment:${apiName}`, apiName, name, type: 'augment' } as EntityMatch['entity'],
+    score: 100,
+  });
+  const resolved = (matches: EntityMatch[]) => pickEntityMatch(matches).entity?.apiName;
+  assert.equal(resolved([augment('DA_Coronation', 'Coronation'), augment('TFT_Augment_Coronation', 'Coronation')]), 'TFT_Augment_Coronation');
+  assert.equal(resolved([augment('TFT6_Augment_SalvageBinHR', 'Salvage Bin'), augment('DA_SalvageBin', 'Salvage Bin'), augment('TFT6_Augment_SalvageBin', 'Salvage Bin')]), 'TFT6_Augment_SalvageBin');
+  // Different names are still a real choice.
+  assert.equal(pickEntityMatch([augment('TFT_Augment_Coronation', 'Coronation'), augment('TFT_Augment_SpreadingRoots', 'Spreading Roots')]).entity, null);
+  // A plus sign marks a different augment, not a duplicate row.
+  assert.equal(pickEntityMatch([augment('DA_ChampDelivery', 'Champ Delivery'), augment('DA_ChampDeliveryPlus', 'Champ Delivery+')]).entity, null);
 });
 
 test('localizeEntityNames rewrites canonical entity names in prose for vi', () => {
