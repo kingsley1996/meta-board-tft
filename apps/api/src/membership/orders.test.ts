@@ -331,6 +331,7 @@ test('orders, webhooks and refunds', { skip: !hasDb }, async (t) => {
       const b = second.body.order as Record<string, unknown>;
       assert.equal(a.id, b.id);
       assert.equal(a.reference, b.reference);
+      assert.match(String(a.reference), /^MTFT\d{10}$/);
       assert.equal(a.amountVnd, b.amountVnd);
       assert.equal(await countRows('SELECT 1 FROM payment_orders WHERE user_id = $1', [kase.userId]), 1);
 

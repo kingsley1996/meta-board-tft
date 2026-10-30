@@ -131,16 +131,20 @@ function normalizeReference(value: string | null): string {
  * The order code is derived from the caller's request key, so a retried create is
  * the same order instead of a second pending one. It is also the number the
  * provider sees, which is why it stays a positive safe integer.
+ *
+ * Ten digits because SePay's payment-code structure (merchant dashboard) caps the
+ * suffix at ten characters, and its numeric mode only accepts digits.
  */
 function orderCodeFor(userId: string, planVersionId: string, requestKey: string): string {
   const digest = createHash('sha256').update(`order|${userId}|${planVersionId}|${requestKey}`).digest();
-  return String(digest.readBigUInt64BE(0) % 9_007_199_254_740_990n + 1n);
+  return String(digest.readBigUInt64BE(0) % 9_000_000_000n + 1_000_000_000n);
 }
 
-/** A bank memo is the reference itself: MB + decimal order code stays inside the
- *  provider contract's 6-25 characters and always contains a letter and a digit. */
+/** A bank memo is the reference itself: the MTFT prefix plus ten digits is the
+ *  exact shape configured in SePay, so the gateway can extract `code` and we do
+ *  not have to guess the reference out of the memo text. */
 function referenceFor(orderCode: string): string {
-  return `MB${orderCode}`;
+  return `MTFT${orderCode}`;
 }
 
 function webOrigin(): string {
