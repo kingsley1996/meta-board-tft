@@ -1,4 +1,4 @@
-// Strategy tips seed — rewritten for MetaBoard from TFT community knowledge.
+// Strategy tips seed — rewritten for TFTIQ from TFT community knowledge.
 // Concepts adapted from TFTips (https://tftips.app/en/tips/strategy);
 // all copy below is original. Wired into seed.ts alongside guides.ts.
 import type { GuideSeed } from './guides.ts';
@@ -6,8 +6,8 @@ import type { GuideSeed } from './guides.ts';
 export const tipsSeeds: GuideSeed[] = [
   {
     slug: 'tips-1cost-reroll-hold-level',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: '1-cost reroll: hold your level until the 3-star lands',
     excerpt: 'XP can wait, your odds cannot. Why slow rolling low finds copies faster, and when to push.',
@@ -38,8 +38,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-2cost-reroll-3-2',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: '2-cost reroll: level 6 on 3-2, then stabilize',
     excerpt: 'Stage 3 is where 2-cost reroll lines spike. Hit 3-2 and roll item holders to 2 stars.',
@@ -57,8 +57,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-4cost-push-8-on-4-2',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: '4-cost comps: push level 8 on 4-2',
     excerpt: 'The most gold-efficient spike in the game. Level cleanly on 4-2 and roll item holders to 2 stars.',
@@ -76,8 +76,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-roll-at-right-level',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Roll at the level your carry lives in',
     excerpt: 'Shop odds are a curve. 1-cost at 4-5, 2-cost at 6-7, 3-cost at 7-8, 4-cost at 8+.',
@@ -93,8 +93,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-stop-at-2star-non-carry',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Stop at 2 stars for non-carries in reroll comps',
     excerpt: 'Units without items barely change fights at 3 stars. Finish the carry first.',
@@ -110,8 +110,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-commit-to-streak',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Commit to your streak: stop alternating wins and losses',
     excerpt: 'A streak pays up to +3 gold a round. Pick a lane by mid stage 2.',
@@ -129,8 +129,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-stage2-interest-line',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Stage 2 interest: 10 gold by 2-3, 20 by 2-6',
     excerpt: 'Early interest compounds all game. Hit the line, selling future units if you must.',
@@ -146,8 +146,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-spend-gold-when-dying',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Below 30 HP: your gold is only worth what it saves now',
     excerpt: 'Dead players spend nothing. Around 30 HP, convert the bank into board.',
@@ -165,8 +165,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-level-at-clean-breakpoints',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Level on clean XP rounds: 3-2, 3-5, 4-2, 4-5',
     excerpt: 'You gain 2 XP a round and buy it in fours. Breakpoint levels waste nothing.',
@@ -182,8 +182,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-play-2star-1cost-early',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Early game: slam items on 2-star 1-costs and ride them',
     excerpt: 'A 2-star 1-cost beats a 1-star 3-cost at the same job. Hit the upgrade and let it carry stage 2.',
@@ -199,8 +199,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-corner-your-ranged-carry',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Put ranged carries in the corner',
     excerpt: 'Corners hide carries from early AoE and focus. Come center only with reason.',
@@ -216,8 +216,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-tank-same-side-as-carry',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Tank on the same side as the carry',
     excerpt: 'Your best tank stalls longest, so spend that stall on the correct side.',
@@ -233,8 +233,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-debuffs-follow-carry',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Debuffs belong on the carry side',
     excerpt: 'Shred, Sunder and Wound only matter after they land. Park holders where your carry shoots.',
@@ -250,8 +250,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-kill-squishies-first',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Aim your damage at the squishies first',
     excerpt: 'Fights are won by removing damage, not chewing the tank. Angle so the first target dies fast.',
@@ -267,8 +267,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-scout-next-opponents',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Scout the two icons before you position',
     excerpt: 'Matchmaking marks likely opponents. Scout them, then position.',
@@ -284,8 +284,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-stack-3-items-one-carry',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Three items on one carry beats two on three units',
     excerpt: 'Item stats multiply each other. Concentrating completes a killer.',
@@ -301,8 +301,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-slam-components-cap-3',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Never hold more than 3 components',
     excerpt: 'Components are HP in transit. Slam them, especially on winstreaks.',
@@ -318,8 +318,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-slam-everything-on-5-1',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'On 5-1, slam everything',
     excerpt: 'After stage 5, components stop dropping. One leftover is fine; a bench of them is a loss.',
@@ -335,8 +335,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-build-one-wound',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Build exactly one Wound item',
     excerpt: 'Sustain frontlines out-heal unanswered damage. One Wound source solves it; the second is wasted.',
@@ -352,8 +352,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-build-one-shred-sunder',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Build exactly one Shred or Sunder item',
     excerpt: 'Armored tanks stall; shredded tanks melt. One shred source unlocks damage.',
@@ -369,8 +369,8 @@ export const tipsSeeds: GuideSeed[] = [
   },
   {
     slug: 'tips-avoid-contested-lines',
-    author: 'MetaBoard',
-    authorSlug: 'metaboard',
+    author: 'TFTIQ',
+    authorSlug: 'tftiq',
     publishedOn: '2026-10-21',
     title: 'Play the uncontested line, unless you are the strongest contestant',
     excerpt: 'One shared pool means every holder of your unit taxes your odds. Free lines hit.',

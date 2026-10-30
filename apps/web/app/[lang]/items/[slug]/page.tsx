@@ -7,7 +7,7 @@ import { itemMetaByName, patch, unitStats } from '@/lib/data';
 import type { Tier } from '@/lib/tiers';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
-import tft from '@metaboard/shared/data/tft.json';
+import tft from '@tftiq/shared/data/tft.json';
 import { getTip, itemName } from '@/lib/tips';
 
 const championByName = new Map(tft.champions.map((champion) => [champion.name, champion]));
@@ -119,7 +119,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
             {typeof stats.pick === 'number' ? <StatCard label={t.pickRate} value={`${(stats.pick * 100).toFixed(1)}%`} /> : null}
             <StatCard label={t.top4Rate} value={`${(stats.top4 * 100).toFixed(1)}%`} />
             <StatCard label={t.winRate} value={`${(stats.win * 100).toFixed(1)}%`} />
-            <StatCard label={t.gamesPlayed} value={new Intl.NumberFormat(vi ? 'vi-VN' : 'en-US').format(stats.games)} hint={`MetaBoard · ${patch.version}`} />
+            <StatCard label={t.gamesPlayed} value={new Intl.NumberFormat(vi ? 'vi-VN' : 'en-US').format(stats.games)} hint={`TFTIQ · ${patch.version}`} />
           </div>
         </Panel>
       ) : (

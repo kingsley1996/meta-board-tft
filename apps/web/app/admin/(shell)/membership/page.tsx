@@ -5,7 +5,7 @@ import { AdminPageHeader, AdminStat, AdminTable, btnQuiet, inputCls } from '@/co
 import type { AdminMembershipAuditEvent, AdminMembershipOrder, AdminMembershipStats, AdminPlanVersion, CatalogOffer } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import { sessionCookieHeader } from '@/lib/session';
-import { formatVnd } from '@metaboard/shared/membership-plans';
+import { formatVnd } from '@tftiq/shared/membership-plans';
 
 export const dynamic = 'force-dynamic';
 

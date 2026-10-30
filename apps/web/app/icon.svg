@@ -1,7 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- MetaBoard mark: one regular pointy-top hexagon, the shape of a TFT board
-       cell, with the M cut out of it. Both numbers are shared with the navbar
-       mark in components/nav.tsx; keep them in step. -->
-  <polygon points="32,3 57.11,17.5 57.11,46.5 32,61 6.89,46.5 6.89,17.5" fill="#ff6b3d"/>
-  <path d="M21.2 43.25 L21.2 20.75 L32 33.35 L42.8 20.75 L42.8 43.25" fill="none" stroke="#160b05" stroke-width="8.4"/>
+  <!-- TFTIQ mark: the board-cell hexagon ring with the T arrow climbing
+       out of it, plus the trade badge on the lower right. Same geometry as
+       the navbar mark in components/nav.tsx; keep the two in step. -->
+  <defs>
+    <linearGradient id="tftiq" gradientUnits="userSpaceOnUse" x1="6" y1="2" x2="46" y2="63">
+      <stop offset="0" stop-color="#FA7F30"/>
+      <stop offset="0.42" stop-color="#EA4F21"/>
+      <stop offset="1" stop-color="#B32C0C"/>
+    </linearGradient>
+    <mask id="tftiq-notch" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M50.9 41.7 L58 45.8 L58 54 L50.9 58.1 L43.8 54 L43.8 45.8 Z" fill="#000"/>
+    </mask>
+  </defs>
+  <g fill="url(#tftiq)" mask="url(#tftiq-notch)">
+    <path fill-rule="evenodd" d="M32 3 L57.11 17.5 L57.11 46.5 L32 61 L6.89 46.5 L6.89 17.5 Z M32 10.5 L50.62 21.25 L50.62 42.75 L32 53.5 L13.38 42.75 L13.38 21.25 Z"/>
+    <path d="M16.5 35 L32 20.5 L47.5 35 L47.5 43.5 L32 29 L16.5 43.5 Z"/>
+    <path d="M28 27.5 L36 27.5 L36 51.5 L28 51.5 Z"/>
+  </g>
+  <path d="M50.9 43.1 L56.79 46.5 L56.79 53.3 L50.9 56.7 L45.01 53.3 L45.01 46.5 Z" fill="url(#tftiq)"/>
 </svg>

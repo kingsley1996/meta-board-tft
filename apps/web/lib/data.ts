@@ -1,5 +1,5 @@
-import tft from '@metaboard/shared/data/tft.json';
-import meta from '@metaboard/shared/data/meta.json';
+import tft from '@tftiq/shared/data/tft.json';
+import meta from '@tftiq/shared/data/meta.json';
 import type { Lang } from './i18n';
 
 export type { Tier } from './tiers';
@@ -153,4 +153,4 @@ const guideTags: Record<string, string> = {
 
 export const guideTag = (name: string, lang: Lang) => (lang === 'vi' ? guideTags[name] ?? name : name);
 
-export const patch = { version: setInfo.patch, updated: `MetaBoard · ${meta.source.updated.slice(0, 10)}` };
+export const patch = { version: setInfo.patch, updated: `TFTIQ · ${meta.source.updated.slice(0, 10)}` };

@@ -29,7 +29,7 @@ Kiểm nhanh: các bảng ở đầu tài liệu tồn tại; trigger `plan_vers
 ### 1.3 Seed và bật offer
 
 ```sh
-npm run seed:membership --workspace @metaboard/api
+npm run seed:membership --workspace @tftiq/api
 ```
 
 Seed ghi `free` và `plus` ở trạng thái **`draft`** và chỉ refresh row chưa từng có order/membership/bucket. Đọc trạng thái trước khi bật:

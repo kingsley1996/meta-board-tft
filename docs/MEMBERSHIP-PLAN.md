@@ -414,7 +414,7 @@ Chạy local: PostgreSQL dev (Docker `docker-postgres-1`), API dev `:4000` do ph
 | --- | --- | --- |
 | Typecheck | `npm run typecheck` | pass (web + API) |
 | Web unit | `npm run test:web` | 29 pass |
-| API integration | `npm test --workspace @metaboard/api -- --test-concurrency=1` | 474 pass, 0 fail, 0 skip trên PostgreSQL dev thật |
+| API integration | `npm test --workspace @tftiq/api -- --test-concurrency=1` | 474 pass, 0 fail, 0 skip trên PostgreSQL dev thật |
 | Production build | `npm run build` | pass (phải có API chạy vì prerender fetch dữ liệu) |
 | Browser | `npm run test:e2e` | 67 pass (61 cũ + 6 `membership.spec.ts`) |
 

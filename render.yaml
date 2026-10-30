@@ -16,9 +16,9 @@ services:
     plan: starter
     region: singapore
     rootDir: .                       # install từ gốc repo; trỏ vào apps/api thì
-                                     # @metaboard/shared không resolve được
+                                     # @tftiq/shared không resolve được
     buildCommand: npm ci
-    startCommand: npm run start --workspace @metaboard/api
+    startCommand: npm run start --workspace @tftiq/api
     healthCheckPath: /api/health     # /api/health/ready là bản có chạm DB
     autoDeploy: true
     envVars:

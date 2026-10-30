@@ -4,7 +4,7 @@ import { Panel } from '@/components/ui';
 import { PatchBar } from '@/components/patch-bar';
 import type { Lang } from '@/lib/i18n';
 import { lootLocalCards } from '@/lib/loot';
-import { incomeBase, interest, streakBonus } from '@metaboard/shared/mechanics';
+import { incomeBase, interest, streakBonus } from '@tftiq/shared/mechanics';
 import { messages } from '@/lib/messages';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {

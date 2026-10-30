@@ -1,13 +1,13 @@
 import type { Lang } from './i18n';
 import { translateText } from './translate';
-import { freePlan } from '@metaboard/shared/membership-plans';
+import { freePlan } from '@tftiq/shared/membership-plans';
 
 // UI copy for every locale. `vi` is typed against `en` so a missing key fails
 // the build. Authored article bodies (guides, legal) stay English for now.
 const en = {
   meta: {
-    title: 'MetaBoard | TFT comps, tier lists & guides',
-    description: 'MetaBoard tracks the Teamfight Tactics meta: comp rankings, item and augment tiers, and guides written by high-elo coaches.',
+    title: 'TFTIQ | TFT comps, tier lists & guides',
+    description: 'TFTIQ tracks the Teamfight Tactics meta: comp rankings, item and augment tiers, and guides written by high-elo coaches.',
     comps: { title: 'Comp rankings', description: 'Every meta comp ranked S to X for the current patch, with playstyles, carry items and expansion tips.' },
     items: { title: 'Item rankings', description: 'Completed items ranked by how often they decide fights this patch, with a note on when each one earns its slot.' },
     augments: { title: 'Augment rankings', description: 'Augments ranked by board fit, not by win rate alone, with notes on when each pick is a trap.' },
@@ -17,9 +17,9 @@ const en = {
     wisps: { title: 'Wisps', description: 'Every Wisp in the Set 18 pool, with tier, base, upgraded and prismatic effects.' },
     tables: { title: 'Tables & odds', description: 'Every Set 18 table: shop odds, pool sizes, gold income, and the full list of loot tables, cashouts and drop rates.' },
     economy: { title: 'Economy strategies', description: 'The eight ways to spend gold in Set 18, with the round-by-round plan and the comps that play each one.' },
-    guides: { title: 'Guides', description: 'Fundamentals, economy, positioning and meta reads from MetaBoard coaches.' },
-    media: { title: 'Media', description: 'MetaBoard video and podcast: meta reads, patch breakdowns and coaching sessions.' },
-    assistant: { title: 'Coach AI for TFT', description: 'Ask Coach AI about TFT champions, items, augments and comps. Answers use MetaBoard data and show their sources.' },
+    guides: { title: 'Guides', description: 'Fundamentals, economy, positioning and meta reads from TFTIQ coaches.' },
+    media: { title: 'Media', description: 'TFTIQ video and podcast: meta reads, patch breakdowns and coaching sessions.' },
+    assistant: { title: 'Coach AI for TFT', description: 'Ask Coach AI about TFT champions, items, augments and comps. Answers use TFTIQ data and show their sources.' },
     membership: { title: 'Membership', description: 'Free and Plus: what each plan includes, how Coach quota is counted, and what happens when a Plus period ends.' },
     about: { title: 'About' },
   },
@@ -44,7 +44,7 @@ const en = {
     quiz: 'Comp quiz',
     assistant: 'Coach AI',
     patch: 'Patch',
-    homeAria: 'MetaBoard home',
+    homeAria: 'TFTIQ home',
     mainAria: 'Main',
     menuAria: 'Navigation menu',
     languageAria: 'Language',
@@ -61,6 +61,7 @@ const en = {
     loginIntro: 'Sign in to continue with Coach AI.',
     signupIntro: 'Create an account to keep your Coach AI conversations.',
     emailAlternative: 'or use email',
+    brandTagline: 'Understand the meta. Play smarter.',
     heroLead: 'Enter the game.',
     heroAccent: 'Bring your',
     heroAccentEnd: 'Coach.',
@@ -121,7 +122,7 @@ const en = {
       done: 'Subscribed — talk soon!',
       error: 'Could not subscribe — check the email and try again.',
     },
-    disclaimer: '© 2026 MetaBoard. MetaBoard isn\'t endorsed by Riot Games and doesn\'t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.',
+    disclaimer: '© 2026 TFTIQ. TFTIQ isn\'t endorsed by Riot Games and doesn\'t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.',
   },
   tierTabs: { comps: 'Comps', items: 'Items', augments: 'Augments', aria: 'Tier list sections' },
   patchBar: { patch: 'Patch', lastUpdated: 'Last updated' },
@@ -129,7 +130,7 @@ const en = {
     badge: 'Set 18 · Enchanted Wilds',
     headline: 'Every board that wins,',
     headlineAccent: 'one comp away.',
-    sub: 'MetaBoard ranks the comps, items and augments that actually climb this patch — curated from thousands of matches, rebuilt every morning before you queue.',
+    sub: 'TFTIQ ranks the comps, items and augments that actually climb this patch — curated from thousands of matches, rebuilt every morning before you queue.',
     browseComps: 'Browse comps',
     readGuides: 'Read the guides',
     assistantKicker: 'YOUR TFT COACH',
@@ -214,7 +215,7 @@ const en = {
     noComps: 'This champion does not appear in a published comp yet.',
     items: 'Items built on this champion',
     itemRanking: 'Item ranking',
-    stats: 'MetaBoard · last 7 days',
+    stats: 'TFTIQ · last 7 days',
     avg: 'Avg place',
     top4: 'Top 4',
     win: 'Win rate',
@@ -223,10 +224,10 @@ const en = {
     rankAll: 'All ranks',
     rankMaster: 'Master+',
     itemCombos: 'Popular 3-item builds',
-    itemCombosNote: 'Ranked by games in the MetaBoard comp sample.',
+    itemCombosNote: 'Ranked by games in the TFTIQ comp sample.',
     noCombos: 'No 3-item build data for this champion yet.',
     positions: 'Popular positions',
-    positionsNote: 'Share of games by hex, from the MetaBoard meta-comp sample.',
+    positionsNote: 'Share of games by hex, from the TFTIQ meta-comp sample.',
     stars: 'Star level',
     itemsHeld: 'Items held',
     distribution: 'Placement by star level and item count',
@@ -234,7 +235,7 @@ const en = {
     compAvg: 'Avg',
     compGames: 'Games',
     compLevel: 'Level',
-    itemsNote: 'Pick rate and average place from the MetaBoard meta-comp sample. A starting point, not a fixed build.',
+    itemsNote: 'Pick rate and average place from the TFTIQ meta-comp sample. A starting point, not a fixed build.',
   },
   itemsDb: {
     search: 'Search items',
@@ -300,8 +301,8 @@ const en = {
     },
     cost: (cost: number) => `${cost}g`,
     round: (span: string) => `Stage ${span}`,
-    missing: 'The MetaBoard lookup has no effect text for this wisp.',
-    source: 'MetaBoard · Wisp tier list + Set 18 charm lookup',
+    missing: 'The TFTIQ lookup has no effect text for this wisp.',
+    source: 'TFTIQ · Wisp tier list + Set 18 charm lookup',
   },
   tables: {
     sub: 'Every number behind a roll, a level-up and a gold decision this set — plus the full list of loot tables and drop rates.',
@@ -527,7 +528,7 @@ const en = {
     assistant: 'Coach AI',
     mascotName: 'Tomo',
     mascotBoop: 'Boop Tomo',
-    introName: "I'm Tomo — MetaBoard's AI assistant",
+    introName: "I'm Tomo — TFTIQ's AI assistant",
     intro: 'I read live Set 18 data to suggest comps, builds and augments for your board.',
     dataMode: 'Data summary',
     llmMode: 'Coach AI',
@@ -705,11 +706,11 @@ const en = {
     failedBody: 'No money moved. Start a new order.',
   },
   about: {
-    title: 'About MetaBoard',
+    title: 'About TFTIQ',
     sections: [
       {
         heading: 'What this is',
-        body: 'MetaBoard tracks the Teamfight Tactics meta with one rule: rankings have to be useful at the moment you are rolling, not interesting in a spreadsheet. Every comp page answers three questions — what to build, what to slam, and when to roll.',
+        body: 'TFTIQ tracks the Teamfight Tactics meta with one rule: rankings have to be useful at the moment you are rolling, not interesting in a spreadsheet. Every comp page answers three questions — what to build, what to slam, and when to roll.',
       },
       {
         heading: 'How the tiers are made',
@@ -717,11 +718,11 @@ const en = {
       },
       {
         heading: 'Where the data comes from',
-        body: "Champions, traits, items, augments and icons come from Riot's published game data files. Match statistics are aggregated from third-party match-data feeds during the pilot and reviewed by our editors. MetaBoard does not call the Riot API in production yet; we plan to move match ingestion there, and this page will say so once that ships.",
+        body: "Champions, traits, items, augments and icons come from Riot's published game data files. Match statistics are aggregated from third-party match-data feeds during the pilot and reviewed by our editors. TFTIQ does not call the Riot API in production yet; we plan to move match ingestion there, and this page will say so once that ships.",
       },
       {
         heading: 'What is ours',
-        body: "Tier placements, comp write-ups, economy notes and Coach answers are MetaBoard's own analysis. They are opinions built on data, not guarantees of results, and they are not endorsed by Riot Games.",
+        body: "Tier placements, comp write-ups, economy notes and Coach answers are TFTIQ's own analysis. They are opinions built on data, not guarantees of results, and they are not endorsed by Riot Games.",
       },
       {
         heading: 'How fresh it is',
@@ -729,7 +730,7 @@ const en = {
       },
       {
         heading: 'Contact',
-        body: 'Corrections and comp submissions: hello@metaboard.example (placeholder — the owner replaces this on launch).',
+        body: 'Corrections and comp submissions: hello@tftiq.example (placeholder — the owner replaces this on launch).',
       },
     ],
   },
@@ -765,11 +766,11 @@ const en = {
         },
         {
           heading: 'Children and changes',
-          body: 'MetaBoard is not directed to children under 13. When this policy changes we update this page and its date.',
+          body: 'TFTIQ is not directed to children under 13. When this policy changes we update this page and its date.',
         },
         {
           heading: 'Contact',
-          body: 'Questions about this policy: privacy@metaboard.example (placeholder — the owner replaces this on launch).',
+          body: 'Questions about this policy: privacy@tftiq.example (placeholder — the owner replaces this on launch).',
         },
       ],
     },
@@ -778,16 +779,16 @@ const en = {
       updated: 'October 2026',
       sections: [
         {
-          heading: 'Using MetaBoard',
-          body: 'MetaBoard is a free reference for Teamfight Tactics players, with an optional paid membership. Rankings are opinions derived from match data; they are not guarantees of results.',
+          heading: 'Using TFTIQ',
+          body: 'TFTIQ is a free reference for Teamfight Tactics players, with an optional paid membership. Rankings are opinions derived from match data; they are not guarantees of results.',
         },
         {
           heading: 'Content',
-          body: "Guides, rankings and site copy are MetaBoard's own and may not be republished wholesale without permission. Game names and mechanics belong to their respective owners.",
+          body: "Guides, rankings and site copy are TFTIQ's own and may not be republished wholesale without permission. Game names and mechanics belong to their respective owners.",
         },
         {
           heading: 'Riot Games',
-          body: "MetaBoard isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.",
+          body: "TFTIQ isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.",
         },
         {
           heading: 'Membership and refunds',
@@ -804,8 +805,8 @@ const en = {
 
 const vi: typeof en = {
   meta: {
-    title: 'MetaBoard | Đội hình, bảng xếp hạng & hướng dẫn TFT',
-    description: 'MetaBoard theo dõi meta Đấu Trường Chân Lý: xếp hạng đội hình, bảng xếp hạng trang bị và nâng cấp, cùng hướng dẫn từ các HLV rank cao.',
+    title: 'TFTIQ | Đội hình, bảng xếp hạng & hướng dẫn TFT',
+    description: 'TFTIQ theo dõi meta Đấu Trường Chân Lý: xếp hạng đội hình, bảng xếp hạng trang bị và nâng cấp, cùng hướng dẫn từ các HLV rank cao.',
     comps: { title: 'Xếp hạng đội hình', description: 'Mọi đội hình meta được xếp hạng từ S đến X trong patch hiện tại, kèm lối chơi, trang bị chủ lực và hướng mở rộng đội.' },
     items: { title: 'Xếp hạng trang bị', description: 'Trang bị hoàn chỉnh được xếp hạng theo mức độ định đoạt giao tranh trong patch, kèm ghi chú khi nào nên ghép.' },
     augments: { title: 'Xếp hạng nâng cấp', description: 'Nâng cấp được xếp hạng theo độ hợp đội hình, kèm ghi chú khi nào là bẫy.' },
@@ -815,9 +816,9 @@ const vi: typeof en = {
     wisps: { title: 'Wisps', description: 'Toàn bộ Wisp trong bể mùa 18: xếp hạng, hiệu ứng cơ bản, nâng cấp và lăng kính.' },
     tables: { title: 'Bảng cơ chế', description: 'Toàn bộ bảng của mùa 18: tỉ lệ cửa hàng, bể tướng, thu nhập vàng, cùng danh sách bảng loot, cashout và tỉ lệ rơi.' },
     economy: { title: 'Chiến lược kinh tế', description: 'Tám cách tiêu vàng trong mùa 18, kèm kế hoạch theo từng vòng và các đội hình dùng chiến lược đó.' },
-    guides: { title: 'Hướng dẫn', description: 'Kiến thức nền tảng, kinh tế, xếp đội hình và đọc meta từ đội ngũ MetaBoard.' },
-    media: { title: 'Media', description: 'Video và podcast MetaBoard: đọc meta, phân tích patch và coaching.' },
-    assistant: { title: 'Coach AI TFT', description: 'Hỏi Coach AI về tướng, trang bị, nâng cấp và đội hình TFT. Câu trả lời dùng dữ liệu MetaBoard và hiển thị nguồn.' },
+    guides: { title: 'Hướng dẫn', description: 'Kiến thức nền tảng, kinh tế, xếp đội hình và đọc meta từ đội ngũ TFTIQ.' },
+    media: { title: 'Media', description: 'Video và podcast TFTIQ: đọc meta, phân tích patch và coaching.' },
+    assistant: { title: 'Coach AI TFT', description: 'Hỏi Coach AI về tướng, trang bị, nâng cấp và đội hình TFT. Câu trả lời dùng dữ liệu TFTIQ và hiển thị nguồn.' },
     membership: { title: 'Hội viên', description: 'Miễn phí và Plus: mỗi gói gồm gì, hạn mức Coach được tính thế nào và điều gì xảy ra khi kỳ Plus kết thúc.' },
     about: { title: 'Giới thiệu' },
   },
@@ -842,7 +843,7 @@ const vi: typeof en = {
     quiz: 'Trắc nghiệm đội hình',
     assistant: 'Coach AI',
     patch: 'Patch',
-    homeAria: 'Trang chủ MetaBoard',
+    homeAria: 'Trang chủ TFTIQ',
     mainAria: 'Chính',
     menuAria: 'Menu điều hướng',
     languageAria: 'Ngôn ngữ',
@@ -859,6 +860,7 @@ const vi: typeof en = {
     loginIntro: 'Đăng nhập để tiếp tục cùng Coach AI.',
     signupIntro: 'Tạo tài khoản để lưu những cuộc trò chuyện cùng Coach AI.',
     emailAlternative: 'hoặc dùng email',
+    brandTagline: 'Hiểu meta. Chơi sáng hơn.',
     heroLead: 'Vào trận.',
     heroAccent: 'Có Coach',
     heroAccentEnd: 'đi cùng.',
@@ -919,7 +921,7 @@ const vi: typeof en = {
       done: 'Đã đăng ký — hẹn gặp ở bản tin tới!',
       error: 'Chưa đăng ký được — kiểm tra lại email và thử lại.',
     },
-    disclaimer: '© 2026 MetaBoard. MetaBoard isn\'t endorsed by Riot Games and doesn\'t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. MetaBoard là ứng dụng đồng hành độc lập, không liên kết và không được Riot Games bảo trợ.',
+    disclaimer: '© 2026 TFTIQ. TFTIQ isn\'t endorsed by Riot Games and doesn\'t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. TFTIQ là ứng dụng đồng hành độc lập, không liên kết và không được Riot Games bảo trợ.',
   },
   tierTabs: { comps: 'Đội hình', items: 'Trang bị', augments: 'Nâng cấp', aria: 'Các mục xếp hạng' },
   patchBar: { patch: 'Patch', lastUpdated: 'Cập nhật lần cuối' },
@@ -927,7 +929,7 @@ const vi: typeof en = {
     badge: 'Mùa 18 · Đại Ngàn Kỳ Bí',
     headline: 'Mọi chiến thắng đều bắt đầu',
     headlineAccent: 'từ một đội hình.',
-    sub: 'MetaBoard xếp hạng đội hình, trang bị và nâng cấp thực sự leo rank trong patch này — chọn lọc từ hàng nghìn trận đấu, cập nhật mỗi sáng trước khi bạn vào trận.',
+    sub: 'TFTIQ xếp hạng đội hình, trang bị và nâng cấp thực sự leo rank trong patch này — chọn lọc từ hàng nghìn trận đấu, cập nhật mỗi sáng trước khi bạn vào trận.',
     browseComps: 'Xem đội hình',
     readGuides: 'Đọc hướng dẫn',
     assistantKicker: 'HUẤN LUYỆN VIÊN TFT CỦA BẠN',
@@ -1012,7 +1014,7 @@ const vi: typeof en = {
     noComps: 'Tướng này chưa xuất hiện trong đội hình nào đã đăng.',
     items: 'Trang bị thường lên cho tướng này',
     itemRanking: 'Xếp hạng trang bị',
-    stats: 'MetaBoard · 7 ngày qua',
+    stats: 'TFTIQ · 7 ngày qua',
     avg: 'Hạng TB',
     top4: 'Top 4',
     win: 'Tỉ lệ thắng',
@@ -1021,10 +1023,10 @@ const vi: typeof en = {
     rankAll: 'Tất cả hạng',
     rankMaster: 'Bậc Thầy+',
     itemCombos: 'Combo 3 trang bị phổ biến',
-    itemCombosNote: 'Xếp theo số trận trong mẫu đội hình meta của MetaBoard.',
+    itemCombosNote: 'Xếp theo số trận trong mẫu đội hình meta của TFTIQ.',
     noCombos: 'Chưa có dữ liệu combo 3 trang bị cho tướng này.',
     positions: 'Vị trí phổ biến',
-    positionsNote: 'Tỉ lệ game theo ô, từ mẫu đội hình meta của MetaBoard.',
+    positionsNote: 'Tỉ lệ game theo ô, từ mẫu đội hình meta của TFTIQ.',
     stars: 'Cấp sao',
     itemsHeld: 'Số trang bị',
     distribution: 'Hạng theo cấp sao và số trang bị',
@@ -1032,7 +1034,7 @@ const vi: typeof en = {
     compAvg: 'Hạng TB',
     compGames: 'Số trận',
     compLevel: 'Cấp',
-    itemsNote: 'Tỉ lệ chọn và hạng TB từ mẫu đội hình meta của MetaBoard. Chỉ là gợi ý, không phải bộ đồ cố định.',
+    itemsNote: 'Tỉ lệ chọn và hạng TB từ mẫu đội hình meta của TFTIQ. Chỉ là gợi ý, không phải bộ đồ cố định.',
   },
   itemsDb: {
     search: 'Tìm trang bị',
@@ -1098,8 +1100,8 @@ const vi: typeof en = {
     },
     cost: (cost: number) => `${cost} vàng`,
     round: (span: string) => `Vòng ${span}`,
-    missing: 'Lookup MetaBoard chưa có mô tả cho wisp này.',
-    source: 'MetaBoard · bảng xếp hạng Wisp + lookup charm mùa 18',
+    missing: 'Lookup TFTIQ chưa có mô tả cho wisp này.',
+    source: 'TFTIQ · bảng xếp hạng Wisp + lookup charm mùa 18',
   },
   tables: {
     sub: 'Toàn bộ con số đằng sau mỗi lần roll, lên cấp và quyết định vàng trong mùa này — cùng danh sách bảng loot và tỉ lệ rơi.',
@@ -1325,7 +1327,7 @@ const vi: typeof en = {
     assistant: 'Coach AI',
     mascotName: 'Tomo',
     mascotBoop: 'Chạm vào Tomo',
-    introName: 'Mình là Tomo — trợ lý AI của MetaBoard',
+    introName: 'Mình là Tomo — trợ lý AI của TFTIQ',
     intro: 'Mình đọc trực tiếp dữ liệu Mùa 18 để gợi ý đội hình, cách lên đồ và nâng cấp hợp với bàn cờ của bạn.',
     dataMode: 'Tóm tắt dữ liệu',
     llmMode: 'Coach AI',
@@ -1499,11 +1501,11 @@ const vi: typeof en = {
     failedBody: 'Chưa có tiền nào rời tài khoản. Tạo đơn mới.',
   },
   about: {
-    title: 'Về MetaBoard',
+    title: 'Về TFTIQ',
     sections: [
       {
         heading: 'Đây là gì',
-        body: 'MetaBoard theo dõi meta Đấu Trường Chân Lý với một nguyên tắc: bảng xếp hạng phải hữu ích ngay lúc bạn roll, chứ không chỉ để ngắm trong bảng tính. Mỗi trang đội hình trả lời ba câu hỏi — xây gì, ghép gì, và khi nào roll.',
+        body: 'TFTIQ theo dõi meta Đấu Trường Chân Lý với một nguyên tắc: bảng xếp hạng phải hữu ích ngay lúc bạn roll, chứ không chỉ để ngắm trong bảng tính. Mỗi trang đội hình trả lời ba câu hỏi — xây gì, ghép gì, và khi nào roll.',
       },
       {
         heading: 'Bảng xếp hạng được tạo thế nào',
@@ -1511,11 +1513,11 @@ const vi: typeof en = {
       },
       {
         heading: 'Dữ liệu lấy từ đâu',
-        body: 'Tướng, tộc hệ, trang bị, lõi và icon lấy từ bộ dữ liệu game chính thức do Riot công bố. Số liệu trận đấu được tổng hợp từ các nguồn dữ liệu trận bên thứ ba trong giai đoạn thử nghiệm và được biên tập viên rà lại. MetaBoard chưa gọi Riot API trên môi trường production; chúng tôi dự định chuyển việc thu thập trận sang Riot API và sẽ ghi rõ trên trang này khi hoàn tất.',
+        body: 'Tướng, tộc hệ, trang bị, lõi và icon lấy từ bộ dữ liệu game chính thức do Riot công bố. Số liệu trận đấu được tổng hợp từ các nguồn dữ liệu trận bên thứ ba trong giai đoạn thử nghiệm và được biên tập viên rà lại. TFTIQ chưa gọi Riot API trên môi trường production; chúng tôi dự định chuyển việc thu thập trận sang Riot API và sẽ ghi rõ trên trang này khi hoàn tất.',
       },
       {
-        heading: 'Phần nào là của MetaBoard',
-        body: 'Thứ hạng đội hình, bài viết đội hình, ghi chú kinh tế và câu trả lời của Coach là phân tích của MetaBoard. Đó là quan điểm dựa trên dữ liệu, không phải bảo đảm kết quả, và không được Riot Games bảo trợ.',
+        heading: 'Phần nào là của TFTIQ',
+        body: 'Thứ hạng đội hình, bài viết đội hình, ghi chú kinh tế và câu trả lời của Coach là phân tích của TFTIQ. Đó là quan điểm dựa trên dữ liệu, không phải bảo đảm kết quả, và không được Riot Games bảo trợ.',
       },
       {
         heading: 'Cập nhật bao lâu một lần',
@@ -1523,7 +1525,7 @@ const vi: typeof en = {
       },
       {
         heading: 'Liên hệ',
-        body: 'Góp ý và gửi đội hình: hello@metaboard.example (placeholder — chủ site thay khi ra mắt).',
+        body: 'Góp ý và gửi đội hình: hello@tftiq.example (placeholder — chủ site thay khi ra mắt).',
       },
     ],
   },
@@ -1559,11 +1561,11 @@ const vi: typeof en = {
         },
         {
           heading: 'Trẻ em và thay đổi',
-          body: 'MetaBoard không dành cho trẻ dưới 13 tuổi. Khi chính sách thay đổi, chúng tôi cập nhật trang này và ngày hiệu lực.',
+          body: 'TFTIQ không dành cho trẻ dưới 13 tuổi. Khi chính sách thay đổi, chúng tôi cập nhật trang này và ngày hiệu lực.',
         },
         {
           heading: 'Liên hệ',
-          body: 'Thắc mắc về chính sách này: privacy@metaboard.example (placeholder — chủ site thay khi ra mắt).',
+          body: 'Thắc mắc về chính sách này: privacy@tftiq.example (placeholder — chủ site thay khi ra mắt).',
         },
       ],
     },
@@ -1572,16 +1574,16 @@ const vi: typeof en = {
       updated: 'Tháng 10/2026',
       sections: [
         {
-          heading: 'Khi dùng MetaBoard',
-          body: 'MetaBoard là trang tham khảo miễn phí cho người chơi Đấu Trường Chân Lý, có gói hội viên trả phí tùy chọn. Xếp hạng là quan điểm rút ra từ dữ liệu trận đấu; không phải bảo đảm kết quả.',
+          heading: 'Khi dùng TFTIQ',
+          body: 'TFTIQ là trang tham khảo miễn phí cho người chơi Đấu Trường Chân Lý, có gói hội viên trả phí tùy chọn. Xếp hạng là quan điểm rút ra từ dữ liệu trận đấu; không phải bảo đảm kết quả.',
         },
         {
           heading: 'Nội dung',
-          body: 'Hướng dẫn, bảng xếp hạng và nội dung trang do MetaBoard sở hữu, không được đăng lại toàn bộ khi chưa có sự đồng ý. Tên game và cơ chế game thuộc về chủ sở hữu tương ứng.',
+          body: 'Hướng dẫn, bảng xếp hạng và nội dung trang do TFTIQ sở hữu, không được đăng lại toàn bộ khi chưa có sự đồng ý. Tên game và cơ chế game thuộc về chủ sở hữu tương ứng.',
         },
         {
           heading: 'Riot Games',
-          body: "MetaBoard isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. MetaBoard là ứng dụng đồng hành độc lập, không liên kết và không được Riot Games bảo trợ.",
+          body: "TFTIQ isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. TFTIQ là ứng dụng đồng hành độc lập, không liên kết và không được Riot Games bảo trợ.",
         },
         {
           heading: 'Hội viên và hoàn tiền',

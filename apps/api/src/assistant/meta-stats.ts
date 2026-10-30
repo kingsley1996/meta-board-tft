@@ -152,8 +152,8 @@ function formatItem(row: RawItem, lang: Lang, source: MetaStats['source']): Omit
   return {
     text: sentence(
       lang,
-      `MetaBoard: ${row.tier} tier, ${number(lang, row.avg)} avg placement, ${compact(lang, row.games)} games, ${percent(lang, row.top4)} top 4, ${percent(lang, row.win)} win rate (patch ${source.patch}).`,
-      `MetaBoard: hạng ${row.tier}, hạng trung bình ${number(lang, row.avg)}, ${compact(lang, row.games)} trận, top 4 ${percent(lang, row.top4)}, tỉ lệ thắng ${percent(lang, row.win)} (patch ${source.patch}).`
+      `TFTIQ: ${row.tier} tier, ${number(lang, row.avg)} avg placement, ${compact(lang, row.games)} games, ${percent(lang, row.top4)} top 4, ${percent(lang, row.win)} win rate (patch ${source.patch}).`,
+      `TFTIQ: hạng ${row.tier}, hạng trung bình ${number(lang, row.avg)}, ${compact(lang, row.games)} trận, top 4 ${percent(lang, row.top4)}, tỉ lệ thắng ${percent(lang, row.win)} (patch ${source.patch}).`
     ),
     tier: row.tier,
     avg: row.avg,
@@ -169,8 +169,8 @@ function formatUnit(row: RawUnit, lang: Lang, source: MetaStats['source']): Omit
   return {
     text: sentence(
       lang,
-      `MetaBoard: ${number(lang, row.avg)} avg placement, ${compact(lang, row.games)} games, ${percent(lang, row.top4)} top 4, ${percent(lang, row.win)} win rate (patch ${source.patch}).`,
-      `MetaBoard: hạng trung bình ${number(lang, row.avg)}, ${compact(lang, row.games)} trận, top 4 ${percent(lang, row.top4)}, tỉ lệ thắng ${percent(lang, row.win)} (patch ${source.patch}).`
+      `TFTIQ: ${number(lang, row.avg)} avg placement, ${compact(lang, row.games)} games, ${percent(lang, row.top4)} top 4, ${percent(lang, row.win)} win rate (patch ${source.patch}).`,
+      `TFTIQ: hạng trung bình ${number(lang, row.avg)}, ${compact(lang, row.games)} trận, top 4 ${percent(lang, row.top4)}, tỉ lệ thắng ${percent(lang, row.win)} (patch ${source.patch}).`
     ),
     avg: row.avg,
     games: row.games,
@@ -185,8 +185,8 @@ function formatAugment(row: RawAugment, lang: Lang, source: MetaStats['source'])
   return {
     text: sentence(
       lang,
-      `MetaBoard: ${row.tier} tier${row.note.en ? ` — ${row.note.en}` : ''} (patch ${source.patch}).`,
-      `MetaBoard: hạng ${row.tier}${row.note.vi ? ` — ${row.note.vi}` : ''} (patch ${source.patch}).`
+      `TFTIQ: ${row.tier} tier${row.note.en ? ` — ${row.note.en}` : ''} (patch ${source.patch}).`,
+      `TFTIQ: hạng ${row.tier}${row.note.vi ? ` — ${row.note.vi}` : ''} (patch ${source.patch}).`
     ),
     tier: row.tier,
     patch: source.patch,
@@ -198,8 +198,8 @@ function formatComp(row: RawComp, lang: Lang, source: MetaStats['source']): Omit
   return {
     text: sentence(
       lang,
-      `MetaBoard: ${row.tier} tier, ${number(lang, row.stats.avg)} avg placement, ${compact(lang, row.stats.games)} games, level ${row.stats.level} (patch ${source.patch}).`,
-      `MetaBoard: hạng ${row.tier}, hạng trung bình ${number(lang, row.stats.avg)}, ${compact(lang, row.stats.games)} trận, level ${row.stats.level} (patch ${source.patch}).`
+      `TFTIQ: ${row.tier} tier, ${number(lang, row.stats.avg)} avg placement, ${compact(lang, row.stats.games)} games, level ${row.stats.level} (patch ${source.patch}).`,
+      `TFTIQ: hạng ${row.tier}, hạng trung bình ${number(lang, row.stats.avg)}, ${compact(lang, row.stats.games)} trận, level ${row.stats.level} (patch ${source.patch}).`
     ),
     tier: row.tier,
     avg: row.stats.avg,

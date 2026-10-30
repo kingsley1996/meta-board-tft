@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { formatVnd } from '@metaboard/shared/membership-plans';
+import { formatVnd } from '@tftiq/shared/membership-plans';
 import { refreshOrder, type OrderActionResult, type OrderView } from '@/lib/api';
 import { countdown } from '@/lib/checkout';
 import type { Lang } from '@/lib/i18n';

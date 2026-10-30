@@ -87,11 +87,11 @@ async function sendVerificationEmail(email: string, token: string, lang: 'vi' | 
   const url = verificationUrl(token, lang);
   await getMailer().send({
     to: email,
-    subject: lang === 'vi' ? 'Xác minh tài khoản MetaBoard' : 'Verify your MetaBoard account',
+    subject: lang === 'vi' ? 'Xác minh tài khoản TFTIQ' : 'Verify your TFTIQ account',
     text:
       lang === 'vi'
-        ? `Chào bạn,\n\nXác minh tài khoản MetaBoard bằng đường link này (hết hạn sau 24 giờ):\n${url}\n\nNếu bạn không đăng ký, hãy bỏ qua email này.`
-        : `Hi,\n\nVerify your MetaBoard account with this link (valid for 24 hours):\n${url}\n\nIf you did not sign up, ignore this email.`,
+        ? `Chào bạn,\n\nXác minh tài khoản TFTIQ bằng đường link này (hết hạn sau 24 giờ):\n${url}\n\nNếu bạn không đăng ký, hãy bỏ qua email này.`
+        : `Hi,\n\nVerify your TFTIQ account with this link (valid for 24 hours):\n${url}\n\nIf you did not sign up, ignore this email.`,
   });
 }
 

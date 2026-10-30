@@ -1,4 +1,4 @@
-import snapshot from '@metaboard/shared/data/loot-tables.json';
+import snapshot from '@tftiq/shared/data/loot-tables.json';
 
 export type LootItem = {
   kind: string;

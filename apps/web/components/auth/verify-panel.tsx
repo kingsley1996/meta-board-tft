@@ -21,7 +21,7 @@ export function VerifyPanel({ lang, token }: { lang: Lang; token: string }) {
   return (
     <div className="mx-auto flex min-h-[70dvh] w-full max-w-sm flex-col justify-center gap-6 px-6 pb-16">
       <h1 className="text-center font-display text-3xl font-bold uppercase tracking-tight text-fog">
-        MetaBoard <span className="text-brand">{t.account}</span>
+        TFTIQ <span className="text-brand">{t.account}</span>
       </h1>
       <Panel className="p-6 text-center">
         <p className="text-sm text-fog">

@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     // Assistant answers can take ~45s; Next's rewrite proxy defaults to 30s.
     proxyTimeout: 90_000,
   },
-  transpilePackages: ['@metaboard/shared'],
+  transpilePackages: ['@tftiq/shared'],
   async rewrites() {
     // Keep browser requests same-origin while the API runs as a separate service.
     return [{ source: '/api/:path*', destination: `${BACKEND_URL}/api/:path*` }];

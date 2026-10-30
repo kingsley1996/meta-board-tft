@@ -8,7 +8,7 @@ import { expect, test } from 'playwright/test';
 test('the approved offer is on the pricing page in English and Vietnamese', async ({ page }) => {
   await page.goto('/en/membership');
   const en = page.locator('body');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('MetaBoard');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('TFTIQ');
   await expect(page.getByRole('article')).toHaveCount(2);
   await expect(en).toContainText('99,000₫');
   await expect(en).toContainText('3,300₫ a day');

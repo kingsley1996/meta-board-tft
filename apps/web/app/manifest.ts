@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'MetaBoard — TFT comps & tier lists',
-    short_name: 'MetaBoard',
-    description: 'Teamfight Tactics comps, tier lists, items, augments and tools. MetaBoard is an independent companion and is not affiliated with Riot Games.',
+    name: 'TFTIQ — TFT comps & tier lists',
+    short_name: 'TFTIQ',
+    description: 'Teamfight Tactics comps, tier lists, items, augments and tools. TFTIQ is an independent companion and is not affiliated with Riot Games.',
     start_url: '/',
     display: 'standalone',
     background_color: '#0d1317',

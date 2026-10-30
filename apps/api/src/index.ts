@@ -75,7 +75,7 @@ app.get('/api/comps', async (req, res) => {
   const meta = await getMeta();
   const sort = req.query.sort === 'popular' ? 'popular' : undefined;
   const comps = await listComps(undefined, readLang(req.query.lang), sort);
-  res.json({ patch: { version: meta.patch ?? 'latest', updated: 'via MetaBoard' }, set: Number(meta.set_number ?? 0), comps });
+  res.json({ patch: { version: meta.patch ?? 'latest', updated: 'via TFTIQ' }, set: Number(meta.set_number ?? 0), comps });
 });
 
 app.get('/api/comps/:slug', async (req, res) => {

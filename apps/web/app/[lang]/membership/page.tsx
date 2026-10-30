@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { formatVnd, freePlan, plusPlan, type PilotPlan } from '@metaboard/shared/membership-plans';
+import { formatVnd, freePlan, plusPlan, type PilotPlan } from '@tftiq/shared/membership-plans';
 import { PlanCta } from '@/components/membership/plan-cta';
 import type { CatalogOffer } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
@@ -149,7 +149,7 @@ export default async function MembershipPage({ params }: { params: Promise<{ lan
       <div className="flex flex-col gap-2.5">
         <p className="font-display text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">{t.kicker}</p>
         <h1 className="font-display text-[40px] leading-[0.86] font-bold tracking-[-0.045em] whitespace-nowrap text-fog uppercase sm:text-[74px]">
-          MetaBoard<span className="text-brand">+</span>
+          TFTIQ<span className="text-brand">+</span>
         </h1>
       </div>
 

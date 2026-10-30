@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deploy production — MetaBoard</title>
+<title>Deploy production — TFTIQ</title>
 <style>
   :root {
     color-scheme: light dark;
@@ -180,7 +180,7 @@
 <header class="hero">
   <div class="wrap">
     <p class="eyebrow">Runbook · cập nhật 26/10/2026</p>
-    <h1>Đưa MetaBoard lên production</h1>
+    <h1>Đưa TFTIQ lên production</h1>
     <p class="lede">
       Web ở Vercel, API ở Render, Postgres ở Supabase, giọng đọc ở VieNeu cloud.
       Làm đúng thứ tự dưới đây; mỗi bước đều có lệnh kiểm tra ngay tại chỗ để không phải
@@ -306,7 +306,7 @@
 DATABASE_URL='postgres://postgres.&lt;ref&gt;:&lt;password&gt;@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require' \
 ADMIN_EMAIL='you@example.com' \
 ADMIN_SEED_PASSWORD='&lt;mật-khẩu-mạnh&gt;' \
-npm run seed --workspace @metaboard/api</code></pre>
+npm run seed --workspace @tftiq/api</code></pre>
 
   <p>Kỳ vọng: log tạo schema, đồng bộ game data và nạp comps/guides, không có cảnh báo
   <code>ADMIN_EMAIL/ADMIN_SEED_PASSWORD not set</code>.</p>
@@ -390,10 +390,10 @@ curl -s https://&lt;api&gt;.onrender.com/api/health/ready</code></pre>
   <ol>
     <li>Vào <a href="https://vercel.com/new">vercel.com/new</a> → import repo GitHub.</li>
     <li><strong>Root Directory: để trống (gốc repo).</strong> Đây là chỗ hay sai nhất — chọn <code>apps/web</code> là
-      <code>@metaboard/shared</code> không resolve được, vì npm workspaces phải install từ gốc.</li>
+      <code>@tftiq/shared</code> không resolve được, vì npm workspaces phải install từ gốc.</li>
     <li>Framework Preset: <strong>Next.js</strong> (Vercel tự nhận từ <code>vercel.json</code>). Không sửa
       install/build/output — <code>vercel.json</code> đã khai
-      <code>npm ci</code> → <code>npm run build --workspace @metaboard/web</code> → <code>apps/web/.next</code>.</li>
+      <code>npm ci</code> → <code>npm run build --workspace @tftiq/web</code> → <code>apps/web/.next</code>.</li>
     <li>Thêm Environment Variables cho <strong>Production</strong>:</li>
   </ol>
 
@@ -665,7 +665,7 @@ git commit -m "chore: patch data" &amp;&amp; git push</code></pre>
           <td>Chạy <code>npm install</code> ở local, commit lock file</td>
         </tr>
         <tr>
-          <td><code>Cannot find module '@metaboard/shared'</code></td>
+          <td><code>Cannot find module '@tftiq/shared'</code></td>
           <td>Root Directory / <code>rootDir</code> không phải gốc repo</td>
           <td>Vercel: để trống Root Directory. Render: <code>rootDir: .</code> (đã có trong blueprint)</td>
         </tr>
@@ -719,7 +719,7 @@ git commit -m "chore: patch data" &amp;&amp; git push</code></pre>
 
 <footer>
   <div class="wrap">
-    MetaBoard deploy runbook · nguồn chi tiết: <span class="file">docs/DEPLOYMENT.md</span>,
+    TFTIQ deploy runbook · nguồn chi tiết: <span class="file">docs/DEPLOYMENT.md</span>,
     <span class="file">render.yaml</span>, <span class="file">vercel.json</span>,
     <span class="file">docs/ai-assistant/voice.md</span> §6.
   </div>

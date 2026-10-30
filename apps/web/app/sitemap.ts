@@ -3,7 +3,7 @@ import type { CompsResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import { locales } from '@/lib/i18n';
 import { lootPages } from '@/lib/loot';
-import tft from '@metaboard/shared/data/tft.json';
+import tft from '@tftiq/shared/data/tft.json';
 
 export const dynamic = 'force-dynamic';
 

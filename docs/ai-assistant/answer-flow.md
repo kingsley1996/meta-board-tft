@@ -1,4 +1,4 @@
-# Assistant LLM — bản đồ luồng trả lời cho agent (MetaBoard / tft-comps)
+# Assistant LLM — bản đồ luồng trả lời cho agent (TFTIQ / tft-comps)
 
 Tài liệu này **không quyết định gì mới** — nó ghi lại chính xác luồng xử lý đã được code của
 Coach AI (Tomo), từng nhánh điều kiện và nơi xử lý, để agent đọc hiểu và phân tích mà không
@@ -63,7 +63,7 @@ File chính:
 | `apps/api/src/assistant/entities.ts` | Catalog, `findEntityMentions`, `localizedName`, `localizeEntityNames` |
 | `apps/api/src/assistant/strategy.ts` | `isStrategyQuestion`, `analyzeStrategy`, `buildStrategyPlan` |
 | `apps/api/src/assistant/mechanics-knowledge.ts` | `isMechanicsQuestion`, `mechanicsFor` (topics tĩnh) |
-| `apps/api/src/assistant/meta-stats.ts` | Số liệu MetaBoard (`meta.json`) + `unitBuildStats`, `itemUsageStats` |
+| `apps/api/src/assistant/meta-stats.ts` | Số liệu TFTIQ (`meta.json`) + `unitBuildStats`, `itemUsageStats` |
 | `apps/api/src/assistant/reasoning` → `assistant-reasoning-store.ts` | Ghi trace `assistant_reasoning_logs` |
 
 ---

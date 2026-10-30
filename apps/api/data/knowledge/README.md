@@ -66,7 +66,7 @@ Current baseline (`rag-baseline.json`): hit@1 **84.4%**, hit@3 **100%**, hit@5 *
 Write a new baseline after an intentional retrieval/data change:
 
 ```bash
-npm run test:rag --workspace @metaboard/api -- --write
+npm run test:rag --workspace @tftiq/api -- --write
 ```
 
 ## Change workflow

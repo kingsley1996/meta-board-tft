@@ -16,7 +16,7 @@ export default async function MediaPage({ params }: { params: Promise<{ lang: La
       <section data-section="hero-panel" className="grid gap-6 rounded-xl border border-line bg-panel p-6 lg:grid-cols-2">
         <div className="flex flex-col justify-center gap-4">
           <h1 className="font-display text-5xl leading-none font-bold uppercase tracking-tight text-fog md:text-6xl">
-            MetaBoard<br /><span className="text-brand">{t.heading}</span>
+            TFTIQ<br /><span className="text-brand">{t.heading}</span>
           </h1>
           <p className="text-sm font-semibold uppercase tracking-widest text-brand">{t.tagline}</p>
           <p className="text-sm leading-relaxed text-mist">{t.body}</p>

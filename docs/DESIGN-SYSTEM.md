@@ -1,18 +1,18 @@
 # Design System — TOEIC Pilot
 
-> **Bản này nằm trong repo MetaBoard, và là tài liệu của một sản phẩm khác.**
-> Nó được chép sang đây làm **nguồn bảng màu**. Những gì MetaBoard thực sự lấy:
+> **Bản này nằm trong repo TFTIQ, và là tài liệu của một sản phẩm khác.**
+> Nó được chép sang đây làm **nguồn bảng màu**. Những gì TFTIQ thực sự lấy:
 > §3.2 (bảng token tối) — đúng bộ màu đang sống trong `@theme` của
 > `apps/web/app/globals.css`, và được kiểm lại bằng
 > `apps/web/lib/palette-tokens.test.ts` mỗi lần chạy `npm run test:web`.
 >
-> Những mục còn lại **không áp dụng cho MetaBoard**, đừng sửa ở đây: bảng sáng
-> §3.1 (MetaBoard chỉ có một bảng màu, không có nút chọn theme), cơ chế ba trạng
+> Những mục còn lại **không áp dụng cho TFTIQ**, đừng sửa ở đây: bảng sáng
+> §3.1 (TFTIQ chỉ có một bảng màu, không có nút chọn theme), cơ chế ba trạng
 > thái + script chống flash §12, hướng thiết kế "Calibration" (§2), thang bốn
 > giọng đọc US/UK/AU/CA (§4), bộ font Archivo/Be Vietnam Pro/IBM Plex Mono (§5 —
-> MetaBoard dùng Space Grotesk + Inter), Lucide (§8 — MetaBoard viết SVG inline,
+> TFTIQ dùng Space Grotesk + Inter), Lucide (§8 — TFTIQ viết SVG inline,
 > chưa thêm dependency nào), và thang điểm §10 thuộc Sprint 5 của sản phẩm kia.
-> Khi cần quyết định hình thức cho MetaBoard, hãy khảo sát `apps/web` rồi viết
+> Khi cần quyết định hình thức cho TFTIQ, hãy khảo sát `apps/web` rồi viết
 > tiếp vào tài liệu của chính repo này.
 
 **Trạng thái:** ✅ **ĐÃ TRIỂN KHAI** · 2026-08-09

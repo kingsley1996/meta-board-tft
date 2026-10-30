@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { CompForm } from '@/components/admin/comp-form';
 import { itemOptions, units } from '@/lib/data';
-import tft from '@metaboard/shared/data/tft.json';
+import tft from '@tftiq/shared/data/tft.json';
 
 export const dynamic = 'force-dynamic';
 

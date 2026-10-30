@@ -15,11 +15,11 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@metaboard/shared/mechanics": ["../../packages/shared/src/mechanics.ts"],
-      "@metaboard/shared/economy-match": ["../../packages/shared/src/economy-match.ts"],
-      "@metaboard/shared/speech-text": ["../../packages/shared/src/speech-text.ts"],
-      "@metaboard/shared/translation-id": ["../../packages/shared/src/translation-id.ts"],
-      "@metaboard/shared/data/*": ["../../packages/shared/data/*"]
+      "@tftiq/shared/mechanics": ["../../packages/shared/src/mechanics.ts"],
+      "@tftiq/shared/economy-match": ["../../packages/shared/src/economy-match.ts"],
+      "@tftiq/shared/speech-text": ["../../packages/shared/src/speech-text.ts"],
+      "@tftiq/shared/translation-id": ["../../packages/shared/src/translation-id.ts"],
+      "@tftiq/shared/data/*": ["../../packages/shared/data/*"]
     }
   },
   "include": ["src/**/*.ts", "seed/**/*.ts"]

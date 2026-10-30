@@ -5,7 +5,7 @@ import {
   poolSizes,
   shopOdds,
   streakBonus,
-} from '@metaboard/shared/mechanics';
+} from '@tftiq/shared/mechanics';
 import { sharedDataPath } from '../shared-data.ts';
 import type { Lang } from './contracts.ts';
 import { normalizeSpaced } from './entities.ts';

@@ -1,5 +1,5 @@
 {
-  "name": "@metaboard/api",
+  "name": "@tftiq/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -21,7 +21,7 @@
     "test:accuracy": "node --env-file-if-exists=.env src/assistant/eval/accuracy.ts"
   },
   "dependencies": {
-    "@metaboard/shared": "*",
+    "@tftiq/shared": "*",
     "@payos/node": "2.0.5",
     "express": "^5.1.0",
     "pg": "^8.16.0"

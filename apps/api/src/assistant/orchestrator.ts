@@ -508,7 +508,7 @@ function sourceForComp(comp: CompData, lang: Lang, version: string): AssistantSo
 function sourceForStats(source: { provider: string; patch: string; updated: string }): AssistantSource {
   return {
     id: 'meta:stats',
-    title: 'MetaBoard stats',
+    title: 'TFTIQ stats',
     url: 'https://www.metatft.com/',
     sourceType: 'structured_data',
     version: `patch${source.patch}`,
@@ -673,8 +673,8 @@ function deterministicAnswer(
     return {
       status: 'insufficient_data',
       answer: isVi(lang)
-        ? 'Mình chưa có số liệu MetaBoard cho lựa chọn này. Bạn hỏi cụ thể tướng, trang bị, nâng cấp hoặc comp nhé.'
-        : 'I do not have MetaBoard stats for that pick. Ask about a specific champion, item, augment or comp.',
+        ? 'Mình chưa có số liệu TFTIQ cho lựa chọn này. Bạn hỏi cụ thể tướng, trang bị, nâng cấp hoặc comp nhé.'
+        : 'I do not have TFTIQ stats for that pick. Ask about a specific champion, item, augment or comp.',
     };
   }
   if (intent === 'patch_change') {
@@ -705,8 +705,8 @@ function deterministicAnswer(
     return {
       status: 'answered',
       answer: isVi(lang)
-        ? `MetaBoard đang dùng dữ liệu Set ${meta.setId || '?'}, patch ${meta.patch || 'latest'}. Bạn có thể hỏi về tướng, trang bị, nâng cấp hoặc đội hình trong set này.`
-        : `MetaBoard is using Set ${meta.setId || '?'}, patch ${meta.patch || 'latest'}. Ask about a champion, item, augment or comp in this set.`,
+        ? `TFTIQ đang dùng dữ liệu Set ${meta.setId || '?'}, patch ${meta.patch || 'latest'}. Bạn có thể hỏi về tướng, trang bị, nâng cấp hoặc đội hình trong set này.`
+        : `TFTIQ is using Set ${meta.setId || '?'}, patch ${meta.patch || 'latest'}. Ask about a champion, item, augment or comp in this set.`,
     };
   }
   if (intent === 'comp_recommendation') {
@@ -735,7 +735,7 @@ function deterministicAnswer(
           : `Based on ${basis}, the closest comp is ${top.comp.title} (${top.comp.tier} tier, match score ${top.score}) under Set ${meta.setId || '?'} patch ${meta.patch || 'latest'}.`,
         top.reasons.join(' '),
         preliminary,
-        t(lang, 'This score measures overlap only; see MetaBoard stats for performance.', 'Điểm này chỉ đo độ trùng khớp; xem số liệu MetaBoard để biết hiệu quả.'),
+        t(lang, 'This score measures overlap only; see TFTIQ stats for performance.', 'Điểm này chỉ đo độ trùng khớp; xem số liệu TFTIQ để biết hiệu quả.'),
       ]
         .filter(Boolean)
         .join(' '),
@@ -805,8 +805,8 @@ function deterministicAnswer(
   return {
     status: 'unsupported',
     answer: isVi(lang)
-      ? 'Mình hỗ trợ tra cứu tướng, trang bị, tộc hệ, nâng cấp, tìm comp, so sánh comp và số liệu MetaBoard trong Set 18. Mình chưa có patch notes.'
-      : 'I support champion, item, trait, augment lookup, comp search, comp comparison and MetaBoard stats for Set 18. I do not have patch notes yet.',
+      ? 'Mình hỗ trợ tra cứu tướng, trang bị, tộc hệ, nâng cấp, tìm comp, so sánh comp và số liệu TFTIQ trong Set 18. Mình chưa có patch notes.'
+      : 'I support champion, item, trait, augment lookup, comp search, comp comparison and TFTIQ stats for Set 18. I do not have patch notes yet.',
   };
 }
 
@@ -839,13 +839,13 @@ export function tomoPersonaReply(text: string, lang: Lang): string | null {
   const normalized = normalizeSpaced(text);
   if (GREETING_WORD.test(normalized) && normalized.split(' ').filter(Boolean).length <= 5) {
     return vi
-      ? 'Chào bạn! Mình là Tomo 🤖 — trợ lý AI của MetaBoard. Mình đọc dữ liệu Mùa 18 để gợi ý đội hình, cách lên đồ và nâng cấp; hỏi mình câu đầu tiên đi!'
-      : "Hi! I'm Tomo 🤖 — MetaBoard's AI assistant. I read live Set 18 data to suggest comps, builds and augments; fire away with your first question!";
+      ? 'Chào bạn! Mình là Tomo 🤖 — trợ lý AI của TFTIQ. Mình đọc dữ liệu Mùa 18 để gợi ý đội hình, cách lên đồ và nâng cấp; hỏi mình câu đầu tiên đi!'
+      : "Hi! I'm Tomo 🤖 — TFTIQ's AI assistant. I read live Set 18 data to suggest comps, builds and augments; fire away with your first question!";
   }
   if (PERSONA_WORD.test(normalized)) {
     return vi
-      ? 'Mình là Tomo — chú drone nhỏ đậu góc phải trên màn hình, và là trợ lý AI của MetaBoard. Mình trả lời dựa trên dữ liệu TFT Mùa 18: tướng, trang bị, nâng cấp, đội hình và kinh tế; chỗ nào chưa chắc mình sẽ nói rõ. Bấm vào mình cũng ra biểu cảm đấy!'
-      : "I'm Tomo — the little drone perched in the top-right corner, and MetaBoard's AI assistant. I answer from current Set 18 TFT data (champions, items, augments, comps, economy) and flag whatever I can't verify. Boop me for a reaction!";
+      ? 'Mình là Tomo — chú drone nhỏ đậu góc phải trên màn hình, và là trợ lý AI của TFTIQ. Mình trả lời dựa trên dữ liệu TFT Mùa 18: tướng, trang bị, nâng cấp, đội hình và kinh tế; chỗ nào chưa chắc mình sẽ nói rõ. Bấm vào mình cũng ra biểu cảm đấy!'
+      : "I'm Tomo — the little drone perched in the top-right corner, and TFTIQ's AI assistant. I answer from current Set 18 TFT data (champions, items, augments, comps, economy) and flag whatever I can't verify. Boop me for a reaction!";
   }
   if (CAPABILITY_WORD.test(normalized)) {
     return vi
@@ -1418,7 +1418,7 @@ async function answerAssistantImpl(
     };
   }
 
-  // Per-source patches: the mechanics tables and MetaBoard stats refresh on
+  // Per-source patches: the mechanics tables and TFTIQ stats refresh on
   // their own schedules, so the model must label which patch numbers come from.
   const dataVersions = {
     activePatch: meta.patch,
@@ -1596,7 +1596,7 @@ async function answerAssistantImpl(
   }
 
   const limitations = [
-    t(request.lang, 'Answers are based on MetaBoard structured data.', 'Câu trả lời dựa trên dữ liệu cấu trúc của MetaBoard.'),
+    t(request.lang, 'Answers are based on TFTIQ structured data.', 'Câu trả lời dựa trên dữ liệu cấu trúc của TFTIQ.'),
   ];
   if (fuzzyMatch?.matchedText) {
     limitations.push(
@@ -1614,7 +1614,7 @@ async function answerAssistantImpl(
     limitations.push(t(request.lang, 'The tool step limit was reached; the answer uses the results collected so far.', 'Đã chạm giới hạn bước gọi tool; câu trả lời dùng các kết quả đã thu thập.'));
   }
   if (intent === 'comp_search' || intent === 'comp_comparison' || intent === 'comp_recommendation') {
-    limitations.push(t(request.lang, 'Board and tier from MetaBoard; tips and stages from TFT Academy.', 'Board/tier từ MetaBoard; tips/stages từ TFT Academy.'));
+    limitations.push(t(request.lang, 'Board and tier from TFTIQ; tips and stages from TFT Academy.', 'Board/tier từ TFTIQ; tips/stages từ TFT Academy.'));
   }
   if (intent === 'entity_lookup' || (intent === 'gameplay_knowledge' && selectedEntities.length)) {
     limitations.push(t(request.lang, 'Static data from CommunityDragon and the shared TFT catalog.', 'Dữ liệu tĩnh từ CommunityDragon và danh mục TFT dùng chung.'));

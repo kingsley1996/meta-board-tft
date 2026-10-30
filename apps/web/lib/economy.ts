@@ -1,6 +1,6 @@
-import snapshot from '@metaboard/shared/data/economy.json';
-import { economyForComp as resolveEconomyForComp } from '@metaboard/shared/economy-match';
-import type { CompEconomy, CompEconomyInput } from '@metaboard/shared/economy-match';
+import snapshot from '@tftiq/shared/data/economy.json';
+import { economyForComp as resolveEconomyForComp } from '@tftiq/shared/economy-match';
+import type { CompEconomy, CompEconomyInput } from '@tftiq/shared/economy-match';
 
 export type { CompEconomy };
 

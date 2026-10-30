@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { listComps } from '../comps.ts';
 import { resolveEntitlement, type Entitlement } from '../membership/lifecycle.ts';
 import { balances, type Balance } from '../membership/quota.ts';
-import { incomeBase, interest, mechanicsPatch, poolSizes, shopOdds, streakBonus, xpTable } from '@metaboard/shared/mechanics';
-import { economyForComp, matchEconomyComp, type EconomyPlanComp, type EconomyPlanStrategy } from '@metaboard/shared/economy-match';
+import { incomeBase, interest, mechanicsPatch, poolSizes, shopOdds, streakBonus, xpTable } from '@tftiq/shared/mechanics';
+import { economyForComp, matchEconomyComp, type EconomyPlanComp, type EconomyPlanStrategy } from '@tftiq/shared/economy-match';
 import { sharedDataPath } from '../shared-data.ts';
 import type {
   CatalogEntity,
@@ -155,7 +155,7 @@ export const ASSISTANT_TOOLS: ProviderTool[] = [
     type: 'function',
     function: {
       name: 'get_stats',
-      description: 'Get MetaBoard stats for a champion, item, augment or comp slug.',
+      description: 'Get TFTIQ stats for a champion, item, augment or comp slug.',
       parameters: {
         type: 'object',
         additionalProperties: false,
@@ -199,7 +199,7 @@ export const ASSISTANT_TOOLS: ProviderTool[] = [
         additionalProperties: false,
         properties: {
           strategy: { type: 'string', maxLength: 50, description: 'Named strategy, for example Fast 8 or 2-Cost Reroll.' },
-          comp_slug: { type: 'string', maxLength: 80, description: 'MetaBoard comp slug for its matched or derived economy curve.' },
+          comp_slug: { type: 'string', maxLength: 80, description: 'TFTIQ comp slug for its matched or derived economy curve.' },
           query: { type: 'string', maxLength: 80, description: 'Search a comp, carry or strategy from the sourced economy dataset.' },
         },
       },
@@ -214,7 +214,7 @@ export const USER_USAGE_TOOL: ProviderTool = {
   function: {
     name: 'get_my_usage',
     description:
-      "Look up the signed-in user's MetaBoard plan and quota: Coach turns left this period and today, voice seconds, read-aloud characters, period dates and request limits. Use for questions about the user's own plan, remaining usage, quota or renewal date.",
+      "Look up the signed-in user's TFTIQ plan and quota: Coach turns left this period and today, voice seconds, read-aloud characters, period dates and request limits. Use for questions about the user's own plan, remaining usage, quota or renewal date.",
     parameters: { type: 'object', additionalProperties: false, properties: {} },
   },
 };
@@ -313,7 +313,7 @@ export function mechanicTablePages(lang: Lang): { slug: string; title: string }[
 
 function mechanicsSource(url: string) {
   return {
-    provider: 'MetaBoard / tftflow.com',
+    provider: 'TFTIQ / tftflow.com',
     url,
     set: lootData.source.set,
     patch: mechanicsPatch,

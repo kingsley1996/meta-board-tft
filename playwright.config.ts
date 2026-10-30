@@ -13,13 +13,13 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: 'npm run dev --workspace @metaboard/api',
+      command: 'npm run dev --workspace @tftiq/api',
       url: 'http://127.0.0.1:4000/api/comps',
       reuseExistingServer: !process.env.CI,
       timeout: 30_000,
     },
     {
-      command: 'npm run start --workspace @metaboard/web',
+      command: 'npm run start --workspace @tftiq/web',
       url: 'http://127.0.0.1:4173/en',
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,

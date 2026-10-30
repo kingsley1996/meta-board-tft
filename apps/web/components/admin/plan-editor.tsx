@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { activatePlanVersion, createPlanVersion, type AdminPlanVersion } from '@/lib/api';
-import { formatVnd } from '@metaboard/shared/membership-plans';
+import { formatVnd } from '@tftiq/shared/membership-plans';
 import { AdminTable, btnGhost, btnQuiet, inputCls } from './ui';
 
 // Editing an offer is versioning, not typing over a row: the API only ever

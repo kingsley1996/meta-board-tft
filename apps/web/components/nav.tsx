@@ -104,14 +104,29 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
       >
         <div className="mx-auto flex h-16 w-full max-w-[1280px] items-center gap-3 px-6">
           <Link href={`/${lang}`} data-section="brand" className="flex shrink-0 items-center gap-2.5" aria-label={t.homeAria}>
-            {/* The same mark as app/icon.svg, cropped to its own box: a board cell
-                with the M cut out of it. Token colours, so a palette change
-                reaches the favicon and this pixel-for-pixel the same way. */}
-            <svg aria-hidden="true" viewBox="6.89 3 50.22 58" className="h-9 w-[31.2px] shrink-0">
-              <polygon className="fill-brand" points="32,3 57.11,17.5 57.11,46.5 32,61 6.89,46.5 6.89,17.5" />
-              <path className="stroke-on-brand" d="M21.2 43.25 L21.2 20.75 L32 33.35 L42.8 20.75 L42.8 43.25" fill="none" strokeWidth={8.4} />
+            {/* The same mark as app/icon.svg, cropped to its own box. */}
+            <svg aria-hidden="true" viewBox="6.7 2.9 51.4 58.2" className="h-9 w-[31.8px] shrink-0">
+              <defs>
+                <linearGradient id="nav-tftiq" gradientUnits="userSpaceOnUse" x1="6" y1="2" x2="46" y2="63">
+                  <stop offset="0" stopColor="#FA7F30" />
+                  <stop offset="0.42" stopColor="#EA4F21" />
+                  <stop offset="1" stopColor="#B32C0C" />
+                </linearGradient>
+                <mask id="nav-tftiq-notch" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+                  <rect width="64" height="64" fill="#fff" />
+                  <path d="M50.9 41.7 L58 45.8 L58 54 L50.9 58.1 L43.8 54 L43.8 45.8 Z" fill="#000" />
+                </mask>
+              </defs>
+              <g fill="url(#nav-tftiq)" mask="url(#nav-tftiq-notch)">
+                <path fillRule="evenodd" d="M32 3 L57.11 17.5 L57.11 46.5 L32 61 L6.89 46.5 L6.89 17.5 Z M32 10.5 L50.62 21.25 L50.62 42.75 L32 53.5 L13.38 42.75 L13.38 21.25 Z" />
+                <path d="M16.5 35 L32 20.5 L47.5 35 L47.5 43.5 L32 29 L16.5 43.5 Z" />
+                <path d="M28 27.5 L36 27.5 L36 51.5 L28 51.5 Z" />
+              </g>
+              <path d="M50.9 43.1 L56.79 46.5 L56.79 53.3 L50.9 56.7 L45.01 53.3 L45.01 46.5 Z" fill="url(#nav-tftiq)" />
             </svg>
-            <span className="hidden font-display text-2xl font-bold tracking-tight text-fog sm:inline">MetaBoard</span>
+            <span className="hidden font-display text-2xl font-bold tracking-tight text-fog sm:inline">
+              TFT<span className="text-brand">IQ</span>
+            </span>
           </Link>
           <div className="flex min-w-0 flex-1 justify-center">
             <Search lang={lang} labels={t} />

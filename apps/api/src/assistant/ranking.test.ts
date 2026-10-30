@@ -128,7 +128,7 @@ test('augments, style and difficulty score separately', async () => {
     catalog
   );
   assert.equal(result.score, 4);
-  assert.ok(result.limitations.some((line) => line.includes('MetaBoard')));
+  assert.ok(result.limitations.some((line) => line.includes('TFTIQ')));
 });
 
 test('no matching input returns no candidates', async () => {

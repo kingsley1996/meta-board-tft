@@ -1,4 +1,4 @@
-# Triển khai — bản đồ cho agent (MetaBoard / tft-comps)
+# Triển khai — bản đồ cho agent (TFTIQ / tft-comps)
 
 Điểm nạp cho mọi thứ liên quan chạy stack ở đâu và bằng cái gì. Tài liệu này **không
 quyết định gì mới** — nó gom đường đi của một bản từ repo tới host, rồi trỏ tới nơi có
@@ -34,7 +34,7 @@ capture/   tư liệu reverse-engineer reference site — không deploy
 Bốn luật định hình mọi thứ còn lại:
 
 - **Hai deployment, hai entry point, install từ gốc repo.** npm workspaces phải được
-  install từ root thì `@metaboard/shared` mới resolve được; deploy riêng từng thư mục
+  install từ root thì `@tftiq/shared` mới resolve được; deploy riêng từng thư mục
   như hai project độc lập là dựng sai ngay từ bước `npm install`.
 - **Web proxy `/api/*` sang API qua Next rewrites** (`next.config.ts`, đích =
   `BACKEND_URL`). Browser chỉ nói chuyện same-origin — không cần CORS, nhưng đổi lại
@@ -55,7 +55,7 @@ Bốn luật định hình mọi thứ còn lại:
 npm install                                   # từ ROOT
 # Postgres 17: brew services start postgresql@17, role/db `metaboard`
 cp apps/api/.env.example apps/api/.env && cp apps/web/.env.example apps/web/.env.local
-npm run seed --workspace @metaboard/api       # schema + data + comps (xem cạm bẫy §4)
+npm run seed --workspace @tftiq/api       # schema + data + comps (xem cạm bẫy §4)
 npm run dev:api                               # :4000
 npm run dev:web                               # :4173 (dev và prod cùng cổng)
 ```
@@ -68,8 +68,8 @@ Check trước khi ship: `npm run typecheck && npm run test:server && npm run te
 
 | Process | Build | Chạy | Env bắt buộc | Env tùy chọn nhưng quyết định tính năng |
 |---|---|---|---|---|
-| web | `npm run build --workspace @metaboard/web` | `npm run start --workspace @metaboard/web` | `BACKEND_URL` (build + run), `SITE_URL` | — |
-| api | không | `npm run start --workspace @metaboard/api` | `DATABASE_URL`, `REFRESH_TOKEN`, `PORT`; `ADMIN_EMAIL` + `ADMIN_SEED_PASSWORD` chỉ lần đầu | `ASSISTANT_*`, `*_API_KEY`, `STT_*`, `VIENEU_TTS_*`, `TTS_*`, `AUTH_*`, `GOOGLE_OAUTH_*` |
+| web | `npm run build --workspace @tftiq/web` | `npm run start --workspace @tftiq/web` | `BACKEND_URL` (build + run), `SITE_URL` | — |
+| api | không | `npm run start --workspace @tftiq/api` | `DATABASE_URL`, `REFRESH_TOKEN`, `PORT`; `ADMIN_EMAIL` + `ADMIN_SEED_PASSWORD` chỉ lần đầu | `ASSISTANT_*`, `*_API_KEY`, `STT_*`, `VIENEU_TTS_*`, `TTS_*`, `AUTH_*`, `GOOGLE_OAUTH_*` |
 
 Bốn thứ hay dựng sai:
 
@@ -241,7 +241,7 @@ hai số khác nhau. Việc đó chạy **lúc boot** (`index.ts` → `applyCata
 
 Quy tắc chọn đường, theo trạng thái DB đích:
 
-- **DB trắng (mới deploy):** `npm run seed --workspace @metaboard/api` — apply schema,
+- **DB trắng (mới deploy):** `npm run seed --workspace @tftiq/api` — apply schema,
   ghi catalog từ snapshot, nạp comps/guides/tips từ `apps/api/seed/`.
 - **DB đã có nội dung admin tạo: ĐỪNG seed.** Dòng đầu của `seed.ts` ghi rõ: nó
   *replaces* comps và guides — mọi thứ soạn qua `/admin` bị xoá, log vẫn báo thành
@@ -315,7 +315,7 @@ nghĩa là catalog vẫn giữ lô cũ cho tới lần khởi động kế tiế
 | Mật khẩu Supabase chưa URL-encode | `SASL: password authentication failed` dù đúng key — key random chứa `+ / %`, `pg-connection-string` cắt mất | §3 Database |
 | Thiếu `NODE_ENV=production` | `/voice/status` lộ `reason` của provider, cookie `Secure` không bật, `TRUST_PROXY` không mặc định — mọi thứ vẫn "chạy" | `index.ts` trust proxy · `auth.ts secureCookieSuffix()` |
 | `AUTH_REQUIRE_EMAIL_VERIFICATION=false` khi đã public | ai cũng vào được với email không thật | `src/mailer.ts` |
-| Deploy từng workspace riêng | `@metaboard/shared` không resolve | README §Build and deploy |
+| Deploy từng workspace riêng | `@tftiq/shared` không resolve | README §Build and deploy |
 
 ## 8. Việc còn mở (đừng đoán, đừng tự dựng thêm)
 

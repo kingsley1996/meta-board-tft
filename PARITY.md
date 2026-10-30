@@ -1,6 +1,6 @@
-# Parity report — MetaBoard (reference build of tftacademy.com)
+# Parity report — TFTIQ (reference build of tftacademy.com)
 
-Lane: **reference build**. The source site belongs to a third party with no authorization to copy, so nothing of its brand was reproduced: name, logo, palette, typefaces, copy and imagery are MetaBoard's own. The capture in `capture/` is the pattern record; the rebuild is in `apps/web/`.
+Lane: **reference build**. The source site belongs to a third party with no authorization to copy, so nothing of its brand was reproduced: name, logo, palette, typefaces, copy and imagery are TFTIQ's own. The capture in `capture/` is the pattern record; the rebuild is in `apps/web/`.
 
 Current workspace layout and deployment commands are documented in [`README.md`](./README.md). Some file paths in this historical parity report predate the move to `apps/web`, `apps/api`, and `packages/shared`.
 
@@ -122,11 +122,11 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 
 ## Owner to do
 
-- Refresh the data with the private crawler repo (comps/tiers/stats + tips/stages/augments/priority/alt builds), commit the data paths here, push; on an empty database follow it with `npm run seed --workspace @metaboard/api`.
+- Refresh the data with the private crawler repo (comps/tiers/stats + tips/stages/augments/priority/alt builds), commit the data paths here, push; on an empty database follow it with `npm run seed --workspace @tftiq/api`.
 - Replace placeholder emails in `legal/*` and `about`.
 - Wire real YouTube/Spotify embeds on `/media` if desired.
 - Add real social links in `lib/data.ts` (`socials`). The brand mark is `app/icon.svg` (also drawn inline in `components/nav.tsx`); PWA icons in `public/icons/` are rendered from it by `scripts/make-icons.mjs`.
-- Set `SITE_URL` (e.g. `https://metaboard.example`) before deploying — `sitemap.xml` / `robots.txt` fall back to `http://localhost:4173`.
+- Set `SITE_URL` (e.g. `https://tftiq.example`) before deploying — `sitemap.xml` / `robots.txt` fall back to `http://localhost:4173`.
 - Newsletter sending is manual: export/copy the list from `/admin/subscribers` into your mail tool until a provider is wired.
 - Champion/item imagery is Riot game data (CommunityDragon); confirm it fits your Riot Games third-party policy before public launch.
 - vi copy for comps and guides is editable in the admin forms (optional "Vietnamese" block); a fresh `npm run seed` replaces all comps and guides — including vi — from `apps/api/seed/`.
@@ -140,14 +140,14 @@ psql -d postgres -c "CREATE ROLE metaboard WITH LOGIN PASSWORD 'metaboard';" -c 
 
 # backend (:4000) — first run applies the schema and seeds the data
 npm install
-npm run seed --workspace @metaboard/api
+npm run seed --workspace @tftiq/api
 npm run dev:api
 npm run dev:web
 
 # Each workspace can be built and started independently.
-npm run build --workspace @metaboard/web
-npm run start --workspace @metaboard/web
-npm run start --workspace @metaboard/api
+npm run build --workspace @tftiq/web
+npm run start --workspace @tftiq/web
+npm run start --workspace @tftiq/api
 
 curl http://localhost:4173/en/tierlist/comps                  # public site (vi at /vi/...)
 curl http://localhost:4173/api/comps                          # through the Next proxy
@@ -156,7 +156,7 @@ curl http://localhost:4000/api/tft/set | jq '.catalog_release'   # which data sn
 
 # admin: open http://localhost:4173/en/login and sign in with an admin account (bootstrap from ADMIN_EMAIL/ADMIN_SEED_PASSWORD in apps/api/.env)
 # full set update: run the private crawler repo → commit data → push (web rebuilds, API self-applies on boot)
-# empty database: commit fresh data → npm run seed --workspace @metaboard/api
+# empty database: commit fresh data → npm run seed --workspace @tftiq/api
 node capture/shots.mjs capture/sources-rebuild.json capture/sections-rebuild.json capture/rebuild http://localhost:4173   # recapture rebuild
 node capture/check-rebuild.mjs http://localhost:4173   # console/network/focus sanity check
 ```

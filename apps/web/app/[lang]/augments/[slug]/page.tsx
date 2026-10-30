@@ -5,7 +5,7 @@ import { AugmentTile, Panel } from '@/components/ui';
 import { PatchBar } from '@/components/patch-bar';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
-import tft from '@metaboard/shared/data/tft.json';
+import tft from '@tftiq/shared/data/tft.json';
 import { augmentName, augmentRarity, getTip } from '@/lib/tips';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang; slug: string }> }): Promise<Metadata> {

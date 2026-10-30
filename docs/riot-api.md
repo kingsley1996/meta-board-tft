@@ -1,8 +1,8 @@
-# Riot API cho MetaBoard — khảo sát và phương án dùng dữ liệu
+# Riot API cho TFTIQ — khảo sát và phương án dùng dữ liệu
 
 **Trạng thái (2026-10-30).** Key đã có trong `apps/api/.env` với tên `RIOT_API_KEY`.
 Tài liệu này ghi lại những gì đã kiểm tra trực tiếp với key đó (VN2 + SEA), endpoint
-nào trả thông số gì, ghép vào catalog MetaBoard ra sao, giới hạn pháp lý, và thứ tự
+nào trả thông số gì, ghép vào catalog TFTIQ ra sao, giới hạn pháp lý, và thứ tự
 triển khai đề xuất. Mọi con số "đo" đều từ ngày 2026-10-30; Riot có thể đổi DTO.
 
 ## TL;DR
@@ -56,7 +56,7 @@ x-method-rate-limit: 20000:10,1200000:600
   prototype chạy được trước khi được duyệt.
 
 Nếu key trong `.env` ngừng chạy sau 24 giờ thì đó là development key; nếu vẫn chạy
-thì nhiều khả năng là personal key. Cả hai đều **không đủ** cho MetaBoard public.
+thì nhiều khả năng là personal key. Cả hai đều **không đủ** cho TFTIQ public.
 
 ### 1.2. Rate limit theo region
 
@@ -381,7 +381,7 @@ Các điểm phải nhớ:
 | Item sau bridge Data Dragon | 500 | 499 | **99,8%** |
 
 Item thô dùng prefix `DA_*` (`DA_InfinityEdge`, `DA_SpiritVisage`,
-`DA_Component_ChainVest`), còn catalog MetaBoard dùng `TFT_Item_*`
+`DA_Component_ChainVest`), còn catalog TFTIQ dùng `TFT_Item_*`
 (`TFT_Item_InfinityEdge`, `TFT_Item_Redemption` cho Spirit Visage…). Không thể
 map máy móc bằng prefix. Cách đúng:
 
@@ -549,7 +549,7 @@ Vì vậy: giữ nguyên nguồn augment hiện tại (MetaTFT/tftflow), **khôn
 - Spectator TFT trả DTO kiểu LoL, không có board TFT.
 - Policy cấm app/overlay dùng dữ liệu real-time trong game, theo dõi đối thủ,
   hoặc đưa ra gợi ý dựa trên trạng thái hiện tại.
-- MetaBoard là pre-game + post-game; giữ nguyên định hướng đó.
+- TFTIQ là pre-game + post-game; giữ nguyên định hướng đó.
 
 ## 6. Nếu triển khai: thiết kế tối thiểu
 
@@ -741,7 +741,7 @@ Trích nguyên văn các điểm liên quan:
 > They [development keys] also deactivate every 24 hours. You'll need to
 > regularly reset yours to keep it live.
 
-Hệ quả cho MetaBoard:
+Hệ quả cho TFTIQ:
 
 - **Không** thêm augment win rate / Legend win rate.
 - **Không** làm live overlay, theo dõi đối thủ, hay gợi ý theo trạng thái trận.
@@ -753,7 +753,7 @@ Hệ quả cho MetaBoard:
 
 1. Đăng ký product trên Developer Portal; mô tả đúng use case.
 2. Xin production key; nếu hiển thị stats của người chơi thì xin RSO.
-3. Có free tier (MetaBoard đã có).
+3. Có free tier (TFTIQ đã có).
 4. Nội dung trả phí phải "transformative" — không chỉ bán lại dữ liệu Riot.
 5. Thêm boilerplate chính xác (câu bên dưới), hiển thị rõ.
 
@@ -771,7 +771,7 @@ quyết định thay người chơi, hay bất kỳ thứ gì chỉ dùng đư�
 
 Boilerplate bắt buộc:
 
-> MetaBoard isn't endorsed by Riot Games and doesn't reflect the views or
+> TFTIQ isn't endorsed by Riot Games and doesn't reflect the views or
 > opinions of Riot Games or anyone officially involved in producing or managing
 > Riot Games properties. Riot Games, and all associated properties are
 > trademarks or registered trademarks of Riot Games, Inc.

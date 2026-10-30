@@ -4,7 +4,7 @@ import { CompForm, type CompFormComp } from '@/components/admin/comp-form';
 import type { ApiComp } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import { itemOptions, units } from '@/lib/data';
-import tft from '@metaboard/shared/data/tft.json';
+import tft from '@tftiq/shared/data/tft.json';
 
 export const dynamic = 'force-dynamic';
 

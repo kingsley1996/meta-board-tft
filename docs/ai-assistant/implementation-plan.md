@@ -467,7 +467,7 @@ Không thay đổi layout/nav hiện có ngoài link mới. Không dựng global
 | `communitydragon` | Riot CommunityDragon | entity, ability, trait, item, augment | `https://raw.communitydragon.org/` |
 | `metatft` | MetaTFT | comp board/tier/items, unit/item/comp stats | `https://www.metatft.com/` |
 | `tftacademy` | TFT Academy | comp tips/stages/augments/priority/alt | `https://tftacademy.com/` |
-| `metaboard` | MetaBoard | guides, mechanics tables | internal |
+| `metaboard` | TFTIQ | guides, mechanics tables | internal |
 
 - Mỗi source trả về kèm `version` dạng `set18-patch18.4b`.
 - `retrievedAt` chỉ xuất hiện nếu có timestamp thật; không bịa.

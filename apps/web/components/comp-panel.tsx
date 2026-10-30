@@ -108,7 +108,7 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
   ));
   return (
     <div data-section="comp-panel" className="grid gap-4 rounded-xl border border-line bg-page p-4 pt-16 lg:grid-cols-[300px_1fr]">
-      {/* Left rail after TFT Academy's comp card, in MetaBoard's palette:
+      {/* Left rail after TFT Academy's comp card, in TFTIQ's palette:
           a crest that breaks out through the rail's perforated top edge, a tier
           stamp cocked into the opposite corner, then the meta chips and the
           sectioned traits / augments / augment priority / matchups exactly as
@@ -150,7 +150,7 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
           style={{ borderColor: tier, color: tier, background: `color-mix(in srgb, var(--color-panel) 80%, transparent)` }}
         >
           {comp.tier} Tier
-          <small className="mt-1 block text-[9px] tracking-[0.24em] opacity-75">MetaBoard</small>
+          <small className="mt-1 block text-[9px] tracking-[0.24em] opacity-75">TFTIQ</small>
         </span>
         <div className="flex flex-col items-start gap-2">
           <h3 className="font-display text-2xl font-bold uppercase leading-tight tracking-tight text-fog">{comp.title}</h3>

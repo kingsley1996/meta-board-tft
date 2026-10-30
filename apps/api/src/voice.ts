@@ -1,6 +1,6 @@
 import express, { Router, type NextFunction, type Request, type Response as ExpressResponse } from 'express';
 import { createHash, randomUUID } from 'node:crypto';
-import { chunkForSpeech, spokenText } from '@metaboard/shared/speech-text';
+import { chunkForSpeech, spokenText } from '@tftiq/shared/speech-text';
 import type { AuthedRequest } from './auth-routes.ts';
 import { getAssistantAnswerForRequest } from './assistant/conversation-store.ts';
 import { chargeForFailure, characterCharges, durationCharges, meterClose, meterOpen, createSpendMeter } from './membership/cost.ts';

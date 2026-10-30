@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { promisify } from 'node:util';
-import { pilotPlans } from '@metaboard/shared/membership-plans';
+import { pilotPlans } from '@tftiq/shared/membership-plans';
 
 const execFileAsync = promisify(execFile);
 

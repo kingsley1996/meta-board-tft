@@ -949,7 +949,7 @@ async function generateWithOpenAI(request: ProviderRequest): Promise<ProviderRes
   const headers: Record<string, string> = {
     'content-type': 'application/json',
     authorization: `Bearer ${config.key}`,
-    ...(config.openrouter ? { 'HTTP-Referer': 'http://localhost:4173', 'X-Title': 'MetaBoard' } : {}),
+    ...(config.openrouter ? { 'HTTP-Referer': 'http://localhost:4173', 'X-Title': 'TFTIQ' } : {}),
   };
   const providerName = config.openrouter ? 'OpenRouter' : 'OpenAI API';
   let streamed = false;

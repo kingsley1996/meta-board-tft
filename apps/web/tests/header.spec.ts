@@ -54,26 +54,25 @@ test('the app renders the one palette with no theme switcher', async ({ page }) 
   await expect(page.locator('#mobile-menu [data-section="theme-switch"]')).toHaveCount(0);
 });
 
-test('the brand mark is one palette-cut hexagon in the nav and in the favicon', async ({ page }) => {
+test('the brand mark is the same hexagon-ring logo in the nav and the favicon', async ({ page }) => {
   await page.goto('/en');
   const mark = page.locator('[data-section="brand"] svg');
   await expect(mark).toBeVisible();
 
-  // Token colours rather than literals, so a palette change reaches the mark the
-  // same moment it reaches everything else.
-  await expect(mark.locator('polygon')).toHaveCSS('fill', 'rgb(255, 107, 61)');
-  await expect(mark.locator('path')).toHaveCSS('stroke', 'rgb(22, 11, 5)');
+  // The brand board fixes the logo's own gradient, so it is drawn with literals
+  // instead of the UI accent token.
+  const stops = await mark.locator('stop').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('stop-color')));
+  expect(stops).toEqual(['#FA7F30', '#EA4F21', '#B32C0C']);
 
-  // A regular pointy-top hexagon, like every board cell, not a squashed one.
+  // No squashing: the rendered box keeps the viewBox ratio.
   const box = await mark.boundingBox();
-  expect(box!.width / box!.height).toBeCloseTo(0.866, 2);
+  expect(box!.width / box!.height).toBeCloseTo(51.4 / 58.2, 2);
 
-  // app/icon.svg is a static file with the same two colours as literals: the
-  // pre-palette violet mark sat there unnoticed until it was read.
+  // app/icon.svg is a static file: it has to carry the same stops, or the tab
+  // icon drifts from the header the way the old violet mark sat unnoticed.
   const icon = readFileSync(join(__dirname, '..', 'app', 'icon.svg'), 'utf8');
-  expect(icon).toContain('#ff6b3d');
-  expect(icon).toContain('#160b05');
-  expect(icon).not.toMatch(/#6a45ff|#b9a8ff|#121722|#7c5cff/i);
+  for (const stop of stops) expect(icon).toContain(stop!);
+  expect(icon).not.toMatch(/#6a45ff|#b9a8ff|#121722|#7c5cff|#ff6b3d/i);
 });
 
 test('assistant is promoted on the home page and directly linked from desktop navigation', async ({ page }) => {

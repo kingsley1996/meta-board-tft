@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang } = await params;
   const meta = messages[isLang(lang) ? lang : 'en'].meta;
   return {
-    title: { default: meta.title, template: '%s | MetaBoard' },
+    title: { default: meta.title, template: '%s | TFTIQ' },
     description: meta.description,
   };
 }

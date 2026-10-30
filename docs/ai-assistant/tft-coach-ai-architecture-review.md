@@ -1,4 +1,4 @@
-# Review kiến trúc trả lời của TFT Coach AI (Tomo / MetaBoard)
+# Review kiến trúc trả lời của TFT Coach AI (Tomo / TFTIQ)
 
 > **Phạm vi review:** Dựa trên tài liệu `answer-flow.md`, mô tả luồng xử lý của Coach AI tại thời điểm ghi trong tài liệu. Đây là review kiến trúc, chưa phải kết quả audit toàn bộ source code hay benchmark thực tế.
 >

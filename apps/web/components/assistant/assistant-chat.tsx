@@ -821,7 +821,7 @@ export function AssistantChat({
       await audioContext.resume();
       await audioContext.audioWorklet.addModule('/audio-capture-processor.js');
       const source = audioContext.createMediaStreamSource(stream);
-      const processor = new AudioWorkletNode(audioContext, 'metaboard-audio-capture', {
+      const processor = new AudioWorkletNode(audioContext, 'tftiq-audio-capture', {
         numberOfInputs: 1,
         numberOfOutputs: 1,
         outputChannelCount: [1],

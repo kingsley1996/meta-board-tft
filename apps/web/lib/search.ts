@@ -1,5 +1,5 @@
-import tft from '@metaboard/shared/data/tft.json';
-import meta from '@metaboard/shared/data/meta.json';
+import tft from '@tftiq/shared/data/tft.json';
+import meta from '@tftiq/shared/data/meta.json';
 import { messages } from './messages';
 import type { Lang } from './i18n';
 import { augmentName, augmentRarity, championNameToSlug, itemName, traitName, unitName, unitTraitNames } from './tips';

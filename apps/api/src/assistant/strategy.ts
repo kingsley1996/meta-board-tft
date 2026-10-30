@@ -1,4 +1,4 @@
-import { shopOdds, xpTable } from '@metaboard/shared/mechanics';
+import { shopOdds, xpTable } from '@tftiq/shared/mechanics';
 import type { AssistantSection, Lang } from './contracts.ts';
 
 export type StrategyState = {

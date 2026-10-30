@@ -1,7 +1,7 @@
-# MetaBoard
+# TFTIQ
 
-MetaBoard is an npm-workspaces monorepo. The web app and API have separate
-packages and deployment entry points; `@metaboard/shared` contains only code
+TFTIQ is an npm-workspaces monorepo. The web app and API have separate
+packages and deployment entry points; `@tftiq/shared` contains only code
 and data used by both.
 
 ## Structure
@@ -254,11 +254,11 @@ Deploy both workspaces from the repository root so npm can resolve the local
 shared package:
 
 ```sh
-npm run build --workspace @metaboard/web
-npm run start --workspace @metaboard/web
+npm run build --workspace @tftiq/web
+npm run start --workspace @tftiq/web
 
-npm run typecheck --workspace @metaboard/api
-npm run start --workspace @metaboard/api
+npm run typecheck --workspace @tftiq/api
+npm run start --workspace @tftiq/api
 ```
 
 Configure `BACKEND_URL` on the web deployment, at build and runtime, to the deployed API origin. The

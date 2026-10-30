@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
-import { chunkForSpeech, spokenText } from '@metaboard/shared/speech-text';
+import { chunkForSpeech, spokenText } from '@tftiq/shared/speech-text';
 import express from 'express';
 import type { Server } from 'node:http';
 import type { Pool } from 'pg';

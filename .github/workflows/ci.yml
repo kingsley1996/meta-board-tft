@@ -35,7 +35,7 @@ jobs:
           npm run test:server
 
       - name: Production web build (same command as Vercel)
-        run: npm run build --workspace @metaboard/web
+        run: npm run build --workspace @tftiq/web
 
       # API chạy native TypeScript, không có build step: lỗi cú pháp/`import` chỉ
       # lộ ra lúc khởi động. Bước này chứng minh process sống mà không cần DB, và

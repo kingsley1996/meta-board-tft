@@ -1,4 +1,4 @@
-import tft from '@metaboard/shared/data/tft.json';
+import tft from '@tftiq/shared/data/tft.json';
 import type { Lang } from './i18n';
 
 // Trait tier styles from CommunityDragon: 1 bronze, 3 silver, 4 unique, 5 gold, 6 prismatic.

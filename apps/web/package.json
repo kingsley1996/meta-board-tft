@@ -1,5 +1,5 @@
 {
-  "name": "@metaboard/web",
+  "name": "@tftiq/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@metaboard/shared": "*",
+    "@tftiq/shared": "*",
     "next": "^16.0.0",
     "page-mascot": "^0.1.0",
     "react": "^19.2.0",

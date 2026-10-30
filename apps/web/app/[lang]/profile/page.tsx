@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { formatVnd } from '@metaboard/shared/membership-plans';
+import { formatVnd } from '@tftiq/shared/membership-plans';
 import { ProfileSignOut } from '@/components/auth/profile-sign-out';
 import { UserAvatar } from '@/components/auth/user-avatar';
 import { Chip, Panel } from '@/components/ui';

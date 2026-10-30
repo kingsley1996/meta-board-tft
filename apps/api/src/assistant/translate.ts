@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import type { Lang } from './contracts.ts';
-import { translationId } from '@metaboard/shared/translation-id';
+import { translationId } from '@tftiq/shared/translation-id';
 import { sharedDataPath } from '../shared-data.ts';
 
 const catalogPath = sharedDataPath('translation-catalog.json');

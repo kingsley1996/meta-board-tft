@@ -103,7 +103,7 @@ export function rankComps(comps: CompData[], query: RankingQuery, catalog: Catal
 
       const score = parts.reduce((total, entry) => total + entry.points, 0);
       const matchedEntities = unique(parts.flatMap((entry) => entry.matched));
-      const limitations = [say('This score reflects comp overlap; see MetaBoard stats for performance.', 'Điểm này phản ánh độ khớp đội hình; xem số liệu MetaBoard để biết hiệu quả.')];
+      const limitations = [say('This score reflects comp overlap; see TFTIQ stats for performance.', 'Điểm này phản ánh độ khớp đội hình; xem số liệu TFTIQ để biết hiệu quả.')];
       if (componentMatch) limitations.push(say('Completed items are inferred from your components and are not verified purchases.', 'Item hoàn chỉnh được suy ra từ component, chưa xác minh item thực tế.'));
       if (!board.length && !exactItems.length && !exactAugments.length) {
         limitations.push(say('No champion, item or augment matched; only style or difficulty matched.', 'Chưa khớp tướng/item/augment nào; chỉ khớp lối chơi hoặc độ khó.'));

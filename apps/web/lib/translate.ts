@@ -1,6 +1,6 @@
-import catalog from '@metaboard/shared/data/translation-catalog.json';
+import catalog from '@tftiq/shared/data/translation-catalog.json';
 import type { Lang } from './i18n';
-import { translationId } from '@metaboard/shared/translation-id';
+import { translationId } from '@tftiq/shared/translation-id';
 
 const translations: Record<string, string> = catalog.translations;
 

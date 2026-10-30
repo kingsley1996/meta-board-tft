@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { formatVnd } from '@metaboard/shared/membership-plans';
+import { formatVnd } from '@tftiq/shared/membership-plans';
 import { CheckoutHeading, Rows, Row, StatePlate, Steps } from '@/components/membership/checkout-parts';
 import { CheckoutStart } from '@/components/membership/checkout-start';
 import { PendingOrder } from '@/components/membership/pending-order';

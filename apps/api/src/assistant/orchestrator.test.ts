@@ -36,7 +36,7 @@ test('tomo persona answers greetings and identity questions briefly', () => {
   const greeting = tomoPersonaReply('xin chao', 'vi');
   assert.ok(greeting?.includes('Tomo'));
   assert.ok((greeting ?? '').length < 250);
-  assert.match(tomoPersonaReply('tomo la ai', 'vi') ?? '', /drone|MetaBoard/);
+  assert.match(tomoPersonaReply('tomo la ai', 'vi') ?? '', /drone|TFTIQ/);
   assert.match(tomoPersonaReply('who are you', 'en') ?? '', /Tomo/);
   assert.match(tomoPersonaReply('ban lam duoc gi', 'vi') ?? '', /đội hình/);
   // A greeting bundled with a real question must fall through to normal intent routing.
@@ -224,7 +224,7 @@ test('buffers streaming where validation rewrites answers, streams plain lookups
 });
 
 test('fingerprints the near-constant system prompt instead of storing it', () => {
-  const prompt = 'You are Tomo, the MetaBoard TFT coach. '.repeat(40);
+  const prompt = 'You are Tomo, the TFTIQ TFT coach. '.repeat(40);
   const trace = traceSystem(prompt);
   assert.equal(trace.chars, prompt.length);
   assert.equal(trace.sha256, traceSystem(prompt).sha256);

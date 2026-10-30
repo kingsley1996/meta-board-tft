@@ -1,5 +1,5 @@
 {
-  "name": "metaboard-monorepo",
+  "name": "tftiq-monorepo",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -11,21 +11,21 @@
     "packages/shared"
   ],
   "scripts": {
-    "dev:web": "npm run dev --workspace @metaboard/web",
-    "dev:api": "npm run dev --workspace @metaboard/api",
-    "build": "npm run build --workspace @metaboard/web",
-    "start:web": "npm run start --workspace @metaboard/web",
-    "start:api": "npm run start --workspace @metaboard/api",
-    "extract-translations": "npm run extract-translations --workspace @metaboard/web",
-    "test:server": "npm test --workspace @metaboard/api",
+    "dev:web": "npm run dev --workspace @tftiq/web",
+    "dev:api": "npm run dev --workspace @tftiq/api",
+    "build": "npm run build --workspace @tftiq/web",
+    "start:web": "npm run start --workspace @tftiq/web",
+    "start:api": "npm run start --workspace @tftiq/api",
+    "extract-translations": "npm run extract-translations --workspace @tftiq/web",
+    "test:server": "npm test --workspace @tftiq/api",
     "test:web": "node --test 'apps/web/lib/*.test.ts'",
-    "typecheck": "npm run typecheck --workspace @metaboard/web && npm run typecheck --workspace @metaboard/api",
+    "typecheck": "npm run typecheck --workspace @tftiq/web && npm run typecheck --workspace @tftiq/api",
     "test:e2e": "playwright test",
-    "test:eval": "npm run eval --workspace @metaboard/api",
-    "build:knowledge": "npm run build:knowledge --workspace @metaboard/api",
-    "test:rag": "npm run test:rag --workspace @metaboard/api",
-    "test:quality": "npm run test:quality --workspace @metaboard/api",
-    "test:accuracy": "npm run test:accuracy --workspace @metaboard/api"
+    "test:eval": "npm run eval --workspace @tftiq/api",
+    "build:knowledge": "npm run build:knowledge --workspace @tftiq/api",
+    "test:rag": "npm run test:rag --workspace @tftiq/api",
+    "test:quality": "npm run test:quality --workspace @tftiq/api",
+    "test:accuracy": "npm run test:accuracy --workspace @tftiq/api"
   },
   "devDependencies": {
     "playwright": "^1.64.1",

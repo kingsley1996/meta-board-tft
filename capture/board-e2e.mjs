@@ -279,7 +279,7 @@ const sitemap = await (await page.request.get(`${BASE}/sitemap.xml`)).text();
 check('sitemap lists comps and champions', sitemap.includes('/en/tierlist/comps/ahri-spellweaver') && sitemap.includes('champions/da-gromp18-ap'));
 check('robots disallows /admin', (await (await page.request.get(`${BASE}/robots.txt`)).text()).includes('Disallow: /admin'));
 const manifest = await page.request.get(`${BASE}/manifest.webmanifest`);
-check('manifest is served', manifest.ok() && (await manifest.json()).name.includes('MetaBoard'));
+check('manifest is served', manifest.ok() && (await manifest.json()).name.includes('TFTIQ'));
 check('service worker is served', (await (await page.request.get(`${BASE}/sw.js`)).text()).includes('skipWaiting'));
 
 // i18n: root picks Vietnamese from Accept-Language; vi pages render localized chrome.

@@ -193,7 +193,7 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
   const mechanicsTopics = evidence.mechanics?.topic.split(',') ?? [];
   const includePrimer = evidence.mechanics && !mechanicsTopics.includes('core');
   return [
-    'You are Tomo, the friendly little drone mascot and AI coach of MetaBoard, a Teamfight Tactics companion.',
+    'You are Tomo, the friendly little drone mascot and AI coach of TFTIQ, a Teamfight Tactics companion.',
     'If the user greets you or asks about you (who you are, what you can do), reply briefly in character as Tomo — one or two friendly sentences — and invite them to ask about TFT comps, items, augments or strategy.',
     lang === 'vi'
       ? `Answer in ${language}. Use the Vietnamese champion, item, augment and trait names from the evidence; keep comp titles exactly as written.`
@@ -253,11 +253,11 @@ export function buildToolPlannerPrompt(
   includeUsage = false
 ): string {
   return [
-    'You are MetaBoard Assistant, a TFT data planner.',
+    'You are TFTIQ Assistant, a TFT data planner.',
     `The user writes in ${lang === 'vi' ? 'Vietnamese' : 'English'}.`,
     `Current Set ${setId}, patch ${patch}.`,
     ...(compSlugs.length ? [`Comp context slugs: ${compSlugs.slice(0, 3).join(', ')}.`] : []),
-    'Call only the read-only tools needed for comp lookup, game mechanics tables, economy plans, comparison or MetaBoard stats.',
+    'Call only the read-only tools needed for comp lookup, game mechanics tables, economy plans, comparison or TFTIQ stats.',
     ...(includeUsage ? ["Use get_my_usage when the user asks about their own plan, remaining turns, quota or renewal date."] : []),
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
     'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
@@ -273,8 +273,8 @@ export function buildToolPlannerPrompt(
 
 export function buildToolAgentPrompt(lang: Lang, evidence: Evidence): string {
   return [
-    'You are MetaBoard Assistant with read-only TFT data tools.',
-    'Call only the tools needed for comp lookup, mechanics tables, economy plans, comparison or MetaBoard stats. Never invent tool results.',
+    'You are TFTIQ Assistant with read-only TFT data tools.',
+    'Call only the tools needed for comp lookup, mechanics tables, economy plans, comparison or TFTIQ stats. Never invent tool results.',
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
     'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',

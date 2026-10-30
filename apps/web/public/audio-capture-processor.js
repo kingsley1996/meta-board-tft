@@ -1,4 +1,4 @@
-class MetaBoardAudioCaptureProcessor extends AudioWorkletProcessor {
+class TFTIQAudioCaptureProcessor extends AudioWorkletProcessor {
   process(inputs, outputs) {
     const input = inputs[0]?.[0];
     const output = outputs[0]?.[0];
@@ -11,4 +11,4 @@ class MetaBoardAudioCaptureProcessor extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor('metaboard-audio-capture', MetaBoardAudioCaptureProcessor);
+registerProcessor('tftiq-audio-capture', TFTIQAudioCaptureProcessor);

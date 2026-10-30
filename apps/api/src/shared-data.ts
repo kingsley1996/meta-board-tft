@@ -9,5 +9,5 @@ export type SharedDataFile =
   | 'translation-catalog.json';
 
 export function sharedDataPath(file: SharedDataFile): string {
-  return fileURLToPath(import.meta.resolve(`@metaboard/shared/data/${file}`));
+  return fileURLToPath(import.meta.resolve(`@tftiq/shared/data/${file}`));
 }

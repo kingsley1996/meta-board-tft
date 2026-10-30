@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Chip, ItemTile } from '@/components/ui';
 import { PatchBar } from '@/components/patch-bar';
 import { iconByName, itemSlugByName } from '@/lib/data';
-import tft from '@metaboard/shared/data/tft.json';
+import tft from '@tftiq/shared/data/tft.json';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { getTip, itemName } from '@/lib/tips';

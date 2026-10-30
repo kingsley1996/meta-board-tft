@@ -23,7 +23,7 @@ export function AdminSidebar({ signedInAs }: { signedInAs?: string }) {
     <aside data-section="admin-sidebar" className="sticky top-0 flex h-screen w-[210px] shrink-0 flex-col border-r border-line bg-panel">
       <div className="px-5 py-6">
         <Link href="/admin" className="font-display text-lg font-bold uppercase tracking-tight text-fog">
-          MetaBoard <span className="text-brand">Admin</span>
+          TFTIQ <span className="text-brand">Admin</span>
         </Link>
       </div>
       <nav className="flex flex-1 flex-col gap-1 px-3">

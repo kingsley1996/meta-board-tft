@@ -4,7 +4,7 @@
 //
 // Both rows stay 'draft'. Activating an offer is gate #92/#95, so entitlement and
 // quota code must fail closed until a row is explicitly set to 'active'.
-import { pilotPlans } from '@metaboard/shared/membership-plans';
+import { pilotPlans } from '@tftiq/shared/membership-plans';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pool } from '../src/db.ts';
