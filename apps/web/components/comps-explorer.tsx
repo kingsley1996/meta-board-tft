@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { fetchComps, type ApiComp, type CompsResponse } from '@/lib/api';
+import { fetchComps, type ApiComp, type CompSummary, type CompsInitial, type CompsResponse } from '@/lib/api';
 import { tierRank } from '@/lib/tiers';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
@@ -27,7 +27,13 @@ let glidePending = false;
 // useLayoutEffect while hydrating in the browser, useEffect during SSR.
 const useScrollEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
-export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; lang: Lang; initial?: CompsResponse }) {
+// A detail page seeds only the open comp in full; its siblings arrive as
+// summaries until the mount fetch replaces the list.
+function isFullComp(comp: ApiComp | CompSummary): comp is ApiComp {
+  return 'units' in comp;
+}
+
+export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; lang: Lang; initial?: CompsInitial }) {
   const t = messages[lang].explorer;
   const [sort, setSort] = useState<'default' | 'popular'>('default');
   const cacheKey = `${lang}:${sort}`;
@@ -35,7 +41,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   // list paints out of the document instead of waiting on a second round-trip.
   // The mount effect still refetches; this only removes the loading state in
   // front of it.
-  const [data, setData] = useState<CompsResponse | null>(() => cache[cacheKey] ?? initial ?? null);
+  const [data, setData] = useState<CompsInitial | null>(() => cache[cacheKey] ?? initial ?? null);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState('');
@@ -313,7 +319,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
                 </div>
                 {/* The detail form lives below its tier row — outside the tier
                     container — and closes via ✕ or by picking another comp. */}
-                {openComp ? (
+                {openComp && isFullComp(openComp) ? (
                   <div data-section="comp-detail" className="relative">
                     <button
                       type="button"
@@ -339,7 +345,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   );
 }
 
-function CompCluster({ comp, active, lang, showNames }: { comp: ApiComp; active: boolean; lang: Lang; showNames: boolean }) {
+function CompCluster({ comp, active, lang, showNames }: { comp: ApiComp | CompSummary; active: boolean; lang: Lang; showNames: boolean }) {
   const t = messages[lang].explorer;
   const trend = comp.trend === 'up'
     ? { glyph: '\u25B2', label: t.trendingUp, color: 'text-tier-c', tri: 'border-x-[7px] border-b-[10px] border-x-transparent border-b-tier-c' }
@@ -382,7 +388,7 @@ function CompCluster({ comp, active, lang, showNames }: { comp: ApiComp; active:
       <span className="flex flex-col gap-0.5">
         <span className="text-sm font-semibold text-fog">{comp.title}</span>
         <span className="text-xs font-semibold uppercase tracking-wide text-mist">
-          {comp.style} · {t.units(comp.units.length)}
+          {comp.style} · {t.units(isFullComp(comp) ? comp.units.length : comp.unitCount)}
         </span>
       </span>
       {trend ? (

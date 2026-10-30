@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { CompsExplorer } from '@/components/comps-explorer';
 import { DisplayTitle } from '@/components/ui';
 import { PatchBar } from '@/components/patch-bar';
-import type { CompsResponse } from '@/lib/api';
+import type { ApiComp, CompSummary, CompsInitial, CompsResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import { locales, type Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
@@ -16,6 +16,23 @@ export const revalidate = 60;
 // list page uses, so the two share one entry in Next's data store.
 const loadComps = (lang: Lang) =>
   backendJson<CompsResponse>(`/api/comps?lang=${lang}`, { revalidate: 60 });
+
+// The page ships the whole list so the tiers paint out of the document, but
+// only the open row is rendered in full before hydration. Shipping every comp
+// whole embedded the same ~290KB payload in all 116 prerendered detail pages,
+// so siblings travel as the fields their card reads and the mount fetch
+// replaces the list a moment later.
+function slim(comp: ApiComp): CompSummary {
+  return {
+    slug: comp.slug,
+    title: comp.title,
+    tier: comp.tier,
+    style: comp.style,
+    trend: comp.trend,
+    carry: comp.carry,
+    unitCount: comp.units.length,
+  };
+}
 
 // Without this Next cannot know which slugs exist and leaves the route dynamic,
 // which silently drops `revalidate` — the page then ships `no-store` and every
@@ -43,12 +60,15 @@ export default async function CompDetailPage({ params }: { params: Promise<{ lan
   const comp = data?.comps.find((row) => row.slug === slug);
   if (!comp) notFound();
   const t = messages[lang].comps;
+  const initial: CompsInitial | undefined = data
+    ? { ...data, comps: data.comps.map((row) => (row.slug === comp.slug ? row : slim(row))) }
+    : undefined;
 
   return (
     <div className="flex flex-col gap-6">
       <PatchBar lang={lang} />
       <DisplayTitle small={t.small} big={comp.title} sub={t.detailSub(comp.tier, comp.playstyle)} />
-      <CompsExplorer openSlug={comp.slug} lang={lang} initial={data ?? undefined} />
+      <CompsExplorer openSlug={comp.slug} lang={lang} initial={initial} />
     </div>
   );
 }

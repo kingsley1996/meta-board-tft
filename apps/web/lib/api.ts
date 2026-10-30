@@ -42,6 +42,16 @@ export type CompsResponse = {
   comps: ApiComp[];
 };
 
+// A detail page renders the whole list but only opens one comp. Sending every
+// comp in full there embedded the same ~290KB list in 116 prerendered pages, so
+// closed rows travel as the fields their card reads and the client fetch fills
+// the rest in right after hydration.
+export type CompSummary = Pick<ApiComp, 'slug' | 'title' | 'tier' | 'style' | 'trend' | 'carry'> & {
+  unitCount: number;
+};
+
+export type CompsInitial = Omit<CompsResponse, 'comps'> & { comps: (ApiComp | CompSummary)[] };
+
 export type ApiGuideSection = { heading: string; body: string[]; list?: string[] };
 
 export type ApiGuide = {
