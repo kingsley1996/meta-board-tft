@@ -132,6 +132,7 @@ async function insertPeriod(userId: string, planVersionId: string, orderId: stri
 
 async function dropPlans(ids: string[]): Promise<void> {
   if (ids.length === 0) return;
+  await pool.query(`DELETE FROM admin_audit WHERE detail->>'planVersionId' = ANY($1) OR detail->>'sourceId' = ANY($1)`, [ids]);
   await pool.query('DELETE FROM membership_events WHERE plan_version_id = ANY($1)', [ids]);
   await pool.query('DELETE FROM memberships WHERE plan_version_id = ANY($1)', [ids]);
   await pool.query('DELETE FROM payment_events WHERE order_id IN (SELECT id FROM payment_orders WHERE plan_version_id = ANY($1))', [ids]);
@@ -363,6 +364,143 @@ test('membership admin console', { skip: !hasDb }, async (t) => {
       await buyer.cleanup();
       await admin.cleanup();
       await dropPlans([plan.id]);
+    }
+  });
+
+  await t.test('the plan editor is admin-only on every verb', async () => {
+    const member = await makeAccount('user');
+    try {
+      assert.equal((await call('GET', '/api/admin/membership/plans')).status, 401);
+      assert.equal((await call('GET', '/api/admin/membership/plans', { token: member.token })).status, 403);
+      assert.equal(
+        (await call('POST', '/api/admin/membership/plans', { token: member.token, json: { sourceId: randomUUID(), priceVnd: 1 } })).status,
+        403,
+      );
+      assert.equal((await call('POST', `/api/admin/membership/plans/${randomUUID()}/activate`, { token: member.token })).status, 403);
+    } finally {
+      await member.cleanup();
+    }
+  });
+
+  await t.test('a new version is a draft until activated, and history is never re-priced', async () => {
+    const admin = await makeAccount('admin');
+    const buyer = await makeAccount('user');
+    const plan = await insertPlan({ priceVnd: 99_000 });
+    const extra: string[] = [];
+    const activeOf = async (code: string): Promise<string | null> => {
+      const { rows } = await pool.query(`SELECT id FROM plan_versions WHERE code = $1 AND status = 'active'`, [code]);
+      return rows[0]?.id ?? null;
+    };
+    try {
+      const listed = await call('GET', '/api/admin/membership/plans', { token: admin.token });
+      assert.equal(listed.status, 200);
+      const mine = (listed.body.plans as Array<Record<string, unknown>>).find((entry) => entry.code === plan.code);
+      assert.equal(mine?.version, 1);
+      assert.equal(mine?.status, 'active');
+      assert.deepEqual(mine?.history, { orders: 0, memberships: 0, buckets: 0 });
+
+      const invalid = await call('POST', '/api/admin/membership/plans', {
+        token: admin.token,
+        json: { sourceId: plan.id, priceVnd: -1, termDays: 30 },
+      });
+      assert.equal(invalid.status, 400);
+      assert.equal(invalid.body.code, 'invalid_plan');
+
+      const badTerm = await call('POST', '/api/admin/membership/plans', {
+        token: admin.token,
+        json: { sourceId: plan.id, priceVnd: 129_000, termDays: 0 },
+      });
+      assert.equal(badTerm.status, 400);
+      assert.equal(badTerm.body.code, 'invalid_plan');
+
+      const missing = await call('POST', '/api/admin/membership/plans', {
+        token: admin.token,
+        json: { sourceId: randomUUID(), priceVnd: 129_000, termDays: 30 },
+      });
+      assert.equal(missing.status, 404);
+
+      const created = await call('POST', '/api/admin/membership/plans', {
+        token: admin.token,
+        json: {
+          sourceId: plan.id,
+          label: 'Plus v2',
+          priceVnd: 129_000,
+          termDays: 30,
+          chatPerPeriod: 400,
+          chatPerDay: 80,
+          sttSecondsPerPeriod: 1_500,
+          ttsCharactersPerPeriod: 12_000,
+        },
+      });
+      assert.equal(created.status, 201);
+      const draft = created.body.plan as Record<string, unknown>;
+      extra.push(String(draft.id));
+      assert.equal(draft.version, 2);
+      assert.equal(draft.status, 'draft');
+      assert.equal(draft.priceVnd, 129_000);
+      assert.equal(draft.termDays, 30);
+      assert.equal((draft.allowances as Record<string, unknown>).chatPerDay, 80);
+      // Execution limits are not editable here; they come from the source row.
+      assert.equal((draft.limits as Record<string, unknown>).chatRequestsPerMinute, 6);
+      assert.equal((draft.limits as Record<string, unknown>).maxConcurrentTtsChunks, 2);
+
+      const createAudit = await pool.query(
+        `SELECT actor_id, action, target, detail FROM admin_audit WHERE action = 'plan_version.create' AND detail->>'planVersionId' = $1`,
+        [draft.id],
+      );
+      assert.equal(createAudit.rows.length, 1);
+      assert.equal(createAudit.rows[0].actor_id, admin.userId);
+      assert.equal(createAudit.rows[0].target, `${plan.code} v2`);
+      assert.equal(Number(createAudit.rows[0].detail.after.priceVnd), 129_000);
+      assert.equal(Number(createAudit.rows[0].detail.before.priceVnd), 99_000);
+
+      // A draft changes nothing for buyers: the catalog still resolves the old row.
+      assert.equal(await activeOf(plan.code), plan.id);
+
+      const activated = await call('POST', `/api/admin/membership/plans/${draft.id}/activate`, { token: admin.token });
+      assert.equal(activated.status, 200);
+      assert.equal(activated.body.duplicate, false);
+      assert.equal((activated.body.plan as Record<string, unknown>).status, 'active');
+      assert.equal(await activeOf(plan.code), draft.id);
+      const old = await pool.query('SELECT status FROM plan_versions WHERE id = $1', [plan.id]);
+      assert.equal(old.rows[0].status, 'retired');
+      const activateAudit = await pool.query(
+        `SELECT actor_id, target, detail FROM admin_audit WHERE action = 'plan_version.activate' AND detail->>'planVersionId' = $1`,
+        [draft.id],
+      );
+      assert.equal(activateAudit.rows.length, 1);
+      assert.equal(activateAudit.rows[0].actor_id, admin.userId);
+      assert.equal(activateAudit.rows[0].target, `${plan.code} v2`);
+      assert.deepEqual(
+        (activateAudit.rows[0].detail.retired as Array<{ id: string; version: number }>).map((entry) => entry.id),
+        [plan.id],
+      );
+
+      const again = await call('POST', `/api/admin/membership/plans/${draft.id}/activate`, { token: admin.token });
+      assert.equal(again.status, 200);
+      assert.equal(again.body.duplicate, true);
+
+      const next = await call('POST', '/api/admin/membership/plans', {
+        token: admin.token,
+        json: { sourceId: draft.id, priceVnd: 149_000, termDays: 30 },
+      });
+      assert.equal(next.status, 201);
+      extra.push(String((next.body.plan as Record<string, unknown>).id));
+      assert.equal((next.body.plan as Record<string, unknown>).version, 3);
+      assert.equal(await activeOf(plan.code), draft.id);
+
+      // The version an order points at is history: the trigger refuses a re-price,
+      // which is why the editor can only add versions and activate them.
+      await insertOrder(buyer.userId, plan.id);
+      const refused = await pool
+        .query('UPDATE plan_versions SET price_vnd = 1 WHERE id = $1', [plan.id])
+        .then(() => null)
+        .catch((error: { code?: string }) => error);
+      assert.equal(refused?.code, '23514');
+    } finally {
+      await buyer.cleanup();
+      await admin.cleanup();
+      await dropPlans([plan.id, ...extra]);
     }
   });
 

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { GrantForm, RefundAction } from '@/components/admin/membership-actions';
+import { PlanEditor } from '@/components/admin/plan-editor';
 import { AdminPageHeader, AdminStat, AdminTable, btnQuiet, inputCls } from '@/components/admin/ui';
-import type { AdminMembershipAuditEvent, AdminMembershipOrder, AdminMembershipStats, CatalogOffer } from '@/lib/api';
+import type { AdminMembershipAuditEvent, AdminMembershipOrder, AdminMembershipStats, AdminPlanVersion, CatalogOffer } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import { sessionCookieHeader } from '@/lib/session';
 import { formatVnd } from '@metaboard/shared/membership-plans';
@@ -52,10 +53,11 @@ export default async function AdminMembershipPage({ searchParams }: { searchPara
   const queryString = new URLSearchParams({ ...(status ? { status } : {}), ...(query ? { q: query } : {}) }).toString();
 
   const cookie = await sessionCookieHeader();
-  const [ordersData, auditData, catalogData] = await Promise.all([
+  const [ordersData, auditData, catalogData, plansData] = await Promise.all([
     backendJson<{ orders: AdminMembershipOrder[]; stats: AdminMembershipStats }>(`/api/admin/membership/orders${queryString ? `?${queryString}` : ''}`, { headers: { cookie } }),
     backendJson<{ events: AdminMembershipAuditEvent[] }>('/api/admin/membership/audit?limit=30', { headers: { cookie } }),
     backendJson<{ offers: CatalogOffer[] }>('/api/membership/catalog'),
+    backendJson<{ plans: AdminPlanVersion[] }>('/api/admin/membership/plans', { headers: { cookie } }),
   ]);
   if (!ordersData) throw new Error('backend is unreachable');
   const { orders, stats } = ordersData;
@@ -189,6 +191,18 @@ export default async function AdminMembershipPage({ searchParams }: { searchPara
           ))}
         </AdminTable>
         {!events.length ? <p className="text-xs text-mist">No membership events yet.</p> : null}
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="font-display text-lg font-bold tracking-tight text-fog">Plans</h2>
+        {plansData?.plans.length ? (
+          <PlanEditor plans={plansData.plans} />
+        ) : (
+          <p className="text-xs text-mist">Plan versions are unavailable right now.</p>
+        )}
+        <p className="text-xs text-mist">
+          One version per plan code is the selling one. Pricing keys, quotas and copy on the public pages follow the active version; a version that already has orders or periods keeps its numbers.
+        </p>
       </section>
     </>
   );

@@ -693,6 +693,27 @@ export type AdminMembershipAuditEvent = {
   createdAt: string | null;
 };
 
+export type AdminPlanVersion = {
+  id: string;
+  code: string;
+  version: number;
+  status: 'draft' | 'active' | 'retired' | string;
+  label: string;
+  priceVnd: number;
+  termDays: number | null;
+  allowances: { chatPerPeriod: number; chatPerDay: number; sttSecondsPerPeriod: number; ttsCharactersPerPeriod: number };
+  limits: {
+    chatRequestsPerMinute: number | null;
+    maxConcurrentRequests: number | null;
+    maxSttSecondsPerRequest: number | null;
+    maxConcurrentTtsChunks: number | null;
+  };
+  createdAt: string | null;
+  history: { orders: number; memberships: number; buckets: number };
+};
+
+export type AdminPlanResult = { ok: true; plan: AdminPlanVersion; duplicate?: boolean } | { ok: false; status: number; code: string; error: string };
+
 export type AdminActionResult = { ok: true } | { ok: false; status: number; code: string; error: string };
 export type AdminGrantResult = { ok: true; duplicate: boolean } | { ok: false; status: number; code: string; error: string };
 
@@ -708,6 +729,41 @@ export async function refundMembershipOrder(orderId: string, reason: string): Pr
   if (res.ok) return { ok: true };
   const data = (await res.json().catch(() => ({}))) as { code?: string; error?: string };
   return { ok: false, status: res.status, code: data.code ?? 'refund_failed', error: data.error ?? 'refund failed' };
+}
+
+/** A version that already has orders, periods or buckets cannot be re-priced,
+ *  so saving an offer means minting the next version and activating it. */
+export async function createPlanVersion(input: {
+  sourceId: string;
+  label?: string;
+  priceVnd: number;
+  termDays: number | null;
+  chatPerPeriod: number;
+  chatPerDay: number;
+  sttSecondsPerPeriod: number;
+  ttsCharactersPerPeriod: number;
+}): Promise<AdminPlanResult> {
+  const res = await fetch('/api/admin/membership/plans', {
+    method: 'POST',
+    cache: 'no-store',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  const data = (await res.json().catch(() => ({}))) as { plan?: AdminPlanVersion; code?: string; error?: string };
+  if (res.ok && data.plan) return { ok: true, plan: data.plan };
+  return { ok: false, status: res.status, code: data.code ?? 'plan_failed', error: data.error ?? 'plan failed' };
+}
+
+export async function activatePlanVersion(id: string): Promise<AdminPlanResult> {
+  const res = await fetch(`/api/admin/membership/plans/${id}/activate`, {
+    method: 'POST',
+    cache: 'no-store',
+    headers: { 'content-type': 'application/json' },
+    body: '{}',
+  });
+  const data = (await res.json().catch(() => ({}))) as { plan?: AdminPlanVersion; duplicate?: boolean; code?: string; error?: string };
+  if (res.ok && data.plan) return { ok: true, plan: data.plan, duplicate: data.duplicate === true };
+  return { ok: false, status: res.status, code: data.code ?? 'plan_failed', error: data.error ?? 'plan failed' };
 }
 
 /** The request key is the retry guard: the same key can only mint one period,

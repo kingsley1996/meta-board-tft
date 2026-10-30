@@ -11,6 +11,9 @@ import { refundOrder } from './orders.ts';
 //   POST /orders/:id/refund       revoke the period of an unused, paid order
 //   POST /grants                  mint a term by hand (actor + reason on the audit)
 //   GET  /audit                   append-only membership event feed
+//   GET  /plans                   plan versions with the history that pins them
+//   POST /plans                   a new draft version, copied from a source row
+//   POST /plans/:id/activate      retire the current version of that code, sell this one
 //
 // Refunds here never move money: both pilot adapters have automated refunds off,
 // so this records "the operator has already sent it back". The route is mounted
@@ -248,6 +251,235 @@ adminMembershipRouter.post('/grants', async (req, res) => {
     state: granted.state,
     account: { id: account.id, email: account.email, name: account.name },
   });
+});
+
+// --- Plan versions (#98) -----------------------------------------------------
+//
+// A plan version that has orders, periods or buckets is history: the database
+// trigger refuses to re-price it, so the only supported edit is a new version
+// plus an explicit activation. Both writes live here rather than in a settings
+// form because they change what every future checkout is charged.
+
+type PlanRow = {
+  id: string;
+  code: string;
+  version: number;
+  status: string;
+  label: string;
+  price_vnd: number;
+  currency: string;
+  term_days: number | null;
+  chat_per_period: number;
+  chat_per_day: number;
+  stt_seconds_per_period: number;
+  tts_characters_per_period: number;
+  chat_requests_per_minute: number | null;
+  max_concurrent_requests: number | null;
+  max_stt_seconds_per_request: number | null;
+  max_concurrent_tts_chunks: number | null;
+  created_at: Date | string;
+  orders: number;
+  memberships: number;
+  buckets: number;
+};
+
+const PLAN_COLUMNS = `p.id, p.code, p.version, p.status, p.label, p.price_vnd, p.currency, p.term_days,
+  p.chat_per_period, p.chat_per_day, p.stt_seconds_per_period, p.tts_characters_per_period,
+  p.chat_requests_per_minute, p.max_concurrent_requests, p.max_stt_seconds_per_request,
+  p.max_concurrent_tts_chunks, p.created_at,
+  (SELECT count(*)::int FROM payment_orders o WHERE o.plan_version_id = p.id) AS orders,
+  (SELECT count(*)::int FROM memberships m WHERE m.plan_version_id = p.id) AS memberships,
+  (SELECT count(*)::int FROM usage_buckets b WHERE b.plan_version_id = p.id) AS buckets`;
+
+function planView(row: PlanRow) {
+  return {
+    id: String(row.id),
+    code: String(row.code),
+    version: Number(row.version),
+    status: String(row.status),
+    label: String(row.label),
+    priceVnd: Number(row.price_vnd),
+    termDays: row.term_days === null ? null : Number(row.term_days),
+    allowances: {
+      chatPerPeriod: Number(row.chat_per_period),
+      chatPerDay: Number(row.chat_per_day),
+      sttSecondsPerPeriod: Number(row.stt_seconds_per_period),
+      ttsCharactersPerPeriod: Number(row.tts_characters_per_period),
+    },
+    limits: {
+      chatRequestsPerMinute: row.chat_requests_per_minute === null ? null : Number(row.chat_requests_per_minute),
+      maxConcurrentRequests: row.max_concurrent_requests === null ? null : Number(row.max_concurrent_requests),
+      maxSttSecondsPerRequest: row.max_stt_seconds_per_request === null ? null : Number(row.max_stt_seconds_per_request),
+      maxConcurrentTtsChunks: row.max_concurrent_tts_chunks === null ? null : Number(row.max_concurrent_tts_chunks),
+    },
+    createdAt: iso(row.created_at),
+    history: { orders: Number(row.orders), memberships: Number(row.memberships), buckets: Number(row.buckets) },
+  };
+}
+
+const count = (value: unknown, min: number, max: number): number | null => {
+  const n = typeof value === 'number' ? value : Number(value);
+  return Number.isSafeInteger(n) && n >= min && n <= max ? n : null;
+};
+
+adminMembershipRouter.get('/plans', async (req, res) => {
+  if (!(await operator(req, res))) return;
+  const rows = await pool
+    .query(`SELECT ${PLAN_COLUMNS} FROM plan_versions p ORDER BY p.code, p.version DESC`)
+    .catch(() => null);
+  if (!rows) {
+    return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+  }
+  noStore(res);
+  return res.json({ plans: (rows.rows as PlanRow[]).map(planView) });
+});
+
+adminMembershipRouter.post('/plans', async (req, res) => {
+  const actorId = await operator(req, res);
+  if (!actorId) return;
+  const body = req.body ?? {};
+  if (!UUID.test(String(body.sourceId ?? ''))) {
+    return res.status(400).json({ error: 'sourceId must name the version to copy.', code: 'invalid_plan' });
+  }
+  const priceVnd = count(body.priceVnd, 0, 100_000_000);
+  const chatPerPeriod = count(body.chatPerPeriod ?? 0, 0, 10_000_000);
+  const chatPerDay = count(body.chatPerDay ?? 0, 0, 10_000_000);
+  const sttSecondsPerPeriod = count(body.sttSecondsPerPeriod ?? 0, 0, 10_000_000);
+  const ttsCharactersPerPeriod = count(body.ttsCharactersPerPeriod ?? 0, 0, 10_000_000);
+  const termRaw = body.termDays;
+  const termDays = termRaw === null || termRaw === undefined ? null : count(termRaw, 1, 366);
+  const label = typeof body.label === 'string' ? body.label.trim() : '';
+  if (priceVnd === null || chatPerPeriod === null || chatPerDay === null || sttSecondsPerPeriod === null || ttsCharactersPerPeriod === null) {
+    return res.status(400).json({ error: 'Prices and allowances must be whole numbers within range.', code: 'invalid_plan' });
+  }
+  if (termDays === null && termRaw !== null && termRaw !== undefined) {
+    return res.status(400).json({ error: 'termDays must be empty or 1-366.', code: 'invalid_plan' });
+  }
+  if (label.length > 60) {
+    return res.status(400).json({ error: 'Label is limited to 60 characters.', code: 'invalid_plan' });
+  }
+
+  const client = await pool.connect().catch(() => null);
+  if (!client) {
+    return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+  }
+  try {
+    await client.query('BEGIN');
+    // Lock the code's rows so two operators cannot both compute version+1.
+    const source = await client.query(
+      `SELECT * FROM plan_versions WHERE id = $1 FOR UPDATE`,
+      [String(body.sourceId)],
+    );
+    const base = source.rows[0] as PlanRow | undefined;
+    if (!base) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'no such plan version', code: 'not_found' });
+    }
+    // Lock every row of the code, not just the source, or two creates could
+    // both read max(version) and collide on the (code, version) unique key.
+    await client.query('SELECT id FROM plan_versions WHERE code = $1 FOR UPDATE', [base.code]);
+    const next = await client.query(
+      `SELECT coalesce(max(version), 0) + 1 AS version FROM plan_versions WHERE code = $1`,
+      [base.code],
+    );
+    const inserted = await client.query(
+      `INSERT INTO plan_versions (
+         code, version, status, label, price_vnd, currency, term_days,
+         chat_per_period, chat_per_day, stt_seconds_per_period, tts_characters_per_period,
+         chat_requests_per_minute, max_concurrent_requests, max_stt_seconds_per_request,
+         max_concurrent_tts_chunks)
+       VALUES ($1, $2, 'draft', $3, $4, 'VND', $5, $6, $7, $8, $9, $10, $11, $12, $13)
+       RETURNING id`,
+      [
+        base.code,
+        Number(next.rows[0].version),
+        label || base.label,
+        priceVnd,
+        termDays,
+        chatPerPeriod,
+        chatPerDay,
+        sttSecondsPerPeriod,
+        ttsCharactersPerPeriod,
+        base.chat_requests_per_minute,
+        base.max_concurrent_requests,
+        base.max_stt_seconds_per_request,
+        base.max_concurrent_tts_chunks,
+      ],
+    );
+    // Same transaction as the insert: if the audit row cannot be written, the
+    // version is not created either.
+    await client.query(
+      `INSERT INTO admin_audit (actor_id, action, target, detail) VALUES ($1, 'plan_version.create', $2, $3)`,
+      [
+        actorId,
+        `${base.code} v${Number(next.rows[0].version)}`,
+        JSON.stringify({
+          planVersionId: inserted.rows[0].id,
+          sourceId: base.id,
+          before: { priceVnd: Number(base.price_vnd), termDays: base.term_days, allowances: { chatPerPeriod: base.chat_per_period, chatPerDay: base.chat_per_day, sttSecondsPerPeriod: base.stt_seconds_per_period, ttsCharactersPerPeriod: base.tts_characters_per_period } },
+          after: { priceVnd, termDays, allowances: { chatPerPeriod, chatPerDay, sttSecondsPerPeriod, ttsCharactersPerPeriod } },
+        }),
+      ],
+    );
+    const created = await client.query(`SELECT ${PLAN_COLUMNS} FROM plan_versions p WHERE p.id = $1`, [inserted.rows[0].id]);
+    await client.query('COMMIT');
+    noStore(res);
+    return res.status(201).json({ plan: planView(created.rows[0] as PlanRow) });
+  } catch {
+    await client.query('ROLLBACK').catch(() => {});
+    return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+  } finally {
+    client.release();
+  }
+});
+
+adminMembershipRouter.post('/plans/:id/activate', async (req, res) => {
+  const actorId = await operator(req, res);
+  if (!actorId) return;
+  if (!UUID.test(req.params.id)) return res.status(404).json({ error: 'no such plan version', code: 'not_found' });
+  const client = await pool.connect().catch(() => null);
+  if (!client) {
+    return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+  }
+  try {
+    await client.query('BEGIN');
+    const target = await client.query('SELECT code, status, version FROM plan_versions WHERE id = $1 FOR UPDATE', [req.params.id]);
+    const row = target.rows[0] as { code: string; status: string; version: number } | undefined;
+    if (!row) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'no such plan version', code: 'not_found' });
+    }
+    if (row.status !== 'active') {
+      // Retire first: the partial unique index allows one active row per code,
+      // so both statements have to land in the same transaction.
+      const retired = await client.query(
+        `UPDATE plan_versions SET status = 'retired' WHERE code = $1 AND status = 'active' AND id <> $2 RETURNING id, version`,
+        [row.code, req.params.id],
+      );
+      await client.query(`UPDATE plan_versions SET status = 'active' WHERE id = $1`, [req.params.id]);
+      await client.query(
+        `INSERT INTO admin_audit (actor_id, action, target, detail) VALUES ($1, 'plan_version.activate', $2, $3)`,
+        [
+          actorId,
+          `${row.code} v${Number(row.version)}`,
+          JSON.stringify({
+            planVersionId: req.params.id,
+            previousStatus: row.status,
+            retired: retired.rows.map((entry) => ({ id: entry.id, version: Number(entry.version) })),
+          }),
+        ],
+      );
+    }
+    const updated = await client.query(`SELECT ${PLAN_COLUMNS} FROM plan_versions p WHERE p.id = $1`, [req.params.id]);
+    await client.query('COMMIT');
+    noStore(res);
+    return res.json({ ok: true, duplicate: row.status === 'active', plan: planView(updated.rows[0] as PlanRow) });
+  } catch {
+    await client.query('ROLLBACK').catch(() => {});
+    return res.status(503).json({ error: 'Membership data is unavailable. Try again shortly.', code: 'membership_unavailable' });
+  } finally {
+    client.release();
+  }
 });
 
 adminMembershipRouter.get('/audit', async (req, res) => {

@@ -351,6 +351,20 @@ CREATE OR REPLACE TRIGGER plan_versions_keep_history
   BEFORE UPDATE OR DELETE ON plan_versions
   FOR EACH ROW EXECUTE FUNCTION plan_versions_keep_history();
 
+-- Operator actions that change what every later checkout is charged (#98). The
+-- membership event feed is account-scoped (user_id NOT NULL) and only accepts
+-- grant/renew/revoke, so offer edits need their own append-only log. Written in
+-- the same transaction as the change: an unaudited plan edit is a rollback.
+CREATE TABLE IF NOT EXISTS admin_audit (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  actor_id uuid REFERENCES users (id) ON DELETE SET NULL,
+  action text NOT NULL,
+  target text NOT NULL,
+  detail jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS admin_audit_created_idx ON admin_audit (created_at DESC);
+
 CREATE TABLE IF NOT EXISTS payment_orders (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES users (id),

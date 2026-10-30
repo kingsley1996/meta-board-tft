@@ -120,11 +120,15 @@ test('membership and usage schema holds the invariants the ledger depends on', {
       return rows;
     };
     const before = await pilotRows();
+    // The seed only ever writes version 1 (the shared constants). A later version
+    // created through the admin editor is not its business, so the assertions here
+    // look at v1 rows only and then check that seeding added no row at all.
+    const v1 = (rows: Awaited<ReturnType<typeof pilotRows>>) => rows.filter((row) => Number(row.version) === 1);
     // No row yet means the seed must create it; a draft row with no history is
     // refreshed; anything already sold or used is left untouched.
     const sealable = new Map(
       ['free', 'plus'].map((code) => {
-        const row = before.find((candidate) => candidate.code === code);
+        const row = v1(before).find((candidate) => candidate.code === code);
         return [code, !row || (row.status === 'draft' && !row.in_use)] as const;
       }),
     );
@@ -142,11 +146,11 @@ test('membership and usage schema holds the invariants the ledger depends on', {
     }
 
     const after = await pilotRows();
-    assert.equal(after.length, 2, 'two seed runs do not duplicate a version');
-    assert.deepEqual(after.map((row) => row.version), [1, 1]);
+    assert.equal(after.length, before.length, 'two seed runs add no version rows');
+    assert.deepEqual(v1(after).map((row) => row.version), [1, 1]);
 
-    for (const row of after) {
-      const previous = before.find((candidate) => candidate.code === row.code);
+    for (const row of v1(after)) {
+      const previous = v1(before).find((candidate) => candidate.code === row.code);
       if (!sealable.get(row.code)) {
         assert.deepEqual(row, previous, `${row.code} has history and must not be rewritten`);
         continue;
