@@ -6,7 +6,7 @@ import { LootOutcomes, LootPlainTableView, lootKindLabel } from '@/components/lo
 import { Chip, Panel } from '@/components/ui';
 import { PatchBar } from '@/components/patch-bar';
 import type { Lang } from '@/lib/i18n';
-import { lootPageBySlug, lootPages, lootSource, lootTableGroups } from '@/lib/loot';
+import { lootPageBySlug, lootPages, lootTableGroups } from '@/lib/loot';
 import { messages } from '@/lib/messages';
 import { translateText } from '@/lib/translate';
 
@@ -137,12 +137,7 @@ export default async function LootTablePage({ params }: { params: Promise<{ lang
         </Panel>
       ))}
 
-      <p className="text-xs leading-relaxed text-mist">
-        {t.source} ·{' '}
-        <a href={page.sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="underline decoration-line underline-offset-2 hover:text-fog">
-          {lootSource.provider}
-        </a>
-      </p>
+      <p className="text-xs leading-relaxed text-mist">{t.source}</p>
     </div>
   );
 }
