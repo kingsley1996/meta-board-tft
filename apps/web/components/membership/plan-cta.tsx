@@ -26,8 +26,9 @@ function load(): Promise<MembershipUsage | null> {
 
 type State = { kind: 'loading' } | { kind: 'guest' } | { kind: 'plan'; paid: boolean; endsAt: string | null };
 
-const disabled =
-  'mx-[18px] mt-auto mb-[18px] inline-flex cursor-not-allowed items-center justify-center rounded-full border border-line px-[18px] py-2.5 text-[13.5px] font-semibold text-mist opacity-50';
+const disabledBase =
+  'inline-flex cursor-not-allowed items-center justify-center rounded-full border border-line px-[18px] py-2.5 text-[13.5px] font-semibold text-mist opacity-50';
+const disabled = `mx-[18px] mt-auto mb-[18px] ${disabledBase}`;
 
 function formatDay(iso: string | null, lang: Lang): string | null {
   if (!iso) return null;
@@ -41,7 +42,7 @@ function formatDay(iso: string | null, lang: Lang): string | null {
   }).format(date);
 }
 
-export function PlanCta({ lang, plan, price }: { lang: Lang; plan: 'free' | 'plus'; price?: string }) {
+export function PlanCta({ lang, plan, price, paused = false }: { lang: Lang; plan: 'free' | 'plus'; price?: string; paused?: boolean }) {
   const t = messages[lang].membership;
   const [state, setState] = useState<State>({ kind: 'loading' });
 
@@ -67,6 +68,14 @@ export function PlanCta({ lang, plan, price }: { lang: Lang; plan: 'free' | 'plu
   if (active) {
     const until = formatDay(state.kind === 'plan' ? state.endsAt : null, lang);
     return <span className={disabled}>{until ? t.plus.current(until) : t.plus.currentNoDate}</span>;
+  }
+  if (paused) {
+    return (
+      <div className="mx-[18px] mt-auto mb-[18px] flex flex-col items-stretch gap-1.5">
+        <span className={`w-full ${disabledBase}`}>{t.plus.pausedCta}</span>
+        <p className="text-center text-[11px] leading-snug text-mist">{t.plus.pausedNote}</p>
+      </div>
+    );
   }
   return (
     <Link

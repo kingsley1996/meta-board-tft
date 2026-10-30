@@ -80,13 +80,13 @@ function newOrderHref(lang: Lang, planCode: string): string {
   return planCode ? `/${lang}/checkout?plan=${encodeURIComponent(planCode)}` : `/${lang}/membership`;
 }
 
-function Shell({ lang }: { lang: Lang }) {
+function Shell({ lang, paused = false }: { lang: Lang; paused?: boolean }) {
   const t = messages[lang].checkout;
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 py-10">
       <CheckoutHeading kicker={t.kicker} title={t.closedTitle} />
       <article className="flex flex-col gap-4 rounded-2xl border border-line bg-panel p-6">
-        <p className="text-sm leading-relaxed text-mist">{t.closedBody}</p>
+        <p className="text-sm leading-relaxed text-mist">{paused ? t.pausedBody : t.closedBody}</p>
         <div>
           <Link href={`/${lang}/membership`} className={PRIMARY}>
             {t.backToPricing}
@@ -276,6 +276,10 @@ export default async function CheckoutPage({
   const orderId = typeof query.order === 'string' ? query.order : '';
   const planCode = typeof query.plan === 'string' ? query.plan : '';
   const nextPath = `/${lang}/checkout${orderId ? `?order=${encodeURIComponent(orderId)}` : planCode ? `?plan=${encodeURIComponent(planCode)}` : ''}`;
+
+  // New purchases stop here while registration is pending. Receipts and pending
+  // orders keep working: only the ?plan entry point is closed.
+  if (!orderId && process.env.MEMBERSHIP_CHECKOUT === 'paused') return <Shell lang={lang} paused />;
 
   // Buying needs an account: the quota and the receipt belong to it, and an order
   // created for nobody could never be fulfilled.

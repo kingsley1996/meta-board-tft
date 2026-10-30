@@ -150,8 +150,10 @@ SELECT plan_version_id, count(*) FILTER (WHERE consumed_units >= allowance_units
 
 Thứ tự: ngừng bán → giữ dữ liệu → chỉ rollback code khi tương thích schema additive.
 
-1. Ngừng bán: `UPDATE plan_versions SET status = 'retired' WHERE code = 'plus' AND status = 'active';`. Catalog hết `buyable`, order mới bị `offer_not_sellable`; kỳ đã bán vẫn được honour.
-2. Trang pricing đọc hằng số nên vẫn hiện nút mua sau bước 1; bấm vào checkout sẽ thấy "đóng". Chấp nhận được trong emergency, hoặc vá copy và deploy web.
+1. Ngừng bán, chọn một trong hai cách:
+   - **Env switch:** đặt `MEMBERSHIP_CHECKOUT=paused` ở cả web (Vercel) và API (Render), rồi redeploy cả hai. Trang /membership hiện "Tạm dừng bán", /checkout không mở đơn mới, `POST /api/orders` trả 409 `checkout_paused`. Bỏ biến để mở lại.
+   - **Retire plan (khẩn cấp, không deploy):** `UPDATE plan_versions SET status = 'retired' WHERE code = 'plus' AND status = 'active';`. Catalog hết `buyable`, pricing tự hiện "Tạm dừng bán" (đọc `buyable` từ catalog), order mới bị `offer_not_sellable`; kỳ đã bán vẫn được honour.
+2. Đơn đang chờ và biên nhận cũ vẫn mở được ở `/checkout?order=<id>` — chỉ đường mua mới bị đóng. Không cần xoá `payment_orders` hay `usage_*`.
 3. Giữ nguyên `payment_orders`, `payment_events`, `usage_*`, `memberships`, `membership_events`. Không DROP, không xoá row để "sạch".
 4. Rollback code: chỉ deploy bản cũ nếu schema hiện tại vẫn là superset và bản cũ không mở lại đường AI thiếu quota. Nếu không chắc, tạm dừng assistant/voice (tra cứu vẫn chạy) thay vì rollback.
 5. Tắt `MEMBERSHIP_ENFORCEMENT` là biện pháp cuối, có ghi nhận: nó mở lại AI không quota, không ghi ledger — chỉ dùng khi đã chấp nhận rủi ro đó, không dùng để "thử lại deploy".

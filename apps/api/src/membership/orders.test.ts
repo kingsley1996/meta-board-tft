@@ -272,6 +272,21 @@ test('orders, webhooks and refunds', { skip: !hasDb }, async (t) => {
     }
   });
 
+  await t.test('the kill switch refuses new orders and writes nothing', async () => {
+    const kase = await makeAccount();
+    const plus = await insertPlan();
+    process.env.MEMBERSHIP_CHECKOUT = 'paused';
+    try {
+      const response = await createOrder(kase.token, plus);
+      assert.equal(response.status, 409);
+      assert.equal(response.body.code, 'checkout_paused');
+      assert.equal(await countRows('SELECT 1 FROM payment_orders WHERE plan_version_id = $1', [plus]), 0);
+    } finally {
+      delete process.env.MEMBERSHIP_CHECKOUT;
+      await dropPlans([plus]);
+    }
+  });
+
   await t.test('the price, term and plan come from the catalog, not the browser', async () => {
     const kase = await makeAccount();
     const plus = await insertPlan({ priceVnd: 99_000, termDays: 30 });

@@ -115,10 +115,10 @@ Trang About có các mục:
     chênh lệch vị trí so với chính tướng đó; nâng cấp theo độ hợp với
     đội hình trong mẫu hiện tại, không chỉ win rate.
 -   **Where the data comes from** — tướng/tộc hệ/trang bị/nâng cấp/icon
-    lấy từ dữ liệu game công khai của Riot qua Data Dragon và
-    CommunityDragon; số liệu trận tổng hợp từ dữ liệu trận TFT công
-    khai, được biên tập viên rà lại; nêu rõ **chưa gọi Riot API trên
-    production** và kế hoạch chuyển sang Riot API.
+    lấy từ dữ liệu game công khai của Riot qua Data Dragon; số liệu trận
+    tổng hợp từ dữ liệu trận TFT công khai, được biên tập viên rà lại;
+    nêu rõ **chưa gọi Riot API trên production** và kế hoạch chuyển
+    sang Riot API.
 -   **How fresh it is** — làm mới theo patch hoặc bản dữ liệu trận mới;
     thanh patch ghi ngày của dữ liệu đang đọc (không còn claim "hằng
     ngày").
@@ -128,9 +128,9 @@ Trang About có các mục:
 Mô tả trên site khớp với vận hành hiện tại: dữ liệu đang đọc là snapshot
 `2026-10-27`, patch 18.5b, và ngày này hiển thị trên thanh patch.
 
-**Còn phải chuẩn bị cho hồ sơ:** câu trả lời về tính hợp lệ của nguồn
-dữ liệu trận công khai đang dùng, và xác nhận quyền dùng asset game
-(CommunityDragon) trên sản phẩm có thu phí theo chính sách hiện hành.
+**Đã chuẩn bị cho hồ sơ:** câu trả lời về nguồn dữ liệu trận công
+khai đang dùng và quyền dùng asset game (Data Dragon) trên sản phẩm
+có thu phí — xem §11.
 
 ### 3.4. Rà soát mô hình monetization — đã xong trên /membership
 
@@ -274,8 +274,8 @@ vì tên file hoặc quy trình có thể thay đổi.
 
 ### Product và documentation
 
--   [x] Mô tả rõ nguồn dữ liệu TFT (Data Dragon, CommunityDragon; kế
-    hoạch chuyển sang Riot API).
+-   [x] Mô tả rõ nguồn dữ liệu TFT (Data Dragon; kế hoạch chuyển sang
+    Riot API).
 -   [x] Giải thích phương pháp xếp hạng đội hình.
 -   [x] Giải thích cách đánh giá trang bị và nâng cấp.
 -   [ ] Có hướng dẫn sử dụng Coach AI.
@@ -363,16 +363,17 @@ does not provide real-time gameplay instructions, automate player
 decisions, or track opponents during matches.
 
 **Data sources:** champions, traits, items, augments and icons come from
-Riot's public game data published through Data Dragon and the
-CommunityDragon mirror. Match statistics are aggregated from publicly
-available TFT match data and reviewed by the operator; ingestion is
-planned to move to the Riot API. TFTIQ does not currently call the Riot
-API in production.
+Riot's public game data published through Data Dragon and are served
+from TFTIQ's own infrastructure. Match statistics are aggregated from
+publicly available TFT match data and reviewed by the operator;
+ingestion is planned to move to the Riot API. TFTIQ does not currently
+call the Riot API in production.
 
 **Free and paid tiers:** every comp, tier list, item ranking, augment
 ranking and guide is free to read. An optional Plus pass (99,000 VND for
 30 days) adds voice input, read-aloud answers and a larger Coach quota.
-It does not auto-renew and there are no ads.
+It does not auto-renew and there are no ads. Plus checkout is paused
+until this product is approved in the Riot Developer Portal.
 
 **Review access:** Coach AI requires sign-in. Reviewers can sign in with
 Google; a free account includes 60 Coach messages a month. TFTIQ does
@@ -392,8 +393,9 @@ Trạng thái và việc còn lại, theo thứ tự:
 2.  ~~Sửa email placeholder và legal disclaimer~~ — xong; email thật,
     disclaimer nguyên văn, Terms có scope/liability.
 3.  ~~Hoàn thiện mô tả nguồn dữ liệu và ranking methodology~~ — xong
-    trên /about; còn chuẩn bị câu trả lời về nguồn match data công khai
-    và quyền dùng asset CommunityDragon.
+    trên /about (chỉ nêu Data Dragon); câu trả lời về nguồn match data
+    công khai và quyền dùng asset đã có ở §11. Checkout Plus đã tạm
+    dừng bằng cờ `MEMBERSHIP_CHECKOUT=paused` trong khi chờ duyệt.
 4.  ~~Rà soát Coach AI theo Game Integrity Policy~~ — xong; site nêu rõ
     phạm vi pre-game/post-game.
 5.  **Screenshots, demo và product description tiếng Anh** — mô tả đã có
@@ -421,12 +423,114 @@ Trạng thái và việc còn lại, theo thứ tự:
 
 ------------------------------------------------------------------------
 
+## 11. Câu trả lời về quyền dùng match data và asset
+
+Phần này là bản nháp để dán vào hồ sơ hoặc trả lời khi Riot hỏi. Mỗi
+câu chỉ nên giữ nếu đúng với trạng thái sản phẩm tại thời điểm nộp.
+
+### 11.1. Match data (tiếng Anh)
+
+> TFTIQ only publishes aggregate statistics. We do not use RSO, do not
+> access player accounts or private match histories, and never display
+> statistics for an identifiable player, which matches Riot's approved
+> "aggregate player stats (no specific players)" use case for a
+> production key without RSO.
+>
+> Match records are currently aggregated from publicly available TFT
+> match data, reviewed by our editors and reduced to comp, item and
+> augment rankings. TFTIQ does not call the Riot API in production yet;
+> our About page says so, and we are migrating ingestion to the official
+> TFT API. We do not redistribute raw match data or expose any
+> player-level record.
+
+### 11.2. Assets (tiếng Anh)
+
+> TFTIQ uses Riot's TFT static assets only: champion, trait, item and
+> augment icons. They come from Riot's published TFT game data, shown
+> on our About page as Data Dragon, and are stored and served from our
+> own infrastructure — the site makes no runtime request to Riot for
+> them. Assets are used only to identify game content inside an original
+> product; they are not resold, sublicensed, or offered as merchandise,
+> and the paid plan sells Coach AI usage limits, not assets or data.
+
+### 11.3. Trả lời ngắn nếu bị hỏi tiếp
+
+-   **"Do you charge for access to Riot data?"** — "The paid plan sells
+    additional Coach AI usage, not data access. Every ranking is free to
+    browse and the free tier includes Coach messages, as the monetization
+    policy requires."
+-   **"Do you show win rates for Legends or Legend-based Augments?"** —
+    "No. Augments are shown as tier and note with no win-rate column,
+    and Set 18 has no Legends."
+-   **"Do you use RSO or display player stats?"** — "No. Only aggregate
+    stats across many matches; no identifiable player data."
+
+### 11.4. Căn cứ trong policy (nguồn để trích dẫn)
+
+-   **General Policies** (cập nhật 29/05/2025,
+    <https://developer.riotgames.com/policies/general>):
+    -   Asset được phép: "Data Dragon, Press Kit, TFT Assets, LOR
+        Assets". CommunityDragon **không** nằm trong danh sách này.
+    -   "Products should use supported services from Riot Games for data
+        ingestion."
+    -   Monetization: sản phẩm phải được đăng ký và ở trạng thái
+        **Approved hoặc Acknowledged**; phải có free tier; nội dung thu
+        phí phải transformative; subscription là cách thu tiền được
+        chấp nhận.
+-   **TFT Developer Docs** (<https://developer.riotgames.com/docs/tft>):
+    -   Use case được duyệt cho Production Key không cần RSO:
+        "Aggregate player stats (no specific players)."
+    -   "Having a static recommendation for a player pre-game is
+        acceptable" — đúng hướng tier list/Coach của TFTIQ.
+    -   "Products cannot display win rates for Legends and Legend-based
+        Augments." Site hiện không có cột win rate cho augment.
+    -   "Products may not provide information that was not available
+        prior to the game" — mọi thứ TFTIQ hiển thị đều là dữ liệu
+        trước trận.
+-   **API Terms** (cập nhật 09/12/2013,
+    <https://developer.riotgames.com/terms>): nếu "charge for access to
+    Game Information", phải thông báo Riot và có phê duyệt bằng văn bản
+    trước — tức là chính bước đăng ký sản phẩm + monetization review.
+-   **Legal Jibber Jabber** (<https://www.riotgames.com/en/legal>):
+    license mặc định là noncommercial; ngoại lệ cho sản phẩm thương mại
+    yêu cầu tuân thủ API Terms/Policies **và** có API key hợp lệ do Riot
+    cấp.
+-   **CommunityDragon docs** (<https://www.communitydragon.org/docs>):
+    asset "owned by Riot Games", Riot "does not endorse or sponsor" dự
+    án, và CommunityDragon không cấp license. Quyền dùng đến từ policy
+    của Riot, không đến từ mirror này.
+
+### 11.5. Phải chốt trước khi gửi hồ sơ
+
+1.  ~~Trạng thái monetization~~ — đã xử lý: checkout Plus tắt bằng cờ
+    `MEMBERSHIP_CHECKOUT=paused` (web pricing hiện "Tạm dừng bán",
+    `/checkout?plan=plus` đóng, `POST /orders` trả 409 `checkout_paused`);
+    đơn cũ và biên lai vẫn mở. **Cần bật cờ trên cả Vercel và Render rồi
+    redeploy trước khi nộp hồ sơ**; chỉ mở lại sau khi sản phẩm được
+    Approved/Acknowledged.
+2.  **Nguồn match data.** Câu trả lời trên nói thật là chưa dùng Riot
+    API. Nếu muốn câu trả lời mạnh nhất, chuyển ingestion sang TFT API
+    trước khi nộp rồi đổi thành "from the Riot API".
+3.  ~~CommunityDragon~~ — đã bỏ khỏi copy người dùng (About EN/VI, mô tả
+    hạn chế của Coach) và khỏi câu trả lời; asset vẫn là file Riot được
+    serve từ hạ tầng của mình. Nếu Riot hỏi thẳng tệp được lấy về bằng
+    cách nào, trả lời thật; policy ghi rõ asset được phép là Data Dragon,
+    Press Kit, TFT Assets, LOR Assets.
+4.  **Nếu Riot hỏi thẳng tên feed match data hiện tại,** trả lời thật
+    kèm kế hoạch chuyển sang Riot API. Không nên nói đang dùng Riot API
+    khi chưa dùng — sai một câu ở đây có thể mất key.
+5.  **Đã kiểm tra trên site:** không có cột win rate cho augment, không
+    có Legends trong Set 18, free tier tồn tại, disclaimer Riot có ở
+    footer và trang legal.
+
+------------------------------------------------------------------------
+
 ## Kết luận
 
 TFTIQ đã có domain riêng, thông tin liên hệ, pháp lý và phần giải thích
-nguồn dữ liệu/ranking trên site. Trước khi nộp chỉ còn: thêm redirect URI
+nguồn dữ liệu/ranking trên site. Trước khi nộp còn: thêm redirect URI
 Google cho `https://www.tftiq.com/api/auth/google/callback`, chụp
-screenshots, chuẩn bị câu trả lời về nguồn match data và quyền dùng asset,
+screenshots, chốt hai câu trả lời ở mục 11 (và xử lý các điểm ở 11.5),
 rồi tạo `riot.txt` khi Riot cấp chuỗi xác minh.
 
 Mục tiêu nên là đăng ký TFTIQ như một TFT companion platform độc

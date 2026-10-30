@@ -135,9 +135,14 @@ export default async function MembershipPage({ params }: { params: Promise<{ lan
   // approved pilot constants, so an unreachable catalog falls back instead of throwing.
   const catalog = await backendJson<{ offers: CatalogOffer[] }>('/api/membership/catalog', { revalidate: 60 }).catch(() => null);
   const free = shown(catalog?.offers.find((offer) => offer.code === 'free'), freePlan);
-  const plus = shown(catalog?.offers.find((offer) => offer.code === 'plus'), plusPlan);
+  const plusOffer = catalog?.offers.find((offer) => offer.code === 'plus');
+  const plus = shown(plusOffer, plusPlan);
   const num = (value: number) => new Intl.NumberFormat(lang === 'vi' ? 'vi-VN' : 'en-US').format(value);
   const termDays = plus.termDays ?? 30;
+  // Two ways to close sales: the env switch (both hosts) or retiring the active
+  // Plus version, which the catalog already reflects. An unreachable catalog keeps
+  // the CTA; checkout and the API still refuse on their own.
+  const salesPaused = process.env.MEMBERSHIP_CHECKOUT === 'paused' || (catalog !== null && plusOffer?.buyable !== true);
   const freePrice = formatVnd(free.priceVnd, lang);
   const plusPrice = formatVnd(plus.priceVnd, lang);
   // Rounded to the nearest 100₫ because "about 3,300₫ a day" is an orientation
@@ -197,7 +202,7 @@ export default async function MembershipPage({ params }: { params: Promise<{ lan
             ribbon={t.plus.ribbon}
             plus
           >
-            <PlanCta lang={lang} plan="plus" price={plusPrice} />
+            <PlanCta lang={lang} plan="plus" price={plusPrice} paused={salesPaused} />
           </PlanCard>
         </div>
       </div>

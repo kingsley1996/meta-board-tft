@@ -566,6 +566,8 @@ const en = {
       cta: (price: string) => `Get Plus · ${price}`,
       current: (until: string) => `Current plan · until ${until}`,
       currentNoDate: 'Current plan',
+      pausedCta: 'Sales paused',
+      pausedNote: 'Paused while we complete product registration.',
     },
     checking: 'Checking your plan…',
   },
@@ -611,6 +613,7 @@ const en = {
 
     closedTitle: 'Checkout is not open',
     closedBody: 'Plus is not on sale right now. Every comp and guide stays free to read.',
+    pausedBody: 'Plus sales are paused while we complete product registration. Every comp and guide stays free to read.',
     backToPricing: 'Back to pricing',
 
     starting: 'Creating',
@@ -622,6 +625,7 @@ const en = {
       payments_unavailable: 'Payments are unavailable right now. Nothing was charged.',
       payment_unavailable: 'The payment provider did not answer. Nothing was charged.',
       offer_not_sellable: 'This plan is not on sale right now. Nothing was charged.',
+      checkout_paused: 'Plus sales are paused right now. Nothing was charged.',
       membership_active: 'This plan is already active on your account. Nothing was charged.',
       too_many_pending_orders: 'You already have unpaid orders. Finish one or wait for it to close.',
       order_conflict: 'This checkout was already used for another order. Start a new one.',
@@ -713,7 +717,7 @@ const en = {
       },
       {
         heading: 'Where the data comes from',
-        body: "Champions, traits, items, augments and icons come from Riot's public game data, published through Data Dragon and the CommunityDragon mirror. Match statistics are aggregated from publicly available TFT match data and reviewed by our editors. TFTIQ does not call the Riot API in production yet; we plan to move match ingestion there, and this page will say so once that ships.",
+        body: "Champions, traits, items, augments and icons come from Riot's public game data, published through Data Dragon. Match statistics are aggregated from publicly available TFT match data and reviewed by our editors. TFTIQ does not call the Riot API in production yet; we plan to move match ingestion there, and this page will say so once that ships.",
       },
       {
         heading: 'What is ours',
@@ -1364,6 +1368,8 @@ const vi: typeof en = {
       cta: (price: string) => `Mua Plus · ${price}`,
       current: (until: string) => `Gói hiện tại · đến ${until}`,
       currentNoDate: 'Gói hiện tại',
+      pausedCta: 'Tạm dừng bán',
+      pausedNote: 'Tạm dừng trong lúc hoàn tất đăng ký sản phẩm.',
     },
     checking: 'Đang kiểm tra gói…',
   },
@@ -1409,6 +1415,7 @@ const vi: typeof en = {
 
     closedTitle: 'Thanh toán chưa mở',
     closedBody: 'Plus hiện chưa mở bán. Mọi comp và hướng dẫn vẫn đọc miễn phí.',
+    pausedBody: 'Plus tạm dừng bán trong lúc hoàn tất đăng ký sản phẩm. Mọi comp và hướng dẫn vẫn đọc miễn phí.',
     backToPricing: 'Về bảng giá',
 
     starting: 'Đang tạo đơn',
@@ -1420,6 +1427,7 @@ const vi: typeof en = {
       payments_unavailable: 'Thanh toán đang tạm gián đoạn. Chưa có khoản nào bị trừ.',
       payment_unavailable: 'Nhà cung cấp thanh toán không phản hồi. Chưa có khoản nào bị trừ.',
       offer_not_sellable: 'Gói này hiện chưa mở bán. Chưa có khoản nào bị trừ.',
+      checkout_paused: 'Plus đang tạm dừng bán. Chưa có khoản nào bị trừ.',
       membership_active: 'Gói này đang còn hiệu lực trên tài khoản của bạn. Chưa có khoản nào bị trừ.',
       too_many_pending_orders: 'Bạn đang có đơn chưa thanh toán. Hãy hoàn tất hoặc chờ đơn đóng.',
       order_conflict: 'Lần thanh toán này đã dùng cho đơn khác. Hãy tạo đơn mới.',
@@ -1511,7 +1519,7 @@ const vi: typeof en = {
       },
       {
         heading: 'Dữ liệu lấy từ đâu',
-        body: 'Tướng, tộc hệ, trang bị, lõi và icon lấy từ dữ liệu game công khai của Riot, phát hành qua Data Dragon và bản mirror CommunityDragon. Số liệu trận đấu được tổng hợp từ dữ liệu trận TFT công khai và được biên tập viên rà lại. TFTIQ chưa gọi Riot API trên môi trường production; chúng tôi dự định chuyển việc thu thập trận sang Riot API và sẽ ghi rõ trên trang này khi hoàn tất.',
+        body: 'Tướng, tộc hệ, trang bị, lõi và icon lấy từ dữ liệu game công khai của Riot, phát hành qua Data Dragon. Số liệu trận đấu được tổng hợp từ dữ liệu trận TFT công khai và được biên tập viên rà lại. TFTIQ chưa gọi Riot API trên môi trường production; chúng tôi dự định chuyển việc thu thập trận sang Riot API và sẽ ghi rõ trên trang này khi hoàn tất.',
       },
       {
         heading: 'Phần nào là của TFTIQ',

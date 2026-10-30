@@ -73,6 +73,11 @@ export const paymentRouter = Router();
 paymentRouter.post('/orders', async (req, res) => {
   const user = await userId(req, res);
   if (!user) return;
+  // New sales are closed by the same switch the web reads, so a stale page or a
+  // direct call cannot open an order while registration is pending.
+  if (process.env.MEMBERSHIP_CHECKOUT === 'paused') {
+    return res.status(409).json({ error: 'Plus sales are paused right now.', code: 'checkout_paused' });
+  }
   const providers = registry();
   if (!providers) return unavailable(res);
   const planVersionId = typeof req.body?.planVersionId === 'string' ? req.body.planVersionId : '';
