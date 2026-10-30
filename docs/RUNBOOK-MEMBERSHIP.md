@@ -63,7 +63,20 @@ Shape: `{ offers: [{ planVersionId, code, version, label, price: { vnd, currency
 
 - `TTS_PROVIDER=vieneu` giữ cơ sở 22,0% của #92; để trống/`deepgram` thì tiếng Việt qua Flux và chi phí thành 24,0%. Đây là biến của cost gate, không phải sở thích.
 - `ASSISTANT_MODEL` đúng model đã duyệt (`gpt-6-luna`) và key gateway còn hạn — kiểm bằng một lượt Coach của account test, không cần benchmark.
-- Merchant: `SEPAY_*` đủ bộ, webhook URL trỏ `/api/payments/webhook/sepay`, secret khớp dashboard. Không có bước nào ở đây tự tạo giao dịch.
+- Merchant SePay (đối chiếu [payments/index.ts](../apps/api/src/payments/index.ts) `readPaymentProviders`): đặt **đủ 8 biến** trên Render — thiếu hoặc chỉ đặt một nửa thì registry trả `null`/throw và mọi route payment trả **503 `payments_unavailable`**, API không crash nhưng cũng không bán được:
+  | Biến | Lấy từ đâu / ràng buộc trong code |
+  | --- | --- |
+  | `PAYMENT_PROVIDER=sepay` | bộ chọn; trống ⇒ không có registry |
+  | `SEPAY_ACCOUNT_ID` | id nội bộ của binding, `[A-Za-z0-9_-]{1,64}`, ví dụ `sepay-main`; không phải credential, đừng đổi sau khi đã có order |
+  | `SEPAY_API_KEY` | token đọc giao dịch; code gọi `GET https://userapi.sepay.vn/v2/transactions` với `Authorization: Bearer` |
+  | `SEPAY_WEBHOOK_SECRET` | khớp secret đặt cho webhook bên SePay |
+  | `SEPAY_BANK_ACCOUNT_ID` | **UUID** (code validate đúng format) — id tài khoản ngân hàng bên SePay, dùng làm filter `bank_account_id` khi đối soát |
+  | `SEPAY_BANK_ACCOUNT_NUMBER` | số tài khoản nhận tiền; **phải trùng** `accountNumber` trong payload webhook; cũng là `acc` của ảnh VietQR |
+  | `SEPAY_BANK_CODE` | mã ngân hàng cho vietqr.app (`?bank=…`), phải là mã vietqr.app chấp nhận |
+  | `SEPAY_BANK_NAME` | tên hiển thị; **phải trùng** trường `gateway` của webhook (so sánh không phân biệt hoa thường) |
+  - Webhook trên SePay: URL `https://<api>/api/payments/webhook/sepay`, chỉ sự kiện tiền **vào**, và **phải bật chữ ký** — code đòi `X-SePay-Timestamp` (epoch giây, lệch ≤ 300 s) và `X-SePay-Signature: sha256=<hex>` là HMAC-SHA256 của `` `${timestamp}.` + raw body `` với `SEPAY_WEBHOOK_SECRET`; thiếu header nào là 401 `invalid_webhook`.
+  - Không có bước nào ở đây tự tạo giao dịch, và không có API hoàn tiền phía merchant: refund là thao tác tay ở admin + chuyển khoản, đã ghi audit.
+  - Sau khi đặt biến: redeploy Render, rồi mới activate offer (§1.3) và thử tạo một order bằng account test — `POST /api/orders` lúc chưa có offer active trả 409 `offer_not_sellable`, nên thứ tự là biến → activate → order.
 - Lịch chạy: `scheduleQuotaRecovery()` tự chạy mỗi 60 giây **khi cờ bật**. `markStuckAttempts` **không có cron** — row `dispatching` quá hạn là việc của người trực (mục 4). Reconciliation order dùng nút refresh có throttle, không có job nền.
 
 ## 2. Bật pilot
