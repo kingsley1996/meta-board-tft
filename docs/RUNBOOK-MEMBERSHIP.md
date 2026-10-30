@@ -12,7 +12,10 @@ Biến và bảng liên quan: `MEMBERSHIP_ENFORCEMENT`, `MEMBERSHIP_FREE_PLAN_CO
 
 - Snapshot/PITR Supabase trước mọi thay đổi; ghi lại id snapshot và commit đang deploy.
 - Xác nhận đang trỏ đúng project production (đọc tên project, **không** in `DATABASE_URL`).
-- Chưa bật `MEMBERSHIP_ENFORCEMENT` ở đâu cả: API là `off/unset`, web Vercel cũng vậy.
+- `MEMBERSHIP_ENFORCEMENT` phải **bật ở cả hai bên** (Render API và Vercel web) — xem §3. Giá trị trên
+  Render đọc từ [`render.yaml`](../render.yaml) và blueprint áp lại **mỗi lần deploy**, nên file đó phải
+  ghi `"enforce"`; nếu chỉ đổi trong dashboard, lần deploy kế tiếp sẽ kéo về `"off"` và API lặng lẽ mở lại
+  đường guest không quota (đã xảy ra 2026-10-30 với commit `926de6a`, xem §7).
 
 ### 1.2 Schema (additive, idempotent)
 
@@ -167,3 +170,12 @@ Chưa kiểm: một giao dịch/hoàn tiền thật, giá trị `gateway` thật
 Runtime thật trên production (2026-10-30, tài khoản admin `linhdn0908@gmail.com`, cờ `enforce` bật ở cả Render và Vercel): `/vi/profile` hiện Free `60/60`, "hôm nay còn 12", STT và TTS đều "Không có trong gói này"; một lượt Coach thật trả lời được và chip tụt `60 → 59`; `usage_buckets` có `chat/calendar_month 60 consumed 1` và `chat/calendar_day 12 consumed 1`, tức trừ đúng một lượt; `usage_requests`/`usage_attempts` có dòng cho lượt đó. Checkout Plus tạo order `pending` reference `MTFT3852775403` @ 99.000₫, QR BIDV `8843275367`, `payment_events` = 0 — **chưa chuyển tiền**. Bốn lượt Coach của account `linhdang.dev96@gmail.com` lúc 04:26–04:27 cùng ngày cũng đi qua quota theo cùng đường.
 
 Phát hiện khi đọc ledger: mọi `usage_attempts` có `cost_micro_vnd` và `tariff_version` NULL, vì production trả lời bằng `google/gemini-3.5-flash-lite` còn `approvedTariff` chỉ có `openai/gpt-6-luna`. Đã thêm giá list Google ($0,30 / $2,50 per 1M token → 7.750 / 64.585 micro-VND) vào tariff version `2026-10-30` kèm test, commit `cc71928`. Sau khi Vercel success và Render nhận bản mới, một lượt Coach thật lúc 04:46 UTC ghi `cost_micro_vnd` = 21.250.500 (2.742 input) + 24.671.470 (382 output) + 1.387.250 (179 input) + 2.389.645 (37 output) = **49,70đ** cho lượt, `tariff_version = '2026-10-30'`, quota `calendar_month`/`calendar_day` cùng `consumed 2`. Đọc kèm: project Google đang ở **free tier** nên 49,70đ là giá list tương đương, **không phải tiền đã trả**; ràng buộc thật là hạn mức request/ngày của Google, và kịch bản 41,3% ở §4.1 chỉ áp dụng khi bật billing. Gateway shopaikey hiện chạy `deepseek-v4-flash`; giá đọc trên shopaikey.com/models cùng ngày ($3,60 / $10,80 per 1M) đã vào tariff với hai dòng `openai/deepseek-v4-flash` (93.003 / 279.008 micro-VND) — 252,41đ mỗi answer call, gấp 14 lần luna, nên chuyển text về gateway là phương án đắt chứ không phải đường thoát.
+
+Sự cố deploy (2026-10-30, cùng ngày): sau khi push `926de6a` (chỉ giá tariff + docs), Render áp lại
+blueprint và kéo `MEMBERSHIP_ENFORCEMENT` từ `enforce` (đặt trong dashboard) về `off` vì
+[`render.yaml`](../render.yaml) còn ghi literal `"off"`. Phát hiện bằng probe read-only: guest
+`POST /api/voice/tts/plan` trả **404** ở cả 3 lần đo 04:59–05:00 (trước đó 401), trong khi web Vercel vẫn
+enforce (`/vi/assistant` guest hiện "Đăng nhập để hỏi Coach") → hai bên lệch: web chặn, API không quota.
+`/api/health`, `/api/health/ready`, `GET /api/membership/catalog` vẫn 200 và catalog nguyên vẹn, không có
+lượt Coach nào được gọi trong khoảng này. Sửa: `render.yaml` → `"enforce"` (user duyệt), để blueprint
+không thể revert lần sau. Bài học: **probe `tts/plan` sau mỗi lần deploy**, đừng tin dashboard.

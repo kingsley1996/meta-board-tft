@@ -107,7 +107,7 @@ Cơ chế failover (`transcribeWithFailover` trong `apps/api/src/voice.ts`):
 - Phải có session (`mb_session`): route tự resolve user, nên gọi thẳng từ script
   cũng không mượn được quota của ai (401 `unauthenticated`). Voice là quyền của
   Plus: Free trả 403 `feature_locked` trước khi provider được gọi. Khi
-  `MEMBERSHIP_ENFORCEMENT` chưa bật (production hiện tại), các gate này không chạy
+  `MEMBERSHIP_ENFORCEMENT` chưa bật (production đã bật `enforce` từ 2026-10-30), các gate này không chạy
   và clip được transcribe như trước #84 — không có ledger để trừ.
 - Body: Float32 little-endian mono 16 kHz, tối đa 60 giây (4 MB).
 - Header bắt buộc: `X-Sample-Rate: 16000`. Tuỳ chọn: `X-Language: en|vi` (khác

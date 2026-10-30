@@ -43,10 +43,12 @@ services:
       # ---- tính năng: tắt là site vẫn chạy, chỉ mất Coach AI / voice ----
       - key: ASSISTANT_ENABLED
         value: "true"
-      # Paid pilot (#95): chỉ "enforce" mới bật session + quota/ledger. Đổi giá trị
-      # này và MEMBERSHIP_ENFORCEMENT trên Vercel cùng lúc; để "off" giữ hành vi cũ.
+      # Paid pilot (#95): chỉ "enforce" mới bật session + quota/ledger. Giá trị ở đây là
+      # giá trị blueprint áp lại mỗi lần deploy, nên nó cũng phải là thứ ta muốn chạy:
+      # để "off", Render sẽ kéo dashboard về "off" ngay lần deploy kế tiếp (đã xảy ra
+      # 2026-10-30 với commit 926de6a). Đổi cùng lúc với MEMBERSHIP_ENFORCEMENT trên Vercel.
       - key: MEMBERSHIP_ENFORCEMENT
-        value: "off"
+        value: "enforce"
       - key: ASSISTANT_PROVIDER      # google | openai | openrouter (ollama không dùng được ở đây)
         value: "google"
       - key: GOOGLE_API_KEY
