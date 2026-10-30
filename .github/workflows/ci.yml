@@ -13,6 +13,24 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    # `next build` prerenders catalogue pages by calling the API, exactly like
+    # Vercel does against its own API. Without a backend the build step failed on
+    # the first guide page, so the job brings its own database and API. The seed
+    # reads the committed snapshot, not the (unpublished) crawler repo.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tftiq
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - uses: actions/checkout@v4
 
@@ -27,14 +45,36 @@ jobs:
       - name: Typecheck both workspaces
         run: npm run typecheck
 
-      # Test nào chạm database sẽ tự skip khi DATABASE_URL không tồn tại
-      # (apps/api/.env là gitignored, nên CI không có DB).
+      # Test nào chạm database sẽ tự skip khi DATABASE_URL không tồn tại. Giữ
+      # bước này không có DATABASE_URL để test DB không chạy song song trên một
+      # Postgres duy nhất (deadlock giữa file) — đó là việc của local.
       - name: Unit tests
         run: |
           npm run test:web
           npm run test:server
 
+      - name: Seed the database and start the API
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/tftiq
+          NODE_ENV: production
+          PORT: '4000'
+        run: |
+          npm run seed --workspace @tftiq/api
+          node apps/api/src/index.ts >api.log 2>&1 &
+          ready=''
+          for _ in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:4000/api/health > /dev/null; then ready=1; break; fi
+            sleep 0.5
+          done
+          if [ -z "$ready" ]; then
+            echo "API never became healthy"
+            cat api.log
+            exit 1
+          fi
+
       - name: Production web build (same command as Vercel)
+        env:
+          BACKEND_URL: http://127.0.0.1:4000
         run: npm run build --workspace @tftiq/web
 
       # API chạy native TypeScript, không có build step: lỗi cú pháp/`import` chỉ
