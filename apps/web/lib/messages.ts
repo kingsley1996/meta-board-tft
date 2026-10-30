@@ -921,7 +921,7 @@ const vi: typeof en = {
       done: 'Đã đăng ký — hẹn gặp ở bản tin tới!',
       error: 'Chưa đăng ký được — kiểm tra lại email và thử lại.',
     },
-    disclaimer: '© 2026 TFTIQ. TFTIQ isn\'t endorsed by Riot Games and doesn\'t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. TFTIQ là ứng dụng đồng hành độc lập, không liên kết và không được Riot Games bảo trợ.',
+    disclaimer: '© 2026 TFTIQ. TFTIQ isn\'t endorsed by Riot Games and doesn\'t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.',
   },
   tierTabs: { comps: 'Đội hình', items: 'Trang bị', augments: 'Nâng cấp', aria: 'Các mục xếp hạng' },
   patchBar: { patch: 'Patch', lastUpdated: 'Cập nhật lần cuối' },
@@ -1583,7 +1583,7 @@ const vi: typeof en = {
         },
         {
           heading: 'Riot Games',
-          body: "TFTIQ isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. TFTIQ là ứng dụng đồng hành độc lập, không liên kết và không được Riot Games bảo trợ.",
+          body: "TFTIQ isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.",
         },
         {
           heading: 'Hội viên và hoàn tiền',
