@@ -609,7 +609,16 @@ test('orders, webhooks and refunds', { skip: !hasDb }, async (t) => {
       const refreshedOrder = refreshed.body.order as Record<string, unknown>;
       assert.equal(refreshedOrder.status, 'paid');
       assert.ok(refreshedOrder.fulfilledAt);
+      // The receipt is the only evidence of how much arrived and when: a lookup
+      // that grants without settling leaves a paid order that no refund can date.
+      assert.equal(refreshedOrder.paidVnd, 99_000);
+      assert.ok(refreshedOrder.paidAt);
       assert.equal(await countRows('SELECT 1 FROM memberships WHERE order_id = $1', [order.id]), 1);
+      assert.equal(
+        await countRows(`SELECT 1 FROM payment_events WHERE order_id = $1 AND result = 'granted'`, [order.id]),
+        1,
+        'the lookup receipt itself must be the granting event',
+      );
 
       // Immediately again: the provider is not called, the stored answer is shown.
       const throttled = await call('POST', `/api/me/orders/${order.id}/refresh`, { token: kase.token });

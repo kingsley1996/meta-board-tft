@@ -468,12 +468,17 @@ export async function reconcileOrder(input: {
 
     // A provider that says "paid" without a receipt cannot authorise a grant: the
     // receipt is the evidence that names the bank transaction. It goes to review.
-    const nextStatus = lookup.status === 'paid' && lookup.receipts.length === 0 ? 'review' : lookup.status;
-    await pool.query(
-      `UPDATE payment_orders SET status = $2, updated_at = now()
-        WHERE id = $1 AND status IN ('pending', 'processing')`,
-      [row.id, nextStatus],
-    );
+    // A paid answer *with* receipts is left for recordReceipt below, which is the
+    // only writer of the settled amount and date — letting the status string settle
+    // an order first leaves a paid period nobody can date or refund.
+    const nextStatus = lookup.status !== 'paid' ? lookup.status : lookup.receipts.length === 0 ? 'review' : null;
+    if (nextStatus) {
+      await pool.query(
+        `UPDATE payment_orders SET status = $2, updated_at = now()
+          WHERE id = $1 AND status IN ('pending', 'processing')`,
+        [row.id, nextStatus],
+      );
+    }
     for (const receipt of lookup.receipts) {
       await recordReceipt({
         binding: { provider: row.provider, accountId: row.account_id },
