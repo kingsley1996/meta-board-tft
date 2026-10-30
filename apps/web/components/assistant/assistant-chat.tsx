@@ -144,25 +144,6 @@ function QuotaBanner({ title, body }: { title: string; body: string }) {
   );
 }
 
-function PlusTip({ title, body, href, cta }: { title: string; body: string; href: string; cta: string }) {
-  return (
-    <div className="flex max-w-[480px] flex-wrap items-center gap-3 rounded-xl border border-brand/45 bg-page px-3.5 py-2.5">
-      <div className="min-w-0 text-xs leading-relaxed text-mist">
-        <b className="mb-0.5 block text-[12.5px] font-semibold text-fog">{title}</b>
-        {/* On a phone the chat log is the scarce space; the allowances are one tap
-            away on /membership. */}
-        <span className="hidden sm:inline">{body}</span>
-      </div>
-      <Link
-        href={href}
-        className="smooth ml-auto inline-flex shrink-0 items-center rounded-full border border-brand bg-brand px-3 py-1 text-[11.5px] font-semibold text-on-brand hover:bg-brand-deep"
-      >
-        {cta}
-      </Link>
-    </div>
-  );
-}
-
 export function AssistantChat({
   lang,
   compSlug,
@@ -1290,7 +1271,7 @@ export function AssistantChat({
             quota ? (
               <div className="flex max-w-[85%] flex-col gap-1.5 self-start" role="status">
                 <div className="flex items-center gap-2.5 rounded-[10px] border border-dashed border-brand/45 px-3 py-2 text-xs text-mist">
-                  <span aria-hidden className="h-3 w-3 shrink-0 animate-spin rounded-full border-2 border-line border-t-brand" />
+                  <span aria-hidden className="agent-step" />
                   {t.quota.reserved}
                   <button
                     type="button"
@@ -1343,7 +1324,7 @@ export function AssistantChat({
           </div>
         ) : null}
 
-        {quota && (periodExhausted || dailyExhausted || nearDaily || readExhausted || voiceLocked) ? (
+        {quota && (periodExhausted || dailyExhausted || nearDaily || readExhausted) ? (
           <div className="flex flex-col gap-2 px-4 pt-3">
             {periodExhausted ? (
               <QuotaBanner title={t.quota.periodTitle} body={t.quota.periodBody} />
@@ -1357,14 +1338,6 @@ export function AssistantChat({
             ) : null}
             {readExhausted ? (
               <QuotaBanner title={t.quota.readExhaustedTitle} body={t.quota.readExhaustedBody(quotaDate(quota.periodEnd))} />
-            ) : null}
-            {voiceLocked ? (
-              <PlusTip
-                title={t.quota.voiceTipTitle}
-                body={t.quota.voiceTipBody}
-                href={`/${lang}/membership`}
-                cta={t.quota.seePlus}
-              />
             ) : null}
           </div>
         ) : null}
