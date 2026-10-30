@@ -1,5 +1,6 @@
 import type { Lang } from './i18n';
 import { translateText } from './translate';
+import { freePlan } from '@metaboard/shared/membership-plans';
 
 // UI copy for every locale. `vi` is typed against `en` so a missing key fails
 // the build. Authored article bodies (guides, legal) stay English for now.
@@ -505,12 +506,12 @@ const en = {
     },
     signIn: {
       title: 'Sign in to ask Coach',
-      body: 'Free accounts get 30 messages a month. No card needed.',
+      body: `Free accounts get ${freePlan.chatPerPeriod} messages a month. No card needed.`,
       cta: 'Sign in',
       create: 'Create account',
       fine: 'Every comp, guide and tier list stays readable without an account.',
     },
-    freeChip: 'Free · 30 messages a month',
+    freeChip: `Free · ${freePlan.chatPerPeriod} messages a month`,
     retry: 'Try again',
     copy: 'Copy',
     copied: 'Copied',
@@ -1279,12 +1280,12 @@ const vi: typeof en = {
     },
     signIn: {
       title: 'Đăng nhập để hỏi Coach',
-      body: 'Tài khoản miễn phí có 30 lượt mỗi tháng, không cần thẻ.',
+      body: `Tài khoản miễn phí có ${freePlan.chatPerPeriod} lượt mỗi tháng, không cần thẻ.`,
       cta: 'Đăng nhập',
       create: 'Tạo tài khoản',
       fine: 'Comp, bảng xếp hạng và hướng dẫn vẫn đọc được khi chưa đăng nhập.',
     },
-    freeChip: 'Miễn phí · 30 lượt / tháng',
+    freeChip: `Miễn phí · ${freePlan.chatPerPeriod} lượt / tháng`,
     retry: 'Thử lại',
     copy: 'Sao chép',
     copied: 'Đã chép',
