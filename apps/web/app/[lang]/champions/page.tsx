@@ -21,6 +21,7 @@ export default async function ChampionsPage({ params }: { params: Promise<{ lang
     <div className="flex flex-col gap-6">
       <PatchBar lang={lang} />
       <div data-section="page-head" className="flex flex-col gap-3">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-fog">{messages[lang].meta.champions.title}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-brand bg-brand px-4 py-1.5 text-xs font-semibold text-on-brand">{t.allCosts}</span>
           {costs.map((cost) => (

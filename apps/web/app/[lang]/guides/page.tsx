@@ -25,5 +25,10 @@ export default async function GuidesPage({ params }: { params: Promise<{ lang: L
   const guides: GuideCard[] = data.guides.map(({ slug, title, excerpt, author, date, tags, featured }) => ({ slug, title, excerpt, author, date, tags, featured }));
   if (!guides.length) throw new Error('no guides in the store');
   const tags = [...new Set([...tagOrder.filter((name) => guides.some((guide) => guide.tags.includes(name))), ...guides.flatMap((guide) => guide.tags)])];
-  return <GuideBrowser lang={lang} tags={tags} guides={guides} />;
+  return (
+    <div className="flex flex-col gap-6">
+      <h1 className="font-display text-3xl font-bold tracking-tight text-fog">{messages[lang].nav.guides}</h1>
+      <GuideBrowser lang={lang} tags={tags} guides={guides} />
+    </div>
+  );
 }

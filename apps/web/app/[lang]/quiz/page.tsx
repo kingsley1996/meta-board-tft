@@ -35,7 +35,10 @@ export default async function QuizPage({ params }: { params: Promise<{ lang: Lan
   const comps = (data?.comps ?? []).map(toQuizComp);
   return (
     <div className="flex flex-col gap-6">
-      <p className="max-w-3xl text-sm leading-relaxed text-mist">{messages[lang].quiz.sub}</p>
+      <div className="flex flex-col gap-2">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-fog">{messages[lang].nav.quiz}</h1>
+        <p className="max-w-3xl text-sm leading-relaxed text-mist">{messages[lang].quiz.sub}</p>
+      </div>
       <Quiz lang={lang} champions={units} items={itemOptions} comps={comps} />
     </div>
   );

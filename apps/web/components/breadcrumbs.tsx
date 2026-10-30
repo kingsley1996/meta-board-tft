@@ -54,7 +54,7 @@ export function Breadcrumbs({ lang }: { lang: Lang }) {
 
   return (
     <nav aria-label={t.breadcrumb.aria} className="flex flex-wrap items-center gap-1.5 py-3 text-xs text-mist">
-      <Link href={`/${lang}`} className="smooth font-semibold hover:text-fog">
+      <Link href={`/${lang}`} className="smooth inline-flex min-h-6 items-center font-semibold hover:text-fog">
         {t.breadcrumb.home}
       </Link>
       {segments.map((segment, index) => {
@@ -71,7 +71,7 @@ export function Breadcrumbs({ lang }: { lang: Lang }) {
                 {label}
               </span>
             ) : (
-              <Link href={href} className="smooth font-semibold hover:text-fog">
+              <Link href={href} className="smooth inline-flex min-h-6 items-center font-semibold hover:text-fog">
                 {label}
               </Link>
             )}

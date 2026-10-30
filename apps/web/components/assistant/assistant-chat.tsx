@@ -1160,7 +1160,7 @@ export function AssistantChat({
           )}
         </nav>
       </aside>
-      <Panel className="flex h-[calc(100dvh-14rem)] min-h-[20rem] min-w-0 flex-1 flex-col overflow-hidden lg:h-[calc(100dvh-15rem)]">
+      <Panel className="flex h-[calc(100dvh-16rem)] min-h-[18rem] min-w-0 flex-1 flex-col overflow-hidden lg:h-[calc(100dvh-15rem)]">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-line px-4 py-3">
           <button
             type="button"
@@ -1199,7 +1199,7 @@ export function AssistantChat({
               </span>
             )}
           </div>
-          <Tomo cue={tomoCue} busy={loading} />
+          <Tomo cue={tomoCue} busy={loading} ariaLabel={t.mascotBoop} />
         </div>
 
         <div ref={logRef} role="log" aria-live="polite" className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-5">
@@ -1346,7 +1346,7 @@ export function AssistantChat({
             event.preventDefault();
             void submit(input);
           }}
-          className="border-t border-line bg-panel p-3"
+          className="shrink-0 border-t border-line bg-panel p-3"
         >
           <div className="flex items-end gap-2">
             <textarea

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Mascot } from 'page-mascot';
 
 // Tomo is our own drawing: a Set-18 armoured penguin, built from two 3x3 sprite
@@ -53,16 +53,26 @@ export function Tomo({
   busy = false,
   size = 64,
   label = 'Tomo',
+  ariaLabel,
   durationMs = 1400,
 }: {
   cue: TomoCue | null;
   busy?: boolean;
   size?: number;
   label?: string;
+  ariaLabel?: string;
   durationMs?: number;
 }) {
   const [reaction, setReaction] = useState<TomoReaction | null>(null);
   const [busyStep, setBusyStep] = useState(0);
+  const hostRef = useRef<HTMLSpanElement>(null);
+
+  // page-mascot hardcodes `Boop the ${label}`, so the button announces English on
+  // every page. Rewrite the attribute once mounted to keep the action localized.
+  useEffect(() => {
+    if (!ariaLabel) return;
+    hostRef.current?.querySelector('button')?.setAttribute('aria-label', ariaLabel);
+  }, [ariaLabel]);
 
   useEffect(() => {
     if (!cue) return;
@@ -83,7 +93,7 @@ export function Tomo({
   const shown = busy ? BUSY_CYCLE[busyStep % BUSY_CYCLE.length] : reaction;
 
   return (
-    <span className={`relative inline-block shrink-0 ${busy ? 'tomo-float' : ''}`} style={{ width: size, height: size }}>
+    <span ref={hostRef} className={`relative inline-block shrink-0 ${busy ? 'tomo-float' : ''}`} style={{ width: size, height: size }}>
       <Mascot directions={TOMO_DIRECTIONS} reactions={TOMO_REACTIONS} size={size} label={label} />
       {busy ? <span aria-hidden className="pointer-events-none absolute inset-0 animate-ping rounded-full border-2 border-brand/40" /> : null}
       {shown ? (

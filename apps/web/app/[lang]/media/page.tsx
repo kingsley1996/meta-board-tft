@@ -15,9 +15,9 @@ export default async function MediaPage({ params }: { params: Promise<{ lang: La
     <div className="flex flex-col gap-6">
       <section data-section="hero-panel" className="grid gap-6 rounded-xl border border-line bg-panel p-6 lg:grid-cols-2">
         <div className="flex flex-col justify-center gap-4">
-          <p className="font-display text-5xl leading-none font-bold uppercase tracking-tight text-fog md:text-6xl">
+          <h1 className="font-display text-5xl leading-none font-bold uppercase tracking-tight text-fog md:text-6xl">
             MetaBoard<br /><span className="text-brand">{t.heading}</span>
-          </p>
+          </h1>
           <p className="text-sm font-semibold uppercase tracking-widest text-brand">{t.tagline}</p>
           <p className="text-sm leading-relaxed text-mist">{t.body}</p>
           <div className="flex gap-2">

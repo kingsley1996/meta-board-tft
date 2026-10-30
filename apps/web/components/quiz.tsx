@@ -75,7 +75,7 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
             className="smooth h-9 w-52 rounded-lg border border-line bg-page px-3 text-sm text-fog placeholder:text-mist"
           />
         </div>
-        <div className="grid max-h-80 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-6 lg:grid-cols-8">
+        <div className="grid max-h-80 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-6 lg:grid-cols-8">
           {visibleChampions.map((champion) => {
             const active = unitPicks.includes(champion.name);
             return (
@@ -87,7 +87,7 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
                 className={chipCls(active, !active && unitPicks.length >= MAX_UNITS)}
               >
                 <UnitHex name={champion.name} cost={champion.cost} icon={champion.icon} size={40} />
-                <span className="w-full truncate text-xs font-semibold text-fog">{unitName(champion.name, lang)}</span>
+                <span className="line-clamp-2 w-full text-xs leading-tight font-semibold text-fog">{unitName(champion.name, lang)}</span>
               </button>
             );
           })}
@@ -104,7 +104,7 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
             className="smooth h-9 w-52 rounded-lg border border-line bg-page px-3 text-sm text-fog placeholder:text-mist"
           />
         </div>
-        <div className="grid max-h-64 grid-cols-4 gap-2 overflow-y-auto sm:grid-cols-6 lg:grid-cols-8">
+        <div className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-6 lg:grid-cols-8">
           {visibleItems.map((item) => {
             const active = itemPicks.includes(item.name);
             return (
@@ -116,7 +116,7 @@ export function Quiz({ lang, champions, items, comps }: { lang: Lang; champions:
                 className={chipCls(active, !active && itemPicks.length >= MAX_ITEMS)}
               >
                 {item.icon ? <img src={item.icon} alt="" loading="lazy" className="h-9 w-9 rounded" /> : <span className="h-9 w-9" />}
-                <span className="w-full truncate text-xs font-semibold text-fog">{itemName(item.name, lang)}</span>
+                <span className="line-clamp-2 w-full text-xs leading-tight font-semibold text-fog">{itemName(item.name, lang)}</span>
               </button>
             );
           })}

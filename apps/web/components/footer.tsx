@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { SubscribeForm } from '@/components/subscribe-form';
-import { socials } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
@@ -12,15 +11,10 @@ export function Footer({ lang }: { lang: Lang }) {
         <p className="text-xs font-semibold uppercase tracking-wide text-mist">{t.subscribe.title}</p>
         <SubscribeForm lang={lang} />
       </div>
-      <div className="flex items-center gap-4 text-sm font-semibold">
-        {socials.map((social) => (
-          <a key={social.label} href={social.href} className="smooth text-mist hover:text-brand">{social.label}</a>
-        ))}
-      </div>
       <div className="flex items-center gap-4 text-xs text-mist">
-        <Link href={`/${lang}/legal/privacy`} className="smooth hover:text-fog">{t.privacy}</Link>
-        <Link href={`/${lang}/legal/terms`} className="smooth hover:text-fog">{t.terms}</Link>
-        <Link href={`/${lang}/about`} className="smooth hover:text-fog">{t.about}</Link>
+        <Link href={`/${lang}/legal/privacy`} className="smooth inline-flex min-h-6 items-center hover:text-fog">{t.privacy}</Link>
+        <Link href={`/${lang}/legal/terms`} className="smooth inline-flex min-h-6 items-center hover:text-fog">{t.terms}</Link>
+        <Link href={`/${lang}/about`} className="smooth inline-flex min-h-6 items-center hover:text-fog">{t.about}</Link>
       </div>
       <p className="max-w-[640px] text-xs leading-relaxed text-mist">{t.disclaimer}</p>
     </footer>

@@ -68,7 +68,7 @@ test('mobile assistant has no horizontal overflow', async ({ page }) => {
 
 test('Tomo is the house penguin: its sheets serve and the sprite answers the cursor', async ({ page }) => {
   await page.goto('/en/assistant');
-  const boop = page.getByRole('button', { name: 'Boop the Tomo' });
+  const boop = page.getByRole('button', { name: 'Boop Tomo' });
   await expect(boop).toBeVisible();
 
   // The atlases are CSS background-images, so a renamed file leaves no error
@@ -85,4 +85,8 @@ test('Tomo is the house penguin: its sheets serve and the sprite answers the cur
 
   await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2);
   await expect(layers.nth(1)).toHaveCSS('opacity', '1');
+
+  // page-mascot ships an English label; the page locale has to win.
+  await page.goto('/vi/assistant');
+  await expect(page.getByRole('button', { name: 'Chạm vào Tomo' })).toBeVisible();
 });

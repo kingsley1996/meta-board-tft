@@ -56,11 +56,11 @@ export function Chip({ children, className = '' }: { children: ReactNode; classN
 export function DisplayTitle({ small, big, accent, sub, compact = false }: { small: string; big: string; accent?: string; sub?: string; compact?: boolean }) {
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap items-baseline gap-3">
+      <h1 className="flex flex-wrap items-baseline gap-3">
         <span className={`font-display font-bold uppercase tracking-tight text-fog ${compact ? 'text-lg' : 'text-4xl md:text-6xl'}`}>{small}</span>
         <span className={compact ? 'text-base text-brand' : 'text-3xl text-brand'}>{'\u25B8'}</span>
         <span className={`font-display font-bold uppercase tracking-tight text-brand ${compact ? 'text-lg' : 'text-4xl md:text-6xl'}`}>{big}</span>
-      </div>
+      </h1>
       {sub ? <p className="max-w-2xl text-sm text-mist">{sub}</p> : null}
     </div>
   );

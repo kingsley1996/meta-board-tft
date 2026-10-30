@@ -154,10 +154,3 @@ const guideTags: Record<string, string> = {
 export const guideTag = (name: string, lang: Lang) => (lang === 'vi' ? guideTags[name] ?? name : name);
 
 export const patch = { version: setInfo.patch, updated: `MetaBoard · ${meta.source.updated.slice(0, 10)}` };
-
-export const socials = [
-  { label: 'YouTube', href: '#' },
-  { label: 'X', href: '#' },
-  { label: 'Discord', href: '#' },
-  { label: 'Reddit', href: '#' },
-];
