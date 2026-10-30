@@ -121,7 +121,7 @@ const en = {
       done: 'Subscribed — talk soon!',
       error: 'Could not subscribe — check the email and try again.',
     },
-    disclaimer: '© 2026 MetaBoard. MetaBoard is an independent companion and is not affiliated with or endorsed by Riot Games. Teamfight Tactics is a trademark of Riot Games, Inc.',
+    disclaimer: '© 2026 MetaBoard. MetaBoard isn\'t endorsed by Riot Games and doesn\'t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.',
   },
   tierTabs: { comps: 'Comps', items: 'Items', augments: 'Augments', aria: 'Tier list sections' },
   patchBar: { patch: 'Patch', lastUpdated: 'Last updated' },
@@ -716,6 +716,18 @@ const en = {
         body: 'Tier placements come from a mix of match data and coaching review. Data finds the strong lines; the review pass removes lines that only win in lobbies nobody plays in. A comp moves tiers when both agree.',
       },
       {
+        heading: 'Where the data comes from',
+        body: "Champions, traits, items, augments and icons come from Riot's published game data files. Match statistics are aggregated from third-party match-data feeds during the pilot and reviewed by our editors. MetaBoard does not call the Riot API in production yet; we plan to move match ingestion there, and this page will say so once that ships.",
+      },
+      {
+        heading: 'What is ours',
+        body: "Tier placements, comp write-ups, economy notes and Coach answers are MetaBoard's own analysis. They are opinions built on data, not guarantees of results, and they are not endorsed by Riot Games.",
+      },
+      {
+        heading: 'How fresh it is',
+        body: 'Rankings are rebuilt daily and after each patch; the patch bar on every page shows the last update. Static game data follows the live patch.',
+      },
+      {
         heading: 'Contact',
         body: 'Corrections and comp submissions: hello@metaboard.example (placeholder — the owner replaces this on launch).',
       },
@@ -733,15 +745,27 @@ const en = {
       sections: [
         {
           heading: 'What we collect',
-          body: 'MetaBoard has no accounts and no sign-in. We collect aggregate, anonymous page statistics — which comp pages are opened and roughly from where — to decide what to rank next. No personal profile is built.',
+          body: 'Account: email, display name, profile picture and Google account ID when you sign in with Google, or a password hash when you sign up with email. Coach: the messages you send, the answers, and the quota each request uses. Payments: order ID, amount, status and the Plus period it buys — card and bank details go to the payment provider, never to us. Patch alerts: the address you type in the footer. Server logs: IP address and request metadata used for rate limiting and abuse prevention.',
         },
         {
-          heading: 'Cookies',
-          body: 'The site stores one local preference: your last visited tier list tab. It never leaves your browser and is not shared with anyone.',
+          heading: 'Cookies and local storage',
+          body: 'Signing in sets a session cookie. An mb_assistant cookie ties guest Coach conversations to this browser. Local storage keeps display preferences and one vote per browser. We do not run advertising or cross-site tracking cookies.',
         },
         {
-          heading: 'Third parties',
-          body: 'Embedded media on the Media page is loaded from third-party platforms only after you press play. Those platforms apply their own privacy policies from that point.',
+          heading: 'Who processes it',
+          body: 'Google handles sign-in. Our payment provider handles checkout. AI model providers generate Coach answers and speech providers transcribe voice input and read answers aloud. Our hosting and database providers run the service. Embedded media on the Media page loads from the video platform only after you press play. Each of these processes data on our behalf under its own terms; we do not sell personal data.',
+        },
+        {
+          heading: 'How long we keep it',
+          body: 'Account data stays while the account exists. Coach conversations stay with the account; diagnostic traces are pruned after 30 days. Payment records are kept as long as accounting rules require. Patch-alert addresses stay until you ask us to remove them.',
+        },
+        {
+          heading: 'Your choices',
+          body: 'Email us to get a copy of your data, correct it, or delete your account. On request we remove the account record and that account’s Coach history; some payment records must be kept as accounting rules require.',
+        },
+        {
+          heading: 'Children and changes',
+          body: 'MetaBoard is not directed to children under 13. When this policy changes we update this page and its date.',
         },
         {
           heading: 'Contact',
@@ -755,11 +779,15 @@ const en = {
       sections: [
         {
           heading: 'Using MetaBoard',
-          body: 'MetaBoard is a free reference for Teamfight Tactics players. Rankings are opinions derived from match data; they are not guarantees of results.',
+          body: 'MetaBoard is a free reference for Teamfight Tactics players, with an optional paid membership. Rankings are opinions derived from match data; they are not guarantees of results.',
         },
         {
           heading: 'Content',
-          body: "Guides, rankings and site copy are MetaBoard's own and may not be republished wholesale without permission. Game names and mechanics belong to their respective owners; MetaBoard is not affiliated with or endorsed by Riot Games.",
+          body: "Guides, rankings and site copy are MetaBoard's own and may not be republished wholesale without permission. Game names and mechanics belong to their respective owners.",
+        },
+        {
+          heading: 'Riot Games',
+          body: "MetaBoard isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.",
         },
         {
           heading: 'Membership and refunds',
@@ -891,7 +919,7 @@ const vi: typeof en = {
       done: 'Đã đăng ký — hẹn gặp ở bản tin tới!',
       error: 'Chưa đăng ký được — kiểm tra lại email và thử lại.',
     },
-    disclaimer: '© 2026 MetaBoard. MetaBoard là ứng dụng đồng hành độc lập, không liên kết và không được Riot Games bảo trợ. Đấu Trường Chân Lý là thương hiệu của Riot Games, Inc.',
+    disclaimer: '© 2026 MetaBoard. MetaBoard isn\'t endorsed by Riot Games and doesn\'t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. MetaBoard là ứng dụng đồng hành độc lập, không liên kết và không được Riot Games bảo trợ.',
   },
   tierTabs: { comps: 'Đội hình', items: 'Trang bị', augments: 'Nâng cấp', aria: 'Các mục xếp hạng' },
   patchBar: { patch: 'Patch', lastUpdated: 'Cập nhật lần cuối' },
@@ -1482,6 +1510,18 @@ const vi: typeof en = {
         body: 'Thứ hạng đến từ dữ liệu trận đấu kết hợp với đánh giá của HLV. Dữ liệu tìm ra đội mạnh; vòng đánh giá loại bỏ những đội chỉ thắng trong sảnh ít người chơi. Một đội hình lên hạng khi cả hai nguồn đồng thuận.',
       },
       {
+        heading: 'Dữ liệu lấy từ đâu',
+        body: 'Tướng, tộc hệ, trang bị, lõi và icon lấy từ bộ dữ liệu game chính thức do Riot công bố. Số liệu trận đấu được tổng hợp từ các nguồn dữ liệu trận bên thứ ba trong giai đoạn thử nghiệm và được biên tập viên rà lại. MetaBoard chưa gọi Riot API trên môi trường production; chúng tôi dự định chuyển việc thu thập trận sang Riot API và sẽ ghi rõ trên trang này khi hoàn tất.',
+      },
+      {
+        heading: 'Phần nào là của MetaBoard',
+        body: 'Thứ hạng đội hình, bài viết đội hình, ghi chú kinh tế và câu trả lời của Coach là phân tích của MetaBoard. Đó là quan điểm dựa trên dữ liệu, không phải bảo đảm kết quả, và không được Riot Games bảo trợ.',
+      },
+      {
+        heading: 'Cập nhật bao lâu một lần',
+        body: 'Bảng xếp hạng được dựng lại hằng ngày và sau mỗi patch; thanh patch trên mỗi trang ghi lần cập nhật gần nhất. Dữ liệu game tĩnh bám theo patch đang chạy.',
+      },
+      {
         heading: 'Liên hệ',
         body: 'Góp ý và gửi đội hình: hello@metaboard.example (placeholder — chủ site thay khi ra mắt).',
       },
@@ -1499,15 +1539,27 @@ const vi: typeof en = {
       sections: [
         {
           heading: 'Chúng tôi thu thập gì',
-          body: 'MetaBoard không có tài khoản và không đăng nhập. Chúng tôi chỉ thu thập thống kê truy cập ẩn danh, tổng hợp — trang đội hình nào được mở và đại khái từ đâu — để quyết định nội dung xếp hạng tiếp theo. Không có hồ sơ cá nhân nào được dựng lên.',
+          body: 'Tài khoản: email, tên hiển thị, ảnh đại diện và ID tài khoản Google khi bạn đăng nhập bằng Google, hoặc hash mật khẩu khi bạn đăng ký bằng email. Coach: tin nhắn bạn gửi, câu trả lời và hạn mức mỗi lượt dùng. Thanh toán: mã đơn, số tiền, trạng thái và kỳ Plus mà đơn mua — thông tin thẻ và ngân hàng do đơn vị thanh toán xử lý, không đến tay chúng tôi. Nhận patch qua email: địa chỉ bạn nhập ở chân trang. Log máy chủ: địa chỉ IP và thông tin yêu cầu dùng để giới hạn tần suất và chống lạm dụng.',
         },
         {
-          heading: 'Cookie',
-          body: 'Trang chỉ lưu một tùy chọn cục bộ: tab bảng xếp hạng bạn xem gần nhất. Nó không bao giờ rời khỏi trình duyệt và không được chia sẻ với ai.',
+          heading: 'Cookie và lưu trữ cục bộ',
+          body: 'Khi bạn đăng nhập, chúng tôi đặt cookie phiên. Cookie mb_assistant gắn các cuộc trò chuyện Coach của khách với trình duyệt này. Local storage giữ tùy chọn hiển thị và một phiếu bầu cho mỗi trình duyệt. Chúng tôi không dùng cookie quảng cáo hay theo dõi xuyên trang.',
         },
         {
-          heading: 'Bên thứ ba',
-          body: 'Media nhúng ở trang Media chỉ được tải từ nền tảng bên thứ ba sau khi bạn bấm phát. Từ thời điểm đó, các nền tảng đó áp dụng chính sách bảo mật của riêng họ.',
+          heading: 'Ai xử lý dữ liệu',
+          body: 'Google xử lý đăng nhập. Đơn vị thanh toán xử lý checkout. Các nhà cung cấp mô hình AI tạo câu trả lời cho Coach; nhà cung cấp giọng nói chuyển giọng nói thành văn bản và đọc câu trả lời. Nhà cung cấp hosting và cơ sở dữ liệu vận hành dịch vụ. Media nhúng ở trang Media chỉ tải từ nền tảng video sau khi bạn bấm phát. Các bên này xử lý dữ liệu thay chúng tôi theo điều khoản riêng; chúng tôi không bán dữ liệu cá nhân.',
+        },
+        {
+          heading: 'Lưu trong bao lâu',
+          body: 'Dữ liệu tài khoản được giữ trong thời gian tài khoản tồn tại. Hội thoại Coach được giữ cùng tài khoản; log chẩn đoán bị xoá sau 30 ngày. Chứng từ thanh toán được giữ theo thời hạn kế toán. Địa chỉ nhận patch được giữ đến khi bạn yêu cầu xoá.',
+        },
+        {
+          heading: 'Quyền của bạn',
+          body: 'Gửi email để lấy bản sao dữ liệu, sửa hoặc xoá tài khoản. Khi có yêu cầu, chúng tôi xoá bản ghi tài khoản và lịch sử Coach của tài khoản đó; một số chứng từ thanh toán phải giữ lại theo quy định kế toán.',
+        },
+        {
+          heading: 'Trẻ em và thay đổi',
+          body: 'MetaBoard không dành cho trẻ dưới 13 tuổi. Khi chính sách thay đổi, chúng tôi cập nhật trang này và ngày hiệu lực.',
         },
         {
           heading: 'Liên hệ',
@@ -1521,11 +1573,15 @@ const vi: typeof en = {
       sections: [
         {
           heading: 'Khi dùng MetaBoard',
-          body: 'MetaBoard là trang tham khảo miễn phí cho người chơi Đấu Trường Chân Lý. Xếp hạng là quan điểm rút ra từ dữ liệu trận đấu; không phải bảo đảm kết quả.',
+          body: 'MetaBoard là trang tham khảo miễn phí cho người chơi Đấu Trường Chân Lý, có gói hội viên trả phí tùy chọn. Xếp hạng là quan điểm rút ra từ dữ liệu trận đấu; không phải bảo đảm kết quả.',
         },
         {
           heading: 'Nội dung',
-          body: 'Hướng dẫn, bảng xếp hạng và nội dung trang do MetaBoard sở hữu, không được đăng lại toàn bộ khi chưa có sự đồng ý. Tên game và cơ chế game thuộc về chủ sở hữu tương ứng; MetaBoard không liên kết và không được Riot Games bảo trợ.',
+          body: 'Hướng dẫn, bảng xếp hạng và nội dung trang do MetaBoard sở hữu, không được đăng lại toàn bộ khi chưa có sự đồng ý. Tên game và cơ chế game thuộc về chủ sở hữu tương ứng.',
+        },
+        {
+          heading: 'Riot Games',
+          body: "MetaBoard isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc. MetaBoard là ứng dụng đồng hành độc lập, không liên kết và không được Riot Games bảo trợ.",
         },
         {
           heading: 'Hội viên và hoàn tiền',
