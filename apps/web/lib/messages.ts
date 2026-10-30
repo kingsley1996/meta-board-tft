@@ -1361,7 +1361,7 @@ const vi: typeof en = {
       includedInPlus: 'Đã gồm trong Plus',
     },
     plus: {
-      ribbon: 'Gói duy nhất có giọng nói',
+      ribbon: 'Gói duy nhất có Voice',
       cadence: (days: number, daily: string) => `${days} ngày · khoảng ${daily} mỗi ngày`,
       perkChat: (perPeriod: string, days: string, perDay: string) => `${perPeriod} lượt Coach trong ${days} ngày · ${perDay} lượt/ngày`,
       perkStt: (minutes: string) => `${minutes} phút giọng nói vào (STT)`,
