@@ -338,9 +338,10 @@ treo, không phải chỗ trống của tài liệu:
 - **Bật bán membership (paid pilot).** Không phải bước deploy thường: schema/seed offer,
   bật `MEMBERSHIP_ENFORCEMENT=enforce` đồng thời ở Render và Vercel, xác minh sau bật,
   rollback — theo [RUNBOOK-MEMBERSHIP.md](RUNBOOK-MEMBERSHIP.md). Runbook mới được viết
-  và đối chiếu mã nguồn, **chưa chạy trên production**: merchant/live webhook, giao dịch
-  và hoàn tiền thật, prod migration + seed, và chi phí đo bằng ledger thật còn trống
-  (runbook §7). Cờ tắt thì §6 dưới đây vẫn đúng nguyên trạng.
+  và đối chiếu mã nguồn; code đã lên production với cờ tắt nhưng **chưa bước runbook nào
+  chạy trên prod** (`/api/membership/catalog` đang 503 vì DB chưa có offer). Merchant/live
+  webhook, giao dịch và hoàn tiền thật, prod migration + seed, và chi phí đo bằng ledger
+  thật còn trống (runbook §7). Cờ tắt thì §6 dưới đây vẫn đúng nguyên trạng.
 - **Google sign-in:** redirect `<site>/api/auth/google/callback`, `AUTH_WEB_ORIGIN`
   phải khớp origin web thật — cấu hình sau khi có domain, không phải trước.
 - **Quản lý user mới chỉ có đổi role.** `/admin/users` không chặn, không xoá, không

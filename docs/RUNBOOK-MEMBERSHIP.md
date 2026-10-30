@@ -1,6 +1,6 @@
 # Runbook — paid membership pilot (task #94)
 
-Trạng thái: soạn 2026-10-30. **Chưa bước nào ở đây được chạy trên production.** Phần đã kiểm chỉ là local (§7). Merchant account, webhook thật, chuyển/hoàn tiền thật và migration prod vẫn là các gate riêng của #95.
+Trạng thái: soạn 2026-10-30. Code đã lên production cùng ngày với cờ **tắt** (commit `6f65f53`), nhưng **chưa bước nào trong runbook này được chạy trên production**: chưa áp schema, chưa seed, chưa bật offer, chưa đặt `MEMBERSHIP_ENFORCEMENT`. Vì vậy `GET /api/membership/catalog` trên production đang trả 503 và không có gì để bán. Phần đã kiểm chỉ là local (§7). Merchant account, webhook thật, chuyển/hoàn tiền thật, migration + seed prod và cờ enforce vẫn là các gate riêng của #95.
 
 Nguyên tắc: không dán secret vào chat hay tài liệu (chỉ tên biến). Mọi thao tác ghi vào production cần chủ project cho phép rõ ràng. Ledger tài chính/usage là append-only — không DROP bảng, không sửa tay row đã ghi, không "xoá cho sạch" khi có sự cố.
 
