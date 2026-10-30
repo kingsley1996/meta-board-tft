@@ -521,3 +521,24 @@ test('cancellation is unsupported without network or fake canceled success', asy
   await assert.rejects(network.provider.cancel(REQUEST), errorCode('unsupported_operation'));
   assert.equal(network.calls.length, 0);
 });
+
+test('a virtual account is what we publish, and both its number and the main one pass the checks', async () => {
+  const va = '96247LD0908';
+  const provider = new SePayProvider(config({ virtualAccount: va }));
+  assert.equal(provider.transfer.accountNumber, va);
+  const checkout = await provider.createCheckout(CHECKOUT);
+  assert.equal(checkout.qrImageUrl, `https://vietqr.app/img?acc=${va}&bank=MB&amount=100000&des=TFTABC123`);
+
+  // BIDV-style payload: the bank names the main account, the VA rides in subAccount.
+  const viaMain = await provider.verifyWebhook(signed(webhook({ accountNumber: ACCOUNT, subAccount: va })));
+  assert.equal(viaMain.receipts.length, 1);
+  const viaVirtual = await provider.verifyWebhook(signed(webhook({ accountNumber: va })));
+  assert.equal(viaVirtual.receipts.length, 1);
+  await assert.rejects(provider.verifyWebhook(signed(webhook({ accountNumber: '0000000000' }))), errorCode('invalid_webhook'));
+
+  const onMain = await lookupRows([row()], { virtualAccount: va });
+  assert.equal(onMain.status, 'paid');
+  const onVirtual = await lookupRows([row(2, { account_number: va })], { virtualAccount: va });
+  assert.equal(onVirtual.status, 'paid');
+  await assert.rejects(lookupRows([row(3, { account_number: '0000000000' })], { virtualAccount: va }), errorCode('invalid_response'));
+});

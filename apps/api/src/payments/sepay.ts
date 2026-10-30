@@ -29,6 +29,9 @@ export type SePayConfig = {
   webhookSecret: string;
   bankAccountId: string;
   bankAccountNumber: string;
+  // BIDV, MSB, KienLongBank and OCB personal accounts have no main-account feed:
+  // SePay only reports transfers that land in one of their virtual accounts.
+  virtualAccount?: string;
   bankCode: string;
   bankName: string;
   fetch?: typeof globalThis.fetch;
@@ -84,6 +87,10 @@ export class SePayProvider implements PaymentProvider {
   private readonly webhookSecret: string;
   private readonly bankAccountId: string;
   private readonly bankAccountNumber: string;
+  private readonly virtualAccount: string | null;
+  // The bank reports the main account number for a VA transfer and the VA number
+  // for nothing else, so both are ours; the one we publish is the VA when set.
+  private readonly accountNumbers: ReadonlySet<string>;
   private readonly bankCode: string;
   private readonly bankName: string;
   private readonly fetcher: typeof globalThis.fetch;
@@ -97,9 +104,11 @@ export class SePayProvider implements PaymentProvider {
     this.webhookSecret = stringValue(config.webhookSecret, 'configuration');
     this.bankAccountId = uuid(config.bankAccountId, 'configuration');
     this.bankAccountNumber = stringValue(config.bankAccountNumber, 'configuration');
+    this.virtualAccount = config.virtualAccount ? stringValue(config.virtualAccount, 'configuration') : null;
+    this.accountNumbers = Object.freeze(new Set([this.bankAccountNumber, ...(this.virtualAccount ? [this.virtualAccount] : [])]));
     this.bankCode = stringValue(config.bankCode, 'configuration');
     this.bankName = stringValue(config.bankName, 'configuration');
-    this.transfer = Object.freeze({ bankName: this.bankName, accountNumber: this.bankAccountNumber });
+    this.transfer = Object.freeze({ bankName: this.bankName, accountNumber: this.virtualAccount ?? this.bankAccountNumber });
     this.fetcher = config.fetch ?? globalThis.fetch;
     this.clock = config.clock ?? Date.now;
     if (typeof this.fetcher !== 'function' || typeof this.clock !== 'function') {
@@ -121,7 +130,7 @@ export class SePayProvider implements PaymentProvider {
     if (signal?.aborted) throw new PaymentProviderError('aborted');
     order(request);
     const url = new URL('https://vietqr.app/img');
-    url.searchParams.set('acc', this.bankAccountNumber);
+    url.searchParams.set('acc', this.transfer.accountNumber);
     url.searchParams.set('bank', this.bankCode);
     url.searchParams.set('amount', String(request.amountVnd));
     url.searchParams.set('des', request.reference);
@@ -160,7 +169,7 @@ export class SePayProvider implements PaymentProvider {
     const row = webhookBody(request.body);
     vnd(row, 'invalid_webhook');
     const id = String(positiveInteger(row.id, 'invalid_webhook'));
-    if (row.accountNumber !== this.bankAccountNumber || stringValue(row.gateway, 'invalid_webhook').toLowerCase() !== this.bankName.toLowerCase()) {
+    if (!this.accountNumbers.has(String(row.accountNumber ?? '')) || stringValue(row.gateway, 'invalid_webhook').toLowerCase() !== this.bankName.toLowerCase()) {
       throw new PaymentProviderError('invalid_webhook');
     }
     if (row.transferType !== 'in' && row.transferType !== 'out') throw new PaymentProviderError('invalid_webhook');
@@ -261,7 +270,7 @@ export class SePayProvider implements PaymentProvider {
         const id = uuid(row.id, 'invalid_response');
         const identity = id.toLowerCase();
         if (seen.has(identity) || uuid(row.bank_account_id, 'invalid_response').toLowerCase() !== this.bankAccountId.toLowerCase() ||
-            row.account_number !== this.bankAccountNumber) throw new PaymentProviderError('invalid_response');
+            !this.accountNumbers.has(String(row.account_number ?? ''))) throw new PaymentProviderError('invalid_response');
         seen.add(identity);
         vnd(row, 'invalid_response');
         const amountIn = nonnegativeInteger(row.amount_in, 'invalid_response');

@@ -90,6 +90,7 @@ export function readPaymentProviders(env: NodeJS.ProcessEnv = process.env, fetch
       webhookSecret: value(env, 'SEPAY_WEBHOOK_SECRET'),
       bankAccountId: value(env, 'SEPAY_BANK_ACCOUNT_ID'),
       bankAccountNumber: value(env, 'SEPAY_BANK_ACCOUNT_NUMBER'),
+      virtualAccount: value(env, 'SEPAY_VA_NUMBER') || undefined,
       bankCode: value(env, 'SEPAY_BANK_CODE'),
       bankName: value(env, 'SEPAY_BANK_NAME'),
       fetch,
