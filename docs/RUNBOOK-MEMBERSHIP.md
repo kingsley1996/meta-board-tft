@@ -1,6 +1,6 @@
 # Runbook — paid membership pilot (task #94)
 
-Trạng thái: soạn 2026-10-30. Code đã lên production cùng ngày với cờ **tắt** (commit `6f65f53`), nhưng **chưa bước nào trong runbook này được chạy trên production**: chưa áp schema, chưa seed, chưa bật offer, chưa đặt `MEMBERSHIP_ENFORCEMENT`. Vì vậy `GET /api/membership/catalog` trên production đang trả 503 và không có gì để bán. Phần đã kiểm chỉ là local (§7). Merchant account, webhook thật, chuyển/hoàn tiền thật, migration + seed prod và cờ enforce vẫn là các gate riêng của #95.
+Trạng thái (2026-10-30): code đã lên production với cờ **tắt** (commit `6f65f53`); trên Supabase đã chạy **§1.2, §1.3 và §1.4** — schema, seed hai lần, hai offer đã `active` (một transaction), catalog trả 200 với `free` 0đ/60-12/không bán và `plus` 99.000đ/30 ngày/300-60-1.200-10.000/bán được. Merchant SePay đã nạp **đủ 8 biến** trên Render — probe webhook rỗng trả `400 invalid_webhook` thay vì `503 payments_unavailable`, tức registry dựng được. Còn lại: webhook live trên SePay, một giao dịch thật (chứng minh `gateway`/`accountNumber` khớp), cờ enforce — mỗi thứ là gate riêng của #95, cần chủ project cho phép.
 
 Nguyên tắc: không dán secret vào chat hay tài liệu (chỉ tên biến). Mọi thao tác ghi vào production cần chủ project cho phép rõ ràng. Ledger tài chính/usage là append-only — không DROP bảng, không sửa tay row đã ghi, không "xoá cho sạch" khi có sự cố.
 
@@ -57,7 +57,7 @@ Không sửa giá/quota tại chỗ: trigger chặn khi row đã có history. Đ
 curl -s "https://<api>/api/membership/catalog"
 ```
 
-Shape: `{ offers: [{ planVersionId, code, version, label, price: { vnd, currency }, termDays, allowances: { chatPerPeriod, chatPerDay, sttSecondsPerPeriod, ttsCharactersPerPeriod }, buyable }] }`. Phải thấy `free` `price.vnd` 0, `allowances` 60 / 12 / 0 / 0, `buyable: false`; `plus` 99.000, `termDays` 30, `allowances` 300 / 60 / 1.200 / 10.000, `buyable: true`. Đối chiếu với [pilotPlans](../packages/shared/src/membership-plans.ts). Trang pricing đọc hằng số còn checkout/profile đọc catalog, nên hai bên lệch nhau là lỗi chặn bán (đã thấy trên dev vì row cũ đang được dùng — xem #93).
+Shape: `{ offers: [{ planVersionId, code, version, label, price: { vnd, currency }, termDays, allowances: { chatPerPeriod, chatPerDay, sttSecondsPerPeriod, ttsCharactersPerPeriod }, buyable }] }`. Trước khi activate, `offers` rỗng là trạng thái đúng — chỉ sau §1.3 mới kiểm được: phải thấy `free` `price.vnd` 0, `allowances` 60 / 12 / 0 / 0, `buyable: false`; `plus` 99.000, `termDays` 30, `allowances` 300 / 60 / 1.200 / 10.000, `buyable: true`. Đối chiếu với [pilotPlans](../packages/shared/src/membership-plans.ts). Trang pricing đọc hằng số còn checkout/profile đọc catalog, nên hai bên lệch nhau là lỗi chặn bán (đã thấy trên dev vì row cũ đang được dùng — xem #93).
 
 ### 1.5 Cấu hình tốn tiền và merchant
 
@@ -74,6 +74,7 @@ Shape: `{ offers: [{ planVersionId, code, version, label, price: { vnd, currency
   | `SEPAY_BANK_ACCOUNT_NUMBER` | số tài khoản nhận tiền; **phải trùng** `accountNumber` trong payload webhook; cũng là `acc` của ảnh VietQR |
   | `SEPAY_BANK_CODE` | mã ngân hàng cho vietqr.app (`?bank=…`), phải là mã vietqr.app chấp nhận |
   | `SEPAY_BANK_NAME` | tên hiển thị; **phải trùng** trường `gateway` của webhook (so sánh không phân biệt hoa thường) |
+  - **Cấu trúc mã thanh toán** (SePay → Cấu hình chung → Cấu trúc mã thanh toán): tiền tố 2–5 chữ cái, hậu tố 3–10 ký tự kiểu số nguyên. Code sinh reference `MTFT` + **10 chữ số** từ `order_code` ([orders.ts](../apps/api/src/membership/orders.ts) `orderCodeFor`/`referenceFor`), nên cấu hình đúng phải là tiền tố `MTFT`, hậu tố 3–10, "Số nguyên" — đổi tiền tố ở dashboard thì phải đổi `referenceFor` và deploy, không thì webhook trả `code` rỗng và chỉ còn đường đoán reference từ nội dung chuyển khoản.
   - Ví dụ BIDV: `SEPAY_BANK_NAME=BIDV` (SePay dùng tên ngân hàng trong `gateway`, không phải mã), `SEPAY_BANK_CODE=970418` — đã thử `https://vietqr.app/img?bank=970418` và `bank=bidv` đều trả PNG; mã sai trả ảnh lỗi 75 byte, nên có thể kiểm nhanh bằng một request ảnh trước khi bật.
   - Webhook trên SePay: URL `https://<api>/api/payments/webhook/sepay`, chỉ sự kiện tiền **vào**, và **phải bật chữ ký** — code đòi `X-SePay-Timestamp` (epoch giây, lệch ≤ 300 s) và `X-SePay-Signature: sha256=<hex>` là HMAC-SHA256 của `` `${timestamp}.` + raw body `` với `SEPAY_WEBHOOK_SECRET`; thiếu header nào là 401 `invalid_webhook`.
   - Không có bước nào ở đây tự tạo giao dịch, và không có API hoàn tiền phía merchant: refund là thao tác tay ở admin + chuyển khoản, đã ghi audit.
@@ -157,4 +158,8 @@ Thứ tự: ngừng bán → giữ dữ liệu → chỉ rollback code khi tươ
 
 Đã chạy trên production (2026-10-30, có phép): **§1.2 + §1.3 một phần** — `seed/membership-plans.ts` hai lần trên Supabase, ra đúng hai offer `draft` ×2 quota, idempotent; catalog 200 `{offers:[]}`; cờ vẫn tắt, `/api/voice/tts/plan` 404. Chưa activate offer nào, nên §1.4 "buyable" và mọi mục từ §2 trở đi vẫn chưa chạy.
 
-Chưa kiểm: merchant account và webhook live, một giao dịch/hoàn tiền thật, migration + seed trên production, cờ enforce trên Render/Vercel, cost thật theo ledger của traffic thật. Các mục này thuộc #95 và cần chủ project cho phép; pass local không được ghi thành live verified.
+Pre-flight đọc-only 2026-10-30: `plan_versions` = `free v1 draft 0đ 60/12/0/0` + `plus v1 draft 99.000đ/30 ngày 300/60/1.200/10.000`, `active_offers 0`, ledger `memberships/orders/buckets/requests = 0/0/0/0`; catalog 200 `{offers:[]}`; `POST /api/payments/webhook/sepay` body rỗng → 400 `invalid_webhook` (không phải 503 ⇒ 8 biến merchant dựng được registry); guest `/api/me/membership` 401; guest `/api/voice/tts/plan` 404; `/vi/membership` 200 và có 99.000. Đối chiếu tài liệu SePay: header `x-sepay-signature` / `x-sepay-timestamp`, prefix `sha256=`, HMAC của `` `${timestamp}.${body}` ``, lệch ≤ 5 phút, `transactionDate` dạng `YYYY-MM-DD HH:mm:ss` — khớp code và test có sẵn.
+
+Activate 2026-10-30 (được phép): transaction §1.3 → `UPDATE 1` cho `plus`, `UPDATE 1` cho `free` (không có `plus` active cũ để retire), `COMMIT`. Catalog đọc lại trả 200 với `free` `price.vnd 0`, `allowances 60/12/0/0`, `buyable false` và `plus` `99.000`, `termDays 30`, `allowances 300/60/1.200/10.000`, `buyable true` — khớp `pilotPlans` và kỳ vọng §1.4. Cờ vẫn tắt nên chưa tạo order nào.
+
+Chưa kiểm: một giao dịch/hoàn tiền thật, giá trị `gateway` thật trong payload BIDV (tài khoản BIDV chưa có giao dịch nào; chỉ chứng minh được bằng webhook ký thật), `SEPAY_BANK_ACCOUNT_NUMBER` có trùng `accountNumber` hay không (cùng lý do), cờ enforce trên Render/Vercel, cost thật theo ledger của traffic thật, và `TTS_PROVIDER`/`ASSISTANT_MODEL` trên Render (không đọc được từ ngoài). Các mục này thuộc #95 và cần chủ project cho phép; pass local không được ghi thành live verified.
