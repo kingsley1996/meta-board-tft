@@ -1,6 +1,7 @@
 # Checklist đăng ký TFTIQ TFT trên Riot Developer Portal
 
 **Website hiện tại:** https://meta-board-tft.vercel.app/\
+**Domain riêng (đã có, chờ trỏ DNS):** https://tftiq.com/\
 **Sản phẩm:** TFTIQ -- nền tảng đồng hành cùng người chơi Teamfight
 Tactics (TFT)\
 **Mục tiêu:** Chuẩn bị hồ sơ đăng ký sản phẩm và xin Riot API Production
@@ -42,11 +43,9 @@ rằng `vercel.app` chắc chắn được Riot chấp nhận làm domain xác m
 liệu Riot tập trung vào việc chứng minh quyền kiểm soát website/domain.
 Vì vậy, lựa chọn an toàn và chuyên nghiệp hơn là mua domain riêng.
 
-### Domain gợi ý
+### Domain
 
--   `tftiq.gg`
--   `tftiqgg.com`
--   `meta-board.gg`
+-   `tftiq.com` — đã mua, mail `support@` / `admin@` đang chạy trên domain này
 
 Không có yêu cầu phải dùng riêng `.com` hay `.gg`; domain riêng có lợi
 cho việc chứng minh quyền kiểm soát, nhận diện thương hiệu và duy trì
@@ -81,23 +80,14 @@ vì chỉ là landing page ý tưởng. Tuy nhiên, cần rà soát các nội d
 
 ## 3. Những việc cần hoàn thiện trước khi đăng ký
 
-### 3.1. Thay email placeholder
+### 3.1. Email liên hệ
 
-Cần thay các địa chỉ email mẫu, chẳng hạn:
+Đã có, đã đưa vào copy công khai:
 
--   `privacy@tftiq.example`
--   `hello@tftiq.example`
+-   `support@tftiq.com` — góp ý, gửi đội hình, câu hỏi về privacy policy
+-   `admin@tftiq.com` — chỉ dùng nội bộ, không xuất hiện trên site
 
-Bằng địa chỉ email thật có thể nhận và phản hồi thư, ví dụ:
-
--   `hello@your-domain.com`
--   `privacy@your-domain.com`
-
-Nếu chưa có domain riêng, có thể dùng email thật hiện có trước. Không để
-email `.example` trong các trang pháp lý hoặc trang liên hệ công khai.
-
-Hiện chưa có chặn ở build: địa chỉ `.example` trong `apps/web/lib/messages.ts`
-sẽ được deploy như mọi chuỗi khác. Cần thay bằng email thật trước khi gửi hồ sơ.
+Không còn địa chỉ `.example` nào trong `apps/web/lib/messages.ts`.
 
 ### 3.2. Bổ sung Riot legal disclaimer nguyên văn
 
@@ -322,7 +312,7 @@ với tính năng và cách vận hành thực tế của TFTIQ.
 
 ### TFTIQ -- Teamfight Tactics Companion
 
-**Product URL:** https://meta-board-tft.vercel.app/\
+**Product URL:** https://tftiq.com/\
 **Game:** Teamfight Tactics
 
 **Product Description:**

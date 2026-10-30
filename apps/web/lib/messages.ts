@@ -730,7 +730,7 @@ const en = {
       },
       {
         heading: 'Contact',
-        body: 'Corrections and comp submissions: hello@tftiq.example (placeholder — the owner replaces this on launch).',
+        body: 'Corrections and comp submissions: support@tftiq.com.',
       },
     ],
   },
@@ -770,7 +770,7 @@ const en = {
         },
         {
           heading: 'Contact',
-          body: 'Questions about this policy: privacy@tftiq.example (placeholder — the owner replaces this on launch).',
+          body: 'Questions about this policy: support@tftiq.com.',
         },
       ],
     },
@@ -1525,7 +1525,7 @@ const vi: typeof en = {
       },
       {
         heading: 'Liên hệ',
-        body: 'Góp ý và gửi đội hình: hello@tftiq.example (placeholder — chủ site thay khi ra mắt).',
+        body: 'Góp ý và gửi đội hình: support@tftiq.com.',
       },
     ],
   },
@@ -1565,7 +1565,7 @@ const vi: typeof en = {
         },
         {
           heading: 'Liên hệ',
-          body: 'Thắc mắc về chính sách này: privacy@tftiq.example (placeholder — chủ site thay khi ra mắt).',
+          body: 'Thắc mắc về chính sách này: support@tftiq.com.',
         },
       ],
     },

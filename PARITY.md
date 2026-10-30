@@ -126,7 +126,7 @@ All set entities are real, from CommunityDragon (Riot's public game-data mirror)
 - Replace placeholder emails in `legal/*` and `about`.
 - Wire real YouTube/Spotify embeds on `/media` if desired.
 - Add real social links in `lib/data.ts` (`socials`). The brand mark is `app/icon.svg` (also drawn inline in `components/nav.tsx`); PWA icons in `public/icons/` are rendered from it by `scripts/make-icons.mjs`.
-- Set `SITE_URL` (e.g. `https://tftiq.example`) before deploying — `sitemap.xml` / `robots.txt` fall back to `http://localhost:4173`.
+- Set `SITE_URL` (e.g. `https://tftiq.com`) before deploying — `sitemap.xml` / `robots.txt` fall back to `http://localhost:4173`.
 - Newsletter sending is manual: export/copy the list from `/admin/subscribers` into your mail tool until a provider is wired.
 - Champion/item imagery is Riot game data (CommunityDragon); confirm it fits your Riot Games third-party policy before public launch.
 - vi copy for comps and guides is editable in the admin forms (optional "Vietnamese" block); a fresh `npm run seed` replaces all comps and guides — including vi — from `apps/api/seed/`.

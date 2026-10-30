@@ -152,8 +152,8 @@ cho cả project — tăng `PG_POOL_MAX` là tăng phần mình chiếm.
 
 ### Cloudflare Turnstile cho đăng nhập và đăng ký
 
-Tạo widget **Managed**, cho phép hostname `meta-board-tft.vercel.app` (và `localhost`
-nếu dùng key đó ở local). Đặt **cả** `TURNSTILE_SITE_KEY` và `TURNSTILE_SECRET_KEY`
+Tạo widget **Managed**, cho phép hostname `tftiq.com`, `meta-board-tft.vercel.app`
+(và `localhost` nếu dùng key đó ở local). Đặt **cả** `TURNSTILE_SITE_KEY` và `TURNSTILE_SECRET_KEY`
 trong env của **API trên Render**, rồi redeploy API. Không đặt key ở Vercel, không
 copy credential từ project khác. Web lấy public site key từ `GET /api/auth/turnstile`
 lúc chạy: `200 {site_key}` khi bật, `204` khi cả hai biến trống; thiếu một biến thì
@@ -343,8 +343,9 @@ treo, không phải chỗ trống của tài liệu:
   `{"offers":[]}` vì chưa offer nào `active`. Merchant/live webhook, giao dịch và hoàn
   tiền thật, activate offer, bật cờ và chi phí đo bằng ledger thật còn trống (runbook §7).
   Cờ tắt thì §6 dưới đây vẫn đúng nguyên trạng.
-- **Google sign-in:** redirect `<site>/api/auth/google/callback`, `AUTH_WEB_ORIGIN`
-  phải khớp origin web thật — cấu hình sau khi có domain, không phải trước.
+- **Google sign-in:** redirect `https://tftiq.com/api/auth/google/callback`, và
+  `AUTH_WEB_ORIGIN` phải khớp origin web thật. Domain đã có (`tftiq.com`); đặt hai
+  giá trị này lúc trỏ DNS sang Vercel, trước khi bật đăng nhập Google trên domain mới.
 - **Quản lý user mới chỉ có đổi role.** `/admin/users` không chặn, không xoá, không
   thu hồi phiên hộ, không đặt lại mật khẩu; quên mật khẩu cũng chưa có endpoint
   `password_reset` dù schema đã chừa purpose đó. Tất cả đang là việc SQL
