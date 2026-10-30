@@ -65,3 +65,17 @@ export function formatVnd(amount: number, lang: string): string {
   const digits = new Intl.NumberFormat(lang === 'vi' ? 'vi-VN' : 'en-US').format(amount);
   return `${digits}₫`;
 }
+
+// The pilot is priced and collected in dong; the English pricing page converts for
+// orientation only. A fixed rate keeps the English page static and forbids the two
+// locales from drifting apart between builds — update it deliberately, not per render.
+export const VND_PER_USD = 25_800;
+
+export function formatUsd(amountVnd: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amountVnd / VND_PER_USD);
+}

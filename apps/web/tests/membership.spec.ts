@@ -10,8 +10,8 @@ test('the approved offer is on the pricing page in English and Vietnamese', asyn
   const en = page.locator('body');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('TFTIQ');
   await expect(page.getByRole('article')).toHaveCount(2);
-  await expect(en).toContainText('99,000₫');
-  await expect(en).toContainText('3,300₫ a day');
+  await expect(en).toContainText('$3.84');
+  await expect(en).toContainText('$0.13 a day');
   await expect(en).toContainText('300 Coach messages per 30 days');
   await expect(en).toContainText('20 minutes of voice in');
   await expect(en).toContainText('10,000 read-aloud characters');

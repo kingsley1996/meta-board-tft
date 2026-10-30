@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { formatVnd, freePlan, plusPlan, type PilotPlan } from '@tftiq/shared/membership-plans';
+import { formatUsd, formatVnd, freePlan, plusPlan, type PilotPlan } from '@tftiq/shared/membership-plans';
 import { PlanCta } from '@/components/membership/plan-cta';
 import type { CatalogOffer } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
@@ -45,6 +45,12 @@ type ShownPlan = {
 function shown(offer: CatalogOffer | undefined, fallback: PilotPlan): ShownPlan {
   if (!offer) return fallback;
   return { label: offer.label, priceVnd: offer.price.vnd, termDays: offer.termDays, ...offer.allowances };
+}
+
+// The card price follows the page language: English readers get a dollar figure,
+// while the transfer itself stays priced in dong.
+function money(amountVnd: number, lang: Lang): string {
+  return lang === 'vi' ? formatVnd(amountVnd, lang) : formatUsd(amountVnd);
 }
 
 // One shape for both plans so the two cards line up: art, name, price, perks and
@@ -143,11 +149,11 @@ export default async function MembershipPage({ params }: { params: Promise<{ lan
   // Plus version, which the catalog already reflects. An unreachable catalog keeps
   // the CTA; checkout and the API still refuse on their own.
   const salesPaused = process.env.MEMBERSHIP_CHECKOUT === 'paused' || (catalog !== null && plusOffer?.buyable !== true);
-  const freePrice = formatVnd(free.priceVnd, lang);
-  const plusPrice = formatVnd(plus.priceVnd, lang);
+  const freePrice = money(free.priceVnd, lang);
+  const plusPrice = money(plus.priceVnd, lang);
   // Rounded to the nearest 100₫ because "about 3,300₫ a day" is an orientation
   // number, not a second price.
-  const dailyPrice = formatVnd(Math.round(plus.priceVnd / termDays / 100) * 100, lang);
+  const dailyPrice = money(Math.round(plus.priceVnd / termDays / 100) * 100, lang);
 
   return (
     <div className="flex flex-col gap-6 pb-10">
