@@ -95,6 +95,8 @@ paymentRouter.post('/orders', async (req, res) => {
         return res.status(400).json({ error: 'invalid order request', code: 'invalid_order' });
       case 'not_sellable':
         return res.status(409).json({ error: 'That offer is not on sale.', code: 'offer_not_sellable' });
+      case 'membership_active':
+        return res.status(409).json({ error: 'This plan is already active.', code: 'membership_active' });
       case 'too_many_pending':
         return res.status(429).json({ error: 'Too many unpaid orders. Finish or wait for one to expire.', code: 'too_many_pending_orders' });
       case 'conflict':

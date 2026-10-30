@@ -567,6 +567,7 @@ const en = {
       ],
       lockedPerk: 'Voice in and read-aloud',
       cta: 'Current plan',
+      includedInPlus: 'Included in Plus',
     },
     plus: {
       ribbon: 'The only plan with voice',
@@ -580,7 +581,10 @@ const en = {
         'No rollover, no auto-renew',
       ],
       cta: (price: string) => `Get Plus · ${price}`,
+      current: (until: string) => `Current plan · until ${until}`,
+      currentNoDate: 'Current plan',
     },
+    checking: 'Checking your plan…',
   },
   profile: {
     plan: 'Your plan',
@@ -635,6 +639,7 @@ const en = {
       payments_unavailable: 'Payments are unavailable right now. Nothing was charged.',
       payment_unavailable: 'The payment provider did not answer. Nothing was charged.',
       offer_not_sellable: 'This plan is not on sale right now. Nothing was charged.',
+      membership_active: 'This plan is already active on your account. Nothing was charged.',
       too_many_pending_orders: 'You already have unpaid orders. Finish one or wait for it to close.',
       order_conflict: 'This checkout was already used for another order. Start a new one.',
       unavailable: 'Something went wrong and no order was created. Try again.',
@@ -1341,6 +1346,7 @@ const vi: typeof en = {
       ],
       lockedPerk: 'Giọng nói vào và đọc to',
       cta: 'Gói hiện tại',
+      includedInPlus: 'Đã gồm trong Plus',
     },
     plus: {
       ribbon: 'Gói duy nhất có giọng nói',
@@ -1354,7 +1360,10 @@ const vi: typeof en = {
         'Không cộng dồn, không tự gia hạn',
       ],
       cta: (price: string) => `Mua Plus · ${price}`,
+      current: (until: string) => `Gói hiện tại · đến ${until}`,
+      currentNoDate: 'Gói hiện tại',
     },
+    checking: 'Đang kiểm tra gói…',
   },
   profile: {
     plan: 'Gói của bạn',
@@ -1409,6 +1418,7 @@ const vi: typeof en = {
       payments_unavailable: 'Thanh toán đang tạm gián đoạn. Chưa có khoản nào bị trừ.',
       payment_unavailable: 'Nhà cung cấp thanh toán không phản hồi. Chưa có khoản nào bị trừ.',
       offer_not_sellable: 'Gói này hiện chưa mở bán. Chưa có khoản nào bị trừ.',
+      membership_active: 'Gói này đang còn hiệu lực trên tài khoản của bạn. Chưa có khoản nào bị trừ.',
       too_many_pending_orders: 'Bạn đang có đơn chưa thanh toán. Hãy hoàn tất hoặc chờ đơn đóng.',
       order_conflict: 'Lần thanh toán này đã dùng cho đơn khác. Hãy tạo đơn mới.',
       unavailable: 'Có lỗi và chưa tạo được đơn. Thử lại.',

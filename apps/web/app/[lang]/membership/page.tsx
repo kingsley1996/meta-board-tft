@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatVnd, freePlan, plusPlan, type PilotPlan } from '@metaboard/shared/membership-plans';
+import { PlanCta } from '@/components/membership/plan-cta';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
@@ -100,7 +101,9 @@ function PlanCard({
           </li>
         ) : null}
       </ul>
-      {children}
+      {/* mt-auto pins the button to the card floor; pt keeps a gap on the tallest
+          card, where a stretched grid leaves no spare room to push into. */}
+      <div className="mt-auto flex flex-col pt-6">{children}</div>
     </article>
   );
 }
@@ -149,12 +152,7 @@ export default async function MembershipPage({ params }: { params: Promise<{ lan
             lockedPerk={t.free.lockedPerk}
             art={{ src: '/images/tft/penguin-gem-hd.webp', width: 424, height: 400 }}
           >
-            <span
-              aria-disabled="true"
-              className="mx-[18px] mt-auto mb-[18px] inline-flex cursor-not-allowed items-center justify-center rounded-full border border-line px-[18px] py-2.5 text-[13.5px] font-semibold text-mist opacity-50"
-            >
-              {t.free.cta}
-            </span>
+            <PlanCta lang={lang} plan="free" />
           </PlanCard>
 
           <PlanCard
@@ -167,12 +165,7 @@ export default async function MembershipPage({ params }: { params: Promise<{ lan
             ribbon={t.plus.ribbon}
             plus
           >
-            <Link
-              href={`/${lang}/checkout?plan=${plusPlan.code}`}
-              className="smooth mx-[18px] mt-auto mb-[18px] inline-flex items-center justify-center rounded-full border border-brand bg-brand px-[18px] py-2.5 text-[13.5px] font-semibold text-on-brand hover:bg-brand-deep"
-            >
-              {t.plus.cta(plusPrice)}
-            </Link>
+            <PlanCta lang={lang} plan="plus" price={plusPrice} />
           </PlanCard>
         </div>
       </div>

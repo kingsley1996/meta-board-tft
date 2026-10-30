@@ -98,7 +98,14 @@ export type CreateOrderResult =
   | { ok: true; order: OrderView }
   | {
       ok: false;
-      reason: 'invalid' | 'not_sellable' | 'too_many_pending' | 'conflict' | 'provider_unavailable' | 'unavailable';
+      reason:
+        | 'invalid'
+        | 'not_sellable'
+        | 'membership_active'
+        | 'too_many_pending'
+        | 'conflict'
+        | 'provider_unavailable'
+        | 'unavailable';
     };
 
 export type PaymentOutcome = {
@@ -272,6 +279,17 @@ export async function createOrder(input: {
         return { ok: false, reason: 'conflict' };
       }
     } else {
+      // One paid plan exists, and a second order while it runs could only stack a
+      // second period nobody promised. A retry of an order that already exists is
+      // still answered above, so a payment in flight is never blocked.
+      const active = await client.query(
+        `SELECT 1 FROM memberships WHERE user_id = $1 AND status = 'active' AND ends_at > now() LIMIT 1`,
+        [input.userId],
+      );
+      if (active.rows[0]) {
+        await client.query('ROLLBACK');
+        return { ok: false, reason: 'membership_active' };
+      }
       const busy = await client.query(
         `SELECT count(*)::int AS n FROM payment_orders
           WHERE user_id = $1 AND status IN ('pending', 'processing') AND expires_at > now()`,

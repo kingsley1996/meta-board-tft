@@ -346,6 +346,35 @@ test('orders, webhooks and refunds', { skip: !hasDb }, async (t) => {
     }
   });
 
+  await t.test('an active period refuses a second checkout but still replays its own order', async () => {
+    const kase = await makeAccount();
+    const plus = await insertPlan({ termDays: 30 });
+    try {
+      const key = `paid-${randomUUID()}`;
+      const created = await createOrder(kase.token, plus, key);
+      assert.equal(created.status, 200);
+      const order = created.body.order as Record<string, unknown>;
+      const signed = signedWebhook(transferFor({ reference: String(order.reference), amountVnd: 99_000 }));
+      const delivered = await call('POST', '/api/payments/webhook/sepay', { body: signed.body, headers: signed.headers });
+      assert.equal(delivered.status, 200);
+      assert.equal(await countRows(`SELECT 1 FROM memberships WHERE user_id = $1 AND status = 'active'`, [kase.userId]), 1);
+
+      const second = await createOrder(kase.token, plus);
+      assert.equal(second.status, 409);
+      assert.equal(second.body.code, 'membership_active');
+      assert.equal(await countRows('SELECT 1 FROM payment_orders WHERE user_id = $1', [kase.userId]), 1);
+
+      // The order that was already paid still answers its own retry: blocking a
+      // second purchase must not turn a reload into an error.
+      const replay = await createOrder(kase.token, plus, key);
+      assert.equal(replay.status, 200);
+      assert.equal((replay.body.order as Record<string, unknown>).id, order.id);
+    } finally {
+      await kase.cleanup();
+      await dropPlans([plus]);
+    }
+  });
+
   await t.test('order history is account-scoped and never cached', async () => {
     const owner = await makeAccount();
     const stranger = await makeAccount();
