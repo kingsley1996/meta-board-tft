@@ -74,6 +74,7 @@ Shape: `{ offers: [{ planVersionId, code, version, label, price: { vnd, currency
   | `SEPAY_BANK_ACCOUNT_NUMBER` | số tài khoản nhận tiền; **phải trùng** `accountNumber` trong payload webhook; cũng là `acc` của ảnh VietQR |
   | `SEPAY_BANK_CODE` | mã ngân hàng cho vietqr.app (`?bank=…`), phải là mã vietqr.app chấp nhận |
   | `SEPAY_BANK_NAME` | tên hiển thị; **phải trùng** trường `gateway` của webhook (so sánh không phân biệt hoa thường) |
+  - Ví dụ BIDV: `SEPAY_BANK_NAME=BIDV` (SePay dùng tên ngân hàng trong `gateway`, không phải mã), `SEPAY_BANK_CODE=970418` — đã thử `https://vietqr.app/img?bank=970418` và `bank=bidv` đều trả PNG; mã sai trả ảnh lỗi 75 byte, nên có thể kiểm nhanh bằng một request ảnh trước khi bật.
   - Webhook trên SePay: URL `https://<api>/api/payments/webhook/sepay`, chỉ sự kiện tiền **vào**, và **phải bật chữ ký** — code đòi `X-SePay-Timestamp` (epoch giây, lệch ≤ 300 s) và `X-SePay-Signature: sha256=<hex>` là HMAC-SHA256 của `` `${timestamp}.` + raw body `` với `SEPAY_WEBHOOK_SECRET`; thiếu header nào là 401 `invalid_webhook`.
   - Không có bước nào ở đây tự tạo giao dịch, và không có API hoàn tiền phía merchant: refund là thao tác tay ở admin + chuyển khoản, đã ghi audit.
   - Sau khi đặt biến: redeploy Render, rồi mới activate offer (§1.3) và thử tạo một order bằng account test — `POST /api/orders` lúc chưa có offer active trả 409 `offer_not_sellable`, nên thứ tự là biến → activate → order.
