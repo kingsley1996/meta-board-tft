@@ -559,12 +559,8 @@ const en = {
     memberTier: 'Member tier',
     free: {
       cadence: 'every calendar month',
-      perks: [
-        '60 Coach messages a month · 12 a day',
-        'Every comp, tier list and guide',
-        'No card needed',
-        '3 requests a minute',
-      ],
+      perkChat: (perPeriod: string, perDay: string) => `${perPeriod} Coach messages a month · ${perDay} a day`,
+      perks: ['Every comp, tier list and guide', 'No card needed', '3 requests a minute'],
       lockedPerk: 'Voice in and read-aloud',
       cta: 'Current plan',
       includedInPlus: 'Included in Plus',
@@ -572,10 +568,10 @@ const en = {
     plus: {
       ribbon: 'The only plan with voice',
       cadence: (days: number, daily: string) => `${days} days · about ${daily} a day`,
+      perkChat: (perPeriod: string, days: string, perDay: string) => `${perPeriod} Coach messages per ${days} days · ${perDay} a day`,
+      perkStt: (minutes: string) => `${minutes} minutes of voice in (STT)`,
+      perkTts: (characters: string) => `${characters} read-aloud characters (TTS)`,
       perks: [
-        '300 Coach messages per 30 days · 60 a day',
-        '20 minutes of voice in (STT)',
-        '10,000 read-aloud characters (TTS)',
         '6 requests a minute · 2 read-aloud chunks at once',
         'Quota held, charged only when the answer completes',
         'No rollover, no auto-renew',
@@ -1338,12 +1334,8 @@ const vi: typeof en = {
     memberTier: 'Bậc hội viên',
     free: {
       cadence: 'mỗi tháng dương lịch',
-      perks: [
-        '60 lượt Coach mỗi tháng · 12 lượt/ngày',
-        'Toàn bộ comp, tier list và hướng dẫn',
-        'Không cần thẻ',
-        '3 lượt mỗi phút',
-      ],
+      perkChat: (perPeriod: string, perDay: string) => `${perPeriod} lượt Coach mỗi tháng · ${perDay} lượt/ngày`,
+      perks: ['Toàn bộ comp, tier list và hướng dẫn', 'Không cần thẻ', '3 lượt mỗi phút'],
       lockedPerk: 'Giọng nói vào và đọc to',
       cta: 'Gói hiện tại',
       includedInPlus: 'Đã gồm trong Plus',
@@ -1351,14 +1343,10 @@ const vi: typeof en = {
     plus: {
       ribbon: 'Gói duy nhất có giọng nói',
       cadence: (days: number, daily: string) => `${days} ngày · khoảng ${daily} mỗi ngày`,
-      perks: [
-        '300 lượt Coach trong 30 ngày · 60 lượt/ngày',
-        '20 phút giọng nói vào (STT)',
-        '10.000 ký tự đọc to (TTS)',
-        '6 lượt mỗi phút · 2 đoạn đọc song song',
-        'Giữ quota trước, chỉ trừ khi câu trả lời xong',
-        'Không cộng dồn, không tự gia hạn',
-      ],
+      perkChat: (perPeriod: string, days: string, perDay: string) => `${perPeriod} lượt Coach trong ${days} ngày · ${perDay} lượt/ngày`,
+      perkStt: (minutes: string) => `${minutes} phút giọng nói vào (STT)`,
+      perkTts: (characters: string) => `${characters} ký tự đọc to (TTS)`,
+      perks: ['6 lượt mỗi phút · 2 đoạn đọc song song', 'Giữ quota trước, chỉ trừ khi câu trả lời xong', 'Không cộng dồn, không tự gia hạn'],
       cta: (price: string) => `Mua Plus · ${price}`,
       current: (until: string) => `Gói hiện tại · đến ${until}`,
       currentNoDate: 'Gói hiện tại',

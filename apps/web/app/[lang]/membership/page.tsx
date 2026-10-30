@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatVnd, freePlan, plusPlan, type PilotPlan } from '@metaboard/shared/membership-plans';
 import { PlanCta } from '@/components/membership/plan-cta';
+import type { CatalogOffer } from '@/lib/api';
+import { backendJson } from '@/lib/backend';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
@@ -27,6 +29,24 @@ function Lock() {
   );
 }
 
+// What a card shows comes from the published catalog when it is reachable and from
+// the shared pilot constants when it is not. Checkout prices from the same catalog,
+// so activating a new plan version (#98) must move both screens at once.
+type ShownPlan = {
+  label: string;
+  priceVnd: number;
+  termDays: number | null;
+  chatPerPeriod: number;
+  chatPerDay: number;
+  sttSecondsPerPeriod: number;
+  ttsCharactersPerPeriod: number;
+};
+
+function shown(offer: CatalogOffer | undefined, fallback: PilotPlan): ShownPlan {
+  if (!offer) return fallback;
+  return { label: offer.label, priceVnd: offer.price.vnd, termDays: offer.termDays, ...offer.allowances };
+}
+
 // One shape for both plans so the two cards line up: art, name, price, perks and
 // a CTA pinned to the bottom. Free's CTA sits in the same slot as Plus's buy
 // button, which is what keeps the cards the same height without a min-height.
@@ -42,7 +62,7 @@ function PlanCard({
   plus,
   children,
 }: {
-  plan: PilotPlan;
+  plan: { label: string };
   tier: string;
   price: string;
   cadence: string;
@@ -111,11 +131,18 @@ function PlanCard({
 export default async function MembershipPage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
   const t = messages[lang].membership;
-  const freePrice = formatVnd(freePlan.priceVnd, lang);
-  const plusPrice = formatVnd(plusPlan.priceVnd, lang);
+  // A pricing page that 500s because the API blinked is worse than one showing the
+  // approved pilot constants, so an unreachable catalog falls back instead of throwing.
+  const catalog = await backendJson<{ offers: CatalogOffer[] }>('/api/membership/catalog', { revalidate: 60 }).catch(() => null);
+  const free = shown(catalog?.offers.find((offer) => offer.code === 'free'), freePlan);
+  const plus = shown(catalog?.offers.find((offer) => offer.code === 'plus'), plusPlan);
+  const num = (value: number) => new Intl.NumberFormat(lang === 'vi' ? 'vi-VN' : 'en-US').format(value);
+  const termDays = plus.termDays ?? 30;
+  const freePrice = formatVnd(free.priceVnd, lang);
+  const plusPrice = formatVnd(plus.priceVnd, lang);
   // Rounded to the nearest 100₫ because "about 3,300₫ a day" is an orientation
   // number, not a second price.
-  const dailyPrice = formatVnd(Math.round(plusPlan.priceVnd / (plusPlan.termDays ?? 30) / 100) * 100, lang);
+  const dailyPrice = formatVnd(Math.round(plus.priceVnd / termDays / 100) * 100, lang);
 
   return (
     <div className="flex flex-col gap-6 pb-10">
@@ -144,11 +171,11 @@ export default async function MembershipPage({ params }: { params: Promise<{ lan
 
         <div className="grid min-w-0 gap-3.5 sm:grid-cols-2">
           <PlanCard
-            plan={freePlan}
+            plan={free}
             tier={t.starterTier}
             price={freePrice}
             cadence={t.free.cadence}
-            perks={t.free.perks}
+            perks={[t.free.perkChat(num(free.chatPerPeriod), num(free.chatPerDay)), ...t.free.perks]}
             lockedPerk={t.free.lockedPerk}
             art={{ src: '/images/tft/penguin-gem-hd.webp', width: 424, height: 400 }}
           >
@@ -156,11 +183,16 @@ export default async function MembershipPage({ params }: { params: Promise<{ lan
           </PlanCard>
 
           <PlanCard
-            plan={plusPlan}
+            plan={plus}
             tier={t.memberTier}
             price={plusPrice}
-            cadence={t.plus.cadence(plusPlan.termDays ?? 30, dailyPrice)}
-            perks={t.plus.perks}
+            cadence={t.plus.cadence(termDays, dailyPrice)}
+            perks={[
+              t.plus.perkChat(num(plus.chatPerPeriod), num(termDays), num(plus.chatPerDay)),
+              t.plus.perkStt(num(Math.round(plus.sttSecondsPerPeriod / 60))),
+              t.plus.perkTts(num(plus.ttsCharactersPerPeriod)),
+              ...t.plus.perks,
+            ]}
             art={{ src: '/images/tft/coach-penguin.webp', width: 771, height: 1209 }}
             ribbon={t.plus.ribbon}
             plus
