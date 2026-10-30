@@ -292,6 +292,8 @@ test('cost ledger rows', { skip: !hasDb }, async (t) => {
     // the sheet cannot silently re-price a turn.
     assert.equal(priced('openai', 'gpt-6-luna', 'input_token', 2_138), 13_255_600);
     assert.equal(priced('openai', 'gpt-6-luna', 'output_token', 192), 4_464_192);
+    assert.equal(priced('google', 'gemini-3.5-flash-lite', 'input_token', 2_138), 16_569_500);
+    assert.equal(priced('google', 'gemini-3.5-flash-lite', 'output_token', 192), 12_400_320);
     assert.equal(priced('deepgram', 'nova-3', 'audio_second', 60), 198_922_080, '198,92đ per minute');
     assert.equal(priced('groq', 'whisper-large-v3-turbo', 'audio_second', 60), 17_222_700, '17,22đ per minute');
     assert.equal(priced('vieneu', 'vieneu-v4', 'character', 1_000), 965_000_000, '965đ per 1.000 characters');

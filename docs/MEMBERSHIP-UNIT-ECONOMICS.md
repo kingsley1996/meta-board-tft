@@ -2,7 +2,8 @@
 
 Ngày lập: 2026-10-30. Cập nhật cùng ngày sau khi user nhân đôi quota. Trạng thái: **đã được user
 duyệt ngày 2026-10-30**; bảng giá §2 đã vào code ở [tariff.ts](../apps/api/src/membership/tariff.ts)
-dưới version `2026-10-30`.
+dưới version `2026-10-30`. Bổ sung cùng ngày (user duyệt): giá `google/gemini-3.5-flash-lite`, model
+mà production thực sự đang gọi — hệ quả ở §4.1.
 Offer đang xét: Plus 99.000đ/30 ngày, 300 chat, 1.200 giây STT, 10.000 ký tự TTS; Free 60 chat/tháng
 (12/ngày). Bản trước khi nhân đôi (150 / 600 s / 5.000 ký tự, Free 30) có biến phí 11,4% cơ sở và
 20,0% p95; §4 ghi lại cả hai để thấy bước nhảy.
@@ -36,6 +37,8 @@ làm tròn lên.
 | --- | --- | --- | --- | --- |
 | shopaikey `gpt-6-luna` | input token | $0,24 / 1M token | api.shopaikey.com/pricing | 6.200 |
 | shopaikey `gpt-6-luna` | output token | $0,90 / 1M token | api.shopaikey.com/pricing | 23.251 |
+| Google `gemini-3.5-flash-lite` | input token | $0,30 / 1M token | ai.google.dev/gemini-api/docs/pricing | 7.750 |
+| Google `gemini-3.5-flash-lite` | output token | $2,50 / 1M token | ai.google.dev/gemini-api/docs/pricing | 64.585 |
 | Deepgram `nova-3` | audio second | $0,0077 / phút | deepgram.com/pricing | 3.315.368 |
 | Groq `whisper-large-v3-turbo` | audio second | $0,04 / giờ | console.groq.com docs | 287.045 |
 | Deepgram `aura-2` (TTS en) | character | $0,030 / 1.000 ký tự | deepgram.com/pricing | 775.021 |
@@ -48,6 +51,10 @@ Lưu ý về cách tính giá:
   là $0,10/$0,50; reseller tính $0,24/$0,90. Báo cáo dùng giá reseller vì đó là hoá đơn thật.
   Nếu chuyển sang key OpenAI trực tiếp, chi phí text giảm khoảng 55% (một answer call p50 từ 17,72đ
   xuống 8,00đ).
+- **Google là giá trực tiếp**, không qua reseller: `gemini-3.5-flash-lite` chạy bằng `GEMINI_API_KEY` trên
+  Render nên hoá đơn là bảng giá công bố của Google. Bảng giá này được thêm cùng ngày 2026-10-30 sau khi
+  ledger production cho thấy model thật của lượt Coach là `google/gemini-3.5-flash-lite`, không phải
+  `gpt-6-luna` mà §3.1 giả định — xem hệ quả ở §4.1.
 - **VieNeu tính theo token gói**, không theo ký tự. Trang giá quy đổi công bố: Starter 99.000đ /
   400.000 token / ~2 giờ audio = 965đ/1.000 ký tự; Creator 777đ; Pro 623đ; Studio 549đ; gói năm 487đ.
   Ledger của mình đếm `character`, nên dùng luôn đơn giá ký tự công bố thay vì tự quy đổi token.
@@ -135,6 +142,34 @@ Nếu user chỉ dùng text (không voice), biến phí là **7.449đ/kỳ (7,5%
 Đường thoát cho kịch bản xấu: chuyển text sang key OpenAI trực tiếp (bảng giá §2 → §7). Khi đó kịch
 bản xấu nhất còn **23.069đ (23,3%)**, cơ sở còn **17.733đ (17,9%)**.
 
+### 4.1 Nếu text chạy Gemini 3.5 Flash-Lite (cấu hình production hiện tại)
+
+Ledger production ngày 2026-10-30 cho thấy lượt Coach thật gọi `google/gemini-3.5-flash-lite`, không
+phải `gpt-6-luna` mà §3.1 dùng. Với cùng khối lượng token đo được, đơn giá mới cao hơn ở cả hai chiều:
+
+| Khoản | `gpt-6-luna` | `gemini-3.5-flash-lite` |
+| --- | --- | --- |
+| Answer call p50 (2.138 in + 192 out) | 17,72đ | **28,97đ** |
+| Answer call p95 (3.187 in + 1.958 out) | 65,28đ | **151,16đ** |
+| Alias extraction (~350 in + 60 out) | 3,57đ | **6,59đ** |
+| Một turn, 1,2 call | 24,8đ | **41,4đ** |
+| Một turn, 2,6 call | 49,6đ | **81,9đ** |
+| Một turn ở p95 | 81,9đ | **188,0đ** |
+
+| Kịch bản | Chat (300) | STT (1.200 s) | TTS (10.000) | Payment | Tổng | % 99.000đ |
+| --- | --- | --- | --- | --- | --- | --- |
+| Cơ sở, vi, VieNeu | 12.405đ | 3.978đ | 9.650đ | 720đ | **26.753đ** | **27,0%** |
+| Xấu: 2,6 call/turn + Flux | 24.573đ | 3.978đ | 11.625đ | 720đ | **40.896đ** | **41,3%** |
+| Đuôi p95, vi | 56.394đ | 3.978đ | 9.650đ | 720đ | **70.742đ** | **71,5%** |
+
+Kết luận: với model đang chạy, cơ sở vẫn dưới 30% nhưng **kịch bản xấu nhất vượt (41,3%)** và đuôi
+p95 vượt xa (71,5%). Hai lựa chọn, đều cần chủ project quyết: (a) đưa text về `gpt-6-luna` đã duyệt
+(quay lại 22,0% / 31,5% / 39,3%), hoặc (b) giữ Gemini cho tốc độ và duyệt lại ngưỡng biên. Free cũng
+tăng theo: 60 lượt × 41,4đ = **2.481đ/user/tháng** ở giả định mọi lượt gọi model.
+
+Hai entry Gemini được thêm vào chính version `2026-10-30` chứ không tạo version mới: trước đó chưa có
+attempt nào được tính giá (toàn bộ 27 dòng đều `NULL`), nên không có số lịch sử nào bị viết lại.
+
 ## 5. Free fleet
 
 Free không có STT/TTS, chỉ 60 chat/tháng (12/ngày).
@@ -173,6 +208,7 @@ Nếu pilot bán được 20 kỳ Plus/tháng, đóng góp ~1,54 triệu đồng
 | STT rơi hết sang Groq | STT 3.978 → 344 | 18.163đ (18,3%) |
 | Bỏ alias extraction | Chat −1.070 | 20.727đ (20,9%) |
 | Chuyển text sang key OpenAI trực tiếp | Chat 7.449 → 3.385 | 17.733đ (17,9%) |
+| Text chạy `gemini-3.5-flash-lite` (production) | Chat 7.449 → 12.405 | 26.753đ (27,0%) |
 
 Ở kịch bản xấu nhất (2,6 call/turn + Flux), chuyển text sang key OpenAI trực tiếp kéo tổng từ
 31.214đ xuống **23.069đ (23,3%)** — tức dưới ngưỡng 30% mà không cần hạ quota.
