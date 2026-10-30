@@ -245,13 +245,20 @@ export function buildUserPrompt(message: string, evidence: Evidence, localize?: 
   return `User question:\n${message}\n\nEvidence JSON:\n${JSON.stringify(evidenceBody(evidence, localize, localizeText))}`;
 }
 
-export function buildToolPlannerPrompt(lang: Lang, setId: string, patch: string, compSlugs: string[] = []): string {
+export function buildToolPlannerPrompt(
+  lang: Lang,
+  setId: string,
+  patch: string,
+  compSlugs: string[] = [],
+  includeUsage = false
+): string {
   return [
     'You are MetaBoard Assistant, a TFT data planner.',
     `The user writes in ${lang === 'vi' ? 'Vietnamese' : 'English'}.`,
     `Current Set ${setId}, patch ${patch}.`,
     ...(compSlugs.length ? [`Comp context slugs: ${compSlugs.slice(0, 3).join(', ')}.`] : []),
     'Call only the read-only tools needed for comp lookup, game mechanics tables, economy plans, comparison or MetaBoard stats.',
+    ...(includeUsage ? ["Use get_my_usage when the user asks about their own plan, remaining turns, quota or renewal date."] : []),
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
     'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',

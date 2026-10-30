@@ -240,6 +240,10 @@ và 2 gate đặc thù (negation, item-holder wording) bảo vệ hình dạng �
   `get_game_mechanics` (income/shop_odds/leveling/champion_pool/loot_tables/augment_odds — loot page
   ≤12 bảng trả nguyên bảng, lớn hơn trả index), `get_economy_plan`. Kết quả payload đã localize
   theo lang; tool trả `unresolved`/`ambiguous` khi không resolve được tên.
+- Tool thứ 8, `get_my_usage` (`USER_USAGE_TOOL`), chỉ được thêm vào danh sách khi turn có
+  `deps.userId` (đăng nhập). Nó đọc `resolveEntitlement` + `balances` của **chính account đó**
+  (userId lấy từ session, không bao giờ từ tham số tool) và trả gói, kỳ hiện tại, số lượt
+  chat còn lại trong kỳ/hôm nay, quota voice/TTS và limits. Không có account → tool không xuất hiện.
 
 **Sau loop** — ladder ghi đè intent theo loại kết quả (ưu tiên từ trên xuống):
 
@@ -271,7 +275,7 @@ và 2 gate đặc thù (negation, item-holder wording) bảo vệ hình dạng �
 | `entity_lookup/gameplay_knowledge` | 0 entity → `needs_clarification`; có → `deterministicEntity` (champion: cost/traits/mana/ability; item: description/recipe; augment...) + "Được dùng trong..." + stats + mechanics |
 | còn lại | `unsupported` |
 
-`referenceAnswer` = ghép `summary` từ tool results `get_game_mechanics`/`get_economy_plan` thành công.
+`referenceAnswer` = ghép `summary` từ tool results `get_game_mechanics`/`get_economy_plan`/`get_my_usage` thành công.
 
 **`canUseLlm`** — điều kiện để LLM viết câu trả lời cuối:
 

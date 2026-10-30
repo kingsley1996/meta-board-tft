@@ -319,6 +319,7 @@ assistantRouter.post('/query', async (req, res) => {
     const answer = await answerAssistant(request, abort.signal, {
       logReasoningStep: writeReasoningLog,
       meter,
+      ...(user ? { userId: user.id } : {}),
       ...(sendEvent ? { onAnswerDelta: (chunk: string) => sendEvent?.('delta', { text: chunk }) } : {}),
     });
     const response: AssistantResponse = { requestId, ...answer };

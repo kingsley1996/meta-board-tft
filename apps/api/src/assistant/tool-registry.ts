@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { listComps } from '../comps.ts';
+import { resolveEntitlement, type Entitlement } from '../membership/lifecycle.ts';
+import { balances, type Balance } from '../membership/quota.ts';
 import { incomeBase, interest, mechanicsPatch, poolSizes, shopOdds, streakBonus, xpTable } from '@metaboard/shared/mechanics';
 import { economyForComp, matchEconomyComp, type EconomyPlanComp, type EconomyPlanStrategy } from '@metaboard/shared/economy-match';
 import { sharedDataPath } from '../shared-data.ts';
@@ -204,6 +206,89 @@ export const ASSISTANT_TOOLS: ProviderTool[] = [
     },
   },
 ];
+
+// Account-scoped, so it is not part of ASSISTANT_TOOLS: a guest turn has no
+// account to read and must never be offered a tool that can only fail.
+export const USER_USAGE_TOOL: ProviderTool = {
+  type: 'function',
+  function: {
+    name: 'get_my_usage',
+    description:
+      "Look up the signed-in user's MetaBoard plan and quota: Coach turns left this period and today, voice seconds, read-aloud characters, period dates and request limits. Use for questions about the user's own plan, remaining usage, quota or renewal date.",
+    parameters: { type: 'object', additionalProperties: false, properties: {} },
+  },
+};
+
+type UsageBalances = Record<'chat' | 'stt_seconds' | 'tts_characters', Balance> & { chatToday: Balance };
+
+function metricPayload(balance: Balance) {
+  return {
+    allowance: balance.allowance,
+    used: balance.consumed,
+    reserved: balance.reserved,
+    // A reserved unit is already promised to an in-flight request, so it is not
+    // available to the next turn (same rule as GET /api/me/usage).
+    remaining: Math.max(0, balance.allowance - balance.consumed - balance.reserved),
+  };
+}
+
+export function usagePayload(
+  entitlement: Extract<Entitlement, { ok: true }>,
+  quota: UsageBalances,
+  lang: Lang,
+  now: number
+) {
+  const periodEnd = new Date(entitlement.plan.periodEnd).toISOString();
+  // The product's calendar is Asia/Ho_Chi_Minh, so a prose date must not be the
+  // UTC slice: 2026-10-31T17:00Z is already 1 November in Vietnam.
+  const endDay = new Date(entitlement.plan.periodEnd + 7 * 3_600_000).toISOString().slice(0, 10);
+  const chat = metricPayload(quota.chat);
+  const chatToday = metricPayload(quota.chatToday);
+  return {
+    plan: {
+      code: entitlement.planCode,
+      label: entitlement.planLabel,
+      paid: entitlement.paid,
+      termDays: entitlement.plan.termDays,
+    },
+    periodStart: new Date(entitlement.plan.periodStart).toISOString(),
+    periodEnd,
+    periodRemainingMs: Math.max(0, entitlement.plan.periodEnd - now),
+    nextPeriodStartsAt: entitlement.nextPeriodStartsAt === null ? null : new Date(entitlement.nextPeriodStartsAt).toISOString(),
+    lastPeriodEndsAt: entitlement.lastPeriodEndsAt === null ? null : new Date(entitlement.lastPeriodEndsAt).toISOString(),
+    metrics: {
+      chat,
+      stt_seconds: metricPayload(quota.stt_seconds),
+      tts_characters: metricPayload(quota.tts_characters),
+    },
+    chatToday,
+    limits: {
+      chatRequestsPerMinute: entitlement.plan.chatRequestsPerMinute,
+      maxConcurrentRequests: entitlement.plan.maxConcurrentRequests,
+      maxSttSecondsPerRequest: entitlement.plan.maxSttSecondsPerRequest,
+      maxConcurrentTtsChunks: entitlement.plan.maxConcurrentTtsChunks,
+    },
+    summary: lang === 'vi'
+      ? `Gói ${entitlement.planLabel}${entitlement.paid ? '' : ' (miễn phí)'}: còn ${chat.remaining}/${chat.allowance} lượt hỏi trong kỳ, hôm nay còn ${chatToday.remaining}/${chatToday.allowance} lượt; kỳ hiện tại kết thúc ${endDay}.`
+      : `Plan ${entitlement.planLabel}${entitlement.paid ? '' : ' (free)'}: ${chat.remaining} of ${chat.allowance} Coach turns left this period and ${chatToday.remaining} of ${chatToday.allowance} today; the current period ends ${endDay}.`,
+  };
+}
+
+async function getMyUsageTool(args: Record<string, unknown>, lang: Lang, userId?: string | null): Promise<ToolExecution> {
+  allowed(args, []);
+  if (!userId) throw new AssistantToolError('Plan and usage lookup requires a signed-in account.');
+  const now = Date.now();
+  const entitlement = await resolveEntitlement(userId, now);
+  if (!entitlement.ok) throw new AssistantToolError('Membership data is unavailable.');
+  let quota: UsageBalances;
+  try {
+    quota = await balances(userId, entitlement.plan, now);
+  } catch {
+    // A failed balance read is an outage, never "you have nothing left".
+    throw new AssistantToolError('Membership data is unavailable.');
+  }
+  return { tool: 'get_my_usage', payload: usagePayload(entitlement, quota, lang, now) };
+}
 
 function normalized(value: string): string {
   return normalizeSpaced(value);
@@ -1054,7 +1139,14 @@ async function getStatsTool(args: Record<string, unknown>, lang: Lang): Promise<
   };
 }
 
-export async function executeAssistantTool(name: string, value: unknown, lang: Lang): Promise<ToolExecution> {
+export type AssistantToolContext = { userId?: string | null };
+
+export async function executeAssistantTool(
+  name: string,
+  value: unknown,
+  lang: Lang,
+  context: AssistantToolContext = {}
+): Promise<ToolExecution> {
   const args = record(value);
   switch (name) {
     case 'find_comps':
@@ -1071,6 +1163,8 @@ export async function executeAssistantTool(name: string, value: unknown, lang: L
       return getGameMechanicsTool(args, lang);
     case 'get_economy_plan':
       return getEconomyPlanTool(args, lang);
+    case 'get_my_usage':
+      return getMyUsageTool(args, lang, context.userId);
     default:
       throw new AssistantToolError('Unknown tool.');
   }

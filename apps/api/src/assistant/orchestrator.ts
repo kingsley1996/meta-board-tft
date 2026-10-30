@@ -60,7 +60,7 @@ import { parseGeneratedAnswer } from './validate.ts';
 import { withInferenceSlot } from './rate-limit.ts';
 import type { SpendMeter } from '../membership/cost.ts';
 import { assistantLog } from './logger.ts';
-import { ASSISTANT_TOOLS } from './tool-registry.ts';
+import { ASSISTANT_TOOLS, executeAssistantTool, USER_USAGE_TOOL } from './tool-registry.ts';
 import { runToolLoop, type ToolFailure, type ToolLoopResult } from './tool-loop.ts';
 import { mechanicTablePages } from './tool-registry.ts';
 import type { AmbiguousEntity } from './tool-registry.ts';
@@ -933,6 +933,9 @@ async function answerAssistantImpl(
     // regeneration, the answer — is metered under the one ledger request the route
     // reserved, so internal retries cost us money but never cost the user a turn.
     meter?: SpendMeter;
+    // Account the turn belongs to. Only set for a signed-in request, and only used
+    // to read that same account's plan/usage — never as a tool argument.
+    userId?: string;
   } = {}
 ): Promise<Omit<AssistantResponse, 'requestId' | 'mentions'>> {
   const generate = deps.generate ?? generateAssistantAnswer;
@@ -1482,15 +1485,22 @@ async function answerAssistantImpl(
     const toolStart = Date.now();
     try {
       const loop = await runToolLoop({
-        system: buildToolPlannerPrompt(request.lang, meta.setId, meta.patch, selectedComps.map((comp) => comp.slug)),
+        system: buildToolPlannerPrompt(
+          request.lang,
+          meta.setId,
+          meta.patch,
+          selectedComps.map((comp) => comp.slug),
+          Boolean(deps.userId)
+        ),
         answerSystem: buildToolAgentPrompt(request.lang, agentEvidence),
         messages: [...request.history, { role: 'user', content: request.message }],
-        tools: ASSISTANT_TOOLS,
+        tools: deps.userId ? [...ASSISTANT_TOOLS, USER_USAGE_TOOL] : ASSISTANT_TOOLS,
         lang: request.lang,
         signal,
         provenance: { setId: meta.setId, patch: meta.patch },
         finalizeModel: false,
         generate: (request) => withInferenceSlot(() => tracedGenerate('tool_plan', request)),
+        execute: (name, args, lang) => executeAssistantTool(name, args, lang, { userId: deps.userId }),
       });
       toolMessages = loop.messages;
       toolFinal = loop.final;
@@ -1679,7 +1689,7 @@ async function answerAssistantImpl(
     text
   );
   const referenceAnswer = toolResults
-    .filter((result) => result.status === 'ok' && ['get_game_mechanics', 'get_economy_plan'].includes(result.tool))
+    .filter((result) => result.status === 'ok' && ['get_game_mechanics', 'get_economy_plan', 'get_my_usage'].includes(result.tool))
     .map((result) => (result.data as { summary?: unknown } | null)?.summary)
     .filter((summary): summary is string => typeof summary === 'string' && summary.trim().length > 0)
     .join(' ');

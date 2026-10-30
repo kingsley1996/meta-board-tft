@@ -1,12 +1,62 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ASSISTANT_TOOLS, AssistantToolError, executeAssistantTool } from './tool-registry.ts';
+import { ASSISTANT_TOOLS, AssistantToolError, USER_USAGE_TOOL, executeAssistantTool, usagePayload } from './tool-registry.ts';
 
 test('exposes only read-only assistant tools', () => {
   assert.deepEqual(
     ASSISTANT_TOOLS.map((tool) => tool.function.name),
     ['find_comps', 'search_comps', 'get_comp', 'compare_comps', 'get_stats', 'get_game_mechanics', 'get_economy_plan']
   );
+});
+
+test('offers the account usage tool only to a signed-in turn', async () => {
+  assert.equal(USER_USAGE_TOOL.function.name, 'get_my_usage');
+  assert.equal(ASSISTANT_TOOLS.some((tool) => tool.function.name === 'get_my_usage'), false);
+  await assert.rejects(executeAssistantTool('get_my_usage', {}, 'en'), AssistantToolError);
+});
+
+test('usage payload reports remaining turns net of reservations', () => {
+  const now = Date.parse('2026-11-03T02:00:00.000Z');
+  const payload = usagePayload(
+    {
+      ok: true,
+      plan: {
+        planVersionId: '11111111-1111-4111-8111-111111111111',
+        termDays: 30,
+        chatPerPeriod: 150,
+        chatPerDay: 10,
+        sttSecondsPerPeriod: 300,
+        ttsCharactersPerPeriod: 5000,
+        chatRequestsPerMinute: 4,
+        maxConcurrentRequests: 1,
+        maxSttSecondsPerRequest: 60,
+        maxConcurrentTtsChunks: 1,
+        periodStart: now - 86_400_000,
+        periodEnd: now + 29 * 86_400_000,
+      },
+      planCode: 'plus',
+      planLabel: 'Plus',
+      priceVnd: 49_000,
+      paid: true,
+      period: null,
+      nextPeriodStartsAt: null,
+      lastPeriodEndsAt: null,
+    },
+    {
+      chat: { allowance: 150, consumed: 20, reserved: 5 },
+      chatToday: { allowance: 10, consumed: 3, reserved: 0 },
+      stt_seconds: { allowance: 300, consumed: 0, reserved: 0 },
+      tts_characters: { allowance: 5000, consumed: 100, reserved: 50 },
+    },
+    'vi',
+    now
+  );
+  assert.equal(payload.metrics.chat.remaining, 125, 'a reserved turn is not available');
+  assert.equal(payload.chatToday.remaining, 7);
+  assert.equal(payload.metrics.tts_characters.remaining, 4850);
+  assert.equal(payload.periodEnd, '2026-12-02T02:00:00.000Z');
+  assert.match(payload.summary, /125\/150/);
+  assert.match(payload.summary, /2026-12-02/);
 });
 
 test('rejects malformed tool arguments before querying data', async () => {
