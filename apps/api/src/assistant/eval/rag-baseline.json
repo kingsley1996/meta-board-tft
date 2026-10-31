@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T10:05:47.727Z",
+  "generatedAt": "2026-10-31T03:40:56.246Z",
   "positives": 32,
   "negatives": 4,
   "hitAt1": 0.84375,
@@ -142,7 +142,7 @@
     {
       "id": "guide-tier-list",
       "rank": 1,
-      "top": "guide:read-a-tier-list:en:summary:0",
+      "top": "guide:tier-list-is-a-queue:en:summary:0",
       "ok": true
     },
     {

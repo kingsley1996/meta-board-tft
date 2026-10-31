@@ -132,7 +132,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
       <section data-section="promo" className="mx-auto w-full max-w-[720px] rounded-xl border border-line bg-panel p-6 text-center">
         <p className="font-display text-lg font-semibold text-fog">{t.promoTitle}</p>
         <p className="mt-1 mb-4 text-sm text-mist">{t.promoBody}</p>
-        <CtaLink href={`/${lang}/guides/read-a-tier-list`}>{t.promoCta}</CtaLink>
+        <CtaLink href={`/${lang}/guides/tier-list-is-a-queue`}>{t.promoCta}</CtaLink>
       </section>
     </div>
   );

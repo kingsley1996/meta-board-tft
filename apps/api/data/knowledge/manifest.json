@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T09:49:02.560Z",
+  "generatedAt": "2026-10-31T03:39:12.694Z",
   "counts": {
     "sources": 29,
-    "chunks": 186,
+    "chunks": 188,
     "byType": {
       "mechanics": 56,
-      "guide": 36,
+      "guide": 38,
       "tip": 94
     },
     "byLang": {
-      "en": 93,
-      "vi": 93
+      "en": 94,
+      "vi": 94
     }
   },
   "sources": [
@@ -68,19 +68,6 @@
       "chunks": 6
     },
     {
-      "sourceId": "guide:read-a-tier-list",
-      "sourceType": "guide",
-      "title": "How to read a tier list without copying it",
-      "url": "/guides/read-a-tier-list",
-      "version": "2026-09-15",
-      "updated": "2026-09-15",
-      "langs": [
-        "en",
-        "vi"
-      ],
-      "chunks": 6
-    },
-    {
       "sourceId": "guide:rolling-on-8-flowchart",
       "sourceType": "guide",
       "title": "Rolling on 8: a flowchart that actually works",
@@ -92,6 +79,19 @@
         "vi"
       ],
       "chunks": 6
+    },
+    {
+      "sourceId": "guide:tier-list-is-a-queue",
+      "sourceType": "guide",
+      "title": "The tier list is a queue, not a shopping list",
+      "url": "/guides/tier-list-is-a-queue",
+      "version": "2026-10-31",
+      "updated": "2026-10-31",
+      "langs": [
+        "en",
+        "vi"
+      ],
+      "chunks": 8
     },
     {
       "sourceId": "mechanics:18",

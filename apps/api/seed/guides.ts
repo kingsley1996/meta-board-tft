@@ -189,35 +189,83 @@ export const guideSeeds: GuideSeed[] = [
     ],
   },
   {
-    slug: 'read-a-tier-list',
+    slug: 'tier-list-is-a-queue',
     author: 'Vale',
     authorSlug: 'vale',
-    publishedOn: '2026-09-15',
-    title: 'How to read a tier list without copying it',
-    excerpt: 'A tier list is a map of contested lines, not a shopping list. Three ways to use ours correctly.',
+    publishedOn: '2026-10-31',
+    title: 'The tier list is a queue, not a shopping list',
+    excerpt: 'A rank tells you how many lobbies will fight you for the line. Read pressure first, then pick the comp nobody else is building.',
     tags: ['Fundamentals', 'Meta'],
     sections: [
       {
-        heading: 'Tiers are about placement pressure',
-        body: ['S-tier means the line is strong and will be contested. If two players in your lobby open the same S-tier line, the third best player in the lobby is playing the A-tier line — with a free roll-down.'],
-        list: ['Count contests before committing', 'A-tier with no contest > S-tier with two', 'X-tier means "strong when free", not "bad"'],
+        heading: 'A tier is a forecast, not a verdict',
+        body: [
+          'Every tier on this site is an opinion built from match data and a coaching review. Data finds the lines that place well; the review removes lines that only win in lobbies nobody plays in. A tier moves when both agree, so the list is a forecast for the next few games, not a promise about yours.',
+          'That distinction matters because a forecast changes with the lobby. S-tier means the line is strong and visible, so expect two or three players per lobby to try it. The same line at A in a lobby that leaves it alone is the better bet.',
+        ],
+        list: [
+          'S: strong, and everyone can see it',
+          'A: strong when the lobby lets you take it',
+          'B: fine with a good opener, weaker when forced',
+          'C: narrow — needs exact items or an early high roll',
+          'X: situational, not bad — it wins when the situation matches',
+        ],
       },
       {
-        heading: 'Checks, not plans',
-        body: ['Treat each tier as a checkpoint: does my board look like the comp at this stage? If not, fix the board, do not chase the tier.'],
+        heading: 'Count the lobby before you commit',
+        body: [
+          'Tier lists rank lines; the lobby decides between them. Scout on 2-1 and again on 3-1: who is holding your carry, who slammed your items, who is leveling on your curve. Two players already on the S line turn it into a reroll race you did not choose.',
+          'The comp page lists what the line needs — carry, items, augments and the stage you should be stable. If those do not match your board and bench, the tier is not talking about your game yet.',
+        ],
+        list: [
+          'Two or more players on the same S line: take the free line instead',
+          'None of the line’s items on your bench: that is a pivot, not a plan',
+          'An X-tier comp with its items and opener is a real pick, not a last resort',
+        ],
+      },
+      {
+        heading: 'Checkpoints, not a chase',
+        body: [
+          'Use the comp stages as checkpoints. At 3-2, does your board look like the comp’s 3-2 — the same units, the same items, the level it expects? If yes, keep going. If not, fix the board you have instead of forcing the page.',
+          'Re-read the list when the patch or the data moves, not every game. Chasing every tier change costs more gold than any single comp choice.',
+        ],
       },
     ],
-    titleVi: 'Cách đọc bảng xếp hạng mà không sao chép',
-    excerptVi: 'Bảng xếp hạng là bản đồ các đội bị tranh, không phải danh sách mua sắm. Ba cách dùng bảng của chúng tôi cho đúng.',
+    titleVi: 'Bảng xếp hạng là hàng đợi, không phải danh sách mua sắm',
+    excerptVi: 'Một thứ hạng cho biết bao nhiêu sảnh sẽ tranh đội đó với bạn. Đọc áp lực trước, rồi chọn đội không ai chơi.',
     sectionsVi: [
       {
-        heading: 'Thứ hạng nói về áp lực tranh bài',
-        body: ['Hạng S nghĩa là đội mạnh và sẽ bị tranh. Nếu hai người trong sảnh cùng mở đội S, người giỏi thứ ba đang chơi đội A — với một lần roll thoải mái.'],
-        list: ['Đếm số người tranh trước khi chốt', 'Hạng A không tranh > hạng S bị hai người tranh', 'Hạng X nghĩa là "mạnh khi không bị tranh", không phải "yếu"'],
+        heading: 'Thứ hạng là dự báo, không phải bản án',
+        body: [
+          'Mỗi thứ hạng trên trang này là ý kiến dựng từ dữ liệu trận đấu và một lượt soát của huấn luyện viên. Dữ liệu tìm ra đội xếp hạng cao; lượt soát loại những đội chỉ thắng trong sảnh không ai chơi. Một đội đổi hạng khi cả hai đồng ý, nên bảng là dự báo cho vài trận tới, không phải lời hứa cho trận của bạn.',
+          'Khác biệt đó quan trọng vì dự báo thay đổi theo sảnh. Hạng S nghĩa là đội mạnh và ai cũng thấy, nên mỗi sảnh sẽ có hai ba người thử. Cùng đội đó ở hạng A trong một sảnh bỏ mặc nó lại là cửa tốt hơn.',
+        ],
+        list: [
+          'S: mạnh, và ai cũng thấy',
+          'A: mạnh khi sảnh để bạn lấy',
+          'B: ổn nếu mở bài tốt, yếu khi bị ép',
+          'C: hẹp — cần đúng trang bị hoặc high roll sớm',
+          'X: tình huống, không phải yếu — thắng khi tình huống khớp',
+        ],
       },
       {
-        heading: 'Mốc kiểm tra, không phải kế hoạch',
-        body: ['Coi mỗi hạng là một mốc: đội hình tôi có giống đội hình mẫu ở giai đoạn này chưa? Nếu chưa, sửa đội hình, đừng đuổi theo thứ hạng.'],
+        heading: 'Đếm sảnh trước khi chốt',
+        body: [
+          'Bảng xếp hạng xếp các đội; sảnh mới là nơi chọn giữa chúng. Do thám ở 2-1 và lần nữa ở 3-1: ai đang giữ chủ lực của bạn, ai đã ghép đồ của bạn, ai đang lên cấp theo đúng đường của bạn. Hai người đã vào đội S biến nó thành cuộc đua roll mà bạn không chọn.',
+          'Trang đội hình liệt kê đội đó cần gì — chủ lực, trang bị, nâng cấp và mốc bạn phải ổn định. Nếu những thứ đó không khớp đội hình và dự bị của bạn, thứ hạng chưa nói về ván của bạn.',
+        ],
+        list: [
+          'Từ hai người chơi cùng đội S: chọn đội đang trống',
+          'Bench không có món nào của đội: đó là xoay bài, không phải kế hoạch',
+          'Đội hạng X có đủ đồ và mở bài đúng là lựa chọn thật, không phải cứu cánh',
+        ],
+      },
+      {
+        heading: 'Mốc kiểm tra, không phải đuổi theo',
+        body: [
+          'Coi các mốc giai đoạn của đội hình là điểm kiểm tra. Ở 3-2, đội của bạn có giống 3-2 của đội mẫu — đúng tướng, đúng đồ, đúng cấp nó cần? Nếu có, đi tiếp. Nếu không, sửa đội đang có thay vì ép theo trang.',
+          'Đọc lại bảng khi patch hoặc dữ liệu đổi, không phải mỗi ván. Đuổi theo từng lần đổi hạng tốn vàng hơn mọi lựa chọn đội hình.',
+        ],
       },
     ],
   },

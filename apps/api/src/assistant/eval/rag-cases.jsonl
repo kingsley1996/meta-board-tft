@@ -20,7 +20,7 @@
 {"id":"guide-slam-order","query":"What is the slam order for items?","lang":"en","answerable":true,"relevant":["guide:item-slam-decision:en:summary:0","guide:item-slam-decision:en:s0:0"]}
 {"id":"guide-augment-fit","query":"Should I pick an S-tier augment that does not fit?","lang":"en","answerable":true,"relevant":["guide:augment-tiers-when-s-tier-loses:en:summary:0","guide:augment-tiers-when-s-tier-loses:en:s0:0"]}
 {"id":"guide-frontline","query":"How should I position my frontline?","lang":"en","answerable":true,"relevant":["guide:frontline-positioning-5-minutes:en:summary:0","guide:frontline-positioning-5-minutes:en:s0:0"]}
-{"id":"guide-tier-list","query":"How do I read a tier list?","lang":"en","answerable":true,"relevant":["guide:read-a-tier-list:en:summary:0","guide:read-a-tier-list:en:s0:0"]}
+{"id":"guide-tier-list","query":"How do I read a tier list?","lang":"en","answerable":true,"relevant":["guide:tier-list-is-a-queue:en:summary:0","guide:tier-list-is-a-queue:en:s0:0"]}
 {"id":"guide-roll-down","query":"When do I roll down for a contested board?","lang":"en","answerable":true,"relevant":["guide:rolling-on-8-flowchart:en:summary:0","guide:rolling-on-8-flowchart:en:s0:0"]}
 {"id":"tip-1cost-reroll","query":"1-cost reroll: when do I level?","lang":"en","answerable":true,"relevant":["tip:tips-1cost-reroll-hold-level:en:summary:0","tip:tips-1cost-reroll-hold-level:en:s0:0"]}
 {"id":"tip-2cost-reroll","query":"2-cost reroll timing on 3-2","lang":"en","answerable":true,"relevant":["tip:tips-2cost-reroll-3-2:en:summary:0","tip:tips-2cost-reroll-3-2:en:s0:0"]}
