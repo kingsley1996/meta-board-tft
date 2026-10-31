@@ -13,6 +13,24 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
   return { title: messages[lang].meta.assistant.title, description: messages[lang].meta.assistant.description };
 }
 
+// Both states of the page open with the same intro; the guide link rides along so
+// the documentation is reachable before anyone signs in.
+function Intro({ lang }: { lang: Lang }) {
+  const t = messages[lang].assistant;
+  return (
+    <aside className="flex items-center gap-3 rounded-xl border border-line bg-panel px-4 py-3">
+      <TomoSprite size={40} />
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-fog">{t.introName}</p>
+        <p className="text-xs leading-relaxed text-mist">{t.intro}</p>
+        <Link href={`/${lang}/assistant/guide`} className="smooth mt-0.5 inline-block text-[11.5px] font-semibold text-brand hover:text-brand-deep">
+          {t.guideLink} →
+        </Link>
+      </div>
+    </aside>
+  );
+}
+
 export default async function AssistantPage({
   params,
   searchParams,
@@ -37,13 +55,7 @@ export default async function AssistantPage({
   if (enforced && !user) {
     return (
       <div data-assistant className="flex flex-col gap-4">
-        <aside className="flex items-center gap-3 rounded-xl border border-line bg-panel px-4 py-3">
-          <TomoSprite size={40} />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-fog">{t.introName}</p>
-            <p className="text-xs leading-relaxed text-mist">{t.intro}</p>
-          </div>
-        </aside>
+        <Intro lang={lang} />
         <section className="flex flex-col items-center gap-3 self-center rounded-2xl border border-line bg-panel px-6 py-7 text-center sm:max-w-md">
           <span className="inline-flex items-center rounded-full border border-line px-3 py-1 text-[11.5px] font-semibold text-mist">
             {t.freeChip}
@@ -74,13 +86,7 @@ export default async function AssistantPage({
 
   return (
     <div data-assistant className="flex flex-col gap-4">
-      <aside className="flex items-center gap-3 rounded-xl border border-line bg-panel px-4 py-3">
-        <TomoSprite size={40} />
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-fog">{t.introName}</p>
-          <p className="text-xs leading-relaxed text-mist">{t.intro}</p>
-        </div>
-      </aside>
+      <Intro lang={lang} />
       <AssistantChat
         lang={lang}
         compSlug={comp ? compSlug : null}

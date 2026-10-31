@@ -278,7 +278,12 @@ vì tên file hoặc quy trình có thể thay đổi.
     Riot API).
 -   [x] Giải thích phương pháp xếp hạng đội hình.
 -   [x] Giải thích cách đánh giá trang bị và nâng cấp.
--   [ ] Có hướng dẫn sử dụng Coach AI.
+-   [x] Có hướng dẫn sử dụng Coach AI — trang công khai
+    `/{en,vi}/assistant/guide`, link ngay dưới phần giới thiệu của Coach:
+    Coach trả lời gì, hỏi sao cho đúng, điều Coach không làm (không xem
+    trận đang chạy, không theo dõi đối thủ, không hứa hạng), cách tính
+    lượt/giọng nói/quota và dữ liệu tài khoản. Số quota đọc từ
+    `freePlan`/`plusPlan`, không hard-code.
 -   [x] Có ví dụ thực tế về giá trị sản phẩm mang lại.
 -   [x] Kiểm tra các tính năng theo TFT Game Integrity Policy.
 -   [x] Không có tính năng tự động chơi hoặc chỉ đạo người chơi theo
@@ -399,8 +404,9 @@ Trạng thái và việc còn lại, theo thứ tự:
 4.  ~~Rà soát Coach AI theo Game Integrity Policy~~ — xong; site nêu rõ
     phạm vi pre-game/post-game.
 5.  **Screenshots, demo và product description tiếng Anh** — mô tả đã có
-    ở §8; còn screenshots và kiểm tra luồng đăng nhập Google trên domain
-    mới (cần thêm redirect URI trong Google Console).
+    ở §8; hướng dẫn dùng Coach đã có ở `/{en,vi}/assistant/guide`; còn
+    screenshots và kiểm tra luồng đăng nhập Google trên domain mới (cần
+    thêm redirect URI trong Google Console).
 6.  **Đăng ký Product và xin Production Key:** thực hiện theo đúng yêu
     cầu hiển thị trong Riot Developer Portal; chuẩn bị `riot.txt` khi
     Riot cấp chuỗi.

@@ -36,6 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: 'tier-maker', meta: page },
     { path: 'quiz', meta: page },
     { path: 'assistant', meta: page },
+    { path: 'assistant/guide', meta: page },
     { path: 'membership', meta: page },
     { path: 'guides', meta: page },
     ...guides.map((entry) => ({ path: `guides/${entry.slug}`, meta: page })),

@@ -1,6 +1,6 @@
 import type { Lang } from './i18n';
 import { translateText } from './translate';
-import { freePlan } from '@tftiq/shared/membership-plans';
+import { freePlan, plusPlan } from '@tftiq/shared/membership-plans';
 
 // UI copy for every locale. `vi` is typed against `en` so a missing key fails
 // the build. Authored article bodies (guides, legal) stay English for now.
@@ -20,6 +20,7 @@ const en = {
     guides: { title: 'Guides', description: 'Fundamentals, economy, positioning and meta reads from TFTIQ coaches.' },
     media: { title: 'Media', description: 'TFTIQ media: video and podcast are not published yet; read the written guides in the meantime.' },
     assistant: { title: 'Coach AI for TFT', description: 'Ask Coach AI about TFT champions, items, augments and comps. Answers use TFTIQ data and show their sources.' },
+    assistantGuide: { title: 'How to use Coach AI', description: 'What Coach AI answers, what it deliberately leaves out, and how a message, voice turn and quota are counted.' },
     membership: { title: 'Membership', description: 'Free and Plus: what each plan includes, how Coach quota is counted, and what happens when a Plus period ends.' },
     about: { title: 'About' },
   },
@@ -523,6 +524,59 @@ const en = {
     intro: 'I read current Set 18 data to suggest comps, builds and augments for your board.',
     dataMode: 'Data summary',
     llmMode: 'Coach AI',
+    guideLink: 'How to use Coach',
+  },
+  // Public product documentation: what the Coach answers, what it deliberately
+  // does not do, and how a turn is counted. Written for a first-time visitor who
+  // has not signed up yet.
+  assistantGuide: {
+    title: 'How to use Coach AI',
+    lede: 'Coach reads the current patch data and answers in English or Vietnamese. It is advice prepared before the game — it does not watch a match, track opponents or play for you.',
+    cta: 'Open Coach AI',
+    sections: (num: (value: number) => string) => [
+      {
+        heading: 'What it answers',
+        body: [
+          'Ask about the board you are building, the carry you are committing to, or a choice you are stuck on. Every recommendation points at a comp that exists in the current tier list, so you can open it and read the full guide.',
+        ],
+        list: [
+          'Which of two comps fits the units and items you already own',
+          'Carry items, and which augment is worth taking for that board',
+          'Whether to hold gold or level at the stage you are in',
+          'Why a comp is placed where it is, and what beats it',
+        ],
+      },
+      {
+        heading: 'Asking well',
+        body: [
+          'One decision per message gets the clearest answer. "I have two bows and four copies of my carry at stage 3-2, do I play the reroll line?" gives the Coach something to work with; "what is meta" does not.',
+          'Name the units, items and stage you have. The Coach reads the same comp, item and augment data the site shows, so those names are enough to be understood. Follow-up messages keep the thread, so you can narrow an answer instead of starting again.',
+        ],
+      },
+      {
+        heading: 'What it will not do',
+        body: [
+          'It does not follow a live match, look at your opponents or act in the game. Advice is read before the game starts.',
+          'It does not promise placements, and it does not estimate a win rate for your lobby. Tier and ranking numbers on the site describe comps across many games, not your next game.',
+          'It does not invent comps. If nothing in the current data fits what you asked, it says so instead of guessing.',
+        ],
+      },
+      {
+        heading: 'Messages, voice and quota',
+        body: [
+          `Free accounts get ${num(freePlan.chatPerPeriod)} Coach messages a month, at most ${num(freePlan.chatPerDay)} a day. Plus raises that to ${num(plusPlan.chatPerPeriod)} messages over 30 days, ${num(plusPlan.chatPerDay)} a day, and adds voice.`,
+          'A message is counted when the answer completes. If the request is refused or fails before Coach answers, the turn goes back to you. Unused allowance does not carry over.',
+          `Voice input counts the seconds of audio the server receives (${num(plusPlan.sttSecondsPerPeriod)} seconds on Plus); read-aloud counts the characters actually spoken (${num(plusPlan.ttsCharactersPerPeriod)} on Plus).`,
+        ],
+      },
+      {
+        heading: 'Your account and the thread',
+        body: [
+          'The Coach needs an account so a turn can be counted and the thread kept. Chat history and quota counters belong to that account and are visible on your profile page.',
+          'Voice input is transcribed by our speech service; the transcript is kept as part of the thread. Every comp, tier list and guide stays readable without an account.',
+        ],
+      },
+    ],
   },
   membership: {
     kicker: 'Membership pilot',
@@ -826,6 +880,7 @@ const vi: typeof en = {
     guides: { title: 'Hướng dẫn', description: 'Kiến thức nền tảng, kinh tế, xếp đội hình và đọc meta từ đội ngũ TFTIQ.' },
     media: { title: 'Media', description: 'Media TFTIQ: video và podcast chưa ra mắt; trong lúc chờ, đọc hướng dẫn dạng văn bản.' },
     assistant: { title: 'Coach AI TFT', description: 'Hỏi Coach AI về tướng, trang bị, nâng cấp và đội hình TFT. Câu trả lời dùng dữ liệu TFTIQ và hiển thị nguồn.' },
+    assistantGuide: { title: 'Cách dùng Coach AI', description: 'Coach AI trả lời gì, chủ động bỏ qua gì, và một tin nhắn, lượt giọng nói hay quota được tính ra sao.' },
     membership: { title: 'Hội viên', description: 'Miễn phí và Plus: mỗi gói gồm gì, hạn mức Coach được tính thế nào và điều gì xảy ra khi kỳ Plus kết thúc.' },
     about: { title: 'Giới thiệu' },
   },
@@ -1329,6 +1384,56 @@ const vi: typeof en = {
     intro: 'Mình đọc dữ liệu Mùa 18 hiện hành để gợi ý đội hình, cách lên đồ và nâng cấp hợp với bàn cờ của bạn.',
     dataMode: 'Tóm tắt dữ liệu',
     llmMode: 'Coach AI',
+    guideLink: 'Cách dùng Coach',
+  },
+  assistantGuide: {
+    title: 'Cách dùng Coach AI',
+    lede: 'Coach đọc dữ liệu bản hiện hành và trả lời bằng tiếng Việt hoặc tiếng Anh. Đây là lời khuyên chuẩn bị trước trận — Coach không xem trận đang chạy, không theo dõi đối thủ và không chơi thay bạn.',
+    cta: 'Mở Coach AI',
+    sections: (num: (value: number) => string) => [
+      {
+        heading: 'Coach trả lời được gì',
+        body: [
+          'Hỏi về bàn cờ bạn đang lên, chủ lực bạn định dồn đồ, hoặc một lựa chọn đang phân vân. Mọi gợi ý đều trỏ tới một đội hình có trong bảng xếp hạng hiện hành, nên bạn mở ra đọc được toàn bộ hướng dẫn.',
+        ],
+        list: [
+          'Trong hai đội hình, cái nào hợp với tướng và trang bị bạn đang có',
+          'Lên đồ cho chủ lực, và nâng cấp nào đáng lấy cho bàn cờ đó',
+          'Nên giữ vàng hay lên cấp ở mốc bạn đang đứng',
+          'Vì sao một đội hình nằm ở hạng đó, và cái gì khắc nó',
+        ],
+      },
+      {
+        heading: 'Hỏi sao cho đúng',
+        body: [
+          'Mỗi tin nhắn nên hỏi một quyết định. "Mốc 3-2 mình có 2 cung và 4 bản chủ lực, có nên chơi bài reroll không?" cho Coach đủ dữ kiện; "meta giờ chơi gì" thì không.',
+          'Nêu tướng, trang bị và mốc bạn đang có. Coach đọc đúng dữ liệu đội hình, trang bị và nâng cấp mà trang web hiển thị, nên tên gọi là đủ để hiểu. Tin nhắn tiếp theo giữ mạch hội thoại, nên bạn thu hẹp câu trả lời thay vì hỏi lại từ đầu.',
+        ],
+      },
+      {
+        heading: 'Điều Coach không làm',
+        body: [
+          'Coach không xem trận đang chạy, không nhìn bàn đối thủ và không thao tác trong game. Lời khuyên được đọc trước khi vào trận.',
+          'Coach không hứa hạng, và không ước lượng tỷ lệ thắng cho sảnh của bạn. Các con số hạng trên site mô tả đội hình trên nhiều trận, không phải trận tới của bạn.',
+          'Coach không tự bịa đội hình. Nếu dữ liệu hiện hành không có gì khớp với câu hỏi, Coach nói rõ điều đó thay vì đoán.',
+        ],
+      },
+      {
+        heading: 'Lượt hỏi, giọng nói và quota',
+        body: [
+          `Tài khoản Miễn phí có ${num(freePlan.chatPerPeriod)} lượt Coach mỗi tháng, tối đa ${num(freePlan.chatPerDay)} lượt/ngày. Plus nâng lên ${num(plusPlan.chatPerPeriod)} lượt trong 30 ngày, ${num(plusPlan.chatPerDay)} lượt/ngày, kèm giọng nói.`,
+          'Một lượt chỉ được tính khi câu trả lời xong. Nếu bị từ chối hoặc lỗi trước khi Coach trả lời, lượt được trả lại. Phần chưa dùng không cộng dồn sang kỳ sau.',
+          `Giọng nói vào tính theo số giây âm thanh server nhận được (${num(plusPlan.sttSecondsPerPeriod)} giây với Plus); đọc to tính theo số ký tự thực sự đọc (${num(plusPlan.ttsCharactersPerPeriod)} với Plus).`,
+        ],
+      },
+      {
+        heading: 'Tài khoản và lịch sử',
+        body: [
+          'Coach cần tài khoản để trừ lượt và lưu mạch hội thoại. Lịch sử chat và bộ đếm quota thuộc tài khoản đó và xem được ở trang cá nhân.',
+          'Giọng nói vào được dịch bởi dịch vụ speech của TFTIQ; bản chép lời được giữ như một phần của hội thoại. Mọi comp, bảng xếp hạng và hướng dẫn vẫn đọc được mà không cần tài khoản.',
+        ],
+      },
+    ],
   },
   membership: {
     kicker: 'Hội viên · giai đoạn thử',
