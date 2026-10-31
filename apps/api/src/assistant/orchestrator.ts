@@ -1615,9 +1615,6 @@ async function answerAssistantImpl(
   if (toolStopped === 'max_rounds' || toolStopped === 'max_calls' || toolStopped === 'max_per_round') {
     limitations.push(t(request.lang, 'The tool step limit was reached; the answer uses the results collected so far.', 'Đã chạm giới hạn bước gọi tool; câu trả lời dùng các kết quả đã thu thập.'));
   }
-  if (intent === 'comp_search' || intent === 'comp_comparison' || intent === 'comp_recommendation') {
-    limitations.push(t(request.lang, 'Board and tier from TFTIQ; tips and stages from TFT Academy.', 'Board/tier từ TFTIQ; tips/stages từ TFT Academy.'));
-  }
   if (intent === 'entity_lookup' || (intent === 'gameplay_knowledge' && selectedEntities.length)) {
     limitations.push(t(request.lang, "Static data from Riot's published TFT game files and the shared TFT catalog.", 'Dữ liệu tĩnh từ dữ liệu game TFT Riot công bố và danh mục TFT dùng chung.'));
   }
