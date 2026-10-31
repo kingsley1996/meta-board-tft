@@ -311,10 +311,13 @@ export function mechanicTablePages(lang: Lang): { slug: string; title: string }[
     .map((page) => ({ slug: page.slug, title: translateLoot(page.title, 'page-title', lang) }));
 }
 
-function mechanicsSource(url: string) {
+// Sources are rendered under the reply, so they point at the page on this site
+// that shows the same numbers. The feeds these tables were collected from are
+// ours to know about, not something a reader should be sent to.
+function mechanicsSource(path: string, lang: Lang) {
   return {
-    provider: 'TFTIQ / tftflow.com',
-    url,
+    provider: 'TFTIQ',
+    url: `/${lang}/${path}`,
     set: lootData.source.set,
     patch: mechanicsPatch,
     updatedAt: lootData.source.fetchedAt,
@@ -495,7 +498,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
               table,
               noMatch: query,
               pages,
-              source: mechanicsSource(lootData.source.page),
+              source: mechanicsSource('tables', lang),
               summary: lang === 'vi'
                 ? `Không có trang nào khớp "${query}"; đây là danh sách các trang bảng có sẵn.`
                 : `No page matched "${query}"; here is the list of available table pages.`,
@@ -509,7 +512,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
             results: matches.slice(0, 3),
             matchedPages: matches.length,
             truncated: matches.length > 3,
-            source: mechanicsSource(lootData.source.page),
+            source: mechanicsSource('tables', lang),
             summary: lang === 'vi'
               ? `Tìm thấy kết quả "${query}" trong ${matches.length} trang bảng loot.`
               : `Found "${query}" in ${matches.length} loot-table pages.`,
@@ -541,7 +544,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
             entries: matches.slice(0, 12),
             matchedCount: matches.length,
             truncated: matches.length > 12,
-            source: mechanicsSource(lootData.source.page),
+            source: mechanicsSource('tables', lang),
             summary: lang === 'vi'
               ? `Tìm thấy ${matches.length} kết quả tỉ lệ nâng cấp cho "${query}".`
               : `Found ${matches.length} augment-odds rows matching "${query}".`,
@@ -556,7 +559,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
         payload: {
           table,
           pages,
-          source: mechanicsSource(lootData.source.page),
+          source: mechanicsSource('tables', lang),
           summary: lang === 'vi'
             ? 'Đây là danh sách các trang bảng. Chọn slug phù hợp rồi gọi lại để lấy bảng chi tiết.'
             : 'This is the table-page index. Select a matching slug and call again for the table details.',
@@ -571,7 +574,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
     if (table === 'loot_tables' && !query) {
       return {
         tool: 'get_game_mechanics',
-        payload: { ...lootPagePayload(page, lang), source: mechanicsSource(page.sourceUrl) },
+        payload: { ...lootPagePayload(page, lang), source: mechanicsSource(`tables/${page.slug}`, lang) },
       };
     }
     if (table === 'augment_odds') {
@@ -595,7 +598,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
           })),
           matchedCount: entries.length,
           truncated: entries.length > 12,
-          source: mechanicsSource(page.sourceUrl),
+          source: mechanicsSource(`tables/${page.slug}`, lang),
           summary: lang === 'vi' ? `Có ${entries.length} kết quả bảng tỉ lệ nâng cấp.` : `${entries.length} augment-odds rows matched.`,
         },
       };
@@ -606,13 +609,12 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
       payload: {
         table,
         ...data,
-        source: mechanicsSource(page.sourceUrl),
+        source: mechanicsSource(`tables/${page.slug}`, lang),
         summary: data.summary,
       },
     };
   }
 
-  const sourceUrl = `${lootData.source.page}/shop-odds-pool-size-xp-table`;
   if (table === 'income') {
     return {
       tool: 'get_game_mechanics',
@@ -624,7 +626,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
         interestTiming: lang === 'vi'
           ? 'Lãi tính trên lượng vàng giữ trước khi cộng thu nhập nền của vòng đó.'
           : 'Interest is calculated from gold held before that round’s base income is added.',
-        source: mechanicsSource(`${lootData.source.page}/gold-income`),
+        source: mechanicsSource('tables/gold-income', lang),
         summary: lang === 'vi'
           ? 'Thu nhập mỗi vòng gồm vàng nền, lãi theo vàng đang giữ và thưởng chuỗi thắng/thua; tối đa 5 vàng lãi ở mốc 50 vàng.'
           : 'Round income combines base gold, interest on held gold, and streak bonuses; interest caps at 5 gold when holding 50.',
@@ -638,7 +640,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
         table,
         costOrder: [1, 2, 3, 4, 5],
         rows: shopOdds,
-        source: mechanicsSource(sourceUrl),
+        source: mechanicsSource('tables/shop-odds-pool-size-xp-table', lang),
         summary: lang === 'vi' ? 'Bảng tỉ lệ tướng trong shop theo cấp, thứ tự cost 1–5.' : 'Shop champion odds by level, ordered by cost 1–5.',
       },
     };
@@ -651,7 +653,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
         freeXpPerRound: 2,
         xpPurchase: { gold: 4, xp: 4 },
         xpToLevel: xpTable,
-        source: mechanicsSource(sourceUrl),
+        source: mechanicsSource('tables/shop-odds-pool-size-xp-table', lang),
         summary: lang === 'vi'
           ? 'Nhận 2 XP miễn phí mỗi vòng; mua 4 XP tốn 4 vàng. Bảng cho biết XP cần để đạt từng cấp.'
           : 'Gain 2 free XP per round; buying 4 XP costs 4 gold. The table lists XP needed to reach each level.',
@@ -664,7 +666,7 @@ async function getGameMechanicsTool(args: Record<string, unknown>, lang: Lang): 
       table,
       copiesPerCost: poolSizes,
       starCopies: { twoStar: 3, threeStar: 9 },
-      source: mechanicsSource(sourceUrl),
+      source: mechanicsSource('tables/shop-odds-pool-size-xp-table', lang),
       summary: lang === 'vi'
         ? 'Số bản sao của từng tướng trong pool dùng chung; 3 bản sao lên 2 sao, 9 bản sao lên 3 sao.'
         : 'Champion copies per cost in the shared pool; 3 copies make a 2-star and 9 make a 3-star.',
@@ -692,7 +694,7 @@ async function getEconomyPlanTool(args: Record<string, unknown>, lang: Lang): Pr
       payload: {
         type: 'strategy',
         plan,
-        source: economySource(),
+        source: economySource(lang),
         summary: lang === 'vi'
           ? `Kế hoạch ${plan.name} có ${plan.rounds.length} mốc vòng, bao gồm hướng dẫn lên cấp, roll và giữ vàng.`
           : `${plan.name} has ${plan.rounds.length} round-by-round steps for leveling, rolling and saving gold.`,
@@ -711,7 +713,6 @@ async function getEconomyPlanTool(args: Record<string, unknown>, lang: Lang): Pr
       name: comp.title,
       carry: comp.carry.name,
       strategy: translateText(lang, 'economy', 'strategy-name', plan.strategy),
-      planSource: plan.source,
       levelCurve: plan.levelCurve.map((entry) => ({
         stage: entry.stage,
         text: translateText(lang, 'economy', 'round-plan', entry.text),
@@ -724,7 +725,7 @@ async function getEconomyPlanTool(args: Record<string, unknown>, lang: Lang): Pr
       payload: {
         type: 'comp',
         comp: data,
-        source: economySource(),
+        source: economySource(lang),
         summary: lang === 'vi'
           ? `${comp.title} phù hợp với chiến thuật ${data.strategy}; đường cong cấp có ${data.levelCurve.length} mốc vòng.`
           : `${comp.title} maps to ${data.strategy}; its level curve has ${data.levelCurve.length} round steps.`,
@@ -752,7 +753,7 @@ async function getEconomyPlanTool(args: Record<string, unknown>, lang: Lang): Pr
             : null,
         })),
         matchedCount: matchingComps.length,
-        source: economySource(),
+        source: economySource(lang),
         summary: lang === 'vi'
           ? `Có ${matchingComps.length} comp kinh tế khớp; hãy chọn đúng comp rồi truy vấn lại.`
           : `${matchingComps.length} economy comps matched; select one and query again for its plan.`,
@@ -765,7 +766,7 @@ async function getEconomyPlanTool(args: Record<string, unknown>, lang: Lang): Pr
     payload: {
       type: 'comp',
       comp: plan,
-      source: economySource(),
+      source: economySource(lang),
       summary: lang === 'vi'
         ? `Kế hoạch kinh tế cho ${plan.name}: ${plan.strategy ?? 'chưa phân loại'}, ${plan.levelCurve.length} mốc vòng.`
         : `Economy plan for ${plan.name}: ${plan.strategy ?? 'unclassified'}, ${plan.levelCurve.length} round steps.`,
@@ -784,10 +785,10 @@ function translatedStrategy(strategy: EconomyPlanStrategy, lang: Lang) {
   };
 }
 
-function economySource() {
+function economySource(lang: Lang) {
   return {
-    provider: economyData.source.provider,
-    url: economyData.source.page,
+    provider: 'TFTIQ',
+    url: `/${lang}/economy`,
     set: economyData.source.set,
     updatedAt: economyData.source.fetchedAt,
   };

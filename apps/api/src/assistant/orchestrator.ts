@@ -505,11 +505,13 @@ function sourceForComp(comp: CompData, lang: Lang, version: string): AssistantSo
   };
 }
 
-function sourceForStats(source: { provider: string; patch: string; updated: string }): AssistantSource {
+function sourceForStats(source: { provider: string; patch: string; updated: string }, lang: Lang): AssistantSource {
   return {
     id: 'meta:stats',
     title: 'TFTIQ stats',
-    url: 'https://www.metatft.com/',
+    // The numbers already appear on our tier list; pointing readers at the feed that
+    // supplied them would put a third-party name in player-facing copy.
+    url: `/${lang}/tierlist/comps`,
     sourceType: 'structured_data',
     version: `patch${source.patch}`,
     retrievedAt: source.updated,
@@ -1667,7 +1669,7 @@ async function answerAssistantImpl(
     ...relatedComps.map((comp) => sourceForComp(comp, request.lang, version)),
     ...selectedEntities.map((entity) => sourceForEntity(entity, request.lang, version)),
     ...relatedEntities.map((entity) => sourceForEntity(entity, request.lang, version)),
-    ...(stats.length ? [sourceForStats(metaStats.source)] : []),
+    ...(stats.length ? [sourceForStats(metaStats.source, request.lang)] : []),
     ...(mechanics ? [sourceForMechanics(meta.setId, request.lang)] : []),
     ...toolSources,
   ]

@@ -79,7 +79,7 @@ test('returns exact game mechanics tables with source metadata', async () => {
   assert.equal(incomePayload.baseIncome.find((entry) => entry.rounds === '2-2+')?.gold, 5);
   assert.equal(incomePayload.interest.find((entry) => entry.hold === '50+')?.gold, 5);
   assert.match(incomePayload.summary, /Thu nhập/);
-  assert.match(incomePayload.source.url, /gold-income/);
+  assert.equal(incomePayload.source.url, '/vi/tables/gold-income');
 
   const odds = await executeAssistantTool('get_game_mechanics', { table: 'shop_odds' }, 'en');
   const oddsPayload = odds.payload as { rows: { level: number; odds: number[] }[] };
@@ -97,7 +97,7 @@ test('returns focused loot-table pages and supports a second query for table det
   };
   assert.ok(pagePayload.tables.length > 0);
   assert.equal(pagePayload.tableCount, pagePayload.tables.length);
-  assert.match(pagePayload.source.url, /coven$/);
+  assert.equal(pagePayload.source.url, '/en/tables/coven');
 
   // Large pages still return an index to keep the payload bounded.
   const bigPage = await executeAssistantTool('get_game_mechanics', { table: 'loot_tables', slug: 'stage-loot-orbs' }, 'en');
@@ -116,7 +116,7 @@ test('returns focused loot-table pages and supports a second query for table det
   };
   assert.ok(detailsPayload.matchedCount > 0);
   assert.ok(detailsPayload.tables.length <= 3);
-  assert.match(detailsPayload.source.url, /stage-loot-orbs$/);
+  assert.equal(detailsPayload.source.url, '/en/tables/stage-loot-orbs');
 
   const globalSearch = await executeAssistantTool(
     'get_game_mechanics',
@@ -143,7 +143,8 @@ test('returns localized round-by-round economy strategies', async () => {
   assert.equal(payload.plan.rounds.length, 12);
   assert.equal(payload.plan.rounds[0].round, '2-1');
   assert.match(payload.plan.name, /Lên cấp 8 nhanh/);
-  assert.match(payload.source.provider, /tftflow/);
+  assert.equal(payload.source.provider, 'TFTIQ');
+  assert.equal(payload.source.url, '/vi/economy');
   assert.match(payload.summary, /Kế hoạch/);
   assert.match(payload.plan.rounds[0].text, /vàng|cấp|thắng|thua/i);
 });
