@@ -18,6 +18,11 @@ export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
 
+// Only /en and /vi exist. Without this, a root-level path like /riot.txt is read
+// as a locale, the layout rejects it after the page already read `messages[...]`,
+// and the request dies with a 500 instead of a 404.
+export const dynamicParams = false;
+
 // The Slate ground, i.e. --color-page in app/globals.css. PWA chrome and the
 // first painted frame have to agree or the browser bar flashes.
 export const viewport: Viewport = { themeColor: '#0d1317' };
