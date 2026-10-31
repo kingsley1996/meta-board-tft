@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { guideTag } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
+import { GuideCover } from './guide-cover';
 import { Chip, CtaLink } from './ui';
 
 // The fields the hub draws. Article bodies stay on the article route so they are
@@ -40,11 +41,7 @@ export function GuideBrowser({ lang, tags, guides }: { lang: Lang; tags: string[
           <p className="text-xs font-semibold text-mist">{featured.author} &middot; {featured.date}</p>
           <CtaLink href={`/${lang}/guides/${featured.slug}`}>{t.readTheGuide}</CtaLink>
         </div>
-        <div className="relative min-h-[200px] overflow-hidden rounded-lg border border-line bg-gradient-to-br from-brand/25 via-panel to-panel">
-          <span className="hex absolute top-8 left-10 h-28 w-24 rotate-12 bg-fog/5" />
-          <span className="hex absolute right-10 bottom-6 h-36 w-32 -rotate-6 bg-brand/20" />
-          <span className="absolute bottom-4 left-4 font-display text-4xl font-bold uppercase tracking-tight text-fog/80">{guideTag(featured.tags.at(-1) ?? '', lang)}</span>
-        </div>
+        <GuideCover tag={featured.tags.at(-1) ?? ''} lang={lang} index={guides.indexOf(featured) + 1} hero />
       </section>
 
       <div data-section="guide-list" className="flex flex-col gap-4">
@@ -67,9 +64,7 @@ export function GuideBrowser({ lang, tags, guides }: { lang: Lang; tags: string[
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rest.map((guide) => (
             <Link key={guide.slug} href={`/${lang}/guides/${guide.slug}`} className="group flex flex-col overflow-hidden rounded-xl border border-line bg-panel">
-              <div className="relative h-32 bg-gradient-to-br from-util via-panel to-panel">
-                <span className="hex absolute top-6 left-6 h-20 w-16 bg-fog/5 transition-transform group-hover:scale-110" />
-              </div>
+              <GuideCover tag={guide.tags.at(-1) ?? ''} lang={lang} index={guides.indexOf(guide) + 1} />
               <div className="flex flex-1 flex-col gap-2 p-4">
                 <div className="flex gap-1.5">
                   {guide.tags.map((tag) => <Chip key={tag}>{guideTag(tag, lang)}</Chip>)}
