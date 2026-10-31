@@ -237,6 +237,7 @@ hai số khác nhau. Việc đó chạy **lúc boot** (`index.ts` → `applyCata
 | `tft.json` + `apps/web/public/tft/**` (commit) | trang static (champions/items grid, hover cards) **và** API | repo crawler riêng (private) | chạy crawl ở repo đó, commit vào đây, push |
 | 4 bảng catalog trong Postgres | responses động, admin, validation | `syncTft()` / `ensureCatalogCurrent()` từ snapshot | **không có bước thủ công** — API tự nạp khi boot |
 | `comps`, `guides` trong Postgres | nội dung biên tập | `seed.ts` (DB trắng) / admin UI (về sau) | admin UI; `seed:economy` để nạp thêm economy comps |
+| `tier`, `trend` của `comps` | bảng tier list và bản đồ comp | snapshot `apps/api/seed/comps.json` | `npm run seed:tiers` — chỉ UPDATE hai cột theo slug, không xoá gì |
 | `plan_versions` trong Postgres | [quota.ts](../apps/api/src/membership/quota.ts) chỉ đọc khi có membership resolution (#86); chưa có route nào gọi — bán hàng là gate #92/#95 | `seed/membership-plans.ts` | `npm run seed:membership` — idempotent, tạo hai offer `draft`; bật `active` là quyết định thương mại, không phải bước deploy |
 
 Quy tắc chọn đường, theo trạng thái DB đích:
@@ -246,6 +247,20 @@ Quy tắc chọn đường, theo trạng thái DB đích:
 - **DB đã có nội dung admin tạo: ĐỪNG seed.** Dòng đầu của `seed.ts` ghi rõ: nó
   *replaces* comps và guides — mọi thứ soạn qua `/admin` bị xoá, log vẫn báo thành
   công. Catalog thì không cần seed: API tự nạp. Nội dung comps/guides sửa qua admin UI.
+- **DB đã có nội dung, chỉ tier/trend theo sau nguồn:** `npm run seed:tiers`
+  ([seed/sync-tiers.ts](../apps/api/seed/sync-tiers.ts)). So theo `slug`, chỉ `UPDATE tier, trend`
+  trong một transaction, in bảng before→after, chạy lại lần hai thì báo 0 thay đổi. Không thêm
+  comp mới (một comp cần board/items/augments, hai cột kia không mang được), không đụng
+  `cover`, tips, votes, views và các comp economy chỉ có trong DB. Thêm comp thì dùng
+  `seed:economy`. Xem trước bằng `-- --dry-run`.
+  Trỏ vào DB prod bằng biến đang có trong `apps/api/.env` (Node ưu tiên env của shell hơn file):
+
+  ```sh
+  cd apps/api
+  set -a; . ./.env; set +a
+  DATABASE_URL="$PROD_DATABASE_URL" npm run seed:tiers -- --dry-run
+  DATABASE_URL="$PROD_DATABASE_URL" npm run seed:tiers
+  ```
 - **RAG corpus:** sửa nguồn (`mechanics-knowledge.json`, `seed/guides.ts`, `seed/tips.ts`)
   rồi `npm run build:knowledge`; `chunks.jsonl` là output đã commit — không sửa tay.
 
@@ -263,6 +278,7 @@ npm run verify           # lô data trong app checkout là gì
 cd ../tft-comps          # repo app
 npm run build:knowledge  # corpus RAG từ guides.ts + tips.ts
 npm run test:server      # test đọc snapshot, không đọc mạng
+npm run seed:tiers --workspace @tftiq/api -- --dry-run   # tier/trend DB lệch snapshot ở đâu
 git add packages/shared/data apps/web/public/tft apps/web/lib/wisps.json apps/api/seed
 git commit -m "chore(data): set <N> patch <P>"
 git push                 # Vercel rebuild web; Render redeploy API và tự nạp catalog
