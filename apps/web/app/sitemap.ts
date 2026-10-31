@@ -26,6 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...comps.map((comp) => ({ path: `tierlist/comps/${comp.slug}`, meta: top })),
     ...tft.champions.map((champion) => ({ path: `champions/${champion.slug}`, meta: page })),
     { path: 'items', meta: page },
+    { path: 'item-priority', meta: page },
     { path: 'augments', meta: page },
     { path: 'wisps', meta: page },
     { path: 'tables', meta: page },

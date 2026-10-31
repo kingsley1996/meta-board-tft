@@ -1,16 +1,151 @@
 [
   {
+    "title": "Aphelios Elderwood",
+    "titleVi": "Aphelios Thần Rừng",
+    "tier": "S",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": null,
+    "playstyle": "Fast 8 · Aphelios carry",
+    "playstyleVi": "Fast 8 · chủ lực Aphelios",
+    "stats": {
+      "avg": 4.24,
+      "games": 42521,
+      "level": 9
+    },
+    "units": [
+      {
+        "name": "Alistar",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Aphelios",
+        "row": 3,
+        "col": 0,
+        "stars": 2,
+        "items": [
+          "Elderwood Emblem",
+          "Guinsoo's Rageblade",
+          "Kraken's Fury"
+        ]
+      },
+      {
+        "name": "Diana",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Ezreal",
+        "row": 3,
+        "col": 1,
+        "stars": null,
+        "items": [
+          "Infinity Edge",
+          "Last Whisper",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Gnar",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Hecarim",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Lillia",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Ornn",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Xayah",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Alistar",
+      "Hecarim",
+      "LeBlanc",
+      "Ornn"
+    ],
+    "carry": "Aphelios",
+    "items": [
+      "Elderwood Emblem",
+      "Guinsoo's Rageblade",
+      "Kraken's Fury"
+    ],
+    "augments": [
+      "Branching Out+",
+      "Band of Thieves",
+      "Champ Delivery+",
+      "Component Buffet",
+      "Feeling Lucky",
+      "Latent Forge",
+      "Partial Ascension",
+      "Patience is a Virtue"
+    ],
+    "tips": "Comp to play with AD items and an elderwood emblem. If you hit elderwood lux with emblem you can drop Lillia for 9 Elderwood.",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Open with a strong win streak AD tempo around Rapidfires. BIS is somewhat fake in this comp so slam aggressively to win."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Comp can use many items so take item augment if you don't have one yet. Mama Beak can be a strong carry here if you have Riftbeasts online."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level to 8 and roll for Aphelios and Ezreal, you should be stable with 7 elderwood and one of these 2 starred. Go 9 when stable for Gnar+Lux."
+      }
+    ],
+    "slug": "aphelios-elderwood"
+  },
+  {
     "title": "Brambleback Riftbeast",
     "titleVi": "Bụi Gai Đỏ Quái Rừng",
     "tier": "S",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": null,
+    "trend": "down",
     "playstyle": "Fast 8 · Brambleback carry",
     "playstyleVi": "Fast 8 · chủ lực Brambleback",
     "stats": {
-      "avg": 4.13,
-      "games": 221894,
+      "avg": 4.27,
+      "games": 118109,
       "level": 9
     },
     "units": [
@@ -122,161 +257,91 @@
     "slug": "brambleback-riftbeast"
   },
   {
-    "title": "Ezreal Executioner",
-    "titleVi": "Ezreal Đao Phủ",
+    "title": "Alune Vanguard",
+    "titleVi": "Alune Tiên Phong",
     "tier": "S",
     "style": "Fast 8",
-    "difficulty": 2,
-    "trend": null,
-    "playstyle": "Fast 8 · Ezreal carry",
-    "playstyleVi": "Fast 8 · chủ lực Ezreal",
+    "difficulty": 3,
+    "trend": "up",
+    "playstyle": "Fast 8 · Alune carry",
+    "playstyleVi": "Fast 8 · chủ lực Alune",
     "stats": {
-      "avg": 4.25,
-      "games": 34461,
+      "avg": 4.29,
+      "games": 55389,
       "level": 9
     },
     "units": [
       {
-        "name": "Alistar",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Aphelios",
+        "name": "Alune",
         "row": 3,
         "col": 0,
-        "stars": null,
+        "stars": 2,
         "items": [
-          "Elderwood Emblem",
-          "Guinsoo's Rageblade",
-          "Kraken's Fury"
+          "Archangel's Staff",
+          "Blue Buff",
+          "Jeweled Gauntlet"
         ]
       },
       {
         "name": "Diana",
         "row": 1,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Ezreal",
-        "row": 3,
-        "col": 1,
-        "stars": 2,
-        "items": [
-          "Infinity Edge",
-          "Last Whisper",
-          "Spear of Shojin"
-        ]
-      },
-      {
-        "name": "Gnar",
-        "row": 1,
         "col": 3,
         "stars": null,
         "items": []
       },
       {
-        "name": "Hecarim",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Lillia",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Ornn",
-        "row": 0,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Xayah",
+        "name": "Ivern",
         "row": 3,
         "col": 6,
         "stars": null,
         "items": []
-      }
-    ],
-    "early": [
-      "Alistar",
-      "Hecarim",
-      "LeBlanc",
-      "Ornn"
-    ],
-    "carry": "Ezreal",
-    "items": [
-      "Infinity Edge",
-      "Last Whisper",
-      "Spear of Shojin"
-    ],
-    "augments": [
-      "Band of Thieves",
-      "Champ Delivery+",
-      "Component Buffet",
-      "Feeling Lucky",
-      "Latent Forge",
-      "Partial Ascension",
-      "Patience is a Virtue",
-      "Residual Magic ++"
-    ],
-    "tips": "Average placement 4.25 across 34,461 games. Level 9 is the most common finish (50%). Best Ezreal build: Infinity Edge, Last Whisper, Spear of Shojin.",
-    "tipsVi": "Hạng trung bình 4.25 qua 34.461 trận. Cấp 9 là mức kết thúc phổ biến nhất (50%). Trang bị tốt nhất cho Ezreal: Infinity Edge, Last Whisper, Spear of Shojin.",
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Most common level 4 board: Alistar, Ornn, Varus, Xayah (1,502 games, 4.21 avg).",
-        "textVi": "Đội cấp 4 phổ biến nhất: Alistar, Ornn, Varus, Xayah (1.502 trận, hạng TB 4.21)."
       },
       {
-        "stage": "Stage 3",
-        "text": "Most common level 6 board: Alistar, Hecarim, LeBlanc, Ornn, Varus, Xayah (744 games, 4.19 avg).",
-        "textVi": "Đội cấp 6 phổ biến nhất: Alistar, Hecarim, LeBlanc, Ornn, Varus, Xayah (744 trận, hạng TB 4.19)."
+        "name": "Lillia",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
       },
       {
-        "stage": "Stage 4",
-        "text": "Level 9 board: Alistar, Aphelios, Diana, Ezreal, Gnar, Hecarim, Lillia, Ornn, Xayah (1,035 games, 4.25 avg).",
-        "textVi": "Đội cấp 9: Alistar, Aphelios, Diana, Ezreal, Gnar, Hecarim, Lillia, Ornn, Xayah (1.035 trận, hạng TB 4.25)."
-      }
-    ],
-    "slug": "ezreal-elderwood"
-  },
-  {
-    "title": "Veigar Blackthorn",
-    "titleVi": "Veigar Gai Đen",
-    "tier": "S",
-    "style": "Reroll",
-    "difficulty": 1,
-    "trend": null,
-    "playstyle": "Reroll · Veigar carry",
-    "playstyleVi": "Reroll · chủ lực Veigar",
-    "stats": {
-      "avg": 4.32,
-      "games": 65372,
-      "level": 7
-    },
-    "units": [
+        "name": "Morgana",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": [
+          "Hextech Gunblade",
+          "Morellonomicon",
+          "Void Staff"
+        ]
+      },
       {
-        "name": "Alistar",
-        "row": 2,
+        "name": "Rakan",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Fiddlesticks",
+        "row": 1,
+        "col": 4,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Sentinel",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Taric",
+        "row": 0,
         "col": 4,
         "stars": null,
         "items": [
@@ -284,95 +349,45 @@
           "Spirit Visage",
           "Warmog's Armor"
         ]
-      },
-      {
-        "name": "Cassiopeia",
-        "row": 2,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "LeBlanc",
-        "row": 3,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Ornn",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Rek'Sai",
-        "row": 2,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Veigar",
-        "row": 3,
-        "col": 0,
-        "stars": 3,
-        "items": [
-          "Blue Buff",
-          "Hextech Gunblade",
-          "Jeweled Gauntlet"
-        ]
-      },
-      {
-        "name": "Fiddlesticks",
-        "row": 2,
-        "col": 5,
-        "stars": null,
-        "items": []
       }
     ],
     "early": [
-      "Alistar",
-      "LeBlanc",
-      "Ornn",
-      "Rek'Sai"
+      "Caitlyn",
+      "Camille",
+      "Cassiopeia",
+      "Elise"
     ],
-    "carry": "Veigar",
+    "carry": "Alune",
     "items": [
+      "Archangel's Staff",
       "Blue Buff",
-      "Hextech Gunblade",
       "Jeweled Gauntlet"
     ],
     "augments": [
-      "Pandora's Bench",
-      "Trade Sector"
+      "A Magic Roll",
+      "Baron's Lair",
+      "Booster Pack++",
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
-    "tips": "Play with lots of copies of Ornn and Veigar, we need to hit fast to start scaling. Sacrifice Lifebloom plant to Blackthorn early. Late game you can sacrifice Leblanc 3 for big stats -> move her items to another spellweaver. After you hit rush 9 for Kobuko + Gnar. After you cash out first Ornn artifact, move items to Alistar.",
+    "tips": "Cap the board with a Lux over Morgana for end game. Lunar Lux is best but play whatever Lux you are likely to 2* first. Carry / tank 4 cost units until you get to the end game. Always focus on unit quality over exact board units.",
     "tipsVi": null,
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Only play around this opener with early upgrades so Veigar can snowball and gain stacks. Prioritize Veigar items."
+        "text": "Slam items aggressively and play for full win streak with AP items. Ideal opener will be Blossom featuring Karma / Spellweavers. "
       },
       {
         "stage": "Stage 3",
-        "text": "If you are close to Veigar and Ornn 3 (7+ copies), consider rolling until you hit 3*. If far (3-4 copies), slow roll above 50g for 3*."
+        "text": "Continue prioritize win streaking. If you have an econ augment, you can go Fast 7 (before 3-3) to maintain win streak if needed."
       },
       {
         "stage": "Stage 4",
-        "text": "Once you finish Ornn 3 and Veigar 3, you can slowroll on 6 for Leblanc + Alistar 3, if you are too far push levels.. "
+        "text": "You can start losing rounds while focusing on econ. Fast 9 by the beginning of Stage 5 and look for your 5 costs. You want around 70g+ minimum for the rolldown."
       }
     ],
-    "slug": "veigar-blackthorn"
+    "slug": "alune-vanguard"
   },
   {
     "title": "Teemo Sprykin",
@@ -380,12 +395,12 @@
     "tier": "S",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "up",
+    "trend": null,
     "playstyle": "Fast 8 · Teemo carry",
     "playstyleVi": "Fast 8 · chủ lực Teemo",
     "stats": {
-      "avg": 4.34,
-      "games": 20801,
+      "avg": 4.3,
+      "games": 27452,
       "level": 8
     },
     "units": [
@@ -477,10 +492,10 @@
     "augments": [
       "A Magic Roll",
       "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
       "Booster Pack++",
-      "Branching Out"
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
     "tips": "Best with winstreak opener around Leblanc or Teemo with Brawler frontline. Teemo likes crit items but slam any strong AP items to get the streak going. Morgana holds utility items late game.",
     "tipsVi": null,
@@ -501,44 +516,83 @@
     "slug": "teemo-sprykin"
   },
   {
-    "title": "Kha'Zix Elderwood",
-    "titleVi": "Kha'Zix Thần Rừng",
+    "title": "Sentinel Vanguard",
+    "titleVi": "Người Đá Tiên Phong",
     "tier": "S",
-    "style": "Reroll",
-    "difficulty": 1,
-    "trend": "down",
-    "playstyle": "Reroll · Kha'Zix carry",
-    "playstyleVi": "Reroll · chủ lực Kha'Zix",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": "up",
+    "playstyle": "Fast 8 · Sentinel carry",
+    "playstyleVi": "Fast 8 · chủ lực Sentinel",
     "stats": {
-      "avg": 4.38,
-      "games": 45702,
-      "level": 7
+      "avg": 4.3,
+      "games": 27442,
+      "level": 9
     },
     "units": [
       {
-        "name": "Diana",
-        "row": 1,
-        "col": 1,
-        "stars": null,
-        "items": [
-          "Hand Of Justice",
-          "Ionic Spark",
-          "Jeweled Gauntlet"
-        ]
-      },
-      {
-        "name": "Ezreal",
+        "name": "Alune",
         "row": 3,
         "col": 0,
         "stars": null,
         "items": [
-          "Deathblade",
-          "Red Buff",
+          "Jeweled Gauntlet",
+          "Nashor's Tooth",
           "Spear of Shojin"
         ]
       },
       {
-        "name": "Hecarim",
+        "name": "Cassiopeia",
+        "row": 3,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Diana",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Elder Dragon",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Elise",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Morgana",
+        "row": 2,
+        "col": 2,
+        "stars": null,
+        "items": [
+          "Morellonomicon",
+          "Rabadon's Deathcap",
+          "Void Staff"
+        ]
+      },
+      {
+        "name": "Sentinel",
+        "row": 0,
+        "col": 4,
+        "stars": 2,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Taric",
         "row": 0,
         "col": 2,
         "stars": null,
@@ -547,77 +601,163 @@
           "Spirit Visage",
           "Warmog's Armor"
         ]
+      }
+    ],
+    "early": [
+      "Caitlyn",
+      "Camille",
+      "Cassiopeia",
+      "Elise"
+    ],
+    "carry": "Sentinel",
+    "items": [
+      "Gargoyle Stoneplate",
+      "Protector's Vow",
+      "Warmog's Armor"
+    ],
+    "augments": [
+      "A Magic Roll",
+      "Baron's Lair",
+      "Booster Pack++",
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
+    ],
+    "tips": "Average placement 4.30 across 27,442 games. Level 9 is the most common finish (62%). Best Sentinel build: Gargoyle Stoneplate, Protector's Vow, Warmog's Armor.",
+    "tipsVi": "Hạng trung bình 4.30 qua 27.442 trận. Cấp 9 là mức kết thúc phổ biến nhất (62%). Trang bị tốt nhất cho Sentinel: Gargoyle Stoneplate, Protector's Vow, Warmog's Armor.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Most common level 4 board: Caitlyn, Camille, Cassiopeia, Elise (3,158 games, 3.69 avg).",
+        "textVi": "Đội cấp 4 phổ biến nhất: Caitlyn, Camille, Cassiopeia, Elise (3.158 trận, hạng TB 3.69)."
       },
       {
-        "name": "Kha'Zix",
+        "stage": "Stage 3",
+        "text": "Most common level 6 board: Caitlyn, Camille, Cassiopeia, Diana, Elise, Fiddlesticks (716 games, 4.56 avg).",
+        "textVi": "Đội cấp 6 phổ biến nhất: Caitlyn, Camille, Cassiopeia, Diana, Elise, Fiddlesticks (716 trận, hạng TB 4.56)."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level 9 board: Alune, Cassiopeia, Diana, Elder Dragon, Elise, Morgana, Sentinel, Taric (4,646 games, 4.30 avg).",
+        "textVi": "Đội cấp 9: Alune, Cassiopeia, Diana, Elder Dragon, Elise, Morgana, Sentinel, Taric (4.646 trận, hạng TB 4.30)."
+      }
+    ],
+    "slug": "sentinel-riftbeast"
+  },
+  {
+    "title": "Veigar Blackthorn",
+    "titleVi": "Veigar Gai Đen",
+    "tier": "S",
+    "style": "Reroll",
+    "difficulty": 1,
+    "trend": null,
+    "playstyle": "Reroll · Veigar carry",
+    "playstyleVi": "Reroll · chủ lực Veigar",
+    "stats": {
+      "avg": 4.32,
+      "games": 60906,
+      "level": 7
+    },
+    "units": [
+      {
+        "name": "Alistar",
         "row": 0,
-        "col": 1,
-        "stars": 3,
+        "col": 3,
+        "stars": null,
         "items": [
-          "Hand Of Justice",
-          "Nashor's Tooth",
-          "Rabadon's Deathcap"
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Cassiopeia",
+        "row": 2,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "LeBlanc",
+        "row": 3,
+        "col": 1,
+        "stars": null,
+        "items": [
+          "Morellonomicon",
+          "Spear of Shojin",
+          "Void Staff"
         ]
       },
       {
         "name": "Ornn",
-        "row": 3,
-        "col": 6,
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Rek'Sai",
+        "row": 2,
+        "col": 2,
         "stars": null,
         "items": []
       },
       {
-        "name": "Soraka",
+        "name": "Veigar",
         "row": 3,
-        "col": 1,
-        "stars": null,
-        "items": []
+        "col": 0,
+        "stars": 3,
+        "items": [
+          "Blue Buff",
+          "Hextech Gunblade",
+          "Jeweled Gauntlet"
+        ]
       },
       {
         "name": "Fiddlesticks",
         "row": 2,
-        "col": 2,
+        "col": 4,
         "stars": null,
         "items": []
       }
     ],
     "early": [
-      "Kha'Zix",
-      "Yorick",
-      "Yunara",
-      "Karma"
+      "Alistar",
+      "LeBlanc",
+      "Ornn",
+      "Rek'Sai"
     ],
-    "carry": "Kha'Zix",
+    "carry": "Veigar",
     "items": [
-      "Hand Of Justice",
-      "Nashor's Tooth",
-      "Rabadon's Deathcap"
+      "Blue Buff",
+      "Hextech Gunblade",
+      "Jeweled Gauntlet"
     ],
     "augments": [
-      "A Magic Roll",
-      "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
-      "Booster Pack++",
-      "Branching Out"
+      "Pandora's Bench",
+      "Trade Sector"
     ],
-    "tips": "If you have HOJ first, go Executioner > Ravager. If you have AP / Mana / tempo slams, go Ravager > Executioner. Then pick Spellweaver > Rapidfire with the last evolutions. Can play 3rd Executioner/Lux/Ivern as max cap.",
+    "tips": "Ideally played with a strong condition such as good Artifact, emblem, or many copies of Veigar / Ornn. Sacrifice Lifebloom plant to Blackthorn early. Late game you can sacrifice Leblanc 3 for big stats -> move her items to another spellweaver. After you cash out first Ornn artifact, move items to Alistar.",
     "tipsVi": null,
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Slam items aggressively on Kha'zix and move them later. It's okay to have Spark, Shojin, etc on Khazix early for takedowns."
+        "text": "Only play around this opener with early upgrades so Veigar can snowball and gain stacks. Prioritize Veigar items."
       },
       {
         "stage": "Stage 3",
-        "text": "If you have a few crucial pairs on level 6, you can consider rolling slightly on 6 to get charms / upgrade units. Econ up to 7 otherwise."
+        "text": "If you are close to Veigar and Ornn 3 (7+ copies), consider rolling until you hit 3*. If far (3-4 copies), slow roll above 50g for 3*."
       },
       {
         "stage": "Stage 4",
-        "text": "Slow roll on 7 for 3* upgrades on whatever 3 costs you're chasing. In this example, give leftover AP items to Diana."
+        "text": "Once you finish Ornn 3 and Veigar 3, you can slowroll on 6 for Leblanc + Alistar 3, if you are too far push levels.. "
       }
     ],
-    "slug": "kha-zix-elderwood"
+    "slug": "veigar-blackthorn"
   },
   {
     "title": "Azir Blackthorn",
@@ -625,12 +765,12 @@
     "tier": "S",
     "style": "Reroll",
     "difficulty": 1,
-    "trend": "down",
+    "trend": null,
     "playstyle": "Reroll · Azir carry",
     "playstyleVi": "Reroll · chủ lực Azir",
     "stats": {
-      "avg": 4.38,
-      "games": 36809,
+      "avg": 4.35,
+      "games": 33931,
       "level": 7
     },
     "units": [
@@ -740,1398 +880,17 @@
     "slug": "azir-blackthorn"
   },
   {
-    "title": "Karma & Yunara Blossom",
-    "titleVi": "Karma & Yunara Hoa Linh",
-    "tier": "S",
-    "style": "Reroll",
-    "difficulty": 1,
-    "trend": "up",
-    "playstyle": "Reroll · Karma carry",
-    "playstyleVi": "Reroll · chủ lực Karma",
-    "stats": {
-      "avg": 4.39,
-      "games": 80373,
-      "level": 7
-    },
-    "units": [
-      {
-        "name": "Kayle",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "LeBlanc",
-        "row": 3,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Leona",
-        "row": 1,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Sejuani",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Warmog's Armor",
-          "Spirit Visage"
-        ]
-      },
-      {
-        "name": "Yorick",
-        "row": 1,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Warmog's Armor",
-          "Sunfire Cape"
-        ]
-      },
-      {
-        "name": "Yunara",
-        "row": 3,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Deathblade",
-          "Last Whisper",
-          "Spear of Shojin"
-        ]
-      },
-      {
-        "name": "Karma",
-        "row": 3,
-        "col": 0,
-        "stars": 3,
-        "items": [
-          "Blue Buff",
-          "Jeweled Gauntlet",
-          "Rabadon's Deathcap"
-        ]
-      }
-    ],
-    "early": [
-      "LeBlanc",
-      "Sejuani",
-      "Yorick",
-      "Yunara"
-    ],
-    "carry": "Karma",
-    "items": [
-      "Blue Buff",
-      "Jeweled Gauntlet",
-      "Rabadon's Deathcap"
-    ],
-    "augments": [
-      "Trade Sector"
-    ],
-    "tips": "Prioritize 3* Karma + 3 Blossom + LeBlanc early for clone copies. Add 3 Solar after you finish your 3* (Leona / Kayle not necessary). ",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Slam items for Karma and play for win streak with Blossom in. Tank Yorick / Juggernaut until you find Sejuani 2."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Try to look for an econ/exp wisp every round when rolling. Prioritize Karma 3 > Sejuani 3 > Yorick 3 > Leblanc / Yunara 3. Leona / Kayle not necessary."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "Finish your 3* then level for 3 Solar over time. Leftover AP items on LeBlanc. Karma 3 can also hold items too."
-      }
-    ],
-    "slug": "karma-yunara-blossom"
-  },
-  {
-    "title": "Morgana Vanguard",
-    "titleVi": "Morgana Tiên Phong",
-    "tier": "A",
-    "style": "Fast 8",
-    "difficulty": 2,
-    "trend": "down",
-    "playstyle": "Fast 8 · Morgana carry",
-    "playstyleVi": "Fast 8 · chủ lực Morgana",
-    "stats": {
-      "avg": 4.4,
-      "games": 23189,
-      "level": 9
-    },
-    "units": [
-      {
-        "name": "Alune",
-        "row": 3,
-        "col": 0,
-        "stars": null,
-        "items": [
-          "Jeweled Gauntlet",
-          "Nashor's Tooth",
-          "Spear of Shojin"
-        ]
-      },
-      {
-        "name": "Cassiopeia",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Diana",
-        "row": 1,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Elder Dragon",
-        "row": 1,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Elise",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Morgana",
-        "row": 2,
-        "col": 2,
-        "stars": 2,
-        "items": [
-          "Hextech Gunblade",
-          "Morellonomicon",
-          "Void Staff"
-        ]
-      },
-      {
-        "name": "Sentinel",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Protector's Vow",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Taric",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      }
-    ],
-    "early": [
-      "Caitlyn",
-      "Camille",
-      "Cassiopeia",
-      "Elise"
-    ],
-    "carry": "Morgana",
-    "items": [
-      "Hextech Gunblade",
-      "Morellonomicon",
-      "Void Staff"
-    ],
-    "augments": [
-      "A Magic Roll",
-      "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
-      "Booster Pack++",
-      "Branching Out"
-    ],
-    "tips": "Can play from Coven Cashout. Aim for 250 + essence for chance at Morgana 2 + item cashout. Void staff still okay with Kog since he doesn't hit backline.",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Open with a strong AP opener, preferably around Invokers. Teemo is an example shown but you can also play Pebbles, Spellweavers, or Coven."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "If lose streaking with Coven, try to kill some units each fight to preserve HP. If win streaking, push standard winstreak tempo (6 @ 3-2, 7 @ 3-5) and save econ."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "Cash out / roll down on level 8 for Morgana 2, Sentinel, and 4 Invoker. If you don't have Bramble items, flex in another AP carry like Ahri / Nidalee."
-      }
-    ],
-    "slug": "morgana-vanguard"
-  },
-  {
-    "title": "Master Yi Adaptor",
-    "titleVi": "Master Yi Thích Ứng",
-    "tier": "A",
-    "style": "Reroll",
-    "difficulty": 1,
-    "trend": null,
-    "playstyle": "Reroll · Master Yi carry",
-    "playstyleVi": "Reroll · chủ lực Master Yi",
-    "stats": {
-      "avg": 4.41,
-      "games": 37017,
-      "level": 7
-    },
-    "units": [
-      {
-        "name": "Master Yi",
-        "row": 2,
-        "col": 6,
-        "stars": 3,
-        "items": [
-          "Brawler Emblem",
-          "Edge of Night",
-          "Guinsoo's Rageblade"
-        ]
-      },
-      {
-        "name": "Rengar",
-        "row": 2,
-        "col": 5,
-        "stars": null,
-        "items": [
-          "Edge of Night",
-          "Guinsoo's Rageblade",
-          "Titan's Resolve"
-        ]
-      },
-      {
-        "name": "Sett",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Yorick",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Krug",
-        "row": 0,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Nidalee",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": [
-          "Infinity Edge",
-          "Spear of Shojin",
-          "Sterak's Gage"
-        ]
-      },
-      {
-        "name": "Vi",
-        "row": 0,
-        "col": 5,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      }
-    ],
-    "early": [
-      "Master Yi",
-      "Rengar",
-      "Yorick",
-      "Karma"
-    ],
-    "carry": "Master Yi",
-    "items": [
-      "Brawler Emblem",
-      "Edge of Night",
-      "Guinsoo's Rageblade"
-    ],
-    "augments": [
-      "Branching Out",
-      "Branching Out+",
-      "Champ Delivery+",
-      "Latent Forge",
-      "Partial Ascension",
-      "Rolling For Days",
-      "Silver Destiny++",
-      "Slightly Magic Roll"
-    ],
-    "tips": "+1 tier in strength with Artifact.  VI 3 is stronger than Krug 3. Item priority: Master Yi/Rengar > Tank > Nidalee. Only take Phoenix Primal buff if ahead. Otherwise, Execute / Healing Primal. Rengar and Yi have the exact same BIS. Yi is stronger but itemize whoever is upgraded first. ",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Ideally play around a Rengar opener that can win streak. Blossom is very powerful to get early econ or item wisps."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Add more Adaptors and frontline as you go. Finish Yi/Rengar items by end of stage. You can even play 5 Blossom for maximum Wisp greed if you highroll the 4 costs."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "Level to 7 and roll for Master Yi 2, Rengar 2, and a Juggernaut Tank. Econ up and slow roll for 3*. Add Kog or a flex unit in at 8."
-      }
-    ],
-    "slug": "master-yi-adaptor"
-  },
-  {
-    "title": "Alune Vanguard",
-    "titleVi": "Alune Tiên Phong",
-    "tier": "A",
-    "style": "Fast 8",
-    "difficulty": 3,
-    "trend": "down",
-    "playstyle": "Fast 8 · Alune carry",
-    "playstyleVi": "Fast 8 · chủ lực Alune",
-    "stats": {
-      "avg": 4.43,
-      "games": 37595,
-      "level": 9
-    },
-    "units": [
-      {
-        "name": "Alune",
-        "row": 3,
-        "col": 0,
-        "stars": 2,
-        "items": [
-          "Archangel's Staff",
-          "Jeweled Gauntlet",
-          "Spear of Shojin"
-        ]
-      },
-      {
-        "name": "Diana",
-        "row": 1,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Hecarim",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Ivern",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Lillia",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Morgana",
-        "row": 1,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Hextech Gunblade",
-          "Morellonomicon",
-          "Void Staff"
-        ]
-      },
-      {
-        "name": "Fiddlesticks",
-        "row": 1,
-        "col": 4,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Sentinel",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Protector's Vow",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Taric",
-        "row": 0,
-        "col": 1,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      }
-    ],
-    "early": [
-      "Caitlyn",
-      "Camille",
-      "Cassiopeia",
-      "Elise"
-    ],
-    "carry": "Alune",
-    "items": [
-      "Archangel's Staff",
-      "Jeweled Gauntlet",
-      "Spear of Shojin"
-    ],
-    "augments": [
-      "A Magic Roll",
-      "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
-      "Booster Pack++",
-      "Branching Out"
-    ],
-    "tips": "Cap the board with a Lux over Morgana for end game. Lunar Lux is best but play whatever Lux you are likely to 2* first. Carry / tank 4 cost units until you get to the end game. Always focus on unit quality over exact board units.",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Slam items aggressively and play for full win streak with AP items. Ideal opener will be Blossom featuring Karma / Spellweavers. "
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Continue prioritize win streaking. If you have an econ augment, you can go Fast 7 (before 3-3) to maintain win streak if needed."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "You can start losing rounds while focusing on econ. Fast 9 by the beginning of Stage 5 and look for your 5 costs. You want around 70g+ minimum for the rolldown."
-      }
-    ],
-    "slug": "alune-vanguard"
-  },
-  {
-    "title": "Draven Elderwood",
-    "titleVi": "Draven Thần Rừng",
-    "tier": "A",
-    "style": "Fast 8",
-    "difficulty": 3,
-    "trend": null,
-    "playstyle": "Fast 8 · Draven carry",
-    "playstyleVi": "Fast 8 · chủ lực Draven",
-    "stats": {
-      "avg": 4.46,
-      "games": 69311,
-      "level": 9
-    },
-    "units": [
-      {
-        "name": "Alistar",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Ezreal",
-        "row": 3,
-        "col": 0,
-        "stars": null,
-        "items": [
-          "Deathblade",
-          "Last Whisper",
-          "Spear of Shojin"
-        ]
-      },
-      {
-        "name": "Gnar",
-        "row": 1,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Ivern",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Kennen",
-        "row": 1,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Edge of Night",
-          "Hand Of Justice",
-          "Rabadon's Deathcap"
-        ]
-      },
-      {
-        "name": "Maokai",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Amumu",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Draven",
-        "row": 3,
-        "col": 1,
-        "stars": 2,
-        "items": [
-          "Deathblade",
-          "Guinsoo's Rageblade",
-          "Kraken's Fury"
-        ]
-      },
-      {
-        "name": "Taric",
-        "row": 0,
-        "col": 1,
-        "stars": null,
-        "items": []
-      }
-    ],
-    "early": [
-      "Alistar",
-      "Ornn",
-      "Shen",
-      "Varus"
-    ],
-    "carry": "Draven",
-    "items": [
-      "Deathblade",
-      "Guinsoo's Rageblade",
-      "Kraken's Fury"
-    ],
-    "augments": [
-      "A Magic Roll",
-      "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
-      "Booster Pack++",
-      "Branching Out"
-    ],
-    "tips": "Only play from early win streak and lots of gold. Because you are aiming for scaling 5 costs, aim to level 9 around end of Stage 4 / beginning of Stage 5. Best Draven quests are dealing damage for gold, but avoid the 10k damage in 1 round because you can get trapped.",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Slam items aggressively and play for full win streak with Draven items. Ideal opener will be some kind of resource engine like Rengar or Blossom."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Continue prioritize win streaking. If you have an econ augment, you can go Fast 7 (before 3-3) to maintain win streak if needed."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "You can start losing rounds while focusing on econ. Fast 9 end of Stage 4 and look for the scaling 5 costs like Draven, Maokai, and Ivern. "
-      }
-    ],
-    "slug": "draven-bounty"
-  },
-  {
-    "title": "Warwick Ravager",
-    "titleVi": "Warwick Tàn Phá",
-    "tier": "A",
-    "style": "Fast 8",
-    "difficulty": 2,
-    "trend": "down",
-    "playstyle": "Fast 8 · Warwick carry",
-    "playstyleVi": "Fast 8 · chủ lực Warwick",
-    "stats": {
-      "avg": 4.47,
-      "games": 8132,
-      "level": 8
-    },
-    "units": [
-      {
-        "name": "Azir",
-        "row": 3,
-        "col": 0,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Diana",
-        "row": 2,
-        "col": 4,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Malphite",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Crownguard",
-          "Gargoyle Stoneplate",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Rek'Sai",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Warwick",
-        "row": 2,
-        "col": 0,
-        "stars": 2,
-        "items": [
-          "Spear of Shojin",
-          "Sterak's Gage",
-          "Titan's Resolve"
-        ]
-      },
-      {
-        "name": "Brambleback",
-        "row": 2,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Edge of Night",
-          "Guinsoo's Rageblade",
-          "Hand Of Justice"
-        ]
-      },
-      {
-        "name": "Krug",
-        "row": 2,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Murkwolf",
-        "row": 0,
-        "col": 0,
-        "stars": null,
-        "items": [
-          "Edge of Night",
-          "Hand Of Justice",
-          "Quicksilver"
-        ]
-      }
-    ],
-    "early": [
-      "Kobuko",
-      "Rek'Sai",
-      "Warwick",
-      "Murkwolf"
-    ],
-    "carry": "Warwick",
-    "items": [
-      "Spear of Shojin",
-      "Sterak's Gage",
-      "Titan's Resolve"
-    ],
-    "augments": [
-      "A Magic Roll",
-      "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
-      "Booster Pack++",
-      "Branching Out"
-    ],
-    "tips": "Aim to play a 3* unit in the Blackthorn center hex for max stats, preferably Krug 3. Leftover AD items on Murkwolf. Can also tank Rek'sai 3 if you can't find Malphite 2.",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "If you don't have Shojin, consider lose streak to guarantee it on carousel. If you have Shojin + good component, play for win streak instead."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Level to 6 and roll for Warwick 2 with 4 Blackthorn + 2 Ravager. Econ up and slow roll for 3*. You can also play 4 Ravager temporarily if needed."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "Finish Warwick 3 and push levels. If you don't have Murkwolf 3, look for Brambleback as your duo carry. "
-      }
-    ],
-    "slug": "warwick-ravager"
-  },
-  {
-    "title": "Aphelios Lunar",
-    "titleVi": "Aphelios Mặt Trăng",
-    "tier": "A",
-    "style": "Fast 8",
-    "difficulty": 2,
-    "trend": "down",
-    "playstyle": "Fast 8 · Aphelios carry",
-    "playstyleVi": "Fast 8 · chủ lực Aphelios",
-    "stats": {
-      "avg": 4.5,
-      "games": 57741,
-      "level": 8
-    },
-    "units": [
-      {
-        "name": "Aphelios",
-        "row": 3,
-        "col": 0,
-        "stars": 2,
-        "items": [
-          "Guinsoo's Rageblade",
-          "Infinity Edge",
-          "Kraken's Fury"
-        ]
-      },
-      {
-        "name": "Diana",
-        "row": 1,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Varus",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Amumu",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Kog'Maw",
-        "row": 3,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Nidalee",
-        "row": 2,
-        "col": 0,
-        "stars": null,
-        "items": [
-          "Infinity Edge",
-          "Spear of Shojin",
-          "Sterak's Gage"
-        ]
-      },
-      {
-        "name": "Sentinel",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Protector's Vow",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Vi",
-        "row": 1,
-        "col": 2,
-        "stars": null,
-        "items": []
-      }
-    ],
-    "early": [
-      "Akali",
-      "Ornn",
-      "Shen",
-      "Varus"
-    ],
-    "carry": "Aphelios",
-    "items": [
-      "Guinsoo's Rageblade",
-      "Infinity Edge",
-      "Kraken's Fury"
-    ],
-    "augments": [
-      "Band of Thieves",
-      "Champ Delivery+",
-      "Component Buffet",
-      "Feeling Lucky",
-      "Future Focused",
-      "Item Grab Bag",
-      "Latent Forge",
-      "Partial Ascension"
-    ],
-    "tips": "Position Nidalee on weak side to get a quick kill then jump backline. Amumu or Sentinel 2 can be your main tank (you're often contested so prioritize whichever gets upgraded). Kogmaw Provides Free Shred + Sunder. ",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Open with a strong win streak AD tempo around Rapidfires. BIS is somewhat fake in this comp so slam aggressively to win."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Comp can use many items so take item augment if you don't have one yet. Mama Beak can be a strong carry here if you have Riftbeasts online."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "Level to 8 and roll heavily for Aphelios and the 4 costs. Only push for 9 once you have almost all your 4 costs upgraded. "
-      }
-    ],
-    "slug": "aphelios-lunar"
-  },
-  {
-    "title": "Tristana Fae",
-    "titleVi": "Tristana Tiên Linh",
-    "tier": "A",
-    "style": "Fast 8",
-    "difficulty": 2,
-    "trend": "up",
-    "playstyle": "Fast 8 · Tristana carry",
-    "playstyleVi": "Fast 8 · chủ lực Tristana",
-    "stats": {
-      "avg": 4.5,
-      "games": 26789,
-      "level": 8
-    },
-    "units": [
-      {
-        "name": "Kobuko",
-        "row": 0,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Lillia",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Protector's Vow",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Rakan",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Rammus",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Sivir",
-        "row": 3,
-        "col": 1,
-        "stars": null,
-        "items": [
-          "Fae Emblem",
-          "Last Whisper",
-          "Red Buff"
-        ]
-      },
-      {
-        "name": "Tristana",
-        "row": 3,
-        "col": 0,
-        "stars": 2,
-        "items": [
-          "Giant Slayer",
-          "Guinsoo's Rageblade",
-          "Hextech Gunblade"
-        ]
-      },
-      {
-        "name": "Xayah",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Vi",
-        "row": 0,
-        "col": 5,
-        "stars": null,
-        "items": []
-      }
-    ],
-    "early": [
-      "Rakan",
-      "Varus",
-      "Xayah",
-      "Yorick"
-    ],
-    "carry": "Tristana",
-    "items": [
-      "Giant Slayer",
-      "Guinsoo's Rageblade",
-      "Hextech Gunblade"
-    ],
-    "augments": [
-      "A Magic Roll",
-      "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
-      "Booster Pack++",
-      "Branching Out"
-    ],
-    "tips": "Only play when you have Fae emblem. Stacking 4 Fae ASAP is important so you can get a gold engine. Can also tank Vi primary if you can't find Rammus. Execute Primal > Item Primal unless very far ahead / win streaking.",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Play for win streak with upgraded Rageblade holder. Start stacking Fae since getting to 7 ASAP is crucial for success."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Itemize and play Tristana as soon as you find her. Sprykin is more important than Hunter. If you spike very early Primal from ahead, you can consider items."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "Level to 7 and roll above 50g for 3* Tristana and Rammus. Use your 4 Fae cash outs to push levels. Give Sivir leftover AD items."
-      }
-    ],
-    "slug": "tristana-sprykin-reroll"
-  },
-  {
-    "title": "Draven Legendaries",
-    "titleVi": "Draven Legendaries",
-    "tier": "A",
-    "style": "Fast 8",
-    "difficulty": 3,
-    "trend": null,
-    "playstyle": "Fast 8 · Draven carry",
-    "playstyleVi": "Fast 8 · chủ lực Draven",
-    "stats": {
-      "avg": 4.51,
-      "games": 128744,
-      "level": 9
-    },
-    "units": [
-      {
-        "name": "Elder Dragon",
-        "row": 1,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Infinity Edge",
-          "Last Whisper",
-          "Striker's Flail"
-        ]
-      },
-      {
-        "name": "Ivern",
-        "row": 3,
-        "col": 0,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Kennen",
-        "row": 1,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Edge of Night",
-          "Hand Of Justice",
-          "Jeweled Gauntlet"
-        ]
-      },
-      {
-        "name": "Maokai",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Amumu",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Draven",
-        "row": 3,
-        "col": 6,
-        "stars": 2,
-        "items": [
-          "Guinsoo's Rageblade",
-          "Infinity Edge",
-          "Kraken's Fury"
-        ]
-      },
-      {
-        "name": "Sentinel",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Taric",
-        "row": 0,
-        "col": 1,
-        "stars": null,
-        "items": []
-      }
-    ],
-    "early": [
-      "Caitlyn",
-      "Camille",
-      "Cassiopeia",
-      "Elise"
-    ],
-    "carry": "Draven",
-    "items": [
-      "Guinsoo's Rageblade",
-      "Infinity Edge",
-      "Kraken's Fury"
-    ],
-    "augments": [
-      "Band of Thieves",
-      "Carve a Path",
-      "Champ Delivery+",
-      "Feeling Lucky",
-      "Kick Start",
-      "Late Game Specialist",
-      "One, Two, Five!",
-      "Partial Ascension"
-    ],
-    "tips": "Alpha Mark the Elder Dragon. Your duo carry with Elder Dragon is ideally Draven but its highly flexible. Can replace for Lux, Alune, Soraka for AP options. ",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Slam items aggressively and play for full win streak with Riftbeast items. Ideal opener will be Riftbeasts featuring Cinderling / Gromp / Mama Beak carry."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Continue prioritize win streaking. If you have an econ augment, you can go Fast 7 (before 3-3) to maintain win streak if needed."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "You can start losing rounds while focusing on econ. Fast 9 by the beginning of Stage 5 and look for your 5 costs. You want around 70g+ minimum for the rolldown."
-      }
-    ],
-    "slug": "draven-legendaries"
-  },
-  {
-    "title": "Teemo Invoker",
-    "titleVi": "Teemo Thuật Sĩ",
-    "tier": "A",
-    "style": "Fast 8",
-    "difficulty": 2,
-    "trend": "down",
-    "playstyle": "Fast 8 · Teemo carry",
-    "playstyleVi": "Fast 8 · chủ lực Teemo",
-    "stats": {
-      "avg": 4.53,
-      "games": 2674,
-      "level": 8
-    },
-    "units": [
-      {
-        "name": "Morgana",
-        "row": 1,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Hextech Gunblade",
-          "Morellonomicon",
-          "Void Staff"
-        ]
-      },
-      {
-        "name": "Rammus",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Warmog's Armor",
-          "Spirit Visage"
-        ]
-      },
-      {
-        "name": "Pebbles",
-        "row": 3,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Teemo",
-        "row": 3,
-        "col": 0,
-        "stars": 2,
-        "items": [
-          "Jeweled Gauntlet",
-          "Spear of Shojin",
-          "Striker's Flail"
-        ]
-      },
-      {
-        "name": "Veigar",
-        "row": 3,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Fiddlesticks",
-        "row": 2,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Krug",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Sentinel",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Protector's Vow",
-          "Warmog's Armor"
-        ]
-      }
-    ],
-    "early": [
-      "Kobuko",
-      "Rek'Sai",
-      "Teemo",
-      "Veigar"
-    ],
-    "carry": "Teemo",
-    "items": [
-      "Jeweled Gauntlet",
-      "Spear of Shojin",
-      "Striker's Flail"
-    ],
-    "augments": [
-      "A Magic Roll",
-      "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
-      "Booster Pack++",
-      "Branching Out"
-    ],
-    "tips": "Average placement 4.53 across 2,674 games. Level 8 is the most common finish (43%). Best Teemo build: Jeweled Gauntlet, Spear of Shojin, Striker's Flail.",
-    "tipsVi": "Hạng trung bình 4.53 qua 2.674 trận. Cấp 8 là mức kết thúc phổ biến nhất (43%). Trang bị tốt nhất cho Teemo: Jeweled Gauntlet, Spear of Shojin, Striker's Flail.",
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Most common level 4 board: Kobuko, Rek'Sai, Teemo, Veigar (235 games, 4.84 avg).",
-        "textVi": "Đội cấp 4 phổ biến nhất: Kobuko, Rek'Sai, Teemo, Veigar (235 trận, hạng TB 4.84)."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Most common level 6 board: Rammus, Pebbles, Teemo, Veigar, Fiddlesticks, Krug (435 games, 4.71 avg).",
-        "textVi": "Đội cấp 6 phổ biến nhất: Rammus, Pebbles, Teemo, Veigar, Fiddlesticks, Krug (435 trận, hạng TB 4.71)."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "Level 8 board: Morgana, Rammus, Pebbles, Teemo, Veigar, Fiddlesticks, Krug, Sentinel (165 games, 4.53 avg).",
-        "textVi": "Đội cấp 8: Morgana, Rammus, Pebbles, Teemo, Veigar, Fiddlesticks, Krug, Sentinel (165 trận, hạng TB 4.53)."
-      }
-    ],
-    "slug": "teemo-invoker"
-  },
-  {
-    "title": "Camille & Akali Solar",
-    "titleVi": "Camille & Akali Mặt Trời",
-    "tier": "A",
-    "style": "Reroll",
-    "difficulty": 1,
-    "trend": "up",
-    "playstyle": "Reroll · Akali carry",
-    "playstyleVi": "Reroll · chủ lực Akali",
-    "stats": {
-      "avg": 4.55,
-      "games": 27119,
-      "level": 7
-    },
-    "units": [
-      {
-        "name": "Akali",
-        "row": 2,
-        "col": 0,
-        "stars": 3,
-        "items": [
-          "Edge of Night",
-          "Hand Of Justice",
-          "Jeweled Gauntlet"
-        ]
-      },
-      {
-        "name": "Camille",
-        "row": 2,
-        "col": 1,
-        "stars": null,
-        "items": [
-          "Infinity Edge",
-          "Quicksilver",
-          "Sterak's Gage"
-        ]
-      },
-      {
-        "name": "Kayle",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Leona",
-        "row": 2,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Ornn",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Crownguard",
-          "Gargoyle Stoneplate",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Sejuani",
-        "row": 2,
-        "col": 6,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Varus",
-        "row": 3,
-        "col": 0,
-        "stars": null,
-        "items": [
-          "Infinity Edge",
-          "Last Whisper",
-          "Spear of Shojin"
-        ]
-      }
-    ],
-    "early": [
-      "Akali",
-      "Camille",
-      "Leona",
-      "Ornn"
-    ],
-    "carry": "Akali",
-    "items": [
-      "Edge of Night",
-      "Hand Of Justice",
-      "Jeweled Gauntlet"
-    ],
-    "augments": [
-      "Pandora's Bench",
-      "Early Learnings",
-      "NO SCOUT NO PIVOT",
-      "Portable Forge"
-    ],
-    "tips": "Akali can be AD or AP (Flex IE/JG) Itemize Tank + 3star melee first -> 2nd melee -> Varus items. Only go for Kayle and Sej 3 with lots of money. Can  Swap out Ornn for Yorick/Rakan.",
-    "tipsVi": null,
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Look to play with lots of early copies of 1 cost + good reroll augment."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Roll to 30 on 3-1 level 4 for extra 1 cost copies. Then slow roll on 5 until you have 5 3 stars for solar bonus."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "Make sure you keep your econ high because you need to be level 7 to fit solar on this board. Try to be Level to 7 somewhere on stage 4."
-      }
-    ],
-    "slug": "camille-akali-solar"
-  },
-  {
     "title": "Ahri & Morgana Blossom",
     "titleVi": "Ahri & Morgana Hoa Linh",
     "tier": "A",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "down",
+    "trend": "up",
     "playstyle": "Fast 8 · Ahri carry",
     "playstyleVi": "Fast 8 · chủ lực Ahri",
     "stats": {
-      "avg": 4.56,
-      "games": 73518,
+      "avg": 4.37,
+      "games": 68431,
       "level": 8
     },
     "units": [
@@ -2249,30 +1008,279 @@
     "slug": "ahri-spellweaver"
   },
   {
-    "title": "Ashe Juggernaut",
-    "titleVi": "Ashe Dũng Sĩ",
-    "tier": "B",
+    "title": "Karma & Yunara Blossom",
+    "titleVi": "Karma & Yunara Hoa Linh",
+    "tier": "A",
+    "style": "Reroll",
+    "difficulty": 1,
+    "trend": "up",
+    "playstyle": "Reroll · Karma carry",
+    "playstyleVi": "Reroll · chủ lực Karma",
+    "stats": {
+      "avg": 4.38,
+      "games": 76927,
+      "level": 7
+    },
+    "units": [
+      {
+        "name": "Kayle",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "LeBlanc",
+        "row": 3,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Leona",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Sejuani",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Warmog's Armor",
+          "Spirit Visage"
+        ]
+      },
+      {
+        "name": "Yorick",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Warmog's Armor",
+          "Sunfire Cape"
+        ]
+      },
+      {
+        "name": "Yunara",
+        "row": 3,
+        "col": 2,
+        "stars": null,
+        "items": [
+          "Deathblade",
+          "Last Whisper",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Karma",
+        "row": 3,
+        "col": 0,
+        "stars": 3,
+        "items": [
+          "Blue Buff",
+          "Jeweled Gauntlet",
+          "Rabadon's Deathcap"
+        ]
+      }
+    ],
+    "early": [
+      "LeBlanc",
+      "Sejuani",
+      "Yorick",
+      "Yunara"
+    ],
+    "carry": "Karma",
+    "items": [
+      "Blue Buff",
+      "Jeweled Gauntlet",
+      "Rabadon's Deathcap"
+    ],
+    "augments": [
+      "Trade Sector"
+    ],
+    "tips": "Prioritize 3* Karma + 3 Blossom + LeBlanc early for clone copies. Add 3 Solar after you finish your 3* (Leona / Kayle not necessary). ",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Slam items for Karma and play for win streak with Blossom in. Tank Yorick / Juggernaut until you find Sejuani 2."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Try to look for an econ/exp wisp every round when rolling. Prioritize Karma 3 > Sejuani 3 > Yorick 3 > Leblanc / Yunara 3. Leona / Kayle not necessary."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Finish your 3* then level for 3 Solar over time. Leftover AP items on LeBlanc. Karma 3 can also hold items too."
+      }
+    ],
+    "slug": "karma-yunara-blossom"
+  },
+  {
+    "title": "Master Yi Adaptor",
+    "titleVi": "Master Yi Thích Ứng",
+    "tier": "A",
+    "style": "Reroll",
+    "difficulty": 1,
+    "trend": null,
+    "playstyle": "Reroll · Master Yi carry",
+    "playstyleVi": "Reroll · chủ lực Master Yi",
+    "stats": {
+      "avg": 4.39,
+      "games": 38126,
+      "level": 7
+    },
+    "units": [
+      {
+        "name": "Master Yi",
+        "row": 2,
+        "col": 6,
+        "stars": 3,
+        "items": [
+          "Brawler Emblem",
+          "Edge of Night",
+          "Guinsoo's Rageblade"
+        ]
+      },
+      {
+        "name": "Rengar",
+        "row": 2,
+        "col": 5,
+        "stars": null,
+        "items": [
+          "Edge of Night",
+          "Guinsoo's Rageblade",
+          "Titan's Resolve"
+        ]
+      },
+      {
+        "name": "Sett",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Yorick",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Krug",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Nidalee",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": [
+          "Infinity Edge",
+          "Spear of Shojin",
+          "Sterak's Gage"
+        ]
+      },
+      {
+        "name": "Vi",
+        "row": 0,
+        "col": 5,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      }
+    ],
+    "early": [
+      "Master Yi",
+      "Rengar",
+      "Yorick",
+      "Karma"
+    ],
+    "carry": "Master Yi",
+    "items": [
+      "Brawler Emblem",
+      "Edge of Night",
+      "Guinsoo's Rageblade"
+    ],
+    "augments": [
+      "Branching Out",
+      "Branching Out+",
+      "Champ Delivery+",
+      "Latent Forge",
+      "Partial Ascension",
+      "Rolling For Days",
+      "Silver Destiny++",
+      "Slightly Magic Roll"
+    ],
+    "tips": "+1 tier in strength with Artifact.  VI 3 is stronger than Krug 3. Item priority: Master Yi/Rengar > Tank > Nidalee. Only take Phoenix Primal buff if ahead. Otherwise, Execute / Healing Primal. Rengar and Yi have the exact same BIS. Yi is stronger but itemize whoever is upgraded first. ",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Ideally play around a Rengar opener that can win streak. Blossom is very powerful to get early econ or item wisps."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Add more Adaptors and frontline as you go. Finish Yi/Rengar items by end of stage. You can even play 5 Blossom for maximum Wisp greed if you highroll the 4 costs."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level to 7 and roll for Master Yi 2, Rengar 2, and a Juggernaut Tank. Econ up and slow roll for 3*. Add Kog or a flex unit in at 8."
+      }
+    ],
+    "slug": "master-yi-adaptor"
+  },
+  {
+    "title": "Draven & Ezreal Elderwood",
+    "titleVi": "Draven & Ezreal Thần Rừng",
+    "tier": "A",
     "style": "Fast 8",
     "difficulty": 3,
     "trend": "up",
-    "playstyle": "Fast 8 · Ashe carry",
-    "playstyleVi": "Fast 8 · chủ lực Ashe",
+    "playstyle": "Fast 8 · Draven carry",
+    "playstyleVi": "Fast 8 · chủ lực Draven",
     "stats": {
-      "avg": 4.56,
-      "games": 35493,
+      "avg": 4.4,
+      "games": 78546,
       "level": 9
     },
     "units": [
       {
-        "name": "Ashe",
+        "name": "Alistar",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Ezreal",
         "row": 3,
         "col": 0,
-        "stars": 2,
+        "stars": null,
         "items": [
+          "Deathblade",
           "Last Whisper",
-          "Red Buff",
           "Spear of Shojin"
         ]
+      },
+      {
+        "name": "Gnar",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": []
       },
       {
         "name": "Ivern",
@@ -2286,7 +1294,11 @@
         "row": 1,
         "col": 2,
         "stars": null,
-        "items": []
+        "items": [
+          "Edge of Night",
+          "Hand Of Justice",
+          "Rabadon's Deathcap"
+        ]
       },
       {
         "name": "Maokai",
@@ -2300,32 +1312,21 @@
         ]
       },
       {
-        "name": "Rakan",
-        "row": 0,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Sivir",
-        "row": 3,
-        "col": 1,
-        "stars": null,
-        "items": [
-          "Infinity Edge",
-          "Spear of Shojin",
-          "Striker's Flail"
-        ]
-      },
-      {
         "name": "Amumu",
         "row": 0,
         "col": 4,
         "stars": null,
+        "items": []
+      },
+      {
+        "name": "Draven",
+        "row": 2,
+        "col": 6,
+        "stars": 2,
         "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
+          "Deathblade",
+          "Guinsoo's Rageblade",
+          "Kraken's Fury"
         ]
       },
       {
@@ -2334,26 +1335,19 @@
         "col": 2,
         "stars": null,
         "items": []
-      },
-      {
-        "name": "Vi",
-        "row": 0,
-        "col": 5,
-        "stars": null,
-        "items": []
       }
     ],
     "early": [
-      "Rakan",
-      "Yorick",
-      "Yunara",
-      "Karma"
+      "Alistar",
+      "Ornn",
+      "Shen",
+      "Varus"
     ],
-    "carry": "Ashe",
+    "carry": "Draven",
     "items": [
-      "Last Whisper",
-      "Red Buff",
-      "Spear of Shojin"
+      "Deathblade",
+      "Guinsoo's Rageblade",
+      "Kraken's Fury"
     ],
     "augments": [
       "Band of Thieves",
@@ -2365,36 +1359,290 @@
       "One, Two, Five!",
       "Partial Ascension"
     ],
-    "tips": "Consider this as a flex option for a Sivir board if you were playing around Juggernauts in the midgame already. If you get Juggernaut emblem, you can play 6 Juggernauts. Can also play other 5 cost AD carries like Dragon and Draven. Take turtle primal buff.",
+    "tips": "Only play from early win streak and lots of gold. Because you are aiming for scaling 5 costs, aim to level 9 around end of Stage 4 / beginning of Stage 5. Best Draven quests are dealing damage for gold, but avoid the 10k damage in 1 round because you can get trapped.",
     "tipsVi": null,
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Open with a strong AD opener, preferably around Yunara. Slam generic AD items and Tank items for a win streak."
+        "text": "Slam items aggressively and play for full win streak with Draven items. Ideal opener will be some kind of resource engine like Rengar or Blossom."
       },
       {
         "stage": "Stage 3",
-        "text": "Level up for more juggernauts and executioners to pair with our blossom opener."
+        "text": "Continue prioritize win streaking. If you have an econ augment, you can go Fast 7 (before 3-3) to maintain win streak if needed."
       },
       {
         "stage": "Stage 4",
-        "text": "Level and roll for 6 juggernauts +Sivir. Once stable, go 9 and look for Ashe and transition your board to 5 costs."
+        "text": "You can start losing rounds while focusing on econ. Fast 9 end of Stage 4 and look for the scaling 5 costs like Draven, Maokai, and Ivern. "
       }
     ],
-    "slug": "ashe-blossom"
+    "slug": "draven-bounty"
+  },
+  {
+    "title": "Warwick Ravager",
+    "titleVi": "Warwick Tàn Phá",
+    "tier": "A",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": "up",
+    "playstyle": "Fast 8 · Warwick carry",
+    "playstyleVi": "Fast 8 · chủ lực Warwick",
+    "stats": {
+      "avg": 4.41,
+      "games": 7953,
+      "level": 8
+    },
+    "units": [
+      {
+        "name": "Azir",
+        "row": 3,
+        "col": 0,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Diana",
+        "row": 2,
+        "col": 4,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Malphite",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Crownguard",
+          "Gargoyle Stoneplate",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Rek'Sai",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Warwick",
+        "row": 3,
+        "col": 6,
+        "stars": 2,
+        "items": [
+          "Spear of Shojin",
+          "Sterak's Gage",
+          "Titan's Resolve"
+        ]
+      },
+      {
+        "name": "Brambleback",
+        "row": 2,
+        "col": 2,
+        "stars": null,
+        "items": [
+          "Edge of Night",
+          "Guinsoo's Rageblade",
+          "Hand Of Justice"
+        ]
+      },
+      {
+        "name": "Krug",
+        "row": 2,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Murkwolf",
+        "row": 2,
+        "col": 1,
+        "stars": null,
+        "items": [
+          "Edge of Night",
+          "Hand Of Justice",
+          "Quicksilver"
+        ]
+      }
+    ],
+    "early": [
+      "Kobuko",
+      "Rek'Sai",
+      "Warwick",
+      "Murkwolf"
+    ],
+    "carry": "Warwick",
+    "items": [
+      "Spear of Shojin",
+      "Sterak's Gage",
+      "Titan's Resolve"
+    ],
+    "augments": [
+      "A Magic Roll",
+      "Baron's Lair",
+      "Booster Pack++",
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
+    ],
+    "tips": "Aim to play a 3* unit in the Blackthorn center hex for max stats, preferably Krug 3. Leftover AD items on Murkwolf. Can also tank Rek'sai 3 if you can't find Malphite 2.",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "If you don't have Shojin, consider lose streak to guarantee it on carousel. If you have Shojin + good component, play for win streak instead."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Level to 6 and roll for Warwick 2 with 4 Blackthorn + 2 Ravager. Econ up and slow roll for 3*. You can also play 4 Ravager temporarily if needed."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Finish Warwick 3 and push levels. If you don't have Murkwolf 3, look for Brambleback as your duo carry. "
+      }
+    ],
+    "slug": "warwick-ravager"
+  },
+  {
+    "title": "Draven Legendaries",
+    "titleVi": "Draven Legendaries",
+    "tier": "A",
+    "style": "Fast 8",
+    "difficulty": 3,
+    "trend": "up",
+    "playstyle": "Fast 8 · Draven carry",
+    "playstyleVi": "Fast 8 · chủ lực Draven",
+    "stats": {
+      "avg": 4.43,
+      "games": 140399,
+      "level": 9
+    },
+    "units": [
+      {
+        "name": "Elder Dragon",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": [
+          "Infinity Edge",
+          "Last Whisper",
+          "Striker's Flail"
+        ]
+      },
+      {
+        "name": "Ivern",
+        "row": 3,
+        "col": 0,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Kennen",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Edge of Night",
+          "Hand Of Justice",
+          "Jeweled Gauntlet"
+        ]
+      },
+      {
+        "name": "Maokai",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Amumu",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Draven",
+        "row": 3,
+        "col": 6,
+        "stars": 2,
+        "items": [
+          "Guinsoo's Rageblade",
+          "Infinity Edge",
+          "Kraken's Fury"
+        ]
+      },
+      {
+        "name": "Sentinel",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Taric",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Caitlyn",
+      "Camille",
+      "Cassiopeia",
+      "Elise"
+    ],
+    "carry": "Draven",
+    "items": [
+      "Guinsoo's Rageblade",
+      "Infinity Edge",
+      "Kraken's Fury"
+    ],
+    "augments": [
+      "Band of Thieves",
+      "Carve a Path",
+      "Champ Delivery+",
+      "Feeling Lucky",
+      "Kick Start",
+      "Late Game Specialist",
+      "One, Two, Five!",
+      "Partial Ascension"
+    ],
+    "tips": "Alpha Mark the Elder Dragon. Your duo carry with Elder Dragon is ideally Draven but its highly flexible. Can replace for Lux, Alune, Soraka for AP options. ",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Slam items aggressively and play for full win streak with Riftbeast items. Ideal opener will be Riftbeasts featuring Cinderling / Gromp / Mama Beak carry."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Continue prioritize win streaking. If you have an econ augment, you can go Fast 7 (before 3-3) to maintain win streak if needed."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "You can start losing rounds while focusing on econ. Fast 9 by the beginning of Stage 5 and look for your 5 costs. You want around 70g+ minimum for the rolldown."
+      }
+    ],
+    "slug": "draven-legendaries"
   },
   {
     "title": "Mama Beak Vanguard",
     "titleVi": "Chim Mẹ Tiên Phong",
-    "tier": "B",
+    "tier": "A",
     "style": "Reroll",
     "difficulty": 1,
     "trend": "up",
     "playstyle": "Reroll · Mama Beak carry",
     "playstyleVi": "Reroll · chủ lực Mama Beak",
     "stats": {
-      "avg": 4.58,
-      "games": 13436,
+      "avg": 4.46,
+      "games": 13967,
       "level": 7
     },
     "units": [
@@ -2479,10 +1727,10 @@
     "augments": [
       "A Magic Roll",
       "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
       "Booster Pack++",
-      "Branching Out"
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
     "tips": "Alpha Mark Mama Beak. Tank is flexible but ideally its Hecarim 3 > Krug 3 > Alistar 3. Radiant Rageblade is true BIS Mama Beak.",
     "tipsVi": null,
@@ -2503,17 +1751,926 @@
     "slug": "mama-beak-vanguard"
   },
   {
+    "title": "Aphelios Lunar",
+    "titleVi": "Aphelios Mặt Trăng",
+    "tier": "A",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": null,
+    "playstyle": "Fast 8 · Aphelios carry",
+    "playstyleVi": "Fast 8 · chủ lực Aphelios",
+    "stats": {
+      "avg": 4.47,
+      "games": 54909,
+      "level": 8
+    },
+    "units": [
+      {
+        "name": "Aphelios",
+        "row": 3,
+        "col": 0,
+        "stars": 2,
+        "items": [
+          "Guinsoo's Rageblade",
+          "Infinity Edge",
+          "Kraken's Fury"
+        ]
+      },
+      {
+        "name": "Diana",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Varus",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Amumu",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Kog'Maw",
+        "row": 3,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Nidalee",
+        "row": 2,
+        "col": 0,
+        "stars": null,
+        "items": [
+          "Infinity Edge",
+          "Spear of Shojin",
+          "Sterak's Gage"
+        ]
+      },
+      {
+        "name": "Sentinel",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Vi",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Akali",
+      "Ornn",
+      "Shen",
+      "Varus"
+    ],
+    "carry": "Aphelios",
+    "items": [
+      "Guinsoo's Rageblade",
+      "Infinity Edge",
+      "Kraken's Fury"
+    ],
+    "augments": [
+      "Band of Thieves",
+      "Champ Delivery+",
+      "Component Buffet",
+      "Feeling Lucky",
+      "Future Focused",
+      "Item Grab Bag",
+      "Latent Forge",
+      "Partial Ascension"
+    ],
+    "tips": "Position Nidalee on weak side to get a quick kill then jump backline. Amumu or Sentinel 2 can be your main tank (you're often contested so prioritize whichever gets upgraded). Kogmaw Provides Free Shred + Sunder. ",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Open with a strong win streak AD tempo around Rapidfires. BIS is somewhat fake in this comp so slam aggressively to win."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Comp can use many items so take item augment if you don't have one yet. Mama Beak can be a strong carry here if you have Riftbeasts online."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level to 8 and roll heavily for Aphelios and the 4 costs. Only push for 9 once you have almost all your 4 costs upgraded. "
+      }
+    ],
+    "slug": "aphelios-lunar"
+  },
+  {
+    "title": "Ezreal Elderwood",
+    "titleVi": "Ezreal Thần Rừng",
+    "tier": "A",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": null,
+    "playstyle": "Fast 8 · Ezreal carry",
+    "playstyleVi": "Fast 8 · chủ lực Ezreal",
+    "stats": {
+      "avg": 4.47,
+      "games": 32399,
+      "level": 9
+    },
+    "units": [
+      {
+        "name": "Alistar",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Ezreal",
+        "row": 3,
+        "col": 0,
+        "stars": 2,
+        "items": [
+          "Deathblade",
+          "Last Whisper",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Gnar",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Bloodthirster",
+          "Sterak's Gage",
+          "Titan's Resolve"
+        ]
+      },
+      {
+        "name": "Hecarim",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Kennen",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "LeBlanc",
+        "row": 3,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Ornn",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Soraka",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": [
+          "Elderwood Emblem",
+          "Rabadon's Deathcap",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Fiddlesticks",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Alistar",
+      "Hecarim",
+      "LeBlanc",
+      "Ornn"
+    ],
+    "carry": "Ezreal",
+    "items": [
+      "Deathblade",
+      "Last Whisper",
+      "Spear of Shojin"
+    ],
+    "augments": [
+      "Branching Out+",
+      "Band of Thieves",
+      "Champ Delivery+",
+      "Component Buffet",
+      "Feeling Lucky",
+      "Latent Forge",
+      "Partial Ascension",
+      "Patience is a Virtue"
+    ],
+    "tips": "Mainly strong with Elderwood emblem. Look for Elderwood Lux. 3 Executioner is a big spike so always look to play around it if possible. Can also chase 9 Elderwood if you have Elderwood Lux.",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Open with upgraded Elderwood and slam items on LeBlanc or Xayah. LeBlanc can farm copies of units on your board so avoid fielding unwanted units."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Add more Elderwood as you level with Spellweavers. If you start getting AD items, play them on Xayah / Rapidfires."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level to 8 and look for Ezreal and Soraka with 7 Elderwood. Try not to roll to 0g because we need gold to get to level 9."
+      }
+    ],
+    "slug": "ezreal-elderwood"
+  },
+  {
+    "title": "Ezreal Executioner",
+    "titleVi": "Ezreal Đao Phủ",
+    "tier": "A",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": "up",
+    "playstyle": "Fast 8 · Ezreal carry",
+    "playstyleVi": "Fast 8 · chủ lực Ezreal",
+    "stats": {
+      "avg": 4.47,
+      "games": 19123,
+      "level": 8
+    },
+    "units": [
+      {
+        "name": "Ahri",
+        "row": 3,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Executioner Emblem",
+          "Rabadon's Deathcap",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Alistar",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Ezreal",
+        "row": 3,
+        "col": 6,
+        "stars": 2,
+        "items": [
+          "Deathblade",
+          "Last Whisper",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Ornn",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Sett",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Warmog's Armor",
+          "Spirit Visage"
+        ]
+      },
+      {
+        "name": "Soraka",
+        "row": 3,
+        "col": 0,
+        "stars": null,
+        "items": [
+          "Rabadon's Deathcap",
+          "Spear of Shojin",
+          "Void Staff"
+        ]
+      },
+      {
+        "name": "Yunara",
+        "row": 3,
+        "col": 5,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Fiddlesticks",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Rakan",
+      "Yorick",
+      "Yunara",
+      "Karma"
+    ],
+    "carry": "Ezreal",
+    "items": [
+      "Deathblade",
+      "Last Whisper",
+      "Spear of Shojin"
+    ],
+    "augments": [
+      "Band of Thieves",
+      "Champ Delivery+",
+      "Component Buffet",
+      "Feeling Lucky",
+      "Latent Forge",
+      "Partial Ascension",
+      "Patience is a Virtue",
+      "Residual Magic ++"
+    ],
+    "tips": "Best with Executioner emblem. Focus Ezreal + Tank items first then rest on Ahri->Soraka. Elderwood Lux caps the board.",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Open with upgraded Elderwood and slam items on LeBlanc or Xayah. LeBlanc can farm copies of units on your board so avoid fielding unwanted units."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Add more Elderwood as you level with Spellweavers. If you start getting AD items, play them on Xayah / Rapidfires."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level to 8 and roll heavily for Ezreal and the 4 costs, only go 9 once you have upgraded most things."
+      }
+    ],
+    "slug": "ezreal-executioner"
+  },
+  {
+    "title": "Sivir Hunter",
+    "titleVi": "Sivir Thợ Săn",
+    "tier": "A",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": "up",
+    "playstyle": "Fast 8 · Sivir carry",
+    "playstyleVi": "Fast 8 · chủ lực Sivir",
+    "stats": {
+      "avg": 4.51,
+      "games": 12304,
+      "level": 8
+    },
+    "units": [
+      {
+        "name": "Lillia",
+        "row": 0,
+        "col": 0,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Rakan",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Shen",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Sivir",
+        "row": 3,
+        "col": 6,
+        "stars": 2,
+        "items": [
+          "Blue Buff",
+          "Deathblade",
+          "Infinity Edge"
+        ]
+      },
+      {
+        "name": "Amumu",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Kog'Maw",
+        "row": 3,
+        "col": 5,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Nidalee",
+        "row": 2,
+        "col": 6,
+        "stars": null,
+        "items": [
+          "Bloodthirster",
+          "Edge of Night",
+          "Sterak's Gage"
+        ]
+      },
+      {
+        "name": "Sentinel",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Rakan",
+      "Yorick",
+      "Yunara",
+      "Karma"
+    ],
+    "carry": "Sivir",
+    "items": [
+      "Blue Buff",
+      "Deathblade",
+      "Infinity Edge"
+    ],
+    "augments": [
+      "Band of Thieves",
+      "Champ Delivery+",
+      "Component Buffet",
+      "Feeling Lucky",
+      "Future Focused",
+      "Item Grab Bag",
+      "Latent Forge",
+      "Partial Ascension"
+    ],
+    "tips": "Kog'maw and Inferno provide utility so you can focus on building pure offense / tank items. Choose Execute Primal ideally. Ashe with utility items caps the final board. With Fae Emblem, add in Tristana over Kogmaw.",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Play from a strong AD opener and slam all your items. When in doubt, take sword off carousel since this composition can use 6+ easily."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Add in more Hunters and frontline as necessary. You can transition to Sivir 1 as the carry if you high roll her early."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level to 8 and roll down for Sivir and upgraded frontline. Early Ashe can go in over Kog'maw if you have Last Whisper. Go 9 once stable."
+      }
+    ],
+    "slug": "sivir-primal"
+  },
+  {
+    "title": "Teemo Invoker",
+    "titleVi": "Teemo Thuật Sĩ",
+    "tier": "A",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": null,
+    "playstyle": "Fast 8 · Teemo carry",
+    "playstyleVi": "Fast 8 · chủ lực Teemo",
+    "stats": {
+      "avg": 4.51,
+      "games": 2772,
+      "level": 8
+    },
+    "units": [
+      {
+        "name": "Morgana",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": [
+          "Hextech Gunblade",
+          "Morellonomicon",
+          "Void Staff"
+        ]
+      },
+      {
+        "name": "Rammus",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Warmog's Armor",
+          "Spirit Visage"
+        ]
+      },
+      {
+        "name": "Pebbles",
+        "row": 3,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Teemo",
+        "row": 3,
+        "col": 0,
+        "stars": 2,
+        "items": [
+          "Jeweled Gauntlet",
+          "Spear of Shojin",
+          "Striker's Flail"
+        ]
+      },
+      {
+        "name": "Veigar",
+        "row": 3,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Fiddlesticks",
+        "row": 2,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Krug",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Sentinel",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      }
+    ],
+    "early": [
+      "Kobuko",
+      "Rek'Sai",
+      "Teemo",
+      "Veigar"
+    ],
+    "carry": "Teemo",
+    "items": [
+      "Jeweled Gauntlet",
+      "Spear of Shojin",
+      "Striker's Flail"
+    ],
+    "augments": [
+      "A Magic Roll",
+      "Baron's Lair",
+      "Booster Pack++",
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
+    ],
+    "tips": "Average placement 4.51 across 2,772 games. Level 8 is the most common finish (42%). Best Teemo build: Jeweled Gauntlet, Spear of Shojin, Striker's Flail.",
+    "tipsVi": "Hạng trung bình 4.51 qua 2.772 trận. Cấp 8 là mức kết thúc phổ biến nhất (42%). Trang bị tốt nhất cho Teemo: Jeweled Gauntlet, Spear of Shojin, Striker's Flail.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Most common level 4 board: Kobuko, Rek'Sai, Teemo, Veigar (251 games, 4.59 avg).",
+        "textVi": "Đội cấp 4 phổ biến nhất: Kobuko, Rek'Sai, Teemo, Veigar (251 trận, hạng TB 4.59)."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Most common level 6 board: Rammus, Pebbles, Teemo, Veigar, Fiddlesticks, Krug (420 games, 4.60 avg).",
+        "textVi": "Đội cấp 6 phổ biến nhất: Rammus, Pebbles, Teemo, Veigar, Fiddlesticks, Krug (420 trận, hạng TB 4.60)."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level 8 board: Morgana, Rammus, Pebbles, Teemo, Veigar, Fiddlesticks, Krug, Sentinel (126 games, 4.51 avg).",
+        "textVi": "Đội cấp 8: Morgana, Rammus, Pebbles, Teemo, Veigar, Fiddlesticks, Krug, Sentinel (126 trận, hạng TB 4.51)."
+      }
+    ],
+    "slug": "teemo-invoker"
+  },
+  {
+    "title": "Ashe Juggernaut",
+    "titleVi": "Ashe Dũng Sĩ",
+    "tier": "B",
+    "style": "Fast 8",
+    "difficulty": 3,
+    "trend": null,
+    "playstyle": "Fast 8 · Ashe carry",
+    "playstyleVi": "Fast 8 · chủ lực Ashe",
+    "stats": {
+      "avg": 4.52,
+      "games": 37926,
+      "level": 9
+    },
+    "units": [
+      {
+        "name": "Ashe",
+        "row": 3,
+        "col": 0,
+        "stars": 2,
+        "items": [
+          "Inferno Emblem",
+          "Red Buff",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Ivern",
+        "row": 3,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Kennen",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Maokai",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Rakan",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Sivir",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": [
+          "Infinity Edge",
+          "Last Whisper",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Amumu",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Taric",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Vi",
+        "row": 0,
+        "col": 5,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Caitlyn",
+      "Camille",
+      "Elise",
+      "Rakan"
+    ],
+    "carry": "Ashe",
+    "items": [
+      "Inferno Emblem",
+      "Red Buff",
+      "Spear of Shojin"
+    ],
+    "augments": [
+      "Band of Thieves",
+      "Carve a Path",
+      "Champ Delivery+",
+      "Feeling Lucky",
+      "Kick Start",
+      "Late Game Specialist",
+      "One, Two, Five!",
+      "Partial Ascension"
+    ],
+    "tips": "Consider this as a flex option for a Sivir board if you were playing around Juggernauts in the midgame already. If you get Juggernaut emblem, you can play 6 Juggernauts. Can also play other 5 cost AD carries like Dragon and Draven. Take turtle primal buff.",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Open with a strong AD opener, preferably around Yunara. Slam generic AD items and Tank items for a win streak."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Level up for more juggernauts and executioners to pair with our blossom opener."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level and roll for 6 juggernauts +Sivir. Once stable, go 9 and look for Ashe and transition your board to 5 costs."
+      }
+    ],
+    "slug": "ashe-blossom"
+  },
+  {
+    "title": "Tristana Fae",
+    "titleVi": "Tristana Tiên Linh",
+    "tier": "B",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": null,
+    "playstyle": "Fast 8 · Tristana carry",
+    "playstyleVi": "Fast 8 · chủ lực Tristana",
+    "stats": {
+      "avg": 4.52,
+      "games": 29522,
+      "level": 8
+    },
+    "units": [
+      {
+        "name": "Kobuko",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Lillia",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Rakan",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Rammus",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Sivir",
+        "row": 3,
+        "col": 1,
+        "stars": null,
+        "items": [
+          "Fae Emblem",
+          "Infinity Edge",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Tristana",
+        "row": 3,
+        "col": 0,
+        "stars": 2,
+        "items": [
+          "Giant Slayer",
+          "Guinsoo's Rageblade",
+          "Hextech Gunblade"
+        ]
+      },
+      {
+        "name": "Xayah",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Vi",
+        "row": 0,
+        "col": 5,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Rakan",
+      "Varus",
+      "Xayah",
+      "Yorick"
+    ],
+    "carry": "Tristana",
+    "items": [
+      "Giant Slayer",
+      "Guinsoo's Rageblade",
+      "Hextech Gunblade"
+    ],
+    "augments": [
+      "A Magic Roll",
+      "Baron's Lair",
+      "Booster Pack++",
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
+    ],
+    "tips": "Only play when you have Fae emblem. Stacking 4 Fae ASAP is important so you can get a gold engine. Can also tank Vi primary if you can't find Rammus. Execute Primal > Item Primal unless very far ahead / win streaking.",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Play for win streak with upgraded Rageblade holder. Start stacking Fae since getting to 7 ASAP is crucial for success."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Itemize and play Tristana as soon as you find her. Sprykin is more important than Hunter. If you spike very early Primal from ahead, you can consider items."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level to 7 and roll above 50g for 3* Tristana and Rammus. Use your 4 Fae cash outs to push levels. Give Sivir leftover AD items."
+      }
+    ],
+    "slug": "tristana-sprykin-reroll"
+  },
+  {
     "title": "Zyra Juggernaut",
     "titleVi": "Zyra Dũng Sĩ",
     "tier": "B",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "up",
+    "trend": null,
     "playstyle": "Fast 8 · Zyra carry",
     "playstyleVi": "Fast 8 · chủ lực Zyra",
     "stats": {
-      "avg": 4.61,
-      "games": 15204,
+      "avg": 4.57,
+      "games": 15633,
       "level": 9
     },
     "units": [
@@ -2529,7 +2686,11 @@
         "row": 0,
         "col": 3,
         "stars": null,
-        "items": []
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
       },
       {
         "name": "Sejuani",
@@ -2590,11 +2751,7 @@
         "row": 0,
         "col": 0,
         "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Warmog's Armor",
-          "Thief's Gloves"
-        ]
+        "items": []
       }
     ],
     "early": [
@@ -2638,140 +2795,121 @@
     "slug": "zyra-juggernaut"
   },
   {
-    "title": "Sentinel Invoker",
-    "titleVi": "Người Đá Thuật Sĩ",
+    "title": "Camille & Akali Solar",
+    "titleVi": "Camille & Akali Mặt Trời",
     "tier": "B",
-    "style": "Fast 8",
-    "difficulty": 2,
+    "style": "Reroll",
+    "difficulty": 1,
     "trend": "down",
-    "playstyle": "Fast 8 · Sentinel carry",
-    "playstyleVi": "Fast 8 · chủ lực Sentinel",
+    "playstyle": "Reroll · Akali carry",
+    "playstyleVi": "Reroll · chủ lực Akali",
     "stats": {
-      "avg": 4.62,
-      "games": 7279,
-      "level": 9
+      "avg": 4.58,
+      "games": 27160,
+      "level": 7
     },
     "units": [
       {
-        "name": "Alune",
-        "row": 3,
+        "name": "Akali",
+        "row": 2,
         "col": 0,
-        "stars": null,
+        "stars": 3,
         "items": [
-          "Invoker Emblem",
-          "Jeweled Gauntlet",
-          "Striker's Flail"
+          "Edge of Night",
+          "Hand Of Justice",
+          "Jeweled Gauntlet"
         ]
       },
       {
-        "name": "Diana",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Hecarim",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Morgana",
-        "row": 1,
-        "col": 2,
+        "name": "Camille",
+        "row": 2,
+        "col": 1,
         "stars": null,
         "items": [
-          "Morellonomicon",
-          "Rabadon's Deathcap",
-          "Void Staff"
+          "Infinity Edge",
+          "Quicksilver",
+          "Sterak's Gage"
         ]
       },
       {
-        "name": "Pebbles",
+        "name": "Kayle",
         "row": 3,
         "col": 6,
         "stars": null,
         "items": []
       },
       {
-        "name": "Brambleback",
+        "name": "Leona",
         "row": 2,
-        "col": 0,
-        "stars": null,
-        "items": [
-          "Edge of Night",
-          "Guinsoo's Rageblade",
-          "Hand Of Justice"
-        ]
-      },
-      {
-        "name": "Kog'Maw",
-        "row": 3,
-        "col": 1,
+        "col": 3,
         "stars": null,
         "items": []
       },
       {
-        "name": "Sentinel",
+        "name": "Ornn",
         "row": 0,
-        "col": 2,
-        "stars": 2,
+        "col": 3,
+        "stars": null,
         "items": [
+          "Crownguard",
           "Gargoyle Stoneplate",
-          "Protector's Vow",
           "Warmog's Armor"
         ]
       },
       {
-        "name": "Taric",
-        "row": 1,
-        "col": 3,
+        "name": "Sejuani",
+        "row": 2,
+        "col": 6,
         "stars": null,
         "items": []
+      },
+      {
+        "name": "Varus",
+        "row": 3,
+        "col": 0,
+        "stars": null,
+        "items": [
+          "Infinity Edge",
+          "Last Whisper",
+          "Spear of Shojin"
+        ]
       }
     ],
     "early": [
-      "Caitlyn",
+      "Akali",
       "Camille",
-      "Cassiopeia",
-      "Elise"
+      "Leona",
+      "Ornn"
     ],
-    "carry": "Sentinel",
+    "carry": "Akali",
     "items": [
-      "Gargoyle Stoneplate",
-      "Protector's Vow",
-      "Warmog's Armor"
+      "Edge of Night",
+      "Hand Of Justice",
+      "Jeweled Gauntlet"
     ],
     "augments": [
-      "A Magic Roll",
-      "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
-      "Booster Pack++",
-      "Branching Out"
+      "Pandora's Bench",
+      "Early Learnings",
+      "NO SCOUT NO PIVOT",
+      "Portable Forge"
     ],
-    "tips": "Average placement 4.62 across 7,279 games. Level 9 is the most common finish (50%). Best Sentinel build: Gargoyle Stoneplate, Protector's Vow, Warmog's Armor.",
-    "tipsVi": "Hạng trung bình 4.62 qua 7.279 trận. Cấp 9 là mức kết thúc phổ biến nhất (50%). Trang bị tốt nhất cho Sentinel: Gargoyle Stoneplate, Protector's Vow, Warmog's Armor.",
+    "tips": "Akali can be AD or AP (Flex IE/JG) Itemize Tank + 3star melee first -> 2nd melee -> Varus items. Only go for Kayle and Sej 3 with lots of money. Can  Swap out Ornn for Yorick/Rakan.",
+    "tipsVi": null,
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Most common level 4 board: Caitlyn, Camille, Cassiopeia, Elise (382 games, 4.00 avg).",
-        "textVi": "Đội cấp 4 phổ biến nhất: Caitlyn, Camille, Cassiopeia, Elise (382 trận, hạng TB 4.00)."
+        "text": "Look to play with lots of early copies of 1 cost + good reroll augment."
       },
       {
         "stage": "Stage 3",
-        "text": "Most common level 6 board: Caitlyn, Camille, Cassiopeia, Diana, Elise, Morgana (93 games, 4.33 avg).",
-        "textVi": "Đội cấp 6 phổ biến nhất: Caitlyn, Camille, Cassiopeia, Diana, Elise, Morgana (93 trận, hạng TB 4.33)."
+        "text": "Roll to 30 on 3-1 level 4 for extra 1 cost copies. Then slow roll on 5 until you have 5 3 stars for solar bonus."
       },
       {
         "stage": "Stage 4",
-        "text": "Level 9 board: Alune, Diana, Hecarim, Morgana, Pebbles, Brambleback, Kog'Maw, Sentinel, Taric (176 games, 4.62 avg).",
-        "textVi": "Đội cấp 9: Alune, Diana, Hecarim, Morgana, Pebbles, Brambleback, Kog'Maw, Sentinel, Taric (176 trận, hạng TB 4.62)."
+        "text": "Make sure you keep your econ high because you need to be level 7 to fit solar on this board. Try to be Level to 7 somewhere on stage 4."
       }
     ],
-    "slug": "sentinel-riftbeast"
+    "slug": "camille-akali-solar"
   },
   {
     "title": "Ahri & Zyra Blossom",
@@ -2783,8 +2921,8 @@
     "playstyle": "Fast 8 · Ahri carry",
     "playstyleVi": "Fast 8 · chủ lực Ahri",
     "stats": {
-      "avg": 4.64,
-      "games": 22529,
+      "avg": 4.59,
+      "games": 34221,
       "level": 8
     },
     "units": [
@@ -2812,9 +2950,9 @@
         "col": 0,
         "stars": null,
         "items": [
+          "Adaptive Helm",
           "Protector's Vow",
-          "Gargoyle Stoneplate",
-          "Adaptive Helm"
+          "Gargoyle Stoneplate"
         ]
       },
       {
@@ -2831,8 +2969,8 @@
         "stars": null,
         "items": [
           "Gargoyle Stoneplate",
-          "Warmog's Armor",
-          "Spirit Visage"
+          "Spirit Visage",
+          "Warmog's Armor"
         ]
       },
       {
@@ -2845,7 +2983,7 @@
       {
         "name": "Zyra",
         "row": 3,
-        "col": 6,
+        "col": 0,
         "stars": null,
         "items": [
           "Morellonomicon",
@@ -2875,7 +3013,8 @@
     ],
     "augments": [
       "Bronze For Life I",
-      "Bronze For Life II"
+      "Bronze For Life II",
+      "Hold the Line"
     ],
     "tips": "+1 tier in strength with Bronze For Life augment. If playing from ahead on winstreak, consider playing 5 Blossom on level 8 with Karma, then rush 9 for the 5 costs -> Alune 2 carry late game.",
     "tipsVi": null,
@@ -2901,12 +3040,12 @@
     "tier": "B",
     "style": "Reroll",
     "difficulty": 1,
-    "trend": "up",
+    "trend": null,
     "playstyle": "Reroll · Caitlyn carry",
     "playstyleVi": "Reroll · chủ lực Caitlyn",
     "stats": {
-      "avg": 4.66,
-      "games": 11307,
+      "avg": 4.63,
+      "games": 11747,
       "level": 8
     },
     "units": [
@@ -3017,55 +3156,73 @@
     "slug": "caitlyn-juggernaut"
   },
   {
-    "title": "Sivir Hunter",
-    "titleVi": "Sivir Thợ Săn",
+    "title": "Sentinel Invoker",
+    "titleVi": "Người Đá Thuật Sĩ",
     "tier": "B",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "down",
-    "playstyle": "Fast 8 · Sivir carry",
-    "playstyleVi": "Fast 8 · chủ lực Sivir",
+    "trend": null,
+    "playstyle": "Fast 8 · Sentinel carry",
+    "playstyleVi": "Fast 8 · chủ lực Sentinel",
     "stats": {
-      "avg": 4.71,
-      "games": 10958,
-      "level": 8
+      "avg": 4.63,
+      "games": 5871,
+      "level": 9
     },
     "units": [
       {
-        "name": "Malphite",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Crownguard",
-          "Gargoyle Stoneplate",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Rek'Sai",
-        "row": 2,
-        "col": 6,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Sivir",
+        "name": "Alune",
         "row": 3,
         "col": 0,
-        "stars": 2,
+        "stars": null,
         "items": [
-          "Infinity Edge",
-          "Red Buff",
+          "Invoker Emblem",
+          "Jeweled Gauntlet",
           "Striker's Flail"
         ]
       },
       {
-        "name": "Cinderling",
+        "name": "Diana",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Hecarim",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Morgana",
+        "row": 1,
+        "col": 2,
+        "stars": null,
+        "items": [
+          "Morellonomicon",
+          "Rabadon's Deathcap",
+          "Void Staff"
+        ]
+      },
+      {
+        "name": "Pebbles",
         "row": 3,
         "col": 6,
         "stars": null,
         "items": []
+      },
+      {
+        "name": "Brambleback",
+        "row": 2,
+        "col": 0,
+        "stars": null,
+        "items": [
+          "Edge of Night",
+          "Guinsoo's Rageblade",
+          "Hand Of Justice"
+        ]
       },
       {
         "name": "Kog'Maw",
@@ -3075,74 +3232,64 @@
         "items": []
       },
       {
-        "name": "Krug",
-        "row": 2,
+        "name": "Sentinel",
+        "row": 0,
         "col": 3,
+        "stars": 2,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Taric",
+        "row": 0,
+        "col": 2,
         "stars": null,
         "items": []
-      },
-      {
-        "name": "Nidalee",
-        "row": 2,
-        "col": 0,
-        "stars": null,
-        "items": [
-          "Infinity Edge",
-          "Spear of Shojin",
-          "Sterak's Gage"
-        ]
-      },
-      {
-        "name": "Sentinel",
-        "row": 2,
-        "col": 4,
-        "stars": null,
-        "items": [
-          "Adaptive Helm",
-          "Protector's Vow",
-          "Gargoyle Stoneplate"
-        ]
       }
     ],
     "early": [
-      "Rakan",
-      "Yorick",
-      "Yunara",
-      "Karma"
+      "Caitlyn",
+      "Camille",
+      "Cassiopeia",
+      "Elise"
     ],
-    "carry": "Sivir",
+    "carry": "Sentinel",
     "items": [
-      "Infinity Edge",
-      "Red Buff",
-      "Striker's Flail"
+      "Gargoyle Stoneplate",
+      "Protector's Vow",
+      "Warmog's Armor"
     ],
     "augments": [
-      "Band of Thieves",
-      "Champ Delivery+",
-      "Component Buffet",
-      "Feeling Lucky",
-      "Future Focused",
-      "Item Grab Bag",
-      "Latent Forge",
-      "Partial Ascension"
+      "A Magic Roll",
+      "Baron's Lair",
+      "Booster Pack++",
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
-    "tips": "Krug on the Blackthorn hex. Prioritize Nidalee > Sivir items. Kogmaw provides free Shred and Sunder. Max cap is drop riftbeasts for Gnar + Ashe + Taric. Hunter emblem is incredible on Nidalee. Can also drop Malphite for Sett + Vanguard. Take tiger primal buff.",
-    "tipsVi": null,
+    "tips": "Average placement 4.63 across 5,871 games. Level 9 is the most common finish (51%). Best Sentinel build: Gargoyle Stoneplate, Protector's Vow, Warmog's Armor.",
+    "tipsVi": "Hạng trung bình 4.63 qua 5.871 trận. Cấp 9 là mức kết thúc phổ biến nhất (51%). Trang bị tốt nhất cho Sentinel: Gargoyle Stoneplate, Protector's Vow, Warmog's Armor.",
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Play around a strong AD opener around Cinderling 2 with Riftbeasts. Slam all your AD and tank items aggressively for win streak."
+        "text": "Most common level 4 board: Caitlyn, Camille, Cassiopeia, Elise (297 games, 4.41 avg).",
+        "textVi": "Đội cấp 4 phổ biến nhất: Caitlyn, Camille, Cassiopeia, Elise (297 trận, hạng TB 4.41)."
       },
       {
         "stage": "Stage 3",
-        "text": "Comp is very Sword hungry so keep taking them off augments / carousels when possible. You can flex in 5 Riftbeast for better shops or more generic frontline."
+        "text": "Most common level 6 board: Caitlyn, Camille, Cassiopeia, Diana, Elise, Morgana (48 games, 4.27 avg).",
+        "textVi": "Đội cấp 6 phổ biến nhất: Caitlyn, Camille, Cassiopeia, Diana, Elise, Morgana (48 trận, hạng TB 4.27)."
       },
       {
         "stage": "Stage 4",
-        "text": "Level to 8 and roll for Nidalee, Sivir, and Malphite / tank. If Malphite is too contested, consider Sentinel or Krug tank instead."
+        "text": "Level 9 board: Alune, Diana, Hecarim, Morgana, Pebbles, Brambleback, Kog'Maw, Sentinel, Taric (133 games, 4.63 avg).",
+        "textVi": "Đội cấp 9: Alune, Diana, Hecarim, Morgana, Pebbles, Brambleback, Kog'Maw, Sentinel, Taric (133 trận, hạng TB 4.63)."
       }
     ],
-    "slug": "sivir-primal"
+    "slug": "sentinel-invoker"
   },
   {
     "title": "Brambleback Ravager",
@@ -3150,37 +3297,37 @@
     "tier": "X",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "down",
+    "trend": "up",
     "playstyle": "Fast 8 · Brambleback carry",
     "playstyleVi": "Fast 8 · chủ lực Brambleback",
     "stats": {
-      "avg": 4.73,
-      "games": 1840,
+      "avg": 4.66,
+      "games": 1555,
       "level": 8
     },
     "units": [
       {
         "name": "Camille",
         "row": 0,
-        "col": 5,
+        "col": 2,
         "stars": null,
         "items": []
       },
       {
         "name": "Diana",
         "row": 0,
-        "col": 2,
+        "col": 3,
         "stars": null,
         "items": [
-          "Edge of Night",
-          "Hand Of Justice",
-          "Jeweled Gauntlet"
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
         ]
       },
       {
         "name": "Elise",
         "row": 0,
-        "col": 3,
+        "col": 4,
         "stars": null,
         "items": [
           "Ravager Emblem",
@@ -3191,7 +3338,7 @@
       {
         "name": "Hecarim",
         "row": 0,
-        "col": 1,
+        "col": 5,
         "stars": null,
         "items": []
       },
@@ -3204,8 +3351,8 @@
       },
       {
         "name": "Brambleback",
-        "row": 2,
-        "col": 0,
+        "row": 3,
+        "col": 6,
         "stars": 2,
         "items": [
           "Edge of Night",
@@ -3223,7 +3370,7 @@
       {
         "name": "Sentinel",
         "row": 0,
-        "col": 4,
+        "col": 1,
         "stars": null,
         "items": [
           "Gargoyle Stoneplate",
@@ -3247,28 +3394,28 @@
     "augments": [
       "A Magic Roll",
       "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
       "Booster Pack++",
-      "Branching Out"
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
-    "tips": "Average placement 4.73 across 1,840 games. Level 8 is the most common finish (50%). Best Brambleback build: Edge of Night, Guinsoo's Rageblade, Hand Of Justice.",
-    "tipsVi": "Hạng trung bình 4.73 qua 1.840 trận. Cấp 8 là mức kết thúc phổ biến nhất (50%). Trang bị tốt nhất cho Brambleback: Edge of Night, Guinsoo's Rageblade, Hand Of Justice.",
+    "tips": "Average placement 4.66 across 1,555 games. Level 8 is the most common finish (53%). Best Brambleback build: Edge of Night, Guinsoo's Rageblade, Hand Of Justice.",
+    "tipsVi": "Hạng trung bình 4.66 qua 1.555 trận. Cấp 8 là mức kết thúc phổ biến nhất (53%). Trang bị tốt nhất cho Brambleback: Edge of Night, Guinsoo's Rageblade, Hand Of Justice.",
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Most common level 4 board: Akali, Camille, Warwick, Murkwolf (43 games, 5.23 avg).",
-        "textVi": "Đội cấp 4 phổ biến nhất: Akali, Camille, Warwick, Murkwolf (43 trận, hạng TB 5.23)."
+        "text": "Most common level 4 board: Caitlyn, Camille, Diana, Elise (23 games, 5.09 avg).",
+        "textVi": "Đội cấp 4 phổ biến nhất: Caitlyn, Camille, Diana, Elise (23 trận, hạng TB 5.09)."
       },
       {
         "stage": "Stage 3",
-        "text": "Most common level 6 board: Akali, Camille, Diana, Elise, Warwick, Murkwolf (241 games, 4.10 avg).",
-        "textVi": "Đội cấp 6 phổ biến nhất: Akali, Camille, Diana, Elise, Warwick, Murkwolf (241 trận, hạng TB 4.10)."
+        "text": "Most common level 6 board: Akali, Camille, Diana, Elise, Warwick, Murkwolf (150 games, 4.04 avg).",
+        "textVi": "Đội cấp 6 phổ biến nhất: Akali, Camille, Diana, Elise, Warwick, Murkwolf (150 trận, hạng TB 4.04)."
       },
       {
         "stage": "Stage 4",
-        "text": "Level 8 board: Camille, Diana, Elise, Hecarim, Warwick, Brambleback, Murkwolf, Sentinel (47 games, 4.73 avg).",
-        "textVi": "Đội cấp 8: Camille, Diana, Elise, Hecarim, Warwick, Brambleback, Murkwolf, Sentinel (47 trận, hạng TB 4.73)."
+        "text": "Level 8 board: Camille, Diana, Elise, Hecarim, Warwick, Brambleback, Murkwolf, Sentinel (55 games, 4.66 avg).",
+        "textVi": "Đội cấp 8: Camille, Diana, Elise, Hecarim, Warwick, Brambleback, Murkwolf, Sentinel (55 trận, hạng TB 4.66)."
       }
     ],
     "slug": "brambleback-ravager"
@@ -3283,8 +3430,8 @@
     "playstyle": "Fast 8 · Soraka carry",
     "playstyleVi": "Fast 8 · chủ lực Soraka",
     "stats": {
-      "avg": 4.74,
-      "games": 37776,
+      "avg": 4.67,
+      "games": 32027,
       "level": 8
     },
     "units": [
@@ -3319,9 +3466,9 @@
         "col": 0,
         "stars": 2,
         "items": [
-          "Archangel's Staff",
           "Rabadon's Deathcap",
-          "Spear of Shojin"
+          "Spear of Shojin",
+          "Striker's Flail"
         ]
       },
       {
@@ -3334,7 +3481,7 @@
       {
         "name": "Zyra",
         "row": 3,
-        "col": 2,
+        "col": 1,
         "stars": null,
         "items": [
           "Executioner Emblem",
@@ -3369,9 +3516,9 @@
     ],
     "carry": "Soraka",
     "items": [
-      "Archangel's Staff",
       "Rabadon's Deathcap",
-      "Spear of Shojin"
+      "Spear of Shojin",
+      "Striker's Flail"
     ],
     "augments": [
       "Band of Thieves",
@@ -3383,58 +3530,165 @@
       "Partial Ascension",
       "Patience is a Virtue"
     ],
-    "tips": "Average placement 4.74 across 37,776 games. Level 8 is the most common finish (64%). Best Soraka build: Archangel's Staff, Rabadon's Deathcap, Spear of Shojin.",
-    "tipsVi": "Hạng trung bình 4.74 qua 37.776 trận. Cấp 8 là mức kết thúc phổ biến nhất (64%). Trang bị tốt nhất cho Soraka: Archangel's Staff, Rabadon's Deathcap, Spear of Shojin.",
+    "tips": "Average placement 4.67 across 32,027 games. Level 8 is the most common finish (63%). Best Soraka build: Rabadon's Deathcap, Spear of Shojin, Striker's Flail.",
+    "tipsVi": "Hạng trung bình 4.67 qua 32.027 trận. Cấp 8 là mức kết thúc phổ biến nhất (63%). Trang bị tốt nhất cho Soraka: Rabadon's Deathcap, Spear of Shojin, Striker's Flail.",
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Most common level 4 board: Rakan, Yorick, Yunara, Karma (745 games, 4.48 avg).",
-        "textVi": "Đội cấp 4 phổ biến nhất: Rakan, Yorick, Yunara, Karma (745 trận, hạng TB 4.48)."
+        "text": "Most common level 4 board: Rakan, Yorick, Yunara, Karma (634 games, 4.39 avg).",
+        "textVi": "Đội cấp 4 phổ biến nhất: Rakan, Yorick, Yunara, Karma (634 trận, hạng TB 4.39)."
       },
       {
         "stage": "Stage 3",
-        "text": "Most common level 6 board: Azir, Rakan, Yorick, Yunara, Fiddlesticks, Karma (113 games, 4.62 avg).",
-        "textVi": "Đội cấp 6 phổ biến nhất: Azir, Rakan, Yorick, Yunara, Fiddlesticks, Karma (113 trận, hạng TB 4.62)."
+        "text": "Most common level 6 board: Azir, Rakan, Yorick, Yunara, Fiddlesticks, Karma (82 games, 4.00 avg).",
+        "textVi": "Đội cấp 6 phổ biến nhất: Azir, Rakan, Yorick, Yunara, Fiddlesticks, Karma (82 trận, hạng TB 4.00)."
       },
       {
         "stage": "Stage 4",
-        "text": "Level 8 board: Azir, Kennen, Malphite, Soraka, Yorick, Zyra, Amumu, Fiddlesticks (2,527 games, 4.74 avg).",
-        "textVi": "Đội cấp 8: Azir, Kennen, Malphite, Soraka, Yorick, Zyra, Amumu, Fiddlesticks (2.527 trận, hạng TB 4.74)."
+        "text": "Level 8 board: Azir, Kennen, Malphite, Soraka, Yorick, Zyra, Amumu, Fiddlesticks (1,882 games, 4.67 avg).",
+        "textVi": "Đội cấp 8: Azir, Kennen, Malphite, Soraka, Yorick, Zyra, Amumu, Fiddlesticks (1.882 trận, hạng TB 4.67)."
       }
     ],
     "slug": "soraka-executioner"
   },
   {
-    "title": "Varus & Kayle Solar",
-    "titleVi": "Varus & Kayle Mặt Trời",
+    "title": "Karma & Yunara Blackthorn",
+    "titleVi": "Karma & Yunara Gai Đen",
     "tier": "B",
     "style": "Reroll",
     "difficulty": 1,
     "trend": "up",
-    "playstyle": "Reroll · Kayle carry",
-    "playstyleVi": "Reroll · chủ lực Kayle",
+    "playstyle": "Reroll · Yunara carry",
+    "playstyleVi": "Reroll · chủ lực Yunara",
     "stats": {
-      "avg": 4.75,
-      "games": 17157,
+      "avg": 4.67,
+      "games": 2622,
       "level": 7
     },
     "units": [
       {
-        "name": "Hecarim",
-        "row": 2,
+        "name": "Alistar",
+        "row": 0,
         "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Azir",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": [
+          "Guinsoo's Rageblade",
+          "Hextech Gunblade",
+          "Rabadon's Deathcap"
+        ]
+      },
+      {
+        "name": "Ezreal",
+        "row": 3,
+        "col": 2,
         "stars": null,
         "items": []
       },
       {
-        "name": "Kayle",
+        "name": "Rek'Sai",
+        "row": 2,
+        "col": 4,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Warwick",
+        "row": 2,
+        "col": 0,
+        "stars": null,
+        "items": [
+          "Spear of Shojin",
+          "Sterak's Gage",
+          "Titan's Resolve"
+        ]
+      },
+      {
+        "name": "Yunara",
         "row": 3,
         "col": 0,
         "stars": 3,
         "items": [
-          "Guinsoo's Rageblade",
+          "Blackthorn Emblem",
+          "Last Whisper",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Murkwolf",
+        "row": 2,
+        "col": 3,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Alistar",
+      "Rek'Sai",
+      "Warwick",
+      "Yunara"
+    ],
+    "carry": "Yunara",
+    "items": [
+      "Blackthorn Emblem",
+      "Last Whisper",
+      "Spear of Shojin"
+    ],
+    "augments": [
+      "Trade Sector"
+    ],
+    "tips": "Play when you have lots of copies of Yunara with Blackthorn emblem. Prioritize Yunara > Tank > Warwick items. Murkwolf can also hold items temporarily until you get Yunara online. End game put Last Whisper on Ezreal and give Yunara a 3rd true damage item.",
+    "tipsVi": null,
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Slam items for Yunara and play for win streak with Blossom in. Tank Yorick / Juggernaut until you find Alistar."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Level at 3-2 and roll for 2* upgrades then econ up. Skip Azir 2 because he's too expensive. Buy a charm every round if possible and win streak."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Finish your 3* units then push levels. Look for 3 Executioner for Yunara. Kennen caps your board. Blackthorn Lux is a high roll top end finisher."
+      }
+    ],
+    "slug": "karma-yunara-blackthorn"
+  },
+  {
+    "title": "Cassiopeia Defender",
+    "titleVi": "Cassiopeia Vệ Quân",
+    "tier": "B",
+    "style": "Reroll",
+    "difficulty": 1,
+    "trend": "up",
+    "playstyle": "Reroll · Cassiopeia carry",
+    "playstyleVi": "Reroll · chủ lực Cassiopeia",
+    "stats": {
+      "avg": 4.72,
+      "games": 14927,
+      "level": 7
+    },
+    "units": [
+      {
+        "name": "Cassiopeia",
+        "row": 3,
+        "col": 6,
+        "stars": 3,
+        "items": [
+          "Archangel's Staff",
           "Hextech Gunblade",
-          "Jeweled Gauntlet"
+          "Spear of Shojin"
         ]
       },
       {
@@ -3445,7 +3699,25 @@
         "items": []
       },
       {
+        "name": "Lillia",
+        "row": 0,
+        "col": 0,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
         "name": "Ornn",
+        "row": 0,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Rammus",
         "row": 0,
         "col": 3,
         "stars": null,
@@ -3456,74 +3728,63 @@
         ]
       },
       {
-        "name": "Rakan",
+        "name": "Shen",
         "row": 0,
         "col": 4,
         "stars": null,
         "items": []
       },
       {
-        "name": "Sejuani",
-        "row": 1,
-        "col": 3,
+        "name": "Fiddlesticks",
+        "row": 0,
+        "col": 5,
         "stars": null,
         "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Xayah",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": [
-          "Guinsoo's Rageblade",
-          "Infinity Edge",
-          "Kraken's Fury"
+          "Adaptive Helm",
+          "Crownguard",
+          "Titan's Resolve"
         ]
       }
     ],
     "early": [
-      "Kayle",
+      "Cassiopeia",
       "Leona",
       "Ornn",
-      "Rakan"
+      "Shen"
     ],
-    "carry": "Kayle",
+    "carry": "Cassiopeia",
     "items": [
-      "Guinsoo's Rageblade",
+      "Archangel's Staff",
       "Hextech Gunblade",
-      "Jeweled Gauntlet"
+      "Spear of Shojin"
     ],
     "augments": [
-      "Missed Connections",
-      "Partial Ascension",
-      "Rolling For Days",
-      "Small Grab Bag",
-      "Ascension",
-      "Big Grab Bag",
-      "Heroic Grab Bag",
-      "Heroic Grab Bag+"
+      "Boxing Lessons",
+      "Branching Out",
+      "Branching Out+",
+      "Champ Delivery+",
+      "Component Buffet",
+      "Feeling Lucky",
+      "Latent Forge",
+      "Partial Ascension"
     ],
-    "tips": "Roll on 3-1 to try and finish a 3* 1 cost for bench space -> Slow roll above 50g on level 5. Ornn Artifact print is very strong but only scales quickly once you get him to 3*. Kayle has built in 20% Shred at 2*. ",
+    "tips": "Very BIS dependent. Can play from Coven Cashout. Can also play for Ornn 3 to potentially farm Artifacts. Always play 6 Defender. Duo carry on 8 is any 4 or 5 cost AP carry. Titans on fiddle because we have no other use for bow.",
     "tipsVi": null,
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Ideally open with Kayle and upgraded Ornn. After Rageblade, prioritize tank items on Ornn so he can begin reliably stacking Artifact scaling."
+        "text": "Open with a strong AP opener, preferably around Invokers. Karma is an example shown but you can also play Invokers or Coven lose streak."
       },
       {
         "stage": "Stage 3",
-        "text": "Bench priority: Kayle 3 > Ornn 3 > Xayah / Leona > Sejuani > Rakan. Once you finish 1 costs, move up to level 6 for 2 costs."
+        "text": "If lose streaking with Coven, try to kill some units each fight to preserve HP. If win streaking, push standard winstreak tempo (6 @ 3-2, 7 @ 3-5) and save econ."
       },
       {
         "stage": "Stage 4",
-        "text": "Finish your 3* and level for Elderwood. Cap with any 5 costs like Lux, Ivern, Taric, etc."
+        "text": "Cash out / roll on level 7 for Cassio 2 / Fiddle 2. Then econ up and slow roll above 50g for 3* units. Then level to 8 for a duo carry."
       }
     ],
-    "slug": "kayle-solar"
+    "slug": "cassiopeia-coven"
   },
   {
     "title": "Aphelios Rapidfire",
@@ -3531,12 +3792,12 @@
     "tier": "B",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "down",
+    "trend": null,
     "playstyle": "Fast 8 · Aphelios carry",
     "playstyleVi": "Fast 8 · chủ lực Aphelios",
     "stats": {
-      "avg": 4.75,
-      "games": 9258,
+      "avg": 4.72,
+      "games": 7839,
       "level": 8
     },
     "units": [
@@ -3614,10 +3875,10 @@
       }
     ],
     "early": [
-      "Rakan",
-      "Varus",
-      "Xayah",
-      "Yorick"
+      "Caitlyn",
+      "Camille",
+      "Cassiopeia",
+      "Elise"
     ],
     "carry": "Aphelios",
     "items": [
@@ -3659,12 +3920,12 @@
     "tier": "B",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "down",
+    "trend": null,
     "playstyle": "Fast 8 · Aphelios carry",
     "playstyleVi": "Fast 8 · chủ lực Aphelios",
     "stats": {
-      "avg": 4.82,
-      "games": 11000,
+      "avg": 4.76,
+      "games": 9707,
       "level": 8
     },
     "units": [
@@ -3782,29 +4043,36 @@
     "slug": "aphelios-vanguard"
   },
   {
-    "title": "Cassiopeia Defender",
-    "titleVi": "Cassiopeia Vệ Quân",
-    "tier": "B",
+    "title": "Varus & Kayle Solar",
+    "titleVi": "Varus & Kayle Mặt Trời",
+    "tier": "C",
     "style": "Reroll",
     "difficulty": 1,
     "trend": "down",
-    "playstyle": "Reroll · Cassiopeia carry",
-    "playstyleVi": "Reroll · chủ lực Cassiopeia",
+    "playstyle": "Reroll · Kayle carry",
+    "playstyleVi": "Reroll · chủ lực Kayle",
     "stats": {
-      "avg": 4.84,
-      "games": 15954,
+      "avg": 4.81,
+      "games": 25140,
       "level": 7
     },
     "units": [
       {
-        "name": "Cassiopeia",
+        "name": "Hecarim",
+        "row": 2,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Kayle",
         "row": 3,
-        "col": 6,
+        "col": 0,
         "stars": 3,
         "items": [
-          "Archangel's Staff",
+          "Guinsoo's Rageblade",
           "Hextech Gunblade",
-          "Spear of Shojin"
+          "Jeweled Gauntlet"
         ]
       },
       {
@@ -3815,9 +4083,27 @@
         "items": []
       },
       {
-        "name": "Lillia",
+        "name": "Ornn",
         "row": 0,
-        "col": 0,
+        "col": 3,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Rakan",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Sejuani",
+        "row": 1,
+        "col": 3,
         "stars": null,
         "items": [
           "Gargoyle Stoneplate",
@@ -3826,101 +4112,98 @@
         ]
       },
       {
-        "name": "Ornn",
-        "row": 0,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Rammus",
-        "row": 0,
-        "col": 3,
+        "name": "Xayah",
+        "row": 3,
+        "col": 6,
         "stars": null,
         "items": [
-          "Ionic Spark",
-          "Steadfast Heart",
-          "Sunfire Cape"
-        ]
-      },
-      {
-        "name": "Shen",
-        "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Fiddlesticks",
-        "row": 0,
-        "col": 5,
-        "stars": null,
-        "items": [
-          "Adaptive Helm",
-          "Crownguard",
-          "Titan's Resolve"
+          "Deathblade",
+          "Guinsoo's Rageblade",
+          "Kraken's Fury"
         ]
       }
     ],
     "early": [
-      "Cassiopeia",
+      "Kayle",
       "Leona",
-      "Ornn",
-      "Shen"
+      "Rakan",
+      "Sejuani"
     ],
-    "carry": "Cassiopeia",
+    "carry": "Kayle",
     "items": [
-      "Archangel's Staff",
+      "Guinsoo's Rageblade",
       "Hextech Gunblade",
-      "Spear of Shojin"
+      "Jeweled Gauntlet"
     ],
     "augments": [
-      "Boxing Lessons",
-      "Branching Out",
-      "Branching Out+",
-      "Champ Delivery+",
-      "Component Buffet",
-      "Feeling Lucky",
-      "Latent Forge",
-      "Partial Ascension"
+      "Missed Connections",
+      "Partial Ascension",
+      "Rolling For Days",
+      "Small Grab Bag",
+      "Ascension",
+      "Big Grab Bag",
+      "Heroic Grab Bag",
+      "Heroic Grab Bag+"
     ],
-    "tips": "Very BIS dependent. Can play from Coven Cashout. Can also play for Ornn 3 to potentially farm Artifacts. Always play 6 Defender. Duo carry on 8 is any 4 or 5 cost AP carry. Titans on fiddle because we have no other use for bow.",
+    "tips": "Roll on 3-1 to try and finish a 3* 1 cost for bench space -> Slow roll above 50g on level 5. Ornn Artifact print is very strong but only scales quickly once you get him to 3*. Kayle has built in 20% Shred at 2*. ",
     "tipsVi": null,
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Open with a strong AP opener, preferably around Invokers. Karma is an example shown but you can also play Invokers or Coven lose streak."
+        "text": "Ideally open with Kayle and upgraded Ornn. After Rageblade, prioritize tank items on Ornn so he can begin reliably stacking Artifact scaling."
       },
       {
         "stage": "Stage 3",
-        "text": "If lose streaking with Coven, try to kill some units each fight to preserve HP. If win streaking, push standard winstreak tempo (6 @ 3-2, 7 @ 3-5) and save econ."
+        "text": "Bench priority: Kayle 3 > Ornn 3 > Xayah / Leona > Sejuani > Rakan. Once you finish 1 costs, move up to level 6 for 2 costs."
       },
       {
         "stage": "Stage 4",
-        "text": "Cash out / roll on level 7 for Cassio 2 / Fiddle 2. Then econ up and slow roll above 50g for 3* units. Then level to 8 for a duo carry."
+        "text": "Finish your 3* and level for Elderwood. Cap with any 5 costs like Lux, Ivern, Taric, etc."
       }
     ],
-    "slug": "cassiopeia-coven"
+    "slug": "kayle-solar"
   },
   {
-    "title": "Karma & Yunara Blackthorn",
-    "titleVi": "Karma & Yunara Gai Đen",
+    "title": "Kha'Zix Elderwood",
+    "titleVi": "Kha'Zix Thần Rừng",
     "tier": "C",
     "style": "Reroll",
     "difficulty": 1,
     "trend": "down",
-    "playstyle": "Reroll · Yunara carry",
-    "playstyleVi": "Reroll · chủ lực Yunara",
+    "playstyle": "Reroll · Kha'Zix carry",
+    "playstyleVi": "Reroll · chủ lực Kha'Zix",
     "stats": {
-      "avg": 4.91,
-      "games": 2983,
+      "avg": 4.9,
+      "games": 18273,
       "level": 7
     },
     "units": [
       {
-        "name": "Alistar",
+        "name": "Diana",
+        "row": 1,
+        "col": 1,
+        "stars": null,
+        "items": [
+          "Hand Of Justice",
+          "Ionic Spark",
+          "Jeweled Gauntlet"
+        ]
+      },
+      {
+        "name": "Ezreal",
+        "row": 3,
+        "col": 0,
+        "stars": null,
+        "items": [
+          "Deathblade",
+          "Last Whisper",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Hecarim",
         "row": 0,
-        "col": 3,
+        "col": 2,
         "stars": null,
         "items": [
           "Gargoyle Stoneplate",
@@ -3929,92 +4212,75 @@
         ]
       },
       {
-        "name": "Azir",
-        "row": 3,
-        "col": 2,
-        "stars": null,
+        "name": "Kha'Zix",
+        "row": 0,
+        "col": 1,
+        "stars": 3,
         "items": [
-          "Guinsoo's Rageblade",
-          "Hextech Gunblade",
-          "Red Buff"
+          "Edge of Night",
+          "Hand Of Justice",
+          "Rabadon's Deathcap"
         ]
       },
       {
-        "name": "Ezreal",
+        "name": "Ornn",
         "row": 3,
         "col": 6,
         "stars": null,
         "items": []
       },
       {
-        "name": "Rek'Sai",
-        "row": 2,
-        "col": 4,
+        "name": "Soraka",
+        "row": 3,
+        "col": 1,
         "stars": null,
         "items": []
       },
       {
-        "name": "Warwick",
+        "name": "Fiddlesticks",
         "row": 2,
-        "col": 0,
-        "stars": null,
-        "items": [
-          "Spear of Shojin",
-          "Sterak's Gage",
-          "Titan's Resolve"
-        ]
-      },
-      {
-        "name": "Yunara",
-        "row": 3,
-        "col": 0,
-        "stars": 3,
-        "items": [
-          "Blackthorn Emblem",
-          "Last Whisper",
-          "Spear of Shojin"
-        ]
-      },
-      {
-        "name": "Murkwolf",
-        "row": 2,
-        "col": 3,
+        "col": 2,
         "stars": null,
         "items": []
       }
     ],
     "early": [
-      "Alistar",
-      "Rek'Sai",
-      "Warwick",
-      "Yunara"
+      "Kha'Zix",
+      "Yorick",
+      "Yunara",
+      "Karma"
     ],
-    "carry": "Yunara",
+    "carry": "Kha'Zix",
     "items": [
-      "Blackthorn Emblem",
-      "Last Whisper",
-      "Spear of Shojin"
+      "Edge of Night",
+      "Hand Of Justice",
+      "Rabadon's Deathcap"
     ],
     "augments": [
-      "Trade Sector"
+      "A Magic Roll",
+      "Baron's Lair",
+      "Booster Pack++",
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
-    "tips": "Play when you have lots of copies of Yunara with Blackthorn emblem. Prioritize Yunara > Tank > Warwick items. Murkwolf can also hold items temporarily until you get Yunara online. End game put Last Whisper on Ezreal and give Yunara a 3rd true damage item.",
+    "tips": "If you have HOJ first, go Executioner > Ravager. If you have AP / Mana / tempo slams, go Ravager > Executioner. Then pick Spellweaver > Rapidfire with the last evolutions. Can play 3rd Executioner/Lux/Ivern as max cap.",
     "tipsVi": null,
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Slam items for Yunara and play for win streak with Blossom in. Tank Yorick / Juggernaut until you find Alistar."
+        "text": "Slam items aggressively on Kha'zix and move them later. It's okay to have Spark, Shojin, etc on Khazix early for takedowns."
       },
       {
         "stage": "Stage 3",
-        "text": "Level at 3-2 and roll for 2* upgrades then econ up. Skip Azir 2 because he's too expensive. Buy a charm every round if possible and win streak."
+        "text": "If you have a few crucial pairs on level 6, you can consider rolling slightly on 6 to get charms / upgrade units. Econ up to 7 otherwise."
       },
       {
         "stage": "Stage 4",
-        "text": "Finish your 3* units then push levels. Look for 3 Executioner for Yunara. Kennen caps your board. Blackthorn Lux is a high roll top end finisher."
+        "text": "Slow roll on 7 for 3* upgrades on whatever 3 costs you're chasing. In this example, give leftover AP items to Diana."
       }
     ],
-    "slug": "karma-yunara-blackthorn"
+    "slug": "kha-zix-elderwood"
   },
   {
     "title": "Veigar Sprykin",
@@ -4022,12 +4288,12 @@
     "tier": "C",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "up",
+    "trend": null,
     "playstyle": "Fast 8 · Veigar carry",
     "playstyleVi": "Fast 8 · chủ lực Veigar",
     "stats": {
-      "avg": 5.05,
-      "games": 3542,
+      "avg": 5.03,
+      "games": 4089,
       "level": 8
     },
     "units": [
@@ -4119,12 +4385,12 @@
     "augments": [
       "A Magic Roll",
       "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
       "Booster Pack++",
-      "Branching Out"
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
-    "tips": "Very strong with Dawncore and Ludens as well. Sacrifice a 3* unit for maximum Blackthorn stats.",
+    "tips": "Best with Artifact / special items. Very strong with Dawncore, Consuming Flora, and Ludens as well. Sacrifice a 3* unit for maximum Blackthorn stats.",
     "tipsVi": null,
     "stages": [
       {
@@ -4148,12 +4414,12 @@
     "tier": "X",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "up",
+    "trend": "down",
     "playstyle": "Fast 8 · Rammus carry",
     "playstyleVi": "Fast 8 · chủ lực Rammus",
     "stats": {
-      "avg": 5.17,
-      "games": 1775,
+      "avg": 5.27,
+      "games": 1911,
       "level": 8
     },
     "units": [
@@ -4162,11 +4428,7 @@
         "row": 1,
         "col": 2,
         "stars": null,
-        "items": [
-          "Bloodthirster",
-          "Sterak's Gage",
-          "Titan's Resolve"
-        ]
+        "items": []
       },
       {
         "name": "Kobuko",
@@ -4174,6 +4436,17 @@
         "col": 2,
         "stars": null,
         "items": []
+      },
+      {
+        "name": "Lillia",
+        "row": 0,
+        "col": 4,
+        "stars": null,
+        "items": [
+          "Sprykin Emblem",
+          "Gargoyle Stoneplate",
+          "Protector's Vow"
+        ]
       },
       {
         "name": "Rammus",
@@ -4187,45 +4460,38 @@
         ]
       },
       {
+        "name": "Sivir",
+        "row": 3,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
         "name": "Teemo",
         "row": 3,
-        "col": 0,
+        "col": 6,
         "stars": null,
         "items": [
           "Jeweled Gauntlet",
-          "Spear of Shojin",
-          "Striker's Flail"
+          "Rabadon's Deathcap",
+          "Spear of Shojin"
         ]
       },
       {
         "name": "Tristana",
         "row": 3,
-        "col": 6,
+        "col": 0,
         "stars": null,
         "items": [
           "Guinsoo's Rageblade",
-          "Infinity Edge",
-          "Kraken's Fury"
+          "Hextech Gunblade",
+          "Infinity Edge"
         ]
       },
       {
         "name": "Veigar",
         "row": 3,
         "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Fiddlesticks",
-        "row": 1,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Kog'Maw",
-        "row": 3,
-        "col": 1,
         "stars": null,
         "items": []
       }
@@ -4245,51 +4511,180 @@
     "augments": [
       "A Magic Roll",
       "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
       "Booster Pack++",
-      "Branching Out"
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
-    "tips": "Average placement 5.17 across 1,775 games. Level 8 is the most common finish (37%). Best Rammus build: Gargoyle Stoneplate, Spirit Visage, Warmog's Armor.",
-    "tipsVi": "Hạng trung bình 5.17 qua 1.775 trận. Cấp 8 là mức kết thúc phổ biến nhất (37%). Trang bị tốt nhất cho Rammus: Gargoyle Stoneplate, Spirit Visage, Warmog's Armor.",
+    "tips": "Average placement 5.27 across 1,911 games. Level 8 is the most common finish (38%). Best Rammus build: Gargoyle Stoneplate, Spirit Visage, Warmog's Armor.",
+    "tipsVi": "Hạng trung bình 5.27 qua 1.911 trận. Cấp 8 là mức kết thúc phổ biến nhất (38%). Trang bị tốt nhất cho Rammus: Gargoyle Stoneplate, Spirit Visage, Warmog's Armor.",
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Most common level 4 board: Kobuko, Rek'Sai, Teemo, Veigar (44 games, 4.32 avg).",
-        "textVi": "Đội cấp 4 phổ biến nhất: Kobuko, Rek'Sai, Teemo, Veigar (44 trận, hạng TB 4.32)."
+        "text": "Most common level 4 board: Kobuko, Rek'Sai, Teemo, Veigar (52 games, 5.19 avg).",
+        "textVi": "Đội cấp 4 phổ biến nhất: Kobuko, Rek'Sai, Teemo, Veigar (52 trận, hạng TB 5.19)."
       },
       {
         "stage": "Stage 3",
-        "text": "Most common level 6 board: Kobuko, Rammus, Teemo, Tristana, Veigar, Fiddlesticks (37 games, 4.73 avg).",
-        "textVi": "Đội cấp 6 phổ biến nhất: Kobuko, Rammus, Teemo, Tristana, Veigar, Fiddlesticks (37 trận, hạng TB 4.73)."
+        "text": "Most common level 6 board: Kobuko, Rammus, Teemo, Tristana, Veigar, Fiddlesticks (25 games, 4.64 avg).",
+        "textVi": "Đội cấp 6 phổ biến nhất: Kobuko, Rammus, Teemo, Tristana, Veigar, Fiddlesticks (25 trận, hạng TB 4.64)."
       },
       {
         "stage": "Stage 4",
-        "text": "Level 8 board: Gnar, Kobuko, Rammus, Teemo, Tristana, Veigar, Fiddlesticks, Kog'Maw (7 games, 5.17 avg).",
-        "textVi": "Đội cấp 8: Gnar, Kobuko, Rammus, Teemo, Tristana, Veigar, Fiddlesticks, Kog'Maw (7 trận, hạng TB 5.17)."
+        "text": "Level 8 board: Gnar, Kobuko, Lillia, Rammus, Sivir, Teemo, Tristana, Veigar (11 games, 5.27 avg).",
+        "textVi": "Đội cấp 8: Gnar, Kobuko, Lillia, Rammus, Sivir, Teemo, Tristana, Veigar (11 trận, hạng TB 5.27)."
       }
     ],
     "slug": "rammus-sprykin"
   },
   {
-    "title": "Aphelios Inferno",
-    "titleVi": "Aphelios Hỏa Ngục",
-    "tier": "X",
+    "title": "Scuttlecrab Riftbeast",
+    "titleVi": "Cua Kỳ Cục Quái Rừng",
+    "tier": "C",
     "style": "Fast 8",
     "difficulty": 2,
-    "trend": "up",
+    "trend": null,
+    "playstyle": "Fast 8 · Scuttlecrab carry",
+    "playstyleVi": "Fast 8 · chủ lực Scuttlecrab",
+    "stats": {
+      "avg": 5.41,
+      "games": 4143,
+      "level": 8
+    },
+    "units": [
+      {
+        "name": "Pebbles",
+        "row": 3,
+        "col": 0,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Brambleback",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": [
+          "Edge of Night",
+          "Guinsoo's Rageblade",
+          "Hand Of Justice"
+        ]
+      },
+      {
+        "name": "Gromp",
+        "row": 3,
+        "col": 1,
+        "stars": null,
+        "items": [
+          "Jeweled Gauntlet",
+          "Rabadon's Deathcap",
+          "Spear of Shojin"
+        ]
+      },
+      {
+        "name": "Kog'Maw",
+        "row": 3,
+        "col": 2,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Krug",
+        "row": 0,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Murkwolf",
+        "row": 2,
+        "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Scuttlecrab",
+        "row": 0,
+        "col": 4,
+        "stars": 2,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Spirit Visage",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Sentinel",
+        "row": 0,
+        "col": 2,
+        "stars": null,
+        "items": []
+      }
+    ],
+    "early": [
+      "Pebbles",
+      "Cinderling",
+      "Gromp",
+      "Murkwolf"
+    ],
+    "carry": "Scuttlecrab",
+    "items": [
+      "Gargoyle Stoneplate",
+      "Spirit Visage",
+      "Warmog's Armor"
+    ],
+    "augments": [
+      "A Magic Roll",
+      "Baron's Lair",
+      "Booster Pack++",
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
+    ],
+    "tips": "Average placement 5.41 across 4,143 games. Level 8 is the most common finish (47%). Best Scuttlecrab build: Gargoyle Stoneplate, Spirit Visage, Warmog's Armor.",
+    "tipsVi": "Hạng trung bình 5.41 qua 4.143 trận. Cấp 8 là mức kết thúc phổ biến nhất (47%). Trang bị tốt nhất cho Scuttlecrab: Gargoyle Stoneplate, Spirit Visage, Warmog's Armor.",
+    "stages": [
+      {
+        "stage": "Stage 2",
+        "text": "Most common level 4 board: Rakan, Pebbles, Cinderling, Scuttlecrab (137 games, 5.76 avg).",
+        "textVi": "Đội cấp 4 phổ biến nhất: Rakan, Pebbles, Cinderling, Scuttlecrab (137 trận, hạng TB 5.76)."
+      },
+      {
+        "stage": "Stage 3",
+        "text": "Most common level 6 board: Pebbles, Cinderling, Gromp, Krug, Murkwolf, Scuttlecrab (171 games, 5.39 avg).",
+        "textVi": "Đội cấp 6 phổ biến nhất: Pebbles, Cinderling, Gromp, Krug, Murkwolf, Scuttlecrab (171 trận, hạng TB 5.39)."
+      },
+      {
+        "stage": "Stage 4",
+        "text": "Level 8 board: Pebbles, Brambleback, Gromp, Kog'Maw, Krug, Murkwolf, Scuttlecrab, Sentinel (129 games, 5.41 avg).",
+        "textVi": "Đội cấp 8: Pebbles, Brambleback, Gromp, Kog'Maw, Krug, Murkwolf, Scuttlecrab, Sentinel (129 trận, hạng TB 5.41)."
+      }
+    ],
+    "slug": "scuttlecrab-riftbeast"
+  },
+  {
+    "title": "Aphelios Inferno",
+    "titleVi": "Aphelios Hỏa Ngục",
+    "tier": "C",
+    "style": "Fast 8",
+    "difficulty": 2,
+    "trend": "down",
     "playstyle": "Fast 8 · Aphelios carry",
     "playstyleVi": "Fast 8 · chủ lực Aphelios",
     "stats": {
-      "avg": 5.47,
-      "games": 2319,
+      "avg": 5.52,
+      "games": 2218,
       "level": 9
     },
     "units": [
       {
         "name": "Alune",
         "row": 3,
-        "col": 1,
+        "col": 6,
         "stars": null,
         "items": [
           "Jeweled Gauntlet",
@@ -4318,7 +4713,7 @@
       {
         "name": "Kayle",
         "row": 3,
-        "col": 2,
+        "col": 1,
         "stars": null,
         "items": []
       },
@@ -4360,8 +4755,8 @@
       },
       {
         "name": "Taric",
-        "row": 2,
-        "col": 3,
+        "row": 0,
+        "col": 5,
         "stars": null,
         "items": []
       }
@@ -4407,135 +4802,6 @@
     "slug": "aphelios-inferno"
   },
   {
-    "title": "Scuttlecrab Riftbeast",
-    "titleVi": "Cua Kỳ Cục Quái Rừng",
-    "tier": "X",
-    "style": "Fast 8",
-    "difficulty": 2,
-    "trend": "down",
-    "playstyle": "Fast 8 · Scuttlecrab carry",
-    "playstyleVi": "Fast 8 · chủ lực Scuttlecrab",
-    "stats": {
-      "avg": 5.54,
-      "games": 6085,
-      "level": 8
-    },
-    "units": [
-      {
-        "name": "Rakan",
-        "row": 0,
-        "col": 2,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Pebbles",
-        "row": 3,
-        "col": 0,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Brambleback",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": [
-          "Edge of Night",
-          "Guinsoo's Rageblade",
-          "Hand Of Justice"
-        ]
-      },
-      {
-        "name": "Gromp",
-        "row": 3,
-        "col": 1,
-        "stars": null,
-        "items": [
-          "Jeweled Gauntlet",
-          "Rabadon's Deathcap",
-          "Spear of Shojin"
-        ]
-      },
-      {
-        "name": "Krug",
-        "row": 0,
-        "col": 3,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Murkwolf",
-        "row": 2,
-        "col": 1,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Scuttlecrab",
-        "row": 0,
-        "col": 4,
-        "stars": 2,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      },
-      {
-        "name": "Sentinel",
-        "row": 2,
-        "col": 3,
-        "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Warmog's Armor"
-        ]
-      }
-    ],
-    "early": [
-      "Pebbles",
-      "Cinderling",
-      "Gromp",
-      "Murkwolf"
-    ],
-    "carry": "Scuttlecrab",
-    "items": [
-      "Gargoyle Stoneplate",
-      "Spirit Visage",
-      "Warmog's Armor"
-    ],
-    "augments": [
-      "A Magic Roll",
-      "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
-      "Booster Pack++",
-      "Branching Out"
-    ],
-    "tips": "Average placement 5.54 across 6,085 games. Level 8 is the most common finish (54%). Best Scuttlecrab build: Gargoyle Stoneplate, Spirit Visage, Warmog's Armor.",
-    "tipsVi": "Hạng trung bình 5.54 qua 6.085 trận. Cấp 8 là mức kết thúc phổ biến nhất (54%). Trang bị tốt nhất cho Scuttlecrab: Gargoyle Stoneplate, Spirit Visage, Warmog's Armor.",
-    "stages": [
-      {
-        "stage": "Stage 2",
-        "text": "Most common level 4 board: Rakan, Pebbles, Cinderling, Scuttlecrab (277 games, 4.90 avg).",
-        "textVi": "Đội cấp 4 phổ biến nhất: Rakan, Pebbles, Cinderling, Scuttlecrab (277 trận, hạng TB 4.90)."
-      },
-      {
-        "stage": "Stage 3",
-        "text": "Most common level 6 board: Pebbles, Cinderling, Gromp, Krug, Murkwolf, Scuttlecrab (346 games, 4.95 avg).",
-        "textVi": "Đội cấp 6 phổ biến nhất: Pebbles, Cinderling, Gromp, Krug, Murkwolf, Scuttlecrab (346 trận, hạng TB 4.95)."
-      },
-      {
-        "stage": "Stage 4",
-        "text": "Level 8 board: Rakan, Pebbles, Brambleback, Gromp, Krug, Murkwolf, Scuttlecrab, Sentinel (198 games, 5.54 avg).",
-        "textVi": "Đội cấp 8: Rakan, Pebbles, Brambleback, Gromp, Krug, Murkwolf, Scuttlecrab, Sentinel (198 trận, hạng TB 5.54)."
-      }
-    ],
-    "slug": "scuttlecrab-riftbeast"
-  },
-  {
     "title": "Elise Coven",
     "titleVi": "Elise Tiên Hắc Ám",
     "tier": "X",
@@ -4546,7 +4812,7 @@
     "playstyleVi": "Fast 8 · chủ lực Elise",
     "stats": {
       "avg": 5.65,
-      "games": 31070,
+      "games": 31030,
       "level": 8
     },
     "units": [
@@ -4592,8 +4858,8 @@
         "col": 2,
         "stars": null,
         "items": [
-          "Hextech Gunblade",
           "Morellonomicon",
+          "Rabadon's Deathcap",
           "Void Staff"
         ]
       },
@@ -4617,8 +4883,8 @@
       },
       {
         "name": "Taric",
-        "row": 0,
-        "col": 5,
+        "row": null,
+        "col": null,
         "stars": null,
         "items": []
       }
@@ -4638,10 +4904,10 @@
     "augments": [
       "A Magic Roll",
       "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
       "Booster Pack++",
-      "Branching Out"
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
     "tips": "Play with Dark Ritual augment to convert cash out -> AP. Ideally ply for a 250+ cashout for AP first, then take 40s if you need for more stacking. 2x Morgana 2* with items on both is the best way to cap your board.",
     "tipsVi": null,
@@ -4671,20 +4937,31 @@
     "playstyle": "Fast 8 · Kha'Zix carry",
     "playstyleVi": "Fast 8 · chủ lực Kha'Zix",
     "stats": {
-      "avg": 6.22,
-      "games": 894,
+      "avg": 6.4,
+      "games": 763,
       "level": 8
     },
     "units": [
       {
-        "name": "Azir",
+        "name": "Aphelios",
         "row": 3,
         "col": 0,
         "stars": null,
         "items": [
+          "Deathblade",
+          "Guinsoo's Rageblade",
+          "Kraken's Fury"
+        ]
+      },
+      {
+        "name": "Azir",
+        "row": 3,
+        "col": 6,
+        "stars": null,
+        "items": [
           "Guinsoo's Rageblade",
           "Hextech Gunblade",
-          "Void Staff"
+          "Jeweled Gauntlet"
         ]
       },
       {
@@ -4692,11 +4969,7 @@
         "row": 1,
         "col": 2,
         "stars": null,
-        "items": [
-          "Gargoyle Stoneplate",
-          "Spirit Visage",
-          "Thief's Gloves"
-        ]
+        "items": []
       },
       {
         "name": "Kha'Zix",
@@ -4710,23 +4983,16 @@
         ]
       },
       {
-        "name": "Rakan",
+        "name": "Lillia",
         "row": 0,
         "col": 3,
         "stars": null,
         "items": []
       },
       {
-        "name": "Rammus",
+        "name": "Rakan",
         "row": 0,
-        "col": 4,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Tristana",
-        "row": 3,
-        "col": 1,
+        "col": 2,
         "stars": null,
         "items": []
       },
@@ -4740,20 +5006,20 @@
       {
         "name": "Fiddlesticks",
         "row": 0,
-        "col": 2,
+        "col": 4,
         "stars": null,
         "items": [
           "Gargoyle Stoneplate",
-          "Warmog's Armor",
-          "Sunfire Cape"
+          "Spirit Visage",
+          "Warmog's Armor"
         ]
       }
     ],
     "early": [
+      "Diana",
       "Kha'Zix",
       "Rakan",
-      "Yorick",
-      "Yunara"
+      "Gromp"
     ],
     "carry": "Kha'Zix",
     "items": [
@@ -4764,18 +5030,18 @@
     "augments": [
       "A Magic Roll",
       "Baron's Lair",
-      "Booster Pack",
-      "Booster Pack+",
       "Booster Pack++",
-      "Branching Out"
+      "Branching Out",
+      "Branching Out+",
+      "Bronze For Life II"
     ],
-    "tips": "Average placement 6.22 across 894 games. Level 8 is the most common finish (31%). Best Kha'Zix build: Edge of Night, Hand Of Justice, Rabadon's Deathcap.",
-    "tipsVi": "Hạng trung bình 6.22 qua 894 trận. Cấp 8 là mức kết thúc phổ biến nhất (31%). Trang bị tốt nhất cho Kha'Zix: Edge of Night, Hand Of Justice, Rabadon's Deathcap.",
+    "tips": "Average placement 6.40 across 763 games. Level 8 is the most common finish (35%). Best Kha'Zix build: Edge of Night, Hand Of Justice, Rabadon's Deathcap.",
+    "tipsVi": "Hạng trung bình 6.40 qua 763 trận. Cấp 8 là mức kết thúc phổ biến nhất (35%). Trang bị tốt nhất cho Kha'Zix: Edge of Night, Hand Of Justice, Rabadon's Deathcap.",
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Most common level 4 board: Kha'Zix, Yorick, Yunara, Karma (6 games, 6.50 avg).",
-        "textVi": "Đội cấp 4 phổ biến nhất: Kha'Zix, Yorick, Yunara, Karma (6 trận, hạng TB 6.50)."
+        "text": "Most common level 4 board: Azir, Kha'Zix, Ornn, Yorick (5 games, 6.00 avg).",
+        "textVi": "Đội cấp 4 phổ biến nhất: Azir, Kha'Zix, Ornn, Yorick (5 trận, hạng TB 6.00)."
       },
       {
         "stage": "Stage 3",
@@ -4784,8 +5050,8 @@
       },
       {
         "stage": "Stage 4",
-        "text": "Level 8 board: Azir, Diana, Kha'Zix, Rakan, Rammus, Tristana, Veigar, Fiddlesticks (3 games, 6.22 avg).",
-        "textVi": "Đội cấp 8: Azir, Diana, Kha'Zix, Rakan, Rammus, Tristana, Veigar, Fiddlesticks (3 trận, hạng TB 6.22)."
+        "text": "Level 8 board: Aphelios, Azir, Diana, Kha'Zix, Lillia, Rakan, Veigar, Fiddlesticks (2 games, 6.40 avg).",
+        "textVi": "Đội cấp 8: Aphelios, Azir, Diana, Kha'Zix, Lillia, Rakan, Veigar, Fiddlesticks (2 trận, hạng TB 6.40)."
       }
     ],
     "slug": "kha-zix-executioner"
@@ -4800,38 +5066,20 @@
     "playstyle": "Reroll · Elise carry",
     "playstyleVi": "Reroll · chủ lực Elise",
     "stats": {
-      "avg": 6.42,
-      "games": 3814,
+      "avg": 6.44,
+      "games": 3470,
       "level": 9
     },
     "units": [
       {
-        "name": "Alune",
-        "row": 3,
-        "col": 0,
-        "stars": null,
-        "items": []
-      },
-      {
-        "name": "Cassiopeia",
-        "row": 3,
-        "col": 6,
-        "stars": null,
-        "items": [
-          "Archangel's Staff",
-          "Hextech Gunblade",
-          "Spear of Shojin"
-        ]
-      },
-      {
         "name": "Diana",
         "row": 0,
-        "col": 2,
+        "col": 3,
         "stars": null,
         "items": [
           "Hand Of Justice",
-          "Ionic Spark",
-          "Jeweled Gauntlet"
+          "Jeweled Gauntlet",
+          "Striker's Flail"
         ]
       },
       {
@@ -4844,7 +5092,7 @@
       {
         "name": "Elise",
         "row": 0,
-        "col": 3,
+        "col": 4,
         "stars": 3,
         "items": [
           "Ravager Emblem",
@@ -4855,7 +5103,7 @@
       {
         "name": "Hecarim",
         "row": 0,
-        "col": 4,
+        "col": 2,
         "stars": null,
         "items": [
           "Gargoyle Stoneplate",
@@ -4864,16 +5112,34 @@
         ]
       },
       {
-        "name": "Morgana",
-        "row": 2,
-        "col": 2,
+        "name": "Ivern",
+        "row": 3,
+        "col": 0,
         "stars": null,
         "items": []
       },
       {
-        "name": "Taric",
+        "name": "Rakan",
         "row": 0,
         "col": 1,
+        "stars": null,
+        "items": []
+      },
+      {
+        "name": "Sentinel",
+        "row": 1,
+        "col": 3,
+        "stars": null,
+        "items": [
+          "Gargoyle Stoneplate",
+          "Protector's Vow",
+          "Warmog's Armor"
+        ]
+      },
+      {
+        "name": "Taric",
+        "row": 1,
+        "col": 4,
         "stars": null,
         "items": []
       }
@@ -4900,20 +5166,20 @@
       "Expedition",
       "Find Your Center"
     ],
-    "tips": "Play with Dark Ritual augment to convert cash out -> AP. Ideally ply for a 250+ cashout for AP first, then take 40s if you need for more stacking. 2x Morgana 2* with items on both is the best way to cap your board.",
+    "tips": "The nerfs to Dark Ritual in Patch 18.4 have made this comp weaker than it was before. The comp is more conditional now - aim to play if you have good components / can play good losses or need direction. Prioritize taking Cassiopeia on first carousel regardless of the component most of the time - It's more important to make sure you get 4 Coven as early as possible than perfect items. Two ways to play this comp: Reroll or Fast 8. Reroll version of comp should roll on level 6 and 7 and go for Elise 3 + ideally Cassio 3. For Fast 8, hold extra copies of Cassio on Level 8 and try to 3 star her while playing 6 Vanguard or 4 Vanguard + Legendaries. When playing reroll, itemize Elise 3 as she can go infinite with the AP from augment. When pushing levels, play around Elise 2 as your tank until you 2-star Sentinel or Taric, then switch tanks. Previously Fast 8 was more common, but now reroll is looking more common. Aim for 250 cashout if possible. Prior to patch 18.4, there was a strategy to cashout 130 twice so you could win rounds in Stage 3, but post-nerf this strategy is weaker than it was before. The reason for Titan's Resolve on Elise in the reroll version is because with the AP from Dark Ritual, she often is unkillable as she heals back up with each auto attack. Often the only way for her to die is crowd control (\"CC\") or her walking up toward the end of a fight. Rageblade is a good item on Elise 3, but not necessary. Two tank items + Titan's or even 3 tank items are fine builds too, but it becomes more important to have good Cassio / Morgana items in these cases. For positioning Elise 3, try to avoid solo frontline in Stage 5 onward. In an ideal world, she doesn't take all aggro because it is possible for opponents to burst her down late game. The goal is split aggro enough that she drain tanks and sustains, but not so much that she dies. Do not pass by Coven Lux if you hit her. She is a massive spike - her passive and ability help all your Coven units, plus she does a ton of damage with the AP from augment.",
     "tipsVi": null,
     "stages": [
       {
         "stage": "Stage 2",
-        "text": "Ideally open with Coven and start gathering Essence. It is actually better to win early than lose for stacks so don't overly force lose streak."
+        "text": "Level to 4 if you have upgrades and a good item to place on one of those upgrades. Level to 5, unless on 3 loss streak."
       },
       {
         "stage": "Stage 3",
-        "text": "Level to 6 and roll for a Elise 2, Covens, and Vanguards. Give Cassio or Diana leftover AP. Cash out Coven and convert to AP with at least 2-3 lives (25-30 hp). "
+        "text": "Level to 6. Roll until stable. \"Stable\" changes depending on rank, items, augments, composition, and patch, but generally it involves 2-starring your desired 2-cost carry and a tank with items. Major divergence between elos: The lower your elo, the less upgrades you need to be \"stable\" and thus lower elo players should generally roll less than high elo players on 3-2. After your 3-2 rolldown, you should attempt to rebuild your economy to 50g. Once you reach 50g (it might be later than 3-5), start slow rolling down to ~52g each turn. Try to avoid rolling to exactly 50g as any unit you want to buy in shop will put you below 50g."
       },
       {
         "stage": "Stage 4",
-        "text": "Finish Elise 3 / Cassio 3 then level for more Vanguards or Lunar. Play 2 Morganas with items if you have extra."
+        "text": "If you are high HP relative to the lobby, continue slow rolling to 52g each turn. If you are lower HP, you should roll to hit your first 2-cost 3 star on 4-1 or 4-2. If you have to roll below 30g, your placement is usually capped at 3rd or 4th. If you are still high HP (70+), you can continue to slow roll. Otherwise, in the majority of cases, you should roll deep for your 3-stars here. If your HP is low, you can even go to 0 gold looking for your 3-stars. If you have your 3-stars and can afford to level to 7 with 10g+, do so."
       }
     ],
     "slug": "elise-ravager-emblem"

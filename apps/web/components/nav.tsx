@@ -66,6 +66,7 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
       items: [
         { label: t.champions, href: `/${lang}/champions` },
         { label: t.items, href: `/${lang}/items` },
+        { label: t.itemPriority, href: `/${lang}/item-priority` },
         { label: t.augments, href: `/${lang}/augments` },
         { label: t.wisps, href: `/${lang}/wisps` },
         { label: t.tables, href: `/${lang}/tables` },
