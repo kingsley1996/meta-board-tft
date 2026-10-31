@@ -250,6 +250,18 @@ https://your-domain.com/riot.txt
 tự bịa nội dung `riot.txt`. Cần kiểm tra hướng dẫn hiện hành trong hồ sơ
 vì tên file hoặc quy trình có thể thay đổi.
 
+### Đã làm (chuỗi Riot cấp ngày 2026-10-31)
+
+Riot yêu cầu URL `https://tftiq.com/en/riot.txt` chứ không phải root, nên
+route nằm ở `apps/web/app/[lang]/riot.txt/route.ts`: trả đúng 36 byte
+token, `content-type: text/plain`, không xuống dòng, không redirect, và
+middleware bỏ qua vì path có dấu chấm. Test giữ hành vi này ở
+`apps/web/tests/riot-verify.spec.ts`.
+
+Lưu ý còn lại: apex `tftiq.com` đang 308 sang `www.tftiq.com` (canonical).
+Nếu bước kiểm tra của Riot không theo redirect, phải đổi domain trong
+Vercel để apex tự phục vụ path này thay vì redirect.
+
 ------------------------------------------------------------------------
 
 ## 6. Checklist chuẩn bị
@@ -260,8 +272,8 @@ vì tên file hoặc quy trình có thể thay đổi.
 -   [x] Trỏ domain về Vercel và bật HTTPS (www là canonical).
 -   [x] Đảm bảo homepage và các trang chính truy cập công khai.
 -   [x] Kiểm tra website hiển thị tốt trên desktop và mobile.
--   [x] Chuẩn bị khả năng đặt file xác minh tại root website
-    (`apps/web/public/riot.txt`, chưa tạo vì chưa có chuỗi từ Riot).
+-   [x] Đặt file xác minh tại `/{en,vi}/riot.txt`
+    (`apps/web/app/[lang]/riot.txt/route.ts`, đúng 36 byte token, có test).
 
 ### Legal và liên hệ
 
@@ -339,53 +351,82 @@ với tính năng và cách vận hành thực tế của TFTIQ.
 
 **Product Description:**
 
-TFTIQ is an independent Teamfight Tactics companion platform
-designed to help players understand the current game meta and improve
-their gameplay through data-driven insights and educational tools.
+TFTIQ is an independent, bilingual (English and Vietnamese) companion
+website for Teamfight Tactics. It is a static reference and learning
+tool: it shows how the current set is being played, explains why boards
+work, and lets players rehearse decisions away from the game. Nothing on
+the site reads or reacts to a live match.
 
-The platform provides:
+The site provides:
 
--   **Composition Tier Lists:** Data-driven rankings of TFT team
-    compositions based on match statistics and additional evaluation.
--   **Item & Augment Rankings:** Insights into item and augment
-    effectiveness to help players make better strategic decisions.
--   **Game Knowledge Base:** Searchable information about champions,
-    traits, items, augments, and game mechanics.
--   **AI TFT Coach:** An AI-powered assistant that explains
-    compositions, itemization, economy strategies, and game mechanics
-    using structured TFT knowledge.
--   **Educational Guides:** Guides and learning resources that help
-    players understand strategic decisions and improve over time.
+-   **Composition tier lists:** TFT compositions ranked S to D (plus a
+    separate "situational" tier) for the current set. Each comp opens
+    into its final board with unit positions, star levels, item
+    priorities, active traits, augment picks and a round-by-round plan.
+    The list can be filtered by playstyle.
+-   **Item and augment tiers:** tiered rankings with a one-line verdict
+    per entry, so a player can decide what to build and what to skip.
+    Augments are tiered by fit with current boards; TFTIQ publishes no
+    win-rate figures for augments.
+-   **Champion, trait, item, augment and Wisp reference:** searchable
+    pages for every piece of Set 18 content, with aggregated match
+    statistics where they exist (average placement, top-4 rate, win
+    rate, pick rate and sample size), recommended item builds, and the
+    comps each unit appears in.
+-   **Set tables and economy:** shop odds, champion pool sizes, gold
+    income, loot tables, cashouts and drop rates, plus eight
+    gold-spending plans tied to the round structure.
+-   **Written guides:** fundamentals, economy, leveling, positioning and
+    meta-reading articles in both languages.
+-   **Practice tools:** a drag-and-drop team builder with shareable
+    links (board, stars, items), a personal tier-list maker, and a comp
+    quiz that scores the whole tier list against the units and items a
+    player already has. All of it runs in the browser.
+-   **Coach AI:** a question-and-answer assistant on champions, traits,
+    items, augments, economy and mechanics. Answers are drawn from
+    TFTIQ's curated Set 18 knowledge base and the site's own data, and
+    each answer links the pages it used. It explains and quizzes; it
+    never gives live in-game instructions. Text is available on the free
+    account; the paid pass adds voice questions and read-aloud answers.
 
-**Player Benefit:**
+**Player benefit:** TFTIQ is built for pre-game preparation and
+post-game review. It helps players understand why a comp is ranked where
+it is, what to build first, how to spend gold, and how to reposition,
+using the set's own numbers and the editor's reasoning rather than
+guessing.
 
-TFTIQ aims to help TFT players make more informed decisions,
-understand the reasoning behind different strategies, and improve their
-gameplay through educational content and statistical insights.
+**Data sources:** champion, trait, item and augment icons and game
+reference data come from Riot's public TFT game data published through
+Data Dragon, and are stored and served from TFTIQ's own infrastructure;
+the site makes no runtime call to Riot for them. Match statistics are
+aggregated from publicly available TFT match records, reviewed by an
+editor, and reduced to set-level comp, item, augment and unit rankings.
+TFTIQ publishes only aggregate numbers: no individual player record,
+profile, match history or leaderboard is shown, and Riot Sign On is not
+used. TFTIQ does not currently call the Riot API in production; the site
+states this on its About page, and match ingestion is being moved to the
+official TFT API.
 
-The platform focuses on pre-game preparation and post-game learning. It
-does not provide real-time gameplay instructions, automate player
-decisions, or track opponents during matches.
+**What TFTIQ does not do:** it does not read, modify or interact with the
+game client; it provides no in-game overlay, real-time recommendations
+or opponent scouting, and does not track a match as it happens; it does
+not automate gameplay or make decisions for the player; it does not
+offer an alternative skill rating such as an MMR or ELO calculator.
 
-**Data sources:** champions, traits, items, augments and icons come from
-Riot's public game data published through Data Dragon and are served
-from TFTIQ's own infrastructure. Match statistics are aggregated from
-publicly available TFT match data and reviewed by the operator;
-ingestion is planned to move to the Riot API. TFTIQ does not currently
-call the Riot API in production.
+**Free and paid access:** every comp, tier list, item ranking, augment
+ranking, table and guide is free to read without an account. A free
+account adds 60 Coach AI messages a month. An optional Plus pass
+(99,000 VND for 30 days, non-renewing) raises the Coach quota and adds
+voice input and read-aloud answers; it sells Coach usage, not data or
+assets. There are no ads and nothing auto-renews. Plus checkout is
+paused until this product is reviewed in the Riot Developer Portal.
 
-**Free and paid tiers:** every comp, tier list, item ranking, augment
-ranking and guide is free to read. An optional Plus pass (99,000 VND for
-30 days) adds voice input, read-aloud answers and a larger Coach quota.
-It does not auto-renew and there are no ads. Plus checkout is paused
-until this product is approved in the Riot Developer Portal.
+**Review access:** Coach AI requires a free account (email sign-up) so
+each turn can be counted; no payment is involved. Reviewers can browse
+every ranking, table and guide without signing in.
 
-**Review access:** Coach AI requires sign-in. Reviewers can sign in with
-Google; a free account includes 60 Coach messages a month. TFTIQ does
-not use Riot Sign On and does not display Riot account data.
-
-TFTIQ is an independent third-party product and is not affiliated
-with or endorsed by Riot Games.
+TFTIQ is an independent third-party product and is not affiliated with
+or endorsed by Riot Games.
 
 ------------------------------------------------------------------------
 
@@ -536,8 +577,9 @@ câu chỉ nên giữ nếu đúng với trạng thái sản phẩm tại thời
 TFTIQ đã có domain riêng, thông tin liên hệ, pháp lý và phần giải thích
 nguồn dữ liệu/ranking trên site. Trước khi nộp còn: thêm redirect URI
 Google cho `https://www.tftiq.com/api/auth/google/callback`, chụp
-screenshots, chốt hai câu trả lời ở mục 11 (và xử lý các điểm ở 11.5),
-rồi tạo `riot.txt` khi Riot cấp chuỗi xác minh.
+screenshots, chốt hai câu trả lời ở mục 11 (và xử lý các điểm ở 11.5).
+`riot.txt` đã có ở `/{en,vi}/riot.txt` với đúng chuỗi Riot cấp, chờ
+deploy lên `www.tftiq.com` để bấm Verify.
 
 Mục tiêu nên là đăng ký TFTIQ như một TFT companion platform độc
 lập, có giá trị phân tích và giáo dục rõ ràng, thay vì chỉ là website
