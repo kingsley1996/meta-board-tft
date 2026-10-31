@@ -89,6 +89,20 @@ try {
   console.warn(`tftflow comps unavailable (${(error as Error).message}); run the economy fetch in the crawler repo`);
 }
 
+// The cover badge lives in the comps table now, so the editor owns it. The
+// hand-mapped Academy file is only the initial seed; re-running restores it.
+const extras = (JSON.parse(await readFile(sharedDataPath('comp-extras.json'), 'utf8')).comps ?? {}) as Record<
+  string,
+  { cover?: { kind: 'item' | 'augment'; name: string } }
+>;
+let covers = 0;
+for (const [compSlug, extra] of Object.entries(extras)) {
+  if (!extra.cover) continue;
+  const { rowCount } = await pool.query('UPDATE comps SET cover = $1 WHERE slug = $2', [JSON.stringify(extra.cover), compSlug]);
+  covers += rowCount ?? 0;
+}
+console.log(`seeded ${covers} comp covers from comp-extras.json`);
+
 await pool.query('DELETE FROM guides');
 let seededGuides = 0;
 for (const raw of [...guideSeeds, ...tipsSeeds]) {

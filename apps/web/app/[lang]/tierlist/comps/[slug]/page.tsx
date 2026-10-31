@@ -30,6 +30,7 @@ function slim(comp: ApiComp): CompSummary {
     style: comp.style,
     trend: comp.trend,
     carry: comp.carry,
+    cover: comp.cover,
     unitCount: comp.units.length,
   };
 }

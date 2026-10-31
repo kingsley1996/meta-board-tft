@@ -40,6 +40,7 @@ export function Breadcrumbs({ lang }: { lang: Lang }) {
     wisps: t.nav.wisps,
     economy: t.nav.economy,
     comps: t.nav.comps,
+    map: t.nav.compMap,
     builder: t.nav.builder,
     assistant: t.nav.assistant,
     quiz: t.nav.quiz,

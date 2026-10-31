@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Fragment } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import type { ApiComp, ApiUnit } from '@/lib/api';
 import { itemTierByName, unitStats, units } from '@/lib/data';
 import { economyForComp, economyStrategyByName } from '@/lib/economy';
@@ -9,7 +9,7 @@ import { translateText } from '@/lib/translate';
 import { championNameToSlug, traitStyleColors } from '@/lib/tips';
 import { HexBoard } from './hex-board';
 import { VoteButton } from './vote-button';
-import { AugmentTile, Chip, CostDots, ItemHex, itemHref, ItemTile, Panel, tierColor, UnitHex } from './ui';
+import { AugmentTile, Chip, CostDots, CoverBadge, ItemHex, itemHref, ItemTile, Panel, tierColor, UnitHex } from './ui';
 
 // Fallback hexes (row-major index) for comps saved before the board editor existed.
 const fallbackCells = [3, 9, 10, 17, 23, 24, 30];
@@ -94,7 +94,7 @@ function TraitChip({ trait }: { trait: ApiComp['traits'][number] }) {
   );
 }
 
-export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
+export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; toolbar?: ReactNode }) {
   const t = messages[lang].compPanel;
   const economy = economyForComp({ style: comp.style, carry: comp.carry, units: comp.units });
   const tier = tierColor[comp.tier];
@@ -144,6 +144,11 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
         </span>
         <div className="absolute -top-[52px] left-4" style={{ filter: `drop-shadow(0 10px 22px rgba(0,0,0,.55))` }}>
           <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} frame={tier} />
+          {comp.cover ? (
+            <span data-section="comp-cover" className="absolute -left-1 bottom-3 z-20">
+              <CoverBadge cover={comp.cover} size={30} />
+            </span>
+          ) : null}
         </div>
         <span
           className="absolute -top-4 right-3 -rotate-[10deg] rounded border-2 border-double px-3 py-1.5 text-center font-display text-[14px] font-bold uppercase leading-none tracking-[0.18em]"
@@ -237,7 +242,10 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
           </div>
         ) : null}
       </aside>
-      <div className="flex flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-4">
+        {/* Variant tabs and the share/close controls sit at the head of the
+            content column, over the team strip — not above the rail. */}
+        {toolbar}
         {/* The row of carries is its own label, so this panel drops the heading
             and its vertical padding: it reads as the team strip, not a section. */}
         <Panel className="px-4 py-2.5">
@@ -274,21 +282,55 @@ export function CompPanel({ comp, lang }: { comp: ApiComp; lang: Lang }) {
             </div>
           </Panel>
         </div>
-        <div className="grid gap-4 md:grid-cols-[1fr_200px]">
+        <div className={comp.flex.length || comp.alt.length ? 'grid gap-4 md:grid-cols-[1fr_200px]' : ''}>
           <Panel className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.positioning}</p>
             <PositioningBoard comp={comp} />
           </Panel>
-          <Panel className="flex flex-col items-start gap-3 p-4">
-            <p className="w-full text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.altBuilds}</p>
-            <div className="flex flex-wrap items-center justify-center gap-2 self-center pt-2">
-              {(comp.alt.length ? comp.alt : [comp.carry]).map((unit, index) => (
-                <Link key={`${unit.name}-${index}`} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth shrink-0">
-                  <UnitTile unit={unit} size={44} context={altTipContext(comp, unit)} />
-                </Link>
-              ))}
+          {comp.flex.length || comp.alt.length ? (
+            <div className="flex flex-col gap-4">
+              {comp.flex.length ? (
+                <Panel section="flex-units" className="p-4">
+                  <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.flexUnits}</p>
+                  {/* Pair language from TFT Academy: the big hex is the unit
+                      that comes in, the small corner hex is the one it swaps. */}
+                  <div className="flex flex-wrap items-start justify-center gap-x-4 gap-y-3 px-3 pt-2">
+                    {comp.flex.map((pair, index) => {
+                      const label = t.flexReplaces(pair.name, pair.replaces.name);
+                      return (
+                        <Link
+                          key={`${pair.name}-${pair.replaces.name}-${index}`}
+                          href={`/${lang}/champions/${championNameToSlug[pair.name]}`}
+                          aria-label={label}
+                          title={label}
+                          className="smooth relative shrink-0"
+                        >
+                          <UnitHex name={pair.name} cost={pair.cost} icon={pair.icon} size={52} />
+                          {/* The shadow keeps the swapped unit readable where it
+                              bites into the art of the unit replacing it. */}
+                          <span className="absolute -left-2 -top-2 z-20" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,.8))' }}>
+                            <UnitHex name={pair.replaces.name} cost={pair.replaces.cost} icon={pair.replaces.icon} size={26} />
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </Panel>
+              ) : null}
+              {comp.alt.length ? (
+                <Panel section="alt-builds" className="flex flex-col items-start gap-3 p-4">
+                  <p className="w-full text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.altBuilds}</p>
+                  <div className="flex flex-wrap items-center justify-center gap-2.5 self-center pt-2">
+                    {comp.alt.map((unit, index) => (
+                      <Link key={`${unit.name}-${index}`} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth shrink-0">
+                        <UnitTile unit={unit} size={48} context={altTipContext(comp, unit)} />
+                      </Link>
+                    ))}
+                  </div>
+                </Panel>
+              ) : null}
             </div>
-          </Panel>
+          ) : null}
         </div>
         {comp.tips ? (
           <Panel className="p-4">

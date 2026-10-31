@@ -12,6 +12,11 @@ export type ApiUnit = {
 };
 export type ApiIcon = { name: string; icon: string | null };
 
+// The item / augment / emblem that stands for the comp, when TFT Academy has one.
+export type ApiCover = { kind: 'item' | 'augment'; name: string; icon: string | null };
+// A flex pair: the big hex is the replacement, `replaces` is the unit it swaps out.
+export type ApiFlex = ApiUnit & { replaces: ApiUnit };
+
 export type ApiComp = {
   slug: string;
   title: string;
@@ -28,6 +33,8 @@ export type ApiComp = {
   traits: { name: string; count: number; thresholds: number[]; styles: number[]; icon: string | null }[];
   early: ApiUnit[];
   carry: ApiUnit;
+  cover: ApiCover | null;
+  flex: ApiFlex[];
   items: ApiIcon[];
   augments: ApiIcon[];
   tips: string;
@@ -46,7 +53,7 @@ export type CompsResponse = {
 // comp in full there embedded the same ~290KB list in 116 prerendered pages, so
 // closed rows travel as the fields their card reads and the client fetch fills
 // the rest in right after hydration.
-export type CompSummary = Pick<ApiComp, 'slug' | 'title' | 'tier' | 'style' | 'trend' | 'carry'> & {
+export type CompSummary = Pick<ApiComp, 'slug' | 'title' | 'tier' | 'style' | 'trend' | 'carry' | 'cover'> & {
   unitCount: number;
 };
 

@@ -1,10 +1,25 @@
+import { readFileSync } from 'node:fs';
 import { pool } from './db.ts';
 import { translateText } from './assistant/translate.ts';
 import { cached, invalidateCachePrefix } from './cache.ts';
+import { sharedDataPath } from './shared-data.ts';
 
 const TIERS = ['S', 'A', 'B', 'C', 'X'];
 const STYLES = ['Reroll', 'Fast 8', 'Flex', 'Tempo'];
 const AUGMENT_TYPES = ['ITEMS', 'ECON', 'COMBAT', 'EMBLEM'];
+
+// Hand-mapped TFT Academy extras (flex pairs, alt builds) that no DB column
+// carries. Read once and merged into the read path; admin edits never touch
+// them, so a comp saved from the editor keeps its extras.
+export type CompCover = { kind: 'item' | 'augment'; name: string };
+
+type CompExtras = {
+  cover?: CompCover;
+  flex?: { name: string; replaces: string }[];
+  alt?: { name: string; items: string[] }[];
+};
+const compExtras: Record<string, CompExtras> =
+  JSON.parse(readFileSync(sharedDataPath('comp-extras.json'), 'utf8')).comps ?? {};
 
 export type BoardUnit = {
   name: string;
@@ -33,6 +48,7 @@ export type CompInput = {
   units: BoardUnit[];
   early: string[];
   carry: string;
+  cover: CompCover | null;
   items: string[];
   augments: string[];
   tips: string;
@@ -133,6 +149,17 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
   const carry = str(raw.carry);
   if (!unitNames.includes(carry)) return fail('carry must be one of the units');
 
+  // The cover badge — the item, emblem or augment that defines the build.
+  // Optional, and empty on both sides clears it.
+  const coverEntry = (raw.cover && typeof raw.cover === 'object' ? raw.cover : {}) as Record<string, unknown>;
+  const coverKind = str(coverEntry.kind);
+  const coverName = str(coverEntry.name);
+  if (coverKind || coverName) {
+    if (!['item', 'augment'].includes(coverKind)) return fail('cover kind must be item or augment');
+    if (!coverName) return fail('cover needs a name');
+  }
+  const cover: CompCover | null = coverKind && coverName ? { kind: coverKind as CompCover['kind'], name: coverName } : null;
+
   const early = list(raw.early);
   if (!early.length) return fail('at least one early unit is required');
 
@@ -221,6 +248,9 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
   if (unknownUnitItem) return fail(`unknown item on ${unknownUnitItem[0]}: ${unknownUnitItem[1]}`);
   const unknownAugment = augments.find((name) => !known.augments.has(name));
   if (unknownAugment) return fail(`unknown augment: ${unknownAugment}`);
+  if (cover && !(cover.kind === 'item' ? known.items : known.augments).has(cover.name)) {
+    return fail(`unknown cover ${cover.kind}: ${cover.name}`);
+  }
   const unknownMatchup = matchups.find((entry) => !known.comps.has(entry.slug));
   if (unknownMatchup) return fail(`unknown comp in matchups: ${unknownMatchup.slug}`);
 
@@ -238,6 +268,7 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
       units,
       early,
       carry,
+      cover,
       items,
       augments,
       tips,
@@ -255,15 +286,15 @@ export async function writeComp(comp: CompInput): Promise<void> {
   try {
     await client.query('BEGIN');
     await client.query(
-      `INSERT INTO comps (slug, title, title_vi, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, tips, tips_vi, augment_types, matchups)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      `INSERT INTO comps (slug, title, title_vi, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, cover, tips, tips_vi, augment_types, matchups)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, title_vi = EXCLUDED.title_vi, tier = EXCLUDED.tier,
          style = EXCLUDED.style, difficulty = EXCLUDED.difficulty, trend = EXCLUDED.trend,
          playstyle = EXCLUDED.playstyle, playstyle_vi = EXCLUDED.playstyle_vi,
-         carry = EXCLUDED.carry, tips = EXCLUDED.tips, tips_vi = EXCLUDED.tips_vi,
+         carry = EXCLUDED.carry, cover = EXCLUDED.cover, tips = EXCLUDED.tips, tips_vi = EXCLUDED.tips_vi,
          augment_types = EXCLUDED.augment_types, matchups = EXCLUDED.matchups, updated_at = now()`,
-      [comp.slug, comp.title, comp.titleVi, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.tips, comp.tipsVi, comp.augmentTypes, JSON.stringify(comp.matchups)]
+      [comp.slug, comp.title, comp.titleVi, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.cover ? JSON.stringify(comp.cover) : null, comp.tips, comp.tipsVi, comp.augmentTypes, JSON.stringify(comp.matchups)]
     );
     for (const table of ['comp_units', 'comp_items', 'comp_augments']) {
       await client.query(`DELETE FROM ${table} WHERE comp_slug = $1`, [comp.slug]);
@@ -424,6 +455,19 @@ async function listCompsUncached(slug?: string, lang: 'en' | 'vi' = 'en', sort?:
   return comps.rows.map((row) => {
     const compUnits = unitsBySlug.get(row.slug) ?? [];
     const role = (value: string) => compUnits.filter((entry) => entry.role === value).map(unit);
+    const extra = compExtras[row.slug];
+    const stored: CompCover | null = row.cover ?? null;
+    const cover = stored
+      ? {
+          kind: stored.kind,
+          name: stored.name,
+          icon: (stored.kind === 'item' ? itemIconByName : augmentIconByName).get(stored.name) ?? null,
+        }
+      : null;
+    const dbAlt = role('alt');
+    const alt = dbAlt.length
+      ? dbAlt
+      : (extra?.alt ?? []).map((entry) => unit({ name: entry.name, stars: null, items: entry.items }));
     return {
       slug: row.slug,
       title: vi ? translateText('vi', 'comps', 'comp-title', row.title, row.title_vi) : row.title,
@@ -441,6 +485,11 @@ async function listCompsUncached(slug?: string, lang: 'en' | 'vi' = 'en', sort?:
       traits: compTraits(compUnits.filter((entry) => entry.role === 'board').map((entry) => entry.name)),
       early: role('early'),
       carry: unit({ name: row.carry }),
+      cover,
+      flex: (extra?.flex ?? []).map((pair) => ({
+        ...unit({ name: pair.name }),
+        replaces: unit({ name: pair.replaces }),
+      })),
       items: (itemsBySlug.get(row.slug) ?? []).map((entry) => icon(entry.name, itemIconByName)),
       augments: (augmentsBySlug.get(row.slug) ?? []).map((entry) => icon(entry.name, augmentIconByName)),
       tips: vi ? translateText('vi', 'comps', 'comp-tips', row.tips, row.tips_vi) : row.tips,
@@ -448,7 +497,7 @@ async function listCompsUncached(slug?: string, lang: 'en' | 'vi' = 'en', sort?:
         stage: vi ? `Giai đoạn ${entry.stage}` : `Stage ${entry.stage}`,
         text: vi ? translateText('vi', 'comps', 'comp-stage', entry.text, entry.text_vi) : entry.text,
       })),
-      alt: role('alt'),
+      alt,
       augmentTypes: row.augment_types ?? [],
       matchups: (row.matchups ?? []).flatMap((entry: { slug: string; kind: string }) => {
         const info = matchupInfo.get(entry.slug);

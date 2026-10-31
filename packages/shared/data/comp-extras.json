@@ -1,0 +1,751 @@
+{
+  "$source": "Hand-mapped from public tftacademy.com comps — set 18, patch 18.5c, retrieved 2026-11-01. Names are TFTIQ canonical champion/item/augment names; the seed test resolves every one.",
+  "$set": 18,
+  "comps": {
+    "aphelios-elderwood": {
+      "cover": {
+        "kind": "item",
+        "name": "Elderwood Emblem"
+      },
+      "flex": [
+        {
+          "name": "LeBlanc",
+          "replaces": "Gnar"
+        },
+        {
+          "name": "Lux",
+          "replaces": "Lillia"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Aphelios",
+          "items": [
+            "Executioner Emblem",
+            "Gambler's Blade"
+          ]
+        },
+        {
+          "name": "Ezreal",
+          "items": [
+            "Rapidfire Emblem",
+            "Gold Collector"
+          ]
+        }
+      ]
+    },
+    "brambleback-riftbeast": {
+      "flex": [
+        {
+          "name": "Rakan",
+          "replaces": "Taric"
+        },
+        {
+          "name": "Sett",
+          "replaces": "Gnar"
+        }
+      ]
+    },
+    "alune-vanguard": {
+      "flex": [
+        {
+          "name": "Hecarim",
+          "replaces": "Taric"
+        },
+        {
+          "name": "Lux",
+          "replaces": "Morgana"
+        }
+      ]
+    },
+    "teemo-sprykin": {
+      "flex": [
+        {
+          "name": "Kog'Maw",
+          "replaces": "Sentinel"
+        },
+        {
+          "name": "Gnar",
+          "replaces": "Kobuko"
+        }
+      ]
+    },
+    "veigar-blackthorn": {
+      "cover": {
+        "kind": "augment",
+        "name": "Portable Forge"
+      },
+      "flex": [
+        {
+          "name": "Ahri",
+          "replaces": "Cassiopeia"
+        },
+        {
+          "name": "Alune",
+          "replaces": "Cassiopeia"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Veigar",
+          "items": [
+            "Blue Buff",
+            "Jeweled Gauntlet",
+            "Dawncore"
+          ]
+        },
+        {
+          "name": "Veigar",
+          "items": [
+            "Jeweled Gauntlet",
+            "Luden's Tempest",
+            "Flora Fatalis Emblem"
+          ]
+        }
+      ]
+    },
+    "azir-blackthorn": {
+      "alt": [
+        {
+          "name": "Azir",
+          "items": [
+            "Flickerblades"
+          ]
+        },
+        {
+          "name": "Rammus",
+          "items": [
+            "Lightshield Crest"
+          ]
+        }
+      ]
+    },
+    "ahri-spellweaver": {
+      "flex": [
+        {
+          "name": "Hecarim",
+          "replaces": "Taric"
+        },
+        {
+          "name": "Alune",
+          "replaces": "Karma"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Ahri",
+          "items": [
+            "Invoker Emblem"
+          ]
+        },
+        {
+          "name": "Morgana",
+          "items": [
+            "Blighting Jewel",
+            "Void Staff",
+            "Morellonomicon"
+          ]
+        }
+      ]
+    },
+    "karma-yunara-blossom": {
+      "flex": [
+        {
+          "name": "Soraka",
+          "replaces": "LeBlanc"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Karma",
+          "items": [
+            "Eternal Pact",
+            "Executioner Emblem"
+          ]
+        },
+        {
+          "name": "Yunara",
+          "items": [
+            "Dawncore",
+            "Spear of Shojin",
+            "Deathblade"
+          ]
+        }
+      ]
+    },
+    "master-yi-adaptor": {
+      "cover": {
+        "kind": "augment",
+        "name": "Portable Forge"
+      },
+      "flex": [
+        {
+          "name": "Kog'Maw",
+          "replaces": "Nidalee"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Master Yi",
+          "items": [
+            "Brawler Emblem",
+            "Hellfire Hatchet",
+            "Quicksilver"
+          ]
+        },
+        {
+          "name": "Master Yi",
+          "items": [
+            "Wit's End",
+            "Flickerblades",
+            "Rapid Firecannon"
+          ]
+        }
+      ]
+    },
+    "draven-bounty": {
+      "flex": [
+        {
+          "name": "Hecarim",
+          "replaces": "Alistar"
+        },
+        {
+          "name": "Sentinel",
+          "replaces": "Ivern"
+        },
+        {
+          "name": "Lux",
+          "replaces": "Ivern"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Draven",
+          "items": [
+            "Gold Collector",
+            "Flickerblades",
+            "Fishbones"
+          ]
+        },
+        {
+          "name": "Maokai",
+          "items": [
+            "Void Gauntlet",
+            "Lightshield Crest"
+          ]
+        }
+      ]
+    },
+    "warwick-ravager": {
+      "cover": {
+        "kind": "item",
+        "name": "Blackthorn Emblem"
+      },
+      "alt": [
+        {
+          "name": "Warwick",
+          "items": [
+            "Mittens",
+            "Infinity Force",
+            "Dawncore"
+          ]
+        }
+      ]
+    },
+    "draven-legendaries": {
+      "flex": [
+        {
+          "name": "Morgana",
+          "replaces": "Draven"
+        },
+        {
+          "name": "Ashe",
+          "replaces": "Ivern"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Elder Dragon",
+          "items": [
+            "Gold Collector"
+          ]
+        }
+      ]
+    },
+    "mama-beak-vanguard": {
+      "flex": [
+        {
+          "name": "Gnar",
+          "replaces": "Alistar"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Mama Beak",
+          "items": [
+            "Radiant Guinsoo's Rageblade",
+            "Hextech Gunblade",
+            "Titan's Resolve"
+          ]
+        }
+      ]
+    },
+    "aphelios-lunar": {
+      "flex": [
+        {
+          "name": "Scuttlecrab",
+          "replaces": "Vi"
+        },
+        {
+          "name": "Brambleback",
+          "replaces": "Nidalee"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Aphelios",
+          "items": [
+            "Infinity Edge",
+            "Gold Collector"
+          ]
+        },
+        {
+          "name": "Nidalee",
+          "items": [
+            "Silvermere Dawn",
+            "Blue Buff",
+            "Sterak's Gage"
+          ]
+        }
+      ]
+    },
+    "ezreal-elderwood": {
+      "cover": {
+        "kind": "item",
+        "name": "Elderwood Emblem"
+      },
+      "alt": [
+        {
+          "name": "Ezreal",
+          "items": [
+            "Dawncore",
+            "Gold Collector"
+          ]
+        }
+      ]
+    },
+    "ezreal-executioner": {
+      "cover": {
+        "kind": "item",
+        "name": "Executioner Emblem"
+      },
+      "alt": [
+        {
+          "name": "Ezreal",
+          "items": [
+            "Gold Collector",
+            "Dawncore"
+          ]
+        }
+      ]
+    },
+    "sivir-primal": {
+      "flex": [
+        {
+          "name": "Taric",
+          "replaces": "Sentinel"
+        },
+        {
+          "name": "Tristana",
+          "replaces": "Kog'Maw"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Nidalee",
+          "items": [
+            "Hunter Emblem",
+            "Silvermere Dawn",
+            "Blue Buff"
+          ]
+        },
+        {
+          "name": "Sivir",
+          "items": [
+            "Fae Emblem"
+          ]
+        }
+      ]
+    },
+    "ashe-blossom": {
+      "flex": [
+        {
+          "name": "Lux",
+          "replaces": "Ivern"
+        },
+        {
+          "name": "Elder Dragon",
+          "replaces": "Sivir"
+        }
+      ]
+    },
+    "tristana-sprykin-reroll": {
+      "cover": {
+        "kind": "item",
+        "name": "Fae Emblem"
+      },
+      "alt": [
+        {
+          "name": "Tristana",
+          "items": [
+            "Flickerblades"
+          ]
+        }
+      ]
+    },
+    "zyra-juggernaut": {
+      "cover": {
+        "kind": "item",
+        "name": "Juggernaut Emblem"
+      },
+      "alt": [
+        {
+          "name": "Zyra",
+          "items": [
+            "Talisman of Ascension",
+            "Archangel's Staff",
+            "Hextech Gunblade"
+          ]
+        }
+      ]
+    },
+    "camille-akali-solar": {
+      "cover": {
+        "kind": "augment",
+        "name": "Early Learnings"
+      },
+      "flex": [
+        {
+          "name": "Rakan",
+          "replaces": "Ornn"
+        },
+        {
+          "name": "Yorick",
+          "replaces": "Ornn"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Camille",
+          "items": [
+            "Silvermere Dawn",
+            "Mittens",
+            "Infinity Force"
+          ]
+        },
+        {
+          "name": "Akali",
+          "items": [
+            "Fishbones",
+            "Rapid Firecannon",
+            "Luden's Tempest"
+          ]
+        }
+      ]
+    },
+    "ahri-zyra-blossom": {
+      "cover": {
+        "kind": "augment",
+        "name": "Bronze For Life II"
+      },
+      "flex": [
+        {
+          "name": "Shen",
+          "replaces": "Rakan"
+        },
+        {
+          "name": "Amumu",
+          "replaces": "Lillia"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Ahri",
+          "items": [
+            "Flora Fatalis Emblem",
+            "Lunar Emblem"
+          ]
+        }
+      ]
+    },
+    "caitlyn-juggernaut": {
+      "cover": {
+        "kind": "item",
+        "name": "Radiant Guinsoo's Rageblade"
+      },
+      "alt": [
+        {
+          "name": "Caitlyn",
+          "items": [
+            "Radiant Guinsoo's Rageblade",
+            "Hextech Gunblade",
+            "Kraken's Fury"
+          ]
+        },
+        {
+          "name": "Caitlyn",
+          "items": [
+            "Flickerblades",
+            "Gambler's Blade",
+            "Gold Collector"
+          ]
+        }
+      ]
+    },
+    "sentinel-invoker": {
+      "cover": {
+        "kind": "item",
+        "name": "Coven Emblem"
+      },
+      "flex": [
+        {
+          "name": "Ivern",
+          "replaces": "Kog'Maw"
+        }
+      ]
+    },
+    "karma-yunara-blackthorn": {
+      "cover": {
+        "kind": "item",
+        "name": "Blackthorn Emblem"
+      },
+      "alt": [
+        {
+          "name": "Yunara",
+          "items": [
+            "Dawncore",
+            "Spear of Shojin",
+            "Last Whisper"
+          ]
+        }
+      ]
+    },
+    "cassiopeia-coven": {
+      "cover": {
+        "kind": "item",
+        "name": "Defender Emblem"
+      },
+      "flex": [
+        {
+          "name": "Rengar",
+          "replaces": "Leona"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Cassiopeia",
+          "items": [
+            "Dawncore",
+            "Blighting Jewel",
+            "Talisman of Ascension"
+          ]
+        }
+      ]
+    },
+    "aphelios-nidalee-rapidfire": {
+      "cover": {
+        "kind": "item",
+        "name": "Rapidfire Emblem"
+      },
+      "flex": [
+        {
+          "name": "Diana",
+          "replaces": "Rakan"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Aphelios",
+          "items": [
+            "Gold Collector"
+          ]
+        }
+      ]
+    },
+    "aphelios-nidalee-vanguard": {
+      "flex": [
+        {
+          "name": "Rakan",
+          "replaces": "Hecarim"
+        },
+        {
+          "name": "Scuttlecrab",
+          "replaces": "Brambleback"
+        },
+        {
+          "name": "Morgana",
+          "replaces": "Zyra"
+        },
+        {
+          "name": "Alune",
+          "replaces": "Zyra"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Aphelios",
+          "items": [
+            "Gold Collector"
+          ]
+        },
+        {
+          "name": "Aphelios",
+          "items": [
+            "Guinsoo's Rageblade",
+            "Infinity Edge",
+            "Kraken's Fury"
+          ]
+        }
+      ]
+    },
+    "kayle-solar": {
+      "cover": {
+        "kind": "augment",
+        "name": "Portable Forge"
+      },
+      "alt": [
+        {
+          "name": "Kayle",
+          "items": [
+            "Wit's End",
+            "Statikk Shiv",
+            "Mittens"
+          ]
+        },
+        {
+          "name": "Kayle",
+          "items": [
+            "Rapid Firecannon",
+            "Talisman of Ascension",
+            "Zhonya's Paradox"
+          ]
+        }
+      ]
+    },
+    "kha-zix-elderwood": {
+      "alt": [
+        {
+          "name": "Kha'Zix",
+          "items": [
+            "Lich Bane",
+            "Wit's End",
+            "Seeker's Armguard"
+          ]
+        },
+        {
+          "name": "Kha'Zix",
+          "items": [
+            "Luden's Tempest",
+            "Dawncore",
+            "Zhonya's Paradox"
+          ]
+        }
+      ]
+    },
+    "veigar-sprykin": {
+      "alt": [
+        {
+          "name": "Veigar",
+          "items": [
+            "Blue Buff",
+            "Jeweled Gauntlet",
+            "Dawncore"
+          ]
+        },
+        {
+          "name": "Veigar",
+          "items": [
+            "Jeweled Gauntlet",
+            "Luden's Tempest",
+            "Flora Fatalis Emblem"
+          ]
+        }
+      ]
+    },
+    "elise-coven": {
+      "cover": {
+        "kind": "augment",
+        "name": "Dark Ritual"
+      },
+      "alt": [
+        {
+          "name": "Elise",
+          "items": [
+            "Ravager Emblem",
+            "Guinsoo's Rageblade",
+            "Titan's Resolve"
+          ]
+        },
+        {
+          "name": "Elise",
+          "items": [
+            "Gargoyle Stoneplate",
+            "Titan's Resolve"
+          ]
+        }
+      ]
+    },
+    "soraka-executioner": {
+      "cover": {
+        "kind": "item",
+        "name": "Executioner Emblem"
+      },
+      "flex": [
+        {
+          "name": "Lillia",
+          "replaces": "Kennen"
+        },
+        {
+          "name": "Ezreal",
+          "replaces": "Zyra"
+        }
+      ],
+      "alt": [
+        {
+          "name": "Soraka",
+          "items": [
+            "Dawncore",
+            "Lich Bane",
+            "Eternal Pact"
+          ]
+        },
+        {
+          "name": "Zyra",
+          "items": [
+            "Executioner Emblem",
+            "Spear of Shojin",
+            "Void Staff"
+          ]
+        }
+      ]
+    },
+    "aphelios-nidalee-inferno": {
+      "alt": [
+        {
+          "name": "Kayle",
+          "items": [
+            "Wit's End",
+            "Flickerblades",
+            "Seeker's Armguard"
+          ]
+        },
+        {
+          "name": "Sejuani",
+          "items": [
+            "Forbidden Idol"
+          ]
+        }
+      ]
+    }
+  }
+}

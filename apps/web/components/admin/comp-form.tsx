@@ -126,6 +126,7 @@ export type CompFormComp = {
   alt: string[];
   augmentTypes?: string[];
   matchups: { slug: string; kind: 'good' | 'bad' }[];
+  cover?: { kind: 'item' | 'augment'; name: string } | null;
   titleVi?: string;
   playstyleVi?: string;
   tipsVi?: string;
@@ -205,6 +206,8 @@ export function CompForm({
     units: layoutBoard(comp?.units ?? []),
     early: comp?.early ?? [],
     carry: comp?.carry ?? '',
+    coverKind: comp?.cover?.kind ?? 'item',
+    coverName: comp?.cover?.name ?? '',
     items: comp?.items ?? [],
     augments: comp?.augments ?? [],
     alt: comp?.alt ?? [],
@@ -260,6 +263,7 @@ export function CompForm({
       })),
       early: form.early,
       carry: form.carry,
+      cover: form.coverName ? { kind: form.coverKind, name: form.coverName } : null,
       items: form.items,
       augments: form.augments,
       alt: form.alt,
@@ -338,6 +342,32 @@ export function CompForm({
         <Field label="Playstyle (one line)">
           <input className={inputCls} value={form.playstyle} onChange={set('playstyle')} placeholder="Fast 8 Ability Power cap" required />
         </Field>
+      </div>
+
+      <div className="grid gap-4 rounded-xl border border-line bg-panel p-5 md:grid-cols-[180px_1fr]">
+        <div className="flex flex-col gap-1 md:col-span-2">
+          <p className="text-sm font-semibold text-mist">Cover badge (optional)</p>
+          <p className="text-xs text-mist">The hex pinned to the comp card and the rail — the emblem, item or augment the build is named after. Empty means no badge.</p>
+        </div>
+        <Field label="Kind">
+          <select
+            className={inputCls}
+            value={form.coverKind}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, coverKind: event.target.value as 'item' | 'augment', coverName: '' }))
+            }
+          >
+            <option value="item">Item or emblem</option>
+            <option value="augment">Augment</option>
+          </select>
+        </Field>
+        <EntityList
+          label={form.coverKind === 'item' ? 'Cover item' : 'Cover augment'}
+          options={form.coverKind === 'item' ? items : augmentOptions}
+          values={form.coverName ? [form.coverName] : []}
+          onChange={(values) => setForm((current) => ({ ...current, coverName: values[values.length - 1] ?? '' }))}
+          placeholder={form.coverKind === 'item' ? 'Type to search items and emblems…' : 'Type to search augments…'}
+        />
       </div>
 
       <div className="flex flex-col gap-3 rounded-xl border border-line bg-panel p-5">

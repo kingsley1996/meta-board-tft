@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
 export type SharedDataFile =
+  | 'comp-extras.json'
   | 'economy.json'
   | 'loot-tables.json'
   | 'mechanics-knowledge.json'

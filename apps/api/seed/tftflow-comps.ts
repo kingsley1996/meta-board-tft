@@ -167,6 +167,7 @@ export function buildTftflowComps(
       units,
       early: earlyUnits,
       carry,
+      cover: null,
       items: carryItems,
       augments,
       tips: comp.tips.join(' '),

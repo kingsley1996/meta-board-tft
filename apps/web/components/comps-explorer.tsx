@@ -7,7 +7,8 @@ import { fetchComps, type ApiComp, type CompSummary, type CompsInitial, type Com
 import { tierRank } from '@/lib/tiers';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
-import { tierColor, TierChip, TierTabs, UnitHex } from './ui';
+import { compVariants, variantRows } from '@/lib/variants';
+import { CoverBadge, tierColor, TierChip, TierTabs, UnitHex } from './ui';
 import { CompPanel } from './comp-panel';
 
 // Tier list ⇄ comp detail are separate routes rendering the same explorer;
@@ -23,6 +24,14 @@ const viewed = new Set<string>();
 // because list ⇄ detail navigations remount the explorer, and the check
 // inside glide() has to see it across mounts.
 let glidePending = false;
+
+// A variant tab swaps the comp under the reader's eyes, so the glide that lands
+// a fresh selection must not run for the comp it lands on — not on arrival, and
+// not again when the mount fetch replaces the list. It is keyed by slug for that
+// second pass, and spent as soon as the reader moves elsewhere. Module-level like
+// glidePending: the detail route remounts the explorer, and the check inside
+// glide() has to see it across mounts.
+let heldSlug = '';
 
 // useLayoutEffect while hydrating in the browser, useEffect during SSR.
 const useScrollEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
@@ -87,7 +96,12 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   // checks clean up late layout shifts; everything cancels as soon as
   // the user scrolls on their own.
   useScrollEffect(() => {
-    if (!openSlug || !data) return;
+    if (!openSlug || !data) {
+      heldSlug = '';
+      return;
+    }
+    if (openSlug === heldSlug) return;
+    heldSlug = '';
     let userTookOver = false;
     let animRaf = 0;
     let glided = false;
@@ -232,6 +246,16 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   const filtered = comps.filter(
     (comp) => comp.title.toLowerCase().includes(query.toLowerCase()) && (style === 'All' || comp.style === style)
   );
+  // A variant group takes one slot on the board and the siblings never get
+  // another: the comp that leads the group's tab strip holds the slot, and the
+  // open comp's detail always hangs under that row — even when the open comp is
+  // a sibling, so switching tabs does not jump to a different tier. Grouping
+  // runs on what the board is showing, so a filter that drops the lead promotes
+  // the best comp left in the group.
+  const rows = variantRows(filtered);
+  const shown = new Set(rows.filter((row) => row.lead).map((row) => row.comp.slug));
+  const siblings = new Map(rows.map((row) => [row.comp.slug, row.siblings]));
+  const slot = openSlug ? compVariants(filtered, openSlug)[0]?.slug ?? openSlug : '';
 
   return (
     <div className="flex flex-col gap-5">
@@ -296,9 +320,14 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
       ) : (
         <div data-section="tierlist" className="flex flex-col gap-4">
           {tierRank.map((tier) => {
-            const tierComps = filtered.filter((comp) => comp.tier === tier);
+            const tierComps = filtered.filter((comp) => comp.tier === tier && shown.has(comp.slug));
             if (!tierComps.length) return null;
-            const openComp = openSlug ? tierComps.find((comp) => comp.slug === openSlug) : undefined;
+            // The detail belongs to the open comp but sits under the row that
+            // holds the group's slot, which for a sibling is the lead's row.
+            const openComp =
+              openSlug && tierComps.some((comp) => comp.slug === slot)
+                ? comps.find((comp) => comp.slug === openSlug)
+                : undefined;
             return (
               <div key={tier} className="flex flex-col gap-4">
                 <div ref={openComp ? tierRef : undefined} className="flex scroll-mt-16 flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-4 lg:scroll-mt-12">
@@ -312,7 +341,14 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
                     ) : null}
                     <div className="flex flex-wrap gap-3">
                       {tierComps.map((comp) => (
-                        <CompCluster key={comp.slug} comp={comp} active={comp.slug === openSlug} lang={lang} showNames={showNames} />
+                        <CompCluster
+                          key={comp.slug}
+                          comp={comp}
+                          active={comp.slug === slot}
+                          lang={lang}
+                          showNames={showNames}
+                          siblings={siblings.get(comp.slug) ?? 0}
+                        />
                       ))}
                     </div>
                   </div>
@@ -321,16 +357,19 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
                     container — and closes via ✕ or by picking another comp. */}
                 {openComp && isFullComp(openComp) ? (
                   <div data-section="comp-detail" className="relative">
-                    <button
-                      type="button"
-                      onClick={() => router.push(`/${lang}/tierlist/comps`, { scroll: false })}
-                      aria-label={t.close}
-                      title={t.close}
-                      className="smooth absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-brand bg-brand text-sm font-bold text-on-brand shadow-lg hover:bg-brand-deep"
-                    >
-                      {'\u2715'}
-                    </button>
-                    <CompPanel comp={openComp} lang={lang} />
+                    <CompPanel
+                      comp={openComp}
+                      lang={lang}
+                      toolbar={
+                        <DetailToolbar
+                          comps={comps}
+                          comp={openComp}
+                          lang={lang}
+                          onSelect={(slug) => (heldSlug = slug)}
+                          onClose={() => router.push(`/${lang}/tierlist/comps`, { scroll: false })}
+                        />
+                      }
+                    />
                   </div>
                 ) : null}
               </div>
@@ -345,14 +384,121 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   );
 }
 
-function CompCluster({ comp, active, lang, showNames }: { comp: ApiComp | CompSummary; active: boolean; lang: Lang; showNames: boolean }) {
+// One bar at the head of the detail's content column: the variant tabs, then
+// share and close at its right end. Variants are full comp pages of their own,
+// so the tabs stay plain links: back, forward and prefetch keep working and each
+// tab carries its own tier. A comp with no siblings keeps its own tab so the bar
+// never looks like a filter that dropped the row being read.
+function DetailToolbar({
+  comps,
+  comp,
+  lang,
+  onSelect,
+  onClose,
+}: {
+  comps: (ApiComp | CompSummary)[];
+  comp: ApiComp;
+  lang: Lang;
+  onSelect: (slug: string) => void;
+  onClose: () => void;
+}) {
+  const t = messages[lang].compPanel;
+  const closeLabel = messages[lang].explorer.close;
+  const tabs = compVariants(comps, comp.slug);
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    void navigator.clipboard?.writeText(window.location.href).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    });
+  };
+  return (
+    <div data-section="comp-toolbar" className="flex items-center gap-1.5 rounded-xl border border-line bg-panel p-1.5">
+      <nav aria-label={t.variants} className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
+        {(tabs.length ? tabs : [comp]).map((variant) => {
+          const active = variant.slug === comp.slug;
+          return (
+            <Link
+              key={variant.slug}
+              href={`/${lang}/tierlist/comps/${variant.slug}`}
+              scroll={false}
+              onClick={() => onSelect(variant.slug)}
+              aria-current={active ? 'page' : undefined}
+              className={`smooth flex shrink-0 items-center gap-2 rounded-lg border px-2 py-1 ${active ? 'border-brand bg-util' : 'border-transparent hover:bg-util'}`}
+            >
+              <span
+                className="grid h-5 w-5 shrink-0 place-items-center rounded font-display text-[11px] font-bold leading-none"
+                style={{ color: tierColor[variant.tier], background: `color-mix(in srgb, ${tierColor[variant.tier]} 20%, transparent)` }}
+              >
+                {variant.tier}
+              </span>
+              <UnitHex name={variant.carry.name} cost={variant.carry.cost} icon={variant.carry.icon} size={22} />
+              <span className="whitespace-nowrap text-xs font-semibold text-fog">{variant.title}</span>
+            </Link>
+          );
+        })}
+      </nav>
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={copied ? t.linkCopied : t.copyLink}
+        title={t.copyLink}
+        className="smooth flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line bg-util text-fog hover:border-brand"
+      >
+        {copied ? (
+          <span aria-hidden className="text-sm font-bold text-brand">{'\u2713'}</span>
+        ) : (
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+            <rect x="9" y="9" width="11" height="11" rx="2" />
+            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+          </svg>
+        )}
+      </button>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={closeLabel}
+        title={closeLabel}
+        className="smooth flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand bg-brand text-sm font-bold text-on-brand hover:bg-brand-deep"
+      >
+        {'\u2715'}
+      </button>
+    </div>
+  );
+}
+
+function CompCluster({
+  comp,
+  active,
+  lang,
+  showNames,
+  siblings,
+}: {
+  comp: ApiComp | CompSummary;
+  active: boolean;
+  lang: Lang;
+  showNames: boolean;
+  siblings: number;
+}) {
   const t = messages[lang].explorer;
   const trend = comp.trend === 'up'
     ? { glyph: '\u25B2', label: t.trendingUp, color: 'text-tier-c', tri: 'border-x-[7px] border-b-[10px] border-x-transparent border-b-tier-c' }
     : comp.trend === 'down'
       ? { glyph: '\u25BC', label: t.trendingDown, color: 'text-tier-s', tri: 'border-x-[7px] border-t-[10px] border-x-transparent border-t-tier-s' }
       : null;
-  const aria = `${comp.title} (${comp.style})${trend ? ` — ${trend.label}` : ''}`;
+  const group = siblings ? ` — ${t.groupCount(siblings)}` : '';
+  const aria = `${comp.title} (${comp.style})${trend ? ` — ${trend.label}` : ''}${group}`;
+  // The group marker sits where a variant strip would open: the avatar's free
+  // top-right corner, opposite the trend triangle and clear of the cover hex.
+  const more = siblings ? (
+    <span
+      data-variants={siblings}
+      className="absolute -right-1 -top-1 z-20 grid h-4 min-w-4 place-items-center rounded-full border border-line bg-panel px-1 text-[10px] font-bold leading-none text-fog"
+      aria-hidden
+    >
+      +{siblings}
+    </span>
+  ) : null;
   // Avatar-only mode: just the carry hex with the trend pinned to its
   // top-left corner; the full row (name + style + units) stays opt-in.
   if (!showNames) {
@@ -368,6 +514,12 @@ function CompCluster({ comp, active, lang, showNames }: { comp: ApiComp | CompSu
             the now-larger tier bar; 64px from sm up. */}
         <span className="relative block w-12 sm:w-16" style={{ aspectRatio: '1 / 1.1547' }}>
           <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} fill />
+          {more}
+          {comp.cover ? (
+            <span className="absolute inset-x-0 -bottom-1 z-20 mx-auto w-fit">
+              <CoverBadge cover={comp.cover} size={20} />
+            </span>
+          ) : null}
           {trend ? (
             // Solid corner triangle like the reference tier lists: green
             // points up, red points down, no badge background.
@@ -386,7 +538,15 @@ function CompCluster({ comp, active, lang, showNames }: { comp: ApiComp | CompSu
       aria-label={aria}
       className={`flex items-center gap-3 rounded-lg p-2 ${active ? 'bg-util ring-1 ring-brand' : 'smooth hover:bg-util'}`}
     >
-      <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={52} />
+      <span className="relative shrink-0">
+        <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={52} />
+        {more}
+        {comp.cover ? (
+          <span className="absolute inset-x-0 -bottom-1 z-20 mx-auto w-fit">
+            <CoverBadge cover={comp.cover} size={20} />
+          </span>
+        ) : null}
+      </span>
       <span className="flex flex-col gap-0.5">
         <span className="text-sm font-semibold text-fog">{comp.title}</span>
         <span className="text-xs font-semibold uppercase tracking-wide text-mist">

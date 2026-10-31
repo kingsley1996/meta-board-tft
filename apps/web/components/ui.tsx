@@ -45,8 +45,8 @@ export function TierTabs({ current, lang }: { current: 'comps' | 'items' | 'augm
   );
 }
 
-export function Panel({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-xl border border-line bg-panel ${className}`}>{children}</div>;
+export function Panel({ children, className = '', section }: { children: ReactNode; className?: string; section?: string }) {
+  return <div data-section={section} className={`rounded-xl border border-line bg-panel ${className}`}>{children}</div>;
 }
 
 export function Chip({ children, className = '' }: { children: ReactNode; className?: string }) {
@@ -205,6 +205,16 @@ export function AugmentTile({ name, icon, size = 44 }: { name: string; icon?: st
   return (
     <span data-tip={`augment:${name}`} className="relative block shrink-0 overflow-hidden rounded-[18%] bg-util" style={{ width: size, height: size }}>
       {icon ? <img src={icon} alt="" draggable={false} loading="lazy" className="h-full w-full object-cover" /> : null}
+    </span>
+  );
+}
+
+// The badge TFT Academy pins to a comp's avatar: the item, emblem or augment
+// that defines the build. Always a hex, like the source site.
+export function CoverBadge({ cover, size }: { cover: { kind: 'item' | 'augment'; name: string; icon: string | null }; size: number }) {
+  return (
+    <span className="block drop-shadow-[0_2px_4px_rgba(0,0,0,.65)]">
+      <ItemHex name={cover.name} icon={cover.icon} size={size} tip={`${cover.kind}:${cover.name}`} />
     </span>
   );
 }

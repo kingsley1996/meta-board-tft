@@ -149,6 +149,10 @@ ALTER TABLE comp_stages ADD COLUMN IF NOT EXISTS text_vi text;
 -- Augment priority order shown in the comp panel, e.g. {ITEMS,ECON,COMBAT}.
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS augment_types text[] NOT NULL DEFAULT '{}';
 
+-- The comp's cover badge: { kind: 'item' | 'augment', name } — the item, emblem
+-- or augment that defines the build. Editor-owned; comp-extras.json only seeds it.
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS cover jsonb;
+
 -- Assistant conversation persistence (Conversation Persistence).
 -- Stores chat sessions and messages so users can resume conversations
 -- across devices and page reloads instead of relying on sessionStorage only.

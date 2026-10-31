@@ -34,6 +34,7 @@ export default async function EditCompPage({ params }: { params: Promise<{ slug:
     })),
     early: apiComp.early.map((unit) => unit.name),
     carry: apiComp.carry.name,
+    cover: apiComp.cover,
     items: apiComp.items.map((item) => item.name),
     augments: apiComp.augments.map((augment) => augment.name),
     tips: apiComp.tips,
