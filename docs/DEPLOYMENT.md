@@ -324,6 +324,7 @@ nghĩa là catalog vẫn giữ lô cũ cho tới lần khởi động kế tiế
 | Phiên `mb_session` không thu hồi được từ admin | role đọc theo từng request nên hạ quyền có tác dụng ngay, nhưng **không có cách đăng xuất hộ người khác**: cookie đánh cắp vẫn sống đủ 30 ngày. Còn đường cuối là xoá dòng `user_sessions` của user đó bằng SQL | `accounts.ts` `sessionUser`/`deleteSession` |
 | Chạy `seed` trên DB đã có nội dung | **mọi comp/guide soạn qua admin biến mất**, không lỗi nào | đầu `seed.ts` |
 | API boot lúc DB chưa tới | catalog giữ lô cũ tới lần khởi động kế tiếp; log in `game catalog sync failed` | `index.ts` `applyCatalog()` · `/api/tft/set` → `catalog_release` |
+| Thêm field vào payload `/api/comps` | `next build` prerender 116 trang comp-detail bằng API **đang sống**, mà Render boot theo clock riêng sau mỗi push → có cửa sổ payload chưa có field, web đọc `.length` là chết build (`Cannot read properties of undefined`) | web phải default hoá field mới: `comp-panel.tsx` `const flex = comp.flex ?? []` |
 | `proxyTimeout` bị bỏ | câu trả lời Coach AI dài chết 502 đúng 30 s | `next.config.ts` |
 | Vote/view dedupe **in-memory** | restart là từng visitor bump lại được — chấp nhận được, nhưng đừng tưởng nó là rate limit | PARITY §Backend API |
 | `DATABASE_URL` bản **Direct** của Supabase | API Render treo 10 s rồi 503 ở mọi route chạm DB: direct host IPv6-only, Render không có IPv6. Không có message nào ngoài `connection timeout` | §3 Database |

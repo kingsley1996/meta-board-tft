@@ -96,6 +96,9 @@ function TraitChip({ trait }: { trait: ApiComp['traits'][number] }) {
 
 export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; toolbar?: ReactNode }) {
   const t = messages[lang].compPanel;
+  // Prerender runs against whichever API is live, and Render boots on its own
+  // clock after a push — a payload without `flex` is a real window (18.5c build died).
+  const flex = comp.flex ?? [];
   const economy = economyForComp({ style: comp.style, carry: comp.carry, units: comp.units });
   const tier = tierColor[comp.tier];
   // Built once because the plan splits across two lists: four rounds visible,
@@ -282,20 +285,20 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
             </div>
           </Panel>
         </div>
-        <div className={comp.flex.length || comp.alt.length ? 'grid gap-4 md:grid-cols-[1fr_200px]' : ''}>
+        <div className={flex.length || comp.alt.length ? 'grid gap-4 md:grid-cols-[1fr_200px]' : ''}>
           <Panel className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.positioning}</p>
             <PositioningBoard comp={comp} />
           </Panel>
-          {comp.flex.length || comp.alt.length ? (
+          {flex.length || comp.alt.length ? (
             <div className="flex flex-col gap-4">
-              {comp.flex.length ? (
+              {flex.length ? (
                 <Panel section="flex-units" className="p-4">
                   <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.flexUnits}</p>
                   {/* Pair language from TFT Academy: the big hex is the unit
                       that comes in, the small corner hex is the one it swaps. */}
                   <div className="flex flex-wrap items-start justify-center gap-x-4 gap-y-3 px-3 pt-2">
-                    {comp.flex.map((pair, index) => {
+                    {flex.map((pair, index) => {
                       const label = t.flexReplaces(pair.name, pair.replaces.name);
                       return (
                         <Link
