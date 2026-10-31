@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { CompMap } from '@/components/comp-map';
 import { CtaLink } from '@/components/ui';
+import { getCompMap } from '@/lib/comp-map';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
@@ -19,6 +21,8 @@ const features = [
 export default async function Home({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
   const t = messages[lang].home;
+  const snapshot = messages[lang].compMap.snapshot;
+  const compMap = getCompMap(lang);
   return (
     <div className="flex flex-col gap-10">
       <section
@@ -127,6 +131,22 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
             <span className="relative z-10 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.openBoard}</span>
           </Link>
         ))}
+      </section>
+
+      <section data-section="comp-map-snapshot" className="relative isolate overflow-hidden rounded-2xl border border-line bg-panel p-5 md:p-6">
+        <span aria-hidden="true" className="hex pointer-events-none absolute -top-16 -right-12 -z-10 h-56 w-48 rotate-12 bg-brand/10" />
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:gap-8">
+          <div className="flex max-w-[340px] flex-col items-start gap-2">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-brand">{snapshot.kicker}</p>
+            <h2 className="font-display text-2xl font-bold tracking-tight text-fog md:text-3xl">{snapshot.title}</h2>
+            <p className="text-sm leading-relaxed text-mist">{snapshot.sub}</p>
+            <CtaLink href={`/${lang}/tierlist/map`}>{snapshot.cta}</CtaLink>
+            <p className="text-[11px] text-mist/80">{snapshot.note(18, compMap.patch)}</p>
+          </div>
+          <div className="min-w-0 flex-1">
+            <CompMap rows={compMap.rows} lang={lang} variant="mini" limit={18} />
+          </div>
+        </div>
       </section>
 
       <section data-section="promo" className="mx-auto w-full max-w-[720px] rounded-xl border border-line bg-panel p-6 text-center">

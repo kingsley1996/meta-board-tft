@@ -57,6 +57,7 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
       label: t.comps,
       items: [
         { label: t.compRankings, href: `/${lang}/tierlist/comps` },
+        { label: t.compMap, href: `/${lang}/tierlist/map` },
         { label: t.itemRankings, href: `/${lang}/tierlist/items` },
         { label: t.augmentRankings, href: `/${lang}/tierlist/augments` },
       ],

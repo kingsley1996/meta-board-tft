@@ -20,6 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paths: { path: string; meta?: Meta; priority?: number }[] = [
     { path: '', priority: 1 },
     { path: 'tierlist/comps', meta: top },
+    { path: 'tierlist/map', meta: top },
     { path: 'tierlist/items', meta: top },
     { path: 'tierlist/augments', meta: top },
     { path: 'champions', meta: top },
