@@ -41,9 +41,9 @@ function UnitTile({ unit, size = 54, fill = false, context }: { unit: ApiUnit; s
     >
       <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} size={size} fill={fill} stars={unit.stars ?? undefined} />
       {unit.items.length ? (
-        <span className="absolute -bottom-0.5 left-1/2 z-20 flex -translate-x-1/2 gap-[2px]">
+        <span className={`absolute -bottom-0.5 left-1/2 z-20 flex -translate-x-1/2 ${fill ? 'w-[86%] gap-[4%]' : 'gap-[2px]'}`}>
           {unit.items.slice(0, 3).map((item, index) => (
-            <ItemHex key={`${item.name}-${index}`} name={item.name} icon={item.icon} tier={itemTierByName[item.name]} tip={`item:${item.name}`} size={16} />
+            <ItemHex key={`${item.name}-${index}`} name={item.name} icon={item.icon} tier={itemTierByName[item.name]} tip={`item:${item.name}`} size={16} fill={fill} />
           ))}
         </span>
       ) : null}

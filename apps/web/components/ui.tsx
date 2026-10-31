@@ -91,7 +91,13 @@ export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = fals
         </div>
       </div>
       {stars ? (
-        <span className="pointer-events-none absolute top-0.5 left-1/2 z-30 -translate-x-1/2 rounded-[5px] border border-black/30 bg-[#f5c542] px-1.5 py-[1px] text-[max(9px,calc(var(--hex-w,56px)*0.18))] leading-none tracking-[0.08em] text-[#201a0a] shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+        <span
+          className={`pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 border border-black/30 bg-[#f5c542] leading-none tracking-[0.08em] text-[#201a0a] shadow-[0_1px_2px_rgba(0,0,0,0.9)] ${
+            fill
+              ? 'top-[3%] rounded-[0.2em] px-[0.12em] py-[0.06em] text-[max(6px,calc(var(--hex-w,56px)*0.22))]'
+              : 'top-0.5 rounded-[5px] px-1.5 py-[1px] text-[max(9px,calc(var(--hex-w,56px)*0.18))]'
+          }`}
+        >
           {'★'.repeat(Math.min(stars, 3))}
         </span>
       ) : null}
@@ -177,11 +183,18 @@ export function MiniItem({ icon, name, tier, size = 20, dashed = false }: { icon
 }
 
 // Small pointy-top hex used for items sitting under a unit on the board.
-export function ItemHex({ name, icon, tier, size = 16, tip }: { name: string; icon?: string | null; tier?: Tier | null; size?: number; tip?: string }) {
+// `fill` sizes it from its flex parent instead of a fixed pixel size, so the
+// same row shrinks with the hex board on a phone.
+export function ItemHex({ name, icon, tier, size = 16, tip, fill = false }: { name: string; icon?: string | null; tier?: Tier | null; size?: number; tip?: string; fill?: boolean }) {
   return (
-    <span data-tip={tip} title={name} className="relative block shrink-0" style={{ width: size, height: Math.round(size * 1.1547) }}>
+    <span
+      data-tip={tip}
+      title={name}
+      className={fill ? 'relative block min-w-0 flex-1' : 'relative block shrink-0'}
+      style={fill ? { aspectRatio: '1 / 1.1547' } : { width: size, height: Math.round(size * 1.1547) }}
+    >
       <span className="hex absolute inset-0" style={{ background: tier ? tierColor[tier] : 'var(--color-line)' }} />
-      <span className="hex absolute overflow-hidden bg-panel" style={{ inset: Math.max(1, Math.round(size * 0.12)) }}>
+      <span className="hex absolute overflow-hidden bg-panel" style={{ inset: fill ? '12%' : Math.max(1, Math.round(size * 0.12)) }}>
         {icon ? <img src={icon} alt="" draggable={false} loading="lazy" className="h-full w-full object-cover" /> : null}
       </span>
     </span>
@@ -196,13 +209,21 @@ export function AugmentTile({ name, icon, size = 44 }: { name: string; icon?: st
   );
 }
 
-export function TierChip({ tier, label }: { tier: Tier; label: string }) {
+export function TierChip({ tier, label, stacked = false }: { tier: Tier; label: string; stacked?: boolean }) {
   // min-h (not fixed h) so the chip stretches to the full height of its
   // tier row when the comp/item list beside it wraps to several lines.
+  // stacked: below sm the chip is its own full-width row above the list.
   return (
-    <div className="flex min-h-28 w-24 shrink-0 flex-col items-center justify-center rounded-lg border-2 bg-panel" style={{ borderColor: tierColor[tier] }}>
-      <span className="font-display text-5xl font-bold" style={{ color: tierColor[tier] }}>{tier}</span>
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-mist">{label}</span>
+    <div
+      className={`flex shrink-0 rounded-lg border-2 bg-panel ${
+        stacked
+          ? 'w-full flex-row items-center justify-center gap-3 px-3 py-2.5 sm:min-h-28 sm:w-24 sm:flex-col sm:items-center sm:gap-0 sm:justify-center sm:px-0 sm:py-0'
+          : 'min-h-28 w-24 flex-col items-center justify-center'
+      }`}
+      style={{ borderColor: tierColor[tier] }}
+    >
+      <span className={`font-display font-bold ${stacked ? 'text-4xl sm:text-5xl' : 'text-5xl'}`} style={{ color: tierColor[tier] }}>{tier}</span>
+      <span className={`font-semibold uppercase tracking-wide text-mist ${stacked ? 'text-xs sm:text-[10px]' : 'text-[10px]'}`}>{label}</span>
     </div>
   );
 }

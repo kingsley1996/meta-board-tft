@@ -78,11 +78,22 @@ body {
 .hex-board-frame {
   container-type: inline-size;
   --hex-gap: 8px;
-  --hex-w: min(calc((100cqw - 24px - var(--hex-gap) * 6) / 7.6), 56px);
+  /* 100cqw is the frame's content box, so padding is already excluded. A full
+     board is 7.5 cells plus 6.5 gaps (the even rows are offset by half a cell). */
+  --hex-w: min(calc((100cqw - var(--hex-gap) * 6.5) / 7.5), 56px);
   --hex-h: calc(var(--hex-w) * 1.1547);
   background: #0a0d0e;
   border-radius: 12px;
   padding: 14px 12px;
+}
+
+/* A phone leaves the board ~25% smaller than this; tightening the frame and the
+   gaps buys that back so champion, item and star plates stay legible. */
+@media (max-width: 640px) {
+  .hex-board-frame {
+    --hex-gap: 4px;
+    padding: 10px 8px;
+  }
 }
 
 .hex-board {

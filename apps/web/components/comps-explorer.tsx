@@ -301,9 +301,9 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
             const openComp = openSlug ? tierComps.find((comp) => comp.slug === openSlug) : undefined;
             return (
               <div key={tier} className="flex flex-col gap-4">
-                <div ref={openComp ? tierRef : undefined} className="flex scroll-mt-16 items-stretch gap-4 lg:scroll-mt-12">
+                <div ref={openComp ? tierRef : undefined} className="flex scroll-mt-16 flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-4 lg:scroll-mt-12">
                   {/* Tier rows read as "S Tier / A Tier / ..." in both locales. */}
-                  <TierChip tier={tier} label={`${tier} Tier`} />
+                  <TierChip tier={tier} label={`${tier} Tier`} stacked />
                   <div className="relative flex-1 rounded-xl border p-3" style={{ borderColor: tierColor[tier] }}>
                     {tier === 'X' ? (
                       <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-line bg-panel px-4 py-0.5 text-xs font-semibold uppercase tracking-wide text-tier-x">
@@ -364,8 +364,10 @@ function CompCluster({ comp, active, lang, showNames }: { comp: ApiComp | CompSu
         title={comp.title}
         className={`smooth block rounded-lg p-1.5 ${active ? 'bg-util ring-1 ring-brand' : 'hover:bg-util'}`}
       >
-        <span className="relative block">
-          <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={64} />
+        {/* Smaller on phones so a tier still fits four carries per row under
+            the now-larger tier bar; 64px from sm up. */}
+        <span className="relative block w-12 sm:w-16" style={{ aspectRatio: '1 / 1.1547' }}>
+          <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} fill />
           {trend ? (
             // Solid corner triangle like the reference tier lists: green
             // points up, red points down, no badge background.
