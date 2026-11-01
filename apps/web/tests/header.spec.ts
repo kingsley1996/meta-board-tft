@@ -20,6 +20,26 @@ test('desktop header keeps the menu sticky and hides the search row on scroll do
   await expect.poll(async () => (await menu.boundingBox())?.y ?? 0).toBeGreaterThan(0);
 });
 
+test('the tierlist keeps the search row pinned with the menu row', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/en/tierlist/comps');
+
+  const search = page.getByRole('combobox', { name: /Search champions/ });
+  const header = page.locator('[data-section="nav"]');
+  const menu = page.locator('[data-section="menu"]');
+
+  await page.mouse.wheel(0, 1500);
+  await expect.poll(async () => (await header.boundingBox())?.y ?? -1).toBe(0);
+  await expect.poll(async () => (await menu.boundingBox())?.y ?? 0).toBe(64);
+  await expect(search).toBeVisible();
+
+  // Deep in the list, after the direction that would hide it anywhere else.
+  await page.mouse.wheel(0, 4000);
+  await expect.poll(async () => (await header.boundingBox())?.y ?? -1).toBe(0);
+  await expect.poll(async () => (await menu.boundingBox())?.y ?? 0).toBe(64);
+  await expect(search).toBeVisible();
+});
+
 test('mobile header stays a single row without the menu row', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/vi');

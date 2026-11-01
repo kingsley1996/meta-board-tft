@@ -301,3 +301,119 @@ body {
   background: currentColor;
   animation: chat-typing 1.1s ease-in-out infinite;
 }
+
+/* The tier rail that opens every board row: a colour band carrying the label
+   beside the glyph. The component passes one custom property, --tc, and the
+   border and band are mixed from it in CSS — tier colours are var tokens, so
+   any hex maths in JS silently produces invalid values.
+   Below sm the chip rotates 90deg and becomes a full-width bar above its list:
+   the band lies across the top carrying the label, the glyph sits under it, so
+   the reading order stays the same as the desktop chip. */
+.tier-chip {
+  --tier-edge: color-mix(in srgb, var(--tc) 25%, transparent);
+  --tier-band: linear-gradient(180deg, color-mix(in srgb, var(--tc) 88%, white), var(--tc));
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex: 0 0 auto;
+  width: 96px;
+  min-height: 112px;
+  border-radius: 10px;
+  border: 1px solid var(--tier-edge);
+  background: var(--color-panel);
+  color: var(--color-fog);
+  font-family: var(--font-display);
+}
+
+.tier-chip-band {
+  flex: 0 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  background: var(--tier-band);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.3);
+  color: var(--color-on-brand);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.tier-chip-letter {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tc);
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 0.76;
+  -webkit-text-stroke: 0.05em currentColor;
+}
+
+.tier-chip-spark {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  width: 9px;
+  height: 9px;
+  color: var(--tc);
+  opacity: 0.6;
+}
+
+/* The maker's rows are 72px drop zones, not 112px comp lists, so its rail
+   stretches to whatever the row is and carries a smaller glyph. */
+.tier-chip-sm {
+  width: 64px;
+  min-height: 0;
+}
+
+.tier-chip-sm .tier-chip-band {
+  flex: 0 0 22px;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+
+.tier-chip-sm .tier-chip-letter {
+  font-size: 30px;
+}
+
+@media (max-width: 639.98px) {
+  .tier-chip {
+    width: 100%;
+    min-height: 58px;
+    flex-direction: column;
+  }
+
+  .tier-chip-band {
+    flex: 0 0 20px;
+    writing-mode: horizontal-tb;
+    transform: none;
+    justify-content: flex-start;
+    padding: 0 12px;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.22);
+  }
+
+  .tier-chip-letter {
+    justify-content: flex-start;
+    padding: 0 12px;
+    font-size: 30px;
+    line-height: 1;
+  }
+
+  .tier-chip-spark {
+    right: 12px;
+    top: 34px;
+    opacity: 0.85;
+  }
+
+  .tier-chip-sm .tier-chip-letter {
+    font-size: 30px;
+  }
+}

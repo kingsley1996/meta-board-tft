@@ -1,22 +1,44 @@
 import tft from '@tftiq/shared/data/tft.json';
 import type { Lang } from './i18n';
 
-// Trait tier styles from CommunityDragon: 1 bronze, 3 silver, 4 unique, 5 gold, 6 prismatic.
-export const traitStyleColors: Record<number, string> = { 1: '#c9a27a', 3: '#c8d2e0', 4: '#d0bfff', 5: '#ffd43b', 6: '#7ee0ff' };
+// Trait tier palette, values copied from TFTAcademy's stylesheet (`.bronze`,
+// `.silver`, `.gold`, `.prismatic`, `.special`). Their style enum is the same
+// CommunityDragon numbering we get from the LCU: 1 bronze, 3 silver, 4 legendary
+// (their `special`), 5 gold, 6 prismatic.
+// `fill` is a CSS background value — prismatic is a gradient, not a colour — so
+// anything that needs a *text* colour on our dark panels takes `ink` instead.
+export type TraitStyle = { fill: string; edge: string; ink: string };
 
-// The LCU trait tooltips name the style instead of numbering it.
-export const traitStyleColorByName: Record<string, string> = {
-  bronze: '#c9a27a',
-  silver: '#c8d2e0',
-  gold: '#ffd43b',
-  prismatic: '#7ee0ff',
-  unique: '#d0bfff',
+const BRONZE: TraitStyle = { fill: '#d7977b', edge: '#6f4939', ink: '#d7977b' };
+const SILVER: TraitStyle = { fill: '#cccaca', edge: '#858585', ink: '#cccaca' };
+const LEGENDARY: TraitStyle = { fill: '#ff9900', edge: '#a36200', ink: '#ff9900' };
+const GOLD: TraitStyle = { fill: '#e5a109', edge: '#a27207', ink: '#e5a109' };
+const PRISMATIC: TraitStyle = {
+  fill: 'conic-gradient(from 180deg,#b5f9b1 -25.61deg,#aea7f8 .63deg,#b9e8bc 27.2deg,#f6fed8 56.21deg,#c7fbf7 83.01deg,#9af0fe 109.35deg,#f5ecff 129.56deg,#f899f8 154.85deg,#b6fce3 181.24deg,#7e93f2 210.86deg,#e1a4fd 244.3deg,#afe6f0 264.6deg,#f3f1c7 287.41deg,#e99f7e 306.52deg,#b5f9b1 334.39deg,#aea7f8 360.63deg) 0 0/100% 100%',
+  edge: '#ffffff',
+  // No gradient can be a font colour, so the cyan stop stands in for it.
+  ink: '#9af0fe',
 };
 
+const traitStyleByNumber: Record<number, TraitStyle> = { 1: BRONZE, 3: SILVER, 4: LEGENDARY, 5: GOLD, 6: PRISMATIC };
+
+// The LCU trait tooltips name the style instead of numbering it.
+const traitStyleByName: Record<string, number> = { bronze: 1, silver: 3, unique: 4, legendary: 4, gold: 5, prismatic: 6 };
+
+export const traitStyleForNumber = (style: number | null | undefined): TraitStyle => (style == null ? SILVER : (traitStyleByNumber[style] ?? SILVER));
+
+/** Null when the breakpoint has no style yet — the tier has not been reached. */
+export const traitStyleForName = (name: string | null | undefined): TraitStyle | null => {
+  if (!name) return null;
+  const style = traitStyleByName[name];
+  return style == null ? null : (traitStyleByNumber[style] ?? null);
+};
+
+// Augments reuse the same three tiers, so they read from the same table.
 export const augmentRarity: Record<number, { label: { en: string; vi: string }; color: string }> = {
-  1: { label: { en: 'Silver', vi: 'Bạc' }, color: '#c8d2e0' },
-  2: { label: { en: 'Gold', vi: 'Vàng' }, color: '#ffd43b' },
-  3: { label: { en: 'Prismatic', vi: 'Lăng Kính' }, color: '#7ee0ff' },
+  1: { label: { en: 'Silver', vi: 'Bạc' }, color: SILVER.ink },
+  2: { label: { en: 'Gold', vi: 'Vàng' }, color: GOLD.ink },
+  3: { label: { en: 'Prismatic', vi: 'Lăng Kính' }, color: PRISMATIC.ink },
 };
 
 // Keyword definitions for ability text ("Wound: Reduces healing received.").

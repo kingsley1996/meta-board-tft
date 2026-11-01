@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
-import { augmentRarity, getTip, iconFor, itemName, keywordsFor, traitStyleColorByName, traitStyleColors, type TipData } from '@/lib/tips';
+import { augmentRarity, getTip, iconFor, itemName, keywordsFor, traitStyleForName, traitStyleForNumber, type TipData } from '@/lib/tips';
 import { CostDots } from './ui';
 
 // Optional comp context attached by the wrapper element via data-tip-traits /
@@ -114,29 +114,35 @@ function TraitCard({ tip }: { tip: Extract<TipData, { kind: 'trait' }> }) {
       </div>
       {tip.breakpoints.length ? (
         <div className="mt-2 flex flex-col gap-1.5">
-          {tip.breakpoints.map((breakpoint) => (
-            <div key={breakpoint.minUnits} className="flex items-start gap-2">
-              <span
-                className="mt-px flex h-5 min-w-5 shrink-0 items-center justify-center rounded px-1 text-[11px] font-bold text-black/75"
-                style={{ background: traitStyleColorByName[breakpoint.style ?? ''] ?? traitStyleColors[3] }}
-              >
-                {breakpoint.minUnits}
-              </span>
-              {breakpoint.text ? <p className="text-xs leading-snug text-mist">{breakpoint.text.replace(/^\(\d+\)\s*/, '')}</p> : null}
-            </div>
-          ))}
+          {tip.breakpoints.map((breakpoint) => {
+            const style = traitStyleForName(breakpoint.style) ?? traitStyleForNumber(3);
+            return (
+              <div key={breakpoint.minUnits} className="flex items-start gap-2">
+                <span
+                  className="mt-px flex h-5 min-w-5 shrink-0 items-center justify-center rounded px-1 text-[11px] font-bold text-black"
+                  style={{ background: style.fill, boxShadow: `inset 0 0 0 1px ${style.edge}` }}
+                >
+                  {breakpoint.minUnits}
+                </span>
+                {breakpoint.text ? <p className="text-xs leading-snug text-mist">{breakpoint.text.replace(/^\(\d+\)\s*/, '')}</p> : null}
+              </div>
+            );
+          })}
         </div>
       ) : tip.thresholds.length ? (
         <div className="mt-2 flex gap-1.5">
-          {tip.thresholds.map((threshold, index) => (
-            <span
-              key={threshold}
-              className="flex h-6 min-w-6 items-center justify-center rounded-md px-1.5 text-xs font-bold text-black/75"
-              style={{ background: traitStyleColors[tip.styles[index]] ?? traitStyleColors[3] }}
-            >
-              {threshold}
-            </span>
-          ))}
+          {tip.thresholds.map((threshold, index) => {
+            const style = traitStyleForNumber(tip.styles[index]);
+            return (
+              <span
+                key={threshold}
+                className="flex h-6 min-w-6 items-center justify-center rounded-md px-1.5 text-xs font-bold text-black"
+                style={{ background: style.fill, boxShadow: `inset 0 0 0 1px ${style.edge}` }}
+              >
+                {threshold}
+              </span>
+            );
+          })}
         </div>
       ) : null}
       {tip.desc ? <p className="mt-2 text-xs leading-relaxed text-mist">{tip.desc}</p> : null}

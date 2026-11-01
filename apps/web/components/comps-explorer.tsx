@@ -55,14 +55,14 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState('');
   const [style, setStyle] = useState('All');
-  // Tier rows default to avatar-only; the names view is opt-in and sticky
-  // across sessions.
-  const [showNames, setShowNames] = useState(false);
+  // Comp names are the default view; the avatar-only board is opt-out and
+  // sticky across sessions.
+  const [showNames, setShowNames] = useState(true);
   const router = useRouter();
   const tierRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (localStorage.getItem('comps-show-names') === '1') setShowNames(true);
+    setShowNames(localStorage.getItem('comps-show-names') !== '0');
   }, []);
 
   useEffect(() => {
@@ -90,9 +90,8 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   // silently suppressed in some page states (observed in WebKit: the call
   // no-ops without firing a single scroll event) while instant scrolls
   // always land — so the ease-out curve is driven by rAF instead. The
-  // target accounts for the sticky stack's FINAL state (the top header
-  // hides scrolling down past 80px and reappears going up — nav.tsx),
-  // landing the tier row right under the bars on the first try. Settle
+  // target lands the tier row right under the sticky stack, whose height is
+  // measured live (nav.tsx keeps both bars pinned on these routes). Settle
   // checks clean up late layout shifts; everything cancels as soon as
   // the user scrolls on their own.
   useScrollEffect(() => {
@@ -177,37 +176,22 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
     const glide = () => {
       const row = tierRef.current;
       if (!row || userTookOver) return;
-      // A pending glide cut short by an effect re-run must always be
-      // finished. Otherwise, seated in either valid slot → stay put:
-      // this is the same-tier pick while the tier sits at the top. Both
-      // slots are legitimate (the header hides or shows depending on the
-      // last scroll direction), and checking them by position avoids the
-      // 1px coin flip in the goingDown prediction that used to send the
-      // page on a 64px round trip. Anything not seated — near-top drift,
-      // deep in the panel, another tier — glides to the exact slot.
+      // A pending glide cut short by an effect re-run (e.g. StrictMode's double
+      // fetch replacing `data`) must always be finished. Otherwise, a row that
+      // already sits in the one slot under the bars stays put: the tierlist
+      // keeps both bars pinned (nav.tsx), so there is a single correct landing
+      // and anything else — near-top drift, deep in the panel, another tier —
+      // glides to it.
       const nav = document.querySelector<HTMLElement>('[data-section="nav"]');
       const menu = document.querySelector<HTMLElement>('[data-section="menu"]');
-      const navH = nav?.getBoundingClientRect().height ?? 0;
-      const menuH = menu?.getBoundingClientRect().height ?? 0;
-      const desktop = window.matchMedia('(min-width: 1024px)').matches;
+      // The menu is display:none below lg, so its rect adds 0 there and the
+      // header alone is the stack.
+      const stack = (nav?.getBoundingClientRect().height ?? 0) + (menu?.getBoundingClientRect().height ?? 0);
       const from = window.scrollY;
       const rowDocTop = from + row.getBoundingClientRect().top;
-      const seated = !desktop
-        ? Math.abs(from - (rowDocTop - navH)) <= 6
-        : Math.abs(from - (rowDocTop - menuH)) <= 6 || Math.abs(from - (rowDocTop - navH - menuH)) <= 6;
-      if (!glidePending && seated) {
+      if (!glidePending && Math.abs(from - (rowDocTop - stack)) <= 6) {
         glidePending = false;
         return;
-      }
-      let stack: number;
-      if (!desktop) {
-        stack = navH;
-      } else {
-        // Going down past 80px ends with the header hidden (menu only);
-        // going up — or landing near the top — ends with it visible.
-        const goingDown = rowDocTop - menuH > from;
-        const finalY = Math.max(0, rowDocTop - (goingDown ? menuH : navH + menuH));
-        stack = finalY >= 80 && goingDown ? menuH : navH + menuH;
       }
       const target = Math.max(0, Math.round(rowDocTop - stack));
       if (Math.abs(from - target) <= 4) {
@@ -332,7 +316,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
               <div key={tier} className="flex flex-col gap-4">
                 <div ref={openComp ? tierRef : undefined} className="flex scroll-mt-16 flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-4 lg:scroll-mt-12">
                   {/* Tier rows read as "S Tier / A Tier / ..." in both locales. */}
-                  <TierChip tier={tier} label={`${tier} Tier`} stacked />
+                  <TierChip tier={tier} label={`${tier} Tier`} />
                   <div className="relative flex-1 rounded-xl border p-3" style={{ borderColor: tierColor[tier] }}>
                     {tier === 'X' ? (
                       <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-line bg-panel px-4 py-0.5 text-xs font-semibold uppercase tracking-wide text-tier-x">
@@ -467,6 +451,37 @@ function DetailToolbar({
   );
 }
 
+// Trend marker: a mini hexagon carrying two solid triangles, sized off the
+// reference board — a 42x48 chip holds 16x11 triangles 3px apart, stacked a
+// hair above centre, black at 0.92 for the leading one and 0.66 for the other.
+// The corners are rounded by a same-colour stroke, and the alpha rides on the
+// group instead of the paint so the overlap does not double-darken. The chip
+// keeps a faint dark edge because it lands on champion art.
+function TrendHex({ up, className = '' }: { up: boolean; className?: string }) {
+  const shell = '6,0 12,3.464 12,10.392 6,13.856 0,10.392 0,3.464';
+  // Measured outer box, pulled in by half the 0.9 stroke it is drawn with.
+  const tri = (apex: number, base: number) => `6,${apex} 7.84,${base} 4.16,${base}`;
+  const near = up ? tri(3.34, 5.61) : tri(9.66, 7.38);
+  const far = up ? tri(7.38, 9.66) : tri(5.61, 3.34);
+  const ink = (points: string, opacity: number) => (
+    <g opacity={opacity}>
+      <polygon points={points} fill="#000" stroke="#000" strokeWidth="0.9" strokeLinejoin="round" />
+    </g>
+  );
+  return (
+    <svg viewBox="0 0 12 13.856" aria-hidden className={`h-auto ${className}`}>
+      <polygon
+        points={shell}
+        fill={up ? 'var(--color-tier-c)' : 'var(--color-tier-s)'}
+        stroke="rgba(6,9,14,0.35)"
+        strokeWidth="0.5"
+      />
+      {ink(far, 0.66)}
+      {ink(near, 0.92)}
+    </svg>
+  );
+}
+
 function CompCluster({
   comp,
   active,
@@ -482,25 +497,14 @@ function CompCluster({
 }) {
   const t = messages[lang].explorer;
   const trend = comp.trend === 'up'
-    ? { glyph: '\u25B2', label: t.trendingUp, color: 'text-tier-c', tri: 'border-x-[7px] border-b-[10px] border-x-transparent border-b-tier-c' }
+    ? { up: true, label: t.trendingUp }
     : comp.trend === 'down'
-      ? { glyph: '\u25BC', label: t.trendingDown, color: 'text-tier-s', tri: 'border-x-[7px] border-t-[10px] border-x-transparent border-t-tier-s' }
+      ? { up: false, label: t.trendingDown }
       : null;
   const group = siblings ? ` — ${t.groupCount(siblings)}` : '';
   const aria = `${comp.title} (${comp.style})${trend ? ` — ${trend.label}` : ''}${group}`;
-  // The group marker sits where a variant strip would open: the avatar's free
-  // top-right corner, opposite the trend triangle and clear of the cover hex.
-  const more = siblings ? (
-    <span
-      data-variants={siblings}
-      className="absolute -right-1 -top-1 z-20 grid h-4 min-w-4 place-items-center rounded-full border border-line bg-panel px-1 text-[10px] font-bold leading-none text-fog"
-      aria-hidden
-    >
-      +{siblings}
-    </span>
-  ) : null;
   // Avatar-only mode: just the carry hex with the trend pinned to its
-  // top-left corner; the full row (name + style + units) stays opt-in.
+  // top-left corner; the full row (name + style + units) is the default.
   if (!showNames) {
     return (
       <Link
@@ -514,17 +518,17 @@ function CompCluster({
             the now-larger tier bar; 64px from sm up. */}
         <span className="relative block w-12 sm:w-16" style={{ aspectRatio: '1 / 1.1547' }}>
           <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} fill />
-          {more}
           {comp.cover ? (
             <span className="absolute inset-x-0 -bottom-1 z-20 mx-auto w-fit">
               <CoverBadge cover={comp.cover} size={20} />
             </span>
           ) : null}
           {trend ? (
-            // Solid corner triangle like the reference tier lists: green
-            // points up, red points down, no badge background.
-            <span title={trend.label} className={`absolute -left-1 -top-1.5 z-20 h-0 w-0 ${trend.tri}`}>
+            // Straddles the hexagon's upper-left slant, the way the reference
+            // boards place it; the cover badge keeps the bottom point.
+            <span title={trend.label} className="absolute -left-1 -top-1 z-20">
               <span className="sr-only">{trend.label}</span>
+              <TrendHex up={trend.up} className="w-[18px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)] sm:w-6" />
             </span>
           ) : null}
         </span>
@@ -540,7 +544,12 @@ function CompCluster({
     >
       <span className="relative shrink-0">
         <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={52} />
-        {more}
+        {trend ? (
+          <span title={trend.label} className="absolute -left-1.5 -top-1.5 z-20">
+            <span className="sr-only">{trend.label}</span>
+            <TrendHex up={trend.up} className="w-5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]" />
+          </span>
+        ) : null}
         {comp.cover ? (
           <span className="absolute inset-x-0 -bottom-1 z-20 mx-auto w-fit">
             <CoverBadge cover={comp.cover} size={20} />
@@ -553,12 +562,6 @@ function CompCluster({
           {comp.style} · {t.units(isFullComp(comp) ? comp.units.length : comp.unitCount)}
         </span>
       </span>
-      {trend ? (
-        <span title={trend.label} className={`ml-1 text-sm font-bold ${trend.color}`}>
-          {trend.glyph}
-          <span className="sr-only">{trend.label}</span>
-        </span>
-      ) : null}
     </Link>
   );
 }

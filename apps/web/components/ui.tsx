@@ -1,10 +1,28 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { Tier } from '@/lib/tiers';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { itemSlugByName } from '@/lib/data';
 import { itemName } from '@/lib/tips';
+import championFocus from '@/lib/champion-focus.json';
+
+// Portrait art is square and the hexagon is 2/sqrt(3) taller than wide, so
+// object-cover already fills the height exactly and only has width to spare.
+const COVER_X = 1.1547;
+// object-position 0% and 100% are the two ends of that spare width, so they
+// reveal source x 0.5/COVER_X and (COVER_X-0.5)/COVER_X around the centre.
+const FOCUS_MIN = 0.5 / COVER_X;
+const FOCUS_MAX = 1 - FOCUS_MIN;
+
+// Where each champion's face sits, measured off the art. Only the horizontal
+// axis can be honoured: cover leaves no vertical slack, so nudging the crop up
+// or down slides the art out of the hexagon and shows the panel behind it.
+function focusPosition(icon: string) {
+  const [fx = 0.5] = (championFocus as Record<string, number[]>)[icon.split('/').pop() ?? ''] ?? [];
+  const p = ((fx - FOCUS_MIN) / (FOCUS_MAX - FOCUS_MIN)) * 100;
+  return `${Math.round(Math.min(100, Math.max(0, p)))}% 50%`;
+}
 
 // Detail-page link for a catalog item; undefined when unknown or no lang context.
 export function itemHref(name: string, lang?: Lang): string | undefined {
@@ -21,7 +39,17 @@ export const tierColor: Record<Tier, string> = {
   X: 'var(--color-tier-x)',
 };
 
-const costBg: Record<number, string> = { 1: 'bg-cost-1', 2: 'bg-cost-2', 3: 'bg-cost-3', 4: 'bg-cost-4', 5: 'bg-cost-5' };
+// A champion's colour is its cost, and it is data, not decoration: the hex rim,
+// the cost dots and the ring around every item that champion carries.
+export const costColor: Record<number, string> = {
+  1: 'var(--color-cost-1)',
+  2: 'var(--color-cost-2)',
+  3: 'var(--color-cost-3)',
+  4: 'var(--color-cost-4)',
+  5: 'var(--color-cost-5)',
+};
+
+export const costOf = (cost: number) => costColor[cost] ?? costColor[1];
 
 export function TierTabs({ current, lang }: { current: 'comps' | 'items' | 'augments'; lang: Lang }) {
   const t = messages[lang].tierTabs;
@@ -70,7 +98,7 @@ export function CostDots({ cost }: { cost: number }) {
   return (
     <span className="flex items-center gap-0.5">
       {Array.from({ length: cost }, (_, i) => (
-        <span key={i} className={`h-1.5 w-1.5 rounded-full ${costBg[cost]}`} />
+        <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: costOf(cost) }} />
       ))}
     </span>
   );
@@ -79,12 +107,20 @@ export function CostDots({ cost }: { cost: number }) {
 export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = false, frame, className = '' }: { name: string; cost: number; size?: number; stars?: number; icon?: string | null; fill?: boolean; frame?: string; className?: string }) {
   // Regular pointy-top hexagons are taller than wide: height = width * 2/√3.
   const height = fill ? undefined : Math.round(size * 1.1547);
+  const focus = icon ? focusPosition(icon) : undefined;
   return (
     <div data-tip={`champion:${name}`} className={`group/hex relative shrink-0 ${fill ? 'h-full w-full' : ''} ${className}`} style={fill ? undefined : { width: size, height }}>
-      <div className={`hex smooth relative h-full w-full ${frame ? '' : costBg[cost] ?? 'bg-cost-1'} group-hover/hex:scale-110`} style={frame ? { background: frame } : undefined}>
-        <div className="hex absolute inset-0 flex scale-[0.91] items-center justify-center overflow-hidden bg-[linear-gradient(180deg,var(--color-line)_0%,var(--color-panel)_100%)] font-display text-xs font-bold text-fog">
+      <div className="hex smooth relative h-full w-full group-hover/hex:scale-110" style={{ background: frame ?? costOf(cost) }}>
+        <div className="hex absolute inset-0 flex scale-[0.87] items-center justify-center overflow-hidden bg-[linear-gradient(180deg,var(--color-line)_0%,var(--color-panel)_100%)] font-display text-xs font-bold text-fog">
           {icon ? (
-            <img src={icon} alt="" draggable={false} loading="lazy" className="h-full w-full object-cover" />
+            <img
+              src={icon}
+              alt=""
+              draggable={false}
+              loading="lazy"
+              className="h-full w-full object-cover"
+              style={focus ? { objectPosition: focus } : undefined}
+            />
           ) : (
             name.slice(0, 2).toUpperCase()
           )}
@@ -185,7 +221,7 @@ export function MiniItem({ icon, name, tier, size = 20, dashed = false }: { icon
 // Small pointy-top hex used for items sitting under a unit on the board.
 // `fill` sizes it from its flex parent instead of a fixed pixel size, so the
 // same row shrinks with the hex board on a phone.
-export function ItemHex({ name, icon, tier, size = 16, tip, fill = false }: { name: string; icon?: string | null; tier?: Tier | null; size?: number; tip?: string; fill?: boolean }) {
+export function ItemHex({ name, icon, tier, frame, size = 16, tip, fill = false }: { name: string; icon?: string | null; tier?: Tier | null; frame?: string; size?: number; tip?: string; fill?: boolean }) {
   return (
     <span
       data-tip={tip}
@@ -193,7 +229,7 @@ export function ItemHex({ name, icon, tier, size = 16, tip, fill = false }: { na
       className={fill ? 'relative block min-w-0 flex-1' : 'relative block shrink-0'}
       style={fill ? { aspectRatio: '1 / 1.1547' } : { width: size, height: Math.round(size * 1.1547) }}
     >
-      <span className="hex absolute inset-0" style={{ background: tier ? tierColor[tier] : 'var(--color-line)' }} />
+      <span className="hex absolute inset-0" style={{ background: frame ?? (tier ? tierColor[tier] : 'var(--color-line)') }} />
       <span className="hex absolute overflow-hidden bg-panel" style={{ inset: fill ? '12%' : Math.max(1, Math.round(size * 0.12)) }}>
         {icon ? <img src={icon} alt="" draggable={false} loading="lazy" className="h-full w-full object-cover" /> : null}
       </span>
@@ -219,21 +255,18 @@ export function CoverBadge({ cover, size }: { cover: { kind: 'item' | 'augment';
   );
 }
 
-export function TierChip({ tier, label, stacked = false }: { tier: Tier; label: string; stacked?: boolean }) {
-  // min-h (not fixed h) so the chip stretches to the full height of its
-  // tier row when the comp/item list beside it wraps to several lines.
-  // stacked: below sm the chip is its own full-width row above the list.
+export function TierChip({ tier, label, compact = false }: { tier: Tier; label: string; compact?: boolean }) {
+  // Layout lives in globals.css (.tier-chip): a colour band with the label
+  // beside the glyph on desktop, a full-width bar with the band on top below sm.
   return (
-    <div
-      className={`flex shrink-0 rounded-lg border-2 bg-panel ${
-        stacked
-          ? 'w-full flex-row items-center justify-center gap-3 px-3 py-2.5 sm:min-h-28 sm:w-24 sm:flex-col sm:items-center sm:gap-0 sm:justify-center sm:px-0 sm:py-0'
-          : 'min-h-28 w-24 flex-col items-center justify-center'
-      }`}
-      style={{ borderColor: tierColor[tier] }}
-    >
-      <span className={`font-display font-bold ${stacked ? 'text-4xl sm:text-5xl' : 'text-5xl'}`} style={{ color: tierColor[tier] }}>{tier}</span>
-      <span className={`font-semibold uppercase tracking-wide text-mist ${stacked ? 'text-xs sm:text-[10px]' : 'text-[10px]'}`}>{label}</span>
+    <div className={`tier-chip${compact ? ' tier-chip-sm' : ''}`} style={{ '--tc': tierColor[tier] } as CSSProperties}>
+      <span className="tier-chip-band">{label}</span>
+      <span className="tier-chip-letter">{tier}</span>
+      <span className="tier-chip-spark" aria-hidden="true">
+        <svg width="100%" height="100%" viewBox="0 0 24 24">
+          <path d="M12 0c1.1 6.4 4.5 9.8 12 12-7.5 2.2-10.9 5.6-12 12-1.1-6.4-4.5-9.8-12-12C7.5 9.8 10.9 6.4 12 0z" fill="currentColor" />
+        </svg>
+      </span>
     </div>
   );
 }

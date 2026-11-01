@@ -6,7 +6,7 @@ import { PatchBar } from '@/components/patch-bar';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import tft from '@tftiq/shared/data/tft.json';
-import { championNameToSlug, getTip, traitName, traitStyleColorByName, unitName, unitTraitNames } from '@/lib/tips';
+import { championNameToSlug, getTip, traitName, traitStyleForName, unitName, unitTraitNames } from '@/lib/tips';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang; slug: string }> }): Promise<Metadata> {
   const { lang, slug } = await params;
@@ -44,7 +44,7 @@ export default async function TraitPage({ params }: { params: Promise<{ lang: La
           <ul className="flex flex-col gap-2">
             {tip.breakpoints.map((breakpoint) => (
               <li key={breakpoint.minUnits} className="flex gap-3 text-sm leading-relaxed">
-                <span className="w-8 shrink-0 font-display font-bold" style={{ color: traitStyleColorByName[breakpoint.style ?? ''] ?? 'var(--color-mist)' }}>{breakpoint.minUnits}</span>
+                <span className="w-8 shrink-0 font-display font-bold" style={{ color: traitStyleForName(breakpoint.style)?.ink ?? 'var(--color-mist)' }}>{breakpoint.minUnits}</span>
                 <span className="text-mist">{breakpoint.text}</span>
               </li>
             ))}

@@ -490,9 +490,10 @@ const en = {
     small: 'Item',
     big: 'Rankings',
     sub: 'What to slam and what to scrap. Hover any item for the one-line verdict.',
+    showNames: 'Item names',
     groups: { completed: 'Completed items', artifact: 'Ornn artifacts', radiant: 'Radiant items' },
   },
-  augments: { small: 'Augment', big: 'Rankings', sub: 'Tiered by board fit. The S-tier pick on paper is not always the S-tier pick for your board.' },
+  augments: { small: 'Augment', big: 'Rankings', sub: 'Tiered by board fit. The S-tier pick on paper is not always the S-tier pick for your board.', showNames: 'Augment names' },
   guides: {
     all: 'All',
     readTheGuide: 'Read the guide',
@@ -1444,9 +1445,10 @@ const vi: typeof en = {
     small: 'Trang bị',
     big: 'Xếp hạng',
     sub: 'Nên ghép gì, bỏ gì. Di chuột lên từng trang bị để xem đánh giá nhanh.',
+    showNames: 'Tên trang bị',
     groups: { completed: 'Trang bị hoàn chỉnh', artifact: 'Trang bị cường hóa (Ornn)', radiant: 'Trang bị ánh sáng' },
   },
-  augments: { small: 'Nâng cấp', big: 'Xếp hạng', sub: 'Xếp hạng theo độ hợp đội hình. Lựa chọn S trên lý thuyết chưa chắc là S cho đội của bạn.' },
+  augments: { small: 'Nâng cấp', big: 'Xếp hạng', sub: 'Xếp hạng theo độ hợp đội hình. Lựa chọn S trên lý thuyết chưa chắc là S cho đội của bạn.', showNames: 'Tên nâng cấp' },
   guides: {
     all: 'Tất cả',
     readTheGuide: 'Đọc bài',

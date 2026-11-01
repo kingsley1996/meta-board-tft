@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UnitHex, tierColor } from '@/components/ui';
+import { TierChip, UnitHex } from '@/components/ui';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { tierRank, type Tier } from '@/lib/tiers';
@@ -81,10 +81,8 @@ export function TierMaker({ lang, champions, initial }: { lang: Lang; champions:
 
       <div data-section="maker-tiers" className="flex flex-col gap-3">
         {tierRank.map((tier) => (
-          <div key={tier} className="flex items-stretch gap-3">
-            <div className="flex w-16 shrink-0 flex-col items-center justify-center rounded-lg border-2 bg-panel" style={{ borderColor: tierColor[tier] }}>
-              <span className="font-display text-3xl font-bold" style={{ color: tierColor[tier] }}>{tier}</span>
-            </div>
+          <div key={tier} className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-3">
+            <TierChip tier={tier} label={`${tier} Tier`} compact />
             <div
               onDragOver={(event) => event.preventDefault()}
               onDrop={(event) => {

@@ -6,10 +6,10 @@ import { economyForComp, economyStrategyByName } from '@/lib/economy';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { translateText } from '@/lib/translate';
-import { championNameToSlug, traitStyleColors } from '@/lib/tips';
+import { championNameToSlug, traitStyleForNumber } from '@/lib/tips';
 import { HexBoard } from './hex-board';
 import { VoteButton } from './vote-button';
-import { AugmentTile, Chip, CostDots, CoverBadge, ItemHex, itemHref, ItemTile, Panel, tierColor, UnitHex } from './ui';
+import { AugmentTile, Chip, CostDots, costOf, CoverBadge, ItemHex, itemHref, ItemTile, Panel, tierColor, UnitHex } from './ui';
 
 // Fallback hexes (row-major index) for comps saved before the board editor existed.
 const fallbackCells = [3, 9, 10, 17, 23, 24, 30];
@@ -32,18 +32,23 @@ function altTipContext(comp: ApiComp, unit: ApiUnit) {
   return { ...context, items: unit.items.length ? unit.items.map((item) => item.name).join('|') : context.items };
 }
 
-function UnitTile({ unit, size = 54, fill = false, context }: { unit: ApiUnit; size?: number; fill?: boolean; context?: { traits: string; items: string } }) {
+// A unit tile is the hexagon plus the items carried on it. It fills its parent
+// box, which every caller sizes with --hex-w; the item row is a share of that
+// box, so a 48px alt and a 62px strip carry read as the same object. The plates
+// wear the carrier's cost colour rather than the item's tier, so a row of items
+// reads as belonging to the champion above it.
+function UnitTile({ unit, context }: { unit: ApiUnit; context?: { traits: string; items: string } }) {
   return (
     <div
       data-tip-traits={context?.traits || undefined}
       data-tip-items={context?.items || undefined}
-      className={fill ? 'absolute inset-[2px]' : 'relative shrink-0'}
+      className="absolute inset-[2px]"
     >
-      <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} size={size} fill={fill} stars={unit.stars ?? undefined} />
+      <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} fill stars={unit.stars ?? undefined} />
       {unit.items.length ? (
-        <span className={`absolute -bottom-0.5 left-1/2 z-20 flex -translate-x-1/2 ${fill ? 'w-[86%] gap-[4%]' : 'gap-[2px]'}`}>
+        <span className="absolute -bottom-[7%] left-1/2 z-20 flex w-[112%] -translate-x-1/2 gap-[2.5%]">
           {unit.items.slice(0, 3).map((item, index) => (
-            <ItemHex key={`${item.name}-${index}`} name={item.name} icon={item.icon} tier={itemTierByName[item.name]} tip={`item:${item.name}`} size={16} fill={fill} />
+            <ItemHex key={`${item.name}-${index}`} name={item.name} icon={item.icon} frame={costOf(unit.cost)} tip={`item:${item.name}`} fill />
           ))}
         </span>
       ) : null}
@@ -68,7 +73,7 @@ function PositioningBoard({ comp }: { comp: ApiComp }) {
     <HexBoard
       renderCell={(row, col) => {
         const unit = cells.get(`${row}:${col}`);
-        return unit ? <UnitTile unit={unit} fill context={unitTipContext(comp, unit)} /> : null;
+        return unit ? <UnitTile unit={unit} context={unitTipContext(comp, unit)} /> : null;
       }}
     />
   );
@@ -79,17 +84,17 @@ function PositioningBoard({ comp }: { comp: ApiComp }) {
 function TraitChip({ trait }: { trait: ApiComp['traits'][number] }) {
   const level = trait.thresholds.reduce((best, threshold, index) => (trait.count >= threshold ? index : best), -1);
   if (level < 0) return null;
-  const color = traitStyleColors[trait.styles[level]] ?? traitStyleColors[3];
+  const style = traitStyleForNumber(trait.styles[level]);
   return (
     <span
       data-tip={`trait:${trait.name}`}
       className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5"
-      style={{ background: color }}
+      style={{ background: style.fill, boxShadow: `inset 0 0 0 1px ${style.edge}` }}
     >
       {trait.icon ? (
         <img src={trait.icon} alt="" draggable={false} loading="lazy" className="h-5 w-5 object-contain brightness-0 opacity-75" />
       ) : null}
-      <span className="text-sm font-bold text-black/75">{trait.count}</span>
+      <span className="text-sm font-bold text-black">{trait.count}</span>
     </span>
   );
 }
@@ -251,11 +256,14 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
         {toolbar}
         {/* The row of carries is its own label, so this panel drops the heading
             and its vertical padding: it reads as the team strip, not a section. */}
-        <Panel className="px-4 py-2.5">
-          <div className="flex flex-wrap items-center justify-center gap-3">
+        {/* One --hex-w per breakpoint drives the whole tile — hexagon, star
+            plate and item row all read it. 62.25px is the ceiling: past it the
+            strip stops reading as a row of carries and turns into portraits. */}
+        <Panel section="team-strip" className="px-4 py-3 lg:py-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 [--hex-w:54px] lg:gap-4 lg:[--hex-w:62.25px]">
             {comp.units.map((unit) => (
-              <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth shrink-0">
-                <UnitTile unit={unit} size={54} context={unitTipContext(comp, unit)} />
+              <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth relative block aspect-[1/1.1547] w-[var(--hex-w)] shrink-0">
+                <UnitTile unit={unit} context={unitTipContext(comp, unit)} />
               </Link>
             ))}
           </div>
@@ -263,10 +271,10 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
         <div className="grid gap-4 md:grid-cols-2">
           <Panel className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.earlyUnits}</p>
-            <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2 [--hex-w:48px] lg:gap-3 lg:[--hex-w:62.25px]">
               {comp.early.map((unit) => (
-                <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth shrink-0">
-                  <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} size={48} />
+                <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth relative block aspect-[1/1.1547] w-[var(--hex-w)] shrink-0">
+                  <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} fill />
                 </Link>
               ))}
             </div>
@@ -297,7 +305,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
                   <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.flexUnits}</p>
                   {/* Pair language from TFT Academy: the big hex is the unit
                       that comes in, the small corner hex is the one it swaps. */}
-                  <div className="flex flex-wrap items-start justify-center gap-x-4 gap-y-3 px-3 pt-2">
+                  <div className="flex flex-wrap items-start justify-center gap-x-4 gap-y-3 px-3 pt-2 [--hex-w:52px] lg:[--hex-w:60px]">
                     {flex.map((pair, index) => {
                       const label = t.flexReplaces(pair.name, pair.replaces.name);
                       return (
@@ -306,13 +314,13 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
                           href={`/${lang}/champions/${championNameToSlug[pair.name]}`}
                           aria-label={label}
                           title={label}
-                          className="smooth relative shrink-0"
+                          className="smooth relative block aspect-[1/1.1547] w-[var(--hex-w)] shrink-0"
                         >
-                          <UnitHex name={pair.name} cost={pair.cost} icon={pair.icon} size={52} />
+                          <UnitHex name={pair.name} cost={pair.cost} icon={pair.icon} fill />
                           {/* The shadow keeps the swapped unit readable where it
                               bites into the art of the unit replacing it. */}
-                          <span className="absolute -left-2 -top-2 z-20" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,.8))' }}>
-                            <UnitHex name={pair.replaces.name} cost={pair.replaces.cost} icon={pair.replaces.icon} size={26} />
+                          <span className="absolute -left-2 -top-2 z-20 aspect-[1/1.1547] w-[50%]" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,.8))' }}>
+                            <UnitHex name={pair.replaces.name} cost={pair.replaces.cost} icon={pair.replaces.icon} fill />
                           </span>
                         </Link>
                       );
@@ -323,10 +331,10 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
               {comp.alt.length ? (
                 <Panel section="alt-builds" className="flex flex-col items-start gap-3 p-4">
                   <p className="w-full text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.altBuilds}</p>
-                  <div className="flex flex-wrap items-center justify-center gap-2.5 self-center pt-2">
+                  <div className="flex flex-wrap items-center justify-center gap-2.5 self-center pt-2 [--hex-w:48px] lg:[--hex-w:60px]">
                     {comp.alt.map((unit, index) => (
-                      <Link key={`${unit.name}-${index}`} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth shrink-0">
-                        <UnitTile unit={unit} size={48} context={altTipContext(comp, unit)} />
+                      <Link key={`${unit.name}-${index}`} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth relative block aspect-[1/1.1547] w-[var(--hex-w)] shrink-0">
+                        <UnitTile unit={unit} context={altTipContext(comp, unit)} />
                       </Link>
                     ))}
                   </div>

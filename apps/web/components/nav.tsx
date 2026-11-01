@@ -16,13 +16,19 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dismissedDropdown, setDismissedDropdown] = useState<string | null>(null);
+  // Tierlist screens (list, comp detail, item/augment boards) keep the search
+  // row pinned; the reader is scrolling between tiers, not trying to gain rows.
+  const pinned = pathname.startsWith(`/${lang}/tierlist`);
 
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 1024px)');
     let lastY = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
-      if (!desktop.matches || y < 80) setHidden(false);
+      // The tierlist is browsed by searching and hopping between tiers, so its
+      // two bars stay stacked; everywhere else the search row gives the rows
+      // back to the content on a downward scroll.
+      if (!desktop.matches || pinned || y < 80) setHidden(false);
       else if (y > lastY + 6) setHidden(true);
       else if (y < lastY - 6) setHidden(false);
       lastY = y;
@@ -34,7 +40,7 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, []);
+  }, [pinned]);
 
   useEffect(() => {
     if (!menuOpen) return;
