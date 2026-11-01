@@ -13,8 +13,9 @@ import { messages } from '@/lib/messages';
 import { championDetail, championSlugToName, keywordsFor } from '@/lib/tips';
 
 // Same list URL the comps routes fetch, so this render reads it from Next's data
-// store instead of paying the hop again.
-export const revalidate = 60;
+// store instead of paying the hop again. A day rather than a minute: these rows
+// only move when someone edits them, and the API marks this path stale then.
+export const revalidate = 86_400;
 
 // The champion roster is static in lib/tips, so every page can be built up front
 // instead of being left dynamic — which would drop the revalidate above.
@@ -91,7 +92,7 @@ export default async function ChampionPage({ params }: { params: Promise<{ lang:
     return labels[label] ?? label;
   };
 
-  const data = await backendJson<CompsResponse>(`/api/comps?lang=${lang}`, { revalidate: 60 });
+  const data = await backendJson<CompsResponse>(`/api/comps?lang=${lang}`, { revalidate: 86_400 });
   const comps = (data?.comps ?? []).filter((comp) =>
     [...comp.units, ...comp.early, ...comp.alt].some((unit) => unit.name === champion.name)
   );

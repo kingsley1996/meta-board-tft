@@ -11,12 +11,12 @@ import { messages } from '@/lib/messages';
 // Articles change far less often than the meta data, so they can sit at the edge
 // for five minutes. generateMetadata and the page ask for the same guide; with a
 // revalidate the second read comes from the data store instead of the API.
-export const revalidate = 300;
+export const revalidate = 86_400;
 
 const loadGuide = (slug: string, lang: Lang) =>
-  backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`, { revalidate: 300 });
+  backendJson<ApiGuide>(`/api/guides/${slug}?lang=${lang}`, { revalidate: 86_400 });
 const loadGuides = (lang: Lang) =>
-  backendJson<GuidesResponse>(`/api/guides?lang=${lang}`, { revalidate: 300 });
+  backendJson<GuidesResponse>(`/api/guides?lang=${lang}`, { revalidate: 86_400 });
 
 // Same reason as the comps route: no params list means Next keeps the route
 // dynamic and the revalidate above never gets a cached entry to serve.

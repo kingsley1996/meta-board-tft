@@ -1,5 +1,6 @@
 import { pool } from './db.ts';
 import { translateText } from './assistant/translate.ts';
+import { notifyRevalidate } from './revalidate.ts';
 
 export type GuideSection = { heading: string; body: string[]; list?: string[] };
 
@@ -86,6 +87,7 @@ export async function writeGuide(guide: GuideInput): Promise<void> {
       guide.titleVi, guide.excerptVi, guide.sectionsVi ? JSON.stringify(guide.sectionsVi) : null,
     ]
   );
+  notifyRevalidate('guides');
 }
 
 export async function guideExists(slug: string): Promise<boolean> {
@@ -95,6 +97,7 @@ export async function guideExists(slug: string): Promise<boolean> {
 
 export async function deleteGuide(slug: string): Promise<boolean> {
   const { rowCount } = await pool.query('DELETE FROM guides WHERE slug = $1', [slug]);
+  if ((rowCount ?? 0) > 0) notifyRevalidate('guides');
   return (rowCount ?? 0) > 0;
 }
 

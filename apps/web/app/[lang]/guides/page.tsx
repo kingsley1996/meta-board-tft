@@ -8,7 +8,7 @@ import { messages } from '@/lib/messages';
 // Nothing here reads the query string any more — the tag filter is client state —
 // so the route prerenders and both the document and the guides fetch sit behind
 // the edge cache.
-export const revalidate = 300;
+export const revalidate = 86_400;
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
   const { lang } = await params;
@@ -20,7 +20,7 @@ const tagOrder = ['Fundamentals', 'Economy', 'Leveling', 'Items', 'Positioning',
 
 export default async function GuidesPage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
-  const data = await backendJson<GuidesResponse>(`/api/guides?lang=${lang}`, { revalidate: 300 });
+  const data = await backendJson<GuidesResponse>(`/api/guides?lang=${lang}`, { revalidate: 86_400 });
   if (!data) throw new Error('backend is unreachable');
   const guides: GuideCard[] = data.guides.map(({ slug, title, excerpt, author, date, tags, featured }) => ({ slug, title, excerpt, author, date, tags, featured }));
   if (!guides.length) throw new Error('no guides in the store');

@@ -68,10 +68,17 @@ Check trước khi ship: `npm run typecheck && npm run test:server && npm run te
 
 | Process | Build | Chạy | Env bắt buộc | Env tùy chọn nhưng quyết định tính năng |
 |---|---|---|---|---|
-| web | `npm run build --workspace @tftiq/web` | `npm run start --workspace @tftiq/web` | `BACKEND_URL` (build + run), `SITE_URL` | — |
-| api | không | `npm run start --workspace @tftiq/api` | `DATABASE_URL`, `REFRESH_TOKEN`, `PORT`; `ADMIN_EMAIL` + `ADMIN_SEED_PASSWORD` chỉ lần đầu | `ASSISTANT_*`, `*_API_KEY`, `STT_*`, `VIENEU_TTS_*`, `TTS_*`, `AUTH_*`, `GOOGLE_OAUTH_*` |
+| web | `npm run build --workspace @tftiq/web` | `npm run start --workspace @tftiq/web` | `BACKEND_URL` (build + run), `SITE_URL` | `WEB_REVALIDATE_TOKEN` |
+| api | không | `npm run start --workspace @tftiq/api` | `DATABASE_URL`, `PORT`; `ADMIN_EMAIL` + `ADMIN_SEED_PASSWORD` chỉ lần đầu | `ASSISTANT_*`, `*_API_KEY`, `STT_*`, `VIENEU_TTS_*`, `TTS_*`, `AUTH_*`, `GOOGLE_OAUTH_*`, `WEB_REVALIDATE_TOKEN` |
 
-Bốn thứ hay dựng sai:
+Năm thứ hay dựng sai:
+
+- **`WEB_REVALIDATE_TOKEN` phải giống nhau ở cả hai host** (Vercel + Render). Đây là
+  đường duy nhất để một lần sửa comps/guides đến được trang đang cache: trang data đặt
+  `revalidate = 86_400` vì mỗi lần Next regenerate là một ISR write của Vercel — 60 giây
+  trên ~250 trang là ~360k write/ngày, vượt trần Hobby 200k/tháng là project bị pause.
+  API `POST /api/revalidate` sau khi ghi (kể cả `seed:tiers`) chỉ đánh dấu stale; Next
+  dựng lại ở lượt ghé kế tiếp. Thiếu token thì API im lặng, trang hết hạn theo lịch.
 
 - **`/admin` là role của account, không phải mật khẩu thứ hai.** Không còn `ADMIN_PASSWORD`/`mb_admin`: đăng nhập ở `/en/login` bằng account có `role = admin`.
   DB trắng thì đặt `ADMIN_EMAIL` + `ADMIN_SEED_PASSWORD` một lần (seed hoặc lúc API

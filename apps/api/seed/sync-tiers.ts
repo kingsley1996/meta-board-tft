@@ -8,6 +8,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pool } from '../src/db.ts';
+import { flushRevalidate, notifyRevalidate } from '../src/revalidate.ts';
 
 const here = import.meta.dirname;
 const dryRun = process.argv.includes('--dry-run');
@@ -60,6 +61,7 @@ try {
     await client.query('ROLLBACK');
   } else {
     await client.query('COMMIT');
+    notifyRevalidate('comps');
   }
 } catch (error) {
   await client.query('ROLLBACK');
@@ -78,5 +80,11 @@ if (onlyInDb.length) {
   console.log(`${onlyInDb.length} comps on the site are not in the crawl, left untouched:`);
   console.log(`  ${onlyInDb.map((row) => `${row.slug} (${row.tier})`).join(', ')}`);
 }
+
+// The pages are cached for a day, so hand the web app the change instead of
+// waiting for the window. Without WEB_REVALIDATE_TOKEN this stays silent and the
+// pages refresh on their own schedule.
+const revalidated = await flushRevalidate();
+console.log(revalidated.length ? `told the web app to revalidate: ${revalidated.join(', ')}` : 'no revalidation sent (set WEB_REVALIDATE_TOKEN to purge the page cache now)');
 
 await pool.end();

@@ -8,14 +8,15 @@ import { backendJson } from '@/lib/backend';
 import { locales, type Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
-// Admin edits show up on the next revalidate instead of a rebuild.
-export const revalidate = 60;
+// A day, not a minute: the API POSTs /api/revalidate after every write, so an
+// admin edit lands on the next visit instead of waiting out this window.
+export const revalidate = 86_400;
 
 // The explorer renders the whole list and the page only needs one row of it, so
 // the row is read out of the list rather than fetched on its own. Same URL the
 // list page uses, so the two share one entry in Next's data store.
 const loadComps = (lang: Lang) =>
-  backendJson<CompsResponse>(`/api/comps?lang=${lang}`, { revalidate: 60 });
+  backendJson<CompsResponse>(`/api/comps?lang=${lang}`, { revalidate: 86_400 });
 
 // The page ships the whole list so the tiers paint out of the document, but
 // only the open row is rendered in full before hydration. Shipping every comp

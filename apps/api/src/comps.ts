@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { pool } from './db.ts';
 import { translateText } from './assistant/translate.ts';
 import { cached, invalidateCachePrefix } from './cache.ts';
+import { notifyRevalidate } from './revalidate.ts';
 import { sharedDataPath } from './shared-data.ts';
 
 const TIERS = ['S', 'A', 'B', 'C', 'X'];
@@ -339,6 +340,7 @@ export async function writeComp(comp: CompInput): Promise<void> {
     }
     await client.query('COMMIT');
     invalidateCachePrefix('comps');
+    notifyRevalidate('comps');
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
@@ -348,6 +350,8 @@ export async function writeComp(comp: CompInput): Promise<void> {
 }
 
 // Community counters. Returns the new value, or null when the slug is unknown.
+// Deliberately no notifyRevalidate: a vote or a view is not content, and purging
+// the board on every one of them is the write storm the page cache exists to avoid.
 export async function bumpComp(slug: string, field: 'votes' | 'views'): Promise<number | null> {
   const { rows } = await pool.query(`UPDATE comps SET ${field} = ${field} + 1 WHERE slug = $1 RETURNING ${field}`, [slug]);
   if (rows.length) invalidateCachePrefix('comps');
@@ -361,7 +365,10 @@ export async function compExists(slug: string): Promise<boolean> {
 
 export async function deleteComp(slug: string): Promise<boolean> {
   const { rowCount } = await pool.query('DELETE FROM comps WHERE slug = $1', [slug]);
-  if ((rowCount ?? 0) > 0) invalidateCachePrefix('comps');
+  if ((rowCount ?? 0) > 0) {
+    invalidateCachePrefix('comps');
+    notifyRevalidate('comps');
+  }
   return (rowCount ?? 0) > 0;
 }
 
