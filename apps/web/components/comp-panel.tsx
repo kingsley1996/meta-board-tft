@@ -154,7 +154,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} frame={tier} />
           {comp.cover ? (
             <span data-section="comp-cover" className="absolute -left-1 bottom-3 z-20">
-              <CoverBadge cover={comp.cover} size={30} />
+              <CoverBadge cover={comp.cover} size={36} frame={tier} />
             </span>
           ) : null}
         </div>

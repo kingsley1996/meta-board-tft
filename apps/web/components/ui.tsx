@@ -246,11 +246,12 @@ export function AugmentTile({ name, icon, size = 44 }: { name: string; icon?: st
 }
 
 // The badge TFT Academy pins to a comp's avatar: the item, emblem or augment
-// that defines the build. Always a hex, like the source site.
-export function CoverBadge({ cover, size }: { cover: { kind: 'item' | 'augment'; name: string; icon: string | null }; size: number }) {
+// that defines the build. Always a hex, like the source site. `frame` is the
+// rim of the unit it sits on, so the badge reads as part of that hexagon.
+export function CoverBadge({ cover, size, frame }: { cover: { kind: 'item' | 'augment'; name: string; icon: string | null }; size: number; frame?: string }) {
   return (
     <span className="block drop-shadow-[0_2px_4px_rgba(0,0,0,.65)]">
-      <ItemHex name={cover.name} icon={cover.icon} size={size} tip={`${cover.kind}:${cover.name}`} />
+      <ItemHex name={cover.name} icon={cover.icon} size={size} frame={frame} tip={`${cover.kind}:${cover.name}`} />
     </span>
   );
 }

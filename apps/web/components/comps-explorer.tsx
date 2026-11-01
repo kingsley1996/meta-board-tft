@@ -8,7 +8,7 @@ import { tierRank } from '@/lib/tiers';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { compVariants, variantRows } from '@/lib/variants';
-import { CoverBadge, tierColor, TierChip, TierTabs, UnitHex } from './ui';
+import { CoverBadge, costOf, tierColor, TierChip, TierTabs, UnitHex } from './ui';
 import { CompPanel } from './comp-panel';
 
 // Tier list ⇄ comp detail are separate routes rendering the same explorer;
@@ -520,7 +520,7 @@ function CompCluster({
           <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} fill />
           {comp.cover ? (
             <span className="absolute inset-x-0 -bottom-1 z-20 mx-auto w-fit">
-              <CoverBadge cover={comp.cover} size={20} />
+              <CoverBadge cover={comp.cover} size={24} frame={costOf(comp.carry.cost)} />
             </span>
           ) : null}
           {trend ? (
@@ -552,7 +552,7 @@ function CompCluster({
         ) : null}
         {comp.cover ? (
           <span className="absolute inset-x-0 -bottom-1 z-20 mx-auto w-fit">
-            <CoverBadge cover={comp.cover} size={20} />
+            <CoverBadge cover={comp.cover} size={24} frame={costOf(comp.carry.cost)} />
           </span>
         ) : null}
       </span>
