@@ -19,6 +19,12 @@ const cache: Record<string, CompsResponse> = {};
 // Views are counted once per browser session per comp.
 const viewed = new Set<string>();
 
+// The board view the reader is actually looking at, read off localStorage before
+// the first paint and kept across the list ⇄ detail hop so a remount does not
+// render the other view for one frame. Null until the client has read it, which
+// is what keeps the server's names-on HTML and the hydration render identical.
+let namesView: boolean | null = null;
+
 // A glide that an effect re-run (e.g. StrictMode's double fetch replacing
 // `data`) cut short mid-flight — the next run must finish it. Module-level
 // because list ⇄ detail navigations remount the explorer, and the check
@@ -32,6 +38,15 @@ let glidePending = false;
 // glidePending: the detail route remounts the explorer, and the check inside
 // glide() has to see it across mounts.
 let heldSlug = '';
+
+// The tier row whose panel the last glide landed, so a second pick inside that
+// same row is left alone. Module-level like heldSlug: the detail route remounts
+// the explorer, and the check inside glide() has to see it across mounts.
+let landedRow = '';
+
+// Which tier row a rendered row belongs to — the same key the board buckets comps
+// into, read off the element that carries the detail.
+const rowKeyOf = (row: HTMLElement) => row.dataset.tierRow ?? '';
 
 // useLayoutEffect while hydrating in the browser, useEffect during SSR.
 const useScrollEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
@@ -55,22 +70,29 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState('');
   const [style, setStyle] = useState('All');
-  // Names are the default view, so this paints with them until the setting is
-  // read. Persisting lives in the toggle's own handler, not in an effect keyed
+  // Names are the default view, so a server render paints with them. The saved
+  // view is applied before paint below and remembered at module level, because
+  // the detail route remounts the explorer: rendering the default first and
+  // flipping after would re-lay the board out on every comp click — the rows
+  // change width, and the glide measures against a layout that just moved.
+  // Persisting still lives in the toggle's own handler, not in an effect keyed
   // on showNames: a write effect would flush the `true` default over the saved
   // '0' on the detail route's mount — and StrictMode's double effect pass then
   // reads that '1' back and locks names on.
-  const [showNames, setShowNames] = useState(true);
+  const [showNames, setShowNames] = useState(namesView ?? true);
   const router = useRouter();
   const tierRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    setShowNames(localStorage.getItem('comps-show-names') !== '0');
+  useLayoutEffect(() => {
+    const saved = localStorage.getItem('comps-show-names') !== '0';
+    namesView = saved;
+    setShowNames(saved);
   }, []);
 
   const toggleNames = () =>
     setShowNames((value) => {
       localStorage.setItem('comps-show-names', value ? '0' : '1');
+      namesView = !value;
       return !value;
     });
 
@@ -131,6 +153,13 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
       return bottom;
     };
     const jump = (target: number) => window.scrollTo(0, target);
+    // Remember the row the panel is now hanging from. Only a finished landing
+    // counts: a glide cut short must stay attributed to the row it was heading
+    // for, so the re-run that resumes it still sees a different row.
+    const markLanded = () => {
+      const row = tierRef.current;
+      if (row) landedRow = rowKeyOf(row);
+    };
     const glideTo = (target: number) => {
       cancelAnimationFrame(animRaf);
       const from = window.scrollY;
@@ -139,6 +168,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
       if (reduced || Math.abs(distance) <= 4) {
         jump(target);
         glidePending = false;
+        markLanded();
         return;
       }
       const duration = Math.min(750, Math.max(250, Math.abs(distance) * 0.5));
@@ -152,7 +182,10 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
         const t = Math.min(1, (now - start) / duration);
         jump(Math.round(from + distance * easeOutCubic(t)));
         if (t < 1) animRaf = requestAnimationFrame(step);
-        else glidePending = false;
+        else {
+          glidePending = false;
+          markLanded();
+        }
       });
       // rAF never fires in an occluded/throttled view (or a hidden tab);
       // land instantly instead of never arriving.
@@ -160,6 +193,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
         if (!userTookOver && !animated && Math.abs(window.scrollY - from) < 2) {
           jump(target);
           glidePending = false;
+          markLanded();
         }
       }, 250));
     };
@@ -170,12 +204,14 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
       const off = Math.round(row.getBoundingClientRect().top - liveStackBottom());
       if (Math.abs(off) <= 6) {
         glidePending = false;
+        markLanded();
         return;
       }
       const target = Math.max(0, Math.round(window.scrollY + off));
       if (Math.abs(off) <= 24) {
         jump(target);
         glidePending = false;
+        markLanded();
       } else glideTo(target);
     };
     const glide = () => {
@@ -196,11 +232,20 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
       const rowDocTop = from + row.getBoundingClientRect().top;
       if (!glidePending && Math.abs(from - (rowDocTop - stack)) <= 6) {
         glidePending = false;
+        markLanded();
+        return;
+      }
+      // Picking a second comp from the row already holding the detail moves
+      // nothing: the panel stays under that row, so a glide here would only
+      // drag the comp the reader just clicked out of view.
+      if (!glidePending && landedRow && landedRow === rowKeyOf(row)) {
+        glidePending = false;
         return;
       }
       const target = Math.max(0, Math.round(rowDocTop - stack));
       if (Math.abs(from - target) <= 4) {
         glidePending = false;
+        markLanded();
         return;
       }
       glided = true;
@@ -325,7 +370,11 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
                 : undefined;
             return (
               <div key={tier} className="flex flex-col gap-4">
-                <div ref={openComp ? tierRef : undefined} className="flex scroll-mt-16 flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-4 lg:scroll-mt-12">
+                <div
+                  ref={openComp ? tierRef : undefined}
+                  data-tier-row={tier}
+                  className="flex scroll-mt-16 flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-4 lg:scroll-mt-12"
+                >
                   {/* Tier rows read as "S Tier / A Tier / ..." in both locales. */}
                   <TierChip tier={tier} label={`${tier} Tier`} />
                   <div className="relative flex-1 rounded-xl border p-3" style={{ borderColor: tierColor[tier] }}>

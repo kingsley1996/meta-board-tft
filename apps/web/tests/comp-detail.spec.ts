@@ -59,6 +59,135 @@ test('a variant tab swaps the comp in place instead of gliding to its tier row',
   expect(await page.evaluate(() => window.scrollY)).toBe(before);
 });
 
+// The names view is read from localStorage. The flip lasts a frame or two, so
+// only a per-frame sample of the switch catches a mount that renders the
+// default view first — the board rows change width and height when it does.
+async function watchNamesSwitch(page: Page) {
+  await page.evaluate(() => {
+    const w = window as any;
+    w.__switch = [] as string[];
+    const tick = () => {
+      const on = document.querySelector<HTMLElement>('[role="switch"][title]');
+      if (on) w.__switch.push(on.getAttribute('aria-checked') ?? '');
+      w.__switchSampler = requestAnimationFrame(tick);
+    };
+    tick();
+  });
+}
+
+async function readNamesSwitch(page: Page) {
+  return page.evaluate(() => {
+    const w = window as any;
+    cancelAnimationFrame(w.__switchSampler);
+    return [...new Set(w.__switch as string[])];
+  });
+}
+
+// The board buckets comps into one row per tier, and a variant group shows only
+// its lead — which lead depends on the payload the route carries. Read the rows
+// from the live DOM at the moment of the click; a snapshot taken before one can
+// name a comp the board has since grouped away.
+async function tierRows(page: Page) {
+  return page.evaluate(() =>
+    [...document.querySelectorAll('[data-tier-row]')].map((row) => ({
+      tier: row.getAttribute('data-tier-row') ?? '',
+      top: Math.round(row.getBoundingClientRect().top + window.scrollY),
+      hrefs: [...new Set([...row.querySelectorAll('a[href*="/tierlist/comps/"]')].map((a) => a.getAttribute('href') ?? ''))].filter(Boolean),
+    }))
+  );
+}
+
+// A click dispatched from the page rather than by Playwright: Playwright first
+// scrolls the link into view, which is a real move of the page and would be
+// counted as the glide the test is looking for.
+const clickHref = (page: Page, href: string) =>
+  page.evaluate((target) => document.querySelector<HTMLAnchorElement>(`a[href="${target}"]`)?.click(), href);
+
+// A second pick from the row already holding the detail changes nothing on the
+// board, so the glide must not run: it would drag the comp the reader just
+// clicked out of view. A pick in another row still glides, and the test picks a
+// row deep enough that "landed" and "did not move" are different numbers.
+test('a second comp in the same tier row swaps in place instead of gliding', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 950 });
+  // Names-off is a saved setting, not the default. The detail route remounts the
+  // explorer, so a mount that paints the default first shows the other board
+  // view for a frame — the rows change width mid-load, and the glide then
+  // measures against a layout that has already moved.
+  await page.addInitScript(() => localStorage.setItem('comps-show-names', '0'));
+  await page.goto('/en/tierlist/comps');
+  // The server cannot read the saved view, so the first paint of a fresh load is
+  // the default one. Wait that out; the claim is about the comp click, which is
+  // a client-side transition and never re-renders the other view.
+  await expect(page.getByRole('switch', { name: 'Comp names' })).toHaveAttribute('aria-checked', 'false');
+
+  const open = (await tierRows(page)).find((row) => row.hrefs.length >= 2 && row.top > 250);
+  expect(open, 'the board needs a deep tier row holding two comps').toBeTruthy();
+  const first = open!.hrefs[0];
+
+  await watchNamesSwitch(page);
+  await clickHref(page, first);
+  const landed = await scrollAtRest(page);
+  expect(await readNamesSwitch(page), 'the saved names view must not flash the default one').toEqual(['false']);
+  expect(landed).toBeGreaterThan(0);
+
+  const after = await tierRows(page);
+  const live = after.find((row) => row.hrefs.includes(first));
+  const second = live?.hrefs.find((href) => href !== first);
+  const other = after.find((row) => row.tier !== live?.tier && row.top > 250 && row.hrefs.length)?.hrefs[0];
+  expect(second, 'the row must still hold a second comp once the detail is open').toBeTruthy();
+  expect(other, 'the board needs a second deep row to glide to').toBeTruthy();
+
+  // Still on the row's landing spot, a swap must not shift the page a pixel.
+  await clickHref(page, second!);
+  await expect(page).toHaveURL(new RegExp(second + '$'));
+  await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
+  expect(await scrollAtRest(page)).toBe(landed);
+
+  // The reader's own case: back at the top, the same swap leaves them at the top.
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(300);
+  await clickHref(page, first);
+  await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
+  expect(await scrollAtRest(page)).toBe(0);
+
+  // A different row is a different landing spot, so the glide still runs.
+  await clickHref(page, other!);
+  expect(await scrollAtRest(page)).toBeGreaterThan(0);
+});
+
+// The other locale is the same page translated, so switching keeps the reader in
+// place. The router's default scroll-to-top yanked them back to the header with
+// the comp panel left far below, and no glide could bring it into view because
+// the row already holds the detail.
+test('switching language holds the page still with a comp open', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 950 });
+  await page.goto('/en/tierlist/comps');
+  const href = (await tierRows(page)).find((row) => row.top > 250 && row.hrefs.length)?.hrefs[0];
+  expect(href, 'the board needs a comp deep enough to glide to').toBeTruthy();
+
+  await clickHref(page, href!);
+  const landed = await scrollAtRest(page);
+  expect(landed).toBeGreaterThan(0);
+
+  await page.click('[data-section="lang-switch"] a[href^="/vi"]');
+  await expect(page).toHaveURL(new RegExp(href!.replace('/en/', '/vi/') + '$'));
+  await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
+  const after = await scrollAtRest(page);
+  // A translated title can shift the row a couple of pixels, and the effect may
+  // settle that; what must not happen is the walk back to the top.
+  expect(Math.abs(after - landed), 'the locale switch moved the reader off the panel').toBeLessThanOrEqual(6);
+
+  // The panel still hangs from the row parked under the pinned bars.
+  const gap = await page.evaluate(() => {
+    const panel = document.querySelector('[data-section="comp-detail"]');
+    const row = panel?.previousElementSibling;
+    const bottom = (selector: string) => document.querySelector<HTMLElement>(selector)?.getBoundingClientRect().bottom ?? 0;
+    const stack = Math.max(bottom('[data-section="nav"]'), bottom('[data-section="menu"]'));
+    return row ? Math.round(row.getBoundingClientRect().top - stack) : NaN;
+  });
+  expect(Math.abs(gap)).toBeLessThanOrEqual(6);
+});
+
 // The tierlist pins both bars, so the stack a glide lands under is header plus
 // menu. A row that ends up inside that band reads as cut off mid-selection.
 test('the row a comp lands in sits clear of the pinned bars', async ({ page }) => {
