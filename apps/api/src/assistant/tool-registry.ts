@@ -351,7 +351,7 @@ function lootQueryMatches(value: unknown, query: string, lang: Lang): boolean {
 
 function augmentTier(tier: string, lang: Lang): string {
   if (lang !== 'vi') return tier;
-  return tier === 'Gold' ? 'Vàng' : tier === 'Silver' ? 'Bạc' : tier === 'Prismatic' ? 'Lăng kính' : tier;
+  return tier === 'Gold' ? 'Vàng' : tier === 'Silver' ? 'Bạc' : tier === 'Prismatic' ? 'Kim cương' : tier;
 }
 
 function lootTablePayload(table: LootTableData, lang: Lang) {

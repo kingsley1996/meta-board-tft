@@ -403,7 +403,7 @@ function deterministicEntity(entity: CatalogEntity, lang: Lang, relatedTrait: Ca
   }
   if (entity.type === 'augment') {
     const description = isVi(lang) && entity.descriptionVi ? entity.descriptionVi : entity.description;
-    const rarity = entity.rarity === 1 ? t(lang, 'Silver', 'Bạc') : entity.rarity === 2 ? t(lang, 'Gold', 'Vàng') : entity.rarity === 3 ? t(lang, 'Prismatic', 'Lăng kính') : '';
+    const rarity = entity.rarity === 1 ? t(lang, 'Silver', 'Bạc') : entity.rarity === 2 ? t(lang, 'Gold', 'Vàng') : entity.rarity === 3 ? t(lang, 'Prismatic', 'Kim cương') : '';
     return [name, rarity, clip(description ?? '', 800)].filter(Boolean).join(' — ');
   }
   return [name, traitText(entity, lang)].filter(Boolean).join(' — ');

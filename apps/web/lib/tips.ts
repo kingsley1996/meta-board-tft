@@ -38,7 +38,7 @@ export const traitStyleForName = (name: string | null | undefined): TraitStyle |
 export const augmentRarity: Record<number, { label: { en: string; vi: string }; color: string }> = {
   1: { label: { en: 'Silver', vi: 'Bạc' }, color: SILVER.ink },
   2: { label: { en: 'Gold', vi: 'Vàng' }, color: GOLD.ink },
-  3: { label: { en: 'Prismatic', vi: 'Lăng Kính' }, color: PRISMATIC.ink },
+  3: { label: { en: 'Prismatic', vi: 'Kim Cương' }, color: PRISMATIC.ink },
 };
 
 // Keyword definitions for ability text ("Wound: Reduces healing received.").
