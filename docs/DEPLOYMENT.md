@@ -285,6 +285,30 @@ Quy tắc chọn đường, theo trạng thái DB đích:
   ```
   Hai dòng `seed:comps` là bước ghi đè có chủ đích: đọc hết danh sách `rewrite … · board, copy`
   dry-run in ra, đối chiếu với nội dung admin soạn gần đây, rồi mới bỏ `--dry-run`.
+  Sau khi ghi thật còn hai việc script không tự làm được:
+
+  - **Purge cache trang.** `notifyRevalidate` gọi `AUTH_WEB_ORIGIN || http://localhost:4173`
+    ([src/revalidate.ts](../apps/api/src/revalidate.ts)) — chạy script từ máy cá nhân thì dòng
+    `web revalidate "comps": 503` trong log là cửa dev web, prod chưa được gõ lần nào. Prod có
+    `WEB_REVALIDATE_TOKEN` (probe không token trả 401, không phải 503) nhưng không có
+    `AUTH_WEB_ORIGIN`, nên purge tay một câu:
+    `curl -X POST https://www.tftiq.com/api/revalidate -H "x-revalidate-token: $WEB_REVALIDATE_TOKEN" -H 'content-type: application/json' -d '{"kind":"comps"}'`
+    → `{"ok":true,"invalidated":8}`, list/map/home sạch ngay.
+  - **Build lại khi có slug mới.** `apps/web/app/[lang]/layout.tsx` đặt `dynamicParams = false`
+    cho cả subtree locale, nên slug chưa có trong route manifest của bản deploy đang chạy trả 404
+    mặc định của Next ("This page could not be found") dù DB đã có row và hàm không kịp gọi
+    `notFound()`. Một lần build (push tiếp theo, hoặc Redeploy cùng commit trên dashboard) là hết.
+
+  Backup trước khi ghi dùng `pg_dump "$PROD_DATABASE_URL"` sau khi **bỏ tham số `sslmode` khỏi
+  URL** — libpq của Homebrew từ chối `no-verify` mà node `pg` thì nhận, nên thêm `PGSSLMODE=prefer`.
+
+  **Trạng thái prod DB (đo 2026-11-02, sau lần sync đầu tiên):** `comps` = 54 row đúng snapshot —
+  449 board unit, 162 item, 424 augment, 162 stage, 14 cover, 9 `situational`, 0 hàng mồ côi.
+  Đường ghi mở lại được là nhờ hai ALTER chạy trước: thêm cột `situational` và dựng lại
+  `comps_style_check` có `Fast 9` (thiếu thì `writeComp` chết ở INSERT, còn đọc vẫn an toàn vì
+  `SELECT *` + `?? false`). 35 row ngoài snapshot đã xoá, `ON DELETE CASCADE` kéo theo 421 unit,
+  105 item, 243 augment, 105 stage của chúng; nhóm đó chỉ tích luỹ 1 vote và 431 view.
+  Backup: `/tmp/prod-comps-backup-20261102.sql` (58 comps + 694 units, `--data-only --column-inserts`).
 - **RAG corpus:** sửa nguồn (`mechanics-knowledge.json`, `seed/guides.ts`, `seed/tips.ts`)
   rồi `npm run build:knowledge`; `chunks.jsonl` là output đã commit — không sửa tay.
 
@@ -313,7 +337,9 @@ git push                 # Vercel rebuild web; Render redeploy API và tự nạ
 Hết. Không có câu curl nào ở bước cuối. `seed/comps.json` refreshed không tự vào DB prod
 (DB đã có nội dung thì không seed): `seed:comps` ghi những hàng lệch snapshot (kèm slug mới) ngay sau khi push,
 tier/trend cũ thì `seed:tiers`, comp chưa đủ 2 nguồn vẫn chờ approve ở
-`/admin/comps/candidates`.
+`/admin/comps/candidates`. Hai việc còn lại của một patch có **slug mới** nằm ở mục 4:
+purge cache prod bằng `POST /api/revalidate` (script local không tự gõ cửa prod) và chờ một lần
+build nữa vì `dynamicParams = false`.
 
 Bản đầy đủ (vì sao đúng thứ tự, kiểm chứng trước khi commit, `catalog_release` vào Postgres thế
 nào, set rotation, bảng lỗi): `docs/runbook.md` trong repo crawler.
