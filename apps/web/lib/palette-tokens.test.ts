@@ -31,13 +31,14 @@ function contrast(foreground: string, background: string): number {
 const surfaces = ['page', 'panel', 'util'];
 
 // Text tokens have to stay readable on every surface they can land on.
-// on-brand is the ink for the solid action fills, brand and brand-deep.
+// on-brand is the ink for the solid action fills: brand, brand-deep, and the
+// four difficulty levels the comp rail chips fill themselves in.
 const bodyText: Array<[string, string[]]> = [
   ['fog', surfaces],
   ['mist', surfaces],
   ['brand', surfaces],
   ['brand-deep', surfaces],
-  ['on-brand', ['brand', 'brand-deep']],
+  ['on-brand', ['brand', 'brand-deep', 'diff-easy', 'diff-average', 'diff-hard', 'diff-conditional']],
 ];
 
 // Data colours are graphics, not body copy: the tier ladder marks a badge or a
@@ -46,6 +47,8 @@ const bodyText: Array<[string, string[]]> = [
 const graphics: Array<[string, string[]]> = [
   ...['s', 'a', 'b', 'c', 'd', 'x'].map((tier) => [`tier-${tier}`, surfaces] as [string, string[]]),
   ...[1, 2, 3, 4, 5].map((cost) => [`cost-${cost}`, surfaces] as [string, string[]]),
+  // Each difficulty tone also draws its own border on the panel behind the chip.
+  ...['easy', 'average', 'hard', 'conditional'].map((level) => [`diff-${level}`, surfaces] as [string, string[]]),
 ];
 
 describe('palette tokens', () => {

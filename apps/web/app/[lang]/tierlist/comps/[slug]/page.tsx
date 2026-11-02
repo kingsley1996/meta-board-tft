@@ -70,7 +70,10 @@ export default async function CompDetailPage({ params }: { params: Promise<{ lan
   return (
     <div className="flex flex-col gap-6">
       <PatchBar lang={lang} />
-      <DisplayTitle small={t.small} big={comp.title} sub={t.detailSub(comp.tier, comp.playstyle)} />
+      {/* Only the name changes between pages, never the shape of the block: the
+          hero holds one fixed slot (see DisplayTitle) and the sub stays the list's
+          own copy, so no click reflows the rail underneath it. */}
+      <DisplayTitle small={t.small} big={comp.title} sub={t.sub} />
       <CompsExplorer openSlug={comp.slug} lang={lang} initial={initial} />
     </div>
   );

@@ -9,7 +9,7 @@ import { translateText } from '@/lib/translate';
 import { championNameToSlug, traitStyleForNumber } from '@/lib/tips';
 import { HexBoard } from './hex-board';
 import { VoteButton } from './vote-button';
-import { AugmentTile, Chip, CostDots, costOf, CoverBadge, ItemHex, itemHref, ItemTile, Panel, tierColor, UnitHex } from './ui';
+import { AugmentTile, Chip, costOf, CoverBadge, ItemHex, itemHref, ItemTile, LevelBars, Panel, tierColor, UnitHex } from './ui';
 
 // Fallback hexes (row-major index) for comps saved before the board editor existed.
 const fallbackCells = [3, 9, 10, 17, 23, 24, 30];
@@ -117,6 +117,8 @@ function TraitChip({ trait }: { trait: ApiComp['traits'][number] }) {
 
 export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; toolbar?: ReactNode }) {
   const t = messages[lang].compPanel;
+  const difficultyLabels = [t.difficultyEasy, t.difficultyAverage, t.difficultyHard];
+  const difficultyTones = ['easy', 'average', 'hard'] as const;
   // Prerender runs against whichever API is live, and Render boots on its own
   // clock after a push — a payload without `flex` is a real window (18.5c build died).
   const flex = comp.flex ?? [];
@@ -197,12 +199,14 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
         <div data-pv="chips" className="flex flex-wrap items-center justify-center gap-1.5">
           <Chip>{comp.style}</Chip>
           <Link href={`/${lang}/economy#${economyStrategyByName[economy.strategy]?.id ?? ''}`} className="smooth">
-            <Chip className="border-brand/60 text-brand">
-              {translateText(lang, 'economy', 'strategy-name', economy.strategy)}
-            </Chip>
+            <Chip tone="brand">{translateText(lang, 'economy', 'strategy-name', economy.strategy)}</Chip>
           </Link>
-          <Chip>{t.difficulty} <CostDots cost={comp.difficulty} /></Chip>
-          <Chip>{comp.units.length} {t.units}</Chip>
+          {/* Filled, unlike the two outline chips beside it, in the colour of its
+              level: how hard a comp is to run is the one chip here the reader has
+              to act on. */}
+          <Chip tone={comp.situational ? 'conditional' : difficultyTones[comp.difficulty - 1]}>
+            {comp.situational ? t.difficultyConditional : <><LevelBars level={comp.difficulty} /> {difficultyLabels[comp.difficulty - 1]}</>}
+          </Chip>
         </div>
         <div data-pv="counters" className="flex flex-wrap items-center justify-center gap-1.5">
           <VoteButton slug={comp.slug} votes={comp.votes} lang={lang} />

@@ -54,8 +54,10 @@ export function Breadcrumbs({ lang }: { lang: Lang }) {
   if (segments.length < 2) return null;
 
   return (
-    <nav aria-label={t.breadcrumb.aria} className="flex flex-wrap items-center gap-1.5 py-3 text-xs text-mist">
-      <Link href={`/${lang}`} className="smooth inline-flex min-h-6 items-center font-semibold hover:text-fog">
+    // One line, always. This sits above <main>, so a crumb that wrapped onto a
+    // second line moved the whole page — and the tier rail — down by a line.
+    <nav aria-label={t.breadcrumb.aria} className="flex flex-nowrap items-center gap-1.5 overflow-hidden py-3 text-xs text-mist">
+      <Link href={`/${lang}`} className="smooth inline-flex min-h-6 shrink-0 items-center font-semibold hover:text-fog">
         {t.breadcrumb.home}
       </Link>
       {segments.map((segment, index) => {
@@ -64,15 +66,15 @@ export function Breadcrumbs({ lang }: { lang: Lang }) {
         const label = labels[segment] ?? nameBySlug[segment]?.[lang] ?? humanize(segment);
         return (
           <Fragment key={href}>
-            <span aria-hidden className="text-mist/50">
+            <span aria-hidden className="shrink-0 text-mist/50">
               /
             </span>
             {last || PREFIX_ONLY.has(segment) ? (
-              <span aria-current={last ? 'page' : undefined} className={last ? 'font-semibold text-fog' : undefined}>
+              <span aria-current={last ? 'page' : undefined} className={`min-w-0 truncate ${last ? 'font-semibold text-fog' : undefined}`}>
                 {label}
               </span>
             ) : (
-              <Link href={href} className="smooth inline-flex min-h-6 items-center font-semibold hover:text-fog">
+              <Link href={href} className="smooth inline-flex min-h-6 shrink-0 items-center font-semibold hover:text-fog">
                 {label}
               </Link>
             )}

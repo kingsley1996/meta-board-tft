@@ -34,8 +34,32 @@
   --color-cost-4: #c084fc;
   --color-cost-5: #fbbf24;
 
+  /* How hard a comp is to run is the one chip in the rail the reader acts on, so
+     it fills in its own level's colour. The four values are the green, amber, red
+     and teal already in the two ladders above — no new hue enters the app — and
+     each carries on-brand text, which palette-tokens.test.ts holds at 4.5:1. */
+  --color-diff-easy: #4ade80;
+  --color-diff-average: #fbbf24;
+  --color-diff-hard: #ff5470;
+  --color-diff-conditional: #4dd0c9;
+
+  /* Riot bakes this near-black square into its own icon art, and the cores it
+     does not ship arrive as transparent glyphs. An icon tile paints this ground
+     so the two kinds of art sit on the same square instead of one reading as
+     lit. It is an art ground, not a text surface. */
+  --color-glyph-ground: #1c1c1c;
+
   --font-display: var(--font-space-grotesk), system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
+}
+
+/* The page hero needs to hold a 33-character comp name without changing height,
+   so it is set condensed: Anton keeps the tall, heavy look of the board's own
+   display type and ships the full Vietnamese subset, which Bebas Neue and
+   Archivo Black do not. It has to be `inline`: next/font declares --font-anton
+   on <body>, and a :root theme value that references it resolves to nothing. */
+@theme inline {
+  --font-hero: var(--font-anton), system-ui, sans-serif;
 }
 
 body {

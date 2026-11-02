@@ -79,17 +79,56 @@ export function Panel({ children, className = '', section, pv }: { children: Rea
   return <div data-section={section} data-pv={pv} className={`rounded-xl border border-line bg-panel ${className}`}>{children}</div>;
 }
 
-export function Chip({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <span className={`inline-flex items-center gap-1 rounded-md border border-line bg-util px-2 py-0.5 text-xs font-semibold text-mist ${className}`}>{children}</span>;
+// The tone is part of the chip's own class list rather than a `className`
+// override: Tailwind orders these utilities alphabetically by token, so
+// `bg-brand` written after `bg-util` still loses the cascade and the chip stays
+// grey. The four difficulty tones fill in the colour of their own level because
+// there the colour is the data, not decoration.
+const chipTones = {
+  plain: 'border-line bg-util text-mist',
+  brand: 'border-brand/60 text-brand',
+  easy: 'border-diff-easy bg-diff-easy text-on-brand',
+  average: 'border-diff-average bg-diff-average text-on-brand',
+  hard: 'border-diff-hard bg-diff-hard text-on-brand',
+  conditional: 'border-diff-conditional bg-diff-conditional text-on-brand',
+};
+
+export function Chip({
+  children,
+  className = '',
+  tone = 'plain',
+}: {
+  children: ReactNode;
+  className?: string;
+  tone?: keyof typeof chipTones;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-semibold ${chipTones[tone]} ${className}`}
+    >
+      {children}
+    </span>
+  );
 }
 
+// The hero sits above the tier rail, so its height *is* the rail's position: a
+// comp name that wrapped one line differently from the page the reader came from
+// would shove every row down and the scroll would have to re-land. The condensed
+// face plus a slot of exactly two lines (one from lg up, where the longest name
+// in the board still fits) keeps that height constant for any title.
 export function DisplayTitle({ small, big, accent, sub, compact = false }: { small: string; big: string; accent?: string; sub?: string; compact?: boolean }) {
   return (
     <div className="flex flex-col gap-1">
-      <h1 className="flex flex-wrap items-baseline gap-3">
-        <span className={`font-display font-bold uppercase tracking-tight text-fog ${compact ? 'text-lg' : 'text-4xl md:text-6xl'}`}>{small}</span>
-        <span className={compact ? 'text-base text-brand' : 'text-3xl text-brand'}>{'\u25B8'}</span>
-        <span className={`font-display font-bold uppercase tracking-tight text-brand ${compact ? 'text-lg' : 'text-4xl md:text-6xl'}`}>{big}</span>
+      <h1
+        className={`font-hero uppercase leading-[1.2] tracking-tight text-fog ${
+          compact
+            ? 'text-lg'
+            : 'line-clamp-2 min-h-[2.4em] text-2xl md:text-3xl lg:line-clamp-1 lg:min-h-[1.2em] lg:text-5xl'
+        }`}
+      >
+        {small}
+        <span className="px-1.5 text-[0.62em] text-brand">{'\u25B8'}</span>
+        <span className="text-brand">{big}</span>
       </h1>
       {sub ? <p className="max-w-2xl text-sm text-mist">{sub}</p> : null}
     </div>
@@ -101,6 +140,24 @@ export function CostDots({ cost }: { cost: number }) {
     <span className="flex items-center gap-0.5">
       {Array.from({ length: cost }, (_, i) => (
         <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: costOf(cost) }} />
+      ))}
+    </span>
+  );
+}
+
+// Three notches filled to the level, so a word like "Trung bình" still carries
+// its place on the scale. The count is fixed: the level only moves the fill.
+// The bars follow the chip's own text colour, which is dark on the filled
+// difficulty chip and orange wherever the bars stand alone.
+export function LevelBars({ level, max = 3 }: { level: number; max?: number }) {
+  return (
+    <span className="flex items-center gap-0.5" aria-hidden="true">
+      {Array.from({ length: max }, (_, i) => (
+        <span
+          key={i}
+          className="h-2.5 w-1 rounded-[1px] bg-current"
+          style={{ opacity: i < level ? 1 : 0.3 }}
+        />
       ))}
     </span>
   );
@@ -242,7 +299,7 @@ export function ItemHex({ name, icon, tier, frame, size = 16, tip, fill = false,
 
 export function AugmentTile({ name, icon, size = 44 }: { name: string; icon?: string | null; size?: number }) {
   return (
-    <span data-tip={`augment:${name}`} className="relative block shrink-0 overflow-hidden rounded-[18%] bg-util" style={{ width: size, height: size }}>
+    <span data-tip={`augment:${name}`} className="relative block shrink-0 overflow-hidden rounded-[18%] bg-glyph-ground" style={{ width: size, height: size }}>
       {icon ? <img src={icon} alt="" draggable={false} loading="lazy" className="h-full w-full object-cover" /> : null}
     </span>
   );

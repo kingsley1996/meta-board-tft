@@ -28,6 +28,7 @@ const bar = '[data-section="comp-toolbar"]';
 // one tab, and every assertion about it failed as though the page had broken.
 type BoardComp = VariantComp & {
   style: string;
+  difficulty: number;
   cover: { kind: 'item' | 'augment'; name: string } | null;
   flex: { name: string; replaces?: { name: string } }[];
   alt: { name: string; items: string[] }[];
@@ -151,11 +152,13 @@ async function tierRows(page: Page) {
 const clickHref = (page: Page, href: string) =>
   page.evaluate((target) => document.querySelector<HTMLAnchorElement>(`a[href="${target}"]`)?.click(), href);
 
-// A second pick from the row already holding the detail changes nothing on the
-// board, so the glide must not run: it would drag the comp the reader just
-// clicked out of view. A pick in another row still glides, and the test picks a
-// row deep enough that "landed" and "did not move" are different numbers.
-test('a second comp in the same tier row swaps in place instead of gliding', async ({ page }) => {
+// A second pick from the row already holding the detail does not move the board
+// while the reader is sitting on that row's landing spot: the glide would drag
+// the comp they just clicked out of view. Away from the landing spot, with the
+// panel out of sight, the same pick does glide. A pick in another row always
+// glides, and the test picks a row deep enough that "landed" and "did not move"
+// are different numbers.
+test('a second comp in the row already on its landing spot swaps in place', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 950 });
   // Names-off is a saved setting, not the default. The detail route remounts the
   // explorer, so a mount that paints the default first shows the other board
@@ -174,9 +177,13 @@ test('a second comp in the same tier row swaps in place instead of gliding', asy
 
   await watchNamesSwitch(page);
   await clickHref(page, first);
+  // The glide only starts once the detail has mounted. Polling scrollY before it
+  // exists reads a steady 0 and hands back "the page never moved".
+  await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
   const landed = await scrollAtRest(page);
   expect(await readNamesSwitch(page), 'the saved names view must not flash the default one').toEqual(['false']);
   expect(landed).toBeGreaterThan(0);
+  await page.waitForTimeout(2000);
 
   const after = await tierRows(page);
   const live = after.find((row) => row.hrefs.includes(first));
@@ -191,16 +198,55 @@ test('a second comp in the same tier row swaps in place instead of gliding', asy
   await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
   expect(await scrollAtRest(page)).toBe(landed);
 
-  // The reader's own case: back at the top, the same swap leaves them at the top.
+  // The reader's own case: they scrolled back up to the board, so the swap has
+  // to bring the row and the panel hanging under it back into view. Leaving them
+  // at the top showed them a comp they had not asked for.
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(300);
   await clickHref(page, first);
   await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
-  expect(await scrollAtRest(page)).toBe(0);
+  expect(await scrollAtRest(page)).toBe(landed);
 
   // A different row is a different landing spot, so the glide still runs.
   await clickHref(page, other!);
   expect(await scrollAtRest(page)).toBeGreaterThan(0);
+});
+
+// The other half of the same rule. A phone row wraps to several lines, so its
+// panel begins below the fold and landing the row cannot reveal it; gliding
+// there would only slide the comp the reader tapped out of view, so the board
+// holds its position and the reader scrolls to the panel themselves.
+test('a pick inside a row taller than the screen leaves the board still', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/en/tierlist/comps');
+  const rows = await tierRows(page);
+  const open = rows.find((row) => row.hrefs.length >= 2 && row.top > 300);
+  expect(open, 'the board needs a deep tier row holding two comps').toBeTruthy();
+
+  await clickHref(page, open!.hrefs[0]);
+  await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
+  const landed = await scrollAtRest(page);
+  expect(landed).toBeGreaterThan(0);
+  // scrollAtRest stops at the first steady read, which the easing can hand it
+  // mid-flight. The exemption below is only reached once a glide has finished,
+  // so wait out the settle passes before judging where the next pick lands.
+  await page.waitForTimeout(2000);
+  // Which row holds a comp changes once the detail is open, so the second pick
+  // comes from the board as it now stands.
+  const live = (await tierRows(page)).find((row) => row.hrefs.includes(open!.hrefs[0]));
+  const second = live?.hrefs.find((href) => href !== open!.hrefs[0]);
+  expect(second, 'the row must still hold a second comp once the detail is open').toBeTruthy();
+  const panelTop = await page.evaluate(() =>
+    Math.round(document.querySelector('[data-section="comp-detail"]')!.getBoundingClientRect().top)
+  );
+  // The claim is only about a row whose panel does not fit under the bars.
+  expect(panelTop, 'the phone row must wrap tall enough to push its panel off screen').toBeGreaterThan(844 - 180);
+
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(300);
+  await clickHref(page, second!);
+  await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
+  expect(await scrollAtRest(page)).toBe(0);
 });
 
 // The other locale is the same page translated, so switching keeps the reader in
@@ -214,6 +260,7 @@ test('switching language holds the page still with a comp open', async ({ page }
   expect(href, 'the board needs a comp deep enough to glide to').toBeTruthy();
 
   await clickHref(page, href!);
+  await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
   const landed = await scrollAtRest(page);
   expect(landed).toBeGreaterThan(0);
 
@@ -392,6 +439,37 @@ test('the rail wears the comp cover, and flex units read as pairs', async ({ pag
   const alts = page.locator('[data-section="alt-builds"] a');
   await expect(alts).toHaveCount(comp!.alt.length);
   await expect(alts.first().locator('span[data-tip^="item:"]')).toHaveCount(comp!.alt[0].items.length);
+});
+
+// The difficulty chip fills itself in its level's colour, and that tone has to
+// live in the chip's own class list: Tailwind sorts these utilities alphabetically
+// by token, so a fill written over the plain `bg-util` loses the cascade and the
+// chip silently stays grey. Computed style is the only read that proves it painted.
+test('the difficulty chip fills in its level colour', async ({ page }) => {
+  const comps = await boardComps(page);
+  await page.goto(hrefOf(comps[0]));
+  const tokens = await page.evaluate(() => {
+    const styles = getComputedStyle(document.documentElement);
+    const rgb = (level: string) => {
+      const hex = styles.getPropertyValue(`--color-diff-${level}`).trim();
+      return `rgb(${[1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ')})`;
+    };
+    return { easy: rgb('easy'), average: rgb('average'), hard: rgb('hard'), conditional: rgb('conditional') };
+  });
+  const levels: Array<{ tone: keyof typeof tokens; label: string; pick: (comp: BoardComp) => boolean }> = [
+    { tone: 'easy', label: 'Easy to play', pick: (comp) => !comp.situational && comp.difficulty === 1 },
+    { tone: 'average', label: 'Average', pick: (comp) => !comp.situational && comp.difficulty === 2 },
+    { tone: 'hard', label: 'Hard to pull off', pick: (comp) => !comp.situational && comp.difficulty === 3 },
+    { tone: 'conditional', label: 'Needs conditions', pick: (comp) => comp.situational === true },
+  ];
+  for (const level of levels) {
+    const comp = comps.find(level.pick);
+    expect(comp, `the board needs a ${level.tone} comp`).toBeTruthy();
+    await page.goto(hrefOf(comp!));
+    const chip = page.locator('[data-pv="chips"] > span:last-child');
+    await expect(chip).toHaveText(level.label);
+    await expect(chip).toHaveCSS('background-color', tokens[level.tone]);
+  }
 });
 
 test('the bar copies the comp link and closes back to the tier list', async ({ page, context }) => {

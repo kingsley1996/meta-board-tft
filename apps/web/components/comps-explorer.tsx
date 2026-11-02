@@ -48,6 +48,11 @@ let landedRow = '';
 // into, read off the element that carries the detail.
 const rowKeyOf = (row: HTMLElement) => row.dataset.tierRow ?? '';
 
+// How much of the panel has to be showing before a pick counts as already read.
+// The rail's crest and the toolbar live in the panel's first rows, so less than
+// this is a sliver of border rather than the comp the reader clicked.
+const PANEL_HEAD = 180;
+
 // The reader's own filters on the board, held at module level like the names view:
 // /en and /vi are different routes, so a locale switch remounts the explorer and a
 // list narrowed from 54 comps to 4 would re-open at full length under them.
@@ -161,6 +166,14 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
       }
       return bottom;
     };
+    // Is the panel's head readable at this page position — enough of it showing
+    // that the reader can see the comp they just picked, not a sliver of border.
+    const panelShowsAt = (at: number) => {
+      const panel = document.querySelector<HTMLElement>('[data-section="comp-detail"]');
+      if (!panel) return false;
+      const top = panel.getBoundingClientRect().top + (window.scrollY - at);
+      return top >= liveStackBottom() && top <= window.innerHeight - PANEL_HEAD;
+    };
     const jump = (target: number) => window.scrollTo(0, target);
     // Remember the row the panel is now hanging from. Only a finished landing
     // counts: a glide cut short must stay attributed to the row it was heading
@@ -244,14 +257,16 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
         markLanded();
         return;
       }
-      // Picking a second comp from the row already holding the detail moves
-      // nothing: the panel stays under that row, so a glide here would only
-      // drag the comp the reader just clicked out of view.
-      if (!glidePending && landedRow && landedRow === rowKeyOf(row)) {
+      // Picking a second comp from the row already holding the detail usually
+      // needs no glide: the panel stays under that row and the reader is looking
+      // at it. It only stays put when the landing spot would not reveal the panel
+      // either — a tier row taller than the screen cannot show its own panel, and
+      // the glide would drag the comp just clicked out of view for nothing.
+      const target = Math.max(0, Math.round(rowDocTop - stack));
+      if (!glidePending && landedRow && landedRow === rowKeyOf(row) && !panelShowsAt(target)) {
         glidePending = false;
         return;
       }
-      const target = Math.max(0, Math.round(rowDocTop - stack));
       if (Math.abs(from - target) <= 4) {
         glidePending = false;
         markLanded();
