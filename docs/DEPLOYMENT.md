@@ -288,12 +288,15 @@ Quy tắc chọn đường, theo trạng thái DB đích:
   Sau khi ghi thật còn hai việc script không tự làm được:
 
   - **Purge cache trang.** `notifyRevalidate` gọi `AUTH_WEB_ORIGIN || http://localhost:4173`
-    ([src/revalidate.ts](../apps/api/src/revalidate.ts)) — chạy script từ máy cá nhân thì dòng
-    `web revalidate "comps": 503` trong log là cửa dev web, prod chưa được gõ lần nào. Prod có
-    `WEB_REVALIDATE_TOKEN` (probe không token trả 401, không phải 503) nhưng không có
-    `AUTH_WEB_ORIGIN`, nên purge tay một câu:
+    ([src/revalidate.ts](../apps/api/src/revalidate.ts)). **Trên Render biến đó đã set** — bằng chứng:
+    `GET https://metaboard-api.onrender.com/api/auth/google/start` trả 302 mà `redirect_uri` trỏ về
+    `https://www.tftiq.com/api/auth/google/callback`. Nên một lần lưu comp từ `/admin` tự purge prod.
+    Dòng `web revalidate "comps": 503` chỉ xuất hiện khi chạy **script từ máy cá nhân**: `apps/api/.env`
+    không có `AUTH_WEB_ORIGIN`, nên cửa nó gõ tới là dev web — prod chưa được chạm. Purge tay khi đó:
     `curl -X POST https://www.tftiq.com/api/revalidate -H "x-revalidate-token: $WEB_REVALIDATE_TOKEN" -H 'content-type: application/json' -d '{"kind":"comps"}'`
-    → `{"ok":true,"invalidated":8}`, list/map/home sạch ngay.
+    → `{"ok":true,"invalidated":8}`, list/map/home sạch ngay. Prod web có token (probe không token trả
+    401, không phải 503); **điều chưa kiểm chứng được trên Render là `WEB_REVALIDATE_TOKEN`** — thiếu nó
+    thì `notifyRevalidate` return ở dòng 23 mà không in gì cả, và `render.yaml` không khai báo biến này.
   - **Build lại khi có slug mới.** `apps/web/app/[lang]/layout.tsx` đặt `dynamicParams = false`
     cho cả subtree locale, nên slug chưa có trong route manifest của bản deploy đang chạy trả 404
     mặc định của Next ("This page could not be found") dù DB đã có row và hàm không kịp gọi
