@@ -12,11 +12,16 @@ test('statistics question answers with TFTIQ stats', async ({ page }) => {
 });
 
 test('comp page opens the assistant with comp context', async ({ page }) => {
-  await page.goto('/en/tierlist/comps/ahri-spellweaver');
+  const slug = 'ahri-spellweaver';
+  // The context chip quotes the comp's title, and titles are re-cut with every
+  // set — read it from the same payload the page renders from instead of naming
+  // it here, where a rename reads as a broken chip.
+  const { title } = await (await page.request.get(`/api/comps/${slug}?lang=en`)).json();
+  await page.goto(`/en/tierlist/comps/${slug}`);
   await page.getByRole('link', { name: 'Ask about this comp' }).click();
 
-  await expect(page).toHaveURL(/\/en\/assistant\?comp=ahri-spellweaver$/);
-  await expect(page.getByText('Asking about Ahri & Morgana Blossom')).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/en/assistant\\?comp=${slug}$`));
+  await expect(page.getByText(`Asking about ${title}`)).toBeVisible();
 });
 
 test('conversation list shows a delete action and new chat has a plus icon', async ({ page }) => {
