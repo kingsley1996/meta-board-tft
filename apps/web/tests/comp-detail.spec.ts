@@ -1,4 +1,5 @@
 import { expect, test, type Page } from 'playwright/test';
+import { compVariants, type VariantComp } from '../lib/variants.ts';
 
 // The detail page eases its tier row under the sticky bars for about a second
 // after paint. A scrollY read taken mid-glide is wherever the animation
@@ -16,21 +17,64 @@ async function scrollAtRest(page: Page) {
   return prev;
 }
 
-// Veigar Blackthorn is the one comp that carries every new block at once: a
-// cover badge, a sibling variant, flex pairs and alt builds.
+// The rail, the toolbar buttons and the tile sizes are read off one comp page;
+// which comp is not the point of those tests, so the slug can stay named.
 const detail = '/en/tierlist/comps/veigar-blackthorn';
 const bar = '[data-section="comp-toolbar"]';
 
+// The tests about variant tabs resolve their fixture from the payload instead of
+// naming a slug. The board is re-cut every patch, and at 18.5c Veigar Blackthorn
+// became an X-flagged single: its carry group went empty, the tab bar collapsed to
+// one tab, and every assertion about it failed as though the page had broken.
+type BoardComp = VariantComp & {
+  style: string;
+  cover: { kind: 'item' | 'augment'; name: string } | null;
+  flex: { name: string; replaces?: { name: string } }[];
+  alt: { name: string; items: string[] }[];
+};
+
+const hrefOf = (comp: { slug: string }) => `/en/tierlist/comps/${comp.slug}`;
+
+async function boardComps(page: Page): Promise<BoardComp[]> {
+  const body = await (await page.request.get('/api/comps?lang=en')).json();
+  return (body.comps ?? body) as BoardComp[];
+}
+
+// Every group the board carries, in the order the reader meets them: one entry
+// per variant set, each sorted the way the tab strip sorts it (tier first, then
+// title), so tabs.nth(i) is group[i].
+function variantGroups(comps: BoardComp[]): BoardComp[][] {
+  const groups: BoardComp[][] = [];
+  const seen = new Set<string>();
+  for (const comp of comps) {
+    const group = compVariants(comps, comp.slug);
+    if (group.length < 2 || seen.has(group[0].slug)) continue;
+    seen.add(group[0].slug);
+    groups.push(group);
+  }
+  return groups;
+}
+
+// A pair split across two tiers, so a glide would move the page a visible amount
+// and "the tab swap did not move it" is a claim about the glide rather than about
+// two rows that happened to sit side by side.
+const pairedGroup = (comps: BoardComp[]) => variantGroups(comps).find((group) => group[0].tier !== group[1].tier);
+
 test('the toolbar lists the carry variants and each tab is its own comp page', async ({ page }) => {
-  await page.goto(detail);
+  const comps = await boardComps(page);
+  const group = pairedGroup(comps);
+  expect(group, 'the board needs a two-tab variant group in two different tiers').toBeTruthy();
+  const [lead, sibling] = group!;
+  await page.goto(hrefOf(lead));
   const tabs = page.locator(`${bar} nav a`);
-  await expect(tabs).toHaveCount(2);
+  await expect(tabs).toHaveCount(group!.length);
   await expect(tabs.first()).toHaveAttribute('aria-current', 'page');
   // Tier first, like the reference site, so a variant reads as its own ranked
   // comp rather than a colourless alias of the one on screen.
-  await expect(tabs.first().locator('span').first()).toHaveText('S');
-  await expect(tabs.nth(1).locator('span').first()).toHaveText('C');
-  await expect(tabs.nth(1).getByText('Veigar Sprykin')).toBeVisible();
+  for (const [index, comp] of group!.entries()) {
+    await expect(tabs.nth(index).locator('span').first()).toHaveText(comp.tier);
+    await expect(tabs.nth(index).getByText(comp.title)).toBeVisible();
+  }
 
   // The bar heads the content column: inside the panel card, to the right of
   // the 300px rail — not a strip across the top of the whole detail.
@@ -40,22 +84,26 @@ test('the toolbar lists the carry variants and each tab is its own comp page', a
   expect((await panel.locator(bar).boundingBox())!.x).toBeGreaterThan(railBox.x + 300);
 
   await tabs.nth(1).click();
-  await expect(page).toHaveURL(/\/en\/tierlist\/comps\/veigar-sprykin$/);
-  await expect(page.locator('h1')).toContainText('Veigar Sprykin');
+  await expect(page).toHaveURL(new RegExp(hrefOf(sibling) + '$'));
+  await expect(page.locator('h1')).toContainText(sibling.title);
 });
 
 // Picking a comp from the tier rows glides that row under the sticky bars. A
 // tab swap must not: the reader is already inside the detail, and the two
 // variants sit in different tiers here, so a glide would move the page a lot.
 test('a variant tab swaps the comp in place instead of gliding to its tier row', async ({ page }) => {
-  await page.goto(detail);
+  const comps = await boardComps(page);
+  const group = pairedGroup(comps);
+  expect(group, 'the board needs a two-tab variant group in two different tiers').toBeTruthy();
+  const [lead, sibling] = group!;
+  await page.goto(hrefOf(lead));
   const tabs = page.locator(`${bar} nav a`);
   await tabs.first().scrollIntoViewIfNeeded();
   const before = await scrollAtRest(page);
 
   await tabs.nth(1).click();
-  await expect(page).toHaveURL(/\/en\/tierlist\/comps\/veigar-sprykin$/);
-  await expect(page.locator('h1')).toContainText('Veigar Sprykin');
+  await expect(page).toHaveURL(new RegExp(hrefOf(sibling) + '$'));
+  await expect(page.locator('h1')).toContainText(sibling.title);
   expect(await page.evaluate(() => window.scrollY)).toBe(before);
 });
 
@@ -188,6 +236,58 @@ test('switching language holds the page still with a comp open', async ({ page }
   expect(Math.abs(gap)).toBeLessThanOrEqual(6);
 });
 
+// The same remount that yanked the scroll position also dropped the filters the
+// reader had set on the board: one locale switch and a list narrowed to a handful
+// of comps was back at its full length, re-flowing under a pointer still over a
+// card. Style values and carry names are the same strings in both locales, so the
+// count is comparable across the switch.
+test('the board filters survive a locale switch', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 950 });
+  const comps = await boardComps(page);
+  // A pair of filters that genuinely narrows the board today: a carry both
+  // locales spell the same way, plus the style one of those comps carries.
+  const matched = comps.filter((comp) => comp.title.toLowerCase().includes('ahri'));
+  expect(matched.length, 'the board needs a comp named after Ahri').toBeGreaterThan(0);
+  const styleName = matched[0].style ?? 'All';
+
+  await page.goto('/en/tierlist/comps');
+  const search = page.getByRole('searchbox', { name: 'Search comps' });
+  const styleSelect = page.getByLabel('Comp style');
+  const cards = page.locator('[data-section="tierlist"] a[href^="/en/tierlist/comps/"]');
+  const total = await cards.count();
+  await styleSelect.selectOption(styleName);
+  await search.fill('ahri');
+  await expect.poll(() => cards.count(), { message: 'the two filters have to reach the board' }).toBeLessThan(total);
+  const narrowed = await cards.count();
+  expect(narrowed).toBeGreaterThan(0);
+
+  await page.click('[data-section="lang-switch"] a[href^="/vi"]');
+  await expect(page).toHaveURL(/\/vi\/tierlist\/comps$/);
+  await expect(page.getByRole('searchbox', { name: 'Tìm đội hình' })).toHaveValue('ahri');
+  await expect(page.getByLabel('Lối chơi')).toHaveValue(styleName);
+  await expect(page.locator('[data-section="tierlist"] a[href^="/vi/tierlist/comps/"]')).toHaveCount(narrowed);
+});
+
+// The mirror of that rule: a comp detail never inherits the list's text filter.
+// A query that no longer matches the open comp would filter out its tier row, and
+// with no row the panel has nowhere to sit — so the detail always opens plain.
+test('a comp detail opens the whole board even when the list was filtered', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 950 });
+  await page.goto('/en/tierlist/comps');
+  const search = page.getByRole('searchbox', { name: 'Search comps' });
+  const cards = page.locator('[data-section="tierlist"] a[href^="/en/tierlist/comps/"]');
+  const total = await cards.count();
+  await search.fill('ahri');
+  await expect.poll(() => cards.count(), { message: 'the query has to reach the board' }).toBeLessThan(total);
+  const href = (await cards.first().getAttribute('href'))!;
+
+  await clickHref(page, href);
+  await expect(page).toHaveURL(new RegExp(href + '$'));
+  await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
+  await expect(page.getByRole('searchbox', { name: 'Search comps' })).toHaveValue('');
+  expect(await cards.count(), 'the detail board carries every comp, not the filtered few').toBeGreaterThan(10);
+});
+
 // The tierlist pins both bars, so the stack a glide lands under is header plus
 // menu. A row that ends up inside that band reads as cut off mid-selection.
 test('the row a comp lands in sits clear of the pinned bars', async ({ page }) => {
@@ -227,57 +327,71 @@ test('the team strip grows its hexes and item plates on a large screen', async (
 });
 
 test('a variant group holds one slot on the tier board', async ({ page }) => {
+  const comps = await boardComps(page);
+  const group = variantGroups(comps)[0];
+  expect(group, 'the board needs a carry with more than one comp').toBeTruthy();
+  const [lead, sibling] = group!;
   await page.goto('/en/tierlist/comps');
   const board = page.locator('[data-section="tierlist"]');
   const switcher = page.getByRole('switch', { name: 'Comp names' });
-  const lead = board.locator('a[href="/en/tierlist/comps/veigar-blackthorn"]');
+  const leadLink = board.locator(`a[href="${hrefOf(lead)}"]`);
   await expect(switcher).toHaveAttribute('aria-checked', 'true');
-  await expect(lead).toHaveCount(1);
+  await expect(leadLink).toHaveCount(1);
   // The sibling is not a second avatar; it is the second tab of this one.
-  await expect(board.locator('a[href="/en/tierlist/comps/veigar-sprykin"]')).toHaveCount(0);
-  await expect(lead).toHaveAttribute('aria-label', /includes 1 other variant/);
+  await expect(board.locator(`a[href="${hrefOf(sibling)}"]`)).toHaveCount(0);
+  await expect(leadLink).toHaveAttribute('aria-label', new RegExp(`includes ${group!.length - 1} other variant`));
 
   // The board holds one slot per group in either view, so the avatar-only mode
   // is the same comp link with a different body rather than a new row.
   await switcher.click();
   await expect(switcher).toHaveAttribute('aria-checked', 'false');
-  await expect(lead).toHaveCount(1);
-  await expect(lead).toHaveClass(/rounded-lg/);
+  await expect(leadLink).toHaveCount(1);
+  await expect(leadLink).toHaveClass(/rounded-lg/);
   await switcher.click();
 
   // Opening a sibling by its own URL adds no second avatar anywhere: the detail
   // sits under the group's slot — the lead's row — and that avatar is the lit one.
-  await page.goto('/en/tierlist/comps/veigar-sprykin');
+  await page.goto(hrefOf(sibling));
   const slotRow = page
     .locator('[data-section="tierlist"] > div')
     .filter({ has: page.locator('[data-section="comp-detail"]') });
-  await expect(board.locator('a[aria-label^="Veigar Sprykin"]')).toHaveCount(0);
-  const slotLead = slotRow.locator('a[aria-label^="Veigar Blackthorn"]');
+  await expect(board.locator(`a[aria-label^="${sibling.title}"]`)).toHaveCount(0);
+  const slotLead = slotRow.locator(`a[aria-label^="${lead.title}"]`);
   await expect(slotLead).toHaveCount(1);
   await expect(slotLead).toHaveClass(/ring-brand/);
-  await expect(page.locator('h1')).toContainText('Veigar Sprykin');
+  await expect(page.locator('h1')).toContainText(sibling.title);
 });
 
 test('a comp with no siblings keeps its own tab so the bar never collapses', async ({ page }) => {
-  await page.goto('/en/tierlist/comps/soraka-executioner');
+  const comps = await boardComps(page);
+  // A carry that stands alone: not an X flag (those keep their own rail slot by
+  // rule), simply the only comp on the board with this carry.
+  const solo = comps.find((comp) => !comp.situational && !compVariants(comps, comp.slug).length);
+  expect(solo, 'the board needs a comp whose carry has no sibling').toBeTruthy();
+  await page.goto(hrefOf(solo!));
   const tabs = page.locator(`${bar} nav a`);
   await expect(tabs).toHaveCount(1);
   await expect(tabs.first()).toHaveAttribute('aria-current', 'page');
 });
 
 test('the rail wears the comp cover, and flex units read as pairs', async ({ page }) => {
-  await page.goto(detail);
-  await expect(page.locator('[data-section="comp-cover"] [data-tip="augment:Portable Forge"]')).toBeVisible();
+  const comps = await boardComps(page);
+  // Whichever comp is the most dressed-up one this patch: the cover column, the
+  // hand-mapped flex pairs and the alt builds all travel independently.
+  const comp = comps.find((candidate) => candidate.cover && candidate.flex.length && candidate.alt.length);
+  expect(comp, 'the board needs a comp with a cover, a flex pair and an alt build').toBeTruthy();
+  await page.goto(hrefOf(comp!));
+  await expect(page.locator(`[data-section="comp-cover"] [data-tip="${comp!.cover!.kind}:${comp!.cover!.name}"]`)).toBeVisible();
 
   const pairs = page.locator('[data-section="flex-units"] a');
-  await expect(pairs).toHaveCount(2);
-  await expect(pairs.first()).toHaveAttribute('aria-label', 'Ahri replaces Cassiopeia');
+  await expect(pairs).toHaveCount(comp!.flex.length);
+  await expect(pairs.first()).toHaveAttribute('aria-label', `${comp!.flex[0].name} replaces ${comp!.flex[0].replaces?.name}`);
   // The big hex is the unit coming in; the corner hex is the one it swaps.
   await expect(pairs.first().locator('[data-tip^="champion:"]')).toHaveCount(2);
 
   const alts = page.locator('[data-section="alt-builds"] a');
-  await expect(alts).toHaveCount(2);
-  await expect(alts.first().locator('span[data-tip^="item:"]')).toHaveCount(3);
+  await expect(alts).toHaveCount(comp!.alt.length);
+  await expect(alts.first().locator('span[data-tip^="item:"]')).toHaveCount(comp!.alt[0].items.length);
 });
 
 test('the bar copies the comp link and closes back to the tier list', async ({ page, context }) => {

@@ -48,6 +48,15 @@ let landedRow = '';
 // into, read off the element that carries the detail.
 const rowKeyOf = (row: HTMLElement) => row.dataset.tierRow ?? '';
 
+// The reader's own filters on the board, held at module level like the names view:
+// /en and /vi are different routes, so a locale switch remounts the explorer and a
+// list narrowed from 54 comps to 4 would re-open at full length under them.
+// A comp detail does not inherit them — a query that no longer matches the open
+// comp filters out its row, and with no row the panel has nowhere to sit.
+let savedQuery = '';
+let savedStyle = 'All';
+let savedSort: 'default' | 'popular' = 'default';
+
 // useLayoutEffect while hydrating in the browser, useEffect during SSR.
 const useScrollEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
@@ -59,7 +68,9 @@ function isFullComp(comp: ApiComp | CompSummary): comp is ApiComp {
 
 export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; lang: Lang; initial?: CompsInitial }) {
   const t = messages[lang].explorer;
-  const [sort, setSort] = useState<'default' | 'popular'>('default');
+  const [sort, setSort] = useState<'default' | 'popular'>(openSlug ? 'default' : savedSort);
+  const [query, setQuery] = useState(openSlug ? '' : savedQuery);
+  const [style, setStyle] = useState(openSlug ? 'All' : savedStyle);
   const cacheKey = `${lang}:${sort}`;
   // `initial` is the payload the page already paid for while rendering, so the
   // list paints out of the document instead of waiting on a second round-trip.
@@ -68,8 +79,6 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   const [data, setData] = useState<CompsInitial | null>(() => cache[cacheKey] ?? initial ?? null);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
-  const [query, setQuery] = useState('');
-  const [style, setStyle] = useState('All');
   // Names are the default view, so a server render paints with them. The saved
   // view is applied before paint below and remembered at module level, because
   // the detail route remounts the explorer: rendering the default first and
@@ -277,8 +286,11 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
 
   const comps = data?.comps ?? [];
   const styles = ['All', ...new Set(comps.map((comp) => comp.style))];
+  // A carried-over filter only counts while the board in front of us still offers
+  // it: a style the set dropped shows every tier row instead of an empty page.
+  const styleOn = styles.includes(style) ? style : 'All';
   const filtered = comps.filter(
-    (comp) => comp.title.toLowerCase().includes(query.toLowerCase()) && (style === 'All' || comp.style === style)
+    (comp) => comp.title.toLowerCase().includes(query.toLowerCase()) && (styleOn === 'All' || comp.style === styleOn)
   );
   // A variant group takes one slot on the board and the siblings never get
   // another: the comp that leads the group's tab strip holds the slot, and the
@@ -299,14 +311,20 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
           <input
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              savedQuery = event.target.value;
+              setQuery(event.target.value);
+            }}
             placeholder={t.search}
             aria-label={t.search}
             className="smooth h-9 w-56 rounded-lg border border-line bg-panel px-4 text-sm text-fog placeholder:text-mist"
           />
           <select
-            value={style}
-            onChange={(event) => setStyle(event.target.value)}
+            value={styleOn}
+            onChange={(event) => {
+              savedStyle = event.target.value;
+              setStyle(event.target.value);
+            }}
             aria-label={t.style}
             className="smooth h-9 rounded-lg border border-line bg-panel px-3 text-sm font-semibold text-fog"
           >
@@ -316,7 +334,10 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
           </select>
           <select
             value={sort}
-            onChange={(event) => setSort(event.target.value as 'default' | 'popular')}
+            onChange={(event) => {
+              savedSort = event.target.value as 'default' | 'popular';
+              setSort(savedSort);
+            }}
             aria-label={t.sort}
             className="smooth h-9 rounded-lg border border-line bg-panel px-3 text-sm font-semibold text-fog"
           >
