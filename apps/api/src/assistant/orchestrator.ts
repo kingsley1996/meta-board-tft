@@ -640,6 +640,7 @@ function difficultyOf(text: string): number | null {
 
 function styleOf(text: string): string | null {
   if (/\breroll\b/.test(text)) return 'Reroll';
+  if (/\bfast ?9\b/.test(text)) return 'Fast 9';
   if (/\bfast ?8\b/.test(text)) return 'Fast 8';
   if (/\bflex\b/.test(text)) return 'Flex';
   if (/\btempo\b/.test(text)) return 'Tempo';

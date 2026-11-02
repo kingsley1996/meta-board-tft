@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS comps (
   slug text PRIMARY KEY,
   title text NOT NULL,
   tier text NOT NULL CHECK (tier IN ('S', 'A', 'B', 'C', 'X')),
-  style text NOT NULL CHECK (style IN ('Reroll', 'Fast 8', 'Flex', 'Tempo')),
+  style text NOT NULL CHECK (style IN ('Reroll', 'Fast 8', 'Fast 9', 'Flex', 'Tempo')),
   difficulty int NOT NULL CHECK (difficulty BETWEEN 1 AND 3),
   playstyle text NOT NULL,
   carry text NOT NULL,
@@ -58,12 +58,25 @@ DO $$ BEGIN
   ALTER TABLE comps ADD CONSTRAINT comps_trend_values CHECK (trend IN ('up', 'down'));
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
+-- Fast 9 is its own plan, not a Fast 8 typo: three sites publish it as a
+-- separate level curve. Rebuild the inline check on databases created before
+-- the bucket existed (a CHECK added in CREATE TABLE is not rewritten by it).
+ALTER TABLE comps DROP CONSTRAINT IF EXISTS comps_style_check;
+DO $$ BEGIN
+  ALTER TABLE comps ADD CONSTRAINT comps_style_check CHECK (style IN ('Reroll', 'Fast 8', 'Fast 9', 'Flex', 'Tempo'));
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
 -- Community signals: helpful votes (one per visitor) and anonymous view counts.
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS votes int NOT NULL DEFAULT 0;
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS views int NOT NULL DEFAULT 0;
 
 -- Counters: [{ slug, kind: 'good' | 'bad' }] — comps this one beats / loses to.
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS matchups jsonb NOT NULL DEFAULT '[]';
+
+-- Situational comps (tftacademy's X): they need a condition — an emblem, an
+-- item line, an augment — to work. The tier rail files them under X while tier
+-- itself keeps the band they actually deserve.
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS situational boolean NOT NULL DEFAULT false;
 
 -- Newsletter signups from the public footer. Sending is manual for now
 -- (export the list from /admin/subscribers).

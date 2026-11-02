@@ -6,7 +6,7 @@ import { notifyRevalidate } from './revalidate.ts';
 import { sharedDataPath } from './shared-data.ts';
 
 const TIERS = ['S', 'A', 'B', 'C', 'X'];
-const STYLES = ['Reroll', 'Fast 8', 'Flex', 'Tempo'];
+const STYLES = ['Reroll', 'Fast 8', 'Fast 9', 'Flex', 'Tempo'];
 const AUGMENT_TYPES = ['ITEMS', 'ECON', 'COMBAT', 'EMBLEM'];
 
 // Hand-mapped TFT Academy extras (flex pairs, alt builds) that no DB column
@@ -41,6 +41,7 @@ export type CompInput = {
   title: string;
   titleVi?: string | null;
   tier: string;
+  situational: boolean;
   style: string;
   difficulty: number;
   trend: string | null;
@@ -91,8 +92,11 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
 
   const tier = str(raw.tier);
   if (!TIERS.includes(tier)) return fail('tier must be one of S, A, B, C, X');
+  // Situational = "needs a condition (emblem, item, augment) to run". The tier
+  // rail groups these under X while tier itself keeps the comp's real band.
+  const situational = raw.situational === true;
   const style = str(raw.style);
-  if (!STYLES.includes(style)) return fail('style must be one of Reroll, Fast 8, Flex, Tempo');
+  if (!STYLES.includes(style)) return fail('style must be one of Reroll, Fast 8, Fast 9, Flex, Tempo');
   const difficulty = Number(raw.difficulty);
   if (![1, 2, 3].includes(difficulty)) return fail('difficulty must be 1, 2 or 3');
 
@@ -261,6 +265,7 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
       title,
       titleVi,
       tier,
+      situational,
       style,
       difficulty,
       trend: trend || null,
@@ -287,15 +292,16 @@ export async function writeComp(comp: CompInput): Promise<void> {
   try {
     await client.query('BEGIN');
     await client.query(
-      `INSERT INTO comps (slug, title, title_vi, tier, style, difficulty, trend, playstyle, playstyle_vi, carry, cover, tips, tips_vi, augment_types, matchups)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      `INSERT INTO comps (slug, title, title_vi, tier, situational, style, difficulty, trend, playstyle, playstyle_vi, carry, cover, tips, tips_vi, augment_types, matchups)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, title_vi = EXCLUDED.title_vi, tier = EXCLUDED.tier,
+         situational = EXCLUDED.situational,
          style = EXCLUDED.style, difficulty = EXCLUDED.difficulty, trend = EXCLUDED.trend,
          playstyle = EXCLUDED.playstyle, playstyle_vi = EXCLUDED.playstyle_vi,
          carry = EXCLUDED.carry, cover = EXCLUDED.cover, tips = EXCLUDED.tips, tips_vi = EXCLUDED.tips_vi,
          augment_types = EXCLUDED.augment_types, matchups = EXCLUDED.matchups, updated_at = now()`,
-      [comp.slug, comp.title, comp.titleVi, comp.tier, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.cover ? JSON.stringify(comp.cover) : null, comp.tips, comp.tipsVi, comp.augmentTypes, JSON.stringify(comp.matchups)]
+      [comp.slug, comp.title, comp.titleVi, comp.tier, comp.situational, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.cover ? JSON.stringify(comp.cover) : null, comp.tips, comp.tipsVi, comp.augmentTypes, JSON.stringify(comp.matchups)]
     );
     for (const table of ['comp_units', 'comp_items', 'comp_augments']) {
       await client.query(`DELETE FROM ${table} WHERE comp_slug = $1`, [comp.slug]);
@@ -480,6 +486,7 @@ async function listCompsUncached(slug?: string, lang: 'en' | 'vi' = 'en', sort?:
       title: vi ? translateText('vi', 'comps', 'comp-title', row.title, row.title_vi) : row.title,
       titleVi: row.title_vi ?? null,
       tier: row.tier,
+      situational: row.situational ?? false,
       style: row.style,
       difficulty: row.difficulty,
       trend: row.trend ?? null,

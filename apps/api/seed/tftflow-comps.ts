@@ -71,6 +71,7 @@ export function translateCompTitle(title: string): string {
 }
 
 const styleFor = (comp: EconomyComp) => {
+  if (comp.strategy?.startsWith('Fast 9')) return 'Fast 9';
   if (comp.strategy?.startsWith('Fast')) return 'Fast 8';
   if (/tempo/i.test(comp.name)) return 'Tempo';
   if (/flex/i.test(comp.name)) return 'Flex';
@@ -159,6 +160,7 @@ export function buildTftflowComps(
       title: comp.name,
       titleVi: translateCompTitle(comp.name),
       tier: TIER[comp.tier ?? 'C'] ?? 'C',
+      situational: false,
       style: styleFor(comp),
       difficulty: 2,
       trend: null,

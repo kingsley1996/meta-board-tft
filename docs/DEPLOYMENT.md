@@ -243,8 +243,9 @@ hai số khác nhau. Việc đó chạy **lúc boot** (`index.ts` → `applyCata
 |---|---|---|---|
 | `tft.json` + `apps/web/public/tft/**` (commit) | trang static (champions/items grid, hover cards) **và** API | repo crawler riêng (private) | chạy crawl ở repo đó, commit vào đây, push |
 | 4 bảng catalog trong Postgres | responses động, admin, validation | `syncTft()` / `ensureCatalogCurrent()` từ snapshot | **không có bước thủ công** — API tự nạp khi boot |
-| `comps`, `guides` trong Postgres | nội dung biên tập | `seed.ts` (DB trắng) / admin UI (về sau) | admin UI; `seed:economy` để nạp thêm economy comps |
+| `comps`, `guides` trong Postgres | nội dung biên tập | `seed.ts` (DB trắng) / admin UI; `seed/comps.json` do repo crawler sinh qua engine `lib/select.mjs` — **bốn site guide** định nghĩa board (TFT Academy, tftflow, tftips, coachingtft), còn datatft/tftcodex/MetaTFT chỉ là nguồn **đo** (stats, điểm, cứu solo) | admin UI; `seed:economy` để nạp thêm economy comps; comp không đạt cửa ship (<2 nguồn guide, hoặc 1 nguồn mà số trận chưa đủ cứu) nằm ở `seed/comp-candidates.json` và chỉ vào DB khi approve ở `/admin/comps/candidates` |
 | `tier`, `trend` của `comps` | bảng tier list và bản đồ comp | snapshot `apps/api/seed/comps.json` | `npm run seed:tiers` — chỉ UPDATE hai cột theo slug, không xoá gì |
+| nội dung của `comps` (board, items, augments, copy, tier) | trang comp detail — bản đồ/homepage link theo `meta.json`, mà detail đọc DB; slug lệch nhau là 404, board lệch nhau là hiện sai đội hình | snapshot `apps/api/seed/comps.json` | `npm run seed:comps` ([seed/upsert-comps.ts](../apps/api/seed/upsert-comps.ts)) — INSERT slug chưa có và viết lại theo snapshot những hàng đã lệch, qua đúng `validateCompPayload` + `writeComp` như editor; giữ `cover` (lấy ở `comp-extras.json`, không có thì giữ của DB), không đụng votes/views, không xoá gì; chạy lại lần hai báo 0 thay đổi |
 | `plan_versions` trong Postgres | [quota.ts](../apps/api/src/membership/quota.ts) chỉ đọc khi có membership resolution (#86); chưa có route nào gọi — bán hàng là gate #92/#95 | `seed/membership-plans.ts` | `npm run seed:membership` — idempotent, tạo hai offer `draft`; bật `active` là quyết định thương mại, không phải bước deploy |
 
 Quy tắc chọn đường, theo trạng thái DB đích:
@@ -258,16 +259,32 @@ Quy tắc chọn đường, theo trạng thái DB đích:
   ([seed/sync-tiers.ts](../apps/api/seed/sync-tiers.ts)). So theo `slug`, chỉ `UPDATE tier, trend`
   trong một transaction, in bảng before→after, chạy lại lần hai thì báo 0 thay đổi. Không thêm
   comp mới (một comp cần board/items/augments, hai cột kia không mang được), không đụng
-  `cover`, tips, votes, views và các comp economy chỉ có trong DB. Thêm comp thì dùng
-  `seed:economy`. Xem trước bằng `-- --dry-run`.
+  `cover`, tips, votes, views và các comp economy chỉ có trong DB. Xem trước bằng `-- --dry-run`.
+- **DB đã có nội dung, snapshot đi trước (slug mới, board/copy cũ):** `npm run seed:comps`
+  ([seed/upsert-comps.ts](../apps/api/seed/upsert-comps.ts)). Đây là lỗi người dùng thấy được:
+  bản đồ comp và homepage vẽ link từ `meta.json` (commit), còn trang detail tra `comps` trong
+  DB — thiếu slug là 404, còn hàng tồn giữ board cũ là đội hình sai. Script so từng comp theo
+  snapshot theo từng section (board, early, alt, items, augments, stages, copy, tier, matchups),
+  in ra hàng nào lệch và lệch chỗ nào, rồi ghi đúng một đường mà editor dùng:
+  `validateCompPayload` + `writeComp` (một transaction mỗi comp, tên unit/item/augment phải có
+  trong catalog, comp lỗi bị bỏ qua và in tên). Vì vậy nó không đụng `votes`/`views`, giữ `cover`
+  (lấy ở `comp-extras.json`, file im lặng thì giữ badge đang có trong DB) và giữ `text_vi` của
+  stage — cùng ba điều editor làm. Chạy lại lần hai báo `0 rewritten`. Đổi lại, snapshot là
+  nguồn thật cho các cột nó publish: sửa tay board/tips trong DB sẽ bị lần sync sau ghi đè —
+  muốn nội dung nằm ngoài snapshot thì soạn ở `/admin`, còn comp chưa đủ cửa ship thì vẫn là
+  `seed/comp-candidates.json` + approve. Economy comps vẫn là việc của `seed:economy`.
   Trỏ vào DB prod bằng biến đang có trong `apps/api/.env` (Node ưu tiên env của shell hơn file):
 
   ```sh
   cd apps/api
   set -a; . ./.env; set +a
+  DATABASE_URL="$PROD_DATABASE_URL" npm run seed:comps -- --dry-run
+  DATABASE_URL="$PROD_DATABASE_URL" npm run seed:comps
   DATABASE_URL="$PROD_DATABASE_URL" npm run seed:tiers -- --dry-run
   DATABASE_URL="$PROD_DATABASE_URL" npm run seed:tiers
   ```
+  Hai dòng `seed:comps` là bước ghi đè có chủ đích: đọc hết danh sách `rewrite … · board, copy`
+  dry-run in ra, đối chiếu với nội dung admin soạn gần đây, rồi mới bỏ `--dry-run`.
 - **RAG corpus:** sửa nguồn (`mechanics-knowledge.json`, `seed/guides.ts`, `seed/tips.ts`)
   rồi `npm run build:knowledge`; `chunks.jsonl` là output đã commit — không sửa tay.
 
@@ -279,19 +296,24 @@ sống ở đây nữa.
 
 ```sh
 cd ../tft-comps-crawler
-npm run data:pull        # crawl đúng thứ tự: catalog → MetaTFT → tips → wisps → loot → economy
+npm run data:pull        # catalog → stats/wisps/loot/economy (MetaTFT chỉ còn số đo)
+npm run comps            # seed/comps.json + comp-candidates.json qua engine lib/select.mjs (4 nguồn định nghĩa + nguồn đo; cần data:pull trước)
 npm run verify           # lô data trong app checkout là gì
 
 cd ../tft-comps          # repo app
 npm run build:knowledge  # corpus RAG từ guides.ts + tips.ts
 npm run test:server      # test đọc snapshot, không đọc mạng
 npm run seed:tiers --workspace @tftiq/api -- --dry-run   # tier/trend DB lệch snapshot ở đâu
+npm run seed:comps --workspace @tftiq/api -- --dry-run   # hàng DB lệch snapshot (slug thiếu + board/copy cũ)
 git add packages/shared/data apps/web/public/tft apps/web/lib/wisps.json apps/api/seed
 git commit -m "chore(data): set <N> patch <P>"
 git push                 # Vercel rebuild web; Render redeploy API và tự nạp catalog
 ```
 
-Hết. Không có câu curl nào ở bước cuối.
+Hết. Không có câu curl nào ở bước cuối. `seed/comps.json` refreshed không tự vào DB prod
+(DB đã có nội dung thì không seed): `seed:comps` ghi những hàng lệch snapshot (kèm slug mới) ngay sau khi push,
+tier/trend cũ thì `seed:tiers`, comp chưa đủ 2 nguồn vẫn chờ approve ở
+`/admin/comps/candidates`.
 
 Bản đầy đủ (vì sao đúng thứ tự, kiểm chứng trước khi commit, `catalog_release` vào Postgres thế
 nào, set rotation, bảng lỗi): `docs/runbook.md` trong repo crawler.

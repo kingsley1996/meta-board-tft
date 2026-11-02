@@ -2,6 +2,7 @@ import express from 'express';
 import { pool, getMeta } from './db.ts';
 import { ensureCatalogCurrent } from './tft.ts';
 import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
+import { candidatePayload, listCompCandidates } from './comp-candidates.ts';
 import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
 import { assistantRouter } from './assistant/index.ts';
 import { translateText } from './assistant/translate.ts';
@@ -199,6 +200,24 @@ app.delete('/api/admin/comps/:slug', async (req, res) => {
     return res.status(404).json({ error: `no comp with slug "${req.params.slug}"` });
   }
   res.json({ ok: true });
+});
+
+// The boards the crawler found but refused to ship. Reading the list is the
+// review screen; approving runs the candidate through the same validator the
+// editor posts to, so there is one way a comp becomes a row.
+app.get('/api/admin/comp-candidates', async (_req, res) => {
+  res.json(await listCompCandidates());
+});
+
+app.post('/api/admin/comp-candidates/:slug', async (req, res) => {
+  const { candidates } = await listCompCandidates(req.params.slug);
+  const candidate = candidates[0];
+  if (!candidate) return res.status(404).json({ error: `no candidate with slug "${req.params.slug}"` });
+  if (candidate.exists) return res.status(409).json({ error: `slug "${candidate.slug}" already exists` });
+  const result = await validateCompPayload(candidatePayload(candidate));
+  if ('error' in result) return res.status(400).json({ error: result.error });
+  await writeComp(result.comp);
+  res.status(201).json({ ok: true, comp: result.comp });
 });
 
 app.post('/api/admin/guides', async (req, res) => {

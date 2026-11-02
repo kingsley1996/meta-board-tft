@@ -97,7 +97,7 @@ export const ASSISTANT_TOOLS: ProviderTool[] = [
           champions: { type: 'array', items: { type: 'string', maxLength: 80 }, maxItems: 5, description: 'Champion names, max 5.' },
           items: { type: 'array', items: { type: 'string', maxLength: 80 }, maxItems: 5, description: 'Completed item names, max 5.' },
           augments: { type: 'array', items: { type: 'string', maxLength: 80 }, maxItems: 5, description: 'Augment names, max 5.' },
-          style: { type: 'string', maxLength: 30, description: 'Fast 8, Reroll, Flex or Tempo.' },
+          style: { type: 'string', maxLength: 30, description: 'Fast 8, Fast 9, Reroll, Flex or Tempo.' },
           difficulty: { type: 'integer', minimum: 1, maximum: 3 },
           tier: { type: 'string', enum: ['S', 'A', 'B', 'C', 'X'] },
           limit: { type: 'integer', minimum: 1, maximum: 5 },
