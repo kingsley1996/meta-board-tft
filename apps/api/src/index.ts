@@ -3,6 +3,7 @@ import { pool, getMeta } from './db.ts';
 import { ensureCatalogCurrent } from './tft.ts';
 import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
 import { candidatePayload, listCompCandidates } from './comp-candidates.ts';
+import { compProvenance } from './comp-provenance.ts';
 import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
 import { assistantRouter } from './assistant/index.ts';
 import { translateText } from './assistant/translate.ts';
@@ -218,6 +219,14 @@ app.post('/api/admin/comp-candidates/:slug', async (req, res) => {
   if ('error' in result) return res.status(400).json({ error: result.error });
   await writeComp(result.comp);
   res.status(201).json({ ok: true, comp: result.comp });
+});
+
+app.get('/api/admin/comp-provenance/:slug', async (req, res) => {
+  const provenance = await compProvenance(req.params.slug);
+  if (!provenance.inDb && !provenance.inSnapshot) {
+    return res.status(404).json({ error: `no comp with slug "${req.params.slug}"` });
+  }
+  res.json(provenance);
 });
 
 app.post('/api/admin/guides', async (req, res) => {
