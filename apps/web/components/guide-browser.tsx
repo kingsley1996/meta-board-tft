@@ -20,14 +20,30 @@ export type GuideCard = {
   featured: boolean;
 };
 
+// The tag the reader filtered by, kept at module level like the board's names
+// view: /vi/guides and /en/guides are different routes, so the hub remounts on a
+// locale switch and state that lived only in the component would land back on
+// "All" — the list re-flows to twice the length under a reader who is still
+// halfway down the filtered one.
+let activeTag = '';
+
 export function GuideBrowser({ lang, tags, guides }: { lang: Lang; tags: string[]; guides: GuideCard[] }) {
   const t = messages[lang].guides;
-  const [active, setActive] = useState('');
+  // Tag keys are the raw ones on the guide rows, so a pick carries across the
+  // locale route change instead of needing translation back and forth. It only
+  // counts while the payload in front of us actually carries guides with it: a
+  // set that dropped the tag shows the full list instead of an empty one.
+  const [picked, setPicked] = useState(activeTag);
+  const active = picked && guides.some((guide) => guide.tags.includes(picked)) ? picked : '';
   const listed = active ? guides.filter((guide) => guide.tags.includes(active)) : guides;
   const featured = listed.find((guide) => guide.featured) ?? listed[0];
   const rest = listed.filter((guide) => guide.slug !== featured?.slug);
   const chipClass = (selected: string) =>
     `smooth rounded-full border px-4 py-1.5 text-xs font-semibold ${selected === active ? 'border-brand bg-brand text-on-brand' : 'border-line bg-panel text-mist hover:border-brand'}`;
+  const choose = (tag: string) => {
+    activeTag = active === tag ? '' : tag;
+    setPicked(activeTag);
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -46,14 +62,14 @@ export function GuideBrowser({ lang, tags, guides }: { lang: Lang; tags: string[
 
       <div data-section="guide-list" className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => setActive('')} className={chipClass('')} aria-pressed={active === ''}>
+          <button type="button" onClick={() => choose('')} className={chipClass('')} aria-pressed={active === ''}>
             {t.all}
           </button>
           {tags.map((tag) => (
             <button
               key={tag}
               type="button"
-              onClick={() => setActive(active === tag ? '' : tag)}
+              onClick={() => choose(tag)}
               className={chipClass(tag)}
               aria-pressed={active === tag}
             >
