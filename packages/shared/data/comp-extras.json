@@ -178,12 +178,6 @@
         "kind": "augment",
         "name": "Portable Forge"
       },
-      "flex": [
-        {
-          "name": "Kog'Maw",
-          "replaces": "Nidalee"
-        }
-      ],
       "alt": [
         {
           "name": "Master Yi",
@@ -199,39 +193,6 @@
             "Wit's End",
             "Flickerblades",
             "Rapid Firecannon"
-          ]
-        }
-      ]
-    },
-    "draven-bounty": {
-      "flex": [
-        {
-          "name": "Hecarim",
-          "replaces": "Alistar"
-        },
-        {
-          "name": "Sentinel",
-          "replaces": "Ivern"
-        },
-        {
-          "name": "Lux",
-          "replaces": "Ivern"
-        }
-      ],
-      "alt": [
-        {
-          "name": "Draven",
-          "items": [
-            "Gold Collector",
-            "Flickerblades",
-            "Fishbones"
-          ]
-        },
-        {
-          "name": "Maokai",
-          "items": [
-            "Void Gauntlet",
-            "Lightshield Crest"
           ]
         }
       ]
@@ -272,24 +233,6 @@
         }
       ]
     },
-    "mama-beak-vanguard": {
-      "flex": [
-        {
-          "name": "Gnar",
-          "replaces": "Alistar"
-        }
-      ],
-      "alt": [
-        {
-          "name": "Mama Beak",
-          "items": [
-            "Radiant Guinsoo's Rageblade",
-            "Hextech Gunblade",
-            "Titan's Resolve"
-          ]
-        }
-      ]
-    },
     "aphelios-lunar": {
       "flex": [
         {
@@ -319,21 +262,6 @@
         }
       ]
     },
-    "ezreal-elderwood": {
-      "cover": {
-        "kind": "item",
-        "name": "Elderwood Emblem"
-      },
-      "alt": [
-        {
-          "name": "Ezreal",
-          "items": [
-            "Dawncore",
-            "Gold Collector"
-          ]
-        }
-      ]
-    },
     "ezreal-executioner": {
       "cover": {
         "kind": "item",
@@ -346,46 +274,6 @@
             "Gold Collector",
             "Dawncore"
           ]
-        }
-      ]
-    },
-    "sivir-primal": {
-      "flex": [
-        {
-          "name": "Taric",
-          "replaces": "Sentinel"
-        },
-        {
-          "name": "Tristana",
-          "replaces": "Kog'Maw"
-        }
-      ],
-      "alt": [
-        {
-          "name": "Nidalee",
-          "items": [
-            "Hunter Emblem",
-            "Silvermere Dawn",
-            "Blue Buff"
-          ]
-        },
-        {
-          "name": "Sivir",
-          "items": [
-            "Fae Emblem"
-          ]
-        }
-      ]
-    },
-    "ashe-blossom": {
-      "flex": [
-        {
-          "name": "Lux",
-          "replaces": "Ivern"
-        },
-        {
-          "name": "Elder Dragon",
-          "replaces": "Sivir"
         }
       ]
     },
@@ -460,10 +348,6 @@
       },
       "flex": [
         {
-          "name": "Shen",
-          "replaces": "Rakan"
-        },
-        {
           "name": "Amumu",
           "replaces": "Lillia"
         }
@@ -502,34 +386,6 @@
         }
       ]
     },
-    "sentinel-invoker": {
-      "cover": {
-        "kind": "item",
-        "name": "Coven Emblem"
-      },
-      "flex": [
-        {
-          "name": "Ivern",
-          "replaces": "Kog'Maw"
-        }
-      ]
-    },
-    "karma-yunara-blackthorn": {
-      "cover": {
-        "kind": "item",
-        "name": "Blackthorn Emblem"
-      },
-      "alt": [
-        {
-          "name": "Yunara",
-          "items": [
-            "Dawncore",
-            "Spear of Shojin",
-            "Last Whisper"
-          ]
-        }
-      ]
-    },
     "cassiopeia-coven": {
       "cover": {
         "kind": "item",
@@ -557,12 +413,6 @@
         "kind": "item",
         "name": "Rapidfire Emblem"
       },
-      "flex": [
-        {
-          "name": "Diana",
-          "replaces": "Rakan"
-        }
-      ],
       "alt": [
         {
           "name": "Aphelios",
@@ -581,14 +431,6 @@
         {
           "name": "Scuttlecrab",
           "replaces": "Brambleback"
-        },
-        {
-          "name": "Morgana",
-          "replaces": "Zyra"
-        },
-        {
-          "name": "Alune",
-          "replaces": "Zyra"
         }
       ],
       "alt": [
@@ -668,29 +510,6 @@
             "Jeweled Gauntlet",
             "Luden's Tempest",
             "Flora Fatalis Emblem"
-          ]
-        }
-      ]
-    },
-    "elise-coven": {
-      "cover": {
-        "kind": "augment",
-        "name": "Dark Ritual"
-      },
-      "alt": [
-        {
-          "name": "Elise",
-          "items": [
-            "Ravager Emblem",
-            "Guinsoo's Rageblade",
-            "Titan's Resolve"
-          ]
-        },
-        {
-          "name": "Elise",
-          "items": [
-            "Gargoyle Stoneplate",
-            "Titan's Resolve"
           ]
         }
       ]
