@@ -166,15 +166,16 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
             }}
           />
         </span>
-        <div className="absolute -top-[52px] left-4" style={{ filter: `drop-shadow(0 10px 22px rgba(0,0,0,.55))` }}>
+        <div data-pv="carry" className="absolute -top-[52px] left-4" style={{ filter: `drop-shadow(0 10px 22px rgba(0,0,0,.55))` }}>
           <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} frame={tier} />
           {comp.cover ? (
-            <span data-section="comp-cover" className="absolute -left-1 bottom-3 z-20">
+            <span data-section="comp-cover" data-pv="cover" className="absolute -left-1 bottom-3 z-20">
               <CoverBadge cover={comp.cover} size={36} frame={tier} />
             </span>
           ) : null}
         </div>
         <span
+          data-pv="rating"
           className="absolute -top-4 right-3 -rotate-[10deg] rounded border-2 border-double px-3 py-1.5 text-center font-display text-[14px] font-bold uppercase leading-none tracking-[0.18em]"
           style={{ borderColor: tier, color: tier, background: `color-mix(in srgb, var(--color-panel) 80%, transparent)` }}
         >
@@ -182,8 +183,8 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           <small className="mt-1 block text-[9px] tracking-[0.24em] opacity-75">TFTIQ</small>
         </span>
         <div className="flex flex-col items-start gap-2">
-          <h3 className="font-display text-2xl font-bold uppercase leading-tight tracking-tight text-fog">{comp.title}</h3>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand">
+          <h3 data-pv="title" className="font-display text-2xl font-bold uppercase leading-tight tracking-tight text-fog">{comp.title}</h3>
+          <p data-pv="playstyle" className="text-xs font-semibold uppercase tracking-wide text-brand">
             {t.playstyleLabel}: {comp.playstyle}
           </p>
           <Link
@@ -193,7 +194,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
             {t.askAssistant}
           </Link>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
+        <div data-pv="chips" className="flex flex-wrap items-center justify-center gap-1.5">
           <Chip>{comp.style}</Chip>
           <Link href={`/${lang}/economy#${economyStrategyByName[economy.strategy]?.id ?? ''}`} className="smooth">
             <Chip className="border-brand/60 text-brand">
@@ -203,19 +204,19 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           <Chip>{t.difficulty} <CostDots cost={comp.difficulty} /></Chip>
           <Chip>{comp.units.length} {t.units}</Chip>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
+        <div data-pv="counters" className="flex flex-wrap items-center justify-center gap-1.5">
           <VoteButton slug={comp.slug} votes={comp.votes} lang={lang} />
           <Chip>{comp.views} {t.views}</Chip>
         </div>
         {comp.traits?.length ? (
-          <div className="flex flex-col gap-2 border-t border-line/60 pt-4">
+          <div data-pv="traits" className="flex flex-col gap-2 border-t border-line/60 pt-4">
             <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.activeTraits}</p>
             <div className="flex flex-wrap justify-center gap-1.5">
               {comp.traits.map((trait) => <TraitChip key={trait.name} trait={trait} />)}
             </div>
           </div>
         ) : null}
-        <div className="flex flex-col gap-2 border-t border-line/60 pt-4">
+        <div data-pv="augments" className="flex flex-col gap-2 border-t border-line/60 pt-4">
           <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.augments}</p>
           <div className="grid grid-cols-4 justify-items-center gap-2">
             {comp.augments.slice(0, 8).map((augment, index) => (
@@ -223,7 +224,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
             ))}
           </div>
         </div>
-        <div className="flex flex-col gap-2 border-t border-line/60 pt-4">
+        <div data-pv="augment-types" className="flex flex-col gap-2 border-t border-line/60 pt-4">
           <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.augmentPriority}</p>
           <div className="flex flex-wrap items-center justify-center gap-1 text-xs font-semibold">
             {(comp.augmentTypes.length ? comp.augmentTypes : ['ECON', 'ITEMS', 'COMBAT']).map((type, index) => {
@@ -239,7 +240,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           </div>
         </div>
         {comp.matchups?.length ? (
-          <div className="flex flex-col gap-2 border-t border-line/60 pt-4">
+          <div data-pv="matchups" className="flex flex-col gap-2 border-t border-line/60 pt-4">
             <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.matchups}</p>
             <div className="flex flex-col gap-1.5">
               {(['good', 'bad'] as const).map((kind) => {
@@ -275,7 +276,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
         {/* One --hex-w per breakpoint drives the whole tile — hexagon, star
             plate and item row all read it. 62.25px is the ceiling: past it the
             strip stops reading as a row of carries and turns into portraits. */}
-        <Panel section="team-strip" className="px-4 py-3 lg:py-4">
+        <Panel section="team-strip" pv="board" className="px-4 py-3 lg:py-4">
           <div className="flex flex-wrap items-center justify-center gap-3 [--hex-w:54px] lg:gap-4 lg:[--hex-w:62.25px]">
             {comp.units.map((unit) => (
               <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth relative block aspect-[1/1.1547] w-[var(--hex-w)] shrink-0">
@@ -285,7 +286,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           </div>
         </Panel>
         <div className="grid gap-4 md:grid-cols-2">
-          <Panel className="p-4">
+          <Panel pv="early" className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.earlyUnits}</p>
             <div className="flex flex-wrap items-center justify-center gap-2 [--hex-w:48px] lg:gap-3 lg:[--hex-w:62.25px]">
               {comp.early.map((unit) => (
@@ -295,7 +296,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
               ))}
             </div>
           </Panel>
-          <Panel className="p-4">
+          <Panel pv="items" className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.itemPriority}</p>
             {/* One row, same ▸ language as the rail's augment priority; the tier
                 ring on each tile still carries ItemRanking's colour information. */}
@@ -310,14 +311,14 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           </Panel>
         </div>
         <div className={flex.length || comp.alt.length ? 'grid gap-4 md:grid-cols-[1fr_200px]' : ''}>
-          <Panel className="p-4">
+          <Panel pv="positioning" className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.positioning}</p>
             <PositioningBoard comp={comp} />
           </Panel>
           {flex.length || comp.alt.length ? (
             <div className="flex flex-col gap-4">
               {flex.length ? (
-                <Panel section="flex-units" className="p-4">
+                <Panel section="flex-units" pv="flex" className="p-4">
                   <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.flexUnits}</p>
                   {/* Pair language from TFT Academy: the big hex is the unit
                       that comes in, the small corner hex is the one it swaps. */}
@@ -345,7 +346,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
                 </Panel>
               ) : null}
               {comp.alt.length ? (
-                <Panel section="alt-builds" className="flex flex-col items-start gap-3 p-4">
+                <Panel section="alt-builds" pv="alt" className="flex flex-col items-start gap-3 p-4">
                   <p className="w-full text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.altBuilds}</p>
                   <div className="flex flex-wrap items-center justify-center gap-2.5 self-center pt-2 [--hex-w:48px] lg:[--hex-w:60px]">
                     {comp.alt.map((unit, index) => (
@@ -360,7 +361,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           ) : null}
         </div>
         {comp.tips ? (
-          <Panel className="p-4">
+          <Panel pv="tips" className="p-4">
             <p className="mb-2 flex justify-center">
               <span className="rounded-full border border-line bg-util px-4 py-1 text-xs font-semibold text-fog">{t.tips}</span>
             </p>
@@ -368,7 +369,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           </Panel>
         ) : null}
         {comp.stages.length ? (
-          <div className="grid gap-4 md:grid-cols-3">
+          <div data-pv="stages" className="grid gap-4 md:grid-cols-3">
             {comp.stages.map((stage) => (
               <Panel key={stage.stage} className="p-4">
                 <p className="mb-2 flex justify-center">
@@ -380,7 +381,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           </div>
         ) : null}
         {economy.levelCurve.length ? (
-          <Panel className="flex flex-col gap-3 p-4">
+          <Panel pv="economy" className="flex flex-col gap-3 p-4">
             <p className="flex items-center justify-center gap-2">
               <span className="rounded-full border border-brand/60 bg-util px-3 py-0.5 text-xs font-semibold text-brand">
                 {messages[lang].economy.plan} · {translateText(lang, 'economy', 'strategy-name', economy.strategy)}

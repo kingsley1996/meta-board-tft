@@ -73,8 +73,10 @@ export function TierTabs({ current, lang }: { current: 'comps' | 'items' | 'augm
   );
 }
 
-export function Panel({ children, className = '', section }: { children: ReactNode; className?: string; section?: string }) {
-  return <div data-section={section} className={`rounded-xl border border-line bg-panel ${className}`}>{children}</div>;
+// `pv` is a provenance hook: /admin/comps/*/provenance outlines that box and
+// draws its leader line to the field rail. It has no effect anywhere else.
+export function Panel({ children, className = '', section, pv }: { children: ReactNode; className?: string; section?: string; pv?: string }) {
+  return <div data-section={section} data-pv={pv} className={`rounded-xl border border-line bg-panel ${className}`}>{children}</div>;
 }
 
 export function Chip({ children, className = '' }: { children: ReactNode; className?: string }) {

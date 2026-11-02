@@ -49,6 +49,9 @@ export default async function AdminCompsPage() {
             </td>
             <td>
               <div className="flex justify-end gap-2">
+                <Link href={`/admin/comps/${comp.slug}/provenance`} className={btnQuiet}>
+                  Provenance
+                </Link>
                 <Link href={`/admin/comps/${comp.slug}/edit`} className={btnQuiet}>
                   Edit
                 </Link>

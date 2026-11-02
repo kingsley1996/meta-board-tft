@@ -56,6 +56,12 @@ export default async function EditCompPage({ params }: { params: Promise<{ slug:
           ← Back to comps
         </Link>
         <h1 className="font-display text-3xl font-bold uppercase tracking-tight text-fog">Edit · {comp.title}</h1>
+        <p className="text-xs text-mist">
+          Where does each field come from?{' '}
+          <Link href={`/admin/comps/${comp.slug}/provenance`} className="font-semibold text-brand hover:text-brand-deep">
+            Data provenance
+          </Link>
+        </p>
       </div>
       <CompForm
         comp={comp}
