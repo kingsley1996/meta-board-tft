@@ -4,14 +4,20 @@ import { compVariants, type VariantComp } from '../lib/variants.ts';
 // The detail page eases its tier row under the sticky bars for about a second
 // after paint. A scrollY read taken mid-glide is wherever the animation
 // happened to be passing, so compare only once the page has held still.
-async function scrollAtRest(page: Page) {
+// Still is not the same as settled: the glide only starts once the detail route
+// has been fetched and mounted, which under parallel load can be well after the
+// click. A read taken during that wait sees a steady zero and reports the page
+// as never having moved, so a rest read also has to outlast the glide and its
+// two settle timers.
+async function scrollAtRest(page: Page, settleMs = 1800) {
+  const started = Date.now();
   let prev = -1;
   let steady = 0;
   for (let i = 0; i < 60; i++) {
     const y = await page.evaluate(() => window.scrollY);
     steady = y === prev ? steady + 1 : 0;
     prev = y;
-    if (steady >= 3) return y;
+    if (steady >= 3 && Date.now() - started >= settleMs) return y;
     await page.waitForTimeout(100);
   }
   return prev;
@@ -227,9 +233,9 @@ test('a pick inside a row taller than the screen leaves the board still', async 
   await expect(page.locator('[data-section="comp-detail"]')).toHaveCount(1);
   const landed = await scrollAtRest(page);
   expect(landed).toBeGreaterThan(0);
-  // scrollAtRest stops at the first steady read, which the easing can hand it
-  // mid-flight. The exemption below is only reached once a glide has finished,
-  // so wait out the settle passes before judging where the next pick lands.
+  // The exemption judged below is only reached once a glide has finished, and the
+  // panel geometry is read off the settled page, so wait out the settle passes
+  // before measuring where the row and its panel ended up.
   await page.waitForTimeout(2000);
   // Which row holds a comp changes once the detail is open, so the second pick
   // comes from the board as it now stands.
