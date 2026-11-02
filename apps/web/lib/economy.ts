@@ -49,9 +49,10 @@ export const economyComps: EconomyComp[] = economy.comps;
 /**
  * Which economy strategy a comp plays.
  *
- * A tftflow comp with the same carry that shares most of its board wins; the
- * level curve of that comp is the comp's own curve. Otherwise the strategy is
- * derived from the comp's style and carry cost.
+ * The comp's own style tag names the plan, so the chip beside the rail tag can
+ * never read a different level. A tftflow comp with the same carry that shares
+ * most of its board only gets to refine that name — and bring its own level
+ * curve — while it stays inside the same family of plans.
  */
 export function economyForComp(comp: CompEconomyInput): CompEconomy {
   return resolveEconomyForComp(comp, economyComps, economyStrategies);

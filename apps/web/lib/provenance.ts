@@ -218,7 +218,7 @@ export const PROVENANCE_FIELDS: ProvenanceField[] = [
     kind: 'derived',
     writer: 'Không ai — economyForComp chọn lúc render',
     changes: 'Mỗi khi board/carry đổi, hoặc khi crawl lại economy.json',
-    note: 'Bài nào trùng carry và trùng phần lớn board với một bài tftflow sẽ lấy level curve của bài đó; không trùng thì suy ra từ style + cost carry. Đổi board vì thế có thể đổi luôn kế hoạch tiền.',
+    note: 'Tên kế hoạch luôn đọc từ style của chính bài (Reroll → bậc cost tương ứng, Flex/Tempo → Fast 8). Bài nào trùng carry và trùng phần lớn board với một bài tftflow *cùng họ kế hoạch* thì mới mượn được level curve của bài đó; khác họ thì dùng vòng generic của chính họ. Đổi board vì thế đổi level curve, không đổi tên kế hoạch.',
   },
 ];
 
