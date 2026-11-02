@@ -7,6 +7,7 @@ import { AdminLogout } from '@/components/admin/admin-buttons';
 const items = [
   { href: '/admin', label: 'Overview', exact: true },
   { href: '/admin/comps', label: 'Comps' },
+  { href: '/admin/comps/candidates', label: 'Candidates' },
   { href: '/admin/guides', label: 'Guides' },
   { href: '/admin/aliases', label: 'Aliases' },
   { href: '/admin/users', label: 'Users' },
@@ -18,6 +19,10 @@ const items = [
 
 export function AdminSidebar({ signedInAs }: { signedInAs?: string }) {
   const pathname = usePathname();
+  const matching = items.filter((item) => pathname === item.href || (!item.exact && pathname.startsWith(`${item.href}/`)));
+  // /admin/comps and /admin/comps/candidates both pass that test, so the longest
+  // match owns the highlight.
+  const activeHref = matching.sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
     <aside data-section="admin-sidebar" className="sticky top-0 flex h-screen w-[210px] shrink-0 flex-col border-r border-line bg-panel">
@@ -29,7 +34,7 @@ export function AdminSidebar({ signedInAs }: { signedInAs?: string }) {
       <nav className="flex flex-1 flex-col gap-1 px-3">
         <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-mist">Manage</p>
         {items.map((item) => {
-          const active = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const active = item.href === activeHref;
           return (
             <Link
               key={item.href}

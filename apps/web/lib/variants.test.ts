@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { compVariants, variantRows } from './variants.ts';
 import type { Tier } from './tiers.ts';
 
-const comp = (slug: string, carry: string, tier: Tier) => ({ slug, title: slug, tier, carry: { name: carry } });
+const comp = (slug: string, carry: string, tier: Tier, situational = false) => ({ slug, title: slug, tier, carry: { name: carry }, situational });
 
 describe('comp variants', () => {
   it('groups comps by carry and sorts them by tier', () => {
@@ -20,6 +20,22 @@ describe('comp variants', () => {
     const comps = [comp('pebbles-reroll', 'Pebbles', 'X'), comp('riftbeast-tempo', 'Pebbles', 'A'), comp('pebbles-third', 'Pebbles', 'B')];
     assert.deepEqual(compVariants(comps, 'pebbles-reroll').map((entry) => entry.slug), ['pebbles-third', 'pebbles-reroll']);
     assert.deepEqual(compVariants(comps, 'riftbeast-tempo').map((entry) => entry.slug), ['riftbeast-tempo', 'pebbles-third']);
+  });
+
+  it('keeps every situational comp standalone on the rail', () => {
+    const comps = [comp('aphelios-rapid', 'Aphelios', 'A'), comp('solar-aphelios', 'Aphelios', 'B', true), comp('aphelios-elderwood', 'Aphelios', 'C', true)];
+    // X comps get no tabs for themselves and are not counted as siblings of the A comp.
+    assert.deepEqual(compVariants(comps, 'solar-aphelios'), []);
+    assert.deepEqual(compVariants(comps, 'aphelios-rapid'), []);
+    const rows = variantRows(comps);
+    assert.deepEqual(
+      rows.map((row) => [row.comp.slug, row.lead, row.siblings]),
+      [
+        ['aphelios-rapid', true, 0],
+        ['solar-aphelios', true, 0],
+        ['aphelios-elderwood', true, 0],
+      ]
+    );
   });
 
   it('returns nothing for an unknown slug', () => {

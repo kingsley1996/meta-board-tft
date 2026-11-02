@@ -105,6 +105,9 @@ function buildIndex(lang: Lang): Entry[] {
 
   for (const comp of meta.comps) {
     const title = lang === 'vi' ? comp.titleVi ?? comp.title : comp.title;
+    // The seed's unit rows vary in shape per comp, which folds meta.comps into
+    // a union too wide for map's signature — read just the names.
+    const unitNames: string[] = [...(comp.units as { name: string }[]).map((unit) => unit.name), String(comp.carry)];
     entries.push({
       id: `comp:${comp.slug}`,
       kind: 'comp',
@@ -112,7 +115,7 @@ function buildIndex(lang: Lang): Entry[] {
       subtitle: `${comp.tier} · ${comp.style}`,
       icon: championIcon(comp.carry),
       href: `/${lang}/tierlist/comps/${comp.slug}`,
-      terms: normalize([title, comp.title, comp.playstyle, comp.playstyleVi ?? '', ...[...comp.units.map((unit) => unit.name), comp.carry].flatMap((name) => [name, unitName(name, lang), ...unitTraitNames(name, lang)])].join(' ')),
+      terms: normalize([title, comp.title, comp.playstyle, comp.playstyleVi ?? '', ...unitNames.flatMap((name) => [name, unitName(name, lang), ...unitTraitNames(name, lang)])].join(' ')),
     });
   }
 

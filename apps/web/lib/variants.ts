@@ -7,6 +7,7 @@ export type VariantComp = {
   title: string;
   tier: Tier;
   carry: { name: string };
+  situational?: boolean;
 };
 
 // Comp variants are the same carry in a different shell (Ezreal Elderwood vs
@@ -25,8 +26,15 @@ const excluded = (a: string, b: string) =>
 
 export function compVariants<T extends VariantComp>(comps: T[], slug: string): T[] {
   const current = comps.find((comp) => comp.slug === slug);
-  if (!current) return [];
-  const group = comps.filter((comp) => comp.carry.name === current.carry.name && !excluded(comp.slug, slug));
+  if (!current || current.situational) return [];
+  // A situational comp never hides behind a run-anywhere lead and never borrows
+  // tabs from another X comp: every flag owns its own rail slot.
+  const group = comps.filter(
+    (comp) =>
+      comp.carry.name === current.carry.name &&
+      !comp.situational &&
+      !excluded(comp.slug, slug),
+  );
   return group.length < 2
     ? []
     : group.sort((a, b) => tierRank.indexOf(a.tier) - tierRank.indexOf(b.tier) || a.title.localeCompare(b.title));

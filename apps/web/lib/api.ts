@@ -22,6 +22,9 @@ export type ApiComp = {
   title: string;
   titleVi?: string | null;
   tier: Tier;
+  // tftacademy's X: the comp needs a condition (emblem, item line, augment) to
+  // run. The rail files it under X while tier keeps the band it deserves.
+  situational: boolean;
   style: string;
   difficulty: number;
   trend: 'up' | 'down' | null;
@@ -53,7 +56,10 @@ export type CompsResponse = {
 // comp in full there embedded the same ~290KB list in 116 prerendered pages, so
 // closed rows travel as the fields their card reads and the client fetch fills
 // the rest in right after hydration.
-export type CompSummary = Pick<ApiComp, 'slug' | 'title' | 'tier' | 'style' | 'trend' | 'carry' | 'cover'> & {
+export type CompSummary = Pick<
+  ApiComp,
+  'slug' | 'title' | 'tier' | 'situational' | 'style' | 'trend' | 'carry' | 'cover'
+> & {
   unitCount: number;
 };
 

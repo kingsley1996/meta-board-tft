@@ -62,6 +62,42 @@ export function SubscriberDeleteButton({ email }: { email: string }) {
   );
 }
 
+// Approving a candidate is the crawler's row sent to the same endpoint the editor
+// posts to, so a comp becomes a database row one way only. The list is rebuilt
+// after a success, which is what turns the card into "on the tier list".
+export function CandidateAddButton({ slug }: { slug: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function approve() {
+    setBusy(true);
+    setError('');
+    const res = await fetch(`/api/admin/comp-candidates/${encodeURIComponent(slug)}`, { method: 'POST' });
+    setBusy(false);
+    if (res.ok) {
+      router.refresh();
+      return;
+    }
+    const body = await res.json().catch(() => ({}));
+    setError(body.error ?? `Add failed (${res.status})`);
+  }
+
+  return (
+    <span className="flex flex-wrap items-center justify-end gap-2">
+      <button
+        type="button"
+        onClick={approve}
+        disabled={busy}
+        className="smooth rounded-full border border-brand bg-brand px-3 py-1 text-xs font-semibold text-on-brand hover:bg-brand-deep disabled:opacity-50"
+      >
+        {busy ? 'Adding…' : 'Add to tier list'}
+      </button>
+      {error ? <span className="text-xs font-semibold text-tier-s">{error}</span> : null}
+    </span>
+  );
+}
+
 export function AdminLogout() {
   const router = useRouter();
   return (

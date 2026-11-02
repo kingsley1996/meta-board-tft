@@ -372,8 +372,8 @@ export default async function ChampionPage({ params }: { params: Promise<{ lang:
                     </span>
                   </span>
                   {[
-                    { label: t.compAvg, value: metaStats ? metaStats.avg.toFixed(2) : '\u2014' },
-                    { label: t.compGames, value: metaStats ? compact(metaStats.games) : '\u2014' },
+                    { label: t.compAvg, value: metaStats && metaStats.avg !== null ? metaStats.avg.toFixed(2) : '\u2014' },
+                    { label: t.compGames, value: metaStats?.games ? compact(metaStats.games) : '\u2014' },
                     { label: t.compLevel, value: metaStats?.level ? String(metaStats.level) : '\u2014' },
                   ].map((cell) => (
                     <span key={cell.label} className="flex items-center justify-between gap-2 text-xs sm:block sm:text-right">

@@ -38,3 +38,19 @@ test('a forged session cookie is unauthenticated, not a partial login', async ({
   expect(response.status()).toBe(401);
   expect(await response.json()).toMatchObject({ code: 'unauthenticated' });
 });
+
+// Approving a candidate writes a comp row straight onto the public board, so the
+// review screen and its endpoint are gated like every other admin route.
+test('comp candidates need an admin for the screen and the approve call', async ({ page, request }) => {
+  const screen = await page.request.get('/admin/comps/candidates', { maxRedirects: 0 });
+  expect(screen.status()).toBe(307);
+  expect(screen.headers().location).toBe('/en/login?next=/admin');
+
+  const list = await request.get('/api/admin/comp-candidates');
+  expect(list.status()).toBe(401);
+  expect(await list.json()).toMatchObject({ code: 'unauthenticated' });
+
+  const approve = await request.post('/api/admin/comp-candidates/anakin-reroll');
+  expect(approve.status()).toBe(401);
+  expect(await approve.json()).toMatchObject({ code: 'unauthenticated' });
+});

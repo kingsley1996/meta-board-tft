@@ -86,7 +86,7 @@ export const itemSlugByName: Record<string, string> = Object.fromEntries(tft.ite
 
 // Route slugs are data ids ("da-18-akali-ad"), so breadcrumbs read the display
 // name from here instead of prettifying the slug.
-export const nameBySlug: Record<string, { en: string; vi: string }> = Object.fromEntries([
+export const nameBySlug: Record<string, { en: string; vi: string | null }> = Object.fromEntries([
   ...tft.traits.map((entry) => [entry.slug, { en: entry.name, vi: entry.nameVi }] as const),
   ...tft.champions.map((entry) => [entry.slug, { en: entry.name, vi: entry.nameVi }] as const),
   ...tft.items.map((entry) => [entry.slug, { en: entry.name, vi: entry.nameVi }] as const),
@@ -129,7 +129,9 @@ export const championTierByName: Record<string, Tier> = (() => {
   return Object.fromEntries(ranked.map(([name], index) => [name, cut(index)]));
 })();
 
-export type CompMetaStats = { avg: number; games: number; level: number };
+// avg/level are null for a comp the stats source had no match for; the UI shows
+// an em dash rather than a fabricated number.
+export type CompMetaStats = { avg: number | null; games: number; level: number | null };
 
 export const compStatsBySlug: Record<string, CompMetaStats> = Object.fromEntries(
   meta.comps.map((comp) => [comp.slug, comp.stats])

@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { fetchComps, type ApiComp, type CompSummary, type CompsInitial, type CompsResponse } from '@/lib/api';
-import { tierRank } from '@/lib/tiers';
+import { tierRank, type Tier } from '@/lib/tiers';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { compVariants, variantRows } from '@/lib/variants';
@@ -55,8 +55,11 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   const [attempt, setAttempt] = useState(0);
   const [query, setQuery] = useState('');
   const [style, setStyle] = useState('All');
-  // Comp names are the default view; the avatar-only board is opt-out and
-  // sticky across sessions.
+  // Names are the default view, so this paints with them until the setting is
+  // read. Persisting lives in the toggle's own handler, not in an effect keyed
+  // on showNames: a write effect would flush the `true` default over the saved
+  // '0' on the detail route's mount — and StrictMode's double effect pass then
+  // reads that '1' back and locks names on.
   const [showNames, setShowNames] = useState(true);
   const router = useRouter();
   const tierRef = useRef<HTMLDivElement | null>(null);
@@ -65,9 +68,11 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
     setShowNames(localStorage.getItem('comps-show-names') !== '0');
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('comps-show-names', showNames ? '1' : '0');
-  }, [showNames]);
+  const toggleNames = () =>
+    setShowNames((value) => {
+      localStorage.setItem('comps-show-names', value ? '0' : '1');
+      return !value;
+    });
 
   useEffect(() => {
     let live = true;
@@ -278,7 +283,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
             role="switch"
             aria-checked={showNames}
             title={t.showNames}
-            onClick={() => setShowNames((value) => !value)}
+            onClick={toggleNames}
             className="smooth flex h-9 items-center gap-2 rounded-lg border border-line bg-panel px-3 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
           >
             <span className={`relative h-4 w-7 rounded-full transition-colors ${showNames ? 'bg-brand' : 'bg-mist/40'}`}>
@@ -304,7 +309,13 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
       ) : (
         <div data-section="tierlist" className="flex flex-col gap-4">
           {tierRank.map((tier) => {
-            const tierComps = filtered.filter((comp) => comp.tier === tier && shown.has(comp.slug));
+            // Situational comps live in the X row no matter which band their
+            // tier carries; the strong rows only hold comps that can be run.
+            const tierComps = filtered.filter(
+              (comp) =>
+                shown.has(comp.slug) &&
+                (tier === 'X' ? comp.situational || comp.tier === 'X' : comp.tier === tier && !comp.situational)
+            );
             if (!tierComps.length) return null;
             // The detail belongs to the open comp but sits under the row that
             // holds the group's slot, which for a sibling is the lead's row.
@@ -482,6 +493,26 @@ function TrendHex({ up, className = '' }: { up: boolean; className?: string }) {
   );
 }
 
+// The band a situational comp really earns, pinned to the corner the trend
+// marker would use — same hex shell, so the two read as one family. Only a
+// situational comp with a band of its own gets it; a bare-X one already sits
+// in its rail row.
+function TierLetterHex({ tier, className = '' }: { tier: Tier; className?: string }) {
+  return (
+    <svg viewBox="0 0 12 13.856" aria-hidden className={`h-auto ${className}`}>
+      <polygon
+        points="6,0 12,3.464 12,10.392 6,13.856 0,10.392 0,3.464"
+        fill={tierColor[tier]}
+        stroke="rgba(6,9,14,0.5)"
+        strokeWidth="0.5"
+      />
+      <text x="6" y="9.7" textAnchor="middle" fontSize="7" fontWeight="700" fill="#0a0f18">
+        {tier}
+      </text>
+    </svg>
+  );
+}
+
 function CompCluster({
   comp,
   active,
@@ -501,8 +532,13 @@ function CompCluster({
     : comp.trend === 'down'
       ? { up: false, label: t.trendingDown }
       : null;
+  // A situational comp shows its real band on the hex; the letter outranks the
+  // trend marker for the top-left corner, so trend gives way when both exist.
+  const band = comp.situational && comp.tier !== 'X' && comp.tier !== 'D' ? comp.tier : null;
+  const bandLabel = band ? `${t.situational} · ${band}` : '';
+  const cornerLabel = band ? bandLabel : trend?.label ?? '';
   const group = siblings ? ` — ${t.groupCount(siblings)}` : '';
-  const aria = `${comp.title} (${comp.style})${trend ? ` — ${trend.label}` : ''}${group}`;
+  const aria = `${comp.title} (${comp.style})${cornerLabel ? ` — ${cornerLabel}` : ''}${group}`;
   // Avatar-only mode: just the carry hex with the trend pinned to its
   // top-left corner; the full row (name + style + units) is the default.
   if (!showNames) {
@@ -523,12 +559,16 @@ function CompCluster({
               <CoverBadge cover={comp.cover} size={24} frame={costOf(comp.carry.cost)} />
             </span>
           ) : null}
-          {trend ? (
+          {band || trend ? (
             // Straddles the hexagon's upper-left slant, the way the reference
             // boards place it; the cover badge keeps the bottom point.
-            <span title={trend.label} className="absolute -left-1 -top-1 z-20">
-              <span className="sr-only">{trend.label}</span>
-              <TrendHex up={trend.up} className="w-[18px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)] sm:w-6" />
+            <span title={cornerLabel} className="absolute -left-1 -top-1 z-20">
+              <span className="sr-only">{cornerLabel}</span>
+              {band ? (
+                <TierLetterHex tier={band} className="w-[18px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)] sm:w-6" />
+              ) : trend ? (
+                <TrendHex up={trend.up} className="w-[18px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)] sm:w-6" />
+              ) : null}
             </span>
           ) : null}
         </span>
@@ -544,10 +584,14 @@ function CompCluster({
     >
       <span className="relative shrink-0">
         <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={52} />
-        {trend ? (
-          <span title={trend.label} className="absolute -left-1.5 -top-1.5 z-20">
-            <span className="sr-only">{trend.label}</span>
-            <TrendHex up={trend.up} className="w-5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]" />
+        {band || trend ? (
+          <span title={cornerLabel} className="absolute -left-1.5 -top-1.5 z-20">
+            <span className="sr-only">{cornerLabel}</span>
+            {band ? (
+              <TierLetterHex tier={band} className="w-5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]" />
+            ) : trend ? (
+              <TrendHex up={trend.up} className="w-5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]" />
+            ) : null}
           </span>
         ) : null}
         {comp.cover ? (

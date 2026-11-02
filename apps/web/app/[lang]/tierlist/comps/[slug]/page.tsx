@@ -28,6 +28,7 @@ function slim(comp: ApiComp): CompSummary {
     slug: comp.slug,
     title: comp.title,
     tier: comp.tier,
+    situational: comp.situational,
     style: comp.style,
     trend: comp.trend,
     carry: comp.carry,

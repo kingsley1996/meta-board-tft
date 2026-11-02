@@ -36,8 +36,16 @@ function altTipContext(comp: ApiComp, unit: ApiUnit) {
 // box, which every caller sizes with --hex-w; the item row is a share of that
 // box, so a 48px alt and a 62px strip carry read as the same object. The plates
 // wear the carrier's cost colour rather than the item's tier, so a row of items
-// reads as belonging to the champion above it.
+// reads as belonging to the champion above it. Each plate is a fixed third of
+// the box (three plates + two gaps = the full width): a carrier with one item
+// must not get a plate three times the size of a carrier with three.
+// The strip hugs the hex's lower facets instead of hanging off its tip: left and
+// right plates sit level at the shoulders, the middle one drops onto the bottom
+// vertex, and the whole cluster rides inside the hex. Board rows overlap the
+// lower quarter of the row above, so plates out there would be hidden under an
+// adjacent unit; drop shadow keeps them legible over the art.
 function UnitTile({ unit, context }: { unit: ApiUnit; context?: { traits: string; items: string } }) {
+  const items = unit.items.slice(0, 3);
   return (
     <div
       data-tip-traits={context?.traits || undefined}
@@ -45,10 +53,18 @@ function UnitTile({ unit, context }: { unit: ApiUnit; context?: { traits: string
       className="absolute inset-[2px]"
     >
       <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} fill stars={unit.stars ?? undefined} />
-      {unit.items.length ? (
-        <span className="absolute -bottom-[7%] left-1/2 z-20 flex w-[112%] -translate-x-1/2 gap-[2.5%]">
-          {unit.items.slice(0, 3).map((item, index) => (
-            <ItemHex key={`${item.name}-${index}`} name={item.name} icon={item.icon} frame={costOf(unit.cost)} tip={`item:${item.name}`} fill />
+      {items.length ? (
+        <span className="absolute inset-x-0 bottom-[8%] z-20 flex justify-center gap-[1.5%] [filter:drop-shadow(0_2px_3px_rgba(0,0,0,0.75))]">
+          {items.map((item, index) => (
+            <ItemHex
+              key={`${item.name}-${index}`}
+              name={item.name}
+              icon={item.icon}
+              frame={costOf(unit.cost)}
+              tip={`item:${item.name}`}
+              fill
+              className={`w-[30%] shrink-0 ${items.length === 3 && index === 1 ? 'translate-y-[40%]' : ''}`}
+            />
           ))}
         </span>
       ) : null}

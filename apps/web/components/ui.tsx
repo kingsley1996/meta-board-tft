@@ -220,13 +220,14 @@ export function MiniItem({ icon, name, tier, size = 20, dashed = false }: { icon
 
 // Small pointy-top hex used for items sitting under a unit on the board.
 // `fill` sizes it from its flex parent instead of a fixed pixel size, so the
-// same row shrinks with the hex board on a phone.
-export function ItemHex({ name, icon, tier, frame, size = 16, tip, fill = false }: { name: string; icon?: string | null; tier?: Tier | null; frame?: string; size?: number; tip?: string; fill?: boolean }) {
+// same row shrinks with the hex board on a phone. Pass an explicit width class
+// (e.g. `w-[32%]`) when the plate must keep one size whatever the row holds.
+export function ItemHex({ name, icon, tier, frame, size = 16, tip, fill = false, className }: { name: string; icon?: string | null; tier?: Tier | null; frame?: string; size?: number; tip?: string; fill?: boolean; className?: string }) {
   return (
     <span
       data-tip={tip}
       title={name}
-      className={fill ? 'relative block min-w-0 flex-1' : 'relative block shrink-0'}
+      className={`${className ?? (fill ? 'min-w-0 flex-1' : 'shrink-0')} relative block`}
       style={fill ? { aspectRatio: '1 / 1.1547' } : { width: size, height: Math.round(size * 1.1547) }}
     >
       <span className="hex absolute inset-0" style={{ background: frame ?? (tier ? tierColor[tier] : 'var(--color-line)') }} />

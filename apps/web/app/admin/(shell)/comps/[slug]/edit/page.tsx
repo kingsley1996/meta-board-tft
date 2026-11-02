@@ -21,6 +21,7 @@ export default async function EditCompPage({ params }: { params: Promise<{ slug:
     slug: apiComp.slug,
     title: apiComp.title,
     tier: apiComp.tier,
+    situational: apiComp.situational,
     style: apiComp.style,
     difficulty: apiComp.difficulty,
     trend: apiComp.trend,

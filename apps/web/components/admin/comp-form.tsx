@@ -112,6 +112,8 @@ export type CompFormComp = {
   slug: string;
   title: string;
   tier: string;
+  // Needs a condition (emblem, item line, augment) to run: rail X, tier keeps the band.
+  situational?: boolean;
   style: string;
   difficulty: number;
   trend: 'up' | 'down' | null;
@@ -170,17 +172,23 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 export function CompForm({
   comp,
+  prefill,
   champions,
   items,
   augmentNames,
 }: {
   comp?: CompFormComp;
+  // Values for a comp that does not exist yet — a candidate from the review
+  // screen. Only `comp` marks a stored row, so a prefilled form still posts as a
+  // new comp and the admin fills whatever the data refresh left out.
+  prefill?: CompFormComp;
   champions: ChampionOption[];
   items: ItemOption[];
   augmentNames: string[];
 }) {
   const router = useRouter();
-  const [slugTouched, setSlugTouched] = useState(Boolean(comp));
+  const initial = comp ?? prefill;
+  const [slugTouched, setSlugTouched] = useState(Boolean(initial));
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [compOptions, setCompOptions] = useState<{ slug: string; title: string; tier: string }[]>([]);
@@ -196,33 +204,34 @@ export function CompForm({
   // tft.json lists rarity/set variants with the same display name — dedupe.
   const augmentOptions = [...new Set(augmentNames)].map((name) => ({ name }));
   const [form, setForm] = useState({
-    title: comp?.title ?? '',
-    slug: comp?.slug ?? '',
-    tier: comp?.tier ?? 'B',
-    style: comp?.style ?? 'Tempo',
-    difficulty: String(comp?.difficulty ?? 2),
-    trend: comp?.trend ?? '',
-    playstyle: comp?.playstyle ?? '',
-    units: layoutBoard(comp?.units ?? []),
-    early: comp?.early ?? [],
-    carry: comp?.carry ?? '',
-    coverKind: comp?.cover?.kind ?? 'item',
-    coverName: comp?.cover?.name ?? '',
-    items: comp?.items ?? [],
-    augments: comp?.augments ?? [],
-    alt: comp?.alt ?? [],
-    augmentTypes: comp?.augmentTypes ?? [],
-    matchups: comp?.matchups ?? [],
-    tips: comp?.tips ?? '',
-    stage2: comp?.stages?.[0]?.text ?? '',
-    stage3: comp?.stages?.[1]?.text ?? '',
-    stage4: comp?.stages?.[2]?.text ?? '',
-    titleVi: comp?.titleVi ?? '',
-    playstyleVi: comp?.playstyleVi ?? '',
-    tipsVi: comp?.tipsVi ?? '',
-    stage2Vi: comp?.stagesVi?.[0] ?? '',
-    stage3Vi: comp?.stagesVi?.[1] ?? '',
-    stage4Vi: comp?.stagesVi?.[2] ?? '',
+    title: initial?.title ?? '',
+    slug: initial?.slug ?? '',
+    tier: initial?.tier ?? 'B',
+    situational: initial?.situational ?? false,
+    style: initial?.style ?? 'Tempo',
+    difficulty: String(initial?.difficulty ?? 2),
+    trend: initial?.trend ?? '',
+    playstyle: initial?.playstyle ?? '',
+    units: layoutBoard(initial?.units ?? []),
+    early: initial?.early ?? [],
+    carry: initial?.carry ?? '',
+    coverKind: initial?.cover?.kind ?? 'item',
+    coverName: initial?.cover?.name ?? '',
+    items: initial?.items ?? [],
+    augments: initial?.augments ?? [],
+    alt: initial?.alt ?? [],
+    augmentTypes: initial?.augmentTypes ?? [],
+    matchups: initial?.matchups ?? [],
+    tips: initial?.tips ?? '',
+    stage2: initial?.stages?.[0]?.text ?? '',
+    stage3: initial?.stages?.[1]?.text ?? '',
+    stage4: initial?.stages?.[2]?.text ?? '',
+    titleVi: initial?.titleVi ?? '',
+    playstyleVi: initial?.playstyleVi ?? '',
+    tipsVi: initial?.tipsVi ?? '',
+    stage2Vi: initial?.stagesVi?.[0] ?? '',
+    stage3Vi: initial?.stagesVi?.[1] ?? '',
+    stage4Vi: initial?.stagesVi?.[2] ?? '',
   });
 
   const set = (key: keyof typeof form) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -250,6 +259,7 @@ export function CompForm({
       title: form.title,
       slug: form.slug,
       tier: form.tier,
+      situational: form.situational,
       style: form.style,
       difficulty: Number(form.difficulty),
       trend: form.trend || null,
@@ -322,9 +332,18 @@ export function CompForm({
             {['S', 'A', 'B', 'C', 'X'].map((tier) => <option key={tier}>{tier}</option>)}
           </select>
         </Field>
+        <label className="flex items-center gap-2 text-sm font-semibold text-mist">
+          <input
+            type="checkbox"
+            checked={form.situational}
+            onChange={(event) => setForm((current) => ({ ...current, situational: event.target.checked }))}
+            className="h-4 w-4 accent-[var(--color-brand)]"
+          />
+          Situational — needs a condition to run (files under the X row; Tier keeps its real band)
+        </label>
         <Field label="Style">
           <select className={inputCls} value={form.style} onChange={set('style')}>
-            {['Reroll', 'Fast 8', 'Flex', 'Tempo'].map((style) => <option key={style}>{style}</option>)}
+            {['Reroll', 'Fast 8', 'Fast 9', 'Flex', 'Tempo'].map((style) => <option key={style}>{style}</option>)}
           </select>
         </Field>
         <Field label="Difficulty (1-3)">
