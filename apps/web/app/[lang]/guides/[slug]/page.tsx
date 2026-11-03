@@ -22,7 +22,13 @@ const loadGuides = (lang: Lang) =>
 // dynamic and the revalidate above never gets a cached entry to serve.
 export async function generateStaticParams() {
   const perLang = await Promise.all(
-    locales.map(async (lang) => ((await loadGuides(lang))?.guides ?? []).map((guide) => ({ lang, slug: guide.slug }))),
+    locales.map(async (lang) => {
+      // A list the API cannot answer yet is a smaller loss than a deploy that stops.
+      // Dropping to `null` leaves this route on demand for one build; the throw would
+      // fail every other page in the same collection step.
+      const guides = (await loadGuides(lang).catch(() => null))?.guides ?? [];
+      return guides.map((guide) => ({ lang, slug: guide.slug }));
+    }),
   );
   return perLang.flat();
 }

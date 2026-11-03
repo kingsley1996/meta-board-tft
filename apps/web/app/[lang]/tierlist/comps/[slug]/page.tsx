@@ -42,7 +42,12 @@ function slim(comp: ApiComp): CompSummary {
 // view pays the render again.
 export async function generateStaticParams() {
   const perLang = await Promise.all(
-    locales.map(async (lang) => ((await loadComps(lang))?.comps ?? []).map((comp) => ({ lang, slug: comp.slug }))),
+    locales.map(async (lang) => {
+      // Same rule as the guides and patches routes: a board list the API cannot answer yet
+      // costs one build of on-demand rendering, while the throw would stop the deploy.
+      const comps = (await loadComps(lang).catch(() => null))?.comps ?? [];
+      return comps.map((comp) => ({ lang, slug: comp.slug }));
+    }),
   );
   return perLang.flat();
 }

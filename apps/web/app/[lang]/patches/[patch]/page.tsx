@@ -30,9 +30,13 @@ const loadPatchNotes = (lang: Lang) =>
 // (`patch-18-5`), and only the slugs that have an article — plus the one preview — may be requested.
 export async function generateStaticParams() {
   const perLang = await Promise.all(
-    locales.map(async (lang) =>
-      ((await loadPatchNotes(lang))?.guides ?? []).map((article) => ({ lang, patch: slugToPatch(article.slug) })),
-    ),
+    locales.map(async (lang) => {
+      // The preview is a data file, so this route can always answer at least one URL. If the
+      // store is mid-restart, keep that and let the released patches come on demand — a page
+      // rendering live beats a build that quit over a list.
+      const articles = (await loadPatchNotes(lang).catch(() => null))?.guides ?? [];
+      return articles.map((article) => ({ lang, patch: slugToPatch(article.slug) }));
+    }),
   );
   const wanted = [...perLang.flat(), ...locales.map((lang) => ({ lang, patch: pbe.patch }))];
   // A patch Riot ships between two builds would be in the store and in the preview list; one
