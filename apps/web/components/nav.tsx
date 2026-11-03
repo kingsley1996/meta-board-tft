@@ -7,7 +7,11 @@ import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 import { AuthNav } from './auth/auth-nav';
 import { LangSwitch } from './lang-switch';
+import { NavIcon, type NavIconName } from './nav-icons';
 import { Search } from './search';
+
+type NavEntry = { label: string; href: string; icon?: NavIconName };
+type NavGroup = { label: string; columns: NavEntry[][] };
 
 export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
   const t = messages[lang].nav;
@@ -58,35 +62,47 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
     };
   }, [menuOpen]);
 
-  const dropdowns = [
+  const dropdowns: NavGroup[] = [
     {
       label: t.comps,
-      items: [
-        { label: t.compRankings, href: `/${lang}/tierlist/comps` },
-        { label: t.compMap, href: `/${lang}/tierlist/map` },
-        { label: t.itemRankings, href: `/${lang}/tierlist/items` },
-        { label: t.augmentRankings, href: `/${lang}/tierlist/augments` },
+      columns: [
+        [
+          { label: t.compRankings, href: `/${lang}/tierlist/comps` },
+          { label: t.compMap, href: `/${lang}/tierlist/map` },
+          { label: t.itemRankings, href: `/${lang}/tierlist/items` },
+          { label: t.augmentRankings, href: `/${lang}/tierlist/augments` },
+        ],
       ],
     },
     {
-      label: t.database,
-      items: [
-        { label: t.champions, href: `/${lang}/champions` },
-        { label: t.items, href: `/${lang}/items` },
-        { label: t.itemPriority, href: `/${lang}/item-priority` },
-        { label: t.augments, href: `/${lang}/augments` },
-        { label: t.wisps, href: `/${lang}/wisps` },
-        { label: t.tables, href: `/${lang}/tables` },
-        { label: t.economy, href: `/${lang}/economy` },
+      // One season, both halves: the entities Riot shipped, then the pages that read them.
+      label: t.set(patch.split('.')[0]),
+      columns: [
+        [
+          { label: t.champions, href: `/${lang}/champions`, icon: 'champion' },
+          { label: t.items, href: `/${lang}/items`, icon: 'item' },
+          { label: t.traits, href: `/${lang}/traits`, icon: 'trait' },
+          { label: t.augments, href: `/${lang}/augments`, icon: 'augment' },
+          { label: t.wisps, href: `/${lang}/wisps`, icon: 'wisp' },
+          { label: t.encounters, href: `/${lang}/encounters`, icon: 'encounter' },
+        ],
+        [
+          { label: t.patches, href: `/${lang}/patches`, icon: 'patch' },
+          { label: t.tables, href: `/${lang}/tables`, icon: 'tables' },
+          { label: t.economy, href: `/${lang}/economy`, icon: 'economy' },
+        ],
       ],
     },
     {
       label: t.tools,
-      items: [
-        { label: t.builder, href: `/${lang}/builder` },
-        { label: t.assistant, href: `/${lang}/assistant` },
-        { label: t.tierMaker, href: `/${lang}/tier-maker` },
-        { label: t.quiz, href: `/${lang}/quiz` },
+      columns: [
+        [
+          { label: t.builder, href: `/${lang}/builder` },
+          { label: t.assistant, href: `/${lang}/assistant` },
+          { label: t.tierMaker, href: `/${lang}/tier-maker` },
+          { label: t.quiz, href: `/${lang}/quiz` },
+          { label: t.itemPriority, href: `/${lang}/item-priority` },
+        ],
       ],
     },
   ];
@@ -100,7 +116,43 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
   // Section stays active on its detail pages too, e.g. /champions/ahri.
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const isCurrent = (href: string) => pathname === href;
-  const groupActive = (items: { href: string }[]) => items.some((item) => isActive(item.href));
+  const groupActive = (group: NavGroup) => group.columns.some((column) => column.some((entry) => isActive(entry.href)));
+
+  const glyph = (entry: NavEntry, active: boolean) =>
+    entry.icon ? (
+      <span
+        className={`flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[9px] border transition-colors ${
+          active
+            ? 'border-brand/50 bg-brand/15 text-brand'
+            : 'border-line bg-page group-hover/item:border-brand/50 group-hover/item:text-brand'
+        }`}
+      >
+        <NavIcon name={entry.icon} />
+      </span>
+    ) : null;
+
+  const dismiss = (group: string) => (event: { currentTarget: HTMLAnchorElement }) => {
+    setDismissedDropdown(group);
+    // Safari/Firefox focus a clicked link. If that focus stays inside the group,
+    // clearing the dismissal on mouseleave lets group-focus-within reopen the menu.
+    event.currentTarget.blur();
+  };
+
+  // One row style for every dropdown: a single-column panel reads as the wide one, just shorter.
+  const navRow = (entry: NavEntry, group: string) => (
+    <Link
+      key={entry.label}
+      href={entry.href}
+      onClick={dismiss(group)}
+      aria-current={isCurrent(entry.href) ? 'page' : undefined}
+      className={`smooth group/item flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-util hover:text-brand ${
+        isActive(entry.href) ? 'bg-util text-brand' : 'text-fog'
+      }`}
+    >
+      {glyph(entry, isActive(entry.href))}
+      <span className="min-w-0 flex-1">{entry.label}</span>
+    </Link>
+  );
 
   return (
     <>
@@ -176,17 +228,17 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
               {dropdowns.map((dropdown) => (
                 <div key={dropdown.label} className="border-b border-line/70 py-2">
                   <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-mist">{dropdown.label}</p>
-                  {dropdown.items.map((item) => (
+                  {dropdown.columns.flat().map((entry) => (
                     <Link
-                      key={item.href}
-                      href={item.href}
+                      key={entry.label}
+                      href={entry.href}
                       onClick={() => setMenuOpen(false)}
-                      aria-current={isCurrent(item.href) ? 'page' : undefined}
+                      aria-current={isCurrent(entry.href) ? 'page' : undefined}
                       className={`smooth block rounded-md px-2 py-2 text-sm font-semibold hover:bg-util hover:text-brand ${
-                        isActive(item.href) ? 'bg-util text-brand' : 'text-fog'
+                        isActive(entry.href) ? 'bg-util text-brand' : 'text-fog'
                       }`}
                     >
-                      {item.label}
+                      {entry.label}
                     </Link>
                   ))}
                 </div>
@@ -237,34 +289,30 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                 <button
                   type="button"
                   className={`smooth flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold group-hover:text-brand ${
-                    groupActive(dropdown.items) ? 'bg-util text-brand' : 'text-fog'
+                    groupActive(dropdown) ? 'bg-util text-brand' : 'text-fog'
                   }`}
                 >
                   {dropdown.label}
                   <span className="text-[10px] text-mist">{'\u25BE'}</span>
                 </button>
-                <div className={`invisible absolute top-full left-1/2 z-50 -translate-x-1/2 origin-top scale-95 opacity-0 transition-all duration-150 ${dismissedDropdown === dropdown.label ? '' : 'group-hover:visible group-hover:scale-100 group-hover:opacity-100 group-focus-within:visible group-focus-within:scale-100 group-focus-within:opacity-100'}`}>
-                  <div className="mt-1 flex w-44 flex-col overflow-hidden rounded-lg border border-line bg-panel py-1">
-                    {dropdown.items.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={(event) => {
-                          setDismissedDropdown(dropdown.label);
-                          // Safari/Firefox focus a clicked link. If that focus
-                          // stays inside the group, clearing the dismissal on
-                          // mouseleave lets group-focus-within reopen the menu.
-                          event.currentTarget.blur();
-                        }}
-                        aria-current={isCurrent(item.href) ? 'page' : undefined}
-                        className={`smooth px-4 py-2 text-sm hover:bg-util hover:text-brand ${
-                          isActive(item.href) ? 'bg-util text-brand' : 'text-mist'
-                        }`}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
+                <div className={`invisible absolute top-full z-50 origin-top scale-95 opacity-0 transition-all duration-150 ${
+                  // A 470px panel cannot sit centred under a button that is 100px from the
+                  // left edge; it would hang off the screen. Wide panels grow rightwards.
+                  dropdown.columns.length > 1 ? 'left-0' : 'left-1/2 -translate-x-1/2'
+                } ${dismissedDropdown === dropdown.label ? '' : 'group-hover:visible group-hover:scale-100 group-hover:opacity-100 group-focus-within:visible group-focus-within:scale-100 group-focus-within:opacity-100'}`}>
+                  {dropdown.columns.length > 1 ? (
+                    <div className="mt-1 grid w-[470px] grid-cols-2 divide-x divide-line rounded-lg border border-line bg-panel p-1.5 shadow-2xl shadow-black/40">
+                      {dropdown.columns.map((column) => (
+                        <div key={column[0].label} className="flex flex-col gap-0.5">
+                          {column.map((entry) => navRow(entry, dropdown.label))}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="mt-1 flex w-60 flex-col gap-0.5 rounded-lg border border-line bg-panel p-1.5 shadow-2xl shadow-black/40">
+                      {dropdown.columns[0].map((entry) => navRow(entry, dropdown.label))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

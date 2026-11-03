@@ -55,8 +55,8 @@ test('desktop navigation dropdown closes after selecting an item', async ({ page
   await page.goto('/en');
 
   const menu = page.locator('[data-section="menu"]');
-  const database = menu.getByRole('button', { name: 'Database' });
-  await database.hover();
+  const setMenu = menu.getByRole('button', { name: 'Set 18' });
+  await setMenu.hover();
 
   const champions = menu.getByRole('link', { name: 'Champions', exact: true });
   await expect(champions).toBeVisible();

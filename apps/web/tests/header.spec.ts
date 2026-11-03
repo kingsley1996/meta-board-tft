@@ -54,6 +54,51 @@ test('mobile header stays a single row without the menu row', async ({ page }) =
   await expect(page).toHaveURL(/\/vi\/champions$/);
 });
 
+test('the set menu splits the season into entities and the pages that read them', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/en');
+
+  const menu = page.locator('[data-section="menu"]');
+  await menu.getByRole('button', { name: 'Set 18' }).hover();
+
+  const panel = menu.locator('div.grid');
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole('link')).toHaveCount(9);
+  // Traits and encounters have boards now, so nothing in the season is held back.
+  await expect(panel.locator('[data-nav-soon]')).toHaveCount(0);
+  // Every row carries its glyph, so the list reads by shape before it reads by name.
+  await expect(panel.locator('a svg')).toHaveCount(9);
+  const champions = await panel.getByRole('link', { name: 'Champions', exact: true }).boundingBox();
+  const patches = await panel.getByRole('link', { name: 'Patch notes', exact: true }).boundingBox();
+  expect(champions?.x ?? 0).toBeLessThan(patches?.x ?? 0);
+
+  // Item priority is something you build with, so it sits with the other tools — and the
+  // glyph is a season-menu thing: the ranking and tool rows are plain text.
+  await menu.getByRole('button', { name: 'Tools' }).hover();
+  const tools = menu.getByRole('link', { name: 'Item priority', exact: true });
+  await expect(tools).toBeVisible();
+  await expect(tools.locator('svg')).toHaveCount(0);
+
+  // Being inside the season lights both the row and the group it hangs off.
+  await page.goto('/en/augments');
+  await menu.getByRole('button', { name: 'Set 18' }).hover();
+  await expect(panel.getByRole('link', { name: 'Augments', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(menu.getByRole('button', { name: 'Set 18' })).toHaveClass(/bg-util/);
+});
+
+test('the mobile menu lists the season, its boards and the tools', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/vi');
+  await page.getByRole('button', { name: 'Menu điều hướng' }).click();
+
+  const menu = page.locator('#mobile-menu');
+  await expect(menu.getByText('Mùa 18', { exact: true })).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Tộc/Hệ', exact: true })).toHaveCount(1);
+  await expect(menu.getByRole('link', { name: 'Kỳ ngộ', exact: true })).toHaveCount(1);
+  await expect(menu.getByRole('link', { name: 'Lõi nâng cấp', exact: true })).toHaveCount(1);
+  await expect(menu.getByRole('link', { name: 'Trang bị ưu tiên', exact: true })).toHaveCount(1);
+});
+
 test('the app renders the one palette with no theme switcher', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/vi');

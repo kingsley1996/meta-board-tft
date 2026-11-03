@@ -15,7 +15,7 @@ const features = [
   { key: 'augments', href: '/tierlist/augments', art3d: { src: '/images/tft/augment-crystal-hd.webp', width: 241, height: 400 } },
   { key: 'guides', href: '/guides', art3d: { src: '/images/tft/spellbook-hd.webp', width: 517, height: 400 } },
   { key: 'tables', href: '/tables', art3d: { src: '/images/tft/mechanics-table-hd.webp', width: 584, height: 400 } },
-  { key: 'champions', href: '/learn/champions', art3d: { src: '/images/tft/penguin-gem-hd.webp', width: 424, height: 400 } },
+  { key: 'champions', href: '/champions', art3d: { src: '/images/tft/penguin-gem-hd.webp', width: 424, height: 400 } },
 ] as const;
 
 export default async function Home({ params }: { params: Promise<{ lang: Lang }> }) {
