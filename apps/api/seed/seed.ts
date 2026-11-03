@@ -8,6 +8,7 @@ import { sharedDataPath } from '../src/shared-data.ts';
 import { syncTft } from '../src/tft.ts';
 import { validateCompPayload, writeComp } from '../src/comps.ts';
 import { validateGuidePayload, writeGuide } from '../src/guides.ts';
+import { syncPatchNotes } from '../src/patch-notes-article.ts';
 import { ensureAdminFromEnv } from '../src/accounts.ts';
 import { guideSeeds } from './guides.ts';
 import { tipsSeeds } from './tips.ts';
@@ -115,6 +116,13 @@ for (const raw of [...guideSeeds, ...tipsSeeds]) {
   seededGuides += 1;
 }
 console.log(`seeded ${seededGuides}/${guideSeeds.length + tipsSeeds.length} guides from seed/guides.ts + seed/tips.ts (existing guides replaced)`);
+
+// Patch notes are articles whose numbers nobody types, so they come from the committed
+// patch-notes.json through the same path the production sync uses. The prerender of
+// /patches/[patch] reads them out of this database, so a seed that skipped them 404s pages.
+const patches = await syncPatchNotes();
+console.log(`seeded ${patches.written.length} patch notes from patch-notes.json${patches.skipped.length ? ` (${patches.skipped.length} skipped)` : ''}`);
+for (const line of patches.skipped) console.error(`skipped patch note: ${line}`);
 
 // Owner account for /admin, from the same two variables the API reads at boot —
 // seeding a database and booting an empty one have to arrive at the same result.

@@ -1,0 +1,4583 @@
+{
+  "generatedAt": "2026-11-03T08:33:02.473Z",
+  "latestPatch": "18.5c",
+  "patches": [
+    {
+      "patch": "18.5c",
+      "release": "mid_patch",
+      "base": "18.5",
+      "dayDate": "2026-10-27",
+      "set": 18,
+      "title": "TFT patch 18.5c",
+      "titleVi": "TFT patch 18.5c",
+      "publishedAt": "2026-10-27",
+      "updatedAt": "2026-10-20T18:00:00.000Z",
+      "version": "18.5c",
+      "revision": "sdF3RqhuOsemY4WOprgRDh",
+      "sha256": {
+        "en": "f7f4c6226c596fd3e46bb0bf8f4862639ed7c05f88bf402def3940393fc6f2eb",
+        "vi": "3fbcaddf313089918327b0d73ee0f6a02495e6206ff405fc764c4a940c9deb23"
+      },
+      "url": {
+        "en": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-5",
+        "vi": "https://teamfighttactics.leagueoflegends.com/vi-vn/news/game-updates/teamfight-tactics-patch-18-5"
+      },
+      "source": {
+        "name": "Riot Games",
+        "label": {
+          "en": "Riot Games",
+          "vi": "Riot Games"
+        }
+      },
+      "stats": {
+        "articleArrows": 84,
+        "rows": 6,
+        "unmatched": 0
+      },
+      "counts": {
+        "buff": 0,
+        "nerf": 2,
+        "adjust": 4
+      },
+      "headings": [
+        {
+          "en": "CHAMPIONS",
+          "vi": "TƯỚNG"
+        },
+        {
+          "en": "WISPS",
+          "vi": "TINH LINH"
+        },
+        {
+          "en": "TRAITS",
+          "vi": "TỘC/HỆ"
+        },
+        {
+          "en": "UNITS: TIER 2",
+          "vi": "TƯỚNG: BẬC 2"
+        },
+        {
+          "en": "UNITS: TIER 3",
+          "vi": "TƯỚNG: BẬC 3"
+        },
+        {
+          "en": "UNITS: TIER 4",
+          "vi": "TƯỚNG: BẬC 4"
+        },
+        {
+          "en": "UNITS: TIER 5",
+          "vi": "TƯỚNG: BẬC 5"
+        },
+        {
+          "en": "RADIANT ITEMS",
+          "vi": "TRANG BỊ ÁNH SÁNG"
+        },
+        {
+          "en": "AUGMENTS",
+          "vi": "NÂNG CẤP"
+        }
+      ],
+      "rows": [
+        {
+          "ref": "DA_18_KhaZix",
+          "slug": "da-18-khazix",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Kha'Zix",
+            "vi": "Kha'Zix"
+          },
+          "icon": "/tft/champions/da-18-khazix.png",
+          "cost": 3,
+          "day": "OCTOBER 27TH",
+          "dayDate": "2026-10-27",
+          "heading": "OCTOBER 27TH",
+          "field": {
+            "en": "Base Damage"
+          },
+          "from": "250/345/500",
+          "to": "230/310/450 AP",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_KhaZix",
+          "slug": "da-18-khazix",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Kha'Zix",
+            "vi": "Kha'Zix"
+          },
+          "icon": "/tft/champions/da-18-khazix.png",
+          "cost": 3,
+          "day": "OCTOBER 27TH",
+          "dayDate": "2026-10-27",
+          "heading": "OCTOBER 27TH",
+          "field": {
+            "en": "Isolated Damage"
+          },
+          "from": "280/390/590",
+          "to": "250/350/530 AP",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_Brambleback18",
+          "slug": "da-brambleback18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Brambleback",
+            "vi": "Bụi Gai Đỏ"
+          },
+          "icon": "/tft/champions/da-brambleback18.png",
+          "cost": 4,
+          "day": "OCTOBER 27TH",
+          "dayDate": "2026-10-27",
+          "heading": "OCTOBER 27TH",
+          "field": {
+            "en": "Armor Ignore (AP)"
+          },
+          "from": "25%",
+          "to": "10%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Brambleback18",
+          "slug": "da-brambleback18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Brambleback",
+            "vi": "Bụi Gai Đỏ"
+          },
+          "icon": "/tft/champions/da-brambleback18.png",
+          "cost": 4,
+          "day": "OCTOBER 27TH",
+          "dayDate": "2026-10-27",
+          "heading": "OCTOBER 27TH",
+          "field": {
+            "en": "Armor Ignore Base"
+          },
+          "from": "25%",
+          "to": "30%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Item_UnstableConcoction",
+          "slug": "tft-item-unstableconcoction",
+          "kind": "item",
+          "table": "items",
+          "name": {
+            "en": "Hand Of Justice",
+            "vi": "Bàn Tay Công Lý"
+          },
+          "icon": "/tft/items/tft-item-unstableconcoction.png",
+          "cost": null,
+          "day": "OCTOBER 27TH",
+          "dayDate": "2026-10-27",
+          "heading": "OCTOBER 27TH",
+          "field": {
+            "en": "Omnivamp"
+          },
+          "from": "15%",
+          "to": "12%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT5_Item_HandOfJusticeRadiant",
+          "slug": "tft5-item-handofjusticeradiant",
+          "kind": "item",
+          "table": "items",
+          "name": {
+            "en": "Radiant Hand of Justice",
+            "vi": "Bàn Tay Công Lý Ánh Sáng"
+          },
+          "icon": "/tft/items/tft5-item-handofjusticeradiant.png",
+          "cost": null,
+          "day": "OCTOBER 27TH",
+          "dayDate": "2026-10-27",
+          "heading": "OCTOBER 27TH",
+          "field": {
+            "en": "Radiant Omnivamp"
+          },
+          "from": "30%",
+          "to": "25%",
+          "direction": "adjust"
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "patch": "18.5b",
+      "release": "mid_patch",
+      "base": "18.5",
+      "dayDate": "2026-10-22",
+      "set": 18,
+      "title": "TFT patch 18.5b",
+      "titleVi": "TFT patch 18.5b",
+      "publishedAt": "2026-10-22",
+      "updatedAt": "2026-10-20T18:00:00.000Z",
+      "version": "18.5b",
+      "revision": "sdF3RqhuOsemY4WOprgRDh",
+      "sha256": {
+        "en": "f7f4c6226c596fd3e46bb0bf8f4862639ed7c05f88bf402def3940393fc6f2eb",
+        "vi": "3fbcaddf313089918327b0d73ee0f6a02495e6206ff405fc764c4a940c9deb23"
+      },
+      "url": {
+        "en": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-5",
+        "vi": "https://teamfighttactics.leagueoflegends.com/vi-vn/news/game-updates/teamfight-tactics-patch-18-5"
+      },
+      "source": {
+        "name": "Riot Games",
+        "label": {
+          "en": "Riot Games",
+          "vi": "Riot Games"
+        }
+      },
+      "stats": {
+        "articleArrows": 84,
+        "rows": 7,
+        "unmatched": 0
+      },
+      "counts": {
+        "buff": 0,
+        "nerf": 1,
+        "adjust": 6
+      },
+      "headings": [
+        {
+          "en": "CHAMPIONS",
+          "vi": "TƯỚNG"
+        },
+        {
+          "en": "WISPS",
+          "vi": "TINH LINH"
+        },
+        {
+          "en": "TRAITS",
+          "vi": "TỘC/HỆ"
+        },
+        {
+          "en": "UNITS: TIER 2",
+          "vi": "TƯỚNG: BẬC 2"
+        },
+        {
+          "en": "UNITS: TIER 3",
+          "vi": "TƯỚNG: BẬC 3"
+        },
+        {
+          "en": "UNITS: TIER 4",
+          "vi": "TƯỚNG: BẬC 4"
+        },
+        {
+          "en": "UNITS: TIER 5",
+          "vi": "TƯỚNG: BẬC 5"
+        },
+        {
+          "en": "RADIANT ITEMS",
+          "vi": "TRANG BỊ ÁNH SÁNG"
+        },
+        {
+          "en": "AUGMENTS",
+          "vi": "NÂNG CẤP"
+        }
+      ],
+      "rows": [
+        {
+          "ref": "DA_Brambleback18",
+          "slug": "da-brambleback18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Brambleback",
+            "vi": "Bụi Gai Đỏ"
+          },
+          "icon": "/tft/champions/da-brambleback18.png",
+          "cost": 4,
+          "day": "OCTOBER 22ND",
+          "dayDate": "2026-10-22",
+          "heading": "CHAMPIONS",
+          "field": {
+            "en": "Healing On-Hit",
+            "vi": "Hồi Máu Trên Đòn Đánh"
+          },
+          "from": "5%",
+          "to": "4%",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_DieRoll18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Die Roll",
+            "vi": "Đổ Xúc Xắc"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_goldxp_tier1.png",
+          "cost": 2,
+          "day": "OCTOBER 22ND",
+          "dayDate": "2026-10-22",
+          "heading": "WISPS",
+          "field": {
+            "en": "Upgrade Cost",
+            "vi": "Giá Nâng Cấp"
+          },
+          "from": "3",
+          "to": "2",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Downpour18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Downpour",
+            "vi": "Mưa Như Trút"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+          "cost": 2,
+          "day": "OCTOBER 22ND",
+          "dayDate": "2026-10-22",
+          "heading": "WISPS",
+          "field": {
+            "en": "Upgrade Cost",
+            "vi": "Giá Nâng Cấp"
+          },
+          "from": "3",
+          "to": "2",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_HerosEntrance18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Hero's Entrance",
+            "vi": "Siêu Hùng Giáng Thế"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
+          "cost": 2,
+          "day": "OCTOBER 22ND",
+          "dayDate": "2026-10-22",
+          "heading": "WISPS",
+          "field": {
+            "en": "Upgraded Cost",
+            "vi": "Giá Nâng Cấp"
+          },
+          "from": "4",
+          "to": "2",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Hireling18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Hireling",
+            "vi": "Tay Sai"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
+          "cost": null,
+          "day": "OCTOBER 22ND",
+          "dayDate": "2026-10-22",
+          "heading": "WISPS",
+          "field": {
+            "en": "Base Cost",
+            "vi": "Giá Cơ Bản"
+          },
+          "from": "2",
+          "to": "5",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_KnickKnackBag18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Knick-Knack Bag",
+            "vi": "Bị Đồ Lỉnh Kỉnh"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_misc_tier1.png",
+          "cost": null,
+          "day": "OCTOBER 22ND",
+          "dayDate": "2026-10-22",
+          "heading": "WISPS",
+          "field": {
+            "en": "Upgrade Cost",
+            "vi": "Giá Nâng Cấp"
+          },
+          "from": "2",
+          "to": "1",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_MoonlightRitual18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Moonlight Ritual",
+            "vi": "Nghi Thức Ánh Trăng"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+          "cost": 2,
+          "day": "OCTOBER 22ND",
+          "dayDate": "2026-10-22",
+          "heading": "WISPS",
+          "field": {
+            "en": "Base Cost",
+            "vi": "Giá Cơ Bản"
+          },
+          "from": "2",
+          "to": "3",
+          "direction": "adjust"
+        }
+      ],
+      "unmatched": []
+    },
+    {
+      "patch": "18.5",
+      "release": "base",
+      "base": "18.5",
+      "dayDate": null,
+      "set": 18,
+      "title": "TFT patch 18.5",
+      "titleVi": "TFT patch 18.5",
+      "publishedAt": "2026-10-20T18:00:00.000Z",
+      "updatedAt": "2026-10-20T18:00:00.000Z",
+      "version": "18.5",
+      "revision": "sdF3RqhuOsemY4WOprgRDh",
+      "sha256": {
+        "en": "f7f4c6226c596fd3e46bb0bf8f4862639ed7c05f88bf402def3940393fc6f2eb",
+        "vi": "3fbcaddf313089918327b0d73ee0f6a02495e6206ff405fc764c4a940c9deb23"
+      },
+      "url": {
+        "en": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-5",
+        "vi": "https://teamfighttactics.leagueoflegends.com/vi-vn/news/game-updates/teamfight-tactics-patch-18-5"
+      },
+      "source": {
+        "name": "Riot Games",
+        "label": {
+          "en": "Riot Games",
+          "vi": "Riot Games"
+        }
+      },
+      "stats": {
+        "articleArrows": 84,
+        "rows": 70,
+        "unmatched": 1
+      },
+      "counts": {
+        "buff": 19,
+        "nerf": 17,
+        "adjust": 34
+      },
+      "headings": [
+        {
+          "en": "CHAMPIONS",
+          "vi": "TƯỚNG"
+        },
+        {
+          "en": "WISPS",
+          "vi": "TINH LINH"
+        },
+        {
+          "en": "TRAITS",
+          "vi": "TỘC/HỆ"
+        },
+        {
+          "en": "UNITS: TIER 2",
+          "vi": "TƯỚNG: BẬC 2"
+        },
+        {
+          "en": "UNITS: TIER 3",
+          "vi": "TƯỚNG: BẬC 3"
+        },
+        {
+          "en": "UNITS: TIER 4",
+          "vi": "TƯỚNG: BẬC 4"
+        },
+        {
+          "en": "UNITS: TIER 5",
+          "vi": "TƯỚNG: BẬC 5"
+        },
+        {
+          "en": "RADIANT ITEMS",
+          "vi": "TRANG BỊ ÁNH SÁNG"
+        },
+        {
+          "en": "AUGMENTS",
+          "vi": "NÂNG CẤP"
+        }
+      ],
+      "rows": [
+        {
+          "ref": "DA_18_Blackthorn",
+          "slug": "da-18-blackthorn",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Blackthorn",
+            "vi": "Gai Đen"
+          },
+          "icon": "/tft/traits/da-18-blackthorn.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "6 Piece Enhanced Bonus",
+            "vi": "Thưởng Cường Hóa 6 Mảnh"
+          },
+          "from": "60%",
+          "to": "50%",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_Blackthorn",
+          "slug": "da-18-blackthorn",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Blackthorn",
+            "vi": "Gai Đen"
+          },
+          "icon": "/tft/traits/da-18-blackthorn.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "Base AP Sacrifice",
+            "vi": "SMPT Cơ Bản - Hiến Tế"
+          },
+          "from": "12% Damage Amp + 2 Mana Regen",
+          "to": "10% Damage Amp + 2 Mana Regen",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Elderwood",
+          "slug": "da-18-elderwood",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Elderwood",
+            "vi": "Thần Rừng"
+          },
+          "icon": "/tft/traits/da-18-elderwood.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "9-Piece Summon Bonus Health",
+            "vi": "Máu Cộng Thêm Khi Triệu Hồi Đủ 9 Mảnh"
+          },
+          "from": "140%",
+          "to": "125%",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_Fae",
+          "slug": "da-18-fae",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Fae",
+            "vi": "Tiên Linh"
+          },
+          "icon": "/tft/traits/da-18-fae.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "Heal",
+            "vi": "Hồi máu"
+          },
+          "from": "2.5/4%",
+          "to": "3/5%",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Fae",
+          "slug": "da-18-fae",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Fae",
+            "vi": "Tiên Linh"
+          },
+          "icon": "/tft/traits/da-18-fae.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "4th Pixie Threshold"
+          },
+          "from": "30000",
+          "to": "25,000",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Fae",
+          "slug": "da-18-fae",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Fae",
+            "vi": "Tiên Linh"
+          },
+          "icon": "/tft/traits/da-18-fae.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "5th Pixie Threshold"
+          },
+          "from": "70000",
+          "to": "60,000",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Fae",
+          "slug": "da-18-fae",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Fae",
+            "vi": "Tiên Linh"
+          },
+          "icon": "/tft/traits/da-18-fae.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "6th Pixie Threshold"
+          },
+          "from": "110000",
+          "to": "100,000",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_FloraFatalis18",
+          "slug": "da-florafatalis18",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Flora Fatalis",
+            "vi": "Thực Vật"
+          },
+          "icon": "/tft/traits/da-florafatalis18.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "Max Health Healing",
+            "vi": "Máu Tối Đa - Hồi Máu"
+          },
+          "from": "8%",
+          "to": "7%",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_Rapidfire",
+          "slug": "da-18-rapidfire",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Rapidfire",
+            "vi": "Liên Kích"
+          },
+          "icon": "/tft/traits/da-18-rapidfire.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "AS Per Attack",
+            "vi": "Tốc Đánh mỗi Đòn Đánh"
+          },
+          "from": "3/5/8/12%",
+          "to": "3/5/7/10%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Riftbeast18",
+          "slug": "da-riftbeast18",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Riftbeast",
+            "vi": "Quái Rừng"
+          },
+          "icon": "/tft/traits/da-riftbeast18.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "AD/AP",
+            "vi": "SMCK/SMPT"
+          },
+          "from": "6%",
+          "to": "5%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Caitlyn",
+          "slug": "da-18-caitlyn",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Caitlyn",
+            "vi": "Caitlyn"
+          },
+          "icon": "/tft/champions/da-18-caitlyn.png",
+          "cost": 2,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 2",
+          "field": {
+            "en": "Empowered Auto Damage",
+            "vi": "Sát Thương Đòn Đánh Cường Hóa"
+          },
+          "from": "190/285/470 AD",
+          "to": "200/300/490 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Azir",
+          "slug": "da-18-azir",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Azir",
+            "vi": "Azir"
+          },
+          "icon": "/tft/champions/da-18-azir.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Ability Damage",
+            "vi": "Sát Thương Kỹ Năng"
+          },
+          "from": "46/69/110 AP",
+          "to": "43/65/105 AP",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_KhaZix",
+          "slug": "da-18-khazix",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Kha'Zix",
+            "vi": "Kha'Zix"
+          },
+          "icon": "/tft/champions/da-18-khazix.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Unisolated Damage",
+            "vi": "Sát Thương Không Cô Lập"
+          },
+          "from": "255/360/515 AP",
+          "to": "250/345/500 AP",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_KhaZix",
+          "slug": "da-18-khazix",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Kha'Zix",
+            "vi": "Kha'Zix"
+          },
+          "icon": "/tft/champions/da-18-khazix.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Isolated Damage",
+            "vi": "Sát Thương Cô Lập"
+          },
+          "from": "285/410/605 AP",
+          "to": "280/390/590 AP",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_CrimsonRaptor18",
+          "slug": "da-crimsonraptor18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Mama Beak",
+            "vi": "Chim Mẹ"
+          },
+          "icon": "/tft/champions/da-crimsonraptor18.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Ability Attack Damage",
+            "vi": "Kỹ Năng - Sức Mạnh Công Kích"
+          },
+          "from": "22/33/52 AD",
+          "to": "20/30/50 AD",
+          "direction": "nerf",
+          "note": {
+            "en": "Mana lock now ends when the Tiny Beaks start to despawn rather than finish, reducing total Mana Lock time by ~1 second."
+          }
+        },
+        {
+          "ref": "DA_18_MasterYi_AD",
+          "slug": "da-18-masteryi-ad",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Master Yi",
+            "vi": "Master Yi"
+          },
+          "icon": "/tft/champions/da-18-masteryi-ad.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "AD Form",
+            "vi": "Dạng SMCK"
+          },
+          "from": "Starting Attack Damage: 60",
+          "to": "63",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_MasterYi_AD",
+          "slug": "da-18-masteryi-ad",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Master Yi",
+            "vi": "Master Yi"
+          },
+          "icon": "/tft/champions/da-18-masteryi-ad.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "AP Form",
+            "vi": "Dạng SMPT"
+          },
+          "from": "AP Ability Damage: 125/190/285 AP",
+          "to": "135/200/320 AP",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Tristana",
+          "slug": "da-18-tristana",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Tristana",
+            "vi": "Tristana"
+          },
+          "icon": "/tft/champions/da-18-tristana.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Mana Buff",
+            "vi": "Tăng Năng Lượng"
+          },
+          "from": "0/60",
+          "to": "0/50",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Tristana",
+          "slug": "da-18-tristana",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Tristana",
+            "vi": "Tristana"
+          },
+          "icon": "/tft/champions/da-18-tristana.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Ability Damage per Attack",
+            "vi": "Sát Thương Mỗi Đòn Đánh"
+          },
+          "from": "10/15/25 AD",
+          "to": "12/18/28 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_Brambleback18",
+          "slug": "da-brambleback18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Brambleback",
+            "vi": "Bụi Gai Đỏ"
+          },
+          "icon": "/tft/champions/da-brambleback18.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Alpha Mark Heal",
+            "vi": "Dấu Ấn Đầu Đàn - Hồi Máu"
+          },
+          "from": "4%",
+          "to": "5%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Brambleback18",
+          "slug": "da-brambleback18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Brambleback",
+            "vi": "Bụi Gai Đỏ"
+          },
+          "icon": "/tft/champions/da-brambleback18.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Armor Ignore",
+            "vi": "Bỏ Qua Giáp"
+          },
+          "from": "20% + 25% AP",
+          "to": "25% + 25% AP",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Malphite",
+          "slug": "da-18-malphite",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Malphite",
+            "vi": "Malphite"
+          },
+          "icon": "/tft/champions/da-18-malphite.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Shield",
+            "vi": "Lá Chắn"
+          },
+          "from": "700/850 AP",
+          "to": "735/885 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Morgana",
+          "slug": "da-18-morgana",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Morgana",
+            "vi": "Morgana"
+          },
+          "icon": "/tft/champions/da-18-morgana.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Initial Curse Damage",
+            "vi": "Sát Thương Nguyền Rủa Ban Đầu"
+          },
+          "from": "60/90 AP",
+          "to": "70/105 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Morgana",
+          "slug": "da-18-morgana",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Morgana",
+            "vi": "Morgana"
+          },
+          "icon": "/tft/champions/da-18-morgana.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Curse Bonus Damage",
+            "vi": "Nguyền Rủa - Sát Thương Cộng Thêm"
+          },
+          "from": "22/33 AP",
+          "to": "25/38 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_Sentinel18",
+          "slug": "da-sentinel18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Sentinel",
+            "vi": "Người Đá"
+          },
+          "icon": "/tft/champions/da-sentinel18.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Stun Duration",
+            "vi": "Thời Gian Choáng"
+          },
+          "from": "1s",
+          "to": "0.5s",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Sentinel18",
+          "slug": "da-sentinel18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Sentinel",
+            "vi": "Người Đá"
+          },
+          "icon": "/tft/champions/da-sentinel18.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Shield",
+            "vi": "Lá Chắn"
+          },
+          "from": "350/450 AP",
+          "to": "375/475 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Sett",
+          "slug": "da-18-sett",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Sett",
+            "vi": "Sett"
+          },
+          "icon": "/tft/champions/da-18-sett.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Heal AP Amount",
+            "vi": "Hồi Máu - Lượng SMPT"
+          },
+          "from": "225/275 AP",
+          "to": "250/300 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Sivir",
+          "slug": "da-18-sivir",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Sivir",
+            "vi": "Sivir"
+          },
+          "icon": "/tft/champions/da-18-sivir.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Ability Damage",
+            "vi": "Sát Thương Kỹ Năng"
+          },
+          "from": "200/300 AD",
+          "to": "220/330 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Sivir",
+          "slug": "da-18-sivir",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Sivir",
+            "vi": "Sivir"
+          },
+          "icon": "/tft/champions/da-18-sivir.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Bounce Damage",
+            "vi": "Sát Thương Nảy"
+          },
+          "from": "20% of initial",
+          "to": "18% of initial",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_Soraka",
+          "slug": "da-18-soraka",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Soraka",
+            "vi": "Soraka"
+          },
+          "icon": "/tft/champions/da-18-soraka.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Initial Star Damage",
+            "vi": "Sát Thương Sao Ban Đầu"
+          },
+          "from": "225/335 AP",
+          "to": "235/355 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Soraka",
+          "slug": "da-18-soraka",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Soraka",
+            "vi": "Soraka"
+          },
+          "icon": "/tft/champions/da-18-soraka.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Additional Star Damage",
+            "vi": "Sát Thương Sao Cộng Thêm"
+          },
+          "from": "100/150 AP",
+          "to": "110/165 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Alune",
+          "slug": "da-18-alune",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Alune",
+            "vi": "Alune"
+          },
+          "icon": "/tft/champions/da-18-alune.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "Moonshard Damage",
+            "vi": "Mảnh Nguyệt Thạch - Sát Thương"
+          },
+          "from": "55/83 AP",
+          "to": "58/88 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Alune",
+          "slug": "da-18-alune",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Alune",
+            "vi": "Alune"
+          },
+          "icon": "/tft/champions/da-18-alune.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "Attack Speed",
+            "vi": "Tốc Độ Đánh"
+          },
+          "from": "0.8",
+          "to": "0.85",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Alune",
+          "slug": "da-18-alune",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Alune",
+            "vi": "Alune"
+          },
+          "icon": "/tft/champions/da-18-alune.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "Attuned Durability",
+            "vi": "Hòa Hợp - Chống Chịu"
+          },
+          "from": "7%",
+          "to": "5%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Ashe",
+          "slug": "da-18-ashe",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Ashe",
+            "vi": "Ashe"
+          },
+          "icon": "/tft/champions/da-18-ashe.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "DoT Damage",
+            "vi": "Sát Thương Theo Thời Gian"
+          },
+          "from": "9/14 AD",
+          "to": "11/16 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_Taric18",
+          "slug": "da-taric18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Taric",
+            "vi": "Taric"
+          },
+          "icon": "/tft/champions/da-taric18.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "Resists",
+            "vi": "Chống Chịu"
+          },
+          "from": "65",
+          "to": "70",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Taric18",
+          "slug": "da-taric18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Taric",
+            "vi": "Taric"
+          },
+          "icon": "/tft/champions/da-taric18.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "Ability empowered two attacks Damage",
+            "vi": "Kỹ Năng cường hóa 2 đòn đánh - Sát thương"
+          },
+          "from": "100/150 AP",
+          "to": "130/200 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "TFT5_Item_AdaptiveHelmRadiant",
+          "slug": "tft5-item-adaptivehelmradiant",
+          "kind": "item",
+          "table": "items",
+          "name": {
+            "en": "Radiant Adaptive Helm",
+            "vi": "Mũ Thích Nghi Ánh Sáng"
+          },
+          "icon": "/tft/items/tft5-item-adaptivehelmradiant.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "RADIANT ITEMS",
+          "field": {
+            "en": "Mana Regen",
+            "vi": "Hồi Năng Lượng"
+          },
+          "from": "7",
+          "to": "6",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT5_Item_AdaptiveHelmRadiant",
+          "slug": "tft5-item-adaptivehelmradiant",
+          "kind": "item",
+          "table": "items",
+          "name": {
+            "en": "Radiant Adaptive Helm",
+            "vi": "Mũ Thích Nghi Ánh Sáng"
+          },
+          "icon": "/tft/items/tft5-item-adaptivehelmradiant.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "RADIANT ITEMS",
+          "field": {
+            "en": "Non Tank/Fighter AD/AP",
+            "vi": "Tướng Không Phải Đỡ Đòn/Đấu Sĩ - SMCK/SMPT"
+          },
+          "from": "40",
+          "to": "35",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT5_Item_BlueBuffRadiant",
+          "slug": "tft5-item-bluebuffradiant",
+          "kind": "item",
+          "table": "items",
+          "name": {
+            "en": "Radiant Blue Buff",
+            "vi": "Bùa Xanh Ánh Sáng"
+          },
+          "icon": "/tft/items/tft5-item-bluebuffradiant.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "RADIANT ITEMS",
+          "field": {
+            "en": "Base AD/AP",
+            "vi": "SMCK/SMPT Cơ Bản"
+          },
+          "from": "30%",
+          "to": "25%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT11_Augment_Buildabud",
+          "slug": "tft11-augment-buildabud",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Build a Bud",
+            "vi": "Tự Lập Đội"
+          },
+          "icon": "/tft/augments/tft11-augment-buildabud.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Gold Granted",
+            "vi": "Vàng Kiếm Được"
+          },
+          "from": "6",
+          "to": "9",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_ChallengersGrace",
+          "slug": "da-challengersgrace",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Challenger's Grace",
+            "vi": "Ân Huệ Thách Đấu"
+          },
+          "icon": "/tft/augments/da-challengersgrace.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "AS Buff",
+            "vi": "Tăng Tốc Đánh"
+          },
+          "from": "25%",
+          "to": "30%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_CookingPot",
+          "slug": "tft-augment-cookingpot",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Cooking Pot",
+            "vi": "Nồi Nấu Ăn"
+          },
+          "icon": "/tft/augments/tft-augment-cookingpot.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "HP per Emblem",
+            "vi": "Máu mỗi Ấn"
+          },
+          "from": "60",
+          "to": "70",
+          "direction": "buff",
+          "note": {
+            "en": "Is now excluded from Coronation, Spreading Roots+, The Trait Tree+"
+          }
+        },
+        {
+          "ref": "DA_18_FloraFatalisAugment",
+          "slug": "da-18-florafatalisaugment",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Consuming Flora",
+            "vi": "Thực Vật Hấp Thụ"
+          },
+          "icon": "/tft/augments/da-18-florafatalisaugment.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Bonus Effectiveness",
+            "vi": "Hiệu Quả Cộng Thêm"
+          },
+          "from": "50%",
+          "to": "70%",
+          "direction": "buff"
+        },
+        {
+          "ref": "TFT_Augment_CryMeARiver",
+          "slug": "tft-augment-crymeariver",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Cry Me A River",
+            "vi": "Giọt Lệ Bi Ai"
+          },
+          "icon": "/tft/augments/tft-augment-crymeariver.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Mana Regen Bonus",
+            "vi": "Thưởng Hồi Năng Lượng"
+          },
+          "from": "4",
+          "to": "3",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_CovenTraitAugment_LootToAP",
+          "slug": "da-18-coventraitaugment-loottoap",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Dark Ritual",
+            "vi": "Tà Thuật"
+          },
+          "icon": "/tft/augments/da-18-coventraitaugment-loottoap.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "AP Granted",
+            "vi": "SMPT Nhận Được"
+          },
+          "from": "7/12/33/50/100/175/300/400",
+          "to": "5/10/28/45/85/175/300/400",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_FaeTraitAugment",
+          "slug": "da-18-faetraitaugment",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Embiggen",
+            "vi": "Hóa Lớn"
+          },
+          "icon": "/tft/augments/da-18-faetraitaugment.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Base AD/AP Bonus"
+          },
+          "from": "10%",
+          "to": "18%",
+          "direction": "buff"
+        },
+        {
+          "ref": "TFT_Augment_ExpectedUnexpectedness",
+          "slug": "tft-augment-expectedunexpectedness",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Expected Unexpectedness",
+            "vi": "Kỳ Vọng Bất Ngờ"
+          },
+          "icon": "/tft/augments/tft-augment-expectedunexpectedness.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Stage 3 Gold Granted",
+            "vi": "Vàng Thưởng Giai Đoạn 3"
+          },
+          "from": "18",
+          "to": "15",
+          "direction": "adjust",
+          "note": {
+            "en": "5 Cost roll reward now additionally grants 3 gold."
+          }
+        },
+        {
+          "ref": "TFT_Augment_ExpectedUnexpectedness",
+          "slug": "tft-augment-expectedunexpectedness",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Expected Unexpectedness",
+            "vi": "Kỳ Vọng Bất Ngờ"
+          },
+          "icon": "/tft/augments/tft-augment-expectedunexpectedness.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Stage 4 Gold Granted",
+            "vi": "Vàng Thưởng Giai Đoạn 4"
+          },
+          "from": "20",
+          "to": "18",
+          "direction": "adjust",
+          "note": {
+            "en": "5 Cost roll reward now additionally grants 3 gold."
+          }
+        },
+        {
+          "ref": "TFT_Augment_ExpectedUnexpectedness",
+          "slug": "tft-augment-expectedunexpectedness",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Expected Unexpectedness",
+            "vi": "Kỳ Vọng Bất Ngờ"
+          },
+          "icon": "/tft/augments/tft-augment-expectedunexpectedness.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Stage 4 5 Costs Granted",
+            "vi": "Tướng 5 Vàng Nhận Được Ở Giai Đoạn 4"
+          },
+          "from": "3",
+          "to": "2",
+          "direction": "adjust",
+          "note": {
+            "en": "5 Cost roll reward now additionally grants 3 gold."
+          }
+        },
+        {
+          "ref": "TFT_Augment_ComponentQuestTear",
+          "slug": "tft-augment-componentquesttear",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Flowing Tears",
+            "vi": "Lệ Lưu Ly"
+          },
+          "icon": "/tft/augments/tft-augment-componentquesttear.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Mana Threshold for Cashout"
+          },
+          "from": "6500",
+          "to": "7000",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_InvestmentStrategy1",
+          "slug": "tft-augment-investmentstrategy1",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Investment Strategy I",
+            "vi": "Chiến Thuật Đầu Tư I"
+          },
+          "icon": "/tft/augments/tft-augment-investmentstrategy1.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Initial Gold",
+            "vi": "Vàng Khởi Đầu"
+          },
+          "from": "6",
+          "to": "3",
+          "direction": "adjust",
+          "note": {
+            "en": "Re-disabled due to a bug."
+          }
+        },
+        {
+          "ref": "TFT_Augment_InvestmentStrategy2",
+          "slug": "tft-augment-investmentstrategy2",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Investment Strategy II",
+            "vi": "Chiến Thuật Đầu Tư II"
+          },
+          "icon": "/tft/augments/tft-augment-investmentstrategy2.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Initial Gold",
+            "vi": "Vàng Khởi Đầu"
+          },
+          "from": "10",
+          "to": "6",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_MirroredMonetization",
+          "slug": "tft-augment-mirroredmonetization",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Malicious Monetization",
+            "vi": "Dòng Tiền Mờ Ám"
+          },
+          "icon": "/tft/augments/tft-augment-mirroredmonetization.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Initial Gold Granted",
+            "vi": "Vàng Được Cho Khởi Đầu"
+          },
+          "from": "4",
+          "to": "6",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_NestingAnvils",
+          "slug": "da-nestinganvils",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Nesting Anvils",
+            "vi": "Gói Trang Bị Bất Ngờ"
+          },
+          "icon": "/tft/augments/da-nestinganvils.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Gold Granted",
+            "vi": "Vàng Kiếm Được"
+          },
+          "from": "4",
+          "to": "6",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_RiftbeastTraitAugment",
+          "slug": "da-18-riftbeasttraitaugment",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Omega Riftbeast",
+            "vi": "Quái Rừng Omega"
+          },
+          "icon": "/tft/augments/da-18-riftbeasttraitaugment.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Bonus HP",
+            "vi": "Tốc Độ Đánh cộng thêm"
+          },
+          "from": "10%",
+          "to": "8%",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_RiftbeastTraitAugment",
+          "slug": "da-18-riftbeasttraitaugment",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Omega Riftbeast",
+            "vi": "Quái Rừng Omega"
+          },
+          "icon": "/tft/augments/da-18-riftbeasttraitaugment.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Bonus AS",
+            "vi": "Tốc Độ Đánh cộng thêm"
+          },
+          "from": "10%",
+          "to": "8%",
+          "direction": "nerf"
+        },
+        {
+          "ref": "TFT7_Augment_PandorasBench",
+          "slug": "tft7-augment-pandorasbench",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Pandora's Bench",
+            "vi": "Hàng Chờ Pandora"
+          },
+          "icon": "/tft/augments/tft7-augment-pandorasbench.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Gold Granted",
+            "vi": "Vàng Kiếm Được"
+          },
+          "from": "4",
+          "to": "1",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT9_Augment_PandorasItems2",
+          "slug": "tft9-augment-pandorasitems2",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Pandora's Items II",
+            "vi": "Hộp Pandora II"
+          },
+          "icon": "/tft/augments/tft9-augment-pandorasitems2.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Gold Granted",
+            "vi": "Vàng Kiếm Được"
+          },
+          "from": "4",
+          "to": "1",
+          "direction": "adjust",
+          "note": {
+            "en": "NEW: Pandora’s Items II+"
+          }
+        },
+        {
+          "ref": "TFT_Augment_PatienceIsAVirtue",
+          "slug": "tft-augment-patienceisavirtue",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Patience is a Virtue",
+            "vi": "Kiên Nhẫn Là Một Đức Tính"
+          },
+          "icon": "/tft/augments/tft-augment-patienceisavirtue.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Initial Rerolls",
+            "vi": "Số Lượt Đổi Ban Đầu"
+          },
+          "from": "4",
+          "to": "5",
+          "direction": "adjust",
+          "note": {
+            "en": "NEW: Pandora’s Items II++"
+          }
+        },
+        {
+          "ref": "TFT_Augment_PrismaticDestiny",
+          "slug": "tft-augment-prismaticdestiny",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Prismatic Destiny",
+            "vi": "Vận Mệnh Kim Cương"
+          },
+          "icon": "/tft/augments/tft-augment-prismaticdestiny.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Gold Granted",
+            "vi": "Vàng Kiếm Được"
+          },
+          "from": "4",
+          "to": "2",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_PromisedProtection",
+          "slug": "da-promisedprotection",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Promised Protection",
+            "vi": "Thệ Ước Bảo Hộ"
+          },
+          "icon": "/tft/augments/da-promisedprotection.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "HP Granted",
+            "vi": "Máu Nhận Được"
+          },
+          "from": "200",
+          "to": "175",
+          "direction": "nerf"
+        },
+        {
+          "ref": "TFT_Augment_SeraphimsStaff",
+          "slug": "tft-augment-seraphimsstaff",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Seraphim's Staff",
+            "vi": "Trượng Đại Thiên Sứ"
+          },
+          "icon": "/tft/augments/tft-augment-seraphimsstaff.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "AP Threshold",
+            "vi": "Ngưỡng SMPT"
+          },
+          "from": "90%",
+          "to": "110%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_AbandonShip18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Abandon Ship",
+            "vi": "Rời Tàu"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_risky_tier3.png",
+          "cost": 0,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Cost",
+            "vi": "Giá"
+          },
+          "from": "0g",
+          "to": "2g",
+          "direction": "nerf",
+          "note": {
+            "en": "Wisps that filter by number of itemized champions now also include Benched champions."
+          }
+        },
+        {
+          "ref": "DA_BeggarsWisp18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Beggar's Wisp",
+            "vi": "Tinh Linh Nghèo Khó"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_goldxp_tier1.png",
+          "cost": 0,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Gold",
+            "vi": "Vàng"
+          },
+          "from": "3/5g",
+          "to": "2/3g",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_BloodAndIron18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Blood and Iron",
+            "vi": "Máu Và Sắt"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_item_tier2.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Cost",
+            "vi": "Giá"
+          },
+          "from": "3g (bug)",
+          "to": "4g",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_HandOfBaron18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Hand Of Baron",
+            "vi": "Baron Chi Viện"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
+          "cost": 6,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Cost",
+            "vi": "Giá"
+          },
+          "from": "6g",
+          "to": "4g",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_HandOfBaron18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Hand Of Baron",
+            "vi": "Baron Chi Viện"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
+          "cost": 6,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Stats",
+            "vi": "Chỉ số"
+          },
+          "from": "33/55 HP + 3/5% Resists/AD/AP/AS/Omnivamp/Durability/Damage Amp",
+          "to": "Stats: 22/33 HP + 2/3% Resists/AD/AP/AS/Omnivamp/Durability/Damage Amp",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_HandOfBaron18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Hand Of Baron",
+            "vi": "Baron Chi Viện"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
+          "cost": 6,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Crit Chance",
+            "vi": "Tỉ Lệ Chí Mạng"
+          },
+          "from": "10/15%",
+          "to": "6/8%",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_HeroicSacrifice",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Heroic Sacrifice",
+            "vi": "Hy Sinh Anh Dũng"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Bonus Health"
+          },
+          "from": "1200/1500",
+          "to": "1000/1250",
+          "direction": "nerf"
+        }
+      ],
+      "unmatched": [
+        {
+          "name": "Resists per Trait",
+          "kind": "augment",
+          "heading": "AUGMENTS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "Resists per Trait",
+              "from": "3%",
+              "to": "2.5%"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "patch": "18.4b",
+      "release": "mid_patch",
+      "base": "18.4",
+      "dayDate": "2026-10-07",
+      "set": 18,
+      "title": "TFT patch 18.4b",
+      "titleVi": "TFT patch 18.4b",
+      "publishedAt": "2026-10-07",
+      "updatedAt": "2026-10-06T18:00:00.000Z",
+      "version": "18.4b",
+      "revision": "b71GGz6IKEXntB73qrVG5d",
+      "sha256": {
+        "en": "f08185eed51ed326b2d31ca2574d4fbffb613be8419f65340e0f9f21033ba24b",
+        "vi": "5a85be8056f8320bc9e60c63c25c7ededef60e0c559da02d706f7442899e2986"
+      },
+      "url": {
+        "en": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-4",
+        "vi": "https://teamfighttactics.leagueoflegends.com/vi-vn/news/game-updates/teamfight-tactics-patch-18-4"
+      },
+      "source": {
+        "name": "Riot Games",
+        "label": {
+          "en": "Riot Games",
+          "vi": "Riot Games"
+        }
+      },
+      "stats": {
+        "articleArrows": 120,
+        "rows": 26,
+        "unmatched": 1
+      },
+      "counts": {
+        "buff": 13,
+        "nerf": 3,
+        "adjust": 10
+      },
+      "headings": [
+        {
+          "en": "1 COST UNIT",
+          "vi": "TƯỚNG: BẬC 1"
+        },
+        {
+          "en": "2 COST UNIT",
+          "vi": "TƯỚNG: BẬC 2"
+        },
+        {
+          "en": "3 COST UNIT",
+          "vi": "TƯỚNG: BẬC 3"
+        },
+        {
+          "en": "WISPS",
+          "vi": "TINH LINH"
+        },
+        {
+          "en": "AUGMENTS",
+          "vi": "NÂNG CẤP"
+        },
+        {
+          "en": "TRAITS",
+          "vi": "TỘC/HỆ"
+        },
+        {
+          "en": "UNITS: TIER 1",
+          "vi": "TƯỚNG: BẬC 1"
+        },
+        {
+          "en": "UNITS: TIER 2",
+          "vi": "TƯỚNG: BẬC 2"
+        },
+        {
+          "en": "UNITS: TIER 3",
+          "vi": "TƯỚNG: BẬC 3"
+        },
+        {
+          "en": "UNITS: TIER 4",
+          "vi": "TƯỚNG: BẬC 4"
+        },
+        {
+          "en": "UNITS: TIER 5",
+          "vi": "TƯỚNG: BẬC 5"
+        },
+        {
+          "en": "ITEMS",
+          "vi": "TRANG BỊ"
+        },
+        {
+          "en": "EMBLEMS",
+          "vi": "ẤN"
+        }
+      ],
+      "rows": [
+        {
+          "ref": "DA_18_Camille",
+          "slug": "da-18-camille",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Camille",
+            "vi": "Camille"
+          },
+          "icon": "/tft/champions/da-18-camille.png",
+          "cost": 1,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "1 COST UNIT",
+          "field": {
+            "en": "Ability Damage"
+          },
+          "from": "150/225/375 AD",
+          "to": "150/225/400 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Varus",
+          "slug": "da-18-varus",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Varus",
+            "vi": "Varus"
+          },
+          "icon": "/tft/champions/da-18-varus.png",
+          "cost": 1,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "1 COST UNIT",
+          "field": {
+            "en": "Mana"
+          },
+          "from": "30/120",
+          "to": "20/110",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Alistar",
+          "slug": "da-18-alistar",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Alistar",
+            "vi": "Alistar"
+          },
+          "icon": "/tft/champions/da-18-alistar.png",
+          "cost": 2,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "2 COST UNIT",
+          "field": {
+            "en": "Heal"
+          },
+          "from": "200/260/320 AP",
+          "to": "230/300/400 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Alistar",
+          "slug": "da-18-alistar",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Alistar",
+            "vi": "Alistar"
+          },
+          "icon": "/tft/champions/da-18-alistar.png",
+          "cost": 2,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "2 COST UNIT",
+          "field": {
+            "en": "Spell Damage"
+          },
+          "from": "100/150/225 AP",
+          "to": "180/270/420 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_Gromp18_AP",
+          "slug": "da-gromp18-ap",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Gromp",
+            "vi": "Cóc Thành Tinh"
+          },
+          "icon": "/tft/champions/da-gromp18-ap.png",
+          "cost": 2,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "2 COST UNIT",
+          "field": {
+            "en": "AP Form Splash Damage"
+          },
+          "from": "160/240/375 AP",
+          "to": "180/270/435 AP",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_Gromp18_AP",
+          "slug": "da-gromp18-ap",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Gromp",
+            "vi": "Cóc Thành Tinh"
+          },
+          "icon": "/tft/champions/da-gromp18-ap.png",
+          "cost": 2,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "2 COST UNIT",
+          "field": {
+            "en": "AD Form Base AD"
+          },
+          "from": "45",
+          "to": "50",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Gromp18_AP",
+          "slug": "da-gromp18-ap",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Gromp",
+            "vi": "Cóc Thành Tinh"
+          },
+          "icon": "/tft/champions/da-gromp18-ap.png",
+          "cost": 2,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "2 COST UNIT",
+          "field": {
+            "en": "AD Form AS"
+          },
+          "from": "0.7",
+          "to": "0.75",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Murkwolf18",
+          "slug": "da-murkwolf18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Murkwolf",
+            "vi": "Sói Hắc Ám"
+          },
+          "icon": "/tft/champions/da-murkwolf18.png",
+          "cost": 2,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "2 COST UNIT",
+          "field": {
+            "en": "Empowered Attack Damage"
+          },
+          "from": "60/90/135 AD",
+          "to": "65/100/160 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Warwick",
+          "slug": "da-18-warwick",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Warwick",
+            "vi": "Warwick"
+          },
+          "icon": "/tft/champions/da-18-warwick.png",
+          "cost": 2,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "2 COST UNIT",
+          "field": {
+            "en": "Spell Damage"
+          },
+          "from": "215/325/500 AD",
+          "to": "230/345/535 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Warwick",
+          "slug": "da-18-warwick",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Warwick",
+            "vi": "Warwick"
+          },
+          "icon": "/tft/champions/da-18-warwick.png",
+          "cost": 2,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "2 COST UNIT",
+          "field": {
+            "en": "Spell Healing"
+          },
+          "from": "20%",
+          "to": "25%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_CrimsonRaptor18",
+          "slug": "da-crimsonraptor18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Mama Beak",
+            "vi": "Chim Mẹ"
+          },
+          "icon": "/tft/champions/da-crimsonraptor18.png",
+          "cost": 3,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "3 COST UNIT",
+          "field": {
+            "en": "Base AD"
+          },
+          "from": "55",
+          "to": "60",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Combust18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Combust",
+            "vi": "Bốc Cháy"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
+          "cost": 3,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "WISPS",
+          "field": {
+            "en": "Explosion Damage"
+          },
+          "from": "12%",
+          "to": "15%",
+          "direction": "buff",
+          "note": {
+            "en": "Healing Pool Requires at least 10 missing Health to appear"
+          }
+        },
+        {
+          "ref": "DA_ManaRichSoil18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Mana-Rich Soil",
+            "vi": "Đất Giàu Năng Lượng"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+          "cost": 2,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "WISPS",
+          "field": {
+            "en": "Mana Reduction"
+          },
+          "from": "25/18%",
+          "to": "20/15%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_SearchParty18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Search Party",
+            "vi": "Tổ Đội Tìm Kiếm"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_shop_tier1.png",
+          "cost": 3,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "WISPS",
+          "field": {
+            "en": "Cost"
+          },
+          "from": "3/1g",
+          "to": "1/0g",
+          "direction": "buff",
+          "note": {
+            "en": "Thingamajig Wisps Less likely to grant Mana Regen Boosters."
+          }
+        },
+        {
+          "ref": "DA_ThreeMe18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Three Me",
+            "vi": "Ba Chúng Tôi"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_champion_tier2.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "WISPS",
+          "field": {
+            "en": "Cost"
+          },
+          "from": "9g",
+          "to": "10g",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_ChallengersGrace",
+          "slug": "da-challengersgrace",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Challenger's Grace",
+            "vi": "Ân Huệ Thách Đấu"
+          },
+          "icon": "/tft/augments/da-challengersgrace.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Buff Duration"
+          },
+          "from": "3s",
+          "to": "4s",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_EarlyLearning",
+          "slug": "tft-augment-earlylearning",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Early Learnings",
+            "vi": "Bài Học Sơ Khai"
+          },
+          "icon": "/tft/augments/tft-augment-earlylearning.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Baseline AD/AP"
+          },
+          "from": "5%",
+          "to": "3%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT6_Augment_Electrocharge1",
+          "slug": "tft6-augment-electrocharge1",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Electrocharge I",
+            "vi": "Tụ Điện I"
+          },
+          "icon": "/tft/augments/tft6-augment-electrocharge1.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Damage By Stage"
+          },
+          "from": "30/50/70/90",
+          "to": "25/40/60/80",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_FutureFocused",
+          "slug": "da-futurefocused",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Future Focused",
+            "vi": "Định Hướng Tương Lai"
+          },
+          "icon": "/tft/augments/da-futurefocused.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Gold"
+          },
+          "from": "8",
+          "to": "5",
+          "direction": "nerf"
+        },
+        {
+          "ref": "TFT_Augment_GiantAndMighty",
+          "slug": "tft-augment-giantandmighty",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Giant and Mighty",
+            "vi": "To Lớn & Mạnh Mẽ"
+          },
+          "icon": "/tft/augments/tft-augment-giantandmighty.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Health"
+          },
+          "from": "200",
+          "to": "225",
+          "direction": "buff"
+        },
+        {
+          "ref": "TFT_Augment_GroupHug1",
+          "slug": "tft-augment-grouphug1",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Group Hug I",
+            "vi": "Ôm Tập Thể I"
+          },
+          "icon": "/tft/augments/tft-augment-grouphug1.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Resists"
+          },
+          "from": "6",
+          "to": "7",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_GroupHug2",
+          "slug": "tft-augment-grouphug2",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Group Hug II",
+            "vi": "Ôm Tập Thể II"
+          },
+          "icon": "/tft/augments/tft-augment-grouphug2.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Resists"
+          },
+          "from": "9",
+          "to": "10",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_HeroicGrabBagPlus",
+          "slug": "tft-augment-heroicgrabbagplus",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Heroic Grab Bag+",
+            "vi": "Túi Đồ Siêu Hùng+"
+          },
+          "icon": "/tft/augments/tft-augment-heroicgrabbagplus.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Initial Gold"
+          },
+          "from": "4g",
+          "to": "6g",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_HoldTheLine",
+          "slug": "tft-augment-holdtheline",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Hold the Line",
+            "vi": "Giữ Vững Hàng Ngũ"
+          },
+          "icon": "/tft/augments/tft-augment-holdtheline.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "AD"
+          },
+          "from": "9%",
+          "to": "11%",
+          "direction": "buff"
+        },
+        {
+          "ref": "TFT_Augment_HoldTheLine",
+          "slug": "tft-augment-holdtheline",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Hold the Line",
+            "vi": "Giữ Vững Hàng Ngũ"
+          },
+          "icon": "/tft/augments/tft-augment-holdtheline.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "AP"
+          },
+          "from": "10%",
+          "to": "11%",
+          "direction": "buff"
+        },
+        {
+          "ref": "TFT_Augment_ItemSpiritVisage",
+          "slug": "tft-augment-itemspiritvisage",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Spirit of Redemption",
+            "vi": "Linh Hồn Chuộc Tội"
+          },
+          "icon": "/tft/augments/tft-augment-itemspiritvisage.png",
+          "cost": null,
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Heal"
+          },
+          "from": "7.5%",
+          "to": "9%",
+          "direction": "buff"
+        }
+      ],
+      "unmatched": [
+        {
+          "name": "Stat Boosters Armor and MR Boost",
+          "kind": "wisp",
+          "heading": "WISPS",
+          "day": "OCTOBER 7TH",
+          "dayDate": "2026-10-07",
+          "lines": [
+            {
+              "label": "Stat Boosters Armor and MR Boost",
+              "from": "10",
+              "to": "8"
+            },
+            {
+              "label": "Attack Speed Boost",
+              "from": "8%",
+              "to": "6%"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "patch": "18.4",
+      "release": "base",
+      "base": "18.4",
+      "dayDate": null,
+      "set": 18,
+      "title": "TFT patch 18.4",
+      "titleVi": "TFT patch 18.4",
+      "publishedAt": "2026-10-06T18:00:00.000Z",
+      "updatedAt": "2026-10-06T18:00:00.000Z",
+      "version": "18.4",
+      "revision": "b71GGz6IKEXntB73qrVG5d",
+      "sha256": {
+        "en": "f08185eed51ed326b2d31ca2574d4fbffb613be8419f65340e0f9f21033ba24b",
+        "vi": "5a85be8056f8320bc9e60c63c25c7ededef60e0c559da02d706f7442899e2986"
+      },
+      "url": {
+        "en": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/teamfight-tactics-patch-18-4",
+        "vi": "https://teamfighttactics.leagueoflegends.com/vi-vn/news/game-updates/teamfight-tactics-patch-18-4"
+      },
+      "source": {
+        "name": "Riot Games",
+        "label": {
+          "en": "Riot Games",
+          "vi": "Riot Games"
+        }
+      },
+      "stats": {
+        "articleArrows": 120,
+        "rows": 69,
+        "unmatched": 12
+      },
+      "counts": {
+        "buff": 25,
+        "nerf": 13,
+        "adjust": 31
+      },
+      "headings": [
+        {
+          "en": "1 COST UNIT",
+          "vi": "TƯỚNG: BẬC 1"
+        },
+        {
+          "en": "2 COST UNIT",
+          "vi": "TƯỚNG: BẬC 2"
+        },
+        {
+          "en": "3 COST UNIT",
+          "vi": "TƯỚNG: BẬC 3"
+        },
+        {
+          "en": "WISPS",
+          "vi": "TINH LINH"
+        },
+        {
+          "en": "AUGMENTS",
+          "vi": "NÂNG CẤP"
+        },
+        {
+          "en": "TRAITS",
+          "vi": "TỘC/HỆ"
+        },
+        {
+          "en": "UNITS: TIER 1",
+          "vi": "TƯỚNG: BẬC 1"
+        },
+        {
+          "en": "UNITS: TIER 2",
+          "vi": "TƯỚNG: BẬC 2"
+        },
+        {
+          "en": "UNITS: TIER 3",
+          "vi": "TƯỚNG: BẬC 3"
+        },
+        {
+          "en": "UNITS: TIER 4",
+          "vi": "TƯỚNG: BẬC 4"
+        },
+        {
+          "en": "UNITS: TIER 5",
+          "vi": "TƯỚNG: BẬC 5"
+        },
+        {
+          "en": "ITEMS",
+          "vi": "TRANG BỊ"
+        },
+        {
+          "en": "EMBLEMS",
+          "vi": "ẤN"
+        }
+      ],
+      "rows": [
+        {
+          "ref": "DA_18_Blossom",
+          "slug": "da-18-blossom",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Blossom",
+            "vi": "Hoa Linh"
+          },
+          "icon": "/tft/traits/da-18-blossom.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "AD/AP",
+            "vi": "SMCK/SMPT"
+          },
+          "from": "12/30/45/50%",
+          "to": "12/30/50/55%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Eclipse",
+          "slug": "da-18-eclipse",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Eclipse",
+            "vi": "Thiên Thực"
+          },
+          "icon": "/tft/traits/da-18-eclipse.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "Initial Delay before execution",
+            "vi": "Độ trễ ban đầu trước khi hành quyết"
+          },
+          "from": "10s",
+          "to": "8s",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Elderwood",
+          "slug": "da-18-elderwood",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Elderwood",
+            "vi": "Thần Rừng"
+          },
+          "icon": "/tft/traits/da-18-elderwood.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "(7) Deepwood Protector Mana",
+            "vi": "(7) Hộ Vệ Rừng - Năng Lượng"
+          },
+          "from": "20/70",
+          "to": "20/60",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Elderwood",
+          "slug": "da-18-elderwood",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Elderwood",
+            "vi": "Thần Rừng"
+          },
+          "icon": "/tft/traits/da-18-elderwood.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "(7) Deepwood Protector Resists",
+            "vi": "(7) Hộ Vệ Rừng - Chống Chịu"
+          },
+          "from": "65",
+          "to": "70",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Elderwood",
+          "slug": "da-18-elderwood",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Elderwood",
+            "vi": "Thần Rừng"
+          },
+          "icon": "/tft/traits/da-18-elderwood.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "(9) Health Multiplier for Elderwood Plants satrring up",
+            "vi": "(9) Hệ Số Máu khi Cây Thần Rừng được nâng sao"
+          },
+          "from": "155%",
+          "to": "140%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Executioner",
+          "slug": "da-18-executioner",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Executioner",
+            "vi": "Đao Phủ"
+          },
+          "icon": "/tft/traits/da-18-executioner.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "Bleed Damage"
+          },
+          "from": "30/40%",
+          "to": "25/35%",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_Fae",
+          "slug": "da-18-fae",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Fae",
+            "vi": "Tiên Linh"
+          },
+          "icon": "/tft/traits/da-18-fae.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "AD/AP Per Pixie",
+            "vi": "SMCK/SMPT mỗi Pix"
+          },
+          "from": "5/8%",
+          "to": "4.5/7%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Juggernaut18",
+          "slug": "da-juggernaut18",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Juggernaut",
+            "vi": "Dũng Sĩ"
+          },
+          "icon": "/tft/traits/da-juggernaut18.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "Durability",
+            "vi": "Chống Chịu"
+          },
+          "from": "20/33/45%",
+          "to": "20/30/42%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Lunar",
+          "slug": "da-18-lunar",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Lunar",
+            "vi": "Mặt Trăng"
+          },
+          "icon": "/tft/traits/da-18-lunar.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "Ability Power",
+            "vi": "Sức Mạnh Phép Thuật"
+          },
+          "from": "7/10/14/18%",
+          "to": "7/12/16/20%",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_Riftbeast18",
+          "slug": "da-riftbeast18",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Riftbeast",
+            "vi": "Quái Rừng"
+          },
+          "icon": "/tft/traits/da-riftbeast18.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "(7) AD/AP/AS every 5 seconds",
+            "vi": "(7) SMCK/SMPT/Tốc Độ Đánh mỗi 5 giây"
+          },
+          "from": "5%",
+          "to": "6%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Sprykin",
+          "slug": "da-18-sprykin",
+          "kind": "trait",
+          "table": "traits",
+          "name": {
+            "en": "Sprykin",
+            "vi": "Tinh Nghịch"
+          },
+          "icon": "/tft/traits/da-18-sprykin.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "TRAITS",
+          "field": {
+            "en": "(7) Stats",
+            "vi": "(7) Chỉ Số"
+          },
+          "from": "45% HP + 45% AS",
+          "to": "55% HP + 55% AS",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Camille",
+          "slug": "da-18-camille",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Camille",
+            "vi": "Camille"
+          },
+          "icon": "/tft/champions/da-18-camille.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 1",
+          "field": {
+            "en": "Damage AD",
+            "vi": "Sát Thương - SMCK"
+          },
+          "from": "150/225/375/640",
+          "to": "150/225/400/665",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Kobuko",
+          "slug": "da-18-kobuko",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Kobuko",
+            "vi": "Kobuko"
+          },
+          "icon": "/tft/champions/da-18-kobuko.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 1",
+          "field": {
+            "en": "Heal AP",
+            "vi": "Hồi Máu - SMPT"
+          },
+          "from": "265/315/460/575",
+          "to": "285/335/480/595",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Rakan",
+          "slug": "da-18-rakan",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Rakan",
+            "vi": "Rakan"
+          },
+          "icon": "/tft/champions/da-18-rakan.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 1",
+          "field": {
+            "en": "Shield",
+            "vi": "Lá Chắn"
+          },
+          "from": "270/320/415/490",
+          "to": "290/340/435/510",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Xayah",
+          "slug": "da-18-xayah",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Xayah",
+            "vi": "Xayah"
+          },
+          "icon": "/tft/champions/da-18-xayah.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 1",
+          "field": {
+            "en": "Ability Damage",
+            "vi": "Sát Thương Kỹ Năng"
+          },
+          "from": "68/102/155/165",
+          "to": "73/108/165/175",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Varus",
+          "slug": "da-18-varus",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Varus",
+            "vi": "Varus"
+          },
+          "icon": "/tft/champions/da-18-varus.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 1",
+          "field": {
+            "en": "Attack Speed"
+          },
+          "from": ".7%",
+          "to": ".75%",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Veigar",
+          "slug": "da-18-veigar",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Veigar",
+            "vi": "Veigar"
+          },
+          "icon": "/tft/champions/da-18-veigar.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 1",
+          "field": {
+            "en": "Ability Damage",
+            "vi": "Sát Thương Kỹ Năng"
+          },
+          "from": "200/300/450/765",
+          "to": "190/285/430/725",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_Veigar",
+          "slug": "da-18-veigar",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Veigar",
+            "vi": "Veigar"
+          },
+          "icon": "/tft/champions/da-18-veigar.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 1",
+          "field": {
+            "en": "Low HP Ability Damage"
+          },
+          "from": "300/450/675/1015",
+          "to": "285/430/640/1000",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_Gromp18_AP",
+          "slug": "da-gromp18-ap",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Gromp",
+            "vi": "Cóc Thành Tinh"
+          },
+          "icon": "/tft/champions/da-gromp18-ap.png",
+          "cost": 2,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 2",
+          "field": {
+            "en": "Mana AD Form"
+          },
+          "from": "20/80",
+          "to": "0/70",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Gromp18_AP",
+          "slug": "da-gromp18-ap",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Gromp",
+            "vi": "Cóc Thành Tinh"
+          },
+          "icon": "/tft/champions/da-gromp18-ap.png",
+          "cost": 2,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 2",
+          "field": {
+            "en": "Splash damage AP Form"
+          },
+          "from": "160/240/360/610",
+          "to": "160/240/375/625",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Kayle",
+          "slug": "da-18-kayle",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Kayle",
+            "vi": "Kayle"
+          },
+          "icon": "/tft/champions/da-18-kayle.png",
+          "cost": 2,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 2",
+          "field": {
+            "en": "Ability Damage",
+            "vi": "Sát Thương Kỹ Năng"
+          },
+          "from": "62/92/105/115",
+          "to": "65/97/110/115",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Shen",
+          "slug": "da-18-shen",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Shen",
+            "vi": "Shen"
+          },
+          "icon": "/tft/champions/da-18-shen.png",
+          "cost": 2,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 2",
+          "field": {
+            "en": "Shield",
+            "vi": "Lá Chắn"
+          },
+          "from": "350/430/550/700",
+          "to": "375/450/575/725",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Shen",
+          "slug": "da-18-shen",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Shen",
+            "vi": "Shen"
+          },
+          "icon": "/tft/champions/da-18-shen.png",
+          "cost": 2,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 2",
+          "field": {
+            "en": "Ally Shield",
+            "vi": "Lá Chắn Đồng Minh"
+          },
+          "from": "200/275/375/475",
+          "to": "225/300/400/500",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_Teemo",
+          "slug": "da-18-teemo",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Teemo",
+            "vi": "Teemo"
+          },
+          "icon": "/tft/champions/da-18-teemo.png",
+          "cost": 2,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 2",
+          "field": {
+            "en": "AOE Damage",
+            "vi": "Sát Thương Diện Rộng"
+          },
+          "from": "55/82/130/215",
+          "to": "55/82/155/240",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Hecarim",
+          "slug": "da-18-hecarim",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Hecarim",
+            "vi": "Hecarim"
+          },
+          "icon": "/tft/champions/da-18-hecarim.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Mana",
+            "vi": "Năng Lượng"
+          },
+          "from": "30/110",
+          "to": "50/110",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_CrimsonRaptor18",
+          "slug": "da-crimsonraptor18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Mama Beak",
+            "vi": "Chim Mẹ"
+          },
+          "icon": "/tft/champions/da-crimsonraptor18.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Ability Damage",
+            "vi": "Sát Thương Kỹ Năng"
+          },
+          "from": "22/30/48 AD",
+          "to": "22/30/52 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Rammus",
+          "slug": "da-18-rammus",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Rammus",
+            "vi": "Rammus"
+          },
+          "icon": "/tft/champions/da-18-rammus.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Shield"
+          },
+          "from": "400/550/725 AP",
+          "to": "400/550/700 AP",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_Rengar",
+          "slug": "da-18-rengar",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Rengar",
+            "vi": "Rengar"
+          },
+          "icon": "/tft/champions/da-18-rengar.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Ability Damage",
+            "vi": "Sát Thương Kỹ Năng"
+          },
+          "from": "255/385/615 AD",
+          "to": "255/385/650 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Tristana",
+          "slug": "da-18-tristana",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Tristana",
+            "vi": "Tristana"
+          },
+          "icon": "/tft/champions/da-18-tristana.png",
+          "cost": 3,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 3",
+          "field": {
+            "en": "Ability Damage",
+            "vi": "Sát Thương Kỹ Năng"
+          },
+          "from": "160/240/385 AD",
+          "to": "175/265/420 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_Brambleback18",
+          "slug": "da-brambleback18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Brambleback",
+            "vi": "Bụi Gai Đỏ"
+          },
+          "icon": "/tft/champions/da-brambleback18.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Ability Bonus AD",
+            "vi": "Kỹ Năng - SMCK cộng thêm"
+          },
+          "from": "80% AD",
+          "to": "100% AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_Brambleback18",
+          "slug": "da-brambleback18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Brambleback",
+            "vi": "Bụi Gai Đỏ"
+          },
+          "icon": "/tft/champions/da-brambleback18.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Leap Damage",
+            "vi": "Sát Thương Nhảy"
+          },
+          "from": "155/235 AD",
+          "to": "135/205 AD",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_Ezreal",
+          "slug": "da-18-ezreal",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Ezreal",
+            "vi": "Ezreal"
+          },
+          "icon": "/tft/champions/da-18-ezreal.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Small Cast Damage",
+            "vi": "Sát Thương Thi Triển Nhỏ"
+          },
+          "from": "250/375 AD",
+          "to": "270/405 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Sivir",
+          "slug": "da-18-sivir",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Sivir",
+            "vi": "Sivir"
+          },
+          "icon": "/tft/champions/da-18-sivir.png",
+          "cost": 4,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 4",
+          "field": {
+            "en": "Ability Damage",
+            "vi": "Sát Thương Kỹ Năng"
+          },
+          "from": "190/285 AD",
+          "to": "200/300 AD",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_18_Ashe",
+          "slug": "da-18-ashe",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Ashe",
+            "vi": "Ashe"
+          },
+          "icon": "/tft/champions/da-18-ashe.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "Mana",
+            "vi": "Năng Lượng"
+          },
+          "from": "20/80",
+          "to": "0/80",
+          "direction": "buff",
+          "note": {
+            "en": "NEW: Now refunds 70% Mana if the arrow hits 0 enemies"
+          }
+        },
+        {
+          "ref": "DA_18_Ashe",
+          "slug": "da-18-ashe",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Ashe",
+            "vi": "Ashe"
+          },
+          "icon": "/tft/champions/da-18-ashe.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "Percent Health Damage",
+            "vi": "Sát Thương Theo Phần Trăm Máu"
+          },
+          "from": "2/3%",
+          "to": "1.5%",
+          "direction": "nerf",
+          "note": {
+            "en": "NEW: Now refunds 70% Mana if the arrow hits 0 enemies"
+          }
+        },
+        {
+          "ref": "DA_Draven18",
+          "slug": "da-draven18",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Draven",
+            "vi": "Draven"
+          },
+          "icon": "/tft/champions/da-draven18.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "Bleed Damage",
+            "vi": "Sát Thương Chảy Máu"
+          },
+          "from": "140/210 AD",
+          "to": "150/225 AD",
+          "direction": "buff",
+          "note": {
+            "en": "NEW: Now refunds 50% Mana if the axes hit 0 enemies"
+          }
+        },
+        {
+          "ref": "DA_18_Kennen",
+          "slug": "da-18-kennen",
+          "kind": "champion",
+          "table": "champions",
+          "name": {
+            "en": "Kennen",
+            "vi": "Kennen"
+          },
+          "icon": "/tft/champions/da-18-kennen.png",
+          "cost": 5,
+          "day": null,
+          "dayDate": null,
+          "heading": "UNITS: TIER 5",
+          "field": {
+            "en": "Shield",
+            "vi": "Lá Chắn"
+          },
+          "from": "250/350 AP",
+          "to": "230/300 AP",
+          "direction": "nerf"
+        },
+        {
+          "ref": "TFT_Item_Crownguard",
+          "slug": "tft-item-crownguard",
+          "kind": "item",
+          "table": "items",
+          "name": {
+            "en": "Crownguard",
+            "vi": "Vương Miện Hoàng Gia"
+          },
+          "icon": "/tft/items/tft-item-crownguard.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "ITEMS",
+          "field": {
+            "en": "Bonus Ability Power On Shield Expire",
+            "vi": "SMPT Cộng Thêm Khi Lá Chắn Hết Hiệu Lực"
+          },
+          "from": "25",
+          "to": "20",
+          "direction": "nerf"
+        },
+        {
+          "ref": "TFT_Item_Redemption",
+          "slug": "tft-item-redemption",
+          "kind": "item",
+          "table": "items",
+          "name": {
+            "en": "Spirit Visage",
+            "vi": "Giáp Tâm Linh"
+          },
+          "icon": "/tft/items/tft-item-redemption.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "ITEMS",
+          "field": {
+            "en": "Durability",
+            "vi": "Chống Chịu"
+          },
+          "from": "8%",
+          "to": "10%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Assist_RandomRadiantItem",
+          "slug": "tft-assist-randomradiantitem",
+          "kind": "item",
+          "table": "items",
+          "name": {
+            "en": "Radiant Item",
+            "vi": "Trang Bị Ánh Sáng"
+          },
+          "icon": "/tft/items/tft-assist-randomradiantitem.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "ITEMS",
+          "field": {
+            "en": "Durability",
+            "vi": "Chống Chịu"
+          },
+          "from": "15%",
+          "to": "18%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_EmblemElderwood",
+          "slug": "da-18-emblemelderwood",
+          "kind": "emblem",
+          "table": "items",
+          "name": {
+            "en": "Elderwood Emblem",
+            "vi": "Ấn Thần Rừng"
+          },
+          "icon": "/tft/items/da-18-emblemelderwood.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "EMBLEMS",
+          "field": {
+            "en": "Resists",
+            "vi": "Chống Chịu"
+          },
+          "from": "35",
+          "to": "25",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_BronzeForLife2",
+          "slug": "tft-augment-bronzeforlife2",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Bronze For Life II",
+            "vi": "Tất Tay Bậc Đồng II"
+          },
+          "icon": "/tft/augments/tft-augment-bronzeforlife2.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Armor and Magic Resist",
+            "vi": "Giáp và Kháng Phép"
+          },
+          "from": "4",
+          "to": "3",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_18_SolarTraitAugment",
+          "slug": "da-18-solartraitaugment",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Chosen of the Sun",
+            "vi": "Sự Lựa Chọn của Mặt Trời"
+          },
+          "icon": "/tft/augments/da-18-solartraitaugment.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Tier",
+            "vi": "Bậc"
+          },
+          "from": "Gold",
+          "to": "Silver",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_ComponentQuest",
+          "slug": "da-componentquest",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Component Quest",
+            "vi": "Nhiệm Vụ Trang Bị"
+          },
+          "icon": "/tft/augments/da-componentquest.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Final Gold Gain",
+            "vi": "Lượng Vàng Nhận Được Cuối Cùng"
+          },
+          "from": "5",
+          "to": "1",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_Dummify",
+          "slug": "tft-augment-dummify",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Dummify",
+            "vi": "Hình Nhân Hóa"
+          },
+          "icon": "/tft/augments/tft-augment-dummify.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Starting Health"
+          },
+          "from": "1000",
+          "to": "1500",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_ExplosiveGrowthPlus",
+          "slug": "tft-augment-explosivegrowthplus",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Explosive Growth+",
+            "vi": "Tăng Trưởng Bùng Nổ+"
+          },
+          "icon": "/tft/augments/tft-augment-explosivegrowthplus.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "XP Gained per Round",
+            "vi": "XP Nhận Được Mỗi Vòng"
+          },
+          "from": "10",
+          "to": "9",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_WarmogsBuckle",
+          "slug": "tft-augment-warmogsbuckle",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Heart of Steel",
+            "vi": "Trái Tim Sắt Đá"
+          },
+          "icon": "/tft/augments/tft-augment-warmogsbuckle.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Max Health Gain",
+            "vi": "Máu Tối Đa Nhận Được"
+          },
+          "from": "16",
+          "to": "18",
+          "direction": "buff"
+        },
+        {
+          "ref": "TFT_Augment_InvestmentStrategy1",
+          "slug": "tft-augment-investmentstrategy1",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Investment Strategy I",
+            "vi": "Chiến Thuật Đầu Tư I"
+          },
+          "icon": "/tft/augments/tft-augment-investmentstrategy1.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Max Health per Interest",
+            "vi": "Máu Tối Đa mỗi Lợi Tức"
+          },
+          "from": "8",
+          "to": "9",
+          "direction": "buff"
+        },
+        {
+          "ref": "TFT_Augment_InvestmentStrategy1",
+          "slug": "tft-augment-investmentstrategy1",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Investment Strategy I",
+            "vi": "Chiến Thuật Đầu Tư I"
+          },
+          "icon": "/tft/augments/tft-augment-investmentstrategy1.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Initial Gold",
+            "vi": "Vàng Khởi Đầu"
+          },
+          "from": "4",
+          "to": "6",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT_Augment_InvestmentStrategy2",
+          "slug": "tft-augment-investmentstrategy2",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Investment Strategy II",
+            "vi": "Chiến Thuật Đầu Tư II"
+          },
+          "icon": "/tft/augments/tft-augment-investmentstrategy2.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Max Health per Interest",
+            "vi": "Máu Tối Đa mỗi Lợi Tức"
+          },
+          "from": "10",
+          "to": "12",
+          "direction": "buff"
+        },
+        {
+          "ref": "TFT_Augment_InvestmentStrategy2",
+          "slug": "tft-augment-investmentstrategy2",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Investment Strategy II",
+            "vi": "Chiến Thuật Đầu Tư II"
+          },
+          "icon": "/tft/augments/tft-augment-investmentstrategy2.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Gold Granted",
+            "vi": "Vàng Kiếm Được"
+          },
+          "from": "8",
+          "to": "10",
+          "direction": "adjust"
+        },
+        {
+          "ref": "TFT6_Augment_MaxLevel10",
+          "slug": "tft6-augment-maxlevel10",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Level Up!",
+            "vi": "Khuyến Mãi Kinh Nghiệm"
+          },
+          "icon": "/tft/augments/tft6-augment-maxlevel10.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Instant XP",
+            "vi": "XP Tức Thì"
+          },
+          "from": "6",
+          "to": "10",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_SprykinAugment",
+          "slug": "da-18-sprykinaugment",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Small Furry Friend",
+            "vi": "Lông Xù Bé Nhỏ"
+          },
+          "icon": "/tft/augments/da-18-sprykinaugment.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "Effectiveness",
+            "vi": "Hiệu Quả"
+          },
+          "from": "35%",
+          "to": "45%",
+          "direction": "adjust",
+          "note": {
+            "en": "Now grants Alpha Riftbeasts 15% bonus HP and 12% bonus Attack Speed"
+          }
+        },
+        {
+          "ref": "DA_VerticalityII",
+          "slug": "da-verticalityii",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Verticality II",
+            "vi": "Chỉ Một Con Đường II"
+          },
+          "icon": "/tft/augments/da-verticalityii.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "AD/AP per Ally",
+            "vi": "SMCK/SMPT mỗi Đồng Minh"
+          },
+          "from": "2%",
+          "to": "2.5%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_VerticalityIII",
+          "slug": "da-verticalityiii",
+          "kind": "augment",
+          "table": "augments",
+          "name": {
+            "en": "Verticality III",
+            "vi": "Chỉ Một Con Đường III"
+          },
+          "icon": "/tft/augments/da-verticalityiii.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "AUGMENTS",
+          "field": {
+            "en": "AD/AP per Ally",
+            "vi": "SMCK/SMPT mỗi Đồng Minh"
+          },
+          "from": "3.5%",
+          "to": "4%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_BackrowStar",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Backrow Star",
+            "vi": "Ngôi Sao Hàng Sau"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "AS Bonus",
+            "vi": "Tốc Đánh Cộng Thêm"
+          },
+          "from": "85%",
+          "to": "100%",
+          "direction": "buff",
+          "note": {
+            "en": "Drizzle: After 8 seconds of combat, your team gains 10 mana."
+          }
+        },
+        {
+          "ref": "DA_18_BackrowStar",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Backrow Star",
+            "vi": "Ngôi Sao Hàng Sau"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Blossom Upgrade AS Bonus",
+            "vi": "Nâng Cấp Hoa Linh - Tốc Độ Đánh Cộng Thêm"
+          },
+          "from": "115%",
+          "to": "130%",
+          "direction": "buff",
+          "note": {
+            "en": "Drizzle: After 8 seconds of combat, your team gains 10 mana."
+          }
+        },
+        {
+          "ref": "DA_ForestGuide18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Forest Guide",
+            "vi": "Dẫn Lối Rừng Già"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_champion_tier3.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Cost",
+            "vi": "Giá"
+          },
+          "from": "5 gold",
+          "to": "6 gold",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_ForestGuide18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Forest Guide",
+            "vi": "Dẫn Lối Rừng Già"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_champion_tier3.png",
+          "cost": null,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Blossom Upgrade Cost",
+            "vi": "Nâng Cấp Hoa Linh - Giá"
+          },
+          "from": "4 gold",
+          "to": "5 gold",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_ImprovedReach18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Improved Reach",
+            "vi": "Tăng Tầm Với"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Cost",
+            "vi": "Nâng Cấp Hoa Linh - Giá"
+          },
+          "from": "2 gold",
+          "to": "1 gold",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_ImprovedReach18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Improved Reach",
+            "vi": "Tăng Tầm Với"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Blossom Upgrade Cost",
+            "vi": "Nâng Cấp Hoa Linh - Giá"
+          },
+          "from": "2 gold",
+          "to": "1 gold",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_KillingFrenzy",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Killing Frenzy",
+            "vi": "Cuồng Nộ Sát Nhân"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+          "cost": 2,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "AS on Kill",
+            "vi": "Tốc Độ Đánh Khi Hạ Gục"
+          },
+          "from": "115%",
+          "to": "130%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_18_KillingFrenzy",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Killing Frenzy",
+            "vi": "Cuồng Nộ Sát Nhân"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+          "cost": 2,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Blossom Upgrade AS on Kill",
+            "vi": "Nâng Cấp Hoa Linh - Tốc Độ Đánh khi Hạ Gục"
+          },
+          "from": "140%",
+          "to": "160%",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_ManaPotion18_Charm",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Mana Potion",
+            "vi": "Bình Năng Lượng"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_misc_tier1.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Mana Restored",
+            "vi": "Năng Lượng Phục Hồi"
+          },
+          "from": "80",
+          "to": "70",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_ManaPotion18_Charm",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Mana Potion",
+            "vi": "Bình Năng Lượng"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_misc_tier1.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Starting Mana",
+            "vi": "Ánh Sáng - Năng Lượng Khởi Đầu"
+          },
+          "from": "20",
+          "to": "10",
+          "direction": "buff"
+        },
+        {
+          "ref": "DA_ManaPotion18_Charm",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Mana Potion",
+            "vi": "Bình Năng Lượng"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_misc_tier1.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Radiant Mana Restored",
+            "vi": "Ánh Sáng - Năng Lượng Đã Hồi"
+          },
+          "from": "90",
+          "to": "80",
+          "direction": "nerf"
+        },
+        {
+          "ref": "DA_ManaPotion18_Charm",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Mana Potion",
+            "vi": "Bình Năng Lượng"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_misc_tier1.png",
+          "cost": 1,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Radiant Starting Mana",
+            "vi": "Ánh Sáng - Năng Lượng Khởi Đầu"
+          },
+          "from": "20",
+          "to": "10",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Stealthy18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Stealthy",
+            "vi": "Ẩn Náu"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier1.png",
+          "cost": 0,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Duration",
+            "vi": "Thời Gian Tác Dụng"
+          },
+          "from": "6 seconds",
+          "to": "8 seconds",
+          "direction": "adjust"
+        },
+        {
+          "ref": "DA_Stealthy18",
+          "kind": "wisp",
+          "table": "wisps",
+          "name": {
+            "en": "Stealthy",
+            "vi": "Ẩn Náu"
+          },
+          "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier1.png",
+          "cost": 0,
+          "day": null,
+          "dayDate": null,
+          "heading": "WISPS",
+          "field": {
+            "en": "Blossom Upgrade Duration",
+            "vi": "Nâng Cấp Hoa Linh - Thời Gian Tác Dụng"
+          },
+          "from": "10 seconds",
+          "to": "12 seconds",
+          "direction": "adjust"
+        }
+      ],
+      "unmatched": [
+        {
+          "name": "130 Cashout",
+          "kind": "trait",
+          "heading": "TRAITS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "",
+              "from": "2x Components",
+              "to": "1x Component + 6 gold"
+            },
+            {
+              "label": "",
+              "from": "1x Component + 2* Elise + 1* Cassio",
+              "to": "1x Component + 2* Elise"
+            },
+            {
+              "label": "",
+              "from": "1x Random Item",
+              "to": "1x Component + 2* Camille + 3g"
+            },
+            {
+              "label": "",
+              "from": "2* Caitlyn + 1x Component + 3g",
+              "to": "2* Caitlyn + 1x Component"
+            }
+          ]
+        },
+        {
+          "name": "AP Form",
+          "kind": "champion",
+          "heading": "UNITS: TIER 4",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "Small Spear Ability Damage",
+              "from": "170/255 AP",
+              "to": "185/275 AP"
+            }
+          ]
+        },
+        {
+          "name": "AD Form",
+          "kind": "champion",
+          "heading": "UNITS: TIER 4",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "Ability Damage",
+              "from": "210/315 AD",
+              "to": "200/300 AD"
+            }
+          ]
+        },
+        {
+          "name": "Greenfather Hexes",
+          "kind": "champion",
+          "heading": "UNITS: TIER 5",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "Damage Amp",
+              "from": "8/12%",
+              "to": "6/10%"
+            },
+            {
+              "label": "Bonus % HP",
+              "from": "8/12%",
+              "to": "6/10%"
+            },
+            {
+              "label": "Resists",
+              "from": "8/12",
+              "to": "10/14"
+            }
+          ]
+        },
+        {
+          "name": "AP Per Cashout",
+          "kind": "augment",
+          "heading": "AUGMENTS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "Cashout 2",
+              "from": "15",
+              "to": "12"
+            },
+            {
+              "label": "Cashout 3",
+              "from": "50",
+              "to": "33"
+            },
+            {
+              "label": "Cashout 4",
+              "from": "75",
+              "to": "50"
+            },
+            {
+              "label": "Cashout 5",
+              "from": "125",
+              "to": "100"
+            },
+            {
+              "label": "Cashout 6",
+              "from": "200",
+              "to": "175"
+            }
+          ]
+        },
+        {
+          "name": "Luxury Sub",
+          "kind": "augment",
+          "heading": "AUGMENTS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "Gold Granted",
+              "from": "3",
+              "to": "5"
+            }
+          ]
+        },
+        {
+          "name": "4 Trait Cashout",
+          "kind": "augment",
+          "heading": "AUGMENTS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "Gold Granted",
+              "from": "6",
+              "to": "5"
+            }
+          ]
+        },
+        {
+          "name": "6 Trait Cashout",
+          "kind": "augment",
+          "heading": "AUGMENTS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "Gold Granted",
+              "from": "10 gold",
+              "to": "7 gold"
+            },
+            {
+              "label": "",
+              "from": "3x3 costs",
+              "to": "2x3 costs"
+            }
+          ]
+        },
+        {
+          "name": "7 Trait Cashout",
+          "kind": "augment",
+          "heading": "AUGMENTS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "",
+              "from": "Component Anvil + 8 gold",
+              "to": "Component Anvil + 2 gold"
+            }
+          ]
+        },
+        {
+          "name": "8 Trait Cashout",
+          "kind": "augment",
+          "heading": "AUGMENTS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "",
+              "from": "2 Different Components + Reforger",
+              "to": "2 Different Components"
+            }
+          ]
+        },
+        {
+          "name": "9 Trait Cashout",
+          "kind": "augment",
+          "heading": "AUGMENTS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "",
+              "from": "3x5 costs + 2 gold",
+              "to": "2x5 costs + 2 gold"
+            }
+          ]
+        },
+        {
+          "name": "Giant’s Growth",
+          "kind": "wisp",
+          "heading": "WISPS",
+          "day": null,
+          "dayDate": null,
+          "lines": [
+            {
+              "label": "HP Increase",
+              "from": "750",
+              "to": "800"
+            },
+            {
+              "label": "Blossom Upgrade HP Increase",
+              "from": "750",
+              "to": "800"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

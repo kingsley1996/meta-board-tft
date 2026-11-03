@@ -1,3 +1,4 @@
+import type { PatchRow } from '@tftiq/shared/patch-notes';
 import type { Tier } from './tiers';
 import type { Lang } from './i18n';
 
@@ -65,10 +66,19 @@ export type CompSummary = Pick<
 
 export type CompsInitial = Omit<CompsResponse, 'comps'> & { comps: (ApiComp | CompSummary)[] };
 
-export type ApiGuideSection = { heading: string; body: string[]; list?: string[] };
+// A patch-note article carries change rows in its blocks; a guide never has them.
+export type ApiPatchRow = PatchRow & {
+  table: string;
+  day: string | null;
+  dayDate: string | null;
+  heading: string;
+};
+
+export type ApiGuideSection = { heading: string; body: string[]; list?: string[]; rows?: ApiPatchRow[] };
 
 export type ApiGuide = {
   slug: string;
+  kind: 'guide' | 'patch_notes';
   author: string;
   authorSlug: string;
   date: string;

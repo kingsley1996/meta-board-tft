@@ -441,3 +441,71 @@ body {
     font-size: 30px;
   }
 }
+
+/* A patch note row reads as one sentence: the number Riot replaced, then the one
+   it put in. The old value recedes to mist under a soft strike; the new value
+   takes the colour of its own direction, which is why the tone comes from the
+   row (data-tone) and not from a fixed class — and why it only ever uses the
+   four difficulty colours already in the palette. */
+.diff-old {
+  color: var(--color-mist);
+  font-variant-numeric: tabular-nums;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--color-mist) 45%, transparent);
+}
+
+.diff-new {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--color-fog);
+}
+
+.diff-new[data-tone='easy'] {
+  color: var(--color-diff-easy);
+}
+
+.diff-new[data-tone='average'] {
+  color: var(--color-diff-average);
+}
+
+.diff-new[data-tone='hard'] {
+  color: var(--color-diff-hard);
+}
+
+.diff-new[data-tone='conditional'] {
+  color: var(--color-diff-conditional);
+}
+
+/* The kind tab row is one filter over the blocks the article already renders, not a second
+   copy of them: the container carries the kind the reader picked, every other row steps aside,
+   and a block left with no row of its own takes its heading with it. `:has()` is what lets a
+   block be judged by the rows inside it — the day Riot wrote a hotfix under can hold two kinds,
+   so the filter has to reach the row and not only the box. */
+[data-kind-filter='champion'] :is(li:not([data-kind='champion']), [data-kind-block]:not(:has([data-kind='champion']))) {
+  display: none;
+}
+
+[data-kind-filter='trait'] :is(li:not([data-kind='trait']), [data-kind-block]:not(:has([data-kind='trait']))) {
+  display: none;
+}
+
+[data-kind-filter='item'] :is(li:not([data-kind='item']), [data-kind-block]:not(:has([data-kind='item']))) {
+  display: none;
+}
+
+[data-kind-filter='augment'] :is(li:not([data-kind='augment']), [data-kind-block]:not(:has([data-kind='augment']))) {
+  display: none;
+}
+
+[data-kind-filter='wisp'] :is(li:not([data-kind='wisp']), [data-kind-block]:not(:has([data-kind='wisp']))) {
+  display: none;
+}
+
+[data-kind-filter='emblem'] :is(li:not([data-kind='emblem']), [data-kind-block]:not(:has([data-kind='emblem']))) {
+  display: none;
+}
+
+[data-kind-filter='encounter'] :is(li:not([data-kind='encounter']), [data-kind-block]:not(:has([data-kind='encounter']))) {
+  display: none;
+}

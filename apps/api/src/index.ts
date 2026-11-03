@@ -4,7 +4,7 @@ import { ensureCatalogCurrent } from './tft.ts';
 import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
 import { candidatePayload, listCompCandidates } from './comp-candidates.ts';
 import { compProvenance } from './comp-provenance.ts';
-import { deleteGuide, guideExists, listGuides, validateGuidePayload, writeGuide } from './guides.ts';
+import { deleteGuide, guideExists, isGuideKind, listGuides, validateGuidePayload, writeGuide, type GuideKind } from './guides.ts';
 import { assistantRouter } from './assistant/index.ts';
 import { translateText } from './assistant/translate.ts';
 import { voiceRouter } from './voice.ts';
@@ -71,6 +71,10 @@ app.get('/api/health/ready', async (_req, res) => {
 });
 
 const readLang = (value: unknown): 'en' | 'vi' => (value === 'vi' ? 'vi' : 'en');
+// Anything unrecognised reads as the plain list, so a bad ?kind= can never expose patch
+// notes through the how-to endpoint.
+const readGuideKind = (value: unknown): GuideKind | 'all' =>
+  value === 'all' ? 'all' : isGuideKind(value) ? value : 'guide';
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 app.get('/api/comps', async (req, res) => {
@@ -129,11 +133,11 @@ app.post('/api/subscribe', async (req, res) => {
 
 
 app.get('/api/guides', async (req, res) => {
-  res.json({ guides: await listGuides(readLang(req.query.lang)) });
+  res.json({ guides: await listGuides(readLang(req.query.lang), { kind: readGuideKind(req.query.kind) }) });
 });
 
 app.get('/api/guides/:slug', async (req, res) => {
-  const [guide] = await listGuides(readLang(req.query.lang), req.params.slug);
+  const [guide] = await listGuides(readLang(req.query.lang), { slug: req.params.slug });
   if (!guide) return res.status(404).json({ error: `no guide with slug "${req.params.slug}"` });
   res.json(guide);
 });

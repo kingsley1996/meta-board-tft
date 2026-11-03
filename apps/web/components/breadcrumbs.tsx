@@ -39,6 +39,7 @@ export function Breadcrumbs({ lang }: { lang: Lang }) {
     tables: t.nav.tables,
     wisps: t.nav.wisps,
     economy: t.nav.economy,
+    patches: t.nav.patches,
     comps: t.nav.comps,
     map: t.nav.compMap,
     builder: t.nav.builder,

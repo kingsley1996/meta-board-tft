@@ -13,7 +13,9 @@ const ROUTES: Record<RevalidateKind, string[]> = {
   // comps feed: the board, the detail rail, champion pages (they list their comps)
   // and the quiz, which scores against the same list.
   comps: ['tierlist/comps', 'tierlist/comps/[slug]', 'champions/[slug]', 'quiz'],
-  guides: ['guides', 'guides/[slug]'],
+  // guides feed: the how-to list, its articles, and the patch notes, which are
+  // rows of the same table under a different kind.
+  guides: ['guides', 'guides/[slug]', 'patches', 'patches/[patch]'],
 };
 
 export type Revalidation = { path: string; type?: 'page' };

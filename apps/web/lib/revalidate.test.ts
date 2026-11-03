@@ -24,10 +24,19 @@ describe('revalidationsFor', () => {
     }
   });
 
-  it('touches only guide routes for the guide kind', () => {
+  it('touches only article routes for the guide kind', () => {
     assert.deepEqual(
       revalidationsFor('guides').map((entry) => entry.path),
-      ['/en/guides', '/en/guides/[slug]', '/vi/guides', '/vi/guides/[slug]']
+      [
+        '/en/guides',
+        '/en/guides/[slug]',
+        '/en/patches',
+        '/en/patches/[patch]',
+        '/vi/guides',
+        '/vi/guides/[slug]',
+        '/vi/patches',
+        '/vi/patches/[patch]',
+      ]
     );
   });
 });

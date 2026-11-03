@@ -3,7 +3,9 @@ import type { CompsResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
 import { locales } from '@/lib/i18n';
 import { lootPages } from '@/lib/loot';
+import { slugToPatch } from '@/lib/patches';
 import tft from '@tftiq/shared/data/tft.json';
+import pbeFile from '@tftiq/shared/data/pbe.json';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +18,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Sitemap generation must not fail the build when the backend is down.
   const comps = (await backendJson<CompsResponse>('/api/comps').catch(() => null))?.comps ?? [];
   const guides = (await backendJson<{ guides: { slug: string }[] }>('/api/guides').catch(() => null))?.guides ?? [];
+  const patches =
+    (await backendJson<{ guides: { slug: string }[] }>('/api/guides?kind=patch_notes').catch(() => null))?.guides ?? [];
 
   const paths: { path: string; meta?: Meta; priority?: number }[] = [
     { path: '', priority: 1 },
@@ -42,6 +46,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: 'membership', meta: page },
     { path: 'guides', meta: page },
     ...guides.map((entry) => ({ path: `guides/${entry.slug}`, meta: page })),
+    { path: 'patches', meta: page },
+    // The preview patch has no row in the store — that is what makes it a preview — so its URL
+    // comes from the data file. Once Riot ships, the store has it too and the set keeps one.
+    ...[...new Set([...patches.map((entry) => slugToPatch(entry.slug)), pbeFile.patch])].map((patch) => ({
+      path: `patches/${patch}`,
+      meta: page,
+    })),
     { path: 'about', meta: page },
     { path: 'legal/privacy', meta: page },
     { path: 'legal/terms', meta: page },

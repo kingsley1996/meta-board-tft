@@ -9,6 +9,7 @@
     "./speech-text": "./src/speech-text.ts",
     "./translation-id": "./src/translation-id.ts",
     "./membership-plans": "./src/membership-plans.ts",
+    "./patch-notes": "./src/patch-notes.ts",
     "./data/*.json": "./data/*.json"
   }
 }

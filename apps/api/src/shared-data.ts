@@ -6,6 +6,7 @@ export type SharedDataFile =
   | 'loot-tables.json'
   | 'mechanics-knowledge.json'
   | 'meta.json'
+  | 'patch-notes.json'
   | 'tft.json'
   | 'translation-catalog.json';
 

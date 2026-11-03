@@ -244,6 +244,15 @@ ALTER TABLE guides ADD COLUMN IF NOT EXISTS title_vi text;
 ALTER TABLE guides ADD COLUMN IF NOT EXISTS excerpt_vi text;
 ALTER TABLE guides ADD COLUMN IF NOT EXISTS sections_vi jsonb;
 
+-- A patch note is an article, so it lives in `guides`; `kind` is what keeps it out of the
+-- how-to list. A typo there hides the article from every surface, so the value is a CHECK,
+-- not a free text column.
+ALTER TABLE guides ADD COLUMN IF NOT EXISTS kind text NOT NULL DEFAULT 'guide';
+DO $$ BEGIN
+  ALTER TABLE guides ADD CONSTRAINT guides_kind_values CHECK (kind IN ('guide', 'patch_notes'));
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+CREATE INDEX IF NOT EXISTS guides_kind_idx ON guides (kind, published_on DESC);
+
 -- Accounts: email+password and Google OAuth identities. Rows are created by
 -- /api/auth/* (see src/accounts.ts, which also ensures these tables at runtime).
 CREATE TABLE IF NOT EXISTS users (
