@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-03T08:33:02.473Z",
+  "generatedAt": "2026-11-04T04:55:05.002Z",
   "latestPatch": "18.5c",
   "patches": [
     {
@@ -377,7 +377,7 @@
             "vi": "Tay Sai"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
-          "cost": null,
+          "cost": 5,
           "day": "OCTOBER 22ND",
           "dayDate": "2026-10-22",
           "heading": "WISPS",
@@ -419,7 +419,7 @@
             "vi": "Nghi Thức Ánh Trăng"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
-          "cost": 2,
+          "cost": 3,
           "day": "OCTOBER 22ND",
           "dayDate": "2026-10-22",
           "heading": "WISPS",
@@ -1924,7 +1924,7 @@
             "vi": "Rời Tàu"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_risky_tier3.png",
-          "cost": 0,
+          "cost": 2,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -1969,7 +1969,7 @@
             "vi": "Máu Và Sắt"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_item_tier2.png",
-          "cost": 3,
+          "cost": 4,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -1990,7 +1990,7 @@
             "vi": "Baron Chi Viện"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
-          "cost": 6,
+          "cost": 4,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -2011,7 +2011,7 @@
             "vi": "Baron Chi Viện"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
-          "cost": 6,
+          "cost": 4,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -2032,7 +2032,7 @@
             "vi": "Baron Chi Viện"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
-          "cost": 6,
+          "cost": 4,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -2457,7 +2457,7 @@
             "vi": "Tổ Đội Tìm Kiếm"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_shop_tier1.png",
-          "cost": 3,
+          "cost": 1,
           "day": "OCTOBER 7TH",
           "dayDate": "2026-10-07",
           "heading": "WISPS",
@@ -2480,7 +2480,7 @@
             "vi": "Ba Chúng Tôi"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_champion_tier2.png",
-          "cost": null,
+          "cost": 10,
           "day": "OCTOBER 7TH",
           "dayDate": "2026-10-07",
           "heading": "WISPS",
@@ -4109,7 +4109,7 @@
             "vi": "Dẫn Lối Rừng Già"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_champion_tier3.png",
-          "cost": null,
+          "cost": 6,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -4130,7 +4130,7 @@
             "vi": "Dẫn Lối Rừng Già"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_champion_tier3.png",
-          "cost": null,
+          "cost": 6,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
