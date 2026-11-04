@@ -2,10 +2,11 @@
 
 Phạm vi: trả lời hai câu của chỉ thị — (1) các chức năng trên trang có sống được qua một set mới không, (2) kiến trúc có chịu được nhịp đổi phiên bản 3–4 tháng một lần của game không.
 
-Kết luận ngắn: **kiến trúc không cần trở thành multi-set.** Mô hình "một set đang chạy, cái cũ là lịch sử" là đúng cho một trang meta. Việc còn lại là hai thứ:
+Kết luận ngắn: **kiến trúc không cần trở thành multi-set** — nhưng phải chịu được **hai set cùng tồn tại**: PBE của mùa mới mở trước ngày launch 4–6 tuần, và trong suốt cửa sổ đó server live vẫn ở 18.x. Ba thứ còn thiếu:
 
-- **Nhiều chỗ mà mã hoặc copy gõ tay số `18`** thay vì suy ra từ dữ liệu — liệt kê đủ ở §3 (R1–R12). Ba file trong số đó ở tầng *ghép tên/id thực thể*: ngày set đổi, pipeline gãy hàng loạt nhưng gãy **kêu to** (throw), không im lặng.
-- **1 chỗ im lặng thật sự**: bảng `comps` không có cột set, còn `seed:comps` thì upsert mà không xoá — nên đội hình mùa cũ vẫn ngồi trên tier list với tên tướng đã không còn trong catalog.
+- **Nhiều chỗ mà mã hoặc copy gõ tay số `18`** thay vì suy ra từ dữ liệu — liệt kê đủ ở §3 (R1–R14). Ba file trong số đó ở tầng *ghép tên/id thực thể*: ngày set đổi, pipeline gãy hàng loạt nhưng gãy **kêu to** (throw), không im lặng.
+- **Chỗ im lặng thật sự**: bảng `comps` không có cột set, còn `seed:comps` thì upsert mà không xoá — nên đội hình mùa cũ vẫn ngồi trên tier list với tên tướng đã không còn trong catalog.
+- **Chỗ im lặng nghiêm trọng nhất nằm trong chính cửa sổ preview** (R13): bảng "Sắp ra mắt" resolve tên theo catalog của mùa *đang live*, nên toàn bộ thực thể mùa 19 bị đẩy vào `unresolved` và trang thành rỗng đúng 4–6 tuần nó có giá trị nhất — mà `stats.rows: 0` thì trông giống hệt trường hợp hợp pháp hôm nay. D8 là cơ chế hai con số (`liveSet` / `previewSet`) để cửa sổ đó là trạng thái được khai báo, không phải tai nạn.
 
 Mọi số liệu dưới đây đo ngày 2026-11-04, trên dữ liệu set 18 / patch 18.6.
 
@@ -74,10 +75,12 @@ Hệ quả trực tiếp cho quyết định "giữ gì": **không cần archive
 | R10 | Test pin số set | `apps/web/tests/header.spec.ts:95` đòi chữ "Mùa 18"; `search.spec.ts:13`, `champion-stats.spec.ts:7,22,29` đòi URL `da-18-ahri` | CI đỏ đúng ngày rotation, kể cả khi app đúng → dễ bị hiểu là bug và bị nới gate | 🟡 |
 | R11 | URL đã index biến mất | `apps/web/app/[lang]/layout.tsx:25` `export const dynamicParams = false` (di truyền xuống page con); `sitemap.ts` sinh URL từ artifact mới | build đầu tiên sau rotation biến hàng trăm URL `/en/champions/da-18-*` thành **404**. An toàn: `guides/[slug]`, `patches/[patch]` (params từ DB, bài 18.x còn trong store) | 🔴 |
 | R12 | Cửa sổ stats theo sau release | `apps/api/src/tft.ts:123-125` ghi `patch/set_number/set_name/catalog_release`, `:75` ghi queue id của nguồn stats vào bảng `meta`; crawler lấy metadata cluster **từ nguồn** nên `tft_set`/`cluster_id` tự đổi theo set (đo hôm nay: `TFTSet18`, `426`), nhưng queue id thì pin một số cố định và **throw** nếu payload báo queue khác | ngày launch chưa đủ trận cho cửa sổ 7 ngày ⇒ tier board rỗng hoặc vẫn số mùa 18. Queue id của set mới là **ẩn số**: code kêu to chứ không im lặng, nhưng cần một lệnh probe để biết số nào đúng | 🟡 |
+| R13 | **Bảng "Sắp ra mắt" im lặng suốt cửa sổ cross-set** | `scripts/build-pbe-diff.mjs:21` lấy `roster = packages/shared/data/tft.json` — tức **catalog của set đang live**; `lib/pbe-diff.mjs:194` và `:173` gọi `resolveEntity(tên, kind, roster)` và mọi thực thể không khớp bị đẩy vào `unresolved`, không sinh row. Khi PBE mở mùa 19, id chuyển hết từ `18_*` sang `19_*` ⇒ `presence()` coi **toàn bộ** hai bên là added/removed, và gần như mọi tên 19 đều `unresolved` vì roster 18 không có chúng | 4–6 tuần lễ quan trọng nhất của một mùa, `/patches` không có gì để xem, `/patches/19.1` là bài rỗng. **Im lặng**: `stats.rows: 0` trông giống hệt trường hợp hợp pháp hôm nay (PBE đã ship = diff 0 dòng, `patch: null`). Đo hôm nay: `coverage` champs 68/68, traits 37/37, augs 248/248, items 158/158 — hai bên cùng set nên bằng nhau bởi construction | 🔴 |
+| R14 | `pickSet()` lấy số lớn nhất thay vì số đang live | `scripts/fetch-tft.mjs:170-175` `Math.max(...setData.map(e => e.number))`. Cây `latest` của CommunityDragon hôm nay mang các set 1→18 và `latest` theo bản live, nên max = 18 = đúng. Nhưng max chỉ là **giả định**, không phải bất biến được kiểm: nếu `latest` có `TFTSet19` trước khi news index của Riot kịp đổi major (hoặc ngược lại), toàn bộ artifact sống bật sang 19 trong khi stats/lookups/wisps vẫn pin 18 (`fetch-metatft.mjs:218`, `fetch-wisps.mjs:10-11` — đều gõ tay) | giữa chừng cửa sổ thì chưa sao; **ngay ngày launch** hai nguồn flip cách nhau vài giờ ⇒ catalog 19 + stats 18, một nửa site nói tiếng nửa kia | 🔴 |
 
 Điểm sáng có chủ đích: gate tuổi 30h từng board trong `refresh-all` (đã ship) chính là lưới bắt R2/R8 — nếu fetcher chết vì URL gắn `TFTSet18`, board bị đánh dấu quá hạn thay vì âm thầm dùng bản cũ.
 
-## 4. Kiến trúc mục tiêu — 7 quyết định
+## 4. Kiến trúc mục tiêu — 8 quyết định
 
 **D1 — Một con số chỉ gõ tay ở MỘT nơi, và nơi đó phải là thứ máy không tự biết được.** Số set: luôn suy (đã xong). **Tên riêng của set** ("Enchanted Wilds") thì máy *không* lấy được: nguồn catalog trả `tft.json` có `set.name = "Set10"` trong khi `set.number = 18` — con người phải viết. Vì vậy tên set phải nằm ở đúng một file, không rải 34 dòng.
 
@@ -103,13 +106,33 @@ Hệ quả trực tiếp cho quyết định "giữ gì": **không cần archive
 
 **D7 — Test chỉ đọc số từ artifact.** R9/R10 là cái bẫy lặp lại: cùng kiểu pin dữ liệu sống đã chết hai lần trong tuần (`patch-notes.test.mjs`, `pbe-diff.test.mjs`). Quy tắc thành văn: không literal `18`, `da-18-`, `Mùa 18`, `18.6` trong assertion — đọc từ `set.json`/`tft.json`, hoặc dùng fixture tự chứa (`patch-notes-article.test.ts` là mẫu tốt).
 
+**D8 — Hai con số, hai quyền ghi, và cửa sổ 4–6 tuần là trạng thái bình thường chứ không phải lỗi.** Khác với hotfix, PBE của một set mới chạy **trong khi server live vẫn ở 18.x** — nên hệ thống phải phân biệt được hai thứ mà hiện tại đang trộn một:
+
+| | Suy từ đâu | Được ghi vào |
+|---|---|---|
+| `liveSet` | major của `_livePatch` (news index Riot) — đã có sẵn, chỉ chưa được dùng làm quyền | `tft.json`, `apps/web/public/tft/**`, `champion-focus.json`, `apps/api/seed/comps.json`, stats/lookups/wisps |
+| `previewSet` | `catalogSet(after.champs)` của feed preview — cũng đã có sẵn | **chỉ** `pbe.json` + block còi báo trong PR body |
+
+Ba bất biến phải được kiểm bằng code, không bằng kỷ luật:
+1. `pickSet()` chọn theo `liveSet` chứ không lấy max (`fetch-tft.mjs:171`), và **throw** khi cây `latest` chưa có `TFTSet<liveSet>` — R14. Trong cửa sổ, `latest` vẫn max = 18 nên hành vi hôm nay không đổi; khác biệt nằm ở ngày launch, khi catalog và stats flip lệch giờ.
+2. Khi `previewSet > liveSet`, đối chiếu tên của bảng preview với **catalog của set mới**, không phải roster live — R13. Nguồn xác thực: cây `pbe` của CommunityDragon (`/pbe/cdragon/tft/en_us.json`, cùng shape với `latest`) tải về `.cache` riêng, cho tên + icon gốc của set 19. Không có nó thì **throw**, đừng in một bảng "Sắp ra mắt" rỗng: `stats.rows: 0` hôm nay là sự thật hợp pháp (PBE đã ship), nên nó không được phép là cách diễn đạt "tôi không join được ai".
+3. Trong cửa sổ, mặt trận live **không đổi**: `/tierlist`, `/wisps`, `/tables`, `/items`, `/champions` vẫn 18; Coach không nhận `pbe.json` vào corpus. Đây là hành vi đúng, chỉ cần nó được **khai** bằng test thay vì ngẫu nhiên.
+
+Điều này cũng đổi một câu trong D2: `set.json` cần thêm `upcoming` — không phải multi-set, mà là một field tùy chọn sống đúng 4–6 tuần rồi bị xoá ngày launch:
+
+```json
+{ "number": 18, "…": "…",
+  "upcoming": { "number": 19, "name": { "en": "…", "vi": "…" }, "features": { "wisps": false } } }
+```
+
 ## 5. Lịch theo mốc — mốc là tín hiệu đo được, không phải ngày đoán
 
 Không ai biết Riot sang set ngày nào, nhưng pipeline **tự phát hiện** — đó là đồng hồ của kế hoạch này.
 
 | Mốc | Tín hiệu | Việc phải xong |
 |---|---|---|
-| **T0** | feed preview mang id `19_*` ⇒ `catalogSet()` = 19, `nextMajor()` ra `19.1`, `pbe.json` bắt đầu có dòng | `refresh-all` in thêm block `## Set mới đang tới (19)` vào PR body. Đây là còi báo sớm ~4–6 tuần, và là **việc đầu tiên của P0** |
+| **T0** | feed preview mang id `19_*` ⇒ `catalogSet()` = 19, `nextMajor()` ra `19.1`. **Không** phải "`pbe.json` có dòng": với roster hiện tại thì `rows: 0` và `unresolved` đầy lên (R13) | `refresh-all` in thêm block `## Set mới đang tới (19)` vào PR body — còi báo mở cửa sổ 4–6 tuần. Đây là **việc đầu tiên của P0** |
+| **Cửa sổ (T0 → launch)** | `liveSet` = 18, `previewSet` = 19, hai bên cùng tồn tại | Bảng "Sắp ra mắt" phải **có row mùa 19** (D8-2); mọi trang live vẫn 18 (D8-3); `set.json.upcoming` mang tên 19 để badge/preview nói đúng mùa |
 | **T0 + ~1 tuần** | Riot công bố tên set + cơ chế | `set.json` (tên en/vi, features), ảnh bìa, bảng XP/odds set mới + bản dịch vi |
 | **T−2 tuần** | PBE đã đủ thực thể | helper `set-id.mjs` đã merge; regenerate `champion-focus.json` + tải ảnh mới; KB cho loot/economy đã tải bản set mới (nằm trong P1 cron) |
 | **T−3 ngày** | — | `rotate:set --dry-run` trên dev; **toàn bộ suite phải xanh trên dữ liệu 19 ở dev**; đếm ảnh thiếu so với catalog |
@@ -120,27 +143,30 @@ Không ai biết Riot sang set ngày nào, nhưng pipeline **tự phát hiện**
 ## 6. Việc, xếp theo chi phí
 
 **P0 — vài buổi, chặn "sai im lặng", không đổi UX**
-1. Còi báo set mới trong `refresh-all` (mốc T0) + test fixture cho nhánh id `19_*`. *(việc phía crawler)*
-2. Gom ba file ở tầng fetch còn regex gắn `18` về một helper `\d+` dùng chung (D3) + test. *(crawler)*
-3. Bỏ danh sách patch dự phòng và `?? 18` → throw (D6). *(crawler)*
-4. `set.json` + nối `messages.ts` (badge/mô tả/disclaimer), banner, `features` cho nav (D2).
-5. Bỏ literal set/patch khỏi `header.spec.ts:95`, `search.spec.ts:13`, `champion-stats.spec.ts:7,22,29` (D7).
+1. Còi báo set mới trong `refresh-all` (mốc T0) + test fixture cho nhánh id `19_*`. *(crawler)*
+2. Preview roster theo set mới: tải catalog cây preview về `.cache` riêng, cho `build-pbe-diff.mjs` resolve theo **preview catalog** khi `previewSet > liveSet`, throw khi thiếu (R13, D8-2). *(crawler)*
+3. `pickSet()` chọn theo `liveSet` + throw khi `latest` chưa có `TFTSet<liveSet>` (R14, D8-1). *(crawler)*
+4. Gom ba file ở tầng fetch còn regex gắn `18` về một helper `\d+` dùng chung (D3) + test. *(crawler)*
+5. Bỏ danh sách patch dự phòng và `?? 18` → throw (D6). *(crawler)*
+6. `set.json` (kèm `upcoming`) + nối `messages.ts` (badge/mô tả/disclaimer), banner, `features` cho nav (D2, D8). 
+7. Bỏ literal set/patch khỏi `header.spec.ts:95`, `search.spec.ts:13`, `champion-stats.spec.ts:7,22,29` (D7).
+8. Test bất biến cửa sổ: với fixture `liveSet=18 / previewSet=19`, asserting (a) artifact live không đổi, (b) `pbe.json` có row, (c) không route nào của 19 lọt vào `generateStaticParams` của trang live (D8-3).
 
 **P1 — 1–2 tuần, biến rotation thành một thao tác**
-6. Cột `comps.set_number` + vị từ lọc board + `verify` in "db is on set X" (D4).
-7. `scripts/rotate-set.mjs` có `--dry-run` + viết lại `runbook.md` §6 thành thao tác một lệnh (D5).
-8. Mechanics version-key theo set, loader bắt buộc đúng set, build fail khi thiếu (R8).
-9. Corpus + eval đọc id từ catalog (R9); fallback `onError` cho tile ảnh (R6).
-10. `set-redirects.json` + empty state "đang đo mùa 19" (R11, R12).
+9. Cột `comps.set_number` + vị từ lọc board + `verify` in "db is on set X" (D4).
+10. `scripts/rotate-set.mjs` có `--dry-run` + viết lại `runbook.md` §6 thành thao tác một lệnh (D5), kèm hai lượt `Run workflow` ngày launch (§7-3).
+11. Mechanics version-key theo set, loader bắt buộc đúng set, build fail khi thiếu (R8).
+12. Corpus + eval đọc id từ catalog (R9); fallback `onError` cho tile ảnh (R6).
+13. `set-redirects.json` + empty state "đang đo mùa 19" (R11, R12).
 
 **P2 — còn lại một việc**
-11. Port loot/economy khỏi KB local (đã nằm trong backlog cron) — cho tới khi xong, ngày launch vẫn phải có người chạy `fetch-data` trên máy vì hai board đó đọc KB tftflow local.
+14. Port loot/economy khỏi KB local (đã nằm trong backlog cron) — cho tới khi xong, ngày launch vẫn phải có người chạy `fetch-data` trên máy vì hai board đó đọc KB tftflow local.
 
 **Đã huỷ (chốt ở §7):** archive snapshot `packages/shared/data/archive/<set>/` và `/patches` nhóm theo set. §2.1 đo rằng nội dung đáng giữ không nằm ở các khối bị rotation thay, nên hai việc này chỉ thêm một lớp quản lý.
 
 ## 7. Chốt của chủ repo (2026-11-04)
 
-1. **Giữ công khai:** chỉ những khối cross-set thật, đã đo ở §2.1 — bài skill + tips (row `guides`, 0 tham chiếu set), bài patch notes (`kind='patch_notes'`), block `general` của mechanics, 8 chiến lược kinh tế. **Không archive** trang thực thể mùa cũ: `/champions/da-18-*` và comp mùa 18 là nội dung *gắn set*, giữ lại chỉ tạo trang nói sai. Vì vậy `set.json` vẫn là **một slot**, không phải danh sách nhiều set — và P2-11/P2-12 (archive snapshot + `/patches` nhóm theo set) **bị huỷ**, không phải để sau.
+1. **Giữ công khai:** chỉ những khối cross-set thật, đã đo ở §2.1 — bài skill + tips (row `guides`, 0 tham chiếu set), bài patch notes (`kind='patch_notes'`), block `general` của mechanics, 8 chiến lược kinh tế. **Không archive** trang thực thể mùa cũ: `/champions/da-18-*` và comp mùa 18 là nội dung *gắn set*, giữ lại chỉ tạo trang nói sai. Vì vậy `set.json` vẫn là **một slot live**, chỉ thêm `upcoming` tùy chọn sống trong cửa sổ preview (D8) — không phải danh sách nhiều set, và P2 cũ (archive snapshot + `/patches` nhóm theo set) **bị huỷ**, không phải để sau.
 2. **Vote/cover của user:** **ẩn theo set, giữ row** (đúng D4). Không xoá: quyền chọn này làm D4 thành bắt buộc chứ không chỉ nên, vì `seed:comps` upsert mà không xoá sẽ để hàng mùa cũ ngồi lại trên board.
 3. **Ngày launch:** bấm `Run workflow` tay. Hệ quả phải biết trước — nếu không bấm, lần đầu site nhìn thấy 19.1 là PR 01:30 UTC hôm sau. Đổi lại: cron chỉ chạy một đợt mỗi ngày nên đợt nào hỏng cũng chết ở PR, đúng như ý bạn đã chốt từ đầu.
 
