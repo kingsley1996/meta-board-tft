@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-11-02T19:33:35.994Z",
+  "generatedAt": "2026-11-04T05:33:23.361Z",
   "patch": "18.6",
   "set": 18,
   "isPbe": true,
   "source": {
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-02T19:16:50.952Z"
+    "fetchedAt": "2026-11-04T05:32:28.430Z"
   },
   "baseline": {
     "patch": "18.5c",
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-02T19:16:53.142Z"
+    "fetchedAt": "2026-11-04T05:32:43.455Z"
   },
   "coverage": {
     "champs": {
@@ -23,7 +23,7 @@
     },
     "augments": {
       "released": 248,
-      "pbe": 247
+      "pbe": 248
     },
     "items": {
       "released": 158,
@@ -31,86 +31,14 @@
     }
   },
   "stats": {
-    "rows": 19,
-    "added": 1,
-    "removed": 2,
+    "rows": 14,
+    "added": 0,
+    "removed": 0,
     "editorial": 1,
-    "unmatched": 2,
+    "unmatched": 0,
     "skipped": 0
   },
   "rows": [
-    {
-      "ref": "DA_18_Alistar",
-      "slug": "da-18-alistar",
-      "kind": "champion",
-      "table": "champions",
-      "name": {
-        "en": "Alistar",
-        "vi": "Alistar"
-      },
-      "icon": "/tft/champions/da-18-alistar.png",
-      "cost": 2,
-      "day": null,
-      "dayDate": null,
-      "heading": "CHAMPION ABILITIES",
-      "field": {
-        "en": "Health"
-      },
-      "from": "306/437/646",
-      "to": "276/397/566",
-      "direction": "nerf",
-      "note": {
-        "en": "Roar, restoring 276/397/566 Health, cleansing disables, and healing the two lowest percent Health allies for 80/105/130. Then slam the current target, dealing 100/150/225 magic damage and Stunning them for 1.5 seconds."
-      }
-    },
-    {
-      "ref": "DA_18_Alistar",
-      "slug": "da-18-alistar",
-      "kind": "champion",
-      "table": "champions",
-      "name": {
-        "en": "Alistar",
-        "vi": "Alistar"
-      },
-      "icon": "/tft/champions/da-18-alistar.png",
-      "cost": 2,
-      "day": null,
-      "dayDate": null,
-      "heading": "CHAMPION ABILITIES",
-      "field": {
-        "en": "magic damage and Stunning them"
-      },
-      "from": "180/270/420",
-      "to": "100/150/225",
-      "direction": "nerf",
-      "note": {
-        "en": "Roar, restoring 276/397/566 Health, cleansing disables, and healing the two lowest percent Health allies for 80/105/130. Then slam the current target, dealing 100/150/225 magic damage and Stunning them for 1.5 seconds."
-      }
-    },
-    {
-      "ref": "DA_Gromp18_AP",
-      "slug": "da-gromp18-ap",
-      "kind": "champion",
-      "table": "champions",
-      "name": {
-        "en": "Gromp",
-        "vi": "Cóc Thành Tinh"
-      },
-      "icon": "/tft/champions/da-gromp18-ap.png",
-      "cost": 2,
-      "day": null,
-      "dayDate": null,
-      "heading": "CHAMPION ABILITIES",
-      "field": {
-        "en": "magic damage"
-      },
-      "from": "180/270/435",
-      "to": "160/240/375",
-      "direction": "nerf",
-      "note": {
-        "en": "Adaptor : Belch a noxious bubble at the current target that explodes on the first enemy hit, dealing 225/340/535 magic damage. Enemies within a 1 hex radius of the explosion take 160/240/375 magic damage over 3 seconds. ; Adaptor : Heavily slows the target. ; Purple Buff: Every 5 seconds, Gromp gains 30% Ability Power."
-      }
-    },
     {
       "ref": "DA_18_Kobuko",
       "slug": "da-18-kobuko",
@@ -201,10 +129,10 @@
         "en": "bonus physical damage"
       },
       "from": "65/100/160",
-      "to": "60/90/150",
-      "direction": "nerf",
+      "to": "65/100/180",
+      "direction": "buff",
       "note": {
-        "en": "Leap to the lowest Health enemy within 3 Hexes and deal 120/180/270 physical damage. The next 2 attacks gain 175% Attack Speed and deal 60/90/150 bonus physical damage. ; Grey Buff: Gain Precision and 25% Critical Strike Chance, increased up to 75% based on missing Health."
+        "en": "Leap to the lowest Health enemy within 3 Hexes and deal 120/180/270 physical damage. The next 2 attacks gain 175% Attack Speed and deal 65/100/180 bonus physical damage. ; Grey Buff: Gain Precision and 25% Critical Strike Chance, increased up to 75% based on missing Health."
       }
     },
     {
@@ -301,54 +229,6 @@
       "direction": "buff",
       "note": {
         "en": "Gain 531/756/2625 Shield for 4 seconds. Slam the ground, sending a fissure in the direction of the most enemies. Enemies hit are briefly knocked up, take 100/150/3500 magic damage, and are Mana Reaved for 10. ; Blue Buff: Each time Sentinel casts, allies gain 2 Mana Regen. ; Mana Reave: Increase the Mana cost of the next Ability cast."
-      }
-    },
-    {
-      "ref": "DA_18_Warwick",
-      "slug": "da-18-warwick",
-      "kind": "champion",
-      "table": "champions",
-      "name": {
-        "en": "Warwick",
-        "vi": "Warwick"
-      },
-      "icon": "/tft/champions/da-18-warwick.png",
-      "cost": 2,
-      "day": null,
-      "dayDate": null,
-      "heading": "CHAMPION ABILITIES",
-      "field": {
-        "en": "physical damage and healing"
-      },
-      "from": "230/345/535",
-      "to": "215/325/500",
-      "direction": "nerf",
-      "note": {
-        "en": "Bite the current target, dealing 215/325/500 physical damage and healing for 20% of the damage dealt. Gain 20% Attack Speed for the rest of combat."
-      }
-    },
-    {
-      "ref": "DA_18_Warwick",
-      "slug": "da-18-warwick",
-      "kind": "champion",
-      "table": "champions",
-      "name": {
-        "en": "Warwick",
-        "vi": "Warwick"
-      },
-      "icon": "/tft/champions/da-18-warwick.png",
-      "cost": 2,
-      "day": null,
-      "dayDate": null,
-      "heading": "CHAMPION ABILITIES",
-      "field": {
-        "en": "of the damage dealt"
-      },
-      "from": "25%",
-      "to": "20%",
-      "direction": "nerf",
-      "note": {
-        "en": "Bite the current target, dealing 215/325/500 physical damage and healing for 20% of the damage dealt. Gain 20% Attack Speed for the rest of combat."
       }
     },
     {
@@ -497,56 +377,12 @@
     }
   ],
   "counts": {
-    "nerf": 7,
-    "buff": 10,
-    "adjust": 2
+    "buff": 11,
+    "adjust": 2,
+    "nerf": 1
   },
-  "added": [
-    {
-      "ref": "TFT_Augment_WarmogsBuckle",
-      "slug": "tft-augment-warmogsbuckle",
-      "kind": "augment",
-      "table": "augments",
-      "name": {
-        "en": "Heart of Steel",
-        "vi": "Trái Tim Sắt Đá"
-      },
-      "icon": "/tft/augments/tft-augment-warmogsbuckle.png",
-      "cost": null,
-      "change": "added",
-      "heading": "AUGMENTS"
-    }
-  ],
-  "removed": [
-    {
-      "ref": "TFT_Augment_ConstructACompanion",
-      "slug": "tft-augment-constructacompanion",
-      "kind": "augment",
-      "table": "augments",
-      "name": {
-        "en": "Construct a Companion",
-        "vi": "Người Bạn Vàng"
-      },
-      "icon": "/tft/augments/tft-augment-constructacompanion.png",
-      "cost": null,
-      "change": "removed",
-      "heading": "AUGMENTS"
-    },
-    {
-      "ref": "TFT_Augment_ForgeAFriend",
-      "slug": "tft-augment-forgeafriend",
-      "kind": "augment",
-      "table": "augments",
-      "name": {
-        "en": "Forge a Friend",
-        "vi": "Chế Tạo Bằng Hữu"
-      },
-      "icon": "/tft/augments/tft-augment-forgeafriend.png",
-      "cost": null,
-      "change": "removed",
-      "heading": "AUGMENTS"
-    }
-  ],
+  "added": [],
+  "removed": [],
   "editorial": [
     {
       "name": "Pandora's Items II",
@@ -557,38 +393,6 @@
       "to": "Round start: items on your bench are randomized. ; Gain 2 random components and gold."
     }
   ],
-  "unmatched": [
-    {
-      "name": "Armor and Magic Resist Booster",
-      "kind": "item",
-      "heading": "ITEMS",
-      "field": "desc",
-      "lines": [
-        {
-          "label": "Armor and",
-          "from": "8",
-          "to": "10"
-        },
-        {
-          "label": "Magic Resist",
-          "from": "8",
-          "to": "10"
-        }
-      ]
-    },
-    {
-      "name": "Attack Speed Booster",
-      "kind": "item",
-      "heading": "ITEMS",
-      "field": "desc",
-      "lines": [
-        {
-          "label": "Attack Speed",
-          "from": "6%",
-          "to": "8%"
-        }
-      ]
-    }
-  ],
+  "unmatched": [],
   "skipped": []
 }
