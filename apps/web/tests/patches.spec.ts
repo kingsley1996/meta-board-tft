@@ -1,4 +1,5 @@
 import { expect, test } from 'playwright/test';
+import { readFileSync } from 'node:fs';
 
 // A patch article is generated from Riot's own rows, so the browser check is about the
 // wiring, not the prose: the URL carries the patch number the game prints (`18.5c`, not the
@@ -11,11 +12,39 @@ const PBE = '[data-section="pbe-preview"]';
 const ARTICLE = '[data-section="patch-article"]';
 const CARD = '[data-section="patch-highlights"]';
 
+// The preview board, the preview page and the patch the list opens first all come out of the
+// data files the crawler writes, so which number they name — and how many entities a tab counts —
+// moves with every refresh. This file reads them from those files instead of pinning them here.
+const pbeDoc = JSON.parse(readFileSync('packages/shared/data/pbe.json', 'utf8')) as {
+  patch: string;
+  baseline: { patch: string };
+  rows: { kind: string; ref: string }[];
+  added: { kind: string; ref: string }[];
+  removed: { kind: string; ref: string }[];
+  editorial: { kind: string; name: string }[];
+};
+const livePatch = (JSON.parse(readFileSync('packages/shared/data/patch-notes.json', 'utf8')) as {
+  livePatch: string;
+}).livePatch;
+
+// The same arithmetic the page runs: a tab counts the separate things that moved, so an entity
+// whose two stats changed is one entity, and an entity that only appeared still counts.
+const pbeAllRows = [...pbeDoc.rows, ...pbeDoc.added, ...pbeDoc.removed];
+const pbeEntities = (kind: string) =>
+  new Set(pbeAllRows.filter((row) => row.kind === kind).map((row) => row.ref)).size;
+const pbeChanges = (list: 'added' | 'removed', kind: string) =>
+  pbeDoc[list].filter((row) => row.kind === kind).length;
+// The store keeps the article under its own slug, so a request here answers whether Riot has
+// shipped the patch the diff names — which is the only thing that decides if a preview exists.
+const pbeArticleApi = `/api/guides/patch-${pbeDoc.patch.replace(/\./g, '-')}?lang=en`;
+
 test('the list gives every proven hotfix its own card, newest first', async ({ page }) => {
   await page.goto('/en/patches');
   const cards = page.locator(`${LIST} a`);
-  // 18.5, the two updates Riot wrote into it, and the same pair one patch earlier.
+  // The live patch Riot published, the two updates they wrote into 18.5, and the same pair
+  // one patch earlier.
   expect(await cards.evaluateAll((links) => links.map((link) => link.getAttribute('href')))).toEqual([
+    `/en/patches/${livePatch}`,
     '/en/patches/18.5c',
     '/en/patches/18.5b',
     '/en/patches/18.5',
@@ -61,20 +90,25 @@ test('a row shows which entities moved, not only how many', async ({ page }) => 
   await expect(base.locator('[data-tip^="champion:"]')).toHaveCount(21);
   await expect(base.getByText('21 champions')).toHaveCount(0);
 
-  // The next patch sits above the released ones, dashed, and opens the preview: Riot has
-  // published no numbers for it, so there is no date to claim and no article to cite.
-  const pbe = page.locator(PBE);
-  await expect(pbe.getByText('18.6', { exact: true })).toBeVisible();
-  await expect(pbe.getByText('PBE · 18.5c', { exact: true })).toBeVisible();
-  await expect(pbe.locator('a')).toHaveCount(1);
-  await expect(pbe.locator('a')).toHaveAttribute('href', '/en/patches/18.6');
+  // The dashed preview row only earns its place while the patch it names is still unreleased.
+  // Once Riot ships it, the board would otherwise print that number twice and point at a real
+  // article as if it were a guess — so the row goes, and returns on its own with the next PBE.
+  const published = (await page.request.get(pbeArticleApi)).ok();
+  if (published) {
+    await expect(page.locator(PBE)).toHaveCount(0);
+  } else {
+    const panel = page.locator(PBE);
+    await expect(panel.getByText(pbeDoc.patch, { exact: true })).toBeVisible();
+    await expect(panel.locator('a')).toHaveCount(1);
+    await expect(panel.locator('a')).toHaveAttribute('href', `/en/patches/${pbeDoc.patch}`);
+  }
 });
 
 test('a card opens the article at the patch number Riot prints', async ({ page }) => {
   await page.goto('/en/patches');
   await page.locator(`${LIST} a`).first().click();
-  await expect(page).toHaveURL(/\/en\/patches\/18\.5c$/);
-  await expect(page.locator('h1')).toContainText('18.5c');
+  await expect(page).toHaveURL(new RegExp(`/en/patches/${livePatch.replace(/\./g, '\\.')}$`));
+  await expect(page.locator('h1')).toContainText(livePatch);
 });
 
 test('the highlight card names entities instead of counting kinds', async ({ page }) => {
@@ -153,10 +187,19 @@ test('the tab row filters the article to one kind of entity', async ({ page }) =
   await expect(page.locator('h2:visible').filter({ hasText: 'AUGMENTS' })).toHaveCount(1);
 });
 
-test('the preview page of an unpublished patch reads as a preview', async ({ page }) => {
-  await page.goto('/en/patches/18.6');
-  await expect(page.locator('h1')).toContainText('18.6');
-  await expect(page.locator(ARTICLE)).toContainText('PBE · 18.5c');
+// The preview page only has a URL while the patch named by the diff is still unreleased: the
+// moment Riot ships it, the real article takes the same address. So the test asks the store first
+// and says what it skipped, and every number it then checks comes from the same file the page
+// reads rather than from a snapshot of one particular diff.
+test('the preview page reads as a preview while its patch is unreleased', async ({ page }) => {
+  test.skip(
+    (await page.request.get(pbeArticleApi)).ok(),
+    `${pbeDoc.patch} has an article in the store, so the preview branch has no URL to render`,
+  );
+
+  await page.goto(`/en/patches/${pbeDoc.patch}`);
+  await expect(page.locator('h1')).toContainText(pbeDoc.patch);
+  await expect(page.locator(ARTICLE)).toContainText(`PBE · ${pbeDoc.baseline.patch}`);
   await expect(page.locator(ARTICLE)).toContainText('Not final');
   // Riot has published no article for it, so the page cites none.
   expect(await page.locator(`${ARTICLE} a[href*="leagueoflegends"]`).count()).toBe(0);
@@ -165,20 +208,38 @@ test('the preview page of an unpublished patch reads as a preview', async ({ pag
   // entities are faces, and the kinds the build did not touch read zero and stay off.
   await expect(page.locator(CARD)).toBeVisible();
   const tabs = page.getByRole('group', { name: 'Every change' });
-  await expect(tabs.getByRole('button', { name: 'champions 9' })).toBeVisible();
-  await expect(tabs.getByRole('button', { name: 'traits 1' })).toBeVisible();
-  await expect(tabs.getByRole('button', { name: 'items 0' })).toBeDisabled();
-  await expect(tabs.getByRole('button', { name: 'wisps 0' })).toBeDisabled();
+  const tabLabels: Record<string, string> = {
+    champion: 'champions',
+    trait: 'traits',
+    item: 'items',
+    augment: 'augments',
+    wisp: 'wisps',
+  };
+  for (const [kind, label] of Object.entries(tabLabels)) {
+    const count = pbeEntities(kind);
+    const tab = tabs.getByRole('button', { name: `${label} ${count}` });
+    if (count) await expect(tab).toBeVisible();
+    else await expect(tab).toBeDisabled();
+  }
 
   // An augment that only exists on the test build has no before/after number, so its row states
   // what happened where a moved stat would print its two values.
-  await tabs.getByRole('button', { name: 'augments 7' }).click();
-  await expect(page.locator('li[data-kind="augment"]').filter({ hasText: 'addition' })).toHaveCount(1);
-  await expect(page.locator('li[data-kind="augment"]').filter({ hasText: 'removal' })).toHaveCount(2);
+  const augments = pbeEntities('augment');
+  if (augments) {
+    await tabs.getByRole('button', { name: `augments ${augments}` }).click();
+    await expect(page.locator('li[data-kind="augment"]').filter({ hasText: 'addition' })).toHaveCount(
+      pbeChanges('added', 'augment'),
+    );
+    await expect(page.locator('li[data-kind="augment"]').filter({ hasText: 'removal' })).toHaveCount(
+      pbeChanges('removed', 'augment'),
+    );
+  }
 
   // A row whose numbers did not move, only its sentence, is neither a buff nor a nerf.
-  await expect(page.locator(ARTICLE)).toContainText('Only the words changed');
-  await expect(page.locator(ARTICLE)).toContainText('Pandora');
+  if (pbeDoc.editorial.length) {
+    await expect(page.locator(ARTICLE)).toContainText('Only the words changed');
+    await expect(page.locator(ARTICLE)).toContainText(pbeDoc.editorial[0].name);
+  }
 });
 
 test('a hotfix article carries the rows the base article no longer has', async ({ page }) => {
@@ -263,10 +324,14 @@ test('the patch bar opens the article for the version the game runs', async ({ p
   await expect(page).toHaveURL(/\/en\/patches\/18\.5c$/);
 
   // And the list is still one tap away: the breadcrumb carries the section, so a reader who
-  // landed on a hotfix can walk back through the patch ladder.
+  // landed on a hotfix can walk back through the patch ladder. The ladder has one row per
+  // article in the store, which is a question for the API rather than a number typed here.
   await page.locator('nav[aria-label="Breadcrumb"] a[href="/en/patches"]').click();
   await expect(page).toHaveURL(/\/en\/patches$/);
-  expect(await page.locator(`${LIST} a`).count()).toBe(5);
+  const stored = (await (await page.request.get('/api/guides?lang=en&kind=patch_notes')).json()) as {
+    guides: unknown[];
+  };
+  expect(await page.locator(`${LIST} a`).count()).toBe(stored.guides.length);
 });
 
 test('a phone-width article has no horizontal overflow', async ({ page }) => {
@@ -287,14 +352,14 @@ test('a phone-width article has no horizontal overflow', async ({ page }) => {
   }));
   expect(widths.scroll).toBe(widths.client);
 
-  // The preview cuts its blocks by kind, so its tab row is the widest thing on the page here.
-  await page.goto('/vi/patches/18.6');
+  // The newest article is the one whose rows move with every refresh, so it gets measured too.
+  await page.goto(`/vi/patches/${livePatch}`);
   await expect(page.locator(`${ARTICLE}`)).toBeVisible();
-  const previewWidths = await page.evaluate(() => ({
+  const liveWidths = await page.evaluate(() => ({
     scroll: document.documentElement.scrollWidth,
     client: document.documentElement.clientWidth,
   }));
-  expect(previewWidths.scroll).toBe(previewWidths.client);
+  expect(liveWidths.scroll).toBe(liveWidths.client);
 
   // A stat name is never cut to "Base…" so the pair of numbers can keep its line: at phone
   // width the field takes the line and the values follow it on the same row or the next one.
@@ -310,6 +375,8 @@ test('the sitemap publishes the articles under the patch number', async ({ page 
   expect(xml).toContain('/en/patches');
   expect(xml).toContain('/en/patches/18.5c');
   expect(xml).toContain('/vi/patches/18.5');
-  // The preview has no row in the store, so its URL comes from the data file and is still listed.
-  expect(xml).toContain('/en/patches/18.6');
+  // The patch the game is on is listed whether its URL came from the store or from the diff
+  // file, and the set in front of that loop keeps it on the page exactly once.
+  expect(xml).toContain(`/en/patches/${livePatch}`);
+  expect(xml.split(`/en/patches/${livePatch}`)).toHaveLength(2);
 });

@@ -3,40 +3,20 @@ import { describe, it } from 'node:test';
 import { isRevalidateKind, revalidationsFor, tokenMatches } from './revalidate.ts';
 
 describe('revalidationsFor', () => {
-  it('covers every locale and marks dynamic patterns as pages', () => {
+  it('names each route once, with the locale left as the pattern Next tags by', () => {
     const paths = revalidationsFor('comps');
     assert.deepEqual(
       paths.map((entry) => entry.path),
-      [
-        '/en/tierlist/comps',
-        '/en/tierlist/comps/[slug]',
-        '/en/champions/[slug]',
-        '/en/quiz',
-        '/vi/tierlist/comps',
-        '/vi/tierlist/comps/[slug]',
-        '/vi/champions/[slug]',
-        '/vi/quiz',
-      ]
+      ['/[lang]/tierlist/comps', '/[lang]/tierlist/comps/[slug]', '/[lang]/champions/[slug]', '/[lang]/quiz']
     );
-    for (const entry of paths) {
-      if (entry.path.includes('[')) assert.equal(entry.type, 'page', entry.path);
-      else assert.equal(entry.type, undefined, entry.path);
-    }
+    // Every entry sits under the dynamic locale, so Next needs the type on all of them.
+    for (const entry of paths) assert.equal(entry.type, 'page', entry.path);
   });
 
   it('touches only article routes for the guide kind', () => {
     assert.deepEqual(
       revalidationsFor('guides').map((entry) => entry.path),
-      [
-        '/en/guides',
-        '/en/guides/[slug]',
-        '/en/patches',
-        '/en/patches/[patch]',
-        '/vi/guides',
-        '/vi/guides/[slug]',
-        '/vi/patches',
-        '/vi/patches/[patch]',
-      ]
+      ['/[lang]/guides', '/[lang]/guides/[slug]', '/[lang]/patches', '/[lang]/patches/[patch]']
     );
   });
 });

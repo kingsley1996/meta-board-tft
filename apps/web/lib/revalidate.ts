@@ -1,10 +1,15 @@
 // The public data pages are cached for a day, so an admin save or a tier sync has
 // to say so. This maps a coarse "what changed" to the route entries Next should
-// mark stale; the API never learns our URL layout. A pattern with a dynamic
-// segment revalidates every page under it, and marking is lazy: Next regenerates
+// mark stale; the API never learns our URL layout. Marking is lazy: Next regenerates
 // on the next visit instead of firing one rebuild per slug now.
+//
+// A pattern is matched against the tags Next wrote when it rendered the page, and
+// those come from the route definition — `/[lang]/patches/[patch]/page`. So the
+// locale stays the literal `[lang]` here and one entry covers both locales. Gluing a
+// concrete locale onto a bracket pattern named a tag no render ever produced: the
+// endpoint still answered `invalidated: 8` while every detail page kept serving its
+// cached copy (measured on prod, 2026-11-04).
 import { timingSafeEqual } from 'node:crypto';
-import { locales } from './i18n.ts';
 
 export const REVALIDATE_KINDS = ['comps', 'guides'] as const;
 export type RevalidateKind = (typeof REVALIDATE_KINDS)[number];
@@ -25,13 +30,8 @@ export function isRevalidateKind(value: unknown): value is RevalidateKind {
 }
 
 export function revalidationsFor(kind: RevalidateKind): Revalidation[] {
-  return locales.flatMap((lang) =>
-    ROUTES[kind].map((route) => {
-      const path = `/${lang}/${route}`;
-      // Next requires the type whenever the path still carries a dynamic segment.
-      return path.includes('[') ? { path, type: 'page' as const } : { path };
-    })
-  );
+  // `[lang]` is a dynamic segment too, so Next requires the type on every entry.
+  return ROUTES[kind].map((route) => ({ path: `/[lang]/${route}`, type: 'page' as const }));
 }
 
 // Fail closed: no token configured means the endpoint answers nothing, and a
