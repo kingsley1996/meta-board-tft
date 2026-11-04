@@ -51,11 +51,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...guides.map((entry) => ({ path: `guides/${entry.slug}`, meta: page })),
     { path: 'patches', meta: page },
     // The preview patch has no row in the store — that is what makes it a preview — so its URL
-    // comes from the data file. Once Riot ships, the store has it too and the set keeps one.
-    ...[...new Set([...patches.map((entry) => slugToPatch(entry.slug)), pbeFile.patch])].map((patch) => ({
-      path: `patches/${patch}`,
-      meta: page,
-    })),
+    // comes from the data file. Once Riot ships, the store has it too and the set keeps one. A
+    // file with nothing to preview has no patch number, so it adds no URL either.
+    ...[
+      ...new Set([...patches.map((entry) => slugToPatch(entry.slug)), ...(pbeFile.patch ? [pbeFile.patch] : [])]),
+    ].map((patch) => ({ path: `patches/${patch}`, meta: page })),
     { path: 'about', meta: page },
     { path: 'legal/privacy', meta: page },
     { path: 'legal/terms', meta: page },

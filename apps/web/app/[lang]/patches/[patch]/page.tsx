@@ -38,7 +38,9 @@ export async function generateStaticParams() {
       return articles.map((article) => ({ lang, patch: slugToPatch(article.slug) }));
     }),
   );
-  const wanted = [...perLang.flat(), ...locales.map((lang) => ({ lang, patch: pbe.patch }))];
+  // A build with nothing unreleased has no preview number, so it gets no preview URL either —
+  // writing one would ship `/patches/null`.
+  const wanted = [...perLang.flat(), ...(pbe.patch ? locales.map((lang) => ({ lang, patch: pbe.patch })) : [])];
   // A patch Riot ships between two builds would be in the store and in the preview list; one
   // param per URL or the build writes the same page twice.
   return [...new Map(wanted.map((entry) => [`${entry.lang}|${entry.patch}`, entry])).values()];

@@ -35,24 +35,24 @@ export default async function PatchesPage({ params }: { params: Promise<{ lang: 
   const articles = data.guides;
   if (!articles.length) throw new Error('no patch notes in the store');
 
-  // The preview earns its place only while Riot has not shipped the patch it names. Between a
-  // patch landing and the next PBE diff, the same number would sit in both boards — and the
-  // dashed row would promise a preview for a URL that now renders the real article.
-  const upcoming = !articles.some((article) => slugToPatch(article.slug) === pbe.patch);
+  // The number the preview earns its place with. A build that still measures the shipped game
+  // has no patch to name, and a patch Riot has already published would promise a preview for a
+  // URL that now renders the real article — so both cases drop the row instead of linking it.
+  const preview = pbe.patch && !articles.some((article) => slugToPatch(article.slug) === pbe.patch) ? pbe.patch : null;
 
   return (
     <div className="flex flex-col gap-6">
       <DisplayTitle small={t.small} big={t.big} sub={t.sub} />
 
-      {upcoming ? (
+      {preview ? (
         <section data-section="pbe-preview" className="flex flex-col gap-2">
           <h2 className="font-display text-sm font-bold uppercase tracking-wide text-mist">{t.upcoming}</h2>
           <Link
-            href={`/${lang}/patches/${pbe.patch}`}
+            href={`/${lang}/patches/${preview}`}
             className="smooth flex flex-col gap-3 rounded-xl border border-dashed border-line bg-panel p-4 hover:border-brand md:flex-row md:gap-4"
           >
             <span className="flex flex-wrap items-center gap-x-2 gap-y-1.5 md:w-[132px] md:shrink-0 md:flex-col md:items-start">
-              <span className="font-display text-2xl leading-none font-bold tracking-tight text-fog">{pbe.patch}</span>
+              <span className="font-display text-2xl leading-none font-bold tracking-tight text-fog">{preview}</span>
               <span className="text-xs text-mist">{t.notFinal}</span>
               <Chip tone="conditional">{`${t.pbe} · ${pbe.baseline.patch}`}</Chip>
             </span>

@@ -150,7 +150,10 @@ export type PbeChange = PbeEntry & { change: 'added' | 'removed' };
 export type PbeEditorial = { name: string; kind: PatchEntityKind; heading: string; field: string; from: string; to: string };
 
 export type PbeFile = {
-  patch: string;
+  // The number Riot will print for this build, or null while the test feed still measures the
+  // same game as the released one — the patch-day state, where a preview would only repeat an
+  // article that already exists.
+  patch: string | null;
   baseline: { patch: string };
   rows: PatchRow[];
   added: PbeChange[];

@@ -16,7 +16,9 @@ const CARD = '[data-section="patch-highlights"]';
 // data files the crawler writes, so which number they name — and how many entities a tab counts —
 // moves with every refresh. This file reads them from those files instead of pinning them here.
 const pbeDoc = JSON.parse(readFileSync('packages/shared/data/pbe.json', 'utf8')) as {
-  patch: string;
+  // Null when the test build measures the patch that already shipped: the crawler names a
+  // preview only off a diff that has something unreleased in it.
+  patch: string | null;
   baseline: { patch: string };
   rows: { kind: string; ref: string }[];
   added: { kind: string; ref: string }[];
@@ -41,8 +43,8 @@ const pbeEntities = (kind: string) =>
 const pbeChanges = (list: 'added' | 'removed', kind: string) =>
   pbeDoc[list].filter((row) => row.kind === kind).length;
 // The store keeps the article under its own slug, so a request here answers whether Riot has
-// shipped the patch the diff names — which is the only thing that decides if a preview exists.
-const pbeArticleApi = `/api/guides/patch-${pbeDoc.patch.replace(/\./g, '-')}?lang=en`;
+// shipped the patch the diff names. A diff that names no patch has nothing to ask about.
+const articleApi = (patch: string) => `/api/guides/patch-${patch.replace(/\./g, '-')}?lang=en`;
 
 test('the list gives every proven hotfix its own card, newest first', async ({ page }) => {
   await page.goto('/en/patches');
@@ -96,17 +98,19 @@ test('a row shows which entities moved, not only how many', async ({ page }) => 
   await expect(base.locator('[data-tip^="champion:"]')).toHaveCount(21);
   await expect(base.getByText('21 champions')).toHaveCount(0);
 
-  // The dashed preview row only earns its place while the patch it names is still unreleased.
-  // Once Riot ships it, the board would otherwise print that number twice and point at a real
-  // article as if it were a guess — so the row goes, and returns on its own with the next PBE.
-  const published = (await page.request.get(pbeArticleApi)).ok();
-  if (published) {
-    await expect(page.locator(PBE)).toHaveCount(0);
-  } else {
+  // The dashed preview row earns its place only while there is something unreleased to name,
+  // and the store has no article for the number it names. Otherwise the board would print that
+  // number twice, or print one Riot has not printed yet — so the row goes, and returns on its
+  // own with the next PBE cycle.
+  const preview = pbeDoc.patch;
+  const shipped = preview !== null && (await page.request.get(articleApi(preview))).ok();
+  if (preview && !shipped) {
     const panel = page.locator(PBE);
-    await expect(panel.getByText(pbeDoc.patch, { exact: true })).toBeVisible();
+    await expect(panel.getByText(preview, { exact: true })).toBeVisible();
     await expect(panel.locator('a')).toHaveCount(1);
-    await expect(panel.locator('a')).toHaveAttribute('href', `/en/patches/${pbeDoc.patch}`);
+    await expect(panel.locator('a')).toHaveAttribute('href', `/en/patches/${preview}`);
+  } else {
+    await expect(page.locator(PBE)).toHaveCount(0);
   }
 });
 
@@ -193,18 +197,23 @@ test('the tab row filters the article to one kind of entity', async ({ page }) =
   await expect(page.locator('h2:visible').filter({ hasText: 'AUGMENTS' })).toHaveCount(1);
 });
 
-// The preview page only has a URL while the patch named by the diff is still unreleased: the
-// moment Riot ships it, the real article takes the same address. So the test asks the store first
-// and says what it skipped, and every number it then checks comes from the same file the page
-// reads rather than from a snapshot of one particular diff.
+// The preview page only has a URL while the feed has an unreleased patch to name and the store
+// has no article for it: the moment Riot ships, the real article takes the same address. So the
+// test asks the store first and says what it skipped, and every number it then checks comes from
+// the same file the page reads rather than from a snapshot of one particular diff.
 test('the preview page reads as a preview while its patch is unreleased', async ({ page }) => {
+  if (pbeDoc.patch === null) {
+    test.skip(true, 'the PBE feed measures the patch that already shipped, so there is no preview number');
+    return;
+  }
+  const preview = pbeDoc.patch;
   test.skip(
-    (await page.request.get(pbeArticleApi)).ok(),
-    `${pbeDoc.patch} has an article in the store, so the preview branch has no URL to render`,
+    (await page.request.get(articleApi(preview))).ok(),
+    `${preview} has an article in the store, so the preview branch has no URL to render`,
   );
 
-  await page.goto(`/en/patches/${pbeDoc.patch}`);
-  await expect(page.locator('h1')).toContainText(pbeDoc.patch);
+  await page.goto(`/en/patches/${preview}`);
+  await expect(page.locator('h1')).toContainText(preview);
   await expect(page.locator(ARTICLE)).toContainText(`PBE · ${pbeDoc.baseline.patch}`);
   await expect(page.locator(ARTICLE)).toContainText('Not final');
   // Riot has published no article for it, so the page cites none.
@@ -311,6 +320,8 @@ test('a patch without an article is a 404, not an empty page', async ({ page }) 
   expect((await page.request.get('/en/patches/18.1')).status()).toBe(404);
   // A letter nobody can prove is not an article: 18.5a shipped, but no TFT number moved with it.
   expect((await page.request.get('/en/patches/18.5a')).status()).toBe(404);
+  // A board with nothing unreleased names no patch, so it must not have built a page for one.
+  expect((await page.request.get('/en/patches/null')).status()).toBe(404);
 });
 
 test('switching locale keeps the reader on the same patch', async ({ page }) => {
