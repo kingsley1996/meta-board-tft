@@ -4,8 +4,8 @@
     "tierList": "https://api-hc.metatft.com/tft-stat-api/wisp_tiers",
     "lookup": "https://data.metatft.com/lookups/TFTSet18_latest_en_us.json",
     "lookupVi": "https://data.metatft.com/lookups/TFTSet18_latest_vi_vn.json",
-    "fetchedAt": "2026-11-04T03:43:51.189Z",
-    "tierListUpdated": "2026-11-04T03:42:07.789Z",
+    "fetchedAt": "2026-11-04T05:33:23.163Z",
+    "tierListUpdated": "2026-11-04T05:33:08.974Z",
     "curatedAt": "2026-11-01T01:03:38.561Z",
     "tftSet": "TFTSet18",
     "lookupPatch": "pbe",
@@ -51,6 +51,27 @@
         "patch": "18.4b",
         "was": null,
         "now": 10
+      },
+      {
+        "name": "Curio Cart",
+        "variant": "base",
+        "patch": "18.6",
+        "was": 0,
+        "now": 17
+      },
+      {
+        "name": "Middle Path",
+        "variant": "base",
+        "patch": "18.6",
+        "was": null,
+        "now": 5
+      },
+      {
+        "name": "Middle Path",
+        "variant": "upgrade",
+        "patch": "18.6",
+        "was": null,
+        "now": 4
       },
       {
         "name": "Knick-Knack Bag",
@@ -1503,7 +1524,7 @@
       "nameVi": "Xe Đồ Lạ",
       "tier": "A",
       "category": "Item",
-      "cost": 0,
+      "cost": 17,
       "variant": "base",
       "description": "Open an item store. Items cost 0 to 15 gold.",
       "descriptionVi": "Mở cửa hàng trang bị. Trang bị có giá từ 0 đến 15 vàng.",
@@ -1958,7 +1979,7 @@
       "nameVi": "Chơi Đường Giữa",
       "tier": "A",
       "category": "Shop",
-      "cost": null,
+      "cost": 5,
       "variant": "base",
       "description": "Reroll your shop with all 2-star 3-cost champions.",
       "descriptionVi": "Làm mới cửa hàng với toàn tướng 3 vàng 2 sao.",
@@ -1971,7 +1992,7 @@
       "nameVi": "Chơi Đường Giữa",
       "tier": "A",
       "category": "Shop",
-      "cost": null,
+      "cost": 4,
       "variant": "upgrade",
       "description": "Reroll your shop with all 2-star 3-cost champions.",
       "descriptionVi": "Làm mới cửa hàng với toàn tướng 3 vàng 2 sao.",
