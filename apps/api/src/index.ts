@@ -34,6 +34,7 @@ import {
 } from './assistant/assistant-reasoning-store.ts';
 import { getAssistantSettingsView, loadAssistantSettingsIntoEnv, updateAssistantSettings } from './settings.ts';
 import { readTurnstileConfig } from './turnstile.ts';
+import { attachTempleWs } from './temple/ws.ts';
 
 // A half-configured challenge must fail startup, not silently disable protection.
 readTurnstileConfig();
@@ -409,8 +410,6 @@ app.use('/api/voice', resolveSessionUser);
 app.use('/api/assistant', assistantRouter);
 app.use('/api/voice', voiceRouter);
 
-app.use('/api', (_req, res) => res.status(404).json({ error: 'not found' }));
-
 app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(error);
   res.status(500).json({ error: 'internal error' });
@@ -472,12 +471,24 @@ const server = app.listen(port, () => {
   void applyStoredSettings();
 });
 
+// The shrine's multiplayer room lives in this process so a player's session, the
+// room state and the merit rows behind it never have to agree across two services.
+const temple = attachTempleWs(server);
+app.get('/api/temple/rooms', (_req, res) => {
+  res.json({ ok: true, clients: temple.rooms.size, rooms: temple.rooms.summary() });
+});
+
+// Đường cùng của /api: phải đăng ký sau mọi router vì Express thử theo thứ tự, kể cả
+// tuyến vừa thêm ở dưới — một catch-all phía trên sẽ nuốt trọn route mới.
+app.use('/api', (_req, res) => res.status(404).json({ error: 'not found' }));
+
 // Render sends SIGTERM on every deploy and scale event. Draining first means an
 // assistant answer or a voice upload finishes instead of dying mid-response, and
 // closing the pool releases the database connections the pooler is counting.
 // The deadline is what keeps one stuck query from blocking the exit forever.
 function shutdown(signal: NodeJS.Signals): void {
   console.log(`${signal}: closing server`);
+  temple.close();
   server.close(() => {
     pool.end().then(
       () => process.exit(0),

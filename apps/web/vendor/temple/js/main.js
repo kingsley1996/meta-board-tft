@@ -936,7 +936,7 @@ function showTempleFull(m) {
     ${free.map((t) => `<button class="btn ghost" data-go="${t.id}">${esc(t.name)} · ${m.counts[t.id] || 0} người</button>`).join('')}
     <button class="btn ghost" id="mRetry">Thử vào lại ${esc(name)}</button><div class="full-fund">${serverSwitch()}</div>`, (el) => {
     el.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => { closeModal(); enterTemple(b.dataset.go); }));
-    el.querySelector('#mRetry').onclick = () => { closeModal(); sendWs({ t: 'join', temple: m.temple, v: 4 }); };
+    el.querySelector('#mRetry').onclick = () => { closeModal(); sendWs({ t: 'join', temple: m.temple, v: 4, prof: S.profile.user }); };
   }, { replace: true });
 }
 
@@ -1285,13 +1285,17 @@ setInterval(() => { if (S.view === 'hall' && S.temple) loadStele(); }, 60000);
 let wsRetry = 0, lastSent = '';
 function connectWs() {
   if (S.idle) return;
-  if (S.ws && S.ws.readyState <= 1) { sendWs({ t: 'join', temple: S.temple.id, v: 4 }); return; }
-  const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws?token=${token.get()}`);
+  if (S.ws && S.ws.readyState <= 1) { sendWs({ t: 'join', temple: S.temple.id, v: 4, prof: S.profile.user }); return; }
+  // Máy chủ phòng là dịch vụ riêng (apps/api), không phải cùng origin với trang:
+  // Next chỉ rewrite /api/* chứ không chuyển được cú pháp nâng cấp WebSocket.
+  const base = window.__TEMPLE_WS__ || `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`;
+  const room = new URLSearchParams(location.search).get('room') || 'chung';
+  const ws = new WebSocket(`${base}/ws?token=${encodeURIComponent(token.get())}&temple=${encodeURIComponent(S.temple.id)}&room=${encodeURIComponent(room)}`);
   S.ws = ws;
   const profs = new Map(); // hồ sơ người chơi khác (máy chủ chỉ gửi khi mới vào/thay đổi)
   const states = new Map(); // trạng thái người chơi trong phòng (giao thức v3: nhận phần thay đổi)
   ws.addEventListener('open', () => { if (document.hidden) sendWs({ t: 'vis', h: true }); });
-  ws.onopen = () => { wsRetry = 0; if (wsWasOpen) chatResync(); wsWasOpen = true; if (S.full) { S.full = false; clearInterval(fullT); show('fullScreen', false); toast(`${ic('pray')} Đã có chỗ, mời bạn vào chùa`); } sendWs({ t: 'join', temple: S.temple.id, v: 4 }); };
+  ws.onopen = () => { wsRetry = 0; if (wsWasOpen) chatResync(); wsWasOpen = true; if (S.full) { S.full = false; clearInterval(fullT); show('fullScreen', false); toast(`${ic('pray')} Đã có chỗ, mời bạn vào chùa`); } sendWs({ t: 'join', temple: S.temple.id, v: 4, prof: S.profile.user }); };
   ws.binaryType = 'arraybuffer';
   ws.onmessage = (ev) => {
     let m;

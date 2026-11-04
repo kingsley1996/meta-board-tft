@@ -24,10 +24,12 @@
     "test:accuracy": "node --env-file-if-exists=.env src/assistant/eval/accuracy.ts"
   },
   "dependencies": {
-    "@tftiq/shared": "*",
     "@payos/node": "2.0.5",
+    "@tftiq/shared": "*",
+    "@types/ws": "^8.18.2",
     "express": "^5.1.0",
-    "pg": "^8.16.0"
+    "pg": "^8.16.0",
+    "ws": "^8.22.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

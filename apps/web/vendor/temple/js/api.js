@@ -557,7 +557,6 @@ export async function api(path, opts = {}) {
     db.lanterns.unshift(lantern);
     addExpAndSen(db, meta, 20, 15);
     saveDB(db);
-    setTimeout(() => emitWsEvent({ t: 'lantern', lantern }), 200);
     return { ...getProfilePayload(db, meta), lantern, pending: false };
   }
 
@@ -857,7 +856,6 @@ export async function api(path, opts = {}) {
     };
     db.plants.push(plant);
     saveDB(db);
-    setTimeout(() => emitWsEvent({ t: 'plant', p: plant }), 100);
     return getProfilePayload(db, meta);
   }
 
@@ -1051,7 +1049,6 @@ export async function api(path, opts = {}) {
       };
       msgs.push(reply);
       saveDB(db);
-      emitWsEvent({ t: 'dm', from: peer, msg: reply });
     }, 1400);
     return { msg };
   }
@@ -1190,7 +1187,6 @@ export async function api(path, opts = {}) {
   if (p === '/chan' && method === 'POST') {
     db.user.duc = Math.max(20, (db.user.duc || 100) - 10);
     saveDB(db);
-    setTimeout(() => emitWsEvent({ t: 'chan', from: db.user.id, to: body.to, name: db.user.name }), 80);
     return getProfilePayload(db, meta);
   }
 
@@ -1211,188 +1207,3 @@ export async function api(path, opts = {}) {
 }
 
 export const post = (path, body) => api(path, { method: 'POST', body });
-
-/* =====================================================================
-   HYBRID WEBSOCKET + BROADCASTCHANNEL + AI FELLOWS ENGINE
-   Cho phép nhiều tab / bạn bè cùng phòng thấy nhau + AI đồng tu sống động
-   ===================================================================== */
-const activeSockets = new Set();
-const bc = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel(`${PREFIX}room_sync`) : null;
-const tabPeers = new Map();
-
-function emitWsEvent(obj) {
-  const data = JSON.stringify(obj);
-  for (const ws of activeSockets) {
-    if (ws.readyState === 1 && typeof ws.onmessage === 'function') {
-      ws.onmessage({ data });
-    }
-  }
-}
-
-if (bc) {
-  bc.onmessage = (ev) => {
-    const m = ev.data;
-    if (!m) return;
-    if (m.type === 'state') {
-      tabPeers.set(m.player.id, { ...m.player, at: Date.now() });
-    } else if (m.type === 'event') {
-      emitWsEvent(m.payload);
-    }
-  };
-}
-
-const NativeWS = window.WebSocket;
-
-class HybridWebSocket extends EventTarget {
-  constructor(url) {
-    super();
-    this.url = url;
-    this.readyState = 0; // CONNECTING
-    this.binaryType = 'arraybuffer';
-    this.currentTemple = 'nhattru';
-    this.roomCode = new URLSearchParams(location.search).get('room') || 'chung';
-    activeSockets.add(this);
-
-    // Thử kết nối tới server.js nếu đang chạy máy chủ Node.js (bỏ qua trên file:// hoặc GitHub Pages tĩnh)
-    const isStaticHost = location.protocol === 'file:' || /\.(github\.io|pages\.dev|netlify\.app|vercel\.app)$/i.test(location.hostname);
-    if (!isStaticHost) {
-      try {
-        const real = new NativeWS(url);
-        this._real = real;
-        real.onmessage = (ev) => {
-          if (typeof ev.data === 'string') {
-            try {
-              const parsed = JSON.parse(ev.data);
-              if (parsed.t === 'peer_state' && parsed.player) {
-                tabPeers.set(parsed.player.id, { ...parsed.player, at: Date.now() });
-                return;
-              }
-            } catch {}
-          }
-          this.onmessage?.(ev);
-        };
-        real.onerror = () => {};
-      } catch {}
-    }
-
-    setTimeout(() => {
-      this.readyState = 1; // OPEN
-      const evt = new Event('open');
-      this.dispatchEvent(evt);
-      this.onopen?.(evt);
-    }, 60);
-
-    // Cập nhật vị trí các đạo hữu / giáo hữu AI và bạn cùng phòng mỗi 1.2 giây
-    this._tick = setInterval(() => {
-      if (this.readyState !== 1) return;
-      this._broadcastRoom();
-    }, 1200);
-  }
-
-  _broadcastRoom() {
-    const t = Date.now() / 1000;
-    // Vị trí các đệm quỳ / bồ đoàn trong chánh điện (x: -3.3, -1.1, 1.1, 3.3; z: 0.6, 2.3, 4.0)
-    const seats = [
-      { idx: 1, x: -1.1, z: 0.6 },
-      { idx: 2, x: 1.1, z: 0.6 },
-      { idx: 4, x: -3.3, z: 2.3 },
-      { idx: 7, x: 3.3, z: 2.3 },
-    ];
-    const aiPlayers = AI_PEERS.slice(0, 5).map((peer, i) => {
-      if (i < 4) {
-        const s = seats[i];
-        // Chu kỳ lạy / cầu nguyện đồng tâm
-        const bowing = Math.sin(t * 0.4 + i) > 0.15;
-        return {
-          ...peer,
-          x: s.x,
-          z: s.z,
-          y: 0,
-          r: Math.PI,
-          seat: s.idx,
-          a: bowing ? 2 : 1, // bit 1 = seated, bit 2 = bowing
-        };
-      }
-      // Người thứ 5 đi dạo nhẹ nhàng quanh chánh điện / sân
-      const angle = t * 0.28;
-      return {
-        ...peer,
-        x: Math.sin(angle) * 4.2,
-        z: 5.5 + Math.cos(angle) * 1.4,
-        y: 0,
-        r: angle + Math.PI / 2,
-        seat: -1,
-        a: 0,
-      };
-    });
-
-    // Gộp thêm người chơi thật từ các tab khác hoặc từ server.js trong cùng phòng
-    const now = Date.now();
-    for (const [id, p] of tabPeers.entries()) {
-      if (now - p.at > 15000) tabPeers.delete(id);
-      else if (p.temple === this.currentTemple && p.room === this.roomCode) aiPlayers.push(p);
-    }
-
-    const msg = {
-      t: 'room',
-      temple: this.currentTemple,
-      online: 14 + aiPlayers.length,
-      players: aiPlayers,
-    };
-    this.onmessage?.({ data: JSON.stringify(msg) });
-  }
-
-  send(raw) {
-    try {
-      const m = JSON.parse(raw);
-      if (m.t === 'join') {
-        this.currentTemple = m.temple || 'nhattru';
-        setTimeout(() => {
-          this.onmessage?.({ data: JSON.stringify({ t: 'joined', temple: this.currentTemple }) });
-          this._broadcastRoom();
-        }, 40);
-      } else if (m.t === 's') {
-        const db = getDB();
-        if (db.user) {
-          const payload = {
-            ...db.user,
-            x: m.x || 0,
-            z: m.z || 4,
-            y: m.y || 0,
-            r: m.r || 0,
-            seat: m.seat ?? -1,
-            a: (m.bow ? 2 : 0) | (m.med ? 4 : 0) | ((m.seat ?? -1) >= 0 ? 1 : 0),
-            temple: this.currentTemple,
-            room: this.roomCode,
-          };
-          bc?.postMessage({ type: 'state', player: payload });
-          if (this._real?.readyState === 1) {
-            this._real.send(JSON.stringify({ t: 'peer_state', player: payload }));
-          }
-        }
-      } else if (m.t === 'emote') {
-        const db = getDB();
-        if (db.user) {
-          const ev = { t: 'emote', id: db.user.id, e: m.e };
-          emitWsEvent(ev);
-          bc?.postMessage({ type: 'event', payload: ev });
-        }
-      }
-      if (this._real?.readyState === 1) this._real.send(raw);
-    } catch {}
-  }
-
-  close() {
-    this.readyState = 3;
-    clearInterval(this._tick);
-    activeSockets.delete(this);
-    try { this._real?.close(); } catch {}
-  }
-}
-
-window.WebSocket = function(url, protocols) {
-  if (typeof url === 'string' && url.includes('/ws')) {
-    return new HybridWebSocket(url);
-  }
-  return new NativeWS(url, protocols);
-};

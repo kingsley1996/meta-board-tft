@@ -11,6 +11,7 @@ declare global {
     __SANSA_STRESS__?: boolean;
     __STATIC_META__?: unknown;
     __STATIC_CONTENT__?: unknown;
+    __TEMPLE_WS__?: string;
   }
 }
 
@@ -59,6 +60,9 @@ export function TempleHost({ lang }: { lang: string }) {
     window.__SANSA_STRESS__ = true;
     window.__STATIC_META__ = meta;
     window.__STATIC_CONTENT__ = content;
+    // Rewrite của Next chỉ chuyển /api/*; cú pháp nâng cấp WebSocket thì không, nên
+    // phòng chùa phải được nối thẳng tới apps/api thay vì đi qua trang.
+    window.__TEMPLE_WS__ = process.env.NEXT_PUBLIC_TEMPLE_WS;
 
     // Có token là boot() đi nhánh người cũ: bỏ màn nặn nhân vật, vào thẳng chánh điện.
     if (!localStorage.getItem(TOKEN_KEY)) localStorage.setItem(TOKEN_KEY, 'tok_temple_next');
