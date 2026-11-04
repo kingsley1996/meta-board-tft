@@ -2,10 +2,10 @@ import { expect, test } from 'playwright/test';
 import { readFileSync } from 'node:fs';
 
 // A patch article is generated from Riot's own rows, so the browser check is about the
-// wiring, not the prose: the URL carries the patch number the game prints (`18.5c`, not the
-// store's `patch-18-5c`), a hotfix Riot folded into the 18.5 article is an article of its own
-// here, the card counts are read off those rows instead of a summary typed next to them, and
-// the Vietnamese headings must be Riot's translation rather than ours.
+// wiring, not the prose: the URL carries the patch number Riot prints (`18.6`, or a hotfix
+// like `18.5c`, not the store's `patch-18-5c`), a hotfix Riot folded into the 18.5 article is
+// an article of its own here, the card counts are read off those rows instead of a summary
+// typed next to them, and the Vietnamese headings must be Riot's translation rather than ours.
 
 const LIST = '[data-section="patch-list"]';
 const PBE = '[data-section="pbe-preview"]';
@@ -26,6 +26,12 @@ const pbeDoc = JSON.parse(readFileSync('packages/shared/data/pbe.json', 'utf8'))
 const livePatch = (JSON.parse(readFileSync('packages/shared/data/patch-notes.json', 'utf8')) as {
   livePatch: string;
 }).livePatch;
+// The window the match counts were measured over. It belongs to a stats provider that re-cuts
+// its board after a release, so it can sit a patch behind `livePatch` — which is exactly the
+// case this file has to keep honest about.
+const statsPatch = (JSON.parse(readFileSync('packages/shared/data/meta.json', 'utf8')) as {
+  source: { patch: string };
+}).source.patch;
 
 // The same arithmetic the page runs: a tab counts the separate things that moved, so an entity
 // whose two stats changed is one entity, and an entity that only appeared still counts.
@@ -315,13 +321,13 @@ test('switching locale keeps the reader on the same patch', async ({ page }) => 
 });
 
 test('the patch bar opens the article for the version the game runs', async ({ page }) => {
-  // The bar used to land on the list; now that the hotfixes have entries of their own, it
-  // goes straight to the numbers for the version the client reports (18.5c).
+  // The bar used to land on the list; now it goes straight to the article for the patch Riot
+  // has released, which is the number the nav chip and the bar both print.
   await page.goto('/en/augments');
-  const bar = page.locator('main a[href="/en/patches/18.5c"]').first();
+  const bar = page.locator(`main a[href="/en/patches/${livePatch}"]`).first();
   await expect(bar).toBeVisible();
   await bar.click();
-  await expect(page).toHaveURL(/\/en\/patches\/18\.5c$/);
+  await expect(page).toHaveURL(new RegExp(`/en/patches/${livePatch.replace(/\./g, '\\.')}$`));
 
   // And the list is still one tap away: the breadcrumb carries the section, so a reader who
   // landed on a hotfix can walk back through the patch ladder. The ladder has one row per
@@ -332,6 +338,16 @@ test('the patch bar opens the article for the version the game runs', async ({ p
     guides: unknown[];
   };
   expect(await page.locator(`${LIST} a`).count()).toBe(stored.guides.length);
+});
+
+test('the chrome names the release and the numbers name the window they cover', async ({ page }) => {
+  // A release lands before the stats provider re-cuts its board, so the two numbers differ for
+  // a few days. The version a reader recognises goes in the nav and the bar; the window travels
+  // with the match counts it measured, on the pages built out of them.
+  await page.goto('/en/tierlist/map');
+  await expect(page.locator('[data-section="nav"]')).toContainText(livePatch);
+  const window = page.locator('main').filter({ hasText: `patch ${statsPatch}` });
+  await expect(window.first()).toBeVisible();
 });
 
 test('a phone-width article has no horizontal overflow', async ({ page }) => {

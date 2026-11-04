@@ -3,6 +3,7 @@ import { AdminPageHeader, AdminStat, AdminTable, btnGhost, btnQuiet } from '@/co
 import { tierColor } from '@/components/ui';
 import type { CompsResponse, GuidesResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
+import { patch } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +34,7 @@ export default async function AdminOverviewPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <AdminStat label="Comps" value={comps.length} hint={['S', 'A', 'B', 'C', 'X'].map((tier) => `${tier}:${counts[tier] ?? 0}`).join(' · ')} />
         <AdminStat label="Guides" value={guides.length} hint={`${guides.filter((guide) => guide.featured).length} featured on the index`} />
-        <AdminStat label="Patch" value={compsData.patch.version} hint={`Set ${compsData.set} · ${compsData.patch.updated}`} />
+        <AdminStat label="Patch" value={patch.version} hint={`Set ${compsData.set} · stats ${compsData.patch.version} · ${compsData.patch.updated}`} />
       </div>
 
       <section className="flex flex-col gap-3">

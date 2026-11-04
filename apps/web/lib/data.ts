@@ -1,5 +1,6 @@
 import tft from '@tftiq/shared/data/tft.json';
 import meta from '@tftiq/shared/data/meta.json';
+import patchNotes from '@tftiq/shared/data/patch-notes.json';
 import type { Lang } from './i18n';
 
 export type { Tier } from './tiers';
@@ -155,4 +156,13 @@ const guideTags: Record<string, string> = {
 
 export const guideTag = (name: string, lang: Lang) => (lang === 'vi' ? guideTags[name] ?? name : name);
 
-export const patch = { version: setInfo.patch, updated: `TFTIQ · ${meta.source.updated.slice(0, 10)}` };
+// Two numbers, and they are not the same fact. `version` is the patch Riot says the game is on,
+// which is what a reader recognises in the nav and the bar; `stats` is the window the tier board
+// was measured over, and it only ever travels with the match counts it covers. The stats window
+// can sit a full patch behind a release, which is why the two are kept apart rather than one
+// being relabelled as the other.
+export const patch = {
+  version: patchNotes.livePatch ?? setInfo.patch,
+  stats: setInfo.patch,
+  updated: `TFTIQ · ${meta.source.updated.slice(0, 10)}`,
+};

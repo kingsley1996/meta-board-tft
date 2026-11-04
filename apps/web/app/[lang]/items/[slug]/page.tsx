@@ -119,7 +119,7 @@ export default async function ItemPage({ params }: { params: Promise<{ lang: Lan
             {typeof stats.pick === 'number' ? <StatCard label={t.pickRate} value={`${(stats.pick * 100).toFixed(1)}%`} /> : null}
             <StatCard label={t.top4Rate} value={`${(stats.top4 * 100).toFixed(1)}%`} />
             <StatCard label={t.winRate} value={`${(stats.win * 100).toFixed(1)}%`} />
-            <StatCard label={t.gamesPlayed} value={new Intl.NumberFormat(vi ? 'vi-VN' : 'en-US').format(stats.games)} hint={`TFTIQ · ${patch.version}`} />
+            <StatCard label={t.gamesPlayed} value={new Intl.NumberFormat(vi ? 'vi-VN' : 'en-US').format(stats.games)} hint={`TFTIQ · ${t.statsWindow(patch.stats)}`} />
           </div>
         </Panel>
       ) : (

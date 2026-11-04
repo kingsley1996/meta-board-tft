@@ -119,7 +119,15 @@ export type PatchNote = {
   unmatched: unknown[];
 };
 
-export type PatchNotesDoc = { generatedAt: string; latestPatch: string | null; patches: PatchNote[] };
+export type PatchNotesDoc = {
+  generatedAt: string;
+  latestPatch: string | null;
+  // What Riot's own news index called the newest released patch. It is ahead of `latestPatch`
+  // whenever a patch shipped without any TFT numbers in it, and ahead of the stats window
+  // whenever the provider has not re-cut its board since the release.
+  livePatch: string | null;
+  patches: PatchNote[];
+};
 
 // The PBE preview the crawler diffs against the released catalog. Only the fields a reader of
 // the list is shown are declared: the patch number, what it is being compared to, and the rows.
