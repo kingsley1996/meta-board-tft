@@ -4,11 +4,90 @@
     "tierList": "https://api-hc.metatft.com/tft-stat-api/wisp_tiers",
     "lookup": "https://data.metatft.com/lookups/TFTSet18_latest_en_us.json",
     "lookupVi": "https://data.metatft.com/lookups/TFTSet18_latest_vi_vn.json",
-    "fetchedAt": "2026-10-20T13:44:55.158Z",
-    "tierListUpdated": "2026-10-20T13:44:37.141Z",
-    "curatedAt": "2026-10-19T23:42:47.567Z",
+    "fetchedAt": "2026-11-04T03:43:51.189Z",
+    "tierListUpdated": "2026-11-04T03:42:07.789Z",
+    "curatedAt": "2026-11-01T01:03:38.561Z",
     "tftSet": "TFTSet18",
     "lookupPatch": "pbe",
+    "costCorrections": [
+      {
+        "name": "Forest Guide",
+        "variant": "base",
+        "patch": "18.4",
+        "was": null,
+        "now": 6
+      },
+      {
+        "name": "Forest Guide",
+        "variant": "upgrade",
+        "patch": "18.4",
+        "was": null,
+        "now": 5
+      },
+      {
+        "name": "Hand Of Baron",
+        "variant": "base",
+        "patch": "18.5",
+        "was": 6,
+        "now": 4
+      },
+      {
+        "name": "Blood and Iron",
+        "variant": "base",
+        "patch": "18.5",
+        "was": 3,
+        "now": 4
+      },
+      {
+        "name": "Abandon Ship",
+        "variant": "base",
+        "patch": "18.5",
+        "was": 0,
+        "now": 2
+      },
+      {
+        "name": "Three Me",
+        "variant": "base",
+        "patch": "18.4b",
+        "was": null,
+        "now": 10
+      },
+      {
+        "name": "Knick-Knack Bag",
+        "variant": "upgrade",
+        "patch": "18.5b",
+        "was": null,
+        "now": 1
+      },
+      {
+        "name": "Hireling",
+        "variant": "base",
+        "patch": "18.5b",
+        "was": null,
+        "now": 5
+      },
+      {
+        "name": "Search Party",
+        "variant": "base",
+        "patch": "18.4b",
+        "was": 3,
+        "now": 1
+      },
+      {
+        "name": "Search Party",
+        "variant": "upgrade",
+        "patch": "18.4b",
+        "was": 3,
+        "now": 0
+      },
+      {
+        "name": "Moonlight Ritual",
+        "variant": "base",
+        "patch": "18.5b",
+        "was": 2,
+        "now": 3
+      }
+    ],
     "missingLookup": [
       "DA_CrystalBall18"
     ]
@@ -20,7 +99,7 @@
       "nameVi": "Rời Tàu",
       "tier": "S",
       "category": "Risky",
-      "cost": 0,
+      "cost": 2,
       "variant": "base",
       "description": "Sell your board and bench, gain 6 gold and 8 rerolls.",
       "descriptionVi": "Bán toàn bộ bàn đấu và hàng chờ của bạn, nhận 6 vàng và 8 lượt đổi.",
@@ -171,45 +250,6 @@
       "round": "2-1 → 2-7"
     },
     {
-      "apiName": "DA_Barrier18",
-      "name": "Barrier",
-      "nameVi": "Lá Chắn",
-      "tier": "S",
-      "category": "Combat",
-      "cost": 3,
-      "variant": "base",
-      "description": "Allies gain 1250 Shield, decaying over 6 seconds.",
-      "descriptionVi": "Đồng minh nhận được 1250 Lá Chắn, giảm dần trong 6 giây.",
-      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
-      "round": "5-1 → 10-1"
-    },
-    {
-      "apiName": "DA_Barrier18_Upgrade",
-      "name": "Barrier",
-      "nameVi": "Lá Chắn",
-      "tier": "S",
-      "category": "Combat",
-      "cost": 3,
-      "variant": "upgrade",
-      "description": "Allies gain 1250 Shield, decaying over 9 seconds.",
-      "descriptionVi": "Đồng minh nhận được 1250 Lá Chắn, giảm dần trong 9 giây.",
-      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
-      "round": "5-1 → 10-1"
-    },
-    {
-      "apiName": "DA_Barrier18_Prismatic",
-      "name": "Barrier",
-      "nameVi": "Lá Chắn",
-      "tier": "S",
-      "category": "Combat",
-      "cost": 3,
-      "variant": "prismatic",
-      "description": "Allies gain 7500 Shield, decaying over 30 seconds.",
-      "descriptionVi": "Đồng minh nhận được 7500 Lá Chắn, giảm dần trong 30 giây.",
-      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
-      "round": null
-    },
-    {
       "apiName": "DA_Barter18",
       "name": "Barter",
       "nameVi": "Mặc Cả",
@@ -280,7 +320,7 @@
       "nameVi": "Máu Và Sắt",
       "tier": "S",
       "category": "Item",
-      "cost": 3,
+      "cost": 4,
       "variant": "base",
       "description": "After 20 champion deaths, gain a component anvil.",
       "descriptionVi": "Sau 20 lần tướng tử trận, nhận 1 gói trang bị thành phần.",
@@ -605,7 +645,7 @@
       "nameVi": "Dẫn Lối Rừng Già",
       "tier": "S",
       "category": "Champion",
-      "cost": null,
+      "cost": 6,
       "variant": "base",
       "description": "Gain a random 4-cost champion.",
       "descriptionVi": "Nhận 1 tướng 4 vàng ngẫu nhiên.",
@@ -618,7 +658,7 @@
       "nameVi": "Dẫn Lối Rừng Già",
       "tier": "S",
       "category": "Champion",
-      "cost": null,
+      "cost": 5,
       "variant": "upgrade",
       "description": "Gain a random 4-cost champion.",
       "descriptionVi": "Nhận 1 tướng 4 vàng ngẫu nhiên.",
@@ -761,7 +801,7 @@
       "nameVi": "Baron Chi Viện",
       "tier": "S",
       "category": "Combat",
-      "cost": 6,
+      "cost": 4,
       "variant": "base",
       "description": "Your team gains Baron Buff, increasing their stats.",
       "descriptionVi": "Đội của bạn nhận Bùa Baron, tăng chỉ số cho họ.",
@@ -1276,6 +1316,45 @@
       "round": null
     },
     {
+      "apiName": "DA_Barrier18",
+      "name": "Barrier",
+      "nameVi": "Lá Chắn",
+      "tier": "A",
+      "category": "Combat",
+      "cost": 3,
+      "variant": "base",
+      "description": "Allies gain 1250 Shield, decaying over 6 seconds.",
+      "descriptionVi": "Đồng minh nhận được 1250 Lá Chắn, giảm dần trong 6 giây.",
+      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+      "round": "5-1 → 10-1"
+    },
+    {
+      "apiName": "DA_Barrier18_Upgrade",
+      "name": "Barrier",
+      "nameVi": "Lá Chắn",
+      "tier": "A",
+      "category": "Combat",
+      "cost": 3,
+      "variant": "upgrade",
+      "description": "Allies gain 1250 Shield, decaying over 9 seconds.",
+      "descriptionVi": "Đồng minh nhận được 1250 Lá Chắn, giảm dần trong 9 giây.",
+      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
+      "round": "5-1 → 10-1"
+    },
+    {
+      "apiName": "DA_Barrier18_Prismatic",
+      "name": "Barrier",
+      "nameVi": "Lá Chắn",
+      "tier": "A",
+      "category": "Combat",
+      "cost": 3,
+      "variant": "prismatic",
+      "description": "Allies gain 7500 Shield, decaying over 30 seconds.",
+      "descriptionVi": "Đồng minh nhận được 7500 Lá Chắn, giảm dần trong 30 giây.",
+      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier3.png",
+      "round": null
+    },
+    {
       "apiName": "DA_BeggarsWisp18",
       "name": "Beggar's Wisp",
       "nameVi": "Tinh Linh Nghèo Khó",
@@ -1723,7 +1802,7 @@
       "nameVi": "Bị Đồ Lỉnh Kỉnh",
       "tier": "A",
       "category": "Misc",
-      "cost": null,
+      "cost": 1,
       "variant": "upgrade",
       "description": "Gain 3 consumables that give permanent Attack Damage or Attack Speed.",
       "descriptionVi": "Nhận 3 vật phẩm tiêu thụ giúp tăng vĩnh viễn Sức Mạnh Công Kích hoặc Tốc Độ Đánh.",
@@ -2334,7 +2413,7 @@
       "nameVi": "Ba Chúng Tôi",
       "tier": "A",
       "category": "Champion",
-      "cost": null,
+      "cost": 10,
       "variant": "base",
       "description": "Gain a random 2-star 3-cost champion.",
       "descriptionVi": "Nhận 1 tướng 3 vàng 2 sao ngẫu nhiên.",
@@ -3153,7 +3232,7 @@
       "nameVi": "Tay Sai",
       "tier": "B",
       "category": "Combat",
-      "cost": null,
+      "cost": 5,
       "variant": "base",
       "description": "A temporary 1-star 5-cost with 1 recommended items joins your team.",
       "descriptionVi": "1 tướng 5 vàng 1 sao tạm thời với 1 trang bị khuyên dùng sẽ gia nhập đội của bạn.",
@@ -4180,7 +4259,7 @@
       "nameVi": "Tổ Đội Tìm Kiếm",
       "tier": "B",
       "category": "Shop",
-      "cost": 3,
+      "cost": 1,
       "variant": "base",
       "description": "Each of your shops has a 4-cost in it this round until you buy one.",
       "descriptionVi": "Mỗi cửa hàng của bạn sẽ có 1 tướng 4 vàng trong vòng này cho đến khi bạn mua 1 tướng 4 vàng.",
@@ -4193,7 +4272,7 @@
       "nameVi": "Tổ Đội Tìm Kiếm",
       "tier": "B",
       "category": "Shop",
-      "cost": 3,
+      "cost": 0,
       "variant": "upgrade",
       "description": "Each of your shops has a 4-cost in it this round until you buy one.",
       "descriptionVi": "Mỗi cửa hàng của bạn sẽ có 1 tướng 4 vàng trong vòng này cho đến khi bạn mua 1 tướng 4 vàng.",
@@ -4661,7 +4740,7 @@
       "nameVi": "Nghi Thức Ánh Trăng",
       "tier": "C",
       "category": "Combat",
-      "cost": 2,
+      "cost": 3,
       "variant": "base",
       "description": "Your lowest star 1-cost or 2-cost champion stars up in combat.",
       "descriptionVi": "Tướng 1 vàng hoặc 2 vàng có cấp sao thấp nhất của bạn sẽ được nâng sao trong giao tranh.",
