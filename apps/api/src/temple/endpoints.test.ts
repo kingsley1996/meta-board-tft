@@ -29,6 +29,7 @@ test(
     const t0 = Date.now();
     const pool: Pool = (await import('../db.ts')).pool;
     const identity = await import('./identity.ts');
+    const { vnDay } = await import('./merit.ts');
     const { templeRouter } = await import('./routes.ts');
 
     const app = express();
@@ -101,6 +102,13 @@ test(
       assert.equal(over.code, 'invalid_count');
       const junk = await post('/api/temple/practice', { type: 'mo' }, me.cookie);
       assert.equal(junk.status, 400, 'the wooden fish was cut from the temple');
+      // Tần suất cũng là của chùa: một vòng lặp gửi cùng một nhịp phải bị chặn.
+      const fast = await post('/api/temple/practice', { type: 'bow', count: 1 }, me.cookie);
+      assert.equal(fast.status, 429, 'two packets inside one beat pay once');
+      assert.equal(fast.code, 'too_fast');
+      // 400 không được tính là một nhịp đã làm: gói sai quy cách chưa "làm" gì cả.
+      const stillBad = await post('/api/temple/practice', { type: 'bow', count: 9999 }, me.cookie);
+      assert.equal(stillBad.code, 'invalid_count', 'a rejected packet does not burn the beat');
 
       // Máy khách chỉ được đổi những gì nhìn thấy trên người mình.
       const stolen = await put('/api/temple/profile', { name: 'Ai Đó', sen: 99_999, level: 7, exp: 99_999 }, me.cookie);
@@ -116,6 +124,13 @@ test(
       const hero = await put('/api/temple/profile', { appearance: { hero: 'zoro' } }, me.cookie);
       assert.equal(hero.status, 200);
       assert.equal(hero.json.profile.appearance.hero, 'zoro');
+      // Một gói chỉ đổi nhân vật không được xoá những gì còn lại trên người: hàng lối
+      // được gộp (jsonb ||) thay vì thay cả object.
+      assert.equal(hero.json.profile.appearance.hair, 'ngan', 'the seed haircut survives a hero-only packet');
+      assert.equal(hero.json.profile.equipped.beads, 'chuoi_go', 'nor does it strip the bag');
+      const unequip = await put('/api/temple/profile', { equipped: { pet: null } }, me.cookie);
+      assert.equal(unequip.json.profile.equipped.pet, null, 'an explicit null still takes the pet off');
+      assert.equal(unequip.json.profile.equipped.beads, 'chuoi_go', 'and leaves the rest worn');
       const fakeHero = await put('/api/temple/profile', { appearance: { hero: 'songoku' } }, me.cookie);
       assert.equal(fakeHero.status, 400, 'a hero the engine cannot draw is not a choice');
 
@@ -133,12 +148,25 @@ test(
       assert.equal((await post('/api/temple/practice', { type: 'meditate_start' }, me.cookie)).status, 200);
       const clamped = await rewindSit(me.cookie, me.user, 180);
       assert.equal(clamped.extra.minutes, 60, 'the longest single sit the temple counts');
+      // Lần này hai cú xả chạy song song khi thời thiền vẫn còn: một cú chiếm được
+      // hàng, cú kia không còn gì để cộng.
+      await post('/api/temple/practice', { type: 'meditate_start' }, me.cookie);
+      await pool.query("UPDATE temple_profiles SET meditate_start = now() - (7 * INTERVAL '1 minute') WHERE user_id = $1", [me.user]);
+      const paid = await Promise.all([post('/api/temple/practice', { type: 'meditate_end' }, me.cookie), post('/api/temple/practice', { type: 'meditate_end' }, me.cookie)]);
+      const winners = paid.filter((r) => r.status === 200);
+      assert.equal(winners.length, 1, 'exactly one request claims a running sit');
+      assert.equal(winners[0].json.extra.minutes, 7, 'and it is the only one paid');
+      assert.equal(paid.find((r) => r.status !== 200)?.code, 'not_meditating');
 
       // --- Dâng hương: trừ đồ trước, cộng công đức sau ------------------------
       const used = (await post('/api/temple/use', { item: 'huong_tram' }, me.cookie)).json;
       assert.equal(used.state.inventory.huong_tram, 14);
       assert.equal(used.left, 14, 'the same request says what is left in the bag');
       assert.ok(used.state.buff_until, 'the offering opened the +20% window');
+      // Cống hương này tới ngay sau cú lạy bị too_fast ở trên, nên phải chờ qua cửa sổ
+      // 3 giây của nhịp lạy (COOLDOWN_MS) — nếu không thì con số bên dưới là 429 chứ
+      // không phải 30.
+      await new Promise((r) => setTimeout(r, 3200));
       const buffed = (await post('/api/temple/practice', { type: 'bow', count: 5 }, me.cookie)).json;
       assert.equal(buffed.gained, 30, 'five bows x 5 x 1.2 while the incense still burns');
       assert.equal((await post('/api/temple/use', { item: 'guong_su' }, me.cookie)).status, 400);
@@ -212,6 +240,16 @@ test(
       // prototype vào WHERE là một cú 500 ngay trước mắt người bấm bảng xếp hạng.
       assert.equal((await get('/api/temple/leaderboard?scope=__proto__', me.cookie)).json.scope, 'week');
 
+      // --- Cửa "hôm nay" cắt theo giờ Hà Nội -----------------------------------
+      // 17:30 UTC đã là 00:30 ngày kế tiếp ở Việt Nam. CURRENT_DATE là một cột date
+      // (nửa đêm UTC), nên cộng 7 tiếng rồi cast ::date vẫn trả ngày cũ — hàng vừa ghi
+      // bằng vnDay() biến mất khỏi BXH ngày và nhật ký 28 ngày. cùng biểu thức mà các
+      // câu đọc dùng, chỉ khác nguồn thời gian.
+      const dayAt = async (iso: string) => String((await pool.query(`SELECT ((($1::timestamptz) + INTERVAL '7 hours')::date)::text AS d`, [iso])).rows[0].d);
+      assert.equal(await dayAt('2026-11-04T17:30:00Z'), '2026-11-05', 'the server clock crosses midnight on Vietnamese time');
+      assert.equal(await dayAt('2026-11-04T16:30:00Z'), '2026-11-04', 'and an hour earlier it is still yesterday there');
+      assert.equal(await dayAt((new Date()).toISOString()), vnDay(), 'the same window the ledger writes with');
+
       // --- Bạn bè, thư riêng, nhóm đồng tu ------------------------------------
       const asked = (await post('/api/temple/friends', { id: nothing.me.id, action: 'add' }, me.cookie)).json;
       assert.equal(asked.accepted, false);
@@ -226,6 +264,10 @@ test(
       assert.equal((thread.messages as Json[]).length, 1);
       assert.equal(thread.messages[0].mine, true, 'the sender sees it as theirs');
       assert.equal(((await get('/api/temple/dms', nothing.cookie)).json.threads as Json[])[0].unseen, 1);
+      // Mốc ngày của hộp thư phải là ISO: ::text của Postgres ra "2026-11-05 10:10:21+00"
+      // (dấu cách, không T), new Date(...) đọc chuỗi đó theo giờ máy nên ngày lệch.
+      const threadLast = ((await get('/api/temple/dms', nothing.cookie)).json.threads as Json[])[0].last as string;
+      assert.match(threadLast, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, 'the inbox speaks ISO');
       assert.equal(((await get(`/api/temple/dms/${me.me.id}`, nothing.cookie)).json.messages as Json[]).length, 1);
       assert.equal(((await get('/api/temple/dms', nothing.cookie)).json.threads as Json[])[0].unseen, 0, 'opening the thread read it');
       assert.equal((await post('/api/temple/dms', { id: nothing.me.id, text: '   ' }, me.cookie)).status, 400);
@@ -246,6 +288,10 @@ test(
       // --- Kết duyên ----------------------------------------------------------
       const sent = (await post('/api/temple/greetings', { id: nothing.me.id, kind: 'huong', text: 'Gửi bạn nén hương' }, me.cookie)).json;
       assert.equal(sent.gained, 10);
+      // Quà kết duyên phải nằm trong khoảng số nguyên: 'abc' từng rơi xuống cột integer
+      // thành một cú 500, còn 10001 in ra một món quà không ai trả nổi.
+      assert.equal((await post('/api/temple/greetings', { id: nothing.me.id, kind: 'chuc', gift_sen: 'abc' }, me.cookie)).status, 400, 'a gift has to be a number');
+      assert.equal((await post('/api/temple/greetings', { id: nothing.me.id, kind: 'chuc', gift_sen: 10_001 }, me.cookie)).status, 400, 'and within the gift ceiling');
       const box = (await get('/api/temple/greetings', nothing.cookie)).json.rows as Json[];
       assert.equal(box.length, 1);
       assert.equal(box[0].from.id, me.me.id, 'the inbox shows who sent it');

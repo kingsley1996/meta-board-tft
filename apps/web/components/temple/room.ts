@@ -31,7 +31,6 @@ export type NetState = { x: number; z: number; y: number; r: number; seat: numbe
 export type RoomEvents = {
   onPlayers: (players: RemotePlayer[], online: number) => void;
   onJoined: (playerId: number) => void;
-  onFull: (info: { count: number; cap: number }) => void;
   onEvent: (msg: Record<string, unknown>) => void;
   onConnection: (up: boolean) => void;
 };
@@ -79,6 +78,10 @@ export class TempleRoom {
     ws.binaryType = 'arraybuffer';
     ws.onopen = () => {
       this.retry = 0;
+      // Chuỗi đã gửi thuộc về nối cũ. Giữ lại thì nhịp đẩy dưới đây cho rằng vị trí
+      // không đổi và im lặng, trong khi server dựng lại từ đầu ở (0,0) — avatar mình
+      // đứng gốc sân chùa trên máy người khác cho tới khi mình bước đi.
+      this.lastSent = '';
       this.handlers.onConnection(true);
       ws.send(JSON.stringify({ t: 'join', temple: this.temple, room: this.room, v: 4 }));
       this.startPush();
@@ -120,6 +123,9 @@ export class TempleRoom {
   private startPush(): void {
     this.stopPush();
     this.pushT = window.setInterval(() => {
+      // Tab ẩn thì không ai nhìn thấy avatar của mình, còn đồng hồ vẫn chạy: 200ms một
+      // lần gửi cho một vị trí không đổi là băng thông không ai dùng.
+      if (document.hidden) return;
       const st = this.state();
       if (!st || !this.connected) return;
       const sig = JSON.stringify(st);
@@ -169,7 +175,13 @@ export class TempleRoom {
     }
     const gone = v.getUint16(o, true);
     o += 2;
-    for (let i = 0; i < gone; i++, o += 4) this.states.delete(v.getUint32(o, true));
+    // Hồ sơ đi cùng id: không xoá thì một phiên dài tích lại tên của từng người từng
+    // ghé, và người đó rời đi rồi mới quay lại sẽ mang theo trạng thái cũ.
+    for (let i = 0; i < gone; i++, o += 4) {
+      const id = v.getUint32(o, true);
+      this.states.delete(id);
+      this.profs.delete(id);
+    }
     this.emitPlayers(v.getUint16(1, true));
   }
 
@@ -178,26 +190,10 @@ export class TempleRoom {
       case 'prof':
         for (const p of (msg.p ?? []) as RemotePlayer[]) this.profs.set(p.id, p);
         return;
-      case 'room3':
-        for (const p of (msg.p ?? []) as RemotePlayer[]) this.profs.set(p.id, p);
-        if (msg.s) {
-          this.states.clear();
-          for (const e of msg.s as (NetState & { id: number })[]) this.states.set(e.id, e);
-        }
-        for (const e of (msg.d ?? []) as (NetState & { id: number })[]) this.states.set(e.id, e);
-        for (const id of (msg.g ?? []) as number[]) this.states.delete(id);
-        this.emitPlayers(Number(msg.online ?? this.states.size));
-        return;
       case 'joined':
         this.profs.clear();
         this.states.clear();
         this.handlers.onJoined(Number(msg.id ?? 0));
-        return;
-      case 'roomFull':
-        this.profs.clear();
-        this.states.clear();
-        this.handlers.onFull({ count: Number(msg.count ?? 0), cap: Number(msg.cap ?? 0) });
-        this.handlers.onPlayers([], Number(msg.count ?? 0));
         return;
       default:
         this.handlers.onEvent(msg);

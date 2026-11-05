@@ -121,6 +121,9 @@ CREATE TABLE IF NOT EXISTS temple_friends (
   CHECK (user_id <> friend_id),
   PRIMARY KEY (user_id, friend_id)
 );
+-- Chiều ngược của lời mời: "ai đang chờ mình chấp thuận" lọc theo friend_id, mà khoá
+-- chính chỉ đánh chỉ mục theo user_id nên không có dòng này là quét cả bảng bạn bè.
+CREATE INDEX IF NOT EXISTS temple_friends_peer_idx ON temple_friends (friend_id, status);
 
 CREATE TABLE IF NOT EXISTS temple_dms (
   id bigserial PRIMARY KEY,
@@ -131,6 +134,9 @@ CREATE TABLE IF NOT EXISTS temple_dms (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS temple_dms_thread_idx ON temple_dms (to_user, from_user, created_at DESC);
+-- Hộp thư gom cả hai chiều (from_user = tôi OR to_user = tôi), nên chiều gửi cũng cần
+-- chỉ mục riêng; thread_idx chỉ dẫn đầu bằng to_user.
+CREATE INDEX IF NOT EXISTS temple_dms_from_idx ON temple_dms (from_user, created_at DESC);
 
 -- Nhóm đồng tu (thay cho "Tăng đoàn" của bản gốc): một nhóm có mã mời, hạn mức thành
 -- viên, và quỹ công đức chung do chính nhóm đóng góp.

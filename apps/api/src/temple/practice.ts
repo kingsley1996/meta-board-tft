@@ -7,7 +7,7 @@
 import { Router } from 'express';
 import { pool } from '../db.ts';
 import { ensureTempleProfile, levelFromExp } from './identity.ts';
-import { ApiError, num, withUser } from './http.ts';
+import { ApiError, cooldown, num, withUser } from './http.ts';
 import {
   MAX_COUNT,
   MAX_MEDITATE_MIN,
@@ -32,11 +32,20 @@ const OFFERINGS: Record<string, { exp: number; buffMs?: number }> = {
   hoa_dang: { exp: 8 },
 };
 
+// Máy khách tự gom nhịp: 4 lạy một lần gửi (temple-app.tsx:205, tối đa 5 lạy một gói),
+// 30 hạt mỗi 4 giây (:525). Các mốc dưới thấp hơn nhịp thật của người tu nên không ăn
+// gian công đức của ai, nhưng một vòng lặp POST thì dính.
+const COOLDOWN_MS: Record<string, number> = { bow: 3_000, bead: 3_000, bell: 1_500, chant_done: 10_000 };
+
 practiceRouter.post('/practice', withUser(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
   const type = String(req.body?.type ?? '');
   const count = num(req.body?.count ?? 1, 1, MAX_COUNT, 'invalid_count');
+  // Nhịp chặn sau phần kiểm tra gói tin: một request sai quy cách bị 400 thì chưa
+  // "làm" gì, nên không được chiếm chỗ của nhịp kế tiếp.
+  const gap = Object.hasOwn(COOLDOWN_MS, type) ? COOLDOWN_MS[type] : undefined;
+  if (gap !== undefined) cooldown(`${user.id}:${type}`, gap);
   const extra: Record<string, number> = {};
   const practice: PracticeDelta = {};
   let exp = 0;
@@ -114,9 +123,13 @@ practiceRouter.post('/use', withUser(async (req, res, user) => {
 
 // BXH. Cộng từ temple_practice theo cửa sổ ngày, không lấy exp tích luỹ: người tu
 // từ tháng trước mà ngồi không thì không nên đứng trên người vừa lạy hôm nay.
+// now() chứ không phải CURRENT_DATE: CURRENT_DATE đã là một `date` nên cộng thêm 7
+// tiếng rồi cast ::date vẫn trả đúng ngày UTC cũ, tức là cửa sổ đi sau giờ Hà Nội
+// bảy tiếng trong khi bumpPractice() ghi ngày Hà Nội — người lạy lúc 6h sáng thấy
+// công đức của mình biến mất khỏi "Hôm nay".
 const SCOPES: Record<string, string> = {
-  day: `p.day = (CURRENT_DATE + INTERVAL '7 hours')::date`,
-  week: `p.day >= (CURRENT_DATE + INTERVAL '7 hours')::date - 6`,
+  day: `p.day = (now() + INTERVAL '7 hours')::date`,
+  week: `p.day >= (now() + INTERVAL '7 hours')::date - 6`,
   all: 'TRUE',
 };
 
@@ -196,27 +209,33 @@ async function lifetimeBeads(userId: string): Promise<number> {
 
 // Đồng hồ ngồi thiền là đồng hồ server. Máy khách chỉ báo "con bắt đầu" và "con xong";
 // nếu nó được gửi số phút thì một gói tin là mua được cả ngày đứng nhất BXH.
+//
+// Mỗi nhịp là một câu UPDATE chiếm chỗ: hai request cùng đọc rồi cùng ghi thì mỗi cú
+// meditate_end đều được cộng công đức.
 async function startMeditation(userId: string): Promise<string> {
-  const { rows } = await pool.query<{ meditate_start: Date | null }>(
-    'SELECT meditate_start FROM temple_profiles WHERE user_id = $1',
-    [userId],
-  );
-  if (rows[0]?.meditate_start) throw new ApiError(409, 'already_meditating', 'a sit is already running');
-  const { rows: updated } = await pool.query<{ meditate_start: Date }>(
-    "UPDATE temple_profiles SET meditate_start = now() WHERE user_id = $1 RETURNING meditate_start",
-    [userId],
-  );
-  return updated[0].meditate_start.toISOString();
-}
-
-async function endMeditation(userId: string): Promise<number> {
-  const { rows } = await pool.query<{ meditate_start: Date | null }>(
-    'SELECT meditate_start FROM temple_profiles WHERE user_id = $1',
+  const { rows } = await pool.query<{ meditate_start: Date }>(
+    'UPDATE temple_profiles SET meditate_start = now() WHERE user_id = $1 AND meditate_start IS NULL RETURNING meditate_start',
     [userId],
   );
   const start = rows[0]?.meditate_start;
+  if (!start) throw new ApiError(409, 'already_meditating', 'a sit is already running');
+  return start.toISOString();
+}
+
+async function endMeditation(userId: string): Promise<number> {
+  // RETURNING của UPDATE trả giá trị *sau khi ghi*, nên "SET ... = NULL RETURNING
+  // meditate_start" luôn trả NULL. Giờ ngồi phải lấy từ hàng con, và điều kiện khớp giờ
+  // cũ biến cú ghi thành nhịp chiếm chỗ: ai đến sau không update được hàng nào.
+  const { rows } = await pool.query<{ started: Date }>(
+    `UPDATE temple_profiles p
+        SET meditate_start = NULL
+       FROM (SELECT meditate_start AS started FROM temple_profiles WHERE user_id = $1 AND meditate_start IS NOT NULL) x
+      WHERE p.user_id = $1 AND p.meditate_start = x.started
+      RETURNING x.started AS started`,
+    [userId],
+  );
+  const start = rows[0]?.started;
   if (!start) throw new ApiError(400, 'not_meditating', 'no sit is running');
-  await pool.query('UPDATE temple_profiles SET meditate_start = NULL WHERE user_id = $1', [userId]);
   const raw = Math.round((Date.now() - start.getTime()) / 60_000);
   const today = await practiceRow(userId);
   const room = Math.max(0, MAX_MEDITATE_MIN_DAY - today.meditate_min);

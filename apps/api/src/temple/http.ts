@@ -68,3 +68,22 @@ export function idName(value: unknown, code = 'invalid_id'): string {
   if (!/^[0-9a-z_]{1,24}$/.test(t)) throw new ApiError(400, code, 'expected a lowercase id');
   return t;
 }
+
+// Nhịp tối thiểu giữa hai lần làm cùng một việc, tính theo từng người.
+//
+// Con số đã nằm ở máy chủ nhưng tần suất thì máy khách quyết, nên không chặn nhịp thì
+// một vòng lặp POST mua được cả bảng xếp hạng. Các mốc dưới (practice.ts, social.ts)
+// đều đặt thấp hơn nhịp máy khách thật gửi — chặn kẻ spam mà không ăn gian công đức
+// của người tu thật.
+const lastAct = new Map<string, number>();
+
+export function cooldown(key: string, ms: number): void {
+  const now = Date.now();
+  const at = lastAct.get(key);
+  if (at !== undefined && now - at < ms) {
+    throw new ApiError(429, 'too_fast', `slow down: next in ${Math.ceil((ms - (now - at)) / 1000)}s`);
+  }
+  // Cùng cách attempts của auth-routes tự dọn: một map theo user sẽ lớn dần mãi.
+  if (lastAct.size > 10_000) lastAct.clear();
+  lastAct.set(key, now);
+}

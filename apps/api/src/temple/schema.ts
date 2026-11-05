@@ -12,9 +12,14 @@ import { pool } from '../db.ts';
 let tablesReady: Promise<void> | undefined;
 
 export function ensureTempleTables(): Promise<void> {
+  // Một lần DDL fail (DB chập chờn đúng lúc khởi động) không được khóa cả chùa: promise
+  // reject mà được giữ lại thì mọi request sau đó chết theo, tới khi restart process.
   tablesReady ??= (async () => {
     await ensureAccountTables();
     await pool.query(await readFile(join(import.meta.dirname, 'schema.sql'), 'utf8'));
-  })();
+  })().catch((error: unknown) => {
+    tablesReady = undefined;
+    throw error;
+  });
   return tablesReady;
 }

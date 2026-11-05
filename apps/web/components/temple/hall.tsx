@@ -35,7 +35,8 @@ export function RankSheet({ s, onClose }: { s: Store; onClose: () => void }) {
     setBoard(null);
     void get<Board>(`/leaderboard?scope=${scope}`)
       .then(setBoard)
-      .catch((e: Error) => s.toast(e.message));  }, [scope]);
+      .catch((e: Error) => s.toast(e.message));
+  }, [scope]);
 
   const max = Math.max(1, ...(board?.sects.map((x) => x.score) ?? [1]));
   const medal = (i: number) => (i <= 3 ? <i className={`medal m${i}`}>{i}</i> : <>{i}</>);
@@ -156,7 +157,8 @@ export function GardenSheet({ s, onClose }: { s: Store; onClose: () => void }) {
       s.engine?.gardenTrees(g.trees);
     } catch (e) {
       s.toast((e as Error).message);
-    }  }, []);
+    }
+  }, []);
 
   useEffect(() => {
     void load();
@@ -283,7 +285,8 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
       s.engine?.stele(st.rows);
     } catch (e) {
       s.toast((e as Error).message);
-    }  }, []);
+    }
+  }, []);
 
   useEffect(() => {
     void load();

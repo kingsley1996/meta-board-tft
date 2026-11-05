@@ -248,6 +248,7 @@ export function MeditateView({ s }: { s: Store }) {
   const [tick, setTick] = useState(0);
   const [done, setDone] = useState<{ minutes: number; gained: number; complete: boolean } | null>(null);
   const target = useRef(min);
+  const stopping = useRef(false);
 
   // Trang được tải lại giữa lúc đang ngồi thiền thì đồng hồ phải chạy tiếp từ giờ máy
   // chủ ghi, không phải từ lúc component mount.
@@ -256,7 +257,8 @@ export function MeditateView({ s }: { s: Store }) {
     if (iso) {
       setStart(Date.parse(iso));
       target.current = min;
-    }  }, []);
+    }
+  }, []);
 
   useEffect(() => {
     if (start === null || done) return;
@@ -268,11 +270,16 @@ export function MeditateView({ s }: { s: Store }) {
   void tick;
 
   const stop = async (complete: boolean) => {
+    // Một nhịp xả chỉ được đi một lần: đồng hồ 250ms và effect dưới đây cùng gọi stop()
+    // khi chạm mốc, mà setStart(null) chỉ có tác dụng sau một lượt render.
+    if (stopping.current) return;
+    stopping.current = true;
     const en = s.engine;
     Sound.bigBell();
     en?.setMeditating(false);
     const r = await s.practice({ type: 'meditate_end' }, { silent: true });
     const minutes = Number(r?.extra?.minutes ?? 0);
+    stopping.current = false;
     setStart(null);
     if (minutes > 0) setDone({ minutes, gained: r?.gained ?? 0, complete });
     else s.toast('Thiền chưa đủ 1 phút nên chưa ghi nhận công đức');
@@ -280,7 +287,8 @@ export function MeditateView({ s }: { s: Store }) {
 
   useEffect(() => {
     if (start === null || done) return;
-    if ((target.current && secs >= target.current * 60) || secs >= 3600) void stop(true);  }, [secs, start, done]);
+    if ((target.current && secs >= target.current * 60) || secs >= 3600) void stop(true);
+  }, [secs, start, done]);
 
   const begin = async () => {
     if (!s.engine?.walkToSeat()) {
@@ -390,7 +398,8 @@ export function WheelView({ s }: { s: Store }) {
   useEffect(() => {
     void get<WheelInfo>('/draws/wheel')
       .then(setInfo)
-      .catch((e: Error) => s.toast(e.message));  }, []);
+      .catch((e: Error) => s.toast(e.message));
+  }, []);
 
   if (!info) return <section className="wheel-view" />;
   const step = 360 / info.segs.length;

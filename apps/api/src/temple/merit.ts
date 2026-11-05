@@ -231,7 +231,7 @@ export async function practiceLifetime(userId: string): Promise<PracticeDelta> {
 export async function practiceJournal(userId: string, days = 28): Promise<{ day: string; exp: number }[]> {
   const { rows } = await pool.query<{ day: string; exp: number }>(
     `SELECT day, exp FROM temple_practice
-      WHERE user_id = $1 AND day >= (CURRENT_DATE + INTERVAL '7 hours')::date - $2::int
+      WHERE user_id = $1 AND day >= (now() + INTERVAL '7 hours')::date - $2::int
       ORDER BY day DESC LIMIT $3`,
     [userId, days, days],
   );

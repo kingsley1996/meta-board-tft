@@ -23,6 +23,8 @@ type Ann = { id: number; text: string; effect: string };
 type CtxAct = 'talk' | 'tell' | 'door' | 'ride' | 'unride' | 'stand' | 'sit' | '';
 
 const ROUND_NAMES = ['thứ nhất', 'thứ hai', 'thứ ba', 'thứ tư', 'thứ năm', 'thứ sáu', 'thứ bảy', 'thứ tám', 'thứ chín', 'thứ mười'];
+// Vòng thứ 11 mà modulo thì nhãn quay về "thứ nhất" — người chơi đếm chuỗi thấy bị dối.
+const roundName = (n: number) => ROUND_NAMES[n] ?? `thứ ${n + 1}`;
 
 const DEFAULT_GUEST = 'Phật tử';
 
@@ -68,7 +70,8 @@ export function TempleApp({ lang }: { lang: string }) {
   const [guide, setGuide] = useState('Kéo trái để đi · Vuốt phải để xoay · Chạm bồ đoàn để ngồi');
   const [guideFade, setGuideFade] = useState(true);
   const [levelQueue, setLevelQueue] = useState<LevelUp[]>([]);
-  const [fullInfo, setFullInfo] = useState<{ count: number; cap: number } | null>(null);
+  // Boot fail thì màn chờ phải nói được lý do và cho bấm lại, chứ không đứng đó mãi.
+  const [bootError, setBootError] = useState('');
   const [online, setOnline] = useState(1);
   const [ctxUi, setCtxUi] = useState<{ show: boolean; act: CtxAct; label: string; out: boolean; outside: boolean }>({ show: false, act: '', label: 'Ngồi xuống', out: false, outside: false });
   const [, setFsTick] = useState(0);
@@ -182,10 +185,11 @@ export function TempleApp({ lang }: { lang: string }) {
   const sendBows = async () => {
     if (sendingBows.current || !pendingBows.current) return;
     const n = Math.min(5, pendingBows.current);
-    pendingBows.current -= n;
     sendingBows.current = true;
     try {
-      await practice({ type: 'bow', count: n }, { silent: true });
+      // Chỉ trừ sổ khi máy chủ ghi nhận: nhịp 429 hay rớt mạng mà trừ trước là số lạy
+      // vừa lạy biến mất không dấu vết, nhịp 1s dưới đây sẽ tự gửi lại phần còn thiếu.
+      if (await practice({ type: 'bow', count: n }, { silent: true })) pendingBows.current -= n;
     } finally {
       sendingBows.current = false;
     }
@@ -202,18 +206,20 @@ export function TempleApp({ lang }: { lang: string }) {
     if (pendingBows.current >= 4) void sendBows();
   };
 
+  // Nhãn vòng hạt: rounds chỉ tăng khi một chuỗi 108 đi tới đích, nên số vòng đang
+  // đếm chính là floor(hạt đã lần / 108) — cộng thêm rounds nữa là đếm đôi.
+  const beadRoundLabel = () => {
+    const st = stateRef.current;
+    const round = Math.floor((st?.lifetime.beads ?? 0) / 108);
+    return `Vòng ${roundName(round)} · tổng ${fmt(st?.lifetime.rounds ?? 0)} chuỗi`;
+  };
+
   const tapBead = () => {
     beadShown.current += 1;
     pendingBeads.current += 1;
     Sound.click();
     if (beadShown.current % 108 === 0) Sound.bell(Sound.now + 0.05, 220, 0.3, 6);
-    const st = stateRef.current;
-    const round = Math.floor((st?.lifetime.beads ?? 0) / 108) + (st?.lifetime.rounds ?? 0);
-    setBeadUi({
-      num: beadShown.current % 108,
-      round: `Vòng ${ROUND_NAMES[round] || `thứ ${round + 1}`} · tổng ${fmt(st?.lifetime.rounds ?? 0)} chuỗi`,
-      gain: '',
-    });
+    setBeadUi({ num: beadShown.current % 108, round: beadRoundLabel(), gain: '' });
   };
 
   const liftBeads = () => {
@@ -229,7 +235,7 @@ export function TempleApp({ lang }: { lang: string }) {
     engRef.current?.openBeads(stateRef.current?.equipped.beads);
     beadShown.current = 0;
     beadLast.current = Date.now();
-    setBeadUi({ num: 0, round: `Vòng ${ROUND_NAMES[Math.floor((stateRef.current?.lifetime.beads ?? 0) / 108)] || 'thứ nhất'} · tổng ${fmt(stateRef.current?.lifetime.rounds ?? 0)} chuỗi`, gain: '' });
+    setBeadUi({ num: 0, round: beadRoundLabel(), gain: '' });
     engRef.current?.setMeditating(true);
     Sound.setActive(false);
     liftBeads();
@@ -334,7 +340,6 @@ export function TempleApp({ lang }: { lang: string }) {
         onJoined: (pid) => {
           if (pid) meRef.current = pid;
         },
-        onFull: setFullInfo,
         onEvent: (msg) => {
           if (msg.t === 'emote') {
             engRef.current?.emote(Number(msg.id), String(msg.e ?? ''));
@@ -376,6 +381,48 @@ export function TempleApp({ lang }: { lang: string }) {
   };
 
   // Nối phòng + dựng engine: một lần trong đời trang, không phụ thuộc render.
+  //
+  // Tách phần "xin phiên → an vị → nối phòng" khỏi useEffect để màn chờ gọi lại được
+  // đúng đường đó khi boot fail, thay vì bắt người chơi tải cả trang.
+  const enterHall = async (session: Promise<GuestReply | null>) => {
+    const engine = engRef.current;
+    if (!engine) return;
+    try {
+      setBootError('');
+      const g = await session;
+      if (!g) throw new Error('Chùa đang bận, thử lại sau nhé');
+      guestRef.current = g.guest;
+      meRef.current = g.profile.playerId;
+      setLoaderPct(4);
+      // /state nuôi HUD (số hôm nay, ví, túi đồ) chứ không nuôi avatar, nên để nó chạy
+      // song song với nhịp dựng cảnh thay vì đứng chắn trước cổng chùa.
+      const hud = get<{ state: TempleState; guest: boolean; player_id: number }>('/state');
+      await engine.enter({
+        id: g.profile.playerId,
+        name: g.profile.name || DEFAULT_GUEST,
+        sect: g.profile.sect,
+        title: g.profile.title,
+        honor: g.profile.honor,
+        level: g.profile.level,
+        appearance: g.profile.appearance,
+        equipped: g.profile.equipped,
+      });
+      // Phòng đi trước bảng số: /state fail thì người chơi vẫn thấy đồng tu quanh mình,
+      // và nhịp nối phòng đã tự gọi refresh() để lấy lại số.
+      startRoom();
+      stateRef.current = (await hud).state;
+      render();
+      if (stateRef.current.today.visits === 0) void practice({ type: 'visit' }, { silent: true });
+      void get<{ rows: Ann[] }>('/announcements')
+        .then((a) => setAnns(a.rows))
+        .catch(() => null);
+      setWheelCan(false);
+    } catch (e) {
+      setLoaderPct(0);
+      setBootError((e as Error).message || 'Chùa đang bận, thử lại sau nhé');
+    }
+  };
+
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
@@ -422,43 +469,22 @@ export function TempleApp({ lang }: { lang: string }) {
       engine.attach(sceneRef.current!, joyRef.current!, beadsCanvasRef.current!);
     } catch {
       // Thăm dò đã qua nhưng trình duyệt vẫn từ chối context (hết suất, GPU process chết).
+      engRef.current = null;
       setNoGl(true);
       return;
     }
+    void enterHall(session);
 
-    void (async () => {
-      try {
-        const g = await session;
-        if (!g) throw new Error('Chùa đang bận, thử lại sau nhé');
-        guestRef.current = g.guest;
-        meRef.current = g.profile.playerId;
-        setLoaderPct(4);
-        // /state nuôi HUD (số hôm nay, ví, túi đồ) chứ không nuôi avatar, nên để nó chạy
-        // song song với nhịp dựng cảnh thay vì đứng chắn trước cổng chùa.
-        const hud = get<{ state: TempleState; guest: boolean; player_id: number }>('/state');
-        await engine.enter({
-          id: g.profile.playerId,
-          name: g.profile.name || DEFAULT_GUEST,
-          sect: g.profile.sect,
-          title: g.profile.title,
-          honor: g.profile.honor,
-          level: g.profile.level,
-          appearance: g.profile.appearance,
-          equipped: g.profile.equipped,
-        });
-        stateRef.current = (await hud).state;
-        render();
-        if (stateRef.current.today.visits === 0) void practice({ type: 'visit' }, { silent: true });
-        startRoom();
-        void get<{ rows: Ann[] }>('/announcements')
-          .then((a) => setAnns(a.rows))
-          .catch(() => null);
-        setWheelCan(false);
-      } catch (e) {
-        setLoaderStep((e as Error).message || 'Chùa đang bận, thử lại sau nhé');
-        setLoaderPct(0);
-      }
-    })();
+    return () => {
+      // Rời trang mà không đóng thì phòng vẫn nối, đồng hồ vẫn đẩy vị trí và máy còn
+      // render cả cảnh chùa của lần vào trước chồng lên lần vào sau.
+      roomRef.current?.close();
+      roomRef.current = null;
+      engRef.current?.dispose();
+      engRef.current = null;
+      // Cho phép dựng lại khi trang được mở lại (React dựng effect hai lần ở dev).
+      startedRef.current = false;
+    };
   }, []);
 
   const [anns, setAnns] = useState<Ann[]>([]);
@@ -500,10 +526,11 @@ export function TempleApp({ lang }: { lang: string }) {
       if (pendingBeads.current && viewRef.current === 'beads' && Date.now() - beadLast.current >= 4000) {
         beadLast.current = Date.now();
         const n = Math.min(30, pendingBeads.current);
-        pendingBeads.current -= n;
         void (async () => {
           const r = await practice({ type: 'bead', count: n }, { silent: true });
           if (!r) return;
+          // Hạt cũng chỉ được trừ sổ sau khi chùa ghi nhận, như số lạy ở sendBows.
+          pendingBeads.current -= n;
           setBeadUi((b) => ({ ...b, gain: `+${fmt(r.gained ?? 0)} công đức` }));
           if (r.extra?.rounds) {
             petalShower(26);
@@ -623,6 +650,18 @@ export function TempleApp({ lang }: { lang: string }) {
                   <code>chrome://settings/system</code> rồi mở lại trang.
                 </small>
                 <button type="button" className="btn gold" onClick={() => location.reload()}>
+                  Thử lại
+                </button>
+              </>
+            ) : bootError ? (
+              <>
+                <h2>Chưa vào được chùa</h2>
+                <small>{bootError}</small>
+                <button
+                  type="button"
+                  className="btn gold"
+                  onClick={() => void enterHall(post<GuestReply>('/guest').catch(() => null))}
+                >
                   Thử lại
                 </button>
               </>
@@ -870,21 +909,6 @@ export function TempleApp({ lang }: { lang: string }) {
             setQueDone(true);
           }}
         />
-      ) : null}
-
-      {fullInfo ? (
-        <div className="full-screen">
-          <div className="full-card">
-            <div className="full-lotus">
-              <Icon name="sen" />
-            </div>
-            <h3>Chùa đã đủ người</h3>
-            <p>Chánh điện đang có {fullInfo.count}/{fullInfo.cap} đạo hữu. Chờ một slot trống rồi vào lại nhé.</p>
-            <button className="btn gold" onClick={() => window.location.reload()}>
-              Thử lại ngay
-            </button>
-          </div>
-        </div>
       ) : null}
 
       {levelQueue.length ? (

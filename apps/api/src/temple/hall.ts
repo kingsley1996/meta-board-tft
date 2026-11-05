@@ -85,24 +85,26 @@ hallRouter.post('/plants/harvest', withUser(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
   const id = num(req.body?.id, 1, Number.MAX_SAFE_INTEGER, 'invalid_plant_id');
-  const { rows } = await pool.query<{ per_pick: number; ripe: boolean; next_pick_at: Date | null }>(
-    'SELECT per_pick, ripe, next_pick_at FROM temple_plants WHERE id = $1',
-    [id],
-  );
-  const plant = rows[0];
-  if (!plant) throw new ApiError(404, 'plant_not_found', 'no such plant');
-  if (!plant.ripe || (plant.next_pick_at && plant.next_pick_at > new Date())) {
-    throw new ApiError(409, 'not_ripe', 'this tree is still growing');
-  }
-  await pool.query(
-    "UPDATE temple_plants SET ripe = false, fruits = fruits + 1, next_pick_at = now() + ($2::int * INTERVAL '1 millisecond') WHERE id = $1",
+  // Một câu UPDATE chiếm cây: hai người bấm cùng lúc mà đọc rồi ghi thì cả hai đều thấy
+  // "chín" và đều được cộng quả. Điều kiện nằm trong WHERE nên người đến sau trả 0 hàng.
+  const { rows } = await pool.query<{ per_pick: number }>(
+    `UPDATE temple_plants
+        SET ripe = false, fruits = fruits + 1, next_pick_at = now() + ($2::int * INTERVAL '1 millisecond')
+      WHERE id = $1 AND ripe AND (next_pick_at IS NULL OR next_pick_at <= now())
+      RETURNING per_pick`,
     [id, PICK_INTERVAL_MS],
   );
+  const perPick = rows[0]?.per_pick;
+  if (perPick === undefined) {
+    const found = await pool.query('SELECT 1 FROM temple_plants WHERE id = $1', [id]);
+    if (!found.rowCount) throw new ApiError(404, 'plant_not_found', 'no such plant');
+    throw new ApiError(409, 'not_ripe', 'this tree is still growing');
+  }
   const { rows: updated } = await pool.query<{ fruit: number }>(
     'UPDATE temple_profiles SET fruit = fruit + $2, updated_at = now() WHERE user_id = $1 RETURNING fruit',
-    [user.id, plant.per_pick],
+    [user.id, perPick],
   );
-  res.json({ state: await templeState(user.id), got: plant.per_pick, fruit: updated[0]?.fruit ?? 0 });
+  res.json({ state: await templeState(user.id), got: perPick, fruit: updated[0]?.fruit ?? 0 });
 }));
 
 // Đổi quả lấy Ngọc — cầu nối duy nhất giữa vườn và ví, tỉ lệ 1:1 như bản gốc

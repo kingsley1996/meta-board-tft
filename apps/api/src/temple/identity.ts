@@ -314,10 +314,17 @@ export async function updateTempleProfile(userId: string, patch: ProfilePatch): 
     values.push(value);
     sets.push(`${column} = $${values.length}`);
   };
+  // jsonb || gộp key chứ không thay cả object: máy khách chỉ đổi mỗi kiểu tóc mà ghi đè
+  // nguyên tủ đồ thì người đó mất ấn, mất thú cưng ngay trên lưng avatar. null vẫn là
+  // một giá trị được giữ (tháo đồ), chỉ key không gửi mới là key giữ nguyên.
+  const merge = (column: string, value: unknown) => {
+    values.push(value);
+    sets.push(`${column} = ${column} || $${values.length}::jsonb`);
+  };
   if (patch.name !== undefined) add('name', patch.name);
   if (patch.sect !== undefined) add('sect', patch.sect);
-  if (patch.appearance !== undefined) add('appearance', patch.appearance);
-  if (patch.equipped !== undefined) add('equipped', patch.equipped);
+  if (patch.appearance !== undefined) merge('appearance', patch.appearance);
+  if (patch.equipped !== undefined) merge('equipped', patch.equipped);
   if (!sets.length) return templeProfile(userId);
 
   sets.push('updated_at = now()');

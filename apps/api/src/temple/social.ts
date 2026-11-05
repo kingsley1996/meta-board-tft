@@ -6,7 +6,7 @@
 import { Router } from 'express';
 import { pool } from '../db.ts';
 import { ensureTempleProfile } from './identity.ts';
-import { ApiError, playerId, text, withUser } from './http.ts';
+import { ApiError, cooldown, num, playerId, text, withUser } from './http.ts';
 import { addMerit } from './merit.ts';
 import { ensureTempleTables } from './schema.ts';
 import { playerByPlayerId, templeState, toPublic, toPublicOf, type PublicPlayer, type PublicRow } from './state.ts';
@@ -120,10 +120,14 @@ socialRouter.post('/friends', withUser(async (req, res, user) => {
 
 // Hộp thư: một hàng cho mỗi tin, đọc theo chuỗi giữa hai người. Không có hàng
 // "thread" riêng vì trạng thái đã đọc nằm trên từng tin.
+//
+// MAX(at) để nguyên kiểu timestamp rồi đổi sang ISO ở đây: ::text của Postgres ra
+// "2026-11-05 10:10:21.508+00" (dấu cách, không có T), và new Date(...) của máy khách
+// đọc chuỗi đó theo giờ máy — ngày cuối cùng của cuộc hội thoại lệch mất một buổi.
 socialRouter.get('/dms', withUser(async (req, res, user) => {
   await ensureTempleTables();
-  const { rows } = await pool.query<{ peer: string; last: string; unseen: string }>(
-    `SELECT peer, MAX(at)::text AS last, COUNT(*) FILTER (WHERE NOT mine AND unseen)::text AS unseen
+  const { rows } = await pool.query<{ peer: string; last: Date; unseen: string }>(
+    `SELECT peer, MAX(at) AS last, COUNT(*) FILTER (WHERE NOT mine AND unseen)::text AS unseen
        FROM (
          SELECT CASE WHEN from_user = $1 THEN to_user ELSE from_user END AS peer,
                 created_at AS at,
@@ -141,7 +145,7 @@ socialRouter.get('/dms', withUser(async (req, res, user) => {
     threads: rows
       .map((r) => {
         const player = all.get(r.peer);
-        return player ? { player, last: r.last, unseen: Number(r.unseen) } : null;
+        return player ? { player, last: r.last.toISOString(), unseen: Number(r.unseen) } : null;
       })
       .filter((t): t is { player: PublicPlayer; last: string; unseen: number } => !!t),
   });
@@ -269,8 +273,9 @@ socialRouter.post('/greetings', withUser(async (req, res, user) => {
   const kind = String(req.body?.kind ?? 'chuc');
   if (kind !== 'huong' && kind !== 'chuc') throw new ApiError(400, 'invalid_kind', 'kind must be huong or chuc');
   const wish = req.body?.text ? text(req.body.text, 120, 'invalid_wish') : '';
-  const gift = Number(req.body?.gift_sen ?? 0);
-  if (gift < 0 || gift > 10_000) throw new ApiError(400, 'invalid_gift', 'gift Sen must be between 0 and 10000');
+  const gift = num(req.body?.gift_sen ?? 0, 0, 10_000, 'invalid_gift');
+  // Một lời chúc = 10 công đức, nên nhịp cũng phải do chùa giữ như các nhịp hành trì.
+  cooldown(`${user.id}:greeting`, 3_000);
   if (gift) {
     const spent = await pool.query('UPDATE temple_profiles SET sen = sen - $2 WHERE user_id = $1 AND sen >= $2 RETURNING sen', [
       user.id,

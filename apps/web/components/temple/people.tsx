@@ -10,7 +10,7 @@ import type { Gain, PublicPlayer } from './api';
 import { get, post } from './api';
 import { ITEMS, Sound, TEMPLE, sectOf } from './engine';
 import { ABBOT, HERMIT_LESSONS, WISHES, guideOf, storyOf, tellersOf } from './stories';
-import { Icon, Sheet, ago, fmt, type Notice, type Store } from './ui';
+import { Icon, Sheet, ago, esc, fmt, type Notice, type Store } from './ui';
 
 export type Group = {
   id: number;
@@ -71,7 +71,7 @@ export function PlayerCard({ s, id, onClose, onChat }: { s: Store; id: number; o
     try {
       const r = await post<{ accepted?: boolean }>('/friends', { id, action: 'add' });
       Sound.chime();
-      s.toast(r.accepted ? `<svg class="i"><use href="#i-users"/></svg> Hai bạn đã thành đồng tu` : `<svg class="i"><use href="#i-users"/></svg> Đã gửi lời mời kết bạn tới <b>${p.name}</b>`);
+      s.toast(r.accepted ? `<svg class="i"><use href="#i-users"/></svg> Hai bạn đã thành đồng tu` : `<svg class="i"><use href="#i-users"/></svg> Đã gửi lời mời kết bạn tới <b>${esc(p.name)}</b>`);
       onClose();
     } catch (e) {
       s.toast((e as Error).message);
@@ -85,7 +85,7 @@ export function PlayerCard({ s, id, onClose, onChat }: { s: Store; id: number; o
       Sound.chime();
       // Emote là của chính mình: bản gốc không múa hộ người khác.
       s.engine?.emote(s.me, kind === 'huong' ? 'sen' : 'pray');
-      s.toast(kind === 'huong' ? `<svg class="i"><use href="#i-incense"/></svg> Đã tặng nén hương cho <b>${p.name}</b>` : `<svg class="i"><use href="#i-pray"/></svg> Đã gửi lời chúc tới <b>${p.name}</b>`);
+      s.toast(kind === 'huong' ? `<svg class="i"><use href="#i-incense"/></svg> Đã tặng nén hương cho <b>${esc(p.name)}</b>` : `<svg class="i"><use href="#i-pray"/></svg> Đã gửi lời chúc tới <b>${esc(p.name)}</b>`);
       onClose();
     } catch (e) {
       s.toast((e as Error).message);
@@ -233,7 +233,7 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
       teller.name,
       `${teller.role} · ${TEMPLE.name}`,
       tale === null
-        ? say(`<p>Chào ${s.state?.name ?? 'đạo hữu'}! Tôi là ${teller.name}, ${teller.role.toLowerCase()} ở đây. Bạn ghé ${TEMPLE.name} lần này, có muốn nghe tôi kể vài chuyện xưa không?</p>`, menu)
+        ? say(`<p>Chào ${esc(s.state?.name ?? 'đạo hữu')}! Tôi là ${teller.name}, ${teller.role.toLowerCase()} ở đây. Bạn ghé ${TEMPLE.name} lần này, có muốn nghe tôi kể vài chuyện xưa không?</p>`, menu)
         : say(
             `<h4 class="tale-title">${teller.tales[tale].title}</h4><p>${teller.tales[tale].text}</p>`,
             <Btn

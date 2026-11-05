@@ -134,3 +134,22 @@ test('loading trôi và màn chờ mờ dần', async ({ browser }) => {
   // màn chờ đã qua thì không còn lý do ở lại DOM.
   expect(page.locator('#loader .bar i')).toHaveCount(0);
 });
+
+// Boot fail (mạng khựng đúng lúc xin phiên) thì màn chờ phải nói lý do và cho bấm lại
+// tại chỗ, thay vì đứng mãi ở "Đang vào chùa" hoặc bắt tải cả trang.
+test('vào chùa thất bại thì màn chờ có nút thử lại', async ({ browser }) => {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  let blocked = true;
+  await page.route('**/api/temple/guest', async (route) => (blocked ? route.abort('failed') : route.fallback()));
+
+  await page.goto('/vi/temple');
+  await expect(page.getByRole('heading', { name: 'Chưa vào được chùa' })).toBeVisible({ timeout: 30_000 });
+
+  blocked = false;
+  await page.getByRole('button', { name: 'Thử lại' }).click();
+  await page.waitForSelector('#hud', { timeout: HUD_TIMEOUT });
+  // Phòng phải nối thật chứ không riêng cảnh 3D: con số có thể thừa vì người của các
+  // test trước còn đang heartbeat, nhưng bằng 0 nghĩa là máy chủ chưa cho vào phòng.
+  await expect(page.locator('#tOnline')).toHaveText(/[1-9]\d* đang online/, { timeout: 20_000 });
+});

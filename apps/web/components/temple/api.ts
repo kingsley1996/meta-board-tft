@@ -88,6 +88,7 @@ export class TempleApiError extends Error {
 // Câu tiếng Anh của máy chủ dành cho logs; người chơi chỉ thấy tiếng Việt.
 const MESSAGES: Record<string, string> = {
   unauthenticated: 'Phiên đã hết hạn, vào lại chùa nhé',
+  too_fast: 'Chậm một nhịp nhé, chùa vừa ghi nhận bạn rồi',
   invalid_count: 'Số lần không hợp lệ',
   invalid_player_id: 'Không tìm thấy người này',
   no_such_player: 'Người này không còn trong chùa',

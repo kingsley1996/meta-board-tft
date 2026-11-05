@@ -83,7 +83,12 @@ export function ensureAccountTables(): Promise<void> {
       ALTER TABLE assistant_conversations ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES users(id) ON DELETE SET NULL
     `);
     await pool.query('CREATE INDEX IF NOT EXISTS assistant_conversations_user_id_idx ON assistant_conversations (user_id, updated_at DESC)');
-  })();
+  })().catch((error: unknown) => {
+    // ensureTempleTables chờ lời hứa này, nên cache một lần reject là khóa luôn chùa
+    // cho tới khi restart: lỗi DDL phải được thử lại ở request sau.
+    tablesReady = undefined;
+    throw error;
+  });
   return tablesReady;
 }
 
