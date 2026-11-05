@@ -897,7 +897,13 @@ export function TempleApp({ lang }: { lang: string }) {
       {sheet === 'community' ? <GroupSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'friends' ? <FriendsSheet s={store} notice={notice} onClose={() => setSheet(null)} onChat={(id) => { setSheet(null); setChatId(id); }} /> : null}
 
-      {cardId !== null ? <PlayerCard s={store} id={cardId} onClose={() => setCardId(null)} onChat={(id) => { setCardId(null); setChatId(id); }} /> : null}
+      {/* Thẻ phải nằm trong khung .modal-card: toàn bộ CSS của nó (rộng 420px, nền phủ,
+          lời chúc một hàng) gắn với selector .modal-card:has(.pcard), mount trần là vỡ. */}
+      {cardId !== null ? (
+        <Modal onClose={() => setCardId(null)}>
+          <PlayerCard s={store} id={cardId} onClose={() => setCardId(null)} onChat={(id) => { setCardId(null); setChatId(id); }} />
+        </Modal>
+      ) : null}
       {chatId !== null ? <ChatModal s={store} id={chatId} notice={notice} onClose={() => setChatId(null)} /> : null}
       {npc ? <NpcModal s={store} kind={npc.kind} index={npc.index} onClose={() => setNpc(null)} /> : null}
 

@@ -153,3 +153,33 @@ test('vào chùa thất bại thì màn chờ có nút thử lại', async ({ br
   // test trước còn đang heartbeat, nhưng bằng 0 nghĩa là máy chủ chưa cho vào phòng.
   await expect(page.locator('#tOnline')).toHaveText(/[1-9]\d* đang online/, { timeout: 20_000 });
 });
+
+// Thẻ một đạo hữu phải nằm trong khung .modal-card: mọi rule của nó (rộng 420px, nền
+// phủ, lời chúc một hàng) gắn với selector .modal-card:has(.pcard), nên mount trần là
+// card tràn khắp màn hình như một bản không có CSS.
+test('thẻ người chơi mở trong khung modal của bản gốc', async ({ browser }) => {
+  const a = await openTemple(await browser.newContext());
+  const b = await openTemple(await browser.newContext());
+  const idOf = (page: Page) => page.evaluate(async () => (await (await fetch('/api/temple/me')).json()).profile.playerId as number);
+  const call = (page: Page, action: string, id: number) =>
+    page.evaluate(
+      async ([ac, i]) => (await fetch('/api/temple/friends', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: i, action: ac }) })).status,
+      [action, id] as [string, number],
+    );
+  const [ida, idb] = [await idOf(a), await idOf(b)];
+  expect(await call(a, 'add', idb)).toBe(200);
+  expect(await call(b, 'accept', ida)).toBe(200);
+
+  await a.locator('.side-menu button[title="Đồng tu"]').click();
+  await a.locator('.friend-row').first().click();
+
+  const frame = a.locator('.modal:has(.pcard) .modal-card');
+  await expect(frame).toBeVisible();
+  const box = await frame.boundingBox();
+  expect(box?.width).toBeLessThanOrEqual(460);
+  // Nền phủ phải có: không thì người chơi bấm xuyên xuống chánh điện.
+  expect(await a.locator('.modal:has(.pcard)').evaluate((n) => getComputedStyle(n).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
+
+  await a.locator('.pcard-x').click();
+  await expect(a.locator('.modal:has(.pcard)')).toHaveCount(0);
+});
