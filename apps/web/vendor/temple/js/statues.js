@@ -1341,6 +1341,242 @@ function buildReclining(g, fig, mats, matName) {
   return g;
 }
 
+// Pengu cầm xẻng vàng — linh vật TFT thay tượng Phật. Dựng bằng khối cơ bản
+// (không qua SDF) nên đổi dáng chỉ tốn một lần tải, không cần nướng lưới.
+// Tượng vàng nguyên khối: không còn lông than / bụng kem / mỏ cam / ngọc lam, chỉ khác nhau ở ĐỘ BÓNG.
+// Để metalness cao + roughness thấp toàn bộ thì dưới đèn chùa vàng loà ra trắng, mất silhouette.
+function buildPengu() {
+  const g = new THREE.Group();
+  const gm = (o) => new THREE.MeshPhysicalMaterial({ envMapIntensity: 2.4, emissive: '#2a1a06', emissiveIntensity: 0.22, ...o });
+  const M = {
+    suit: gm({ color: '#c99328', metalness: 0.6, roughness: 0.46, clearcoat: 0.25, clearcoatRoughness: 0.55 }),
+    belly: gm({ color: '#c99328', metalness: 0.6, roughness: 0.3, clearcoat: 0.5, clearcoatRoughness: 0.25 }),
+    gold: gm({ color: '#d9a432', metalness: 0.72, roughness: 0.3, clearcoat: 0.5, clearcoatRoughness: 0.2 }),
+    goldDeep: gm({ color: '#a8762a', metalness: 0.9, roughness: 0.42, envMapIntensity: 2.2 }),
+    polish: gm({ color: '#e8b23c', metalness: 0.85, roughness: 0.24, clearcoat: 0.5, clearcoatRoughness: 0.15, envMapIntensity: 2.6 }),
+    beak: gm({ color: '#d29c2c', metalness: 0.66, roughness: 0.38 }),
+    mouth: gm({ color: '#5c3d10', metalness: 0.45, roughness: 0.68, envMapIntensity: 2 }),
+    tongue: gm({ color: '#b3831f', metalness: 0.68, roughness: 0.34 }),
+    eye: gm({ color: '#6b4a13', metalness: 0.48, roughness: 0.55, clearcoat: 0.6, envMapIntensity: 2 }),
+    spark: gm({ color: '#f7e3ab', metalness: 0.8, roughness: 0.2, envMapIntensity: 2.6 }),
+    gem: gm({ color: '#a8761f', metalness: 0.72, roughness: 0.3 }),
+    cape: gm({ color: '#c08c26', metalness: 0.62, roughness: 0.44 }),
+  };
+  const sphere = new THREE.SphereGeometry(1, 30, 22);
+  const gemGeo = new THREE.OctahedronGeometry(1, 0);
+  gemGeo.computeVertexNormals();
+
+  const add = (geo, mat, x, y, z, sx = 1, sy = sx, sz = sx) => {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(x, y, z);
+    m.scale.set(sx, sy, sz);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    m.onBeforeRender = envHook(mat);
+    g.add(m);
+    return m;
+  };
+
+  // tiết diện thân: lathe theo đường cong bán kính, mũi ở +z nên mảng áp phải canh phi = 0
+  const bodyCurve = new THREE.CatmullRomCurve3(
+    [[0.0001, 0], [0.3, 0.02], [0.52, 0.11], [0.68, 0.26], [0.82, 0.48], [0.91, 0.74],
+     [0.93, 0.98], [0.88, 1.26], [0.78, 1.5], [0.68, 1.66], [0.65, 1.76], [0.72, 1.92],
+     [0.8, 2.08], [0.79, 2.26], [0.69, 2.44], [0.52, 2.56], [0.28, 2.63], [0.0001, 2.66]]
+      .map(([x, y]) => new THREE.Vector3(x, y, 0)),
+    false, 'catmullrom', 0.5,
+  );
+  const profile = (n) => bodyCurve.getPoints(n).map((p) => new THREE.Vector2(max(0.0001, p.x), max(0, p.y)));
+  // Mảng áp sát mặt thân: lathe một cung, phình giữa, mỏng về 0 ở hai đầu nên không thành bi gắn trên thân.
+  const panel = (y0, y1, bulge, phiLen, segs = 26) => {
+    const raw = profile(150).filter((p) => p.y >= y0 && p.y <= y1);
+    const pts = raw.filter((_, i) => i % 2 === 0 || i === raw.length - 1).map((p, i, arr) => {
+      const t = i / (arr.length - 1);
+      return new THREE.Vector2(p.x * (1 + 0.006 + bulge * sin(PI * t)), p.y);
+    });
+    return new THREE.LatheGeometry(pts, segs, -phiLen / 2, phiLen);
+  };
+  const plate = (shape, depth, bevel = 0.03, seg = 2) => {
+    const gg = new THREE.ExtrudeGeometry(shape, {
+      depth, bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: seg, curveSegments: 14,
+    });
+    gg.translate(0, 0, -depth / 2);
+    gg.computeVertexNormals();
+    return gg;
+  };
+  const diamond = (hUp, hDn, w, notch) => {
+    const s = new THREE.Shape();
+    s.moveTo(0, hUp);
+    s.lineTo(w, notch);
+    s.lineTo(w * 0.62, -hDn * 0.55);
+    s.lineTo(0, -hDn);
+    s.lineTo(-w * 0.62, -hDn * 0.55);
+    s.lineTo(-w, notch);
+    s.closePath();
+    return s;
+  };
+
+  // ---------- bệ ba tầng ----------
+  add(new THREE.CylinderGeometry(1.26, 1.4, 0.18, 56), M.goldDeep, 0, -0.36, 0);
+  add(new THREE.CylinderGeometry(1.06, 1.18, 0.16, 56), M.gold, 0, -0.2, 0);
+  add(new THREE.CylinderGeometry(0.94, 1.02, 0.14, 56), M.suit, 0, -0.06, 0);
+  add(plate(diamond(0.3, 0.3, 0.24, 0.02), 0.07, 0.025), M.gold, 0, -0.22, 1.16).rotation.x = 0.06;
+  add(gemGeo, M.gem, 0, -0.22, 1.19, 0.17, 0.23, 0.07);
+
+  // ---------- thân + mảng bụng, mặt ----------
+  add(new THREE.LatheGeometry(profile(54), 60), M.suit, 0, 0, 0);
+  add(panel(0.14, 1.56, 0.042, 2.05), M.belly, 0, 0, 0);
+  add(panel(1.8, 2.36, 0.028, 1.7), M.belly, 0, 0, 0);
+
+  // chỉ vàng ngang bụng, bám đúng mặt mảng áp
+  const bellyLine = new THREE.CatmullRomCurve3(
+    [[-0.46, 1.3, 0.774], [-0.28, 1.19, 0.895], [0, 1.14, 0.949], [0.28, 1.19, 0.895], [0.46, 1.3, 0.774]]
+      .map(([x, y, z]) => new THREE.Vector3(x, y, z)),
+  );
+  add(new THREE.TubeGeometry(bellyLine, 26, 0.026, 8, false), M.polish, 0, 0, 0);
+
+  // ---------- áo choàng: một phiến silhouette sau lưng ----------
+  const capeShape = new THREE.Shape();
+  capeShape.moveTo(-0.46, 1.78);
+  capeShape.quadraticCurveTo(-1, 1.62, -1.44, 1.12);
+  capeShape.quadraticCurveTo(-1.52, 0.94, -1.28, 0.84);
+  capeShape.quadraticCurveTo(-0.9, 0.6, -0.5, 0.46);
+  capeShape.quadraticCurveTo(0, 0.36, 0.5, 0.46);
+  capeShape.quadraticCurveTo(0.9, 0.6, 1.28, 0.84);
+  capeShape.quadraticCurveTo(1.52, 0.94, 1.44, 1.12);
+  capeShape.quadraticCurveTo(1, 1.62, 0.46, 1.78);
+  capeShape.closePath();
+  add(plate(capeShape, 0.12, 0.04, 3), M.gold, 0, -0.048, -0.34, 1.045, 1.045, 0.8);
+
+  // ---------- cổ + đai ngực ----------
+  add(new THREE.TorusGeometry(0.67, 0.075, 10, 34), M.cape, 0, 1.84, -0.01).rotation.x = PI / 2 - 0.3;
+  add(new THREE.TorusGeometry(0.68, 0.032, 8, 34), M.gold, 0, 1.78, -0.01).rotation.x = PI / 2 - 0.3;
+  const strap = new THREE.CatmullRomCurve3(
+    [[-0.66, 1.72, 0.16], [-0.5, 1.6, 0.58], [-0.24, 1.48, 0.78], [0, 1.45, 0.83],
+     [0.24, 1.48, 0.78], [0.5, 1.6, 0.58], [0.66, 1.72, 0.16]].map(([x, y, z]) => new THREE.Vector3(x, y, z)),
+  );
+  add(new THREE.TubeGeometry(strap, 40, 0.055, 8, false), M.gold, 0, 0, 0);
+  add(plate(diamond(0.2, 0.2, 0.16, 0.01), 0.06, 0.025), M.gold, 0, 1.38, 0.88).rotation.x = -0.12;
+  add(gemGeo, M.gem, 0, 1.38, 0.9, 0.135, 0.175, 0.06).rotation.x = -0.12;
+
+  // ---------- chân ----------
+  const footShape = new THREE.Shape();
+  footShape.moveTo(-0.13, 0);
+  footShape.lineTo(0.13, 0);
+  footShape.lineTo(0.19, 0.2);
+  footShape.quadraticCurveTo(0.22, 0.34, 0.11, 0.32);
+  footShape.quadraticCurveTo(0.05, 0.42, 0, 0.32);
+  footShape.quadraticCurveTo(-0.05, 0.42, -0.11, 0.32);
+  footShape.quadraticCurveTo(-0.22, 0.34, -0.19, 0.2);
+  footShape.closePath();
+  const footGeo = plate(footShape, 0.07, 0.022);
+  for (const s of [-1, 1]) add(footGeo, M.beak, 0.3 * s, 0.04, 0.3, 1.05, 1, 1).rotation.set(PI / 2 + 0.2, 0, -0.26 * s);
+
+  // ---------- vai giáp: hai lớp ----------
+  const pauld = new THREE.Shape();
+  pauld.moveTo(-0.3, 0.1);
+  pauld.quadraticCurveTo(-0.34, 0.3, -0.1, 0.32);
+  pauld.lineTo(0.2, 0.26);
+  pauld.quadraticCurveTo(0.46, 0.14, 0.38, -0.1);
+  pauld.quadraticCurveTo(0.26, -0.3, 0, -0.24);
+  pauld.quadraticCurveTo(-0.24, -0.16, -0.3, 0.1);
+  pauld.closePath();
+  const pauldGeo = plate(pauld, 0.18, 0.055, 3);
+  for (const s of [-1, 1]) {
+    add(pauldGeo, M.gold, 0.66 * s, 1.66, 0.02, 0.95, 0.95, 1).rotation.set(-0.6, 0.62 * s, -0.3 * s);
+    add(pauldGeo, M.goldDeep, 0.72 * s, 1.46, 0.04, 0.78, 0.78, 0.9).rotation.set(-0.78, 0.62 * s, -0.34 * s);
+  }
+
+  // ---------- cánh ----------
+  add(sphere, M.suit, 0.8, 1.16, 0.05, 0.15, 0.45, 0.26).rotation.set(0.05, 0, -0.4);
+  add(sphere, M.suit, -0.76, 1.78, 0.42, 0.17, 0.3, 0.27).rotation.set(-0.25, 0, 0.6);
+
+  // ---------- mũ giáp có mào thoi ----------
+  const crest = diamond(0.46, 0.34, 0.26, 0.04);
+  crest.holes.push(diamond(0.28, 0.2, 0.15, 0.02));
+  add(plate(crest, 0.1, 0.035), M.gold, 0, 2.44, 0.66).rotation.x = -0.3;
+  add(gemGeo, M.gem, 0, 2.45, 0.68, 0.19, 0.3, 0.085).rotation.x = -0.3;
+
+  const brow = new THREE.CatmullRomCurve3(
+    [[-0.62, 2.28, -0.28], [-0.74, 2.36, 0.1], [-0.56, 2.48, 0.44], [-0.26, 2.3, 0.68], [0, 2.18, 0.74],
+     [0.26, 2.3, 0.68], [0.56, 2.48, 0.44], [0.74, 2.36, 0.1], [0.62, 2.28, -0.28]].map(([x, y, z]) => new THREE.Vector3(x, y, z)),
+  );
+  add(new THREE.TubeGeometry(brow, 44, 0.065, 9, false), M.gold, 0, 0, 0);
+
+  const fin = new THREE.Shape();
+  fin.moveTo(-0.04, -0.4);
+  fin.quadraticCurveTo(0.14, -0.36, 0.2, -0.1);
+  fin.quadraticCurveTo(0.3, 0.14, 0.26, 0.44);
+  fin.quadraticCurveTo(0.24, 0.54, 0.12, 0.34);
+  fin.quadraticCurveTo(0.02, 0.12, -0.06, -0.1);
+  fin.closePath();
+  const finGeo = plate(fin, 0.11, 0.045, 3);
+  for (const s of [-1, 1]) {
+    add(finGeo, M.gold, 0.54 * s, 2.28, -0.02, 0.95, 0.95, 1).rotation.set(0.1, 0.85 * s, -0.5 * s);
+    add(new THREE.ConeGeometry(0.075, 0.28, 4), M.gold, 0.72 * s, 2.08, -0.16).rotation.set(-0.4, 0.6 * s, -0.8 * s);
+  }
+
+  // ---------- mắt ----------
+  for (const s of [-1, 1]) {
+    add(sphere, M.eye, 0.3 * s, 2.12, 0.72, 0.165, 0.175, 0.15);
+    add(sphere, M.spark, 0.27 * s, 2.18, 0.86, 0.05, 0.055, 0.05);
+    add(sphere, M.spark, 0.36 * s, 2.04, 0.84, 0.028, 0.028, 0.03);
+  }
+
+  // ---------- mỏ há: ba phiến thoi lồng nhau ----------
+  add(plate(diamond(0.14, 0.16, 0.185, 0.03), 0.07, 0.025), M.beak, 0, 1.87, 0.71).rotation.x = -0.18;
+  add(plate(diamond(0.075, 0.1, 0.12, 0.02), 0.05, 0.018), M.mouth, 0, 1.9, 0.75).rotation.x = -0.18;
+  add(plate(diamond(0.045, 0.05, 0.07, 0.012), 0.04, 0.014), M.tongue, 0, 1.835, 0.785).rotation.x = -0.18;
+
+  // ---------- xẻng vàng giơ cao ----------
+  const blade = new THREE.Shape();
+  const hw0 = 0.2, hw1 = 0.35, y1 = 0.62;
+  blade.moveTo(-hw0, 0);
+  blade.lineTo(hw0, 0);
+  blade.lineTo(hw1, y1 - 0.13);
+  blade.quadraticCurveTo(hw1, y1, hw1 - 0.13, y1);
+  blade.lineTo(-(hw1 - 0.13), y1);
+  blade.quadraticCurveTo(-hw1, y1, -hw1, y1 - 0.13);
+  blade.closePath();
+  const slot = (cx, hw, ya, yb) => {
+    const p = new THREE.Path();
+    p.moveTo(cx - hw, ya + hw);
+    p.lineTo(cx - hw, yb - hw);
+    p.quadraticCurveTo(cx - hw, yb, cx, yb);
+    p.quadraticCurveTo(cx + hw, yb, cx + hw, yb - hw);
+    p.lineTo(cx + hw, ya + hw);
+    p.quadraticCurveTo(cx + hw, ya, cx, ya);
+    p.quadraticCurveTo(cx - hw, ya, cx - hw, ya + hw);
+    return p;
+  };
+  blade.holes.push(slot(-0.16, 0.042, 0.14, 0.48), slot(0, 0.055, 0.13, 0.49), slot(0.16, 0.042, 0.14, 0.48));
+
+  const tool = new THREE.Group();
+  const push = (geo, mat, x, y, z, sx = 1, sy = sx, sz = sx) => {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(x, y, z);
+    m.scale.set(sx, sy, sz);
+    m.castShadow = true;
+    m.onBeforeRender = envHook(mat);
+    tool.add(m);
+    return m;
+  };
+  push(plate(blade, 0.055, 0.014, 2), M.polish, 0, 0.12, 0);
+  push(new THREE.CylinderGeometry(0.1, 0.18, 0.16, 18), M.polish, 0, 0.04, 0, 1, 1, 0.5);
+  push(new THREE.CylinderGeometry(0.06, 0.08, 0.34, 16), M.polish, 0, -0.16, 0, 1, 1, 0.62);
+  push(new THREE.CylinderGeometry(0.085, 0.085, 0.09, 16), M.gold, 0, -0.36, 0, 1, 1, 0.7);
+  push(new THREE.CylinderGeometry(0.058, 0.07, 0.44, 16), M.polish, 0, -0.62, 0, 1, 1, 0.62);
+  push(sphere, M.polish, 0, -0.86, 0, 0.095, 0.095, 0.06);
+  push(new THREE.TorusGeometry(0.075, 0.03, 8, 22), M.polish, 0, -0.94, 0);
+  tool.position.set(-0.86, 1.9, 0.5);
+  tool.rotation.set(-0.12, -0.3, 0.18);
+  g.add(tool);
+
+  // đế phải nằm ngay trên mặt bệ thờ: nâng cả cụm lên đúng nửa chiều cao tầng dưới cùng
+  g.children.forEach((m) => { m.position.y += 0.45; });
+  g.userData.height = new THREE.Box3().setFromObject(g).max.y;
+  return g;
+}
+
 // tô đỏ áo, vàng viền, da sáng cho tượng Bà
 function baPaint(geo) {
   const pos = geo.attributes.position, n = pos.count, out = new Float32Array(n * 3).fill(1);
@@ -1354,6 +1590,7 @@ function baPaint(geo) {
 const AURA_DEFAULT = { bronze_dark: 'bodhi', wood_gold: 'bodhi' };
 const SEAT_DEF = { top: 3.5 };
 export function buildStatue(kind = 'shakya', matName = 'gold', { halo = true, aura } = {}) {
+  if (kind === 'pengu') return buildPengu();
   if (!KIND[kind] && kind !== 'quanam' && kind !== 'nietban') kind = 'shakya';
   const mats = makeMats(matName);
   const p = mats.p;
