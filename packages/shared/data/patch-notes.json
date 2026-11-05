@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-04T05:32:59.266Z",
+  "generatedAt": "2026-11-05T08:22:00.182Z",
   "latestPatch": "18.6",
   "livePatch": "18.6",
   "patches": [
@@ -388,7 +388,7 @@
             "vi": "Xe Đồ Lạ"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_item_tier2.png",
-          "cost": 0,
+          "cost": 17,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -409,7 +409,7 @@
             "vi": "Chơi Đường Giữa"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_shop_tier2.png",
-          "cost": null,
+          "cost": 5,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -430,7 +430,7 @@
             "vi": "Chơi Đường Giữa"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_shop_tier2.png",
-          "cost": null,
+          "cost": 5,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
