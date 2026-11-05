@@ -30,8 +30,8 @@ templeRouter.post('/guest', async (req, res) => {
   if (signedIn) {
     // Trình duyệt đã có phiên thì dùng lại — mỗi lần tải trang mà mọc thêm một
     // hàng users thì bảng khách sẽ toàn người không bao giờ quay lại.
-    // Nhánh này đứng TRƯỚC giới hạn theo IP: wsTicket() gọi /guest ở mỗi lần nối
-    // phòng, nên một phòng máy cùng reconnect sau một lần deploy là chuyện bình
+    // Nhánh này đứng TRƯỚC giới hạn theo IP: /guest được gọi ở đầu mỗi lượt tải
+    // trang, nên một phòng máy cùng mở chùa sau một lần deploy là chuyện bình
     // thường, không phải tấn công. Chỉ việc mọc hàng khách mới mới đáng đếm.
     const profile = await ensureTempleProfile(signedIn.id);
     return res.json({ guest: signedIn.isGuest, user: signedIn, profile });

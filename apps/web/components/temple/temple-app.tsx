@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Gain, TempleState } from './api';
 import { TempleApiError, get, post } from './api';
-import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, local, nextFrames, sectOf, type EngineCtx, type EnginePerson } from './engine';
+import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, hasWebGL, local, nextFrames, sectOf, type EngineCtx, type EnginePerson } from './engine';
 import { petalShower, launchLantern, floater } from './effects';
 import { QUOTES } from './stories';
 import { TempleRoom, type RemotePlayer } from './room';
@@ -51,6 +51,7 @@ export function TempleApp({ lang }: { lang: string }) {
   const [screen, setScreen] = useState<'loader' | 'hud'>('loader');
   const [loaderPct, setLoaderPct] = useState(4);
   const [loaderStep, setLoaderStep] = useState('Mở cổng chùa');
+  const [noGl, setNoGl] = useState(false);
   const [view, setView] = useState<ViewKind>('hall');
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   const [cardId, setCardId] = useState<number | null>(null);
@@ -378,6 +379,11 @@ export function TempleApp({ lang }: { lang: string }) {
     if (startedRef.current) return;
     startedRef.current = true;
 
+    if (!hasWebGL()) {
+      setNoGl(true);
+      return;
+    }
+
     const engine = new TempleEngine({
       onProgress: (pct, step) => {
         setLoaderPct(pct);
@@ -404,10 +410,19 @@ export function TempleApp({ lang }: { lang: string }) {
       onBead: tapBead,
     });
     engRef.current = engine;
-    engine.attach(sceneRef.current!, joyRef.current!, beadsCanvasRef.current!);
+    try {
+      engine.attach(sceneRef.current!, joyRef.current!, beadsCanvasRef.current!);
+    } catch {
+      // Thăm dò đã qua nhưng trình duyệt vẫn từ chối context (hết suất, GPU process chết).
+      setNoGl(true);
+      return;
+    }
 
     void (async () => {
       try {
+        // /state đòi phiên, mà lượt ghé đầu tiên thì chưa có cookie nào: một hàng
+        // khách được dựng ở đây, trước mọi lời gọi khác của chùa.
+        await post('/guest');
         const r = await get<{ state: TempleState; guest: boolean; player_id: number }>('/state');
         stateRef.current = r.state;
         guestRef.current = r.guest;
@@ -450,6 +465,9 @@ export function TempleApp({ lang }: { lang: string }) {
   }, [anns.length]);
 
   useEffect(() => {
+    // Hai đọc này là của HUD: trong lúc loader còn chạy thì phiên khách chưa kịp có,
+    // gọi sớm chỉ tổ 401 và để lại nút quay sai trạng thái cho tới lần mở bảng kế tiếp.
+    if (screen !== 'hud') return;
     if (view !== 'wheel') {
       void get<{ can: boolean }>('/draws/wheel')
         .then((r) => setWheelCan(r.can))
@@ -460,7 +478,7 @@ export function TempleApp({ lang }: { lang: string }) {
         .then((r) => setQueDone(!!r.que))
         .catch(() => null);
     }
-  }, [view]);
+  }, [view, screen]);
 
   // Nhịp 1s: gom lạy, gom hạt, chờ bồ đoàn.
   useEffect(() => {
@@ -591,11 +609,26 @@ export function TempleApp({ lang }: { lang: string }) {
                 <path className="water" d="M14 84c12 4 24 6 36 6s24-2 36-6" />
               </svg>
             </div>
-            <h2>Đang về chùa…</h2>
-            <div className="bar">
-              <i style={{ width: `${loaderPct}%` }} />
-            </div>
-            <small>{loaderStep}</small>
+            {noGl ? (
+              <>
+                <h2>Không dựng được chánh điện 3D</h2>
+                <small>
+                  Máy tính này chưa bật tăng tốc đồ hoạ, nên trình duyệt không cấp ngữ cảnh WebGL. Bật ở{' '}
+                  <code>chrome://settings/system</code> rồi mở lại trang.
+                </small>
+                <button type="button" className="btn gold" onClick={() => location.reload()}>
+                  Thử lại
+                </button>
+              </>
+            ) : (
+              <>
+                <h2>Đang về chùa…</h2>
+                <div className="bar">
+                  <i style={{ width: `${loaderPct}%` }} />
+                </div>
+                <small>{loaderStep}</small>
+              </>
+            )}
             <p className="quote">{quote}</p>
           </div>
         </section>

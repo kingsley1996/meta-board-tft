@@ -95,8 +95,6 @@ const MESSAGES: Record<string, string> = {
   unknown_offering: 'Chùa không nhận vật phẩm này',
 };
 
-const VN_KEYS = ['invalid', 'unknown', 'already', 'not_', 'no_', 'out_of', 'group_full', 'garden_full'];
-
 export async function templeApi<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
   const sending = init.body !== undefined;
   const res = await fetch(`/api/temple${path}`, {
@@ -113,8 +111,8 @@ export async function templeApi<T>(path: string, init: { method?: string; body?:
   }
   if (!res.ok) {
     const code = String(body.code ?? `http_${res.status}`);
-    const fallback = String(body.error ?? 'Chùa đang bận, thử lại sau nhé');
-    throw new TempleApiError(res.status, code, VN_KEYS.some((k) => code.includes(k)) ? (MESSAGES[code] ?? 'Việc này chùa chưa làm được, thử lại sau nhé') : fallback);
+    // Mã lỗi là thứ dịch được; câu tiếng Anh trong `error` chỉ dành cho logs.
+    throw new TempleApiError(res.status, code, MESSAGES[code] ?? 'Việc này chùa chưa làm được, thử lại sau nhé');
   }
   return body as T;
 }
@@ -124,8 +122,8 @@ export const post = <T>(path: string, body?: unknown) => templeApi<T>(path, { me
 export const put = <T>(path: string, body: unknown) => templeApi<T>(path, { method: 'PUT', body });
 
 // Vé mở phòng: chỉ dùng một lần và vài giây là hết hạn, nên lần nào nối cũng xin cái mới.
+// Phiên đã được dựng một lần ở temple-app khi tải trang, nên đây không phải chỗ tạo khách.
 export async function wsTicket(): Promise<string> {
-  await post('/guest');
   const { ticket } = await post<{ ticket: string }>('/ws-ticket');
   return ticket;
 }

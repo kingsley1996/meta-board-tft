@@ -149,6 +149,18 @@ function nextFrames(n: number): Promise<void> {
   });
 }
 
+// World dựng WebGLRenderer ngay ở dòng đầu, nên máy tính tắt tăng tốc đồ hoạ là
+// attach ném giữa hiệu ứng chờ. Thử một canvas vô hình trước để trang còn nói được
+// lý do thay vì treo.
+export function hasWebGL(): boolean {
+  try {
+    const probe = document.createElement('canvas');
+    return Boolean(probe.getContext('webgl2') ?? probe.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
+
 export class TempleEngine {
   world: WorldSlice | null = null;
   beads: BeadsSlice | null = null;
