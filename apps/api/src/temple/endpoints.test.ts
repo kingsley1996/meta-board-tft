@@ -165,20 +165,23 @@ test(
       assert.equal((await post('/api/temple/lanterns', { text: 'x'.repeat(200) }, me.cookie)).status, 400);
 
       // --- Vườn cây ----------------------------------------------------------
+      // Vườn là của chung một chùa, nên so với cây của chính mình chứ không với số
+      // hàng của cả vườn: một người đang trồng ở dev không được làm bài test đỏ.
+      const treesBefore = (await get('/api/temple/garden', me.cookie)).json.trees as number;
       assert.equal((await post('/api/temple/plants', { item: 'cay_bode', x: 3.5, z: 12 }, me.cookie)).status, 200);
       assert.equal((await post('/api/temple/plants', { item: 'ao_lam', x: 1, z: 1 }, me.cookie)).status, 400, 'only seeds go in the ground');
       const garden = (await get('/api/temple/plants', me.cookie)).json;
-      assert.equal(garden.plants.length, 1);
-      assert.equal(garden.plants[0].mine, true);
-      const picked = (await post('/api/temple/plants/harvest', { id: garden.plants[0].id }, nothing.cookie)).json;
+      const own = garden.plants.filter((p: Json) => p.mine);
+      assert.equal(own.length, 1);
+      const picked = (await post('/api/temple/plants/harvest', { id: own[0].id }, nothing.cookie)).json;
       assert.equal(picked.got, 3);
       assert.equal(picked.state.fruit, 8, 'five from the gift pack plus one pick');
-      assert.equal((await post('/api/temple/plants/harvest', { id: garden.plants[0].id }, nothing.cookie)).status, 409, 'the tree sleeps a day');
+      assert.equal((await post('/api/temple/plants/harvest', { id: own[0].id }, nothing.cookie)).status, 409, 'the tree sleeps a day');
       const traded = (await post('/api/temple/plants/exchange', {}, nothing.cookie)).json;
       assert.equal(traded.ngoc, 8);
       assert.equal(traded.state.fruit, 0);
       assert.equal((await post('/api/temple/plants/exchange', {}, nothing.cookie)).status, 409, 'nothing left to trade');
-      assert.equal((await get('/api/temple/garden', me.cookie)).json.trees, 1);
+      assert.equal((await get('/api/temple/garden', me.cookie)).json.trees, treesBefore + 1);
 
       // --- Bảng tri ân: trả bằng Sen nội bộ -----------------------------------
       const before = (await get('/api/temple/state', me.cookie)).json.state.sen as number;

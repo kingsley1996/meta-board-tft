@@ -10,10 +10,14 @@ import { ApiError, num, text, withUser } from './http.ts';
 import { LANTERN_EXP, QUE_EXP, REJOICE_EXP, addMerit, consumeItem, grantItem, vnDay } from './merit.ts';
 import { ensureTempleTables } from './schema.ts';
 import { templeState } from './state.ts';
+import { publishToTemple } from './ws.ts';
 
 export const hallRouter = Router();
 
 const TEMPLE_ID = 'nhattru';
+// Khóa phòng mà máy khách nối vào (temple-app.tsx:370); 'chung' là phòng còn lại sau
+// khi cắt bản đồ nhiều chùa, và ws.ts lấy nó làm mặc định.
+const ROOM_ID = 'chung';
 // Lời nguyện của một ngọn đèn bay lên cả chánh điện, nên nó là nội dung do người
 // khác duyệt, không phải chuỗi tự do đổ vào DOM.
 const MAX_WISH = 120;
@@ -74,7 +78,7 @@ hallRouter.get('/lanterns', withUser(async (req, res, user) => {
 // (identity.ts: seed lấy từ api.js:123-130) thay vì để ai cũng thả được vô hạn.
 hallRouter.post('/lanterns', withUser(async (req, res, user) => {
   await ensureTempleTables();
-  await ensureTempleProfile(user.id);
+  const profile = await ensureTempleProfile(user.id);
   const wish = req.body?.text === undefined || String(req.body.text).trim() === ''
     ? 'Nguyện cầu bình an cho muôn loài 🪷'
     : text(req.body.text, MAX_WISH, 'invalid_wish');
@@ -91,6 +95,11 @@ hallRouter.post('/lanterns', withUser(async (req, res, user) => {
   // 15 Sen cho một ngọn đèn là con số bản gốc treo thưởng (api.js:558); 8 trong số đó
   // đã nằm sẵn trong tỉ lệ công đức → Sen nên phần cộng thêm chỉ là chỗ còn lại.
   const merit = await addMerit(user.id, { exp: LANTERN_EXP, sen: 7 });
+  // Đèn bay lên là thứ cả chánh điện cùng nhìn thấy, nên phòng phải biết ngay thay vì
+  // chờ người ta tải lại trang. Đèn còn chờ duyệt thì chưa có gì để xem.
+  if (rows[0].status === 'live') {
+    publishToTemple(TEMPLE_ID, ROOM_ID, { t: 'lantern', name: profile.name, text: rows[0].text }, profile.playerId);
+  }
   res.json({
     state: await templeState(user.id),
     lantern: { id: Number(rows[0].id), text: rows[0].text, status: rows[0].status },
@@ -131,7 +140,7 @@ hallRouter.get('/garden', withUser(async (req, res) => {
   res.json({ trees: Number(rows[0]?.n ?? 0) });
 }));
 
-// Chỉ ba id này là cây trồng được: chores.js:116 (PLANT_KIND) dựng mô hình 3D theo
+// Chỉ ba id này là cây trồng được: chores.js:34 (PLANT_KIND) dựng mô hình 3D theo
 // đúng ba loại đó, nên một id khác dù có trong túi cũng chỉ là một cái hố trống.
 const SEEDS: Record<string, true> = { cay_bode: true, cay_sen: true, cay_sala: true };
 
@@ -153,7 +162,7 @@ hallRouter.post('/plants', withUser(async (req, res, user) => {
     'INSERT INTO temple_plants (user_id, temple, item, x, z, per_pick, next_pick_at) VALUES ($1, $2, $3, $4, $5, 3, now())',
     [user.id, TEMPLE_ID, item, x, z],
   );
-  // Trồng cây tính như một công việc trong vườn: 25 công đức, đúng mốc api.js:514.
+  // 25 công đức cho một cây, đúng mốc bản gốc treo cho việc trồng (api.js:514).
   const merit = await addMerit(user.id, { exp: 25 });
   res.json({ state: await templeState(user.id), gained: merit.gained, level_ups: merit.levelUps });
 }));
@@ -337,11 +346,11 @@ hallRouter.get('/announcements', withUser(async (req, res) => {
 
 type LanternRow = { id: string; user_id: string; name: string; text: string; likes: number; status: string; created_at: Date; rejoiced?: boolean };
 
-type PlantRow = { id: string; user_id: string; item: string; x: string; z: string; fruits: number; per_pick: number; ripe: boolean; next_pick_at: Date | null; name: string };
+type PlantRow = { id: string; user_id: string; item: string; x: string; z: string; fruits: number; per_pick: number; ripe: boolean; next_pick_at: Date | null; created_at: Date; name: string };
 
 async function readPlants(userId: string) {
   const { rows } = await pool.query<PlantRow>(
-    `SELECT l.id, l.user_id, l.item, l.x, l.z, l.fruits, l.per_pick, l.ripe, l.next_pick_at, p.name
+    `SELECT l.id, l.user_id, l.item, l.x, l.z, l.fruits, l.per_pick, l.ripe, l.next_pick_at, l.created_at, p.name
        FROM temple_plants l
        JOIN temple_profiles p ON p.user_id = l.user_id
       WHERE l.temple = $1
@@ -359,6 +368,9 @@ async function readPlants(userId: string) {
     fruits: r.fruits,
     per_pick: r.per_pick,
     ripe: r.ripe,
+    // chores.js:57 tính cỡ cây theo (now - p.at)/7 ngày, nên ngày trồng phải ra tới
+    // máy khách: thiếu nó thì cây nào cũng mới trồng và vườn toàn cây con.
+    at: r.created_at.getTime(),
     next_at: r.next_pick_at ? r.next_pick_at.toISOString() : null,
   }));
 }

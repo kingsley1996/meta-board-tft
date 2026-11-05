@@ -26,15 +26,18 @@ templeRouter.use(socialRouter);
 // hàng users này (-- 02, ở /api/auth/register), nên cây và công đức trồng từ hôm nay
 // vẫn còn đó.
 templeRouter.post('/guest', async (req, res) => {
-  if (!attemptAllowed(attemptKey('temple_guest', req))) {
-    return res.status(429).json({ error: 'too many attempts', code: 'rate_limited' });
-  }
   const signedIn = await currentSessionUser(req);
   if (signedIn) {
     // Trình duyệt đã có phiên thì dùng lại — mỗi lần tải trang mà mọc thêm một
     // hàng users thì bảng khách sẽ toàn người không bao giờ quay lại.
+    // Nhánh này đứng TRƯỚC giới hạn theo IP: wsTicket() gọi /guest ở mỗi lần nối
+    // phòng, nên một phòng máy cùng reconnect sau một lần deploy là chuyện bình
+    // thường, không phải tấn công. Chỉ việc mọc hàng khách mới mới đáng đếm.
     const profile = await ensureTempleProfile(signedIn.id);
     return res.json({ guest: signedIn.isGuest, user: signedIn, profile });
+  }
+  if (!attemptAllowed(attemptKey('temple_guest', req))) {
+    return res.status(429).json({ error: 'too many attempts', code: 'rate_limited' });
   }
   const created = await createGuest();
   setSessionCookie(res, created.token);
@@ -63,15 +66,17 @@ templeRouter.get('/state', withUser(async (req, res, user) => {
 // là cách duy nhất máy chủ phòng biết người đang nối vào là ai, và là cách nó không
 // phải tin hồ sơ do máy khách tự khai.
 templeRouter.post('/ws-ticket', async (req, res) => {
-  if (!attemptAllowed(attemptKey('temple_ws_ticket', req))) {
-    return res.status(429).json({ error: 'too many attempts', code: 'rate_limited' });
-  }
   const user = await currentSessionUser(req);
   if (!user) return res.status(401).json({ error: 'not signed in', code: 'unauthenticated' });
-  const ticket = await issueWsTicket(user.id);
-  if (!ticket) return res.status(503).json({ error: 'temple unavailable', code: 'temple_unavailable' });
+  const issued = await issueWsTicket(user.id);
+  if (!issued.ok) {
+    // 429 ở đây là "bạn đang giữ quá nhiều vé chưa dùng", không phải "IP này gọi
+    // nhiều quá" — người thật nối lại sau một lần deploy không nằm trong câu đó.
+    if (issued.reason === 'capped') return res.status(429).json({ error: 'too many open tickets', code: 'too_many_tickets' });
+    return res.status(503).json({ error: 'temple unavailable', code: 'temple_unavailable' });
+  }
   res.setHeader('Cache-Control', 'no-store');
-  res.json({ ticket: ticket.token, expires_in_ms: TICKET_TTL_MS, profile: ticket.profile });
+  res.json({ ticket: issued.ticket.token, expires_in_ms: TICKET_TTL_MS, profile: issued.ticket.profile });
 });
 
 // Người chơi nặn nhân vật xong thì báo cho máy chủ cái avatar đó; không có tuyến này

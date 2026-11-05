@@ -71,10 +71,6 @@ practiceRouter.post('/practice', withUser(async (req, res, user) => {
     duc = 5;
   } else if (type === 'bell') {
     exp = MERIT_PER.bell;
-  } else if (type === 'sweep' || type === 'plant') {
-    exp = MERIT_PER[type];
-  } else if (type === 'sit' || type === 'stroll') {
-    exp = MERIT_PER[type];
   } else if (type === 'meditate_start') {
     const started = await startMeditation(user.id);
     res.json({ state: await templeState(user.id), meditate_start: started });

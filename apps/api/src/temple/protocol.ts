@@ -1,7 +1,7 @@
 // Phòng chánh điện đồng bộ cho nhiều người. Frame trạng thái gửi dưới dạng nhị phân
-// vì máy khách đẩy vị trí mỗi 200ms (main.js:1486) và một hall đầy người sẽ tốn quá
+// vì máy khách đẩy vị trí mỗi 200ms (room.ts:125) và một hall đầy người sẽ tốn quá
 // nhiều băng thông nếu gửi bằng JSON — định dạng này do chính máy khách quy định
-// (main.js:1300-1309), máy chủ chỉ lặp lại nó.
+// (room.ts:155-177 đọc nó), máy chủ chỉ lặp lại nó.
 
 export type PlayerState = {
   id: number;

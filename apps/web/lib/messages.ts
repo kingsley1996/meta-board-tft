@@ -64,6 +64,7 @@ const en = {
     searchKinds: { champion: 'Champions', item: 'Items', augment: 'Augments', trait: 'Traits', comp: 'Comps' },
     itemPriority: 'Item priority',
     compMap: 'Comp map',
+    temple: 'Lucky Temple',
   },
   itemPriority: {
     kicker: 'Item priority',
@@ -277,6 +278,7 @@ const en = {
     sub: 'TFTIQ ranks the comps, items and augments that actually climb this patch — curated from thousands of matches and refreshed with each patch and match-data snapshot.',
     browseComps: 'Browse comps',
     readGuides: 'Read the guides',
+    prayLuck: 'Pray for luck',
     assistantKicker: 'YOUR TFT COACH',
     assistantTitle: 'Get your next move right.',
     assistantBody: 'Ask about your board, items, augments or economy. Get recommendations backed by current Set 18 data.',
@@ -1092,6 +1094,7 @@ const vi: typeof en = {
     searchKinds: { champion: 'Tướng', item: 'Trang bị', augment: 'Nâng cấp', trait: 'Tộc hệ', comp: 'Đội hình' },
     itemPriority: 'Trang bị ưu tiên',
     compMap: 'Bản đồ comp',
+    temple: 'Chùa cầu may',
   },
   itemPriority: {
     kicker: 'Trang bị ưu tiên',
@@ -1281,6 +1284,7 @@ const vi: typeof en = {
     sub: 'TFTIQ xếp hạng đội hình, trang bị và nâng cấp thực sự leo rank trong patch này — chọn lọc từ hàng nghìn trận đấu và làm mới theo từng patch cùng bản dữ liệu trận.',
     browseComps: 'Xem đội hình',
     readGuides: 'Đọc hướng dẫn',
+    prayLuck: 'Cầu may trước trận',
     assistantKicker: 'HUẤN LUYỆN VIÊN TFT CỦA BẠN',
     assistantTitle: 'Tự tin chọn nước đi tiếp theo.',
     assistantBody: 'Hỏi về đội hình, trang bị, nâng cấp hoặc kinh tế. Nhận gợi ý dựa trên dữ liệu Mùa 18 mới nhất.',

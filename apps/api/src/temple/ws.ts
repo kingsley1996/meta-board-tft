@@ -1,7 +1,7 @@
-// Cầu WebSocket cho chánh điện. Máy khách (vendor/temple/js/main.js:1286) tự nối
+// Cầu WebSocket cho chánh điện. Máy khách (components/temple/room.ts:77) tự nối
 // `wss://…/ws` và đọc frame theo protocol v4, nên máy chủ phải nói đúng tiếng đó thay
 // vì đổi client. Phòng được key bằng `temple:room`, mã phòng lấy từ query của chính
-// đường WS vì join chỉ gửi temple (main.js:1294).
+// đường WS vì join chỉ gửi temple (room.ts:83).
 //
 // Nhận dạng (tickets.ts, -- 04): vé xác minh ngay ở đây, trước khi phòng ghi nhận ai,
 // và hồ sơ vẽ avatar lấy từ Postgres chứ không từ máy khách. Một kết nối không có vé
@@ -27,6 +27,15 @@ export type TempleRealtime = {
   close: () => void;
 };
 
+// Sổ phòng của process đang chạy. Route REST không có socket riêng nên nó phải mượn
+// cái này để phát tin vào chánh điện; khi chưa attach (test chỉ gọi hall router) thì
+// publishToTemple âm thầm bỏ qua — hành động vẫn thành công, chỉ không có ai để báo.
+let activeRooms: TempleRooms | null = null;
+
+export function publishToTemple(temple: string, room: string, payload: Record<string, unknown>, exceptId?: number): void {
+  activeRooms?.publish(temple, room, JSON.stringify(payload), exceptId);
+}
+
 function send(ws: WebSocket, payload: Buffer | string): void {
   if (ws.readyState !== ws.OPEN) return;
   try {
@@ -48,9 +57,10 @@ async function profileForJoin(holder: TicketHolder): Promise<PlayerProfile | nul
 
 export function attachTempleWs(server: Server): TempleRealtime {
   const rooms = new TempleRooms();
+  activeRooms = rooms;
   // Một người chơi mở hai tab: state trên dây key bằng id nên tab thứ hai sẽ đè lên
-  // tab đầu và hall hiển thị một người đứng hai chỗ. Tab cũ bị đá, đúng như máy chủ
-  // gốc báo bằng close code 4000 mà client đã hiểu (main.js:1414).
+  // tab đầu và hall hiển thị một người đứng hai chỗ. Tab cũ bị đá bằng close code
+  // 4000, đúng như máy chủ gốc vẫn làm.
   const byId = new Map<number, TempleSocket>();
 
   const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_PAYLOAD_BYTES });
@@ -129,10 +139,10 @@ export function attachTempleWs(server: Server): TempleRealtime {
       ws.member = member;
 
       // id gửi lại vì từ giờ máy chủ mới là người biết số của mình: máy khách dùng nó
-      // để loại chính mình khỏi danh sách avatar vẽ từ frame (main.js:1335).
+      // để loại chính mình khỏi danh sách avatar vẽ từ frame (room.ts:197 → engine.applyRoom).
       send(ws, JSON.stringify({ t: 'joined', id: profile.id }));
       if (peers.length) send(ws, JSON.stringify({ t: 'prof', p: peers }));
-      rooms.broadcast(member, JSON.stringify({ t: 'prof', p: [profile] }));
+      rooms.publish(temple, room, JSON.stringify({ t: 'prof', p: [profile] }), profile.id);
       send(ws, rooms.snapshotOf(member));
     });
 
@@ -154,12 +164,12 @@ export function attachTempleWs(server: Server): TempleRealtime {
         break;
       case 'emote':
         if (typeof msg.e === 'string') {
-          rooms.broadcast(member, JSON.stringify({ t: 'emote', id: member.profile.id, e: msg.e.slice(0, 8) }));
-        }
-        break;
-      case 'chore':
-        if (typeof msg.k === 'string') {
-          rooms.broadcast(member, JSON.stringify({ t: 'chore', id: member.profile.id, k: msg.k.slice(0, 16) }));
+          rooms.publish(
+            member.temple,
+            member.room,
+            JSON.stringify({ t: 'emote', id: member.profile.id, e: msg.e.slice(0, 8) }),
+            member.profile.id,
+          );
         }
         break;
       case 'vis':
@@ -171,8 +181,8 @@ export function attachTempleWs(server: Server): TempleRealtime {
       case 'giftSeen':
         break;
       default:
-        // Các loại tin còn lại (lantern, plant, dm, mail…) là tác vụ REST mà máy chủ
-        // broadcast sang phòng, không chiều ngược lại.
+        // Các loại tin còn lại (thả đèn, trồng cây, nhắn tin…) là tác vụ REST: máy
+        // khách gọi HTTP, máy chủ phát lại vào phòng bằng publishToTemple, không chiều ngược lại.
         break;
     }
   }

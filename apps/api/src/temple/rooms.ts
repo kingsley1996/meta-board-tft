@@ -82,10 +82,13 @@ export class TempleRooms {
     return packRoomFrame(true, members.filter((m) => !m.hidden).length, members.map((m) => m.state), []);
   }
 
-  broadcast(member: RoomMember, payload: string): void {
-    const set = this.rooms.get(keyOf(member.temple, member.room));
+  // Phát một tin JSON cho cả phòng, bỏ qua tác nhân (người gửi socket, hoặc người mà
+  // route REST vừa hành động thay). exceptId là id trên dây chứ không phải đối tượng
+  // thành viên, nên một route không có socket vẫn phát được vào phòng.
+  publish(temple: string, room: string, payload: string, exceptId?: number): void {
+    const set = this.rooms.get(keyOf(temple, room));
     if (!set) return;
-    for (const other of set) if (other !== member) other.send(payload);
+    for (const other of set) if (other.profile.id !== exceptId) other.send(payload);
   }
 
   summary(): Record<string, number> {

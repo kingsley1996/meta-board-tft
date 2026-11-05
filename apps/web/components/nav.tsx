@@ -102,6 +102,7 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
           { label: t.tierMaker, href: `/${lang}/tier-maker` },
           { label: t.quiz, href: `/${lang}/quiz` },
           { label: t.itemPriority, href: `/${lang}/item-priority` },
+          { label: t.temple, href: `/${lang}/temple` },
         ],
       ],
     },

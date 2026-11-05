@@ -39,10 +39,6 @@ const MERIT_PER: Record<string, number> = {
   chant_done: 45,
   meditate_min: 12,
   bell: 10,
-  sweep: 25,
-  plant: 25,
-  sit: 6,
-  stroll: 6,
 };
 
 // Thưởng cố định cho vài hành động nằm ngoài nhịp gõ (thả đèn, xem đèn, xỉ quẻ).

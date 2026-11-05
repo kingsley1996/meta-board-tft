@@ -51,6 +51,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
         <div className="relative z-20 flex flex-wrap items-center gap-2 pt-1">
           <CtaLink href={`/${lang}/tierlist/comps`}>{t.browseComps}</CtaLink>
           <CtaLink href={`/${lang}/guides`} kind="ghost">{t.readGuides}</CtaLink>
+          <CtaLink href={`/${lang}/temple`} kind="ghost">{t.prayLuck}</CtaLink>
         </div>
       </section>
 

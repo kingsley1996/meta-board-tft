@@ -1,5 +1,5 @@
 // Âm thanh tự tổng hợp bằng Web Audio: mõ, chuông, tiếng hạt, tiếng ngân.
-import { local } from './api.js';
+import { local } from './prefs.js';
 import { TempleMusic } from './music.js';
 
 const rand = (a, b) => a + Math.random() * (b - a);

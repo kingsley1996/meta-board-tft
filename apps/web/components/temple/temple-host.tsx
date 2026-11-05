@@ -1,109 +1,26 @@
+// Điểm mount của chánh điện React.
+//
+// Điểm mount của chánh điện React: HUD là temple-app.tsx, engine dựng qua
+// components/temple/engine.ts, còn danh tính/phòng do apps/api sở hữu. Bản cũ nạp
+// @/vendor/temple/js/main.js (HUD vẽ hết bằng innerHTML) đã bị cắt ở nhóm C — cần xem
+// lại nguyên văn thì mở ở commit cca9c6d.
 'use client';
 
-import { useEffect, useRef } from 'react';
-import meta from '@/vendor/temple/data/meta.json';
-import content from '@/vendor/temple/data/content.json';
-import { TEMPLE_MARKUP } from '@/vendor/temple/temple-markup';
+import { useEffect } from 'react';
+import { TempleApp } from './temple-app';
 
 declare global {
   interface Window {
-    __GAME_THEME__?: string;
-    __SANSA_STRESS__?: boolean;
-    __STATIC_META__?: unknown;
-    __STATIC_CONTENT__?: unknown;
     __TEMPLE_WS__?: string;
-    __TEMPLE_TICKET__?: () => Promise<string>;
-    __TEMPLE_PUSH_LOOK__?: (user: TempleUser | null | undefined) => Promise<void>;
   }
 }
 
-type TempleUser = { name?: string; sect?: string; appearance?: unknown; equipped?: unknown };
-
-const TOKEN_KEY = 'chuaxoa:token';
-
-async function templeApi(path: string, init: RequestInit): Promise<Record<string, unknown>> {
-  const res = await fetch(path, { cache: 'no-store', ...init });
-  if (!res.ok) throw new Error(`${path} -> ${res.status}`);
-  return (await res.json()) as Record<string, unknown>;
-}
-
-// Phòng chùa không nhận cookie của trang (đường WS đi thẳng tới apps/api, không qua
-// proxy /api), nên mỗi lần nối phải xin một vé chỉ dùng một lần. Vé chỉ có hiệu lực
-// với người đã có phiên: gọi /guest trước, cookie phiên khách tự được trình duyệt giữ.
-async function requestTicket(): Promise<string> {
-  await templeApi('/api/temple/guest', { method: 'POST' });
-  const body = await templeApi('/api/temple/ws-ticket', { method: 'POST' });
-  return String(body.ticket);
-}
-
-// Ngoại hình người chơi đã nặn ở onboarding sống trong hồ sơ máy khách; máy chủ mới
-// là nguồn vẽ avatar cho người khác nên phải đẩy nó lên một lần trước khi vào phòng.
-async function pushLook(user: TempleUser | null | undefined): Promise<void> {
-  if (!user) return;
-  await templeApi('/api/temple/profile', {
-    method: 'PUT',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name: user.name, sect: user.sect, appearance: user.appearance, equipped: user.equipped }),
-  });
-}
-
-// main.js gọi boot() ngay khi module được nạp, nên engine chỉ được import một
-// lần trong đời trang; import lại sẽ chạy đè lên state đang sống.
-let engineLoaded = false;
-
-function isVisible(id: string) {
-  const el = document.getElementById(id);
-  return !!el && !el.classList.contains('hidden');
-}
-
-function goToTemple(lang: string) {
-  const deadline = Date.now() + 20000;
-  const timer = window.setInterval(() => {
-    if (isVisible('welcome')) {
-      window.clearInterval(timer);
-      document.getElementById('btnEnter')?.click();
-      addExitLink(lang);
-    } else if (Date.now() > deadline) window.clearInterval(timer);
-  }, 120);
-}
-
-// Nút về app, đội đúng lớp .out-btn của chùa nên nó là một chip của HUD chùa.
-// .hud-temple có sẵn trong markup và không bị app viết lại nên gắn một lần là xong.
-function addExitLink(lang: string) {
-  const slot = document.querySelector('#temple-root .hud-temple');
-  if (!slot) return;
-  const link = document.createElement('a');
-  link.className = 'out-btn';
-  link.href = `/${lang}`;
-  link.textContent = '← Về TFTIQ';
-  slot.appendChild(link);
-}
-
 export function TempleHost({ lang }: { lang: string }) {
-  const started = useRef(false);
-
   useEffect(() => {
-    if (started.current || engineLoaded) return;
-    started.current = true;
-
-    window.__GAME_THEME__ = 'temple';
-    window.__SANSA_STRESS__ = true;
-    window.__STATIC_META__ = meta;
-    window.__STATIC_CONTENT__ = content;
     // Rewrite của Next chỉ chuyển /api/*; cú pháp nâng cấp WebSocket thì không, nên
     // phòng chùa phải được nối thẳng tới apps/api thay vì đi qua trang.
     window.__TEMPLE_WS__ = process.env.NEXT_PUBLIC_TEMPLE_WS;
-    window.__TEMPLE_TICKET__ = requestTicket;
-    window.__TEMPLE_PUSH_LOOK__ = pushLook;
+  }, []);
 
-    // Có token là boot() đi nhánh người cũ: bỏ màn nặn nhân vật, vào thẳng chánh điện.
-    if (!localStorage.getItem(TOKEN_KEY)) localStorage.setItem(TOKEN_KEY, 'tok_temple_next');
-
-    void import('@/vendor/temple/js/main.js').then(() => {
-      engineLoaded = true;
-      goToTemple(lang);
-    });
-  }, [lang]);
-
-  return <div id="temple-dom" dangerouslySetInnerHTML={{ __html: TEMPLE_MARKUP }} />;
+  return <TempleApp lang={lang} />;
 }

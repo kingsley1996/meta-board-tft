@@ -21,28 +21,67 @@ test(
   async () => {
     const { pool } = await import('../db.ts');
     const { createUser } = await import('../accounts.ts');
-    const { issueWsTicket, redeemWsTicket } = await import('./tickets.ts');
+    const { issueWsTicket, redeemWsTicket, LIVE_TICKETS_PER_USER } = await import('./tickets.ts');
 
     const user = await createUser({ email: `test-${randomUUID()}@example.com`, emailVerified: true });
     try {
-      const ticket = await issueWsTicket(user.id);
-      assert.ok(ticket?.token, 'the ticket is handed back once');
-      assert.equal(ticket?.userId, user.id);
-      assert.ok(ticket!.playerId >= 1 && ticket!.playerId <= 4_294_967_295, 'player id fits the u32 frame');
+      const issued = await issueWsTicket(user.id);
+      assert.ok(issued.ok, 'the ticket is handed back once');
+      const ticket = issued.ticket;
+      assert.equal(ticket.userId, user.id);
+      assert.ok(ticket.playerId >= 1 && ticket.playerId <= 4_294_967_295, 'player id fits the u32 frame');
       // Cấp vé cũng dựng hồ sơ chùa cho tài khoản chưa từng vào chùa, nên đường WS
       // không cần một tuyến "tạo hồ sơ" riêng.
-      assert.equal(ticket?.profile.userId, user.id);
-      assert.ok(ticket!.profile.name.length <= 28);
+      assert.equal(ticket.profile.userId, user.id);
+      assert.ok(ticket.profile.name.length <= 28);
 
-      assert.deepEqual(redeemWsTicket(ticket!.token), { userId: user.id, playerId: ticket!.playerId });
+      assert.deepEqual(redeemWsTicket(ticket.token), { userId: user.id, playerId: ticket.playerId });
       // Một vé = một kết nối: nối lại bằng đúng vé vừa dùng phải bị coi như vé giả.
-      assert.equal(redeemWsTicket(ticket!.token), null);
+      assert.equal(redeemWsTicket(ticket.token), null);
 
       assert.equal(redeemWsTicket('khong-phai-ve-cua-chua'), null);
       assert.equal(redeemWsTicket(null), null);
       assert.equal(redeemWsTicket(''), null);
     } finally {
       await pool.query('DELETE FROM users WHERE id = $1', [user.id]);
+    }
+  }
+);
+
+// Trần thay cho giới hạn theo IP: đếm số vé *một người* đang giữ mà chưa nối, nên một
+// phòng máy cùng reconnect sau lần deploy không bị chặn, còn kẻ đốt vé thì tự khoá
+// chính mình trong đúng TTL.
+test(
+  'a user can only hold a few unredeemed tickets',
+  { skip: !hasDb },
+  async () => {
+    const { pool } = await import('../db.ts');
+    const { createUser } = await import('../accounts.ts');
+    const { issueWsTicket, redeemWsTicket, LIVE_TICKETS_PER_USER } = await import('./tickets.ts');
+
+    const user = await createUser({ email: `test-${randomUUID()}@example.com`, emailVerified: true });
+    const other = await createUser({ email: `test-${randomUUID()}@example.com`, emailVerified: true });
+    const tokens: string[] = [];
+    try {
+      for (let i = 0; i < LIVE_TICKETS_PER_USER; i++) {
+        const issued = await issueWsTicket(user.id);
+        assert.ok(issued.ok, `ticket ${i + 1} of the allowance is still granted`);
+        tokens.push(issued.ticket.token);
+      }
+      const blocked = await issueWsTicket(user.id);
+      assert.deepEqual(blocked, { ok: false, reason: 'capped' }, 'the allowance is a ceiling, not a suggestion');
+
+      // Người khác không dính trần của nhau — đây là lý do trần theo IP phạt cả phòng.
+      const neighbour = await issueWsTicket(other.id);
+      assert.ok(neighbour.ok, 'another player is not affected');
+      if (neighbour.ok) tokens.push(neighbour.ticket.token);
+
+      // Dùng bớt một vé thì cửa lại mở: trần là vé *chưa nối*, không phải vé *đã xin*.
+      assert.ok(redeemWsTicket(tokens[0]));
+      const after = await issueWsTicket(user.id);
+      assert.ok(after.ok, 'redeeming one ticket frees one slot');
+    } finally {
+      await pool.query('DELETE FROM users WHERE id = ANY($1::uuid[])', [[user.id, other.id]]);
     }
   }
 );
