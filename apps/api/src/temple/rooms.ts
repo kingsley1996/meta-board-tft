@@ -63,7 +63,12 @@ export class TempleRooms {
   tick(now = Date.now()): void {
     for (const [key, set] of this.rooms) {
       const members = [...set];
-      const left = [...(this.gone.get(key) ?? [])];
+      // gone được ghi theo id, mà id đó có thể đã đứng tên lại trong cùng nhịp (tab nối
+      // lại, hoặc cú đá tab cũ ở ws.ts:123): một frame vừa mang state vừa mang gone cho
+      // cùng một người khiến máy khách xoá avatar của người đang đứng thật — và xoá luôn
+      // hồ sơ, mà hồ sơ chỉ được phát lại lúc join, nên người đó biến mất hẳn.
+      const present = new Set(members.map((m) => m.profile.id));
+      const left = [...(this.gone.get(key) ?? [])].filter((id) => !present.has(id));
       this.gone.delete(key);
 
       const full = now - (this.lastFull.get(key) ?? 0) >= TICK.fullSnapshotMs;

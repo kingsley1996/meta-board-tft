@@ -142,3 +142,34 @@ test('a member who leaves is named in the next frame for those who stay', () => 
   assert.equal(frame.readUInt16LE(5), 1);
   assert.equal(frame.readUInt32LE(7), 1);
 });
+
+// Một frame không được vừa đứng tên ai đó vừa báo người đó đã đi: máy khách đọc entries
+// trước rồi đến gone, nên người may mắn bị xoá mất avatar — và mất luôn hồ sơ, vì prof
+// chỉ được phát lại khi người đó join hoặc đổi đồ.
+test('a member who rejoins before the next tick is not announced as gone', () => {
+  const rooms = new TempleRooms();
+  const a = member(1);
+  const b = member(2);
+  rooms.add(a.member);
+  rooms.add(b.member);
+
+  // Đúng thứ tự của một cú đá tab cũ (ws.ts:123) hoặc một socket đóng muộn: remove ghi
+  // id vào gone, rồi lượt vào mới đứng tên lại cùng id đó trong cùng một nhịp.
+  const fresh = member(1);
+  rooms.remove(a.member);
+  rooms.add(fresh.member);
+  rooms.markDirty(fresh.member, readState(fresh.member.profile, { x: 4, z: 1 }));
+  rooms.tick(1);
+
+  const frame = b.inbox[0];
+  const n = frame.readUInt16LE(3);
+  const ids: number[] = [];
+  for (let o = 5; o < 5 + n * 15; o += 15) ids.push(frame.readUInt32LE(o));
+  const goneAt = 5 + n * 15;
+  const gone: number[] = [];
+  for (let i = 0, o = goneAt + 2; i < frame.readUInt16LE(goneAt); i++, o += 4) gone.push(frame.readUInt32LE(o));
+
+  assert.equal(frame.readUInt16LE(1), 2, 'two people are standing in the hall');
+  assert.deepEqual(ids, [1], 'and the rejoiner is one of them');
+  assert.deepEqual(gone, [], 'yet nobody left');
+});
