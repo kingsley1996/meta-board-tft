@@ -33,10 +33,20 @@ CREATE TABLE IF NOT EXISTS temple_profiles (
   equipped jsonb NOT NULL DEFAULT '{}'::jsonb,
   inventory jsonb NOT NULL DEFAULT '{}'::jsonb,
   no_chan boolean NOT NULL DEFAULT false,
+  -- Hai mốc chỉ máy chủ được quyền viết. buff_until là hạn "hương trầm" nhân đôi
+  -- công đức; meditate_start là giờ ngồi thiền để số phút tính ở server, không phải
+  -- do máy khách tự khai.
+  buff_until timestamptz,
+  meditate_start timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CHECK (sen >= 0 AND ngoc >= 0 AND duc >= 0 AND fruit >= 0)
 );
+
+-- Cột mới cho P2b: ADD COLUMN IF NOT EXISTS để database đã dựng từ hàng ở trên
+-- vẫn lên được mà không cần migration tay.
+ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS buff_until timestamptz;
+ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS meditate_start timestamptz;
 
 -- Một hàng cho mỗi ngày hành trì: chuỗi ngày, BXH và sổ công đức đều cộng từ đây.
 -- Không lưu từng lần lạy vì máy khách đẩy số liệu theo nhịp, và thứ cần hỏi là
@@ -49,10 +59,14 @@ CREATE TABLE IF NOT EXISTS temple_practice (
   rounds integer NOT NULL DEFAULT 0,
   meditate_min integer NOT NULL DEFAULT 0,
   chants integer NOT NULL DEFAULT 0,
+  -- Cú "ghé chùa" chỉ có công đức lần đầu trong ngày; giữ lại con số này để server
+  -- biết đã trả phần thưởng đó chưa, thay vì tin một lá thư từ máy khách.
+  visits integer NOT NULL DEFAULT 0,
   exp integer NOT NULL DEFAULT 0,
   PRIMARY KEY (user_id, day),
-  CHECK (bows >= 0 AND beads >= 0 AND rounds >= 0 AND meditate_min >= 0 AND chants >= 0)
+  CHECK (bows >= 0 AND beads >= 0 AND rounds >= 0 AND meditate_min >= 0 AND chants >= 0 AND visits >= 0)
 );
+ALTER TABLE temple_practice ADD COLUMN IF NOT EXISTS visits integer NOT NULL DEFAULT 0;
 CREATE INDEX IF NOT EXISTS temple_practice_day_idx ON temple_practice (day DESC, exp DESC);
 
 CREATE TABLE IF NOT EXISTS temple_lanterns (

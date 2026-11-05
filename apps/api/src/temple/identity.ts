@@ -33,6 +33,10 @@ export type TempleProfile = {
   inventory: Record<string, number>;
   noChan: boolean;
   level: number;
+  expNext: number;
+  // Hai mốc chỉ server viết: nhân đôi công đức tới giờ này, và giờ bắt đầu ngồi thiền.
+  buffUntil: string | null;
+  meditateStart: string | null;
 };
 
 type TempleProfileRow = {
@@ -54,6 +58,8 @@ type TempleProfileRow = {
   equipped: Record<string, string | null>;
   inventory: Record<string, number>;
   no_chan: boolean;
+  buff_until: Date | null;
+  meditate_start: Date | null;
 };
 
 // Bậc thếp lấy nguyên văn từ computeLevel() của bản gốc (api.js:195-213), bỏ nhánh
@@ -68,12 +74,18 @@ const LEVELS: { level: number; exp: number; title: string }[] = [
   { level: 7, exp: 1600, title: 'Bồ Tát Giữa Đời' },
 ];
 
-export function levelFromExp(exp: number): { level: number; title: string } {
+export function levelFromExp(exp: number): { level: number; title: string; expNext: number } {
   let cur = LEVELS[0];
-  for (const step of LEVELS) {
-    if (exp >= step.exp) cur = step;
+  let next: (typeof LEVELS)[number] | null = null;
+  for (let i = 0; i < LEVELS.length; i += 1) {
+    if (exp >= LEVELS[i].exp) {
+      cur = LEVELS[i];
+      next = LEVELS[i + 1] || null;
+    }
   }
-  return { level: cur.level, title: cur.title };
+  // Bậc cuối của thang thì không còn mốc kế tiếp; bản gốc vẫn trả một khoảng
+  // 1000 công đức để thanh tiến độ không phải chia cho 0 (api.js:212).
+  return { level: cur.level, title: cur.title, expNext: next ? next.exp : cur.exp + 1000 };
 }
 
 // '.invalid' được dành riêng (RFC 2606): không bao giờ có host thật, nên không thể
@@ -105,7 +117,7 @@ function readUInt32(): number {
 }
 
 function toProfile(row: TempleProfileRow): TempleProfile {
-  const { level, title } = levelFromExp(row.exp);
+  const { level, title, expNext } = levelFromExp(row.exp);
   return {
     userId: row.user_id,
     playerId: Number(row.player_id),
@@ -125,6 +137,9 @@ function toProfile(row: TempleProfileRow): TempleProfile {
     inventory: row.inventory,
     noChan: row.no_chan,
     level,
+    expNext,
+    buffUntil: row.buff_until ? row.buff_until.toISOString() : null,
+    meditateStart: row.meditate_start ? row.meditate_start.toISOString() : null,
   };
 }
 
@@ -138,17 +153,36 @@ export async function ensureTempleProfile(userId: string): Promise<TempleProfile
     sect: 'tinhdo',
     // 'Tâm Sáng Như Sen' là honor mặc định bản gốc cấp cho người mới (api.js:305).
     honor: 'Tâm Sáng Như Sen',
+    // Người mới đã có sẵn 20 công đức và chuỗi 1 ngày (api.js:306-311): vào chùa lần
+    // đầu mà thanh tiến độ trống trơn thì HUD hiện "0/50" thay vì một nhịp đã tu.
+    exp: 20,
+    streak: 1,
+    best_streak: 1,
     appearance: { hero: 'luffy_g5', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
     equipped: { robe: 'ao_lam', beads: 'chuoi_go', cushion: 'bo_doan_nau', hat: null, staff: null, cloud: null, pet: 'pet_nai' },
-    inventory: { pet_nai: 1 },
+    // Gói đồ ngày đầu, đúng số bản gốc phát (api.js:123-130 · api.js:333): hương, nến,
+    // hoa dâng, đèn hoa đăng, hai loại hạt giống cho vườn và một bạn Nai Vàng.
+    inventory: { huong_tram: 15, nen_sap: 10, hoa_dang: 10, den_hoa_dang: 8, hat_bo_de: 3, hat_sen_hong: 3, pet_nai: 1 },
   };
   for (let attempt = 0; ; attempt += 1) {
     try {
       await pool.query(
-        `INSERT INTO temple_profiles (user_id, player_id, name, sect, honor, appearance, equipped, inventory)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `INSERT INTO temple_profiles (user_id, player_id, name, sect, honor, exp, streak, best_streak, appearance, equipped, inventory)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
          ON CONFLICT (user_id) DO NOTHING`,
-        [userId, seed.player_id, seed.name, seed.sect, seed.honor, seed.appearance, seed.equipped, seed.inventory],
+        [
+          userId,
+          seed.player_id,
+          seed.name,
+          seed.sect,
+          seed.honor,
+          seed.exp,
+          seed.streak,
+          seed.best_streak,
+          seed.appearance,
+          seed.equipped,
+          seed.inventory,
+        ],
       );
       break;
     } catch (error) {

@@ -7,12 +7,13 @@ import { randomUUID } from 'node:crypto';
 // bên dưới kịp đặt DATABASE_URL — cùng lý do với accounts.test.ts.
 test('levelFromExp follows the ladder of the original client', async () => {
   const { levelFromExp } = await import('./identity.ts');
-  assert.deepEqual(levelFromExp(0), { level: 1, title: 'Phật tử Sơ Tâm' });
-  assert.deepEqual(levelFromExp(49), { level: 1, title: 'Phật tử Sơ Tâm' });
-  assert.deepEqual(levelFromExp(50), { level: 2, title: 'Phật tử Tinh Tấn' });
-  assert.deepEqual(levelFromExp(1600), { level: 7, title: 'Bồ Tát Giữa Đời' });
-  // Trên bậc chót thì exp vẫn tăng nhưng bậc không đổi.
-  assert.deepEqual(levelFromExp(99_999), { level: 7, title: 'Bồ Tát Giữa Đời' });
+  assert.deepEqual(levelFromExp(0), { level: 1, title: 'Phật tử Sơ Tâm', expNext: 50 });
+  assert.deepEqual(levelFromExp(49), { level: 1, title: 'Phật tử Sơ Tâm', expNext: 50 });
+  assert.deepEqual(levelFromExp(50), { level: 2, title: 'Phật tử Tinh Tấn', expNext: 150 });
+  assert.deepEqual(levelFromExp(1600), { level: 7, title: 'Bồ Tát Giữa Đời', expNext: 2600 });
+  // Trên bậc chót thì exp vẫn tăng nhưng bậc không đổi; mốc kế tiếp chỉ là chỗ
+  // trống để thanh tiến độ còn vẽ được.
+  assert.deepEqual(levelFromExp(99_999), { level: 7, title: 'Bồ Tát Giữa Đời', expNext: 2600 });
 });
 
 test('toPlayerProfile carries only what the room frame can draw', async () => {
@@ -36,6 +37,9 @@ test('toPlayerProfile carries only what the room frame can draw', async () => {
     inventory: { pet_nai: 1 },
     noChan: false,
     level: 3,
+    expNext: 320,
+    buffUntil: null,
+    meditateStart: null,
   };
   const wire = toPlayerProfile(profile);
   assert.equal(wire.id, 42);

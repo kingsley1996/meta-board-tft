@@ -3,10 +3,23 @@
 import { Router } from 'express';
 import { attemptAllowed, attemptKey, currentSessionUser, setSessionCookie } from '../auth-routes.ts';
 import { toAuthUser } from '../accounts.ts';
+import { hallRouter } from './hall.ts';
 import { createGuest, ensureTempleProfile, readProfilePatch, templeProfile, updateTempleProfile } from './identity.ts';
+import { practiceRouter } from './practice.ts';
+import { ensureTempleTables } from './schema.ts';
+import { socialRouter } from './social.ts';
+import { templeState } from './state.ts';
 import { issueWsTicket, TICKET_TTL_MS } from './tickets.ts';
+import { withUser } from './http.ts';
 
 export const templeRouter = Router();
+
+// Danh tính ở file này; nhịp tu tập, hoa đăng/vườn cây/bảng tri ân và bạn bè nằm
+// trong từng module riêng rồi gắn vào cùng một gốc /api/temple, để HUD chỉ phải biết
+// một tiền tố.
+templeRouter.use(practiceRouter);
+templeRouter.use(hallRouter);
+templeRouter.use(socialRouter);
 
 // Vào chùa không cần tài khoản (-- 01): một cú POST đổi lấy phiên khách (cookie như
 // mọi phiên thật) và một hồ sơ nhân vật. Người đăng ký sau đó sẽ được nâng cấp chính
@@ -35,6 +48,15 @@ templeRouter.get('/me', async (req, res) => {
   const profile = (await templeProfile(user.id)) ?? (await ensureTempleProfile(user.id));
   res.json({ guest: user.isGuest, user, profile });
 });
+
+// Nạp HUD: một request trả toàn bộ những gì một người nhìn thấy khi vào chùa — ví,
+// bậc, chuỗi ngày, túi đồ và số liệu hôm nay. Tách khỏi /me vì /me trả hồ sơ danh
+// tính (uuid, email) mà HUD không cần tới.
+templeRouter.get('/state', withUser(async (req, res, user) => {
+  await ensureTempleTables();
+  const profile = await ensureTempleProfile(user.id);
+  res.json({ state: await templeState(user.id, { journal: true }), guest: user.isGuest, player_id: profile.playerId });
+}));
 
 // Xin vé (-- 03) trước khi nối WebSocket. Cookie phiên đi theo request HTTP này (cùng
 // host với trang, qua proxy /api của Next), còn bản thân đường WS thì không — nên vé
