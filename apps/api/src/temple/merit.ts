@@ -197,6 +197,42 @@ export async function practiceToday(userId: string, day = vnDay()): Promise<Prac
   };
 }
 
+// Tổng cả đời tu, không theo ngày. Hai chỗ trong HUD cần nó mà không suy ra được từ
+// `today`: mốc "108 lạy đầu tiên" (main.js:1839 so với số lạy tích luỹ) và nhãn
+// "Vòng thứ N" của tràng hạt — cả hai đều là chuyện của cả quá trình, còn
+// temple_practice thì mỗi ngày một hàng và hàng cũ bị journal cắt ở 28 ngày.
+export async function practiceLifetime(userId: string): Promise<PracticeDelta> {
+  const { rows } = await pool.query<{
+    bows: number;
+    beads: number;
+    rounds: number;
+    meditate_min: number;
+    chants: number;
+    visits: number;
+    exp: number;
+  }>(
+    `SELECT COALESCE(SUM(bows), 0)::int AS bows,
+            COALESCE(SUM(beads), 0)::int AS beads,
+            COALESCE(SUM(rounds), 0)::int AS rounds,
+            COALESCE(SUM(meditate_min), 0)::int AS meditate_min,
+            COALESCE(SUM(chants), 0)::int AS chants,
+            COALESCE(SUM(visits), 0)::int AS visits,
+            COALESCE(SUM(exp), 0)::int AS exp
+       FROM temple_practice WHERE user_id = $1`,
+    [userId],
+  );
+  const row = rows[0];
+  return {
+    bows: row?.bows ?? 0,
+    beads: row?.beads ?? 0,
+    rounds: row?.rounds ?? 0,
+    meditateMin: row?.meditate_min ?? 0,
+    chants: row?.chants ?? 0,
+    visits: row?.visits ?? 0,
+    exp: row?.exp ?? 0,
+  };
+}
+
 // Sổ công đức 28 ngày: BXH tuần và trang "tu tập của tôi" cùng đọc từ đây.
 export async function practiceJournal(userId: string, days = 28): Promise<{ day: string; exp: number }[]> {
   const { rows } = await pool.query<{ day: string; exp: number }>(

@@ -2,7 +2,7 @@
 // đúng một kiểu dữ liệu thay vì hai mươi hình dạng khác nhau theo từng tuyến.
 import { pool } from '../db.ts';
 import { levelFromExp, templeProfile, type TempleProfile } from './identity.ts';
-import { practiceJournal, practiceToday, type PracticeDelta } from './merit.ts';
+import { practiceJournal, practiceLifetime, practiceToday, type PracticeDelta } from './merit.ts';
 
 export type TempleState = {
   id: number;
@@ -25,6 +25,7 @@ export type TempleState = {
   buff_until: string | null;
   meditate_start: string | null;
   today: PracticeDelta & { day: string };
+  lifetime: PracticeDelta;
   journal?: { day: string; exp: number }[];
 };
 
@@ -39,7 +40,7 @@ export type PublicPlayer = {
   level: number;
 };
 
-export function toState(profile: TempleProfile, today: PracticeDelta & { day: string }): TempleState {
+export function toState(profile: TempleProfile, today: PracticeDelta & { day: string }, lifetime: PracticeDelta): TempleState {
   const ladder = levelFromExp(profile.exp);
   return {
     id: profile.playerId,
@@ -64,6 +65,7 @@ export function toState(profile: TempleProfile, today: PracticeDelta & { day: st
     buff_until: profile.buffUntil,
     meditate_start: profile.meditateStart,
     today,
+    lifetime,
   };
 }
 
@@ -73,8 +75,8 @@ export function toState(profile: TempleProfile, today: PracticeDelta & { day: st
 export async function templeState(userId: string, opts: { journal?: boolean } = {}): Promise<TempleState> {
   const profile = await templeProfile(userId);
   if (!profile) throw new Error(`no temple profile for ${userId}`);
-  const today = await practiceToday(userId);
-  const state = toState(profile, today);
+  const [today, lifetime] = await Promise.all([practiceToday(userId), practiceLifetime(userId)]);
+  const state = toState(profile, today, lifetime);
   if (opts.journal) state.journal = await practiceJournal(userId);
   return state;
 }

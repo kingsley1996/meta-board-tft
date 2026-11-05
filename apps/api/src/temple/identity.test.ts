@@ -88,7 +88,12 @@ test(
       assert.equal(profile.ngoc, 200);
       assert.equal(profile.duc, 100);
       assert.equal(profile.equipped.robe, 'ao_lam', 'defaults copied from the original client');
-      assert.equal(profile.inventory.pet_nai, 1);
+      // Ba id này phải có thật trong meta.json: world.js:474 tra this.items[id].data,
+      // nên một id lạ là một người mới không bồ đoàn, không bạn đồng hành.
+      assert.equal(profile.equipped.cushion, 'bd_nau');
+      assert.equal(profile.equipped.pet, 'lt_huou');
+      assert.equal(profile.inventory.lt_huou, 1);
+      assert.equal(profile.inventory.cay_bode, 3);
       assert.equal(profile.level, levelFromExp(profile.exp).level);
 
       // Idempotent: gọi lại không được mọc thêm hồ sơ hay đổi tên đang dùng.

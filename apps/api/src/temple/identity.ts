@@ -6,7 +6,7 @@
 // nên công đức, cây, bạn bè đã lưu dưới khoá users(id) tự động ở lại.
 //
 // Giá trị mặc định lấy đúng như source gốc đã khởi tạo nhân vật (api.js:296-337):
-// áo lam, chuỗi gỗ, bồ đoàn nâu, Nai Vàng tặng sẵn — đổi số này là đổi cảm giác
+// áo lam, chuỗi gỗ, bồ đoàn nâu, Hươu Lộc Uyển tặng sẵn — đổi số này là đổi cảm giác
 // "ngày đầu đi chùa" mà người viết engine đã chọn.
 import { randomBytes } from 'node:crypto';
 import { createSession, createUser, type UserRow } from '../accounts.ts';
@@ -159,10 +159,13 @@ export async function ensureTempleProfile(userId: string): Promise<TempleProfile
     streak: 1,
     best_streak: 1,
     appearance: { hero: 'luffy_g5', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
-    equipped: { robe: 'ao_lam', beads: 'chuoi_go', cushion: 'bo_doan_nau', hat: null, staff: null, cloud: null, pet: 'pet_nai' },
+    // Id phải là id có thật trong meta.json: world.js:474 tra this.items[id].data, nên
+    // một id lạ (bản mock cũ viết 'bo_doan_nau'/'pet_nai') nghĩa là không có bồ đoàn,
+    // không có bạn đồng hành — người mới vào chùa mà tay không.
+    equipped: { robe: 'ao_lam', beads: 'chuoi_go', cushion: 'bd_nau', hat: null, staff: null, cloud: null, pet: 'lt_huou' },
     // Gói đồ ngày đầu, đúng số bản gốc phát (api.js:123-130 · api.js:333): hương, nến,
-    // hoa dâng, đèn hoa đăng, hai loại hạt giống cho vườn và một bạn Nai Vàng.
-    inventory: { huong_tram: 15, nen_sap: 10, hoa_dang: 10, den_hoa_dang: 8, hat_bo_de: 3, hat_sen_hong: 3, pet_nai: 1 },
+    // hoa dâng, đèn hoa đăng, hai loại cây cho vườn và một bạn Hươu Lộc Uyển.
+    inventory: { huong_tram: 15, nen_sap: 10, hoa_dang: 10, den_hoa_dang: 8, cay_bode: 3, cay_sen: 3, lt_huou: 1 },
   };
   for (let attempt = 0; ; attempt += 1) {
     try {

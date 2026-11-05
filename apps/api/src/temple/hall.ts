@@ -5,7 +5,7 @@
 // máy khách nữa. Column temple vẫn nằm trong schema để dữ liệu cũ không vô nghĩa.
 import { Router } from 'express';
 import { pool } from '../db.ts';
-import { ensureTempleProfile } from './identity.ts';
+import { ensureTempleProfile, levelFromExp } from './identity.ts';
 import { ApiError, num, text, withUser } from './http.ts';
 import { LANTERN_EXP, QUE_EXP, REJOICE_EXP, addMerit, consumeItem, grantItem, vnDay } from './merit.ts';
 import { ensureTempleTables } from './schema.ts';
@@ -131,15 +131,15 @@ hallRouter.get('/garden', withUser(async (req, res) => {
   res.json({ trees: Number(rows[0]?.n ?? 0) });
 }));
 
-// Trồng cây cần một túi hạt: hat_bo_de / hat_sen_hong là hai loại hạt bản gốc phát
-// cho người mới (api.js:129-130), không phải id bịa ra.
-const SEEDS: Record<string, true> = { hat_bo_de: true, hat_sen_hong: true };
+// Chỉ ba id này là cây trồng được: chores.js:116 (PLANT_KIND) dựng mô hình 3D theo
+// đúng ba loại đó, nên một id khác dù có trong túi cũng chỉ là một cái hố trống.
+const SEEDS: Record<string, true> = { cay_bode: true, cay_sen: true, cay_sala: true };
 
 hallRouter.post('/plants', withUser(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
   const item = String(req.body?.item ?? '');
-  if (!SEEDS[item]) throw new ApiError(400, 'not_a_seed', 'the temple only plants hat_bo_de and hat_sen_hong');
+  if (!SEEDS[item]) throw new ApiError(400, 'not_a_seed', 'the temple only plants cay_bode, cay_sen and cay_sala');
   const existing = await readPlants(user.id);
   if (existing.length >= CAP_PER_TEMPLE) throw new ApiError(409, 'garden_full', 'the garden is full');
   const spent = await spendItem(user.id, item);
@@ -214,15 +214,17 @@ hallRouter.post('/plants/exchange', withUser(async (req, res, user) => {
 
 hallRouter.get('/stele', withUser(async (req, res) => {
   await ensureTempleTables();
-  const { rows } = await pool.query<{ name: string; honor: string; score: number }>(
-    `SELECT p.name, p.honor, SUM(d.amount)::int AS score
+  // temple.js:439 (drawStele) khắc đúng ba chữ name/title/score lên bia, nên đây trả
+  // về title chứ không phải honor như mấy bảng khác.
+  const { rows } = await pool.query<{ name: string; title: string; exp: number; score: number }>(
+    `SELECT p.name, p.title, p.exp, SUM(d.amount)::int AS score
        FROM temple_donations d
        JOIN temple_profiles p ON p.user_id = d.user_id
-      GROUP BY p.name, p.honor
+      GROUP BY p.name, p.title, p.exp
       ORDER BY score DESC
       LIMIT 12`,
   );
-  res.json({ rows });
+  res.json({ rows: rows.map((r) => ({ name: r.name, title: r.title || levelFromExp(r.exp).title, score: r.score })) });
 }));
 
 hallRouter.get('/donations', withUser(async (req, res) => {

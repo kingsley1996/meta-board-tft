@@ -88,12 +88,14 @@ test(
       assert.equal(me.me.sen, 500, 'the wallet of the original build');
       assert.equal(me.me.inventory.den_hoa_dang, 8);
       assert.equal(me.me.today.bows, 0);
+      assert.equal(me.me.lifetime.bows, 0);
       assert.equal((await send('/api/temple/state')).status, 401, 'no cookie, no state');
 
       // --- Nhịp lạy: ngưỡng nằm ở server, không ở máy khách ------------------
       const bows = (await post('/api/temple/practice', { type: 'bow', count: 3 }, me.cookie)).json;
       assert.equal(bows.gained, 15, 'three bows at five merit each, exactly the original ladder');
       assert.equal(bows.state.today.bows, 3);
+      assert.equal(bows.state.lifetime.bows, 3, 'the milestone counter reads the same ledger');
       assert.equal(bows.state.exp, 35, '20 seeded on day one plus the gate above');
       const over = await post('/api/temple/practice', { type: 'bow', count: 9999 }, me.cookie);
       assert.equal(over.status, 400, 'one packet cannot buy a level');
@@ -137,7 +139,7 @@ test(
       await pool.query('UPDATE temple_profiles SET buff_until = NULL WHERE user_id = $1', [me.user]);
 
       const nothing = await newUser('Không Hương');
-      await pool.query("UPDATE temple_profiles SET inventory = '{\"pet_nai\": 1}'::jsonb WHERE user_id = (SELECT user_id FROM temple_profiles WHERE player_id = $1)", [
+      await pool.query("UPDATE temple_profiles SET inventory = '{\"lt_huou\": 1}'::jsonb WHERE user_id = (SELECT user_id FROM temple_profiles WHERE player_id = $1)", [
         nothing.me.id,
       ]);
       const broke = await post('/api/temple/use', { item: 'huong_tram' }, nothing.cookie);
@@ -163,7 +165,7 @@ test(
       assert.equal((await post('/api/temple/lanterns', { text: 'x'.repeat(200) }, me.cookie)).status, 400);
 
       // --- Vườn cây ----------------------------------------------------------
-      assert.equal((await post('/api/temple/plants', { item: 'hat_bo_de', x: 3.5, z: 12 }, me.cookie)).status, 200);
+      assert.equal((await post('/api/temple/plants', { item: 'cay_bode', x: 3.5, z: 12 }, me.cookie)).status, 200);
       assert.equal((await post('/api/temple/plants', { item: 'ao_lam', x: 1, z: 1 }, me.cookie)).status, 400, 'only seeds go in the ground');
       const garden = (await get('/api/temple/plants', me.cookie)).json;
       assert.equal(garden.plants.length, 1);
@@ -186,6 +188,10 @@ test(
       assert.equal((await post('/api/temple/donations', { amount: 9_999_999 }, me.cookie)).status, 400, 'and a gift that large is not a gift');
       const stele = (await get('/api/temple/stele', me.cookie)).json.rows as Json[];
       assert.equal(stele[0].score, 120);
+      // temple.js:439 khắc name/title/score lên bia, nên title phải là danh hiệu theo
+      // bậc của chính người cúng, không phải honor và cũng không phải rỗng.
+      const donorTitle = (await get('/api/temple/state', me.cookie)).json.state.title as string;
+      assert.equal(stele[0].title, donorTitle);
       assert.equal(((await get('/api/temple/donations', me.cookie)).json.rows as Json[])[0].note, 'Cúng dường tam bảo');
 
       // --- Lộc: một lần mỗi ngày ---------------------------------------------
