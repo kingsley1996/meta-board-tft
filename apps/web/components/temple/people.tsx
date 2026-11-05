@@ -10,7 +10,7 @@ import type { Gain, PublicPlayer } from './api';
 import { get, post } from './api';
 import { ITEMS, Sound, TEMPLE, sectOf } from './engine';
 import { ABBOT, HERMIT_LESSONS, WISHES, guideOf, storyOf, tellersOf } from './stories';
-import { Icon, Sheet, ago, fmt, type Store } from './ui';
+import { Icon, Sheet, ago, fmt, type Notice, type Store } from './ui';
 
 export type Group = {
   id: number;
@@ -367,7 +367,7 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
 
 // ---- Đồng tu: bạn bè · tin nhắn · quà kết duyên ------------------------------
 
-export function FriendsSheet({ s, onClose, onChat }: { s: Store; onClose: () => void; onChat: (id: number) => void }) {
+export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice: Notice | null; onClose: () => void; onChat: (id: number) => void }) {
   const [tab, setTab] = useState('friends');
   const [list, setList] = useState<FriendList>(EMPTY_FRIENDS);
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -391,6 +391,12 @@ export function FriendsSheet({ s, onClose, onChat }: { s: Store; onClose: () => 
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Có tin mới bay tới trong lúc sheet đang mở thì đọc lại ba tab, thay vì bắt người
+  // chơi đóng–mở để thấy lời mời hoặc số tin chưa đọc vừa đổi.
+  useEffect(() => {
+    if (notice) void load();
+  }, [notice, load]);
 
   const act = async (id: number, action: string) => {
     try {
@@ -581,7 +587,7 @@ export function FriendsSheet({ s, onClose, onChat }: { s: Store; onClose: () => 
 
 // ---- Hộp thư riêng -----------------------------------------------------------
 
-export function ChatModal({ s, id, onClose }: { s: Store; id: number; onClose: () => void }) {
+export function ChatModal({ s, id, notice, onClose }: { s: Store; id: number; notice: Notice | null; onClose: () => void }) {
   const [dm, setDm] = useState<Dm | null>(null);
   const [text, setText] = useState('');
   const list = useRef<HTMLDivElement>(null);
@@ -593,7 +599,16 @@ export function ChatModal({ s, id, onClose }: { s: Store; id: number; onClose: (
         setDm(r);
         requestAnimationFrame(() => list.current?.scrollTo({ top: list.current.scrollHeight }));
       })
-      .catch((e: Error) => s.toast(e.message));  }, [id]);
+      .catch((e: Error) => s.toast(e.message));
+  }, [id]);
+
+  // Hộp thư đang mở mà tin tới thì vẽ ngay: gói tin báo của máy chủ mang theo cả nội
+  // dung, nên không phải xin lại GET /dms/:id. Chưa mở kịp hồ sơ thì để lượt GET kế
+  // tiếp đọc — tin đã nằm trong database rồi, không mất.
+  useEffect(() => {
+    if (!notice || notice.t !== 'dm' || notice.by.id !== id) return;
+    setDm((prev) => (prev ? { ...prev, messages: [...prev.messages, { mine: false, text: notice.text, at: notice.at }] } : prev));
+  }, [notice, id]);
 
   useEffect(() => {
     list.current?.scrollTo({ top: list.current.scrollHeight });

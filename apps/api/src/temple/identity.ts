@@ -163,9 +163,10 @@ export async function ensureTempleProfile(userId: string): Promise<TempleProfile
     // một id lạ (bản mock cũ viết 'bo_doan_nau'/'pet_nai') nghĩa là không có bồ đoàn,
     // không có bạn đồng hành — người mới vào chùa mà tay không.
     equipped: { robe: 'ao_lam', beads: 'chuoi_go', cushion: 'bd_nau', hat: null, staff: null, cloud: null, pet: 'lt_huou' },
-    // Gói đồ ngày đầu, đúng số bản gốc phát (api.js:123-130 · api.js:333): hương, nến,
-    // hoa dâng, đèn hoa đăng, hai loại cây cho vườn và một bạn Hươu Lộc Uyển.
-    inventory: { huong_tram: 15, nen_sap: 10, hoa_dang: 10, den_hoa_dang: 8, cay_bode: 3, cay_sen: 3, lt_huou: 1 },
+    // Gói đồ ngày đầu, đúng số bản gốc phát (api.js:123-130 · api.js:333), trừ đèn hoa
+    // đăng vì tính năng đó đã bỏ: hương, nến, hoa dâng, hai loại cây cho vườn và một
+    // bạn Hươu Lộc Uyển.
+    inventory: { huong_tram: 15, nen_sap: 10, hoa_dang: 10, cay_bode: 3, cay_sen: 3, lt_huou: 1 },
   };
   for (let attempt = 0; ; attempt += 1) {
     try {
@@ -252,6 +253,11 @@ const ID_PATTERN = /^[0-9a-z_]{1,24}$/;
 const APPEARANCE_KEYS = ['hero', 'hair'];
 const EQUIPPED_KEYS = ['robe', 'beads', 'cushion', 'hat', 'staff', 'cloud', 'pet'];
 
+// avatar.js:HERO_LIST — 12 nhân vật engine nặn được. Id lạ không rơi về áo lam như
+// đồ trang phục: resolveHero (avatar.js:877) quay vòng sang một nhân vật ngẫu nhiên
+// rồi hồ sơ lưu nguyên cái id không ai vẽ được đó.
+const HERO_IDS = ['luffy_g5', 'naruto_sage', 'zoro', 'sasuke', 'sanji', 'kakashi', 'law', 'itachi', 'ace', 'shanks', 'minato', 'kaido'];
+
 function cleanId(value: unknown): string | null | undefined {
   if (value === null) return null;
   if (typeof value !== 'string') return undefined;
@@ -260,7 +266,8 @@ function cleanId(value: unknown): string | null | undefined {
 
 // Lọc trắng ngay ở ranh giới: id áo/ chuỗi là chữ thường không dấu nên kiểm khuông
 // là đủ, và engine tự rơi về áo lam khi gặp id lạ (world.js:476) — một id bịa ra chỉ
-// làm hỏng avatar của chính người nhập, không làm hỏng chánh điện.
+// làm hỏng avatar của chính người nhập, không làm hỏng chánh điện. Riêng nhận vật thì
+// phải khước từ outright, vì id lạ không rơi về đâu cả mà quay vòng ngẫu nhiên.
 export function readProfilePatch(body: Record<string, unknown> | undefined): ProfilePatch | null {
   if (!body || typeof body !== 'object') return null;
   const patch: ProfilePatch = {};
@@ -279,7 +286,9 @@ export function readProfilePatch(body: Record<string, unknown> | undefined): Pro
     const out: Record<string, unknown> = {};
     for (const key of APPEARANCE_KEYS) {
       const id = cleanId(src[key]);
-      if (id !== undefined) out[key] = id;
+      if (id === undefined) continue;
+      if (key === 'hero' && id !== null && !HERO_IDS.includes(id)) return null;
+      out[key] = id;
     }
     if (typeof src.gender === 'string' && (src.gender === 'nam' || src.gender === 'nu')) out.gender = src.gender;
     if (typeof src.skin === 'string' && /^#[0-9a-f]{6}$/i.test(src.skin)) out.skin = src.skin.toLowerCase();

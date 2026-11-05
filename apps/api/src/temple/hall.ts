@@ -1,5 +1,5 @@
-// Những gì cả chùa cùng nhìn thấy: đèn hoa đăng, vườn cây, bảng tri ân, vòng quay
-// lộc, xỉ quẻ và tin chạy.
+// Những gì cả chùa cùng nhìn thấy: vườn cây, bảng tri ân, vòng quay lộc, xỉ quẻ
+// và tin chạy.
 //
 // Một nơi duy nhất: "multi-temple" đã bị cắt theo đề bài, nên temple không lấy từ
 // máy khách nữa. Column temple vẫn nằm trong schema để dữ liệu cũ không vô nghĩa.
@@ -7,20 +7,13 @@ import { Router } from 'express';
 import { pool } from '../db.ts';
 import { ensureTempleProfile, levelFromExp } from './identity.ts';
 import { ApiError, num, text, withUser } from './http.ts';
-import { LANTERN_EXP, QUE_EXP, REJOICE_EXP, addMerit, consumeItem, grantItem, vnDay } from './merit.ts';
+import { QUE_EXP, addMerit, consumeItem, grantItem, vnDay } from './merit.ts';
 import { ensureTempleTables } from './schema.ts';
 import { templeState } from './state.ts';
-import { publishToTemple } from './ws.ts';
 
 export const hallRouter = Router();
 
 const TEMPLE_ID = 'nhattru';
-// Khóa phòng mà máy khách nối vào (temple-app.tsx:370); 'chung' là phòng còn lại sau
-// khi cắt bản đồ nhiều chùa, và ws.ts lấy nó làm mặc định.
-const ROOM_ID = 'chung';
-// Lời nguyện của một ngọn đèn bay lên cả chánh điện, nên nó là nội dung do người
-// khác duyệt, không phải chuỗi tự do đổ vào DOM.
-const MAX_WISH = 120;
 const CAP_PER_TEMPLE = 50;
 const PICK_INTERVAL_MS = 24 * 3_600_000;
 
@@ -42,90 +35,9 @@ const WHEEL_SEGMENTS: Segment[] = [
   { label: '50 Sen', pct: 25, sen: 50 },
   { label: '20 Ngọc', pct: 15, ngoc: 20 },
   { label: '3 Nén Hương Trầm', pct: 15, item: 'huong_tram', count: 3 },
-  { label: '2 Đèn Hoa Đăng', pct: 10, item: 'den_hoa_dang', count: 2 },
+  { label: '5 Bó Hoa Dâng', pct: 10, item: 'hoa_dang', count: 5 },
   { label: '100 Ngọc Quý', pct: 5, ngoc: 100, rare: true },
 ];
-
-// ---- Đèn hoa đăng ------------------------------------------------------------
-
-hallRouter.get('/lanterns', withUser(async (req, res, user) => {
-  await ensureTempleTables();
-  const { rows } = await pool.query<LanternRow>(
-    `SELECT l.id, l.user_id, p.name, l.text, l.likes, l.status, l.created_at,
-            EXISTS (SELECT 1 FROM temple_lantern_rejoices r WHERE r.lantern_id = l.id AND r.user_id = $1) AS rejoiced
-       FROM temple_lanterns l
-       JOIN temple_profiles p ON p.user_id = l.user_id
-      WHERE (l.status = 'live' OR l.user_id = $1)
-      ORDER BY l.created_at DESC
-      LIMIT 60`,
-    [user.id],
-  );
-  res.json({
-    lanterns: rows.map((r) => ({
-      id: Number(r.id),
-      name: r.name,
-      text: r.text,
-      likes: r.likes,
-      mine: r.user_id === user.id,
-      yours: r.status,
-      rejoiced: r.rejoiced,
-      at: r.created_at.toISOString(),
-    })),
-  });
-}));
-
-// Thả đèn cần một chiếc đèn trong túi: đó là lý do hồ sơ mới được phát sẵn 8 đèn
-// (identity.ts: seed lấy từ api.js:123-130) thay vì để ai cũng thả được vô hạn.
-hallRouter.post('/lanterns', withUser(async (req, res, user) => {
-  await ensureTempleTables();
-  const profile = await ensureTempleProfile(user.id);
-  const wish = req.body?.text === undefined || String(req.body.text).trim() === ''
-    ? 'Nguyện cầu bình an cho muôn loài 🪷'
-    : text(req.body.text, MAX_WISH, 'invalid_wish');
-
-  const spent = await spendItem(user.id, 'den_hoa_dang');
-  if (!spent) throw new ApiError(409, 'out_of_lanterns', 'no lantern left in the bag');
-
-  const emailVerified = user.emailVerified;
-  const { rows } = await pool.query<LanternRow>(
-    `INSERT INTO temple_lanterns (user_id, temple, text, status)
-     VALUES ($1, $2, $3, $4) RETURNING *`,
-    [user.id, TEMPLE_ID, wish, emailVerified ? 'live' : 'pending'],
-  );
-  // 15 Sen cho một ngọn đèn là con số bản gốc treo thưởng (api.js:558); 8 trong số đó
-  // đã nằm sẵn trong tỉ lệ công đức → Sen nên phần cộng thêm chỉ là chỗ còn lại.
-  const merit = await addMerit(user.id, { exp: LANTERN_EXP, sen: 7 });
-  // Đèn bay lên là thứ cả chánh điện cùng nhìn thấy, nên phòng phải biết ngay thay vì
-  // chờ người ta tải lại trang. Đèn còn chờ duyệt thì chưa có gì để xem.
-  if (rows[0].status === 'live') {
-    publishToTemple(TEMPLE_ID, ROOM_ID, { t: 'lantern', name: profile.name, text: rows[0].text }, profile.playerId);
-  }
-  res.json({
-    state: await templeState(user.id),
-    lantern: { id: Number(rows[0].id), text: rows[0].text, status: rows[0].status },
-    gained: merit.gained,
-    level_ups: merit.levelUps,
-  });
-}));
-
-// "Hoan hỷ" với đèn của người khác: một lần mỗi người mỗi đèn, vì mỗi lượt cộng thêm
-// Sen cho chủ đèn.
-hallRouter.post('/lanterns/:id/rejoice', withUser(async (req, res, user) => {
-  await ensureTempleTables();
-  const id = num(req.params.id, 1, Number.MAX_SAFE_INTEGER, 'invalid_lantern_id');
-  const inserted = await pool.query(
-    'INSERT INTO temple_lantern_rejoices (lantern_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING lantern_id',
-    [id, user.id],
-  );
-  if (!inserted.rowCount) throw new ApiError(409, 'already_rejoiced', 'this lantern was already rejoiced');
-  const owner = await pool.query<{ user_id: string }>('SELECT user_id FROM temple_lanterns WHERE id = $1', [id]);
-  const ownerId = owner.rows[0]?.user_id;
-  if (!ownerId) throw new ApiError(404, 'lantern_not_found', 'no such lantern');
-  if (ownerId !== user.id) await pool.query('UPDATE temple_profiles SET sen = sen + 2 WHERE user_id = $1', [ownerId]);
-  const likes = await pool.query<{ likes: number }>('UPDATE temple_lanterns SET likes = likes + 1 WHERE id = $1 RETURNING likes', [id]);
-  const merit = await addMerit(user.id, { exp: REJOICE_EXP });
-  res.json({ state: await templeState(user.id), likes: likes.rows[0]?.likes ?? 0, gained: merit.gained, level_ups: merit.levelUps });
-}));
 
 // ---- Vườn cây ----------------------------------------------------------------
 
@@ -343,8 +255,6 @@ hallRouter.get('/announcements', withUser(async (req, res) => {
 }));
 
 // ---- helpers ------------------------------------------------------------------
-
-type LanternRow = { id: string; user_id: string; name: string; text: string; likes: number; status: string; created_at: Date; rejoiced?: boolean };
 
 type PlantRow = { id: string; user_id: string; item: string; x: string; z: string; fruits: number; per_pick: number; ripe: boolean; next_pick_at: Date | null; created_at: Date; name: string };
 

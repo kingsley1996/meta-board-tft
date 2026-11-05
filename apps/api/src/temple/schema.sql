@@ -69,27 +69,6 @@ CREATE TABLE IF NOT EXISTS temple_practice (
 ALTER TABLE temple_practice ADD COLUMN IF NOT EXISTS visits integer NOT NULL DEFAULT 0;
 CREATE INDEX IF NOT EXISTS temple_practice_day_idx ON temple_practice (day DESC, exp DESC);
 
-CREATE TABLE IF NOT EXISTS temple_lanterns (
-  id bigserial PRIMARY KEY,
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  temple text NOT NULL,
-  text text NOT NULL CHECK (char_length(text) BETWEEN 1 AND 120),
-  likes integer NOT NULL DEFAULT 0,
-  -- Lời nguyện của người chưa xác minh email nằm ở pending cho tới khi được duyệt;
-  -- đèn bay lên cả hall cùng thấy nên không thể để tự do ghi thẳng.
-  status text NOT NULL DEFAULT 'live' CHECK (status IN ('pending', 'live', 'rejected')),
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-CREATE INDEX IF NOT EXISTS temple_lanterns_feed_idx ON temple_lanterns (temple, status, created_at DESC);
-
--- Tuỳ hỷ: một người chỉ được một lần cho một đèn, vì mỗi lần cộng 2 Sen cho chủ đèn.
-CREATE TABLE IF NOT EXISTS temple_lantern_rejoices (
-  lantern_id bigint NOT NULL REFERENCES temple_lanterns(id) ON DELETE CASCADE,
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  PRIMARY KEY (lantern_id, user_id)
-);
-
 CREATE TABLE IF NOT EXISTS temple_plants (
   id bigserial PRIMARY KEY,
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,

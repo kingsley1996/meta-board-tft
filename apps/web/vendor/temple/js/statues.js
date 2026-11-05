@@ -1220,10 +1220,6 @@ function decodeFigure(buf) {
   return fig;
 }
 const baking = new Map();
-// Tải lưới tính sẵn. Lỗi mạng hay tệp hỏng cũng không sao: buildStatue tự tính như cũ.
-export function preloadFigures(kinds) {
-  return Promise.resolve();
-}
 function addMesh(g, geo, mat, cast = true) {
   const m = new THREE.Mesh(geo, mat);
   m.castShadow = cast; m.receiveShadow = true;

@@ -48,6 +48,23 @@ export type PublicPlayer = {
   level: number;
 };
 
+// Trả lời của POST /guest — hồ sơ danh tính máy chủ vừa cấp. Phần này đủ để dựng avatar
+// trong chánh điện mà chưa cần tới số liệu hành trì, nên cảnh bắt đầu xây ngay thay vì
+// chờ thêm một round trip nữa.
+export type GuestReply = {
+  guest: boolean;
+  profile: {
+    playerId: number;
+    name: string;
+    sect: string;
+    title: string;
+    honor: string;
+    level: number;
+    appearance: Record<string, unknown>;
+    equipped: Record<string, string | null>;
+  };
+};
+
 export type Gain = {
   state: TempleState;
   gained?: number;
@@ -75,11 +92,9 @@ const MESSAGES: Record<string, string> = {
   invalid_player_id: 'Không tìm thấy người này',
   no_such_player: 'Người này không còn trong chùa',
   already_friends: 'Hai bạn đã là đồng tu rồi',
-  already_rejoiced: 'Ngọn đèn này bạn đã tùy hỷ rồi',
   already_meditating: 'Bạn đang ngồi thiền rồi',
   not_meditating: 'Chưa có thời thiền nào để kết thúc',
   out_of_item: 'Hộp đã hết vật phẩm này',
-  out_of_lanterns: 'Hết đèn hoa đăng rồi',
   out_of_seeds: 'Hết hạt giống rồi',
   not_ripe: 'Cây chưa chín, để dành cho lần sau',
   no_fruit: 'Chưa có quả quý để đổi',

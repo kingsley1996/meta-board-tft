@@ -41,9 +41,7 @@ const MERIT_PER: Record<string, number> = {
   bell: 10,
 };
 
-// Thưởng cố định cho vài hành động nằm ngoài nhịp gõ (thả đèn, xem đèn, xỉ quẻ).
-export const LANTERN_EXP = 20;
-export const REJOICE_EXP = 5;
+// Thưởng cố định cho vài hành động nằm ngoài nhịp gõ (xỉ quẻ).
 export const QUE_EXP = 15;
 
 export type PracticeDelta = {

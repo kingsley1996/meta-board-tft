@@ -3,8 +3,8 @@
 //
 // Vì sao không đi qua Next: rewrite /api/* chỉ chuyển request HTTP, còn cú pháp nâng
 // cấp WebSocket thì không, nên phòng phải được nối thẳng tới origin của API
-// (NEXT_PUBLIC_TEMPLE_WS). Danh tính nằm trong tấm vé xin qua /api — cookie không đi
-// theo đường nâng cấp này.
+// (NEXT_PUBLIC_TEMPLE_WS, mã hoá vào bundle client ngay lúc build). Danh tính nằm trong
+// tấm vé xin qua /api — cookie không đi theo đường nâng cấp này.
 'use client';
 
 import { wsTicket } from './api';
@@ -61,7 +61,7 @@ export class TempleRoom {
 
   async connect(): Promise<void> {
     if (this.closed) return;
-    const base = window.__TEMPLE_WS__ || `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`;
+    const base = process.env.NEXT_PUBLIC_TEMPLE_WS || `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`;
     // Vé chỉ dùng một lần và sống vài giây, nên mỗi nhịp nối lại phải xin cái mới —
     // kể cả khi đang chờ backoff. Không có vé thì coi như chùa đang bận.
     let ticket = '';
@@ -81,7 +81,6 @@ export class TempleRoom {
       this.retry = 0;
       this.handlers.onConnection(true);
       ws.send(JSON.stringify({ t: 'join', temple: this.temple, room: this.room, v: 4 }));
-      if (document.hidden) ws.send(JSON.stringify({ t: 'vis', h: true }));
       this.startPush();
     };
     ws.onerror = () => ws.close();
@@ -100,10 +99,6 @@ export class TempleRoom {
 
   send(part: Record<string, unknown>): void {
     if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(part));
-  }
-
-  setHidden(hidden: boolean): void {
-    this.send({ t: 'vis', h: hidden });
   }
 
   close(): void {
@@ -217,11 +212,5 @@ export class TempleRoom {
       if (prof) players.push({ ...prof, ...st } as RemotePlayer);
     }
     this.handlers.onPlayers(players, online);
-  }
-}
-
-declare global {
-  interface Window {
-    __TEMPLE_WS__?: string;
   }
 }

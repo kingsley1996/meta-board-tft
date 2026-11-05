@@ -81,7 +81,7 @@ export function injectIcons() {
 export const ic = (name, cls = '') => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 
 // biểu tượng vật phẩm
-export const ITEM_ICON = { huong_tram: 'incense', nen_sap: 'candle', hoa_dang: 'flower', den_hoa_dang: 'lantern' };
+export const ITEM_ICON = { huong_tram: 'incense', nen_sap: 'candle', hoa_dang: 'flower' };
 export const TYPE_ICON = { robe: 'robe', beads: 'beads', cushion: 'cushion', consumable: 'gift' };
 
 // biểu cảm gửi trong chùa (mã gửi qua mạng → icon)

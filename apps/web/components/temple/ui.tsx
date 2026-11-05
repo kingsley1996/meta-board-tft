@@ -6,14 +6,19 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import type { Gain, TempleState } from './api';
+import type { Gain, PublicPlayer, TempleState } from './api';
 import type { TempleEngine } from './engine';
 import type { RemotePlayer, TempleRoom } from './room';
 
 export type ViewKind = 'hall' | 'beads' | 'chant' | 'meditate' | 'wheel' | 'que';
-export type SheetKind = 'rank' | 'community' | 'friends' | 'garden' | 'stele' | 'bag' | 'guide' | 'settings';
+export type SheetKind = 'rank' | 'community' | 'friends' | 'garden' | 'stele' | 'bag' | 'guide' | 'settings' | 'profile';
 
-export type Look = { appearance?: Record<string, string>; equipped?: Record<string, string | null> };
+export type Look = { name?: string; sect?: string; appearance?: Record<string, string>; equipped?: Record<string, string | null> };
+
+// Tin máy chủ vừa đẩy tới cho chính mình (t 'dm' / 'friend'). HUD giữ một ô rồi phát
+// xuống sheet đang mở, để hộp thư vẽ thêm tin và bảng bạn đọc lại lời mời thay vì bắt
+// người chơi tự mở ra ngó.
+export type Notice = { t: 'dm' | 'friend'; kind: string; by: PublicPlayer; text: string; at: string };
 
 export type Store = {
   lang: string;
@@ -40,9 +45,6 @@ export type Store = {
   practice: (body: Record<string, unknown>, opts?: { silent?: boolean }) => Promise<Gain | null>;
   players: () => RemotePlayer[];
   player: (id: number) => RemotePlayer | undefined;
-  // Lớp DOM để đèn hoa đăng bay ngang màn hình; null khi HUD chưa dựng xong.
-  lanternLayer: () => HTMLElement | null;
-  openLanternForm: () => void;
   // Đổi ngoại trang phục xong phải vẽ lại avatar của chính mình và báo cho phòng, nếu
   // không thì mình thấy áo mới mà người khác vẫn thấy áo cũ.
   refreshLook: (profile: Look) => void;

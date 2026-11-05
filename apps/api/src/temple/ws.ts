@@ -28,12 +28,12 @@ export type TempleRealtime = {
 };
 
 // Sổ phòng của process đang chạy. Route REST không có socket riêng nên nó phải mượn
-// cái này để phát tin vào chánh điện; khi chưa attach (test chỉ gọi hall router) thì
-// publishToTemple âm thầm bỏ qua — hành động vẫn thành công, chỉ không có ai để báo.
+// cái này để báo tin cho người chơi; khi chưa attach (test chỉ gọi hall router) thì
+// notifyPlayer âm thầm bỏ qua — hành động vẫn thành công, chỉ không có ai để báo.
 let activeRooms: TempleRooms | null = null;
 
-export function publishToTemple(temple: string, room: string, payload: Record<string, unknown>, exceptId?: number): void {
-  activeRooms?.publish(temple, room, JSON.stringify(payload), exceptId);
+export function notifyPlayer(playerId: number, payload: Record<string, unknown>): void {
+  activeRooms?.notify(playerId, JSON.stringify(payload));
 }
 
 function send(ws: WebSocket, payload: Buffer | string): void {
@@ -97,7 +97,7 @@ export function attachTempleWs(server: Server): TempleRealtime {
         return;
       }
       if (msg.t !== 'join') {
-        if (ws.member) onMemberMessage(ws.member, msg);
+        if (ws.member) await onMemberMessage(ws.member, msg, holder.userId);
         return;
       }
 
@@ -129,7 +129,6 @@ export function attachTempleWs(server: Server): TempleRealtime {
       const member: RoomMember = {
         profile,
         state: readState(profile, msg),
-        hidden: false,
         dirty: true,
         temple,
         room,
@@ -157,11 +156,22 @@ export function attachTempleWs(server: Server): TempleRealtime {
     ws.on('error', forget);
   }
 
-  function onMemberMessage(member: RoomMember, msg: Record<string, unknown>): void {
+  async function onMemberMessage(member: RoomMember, msg: Record<string, unknown>, userId: string): Promise<void> {
     switch (msg.t) {
       case 's':
         rooms.markDirty(member, readState(member.profile, msg));
         break;
+      case 'look': {
+        // Người chơi vừa PUT /profile (đổi tên, chọn nhận vật, mặc/tháo đồ). Phòng phải
+        // thấy cái mới ngay, nên hồ sơ đọc lại từ database chứ không tin máy khách khai
+        // — cùng một lẽ với tấm vé lúc nối. playerId phải khớp: hai hàng hồ sơ cho cùng
+        // một người nghĩa là một avatar đứng hai chỗ.
+        const fresh = await templeProfile(userId);
+        if (!fresh || fresh.playerId !== member.profile.id) break;
+        member.profile = toPlayerProfile(fresh);
+        rooms.publish(member.temple, member.room, JSON.stringify({ t: 'prof', p: [member.profile] }), member.profile.id);
+        break;
+      }
       case 'emote':
         if (typeof msg.e === 'string') {
           rooms.publish(
@@ -172,17 +182,12 @@ export function attachTempleWs(server: Server): TempleRealtime {
           );
         }
         break;
-      case 'vis':
-        // Tab ẩn không còn là người "đang hành trì" nhưng vẫn phải thấy người khác,
-        // nên chỉ loại khỏi số đếm online, không rời phòng.
-        member.hidden = msg.h === true;
-        member.dirty = true;
-        break;
       case 'giftSeen':
         break;
       default:
-        // Các loại tin còn lại (thả đèn, trồng cây, nhắn tin…) là tác vụ REST: máy
-        // khách gọi HTTP, máy chủ phát lại vào phòng bằng publishToTemple, không chiều ngược lại.
+        // Các loại tin còn lại (nhắn tin, trồng cây, quà…) là tác vụ REST: máy khách
+        // gọi HTTP, máy chủ báo thẳng tới người nhận bằng notifyPlayer (social.ts),
+        // không chiều ngược lại.
         break;
     }
   }

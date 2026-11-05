@@ -659,7 +659,7 @@ ALTER TABLE usage_attempts DROP CONSTRAINT IF EXISTS usage_attempts_quantity_has
 ALTER TABLE usage_attempts ADD CONSTRAINT usage_attempts_quantity_has_unit
   CHECK ((billed_unit IS NULL) = (billed_quantity IS NULL));
 
--- Shrine tables (temple_profiles, temple_practice, temple_lanterns, temple_plants,
+-- Shrine tables (temple_profiles, temple_practice, temple_plants,
 -- temple_groups, ...) are NOT here: they live in src/temple/schema.sql and are applied
 -- by ensureTempleTables() on the first shrine request, so a fresh database can enter
 -- the temple without an operator step. Keeping them in their own file also means the

@@ -144,12 +144,12 @@ test(
       `SELECT table_name FROM information_schema.tables
         WHERE table_schema = 'public' AND table_name = ANY($1::text[])`,
       [[
-        'temple_profiles', 'temple_practice', 'temple_lanterns', 'temple_lantern_rejoices',
+        'temple_profiles', 'temple_practice',
         'temple_plants', 'temple_donations', 'temple_greetings', 'temple_friends', 'temple_dms',
         'temple_groups', 'temple_group_members', 'temple_group_messages', 'temple_draws', 'temple_announcements',
       ]],
     );
-    assert.equal(rows.length, 14, `missing shrine tables: ${rows.map((r) => r.table_name).join(', ')}`);
+    assert.equal(rows.length, 12, `missing shrine tables: ${rows.map((r) => r.table_name).join(', ')}`);
 
     const columns = await pool.query<{ is_nullable: string }>(
       "SELECT is_nullable FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'is_guest'"

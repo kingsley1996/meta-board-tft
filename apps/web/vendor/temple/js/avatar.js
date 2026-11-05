@@ -1,5 +1,5 @@
 // Hệ thống Nhân vật 3D Chibi Anime (12 Nhân vật từ ảnh tham khảo characters-naruto-onpine.jpg)
-// Tư thế hỗ trợ: đứng, đi, ngồi thiền, lạy Phật, nhảy DJ (dancing), đấm bốc & tung tuyệt chiêu (fight / ultimate).
+// Tư thế hỗ trợ: đứng, đi, ngồi thiền, lạy Phật và tung tuyệt chiêu (fight / ultimate).
 import * as THREE from 'three';
 import { addGear } from './gear.js';
 
@@ -245,30 +245,6 @@ export const OUTFIT_LIST = [
     wideSleeves: true,
     hanbokRibbon: '#9d3e37',
   },
-  {
-    id: 'boxing_champ',
-    name: 'Võ Phục Đấm Bốc Hoàng Kim',
-    badge: 'Võ Đài',
-    desc: 'Đai vô địch mạ vàng, băng trán chiến binh & đôi Găng Tay Đấm Bốc 3D đỏ rực luôn bật sẵn!',
-    icon: '🥊',
-    swatch: '#ef4444',
-    robeColor: '#18181b',
-    pantsColor: '#b91c1c',
-    sashColor: '#facc15',
-    boxingGear: true,
-  },
-  {
-    id: 'dj_rave',
-    name: 'Đồ Lễ Hội Neon Cyber-Lotus',
-    badge: 'Sàn DJ',
-    desc: 'Áo khoác Rave phát sáng LED Neon, kính Cyber Visor & tai nghe DJ 3D quẩy banh sân chùa!',
-    icon: '🎧',
-    swatch: '#38bdf8',
-    robeColor: '#0f172a',
-    pantsColor: '#1e1b4b',
-    sashColor: '#38bdf8',
-    djGear: true,
-  },
 ];
 
 export const OUTFIT_MAP = Object.fromEntries(OUTFIT_LIST.map((o) => [o.id, o]));
@@ -283,7 +259,6 @@ const G = {
   torso: new THREE.LatheGeometry(ROBE_PROFILE, 32),
   arm: new THREE.CapsuleGeometry(0.105, 0.28, 6, 12),
   hand: new THREE.SphereGeometry(0.095, 14, 12),
-  glove: new THREE.SphereGeometry(0.145, 16, 12),
   lap: new THREE.SphereGeometry(1, 24, 16),
   leg: new THREE.CylinderGeometry(0.105, 0.095, 0.38, 12),
   ear: new THREE.SphereGeometry(0.085, 10, 8),
@@ -902,40 +877,35 @@ export function makeAvatar(opts = {}) {
   const skinM = mat(hero.skin, { roughness: 0.52 });
   const robeM = mat(rColor, {
     roughness: outfit?.sansaRobe ? 0.82 : (hero.id === 'naruto_sage' && !useOutfitColors ? 0.3 : 0.65),
-    emissive: outfit?.djGear ? '#0284c7' : (hero.id === 'naruto_sage' && !useOutfitColors ? '#b45309' : '#000000'),
-    emissiveIntensity: outfit?.djGear ? 0.32 : (hero.id === 'naruto_sage' && !useOutfitColors ? 0.35 : 0),
+    emissive: hero.id === 'naruto_sage' && !useOutfitColors ? '#b45309' : '#000000',
+    emissiveIntensity: hero.id === 'naruto_sage' && !useOutfitColors ? 0.35 : 0,
   });
   const pantsM = mat(pColor, { roughness: outfit?.sansaRobe ? 0.82 : 0.7 });
-  const sashM = mat(sColor, { roughness: 0.5, metalness: outfit?.boxingGear ? 0.75 : 0.08 });
+  const sashM = mat(sColor, { roughness: 0.5, metalness: 0.08 });
 
   const root = new THREE.Group();
   const upper = new THREE.Group();
   root.add(upper);
 
-  // Thân áo 3D Chibi (riêng Ace, Kaido hoặc bộ Võ Phục Đấm Bốc lộ cơ ngực khỏe khoắn)
-  const bareChest = !outfit?.sansaRobe && !outfit?.djGear && (outfit?.boxingGear || hero.id === 'ace' || hero.id === 'kaido');
+  // Thân áo 3D Chibi (riêng Ace và Kaido lộ cơ ngực khỏe khoắn)
+  const bareChest = !outfit?.sansaRobe && (hero.id === 'ace' || hero.id === 'kaido');
   const torsoMat = bareChest ? skinM : robeM;
   upper.add(m(G.torso, torsoMat, 0, -0.05, 0, { scale: [1, 1, 0.88] }));
   // Đai thắt lưng / Sash đặc trưng
   upper.add(m(new THREE.CylinderGeometry(0.39, 0.41, 0.14, 28), sashM, 0, 0.14, 0));
 
-  // Tay & Bàn tay + Tay áo rộng Hàn Quốc (dance-sleeves từ Sansa Temple ?room=maru) + Găng tay đấm bốc
-  const arms = [], hands = [], boxingGloves = [], danceSleeves = [];
+  // Tay & Bàn tay + Tay áo rộng Hàn Quốc (dance-sleeves từ Sansa Temple ?room=maru)
+  const arms = [], hands = [];
   const sleeveGeo = new THREE.ConeGeometry(0.24, 0.42, 18, 1, true);
   const sleeveMat = mat(rColor, { roughness: 0.82, side: THREE.DoubleSide });
   for (const s of [-1, 1]) {
     const a = m(G.arm, torsoMat, s * 0.30, 0.38, -0.12, { rot: [1.0, 0, s * 0.5] });
     if (outfit?.wideSleeves) {
       // Tay áo trường sam Hàn Quốc (One_continuous_soft_robe / dance-sleeves) rủ mềm quanh cánh tay
-      const slv = m(sleeveGeo, sleeveMat, 0, -0.04, 0.04, { rot: [Math.PI, 0, 0], scale: [0.85, 1.0, 1.25] });
-      a.add(slv);
-      danceSleeves.push(slv);
+      a.add(m(sleeveGeo, sleeveMat, 0, -0.04, 0.04, { rot: [Math.PI, 0, 0], scale: [0.85, 1.0, 1.25] }));
     }
     const h = m(G.hand, skinM, s * 0.05, 0.5, -0.36);
-    const glv = m(G.glove, mat('#ef4444', { roughness: 0.3, metalness: 0.15 }), 0, 0, -0.03, { scale: [1.1, 1.0, 1.25] });
-    glv.visible = !!outfit?.boxingGear;
-    h.add(glv);
-    arms.push(a); hands.push(h); boxingGloves.push(glv);
+    arms.push(a); hands.push(h);
     upper.add(a, h);
   }
 
@@ -969,19 +939,6 @@ export function makeAvatar(opts = {}) {
     upper.add(m(new THREE.BoxGeometry(0.055, 0.34, 0.02), ribMat, 0.06, 0.28, -0.37, { rot: [0, 0, -0.12] }));
     upper.add(m(new THREE.BoxGeometry(0.055, 0.28, 0.02), ribMat, 0.13, 0.30, -0.36, { rot: [0, 0, -0.26] }));
   }
-  if (outfit?.boxingGear) {
-    // Đai Vô Địch Đấm Bốc Hoàng Kim (Champion Belt) trước bụng
-    const beltGold = mat('#facc15', { metalness: 0.88, roughness: 0.18 });
-    upper.add(m(new THREE.CylinderGeometry(0.32, 0.32, 0.04, 20), beltGold, 0, 0.15, -0.36, { rot: [Math.PI / 2, 0, 0], scale: [1.2, 1, 0.75] }));
-    upper.add(m(new THREE.SphereGeometry(0.055, 12, 10), mat('#dc2626', { metalness: 0.5, roughness: 0.2 }), 0, 0.15, -0.39));
-  }
-  if (outfit?.djGear) {
-    // Viền cổ áo LED Neon phát sáng Cyber-Lotus
-    const neonMat = new THREE.MeshBasicMaterial({ color: '#38bdf8' });
-    const neonPink = new THREE.MeshBasicMaterial({ color: '#f43f5e' });
-    upper.add(m(new THREE.TorusGeometry(0.25, 0.026, 10, 24), neonMat, 0, 0.62, 0, { rot: [Math.PI / 2 + 0.15, 0, 0], cast: false }));
-    upper.add(m(new THREE.TorusGeometry(0.40, 0.018, 10, 28), neonPink, 0, 0.14, 0, { rot: [Math.PI / 2, 0, 0], cast: false }));
-  }
 
   // Đầu Chibi lớn biểu cảm + Mặt Anime sắc nét + Tóc/Mũ/Sừng 3D
   const head = new THREE.Group();
@@ -1000,20 +957,6 @@ export function makeAvatar(opts = {}) {
   eyes.forEach((e) => { e.visible = false; head.add(e); });
 
   buildHeroHead3D(head, hero);
-
-  // Phụ kiện đầu theo Bộ Trang Phục (Kính Cyber Visor & Tai nghe DJ hoặc Băng trán Võ sĩ)
-  if (outfit?.djGear) {
-    const visorMat = new THREE.MeshBasicMaterial({ color: '#38bdf8', transparent: true, opacity: 0.86 });
-    head.add(m(new THREE.CylinderGeometry(0.475, 0.475, 0.13, 24, 1, true, -Math.PI * 0.34, Math.PI * 0.68), visorMat, 0, 0.03, 0, { rot: [0, Math.PI, 0], cast: false }));
-    const hpBand = m(new THREE.TorusGeometry(0.49, 0.032, 10, 28, Math.PI), mat('#0f172a', { metalness: 0.8 }), 0, 0.04, 0);
-    head.add(hpBand);
-    for (const s of [-1, 1]) {
-      head.add(m(new THREE.CylinderGeometry(0.13, 0.13, 0.08, 16), mat('#1e293b', { metalness: 0.7 }), s * 0.48, 0.0, 0.02, { rot: [0, 0, Math.PI / 2] }));
-      head.add(m(new THREE.TorusGeometry(0.10, 0.018, 8, 18), new THREE.MeshBasicMaterial({ color: '#f43f5e' }), s * 0.52, 0.0, 0.02, { rot: [0, Math.PI / 2, 0], cast: false }));
-    }
-  } else if (outfit?.boxingGear) {
-    head.add(m(new THREE.CylinderGeometry(0.47, 0.47, 0.10, 28, 1, true), mat('#dc2626', { roughness: 0.5, side: THREE.DoubleSide }), 0, 0.18, 0));
-  }
 
   upper.add(head);
 
@@ -1034,7 +977,7 @@ export function makeAvatar(opts = {}) {
   // Đạo cụ 3D & Hiệu ứng nguyên tố
   const vfxGroup = buildHeroProps3D(upper, hands, legR, hero);
 
-  // Quả cầu Tuyệt Chiêu 3D (hiện lên khi tung đòn đấm bốc / xả stress)
+  // Quả cầu Tuyệt Chiêu 3D (hiện lên khi tung tuyệt chiêu)
   const ultSphere = m(
     new THREE.SphereGeometry(0.28, 20, 16),
     new THREE.MeshBasicMaterial({ color: hero.skillColor, transparent: true, opacity: 0 }),
@@ -1049,10 +992,10 @@ export function makeAvatar(opts = {}) {
 
   const av = {
     root, upper, head, lap, legs, legL, legR, skirt, arms, hands, eyes,
-    boxingGloves, danceSleeves, vfxGroup, ultSphere, hero, outfit,
+    vfxGroup, ultSphere, hero, outfit,
     groundY: opts.groundY || 0,
     pose: 'sit', bowing: false, bowT: 0, walk: 0, meditate: 0,
-    dancing: false, danceStyle: 0, boxingMode: !!outfit?.boxingGear, ultTimer: 0,
+    ultTimer: 0,
     onBow: null, phase: Math.random() * 10,
   };
   av.aura = auraDisc(opts.robe?.aura || outfit?.swatch || hero.aura);
@@ -1066,28 +1009,11 @@ export function makeAvatar(opts = {}) {
 export function setSeated(av, on) {
   if (av.cloud) av.cloud.visible = !on;
   av.seated = on;
-  if (on) av.dancing = false;
   av.lap.visible = on;
   av.legs.visible = !on;
   av.upper.position.y = on ? 0.3 : 0.4;
   av.baseY = (av.groundY || 0) + (on ? 0.17 : 0);
   av.root.position.y = av.baseY;
-}
-
-export function setDancing(av, on, style = 0) {
-  if (on && av.seated) setSeated(av, false);
-  av.dancing = on;
-  av.danceStyle = style;
-  if (!on) {
-    av.upper.rotation.set(0, 0, 0);
-    av.head.rotation.set(0, 0, 0);
-  }
-}
-
-export function setBoxingGloves(av, on) {
-  const show = on || !!av.outfit?.boxingGear;
-  av.boxingMode = show;
-  av.boxingGloves?.forEach((g) => (g.visible = show));
 }
 
 export function triggerUltimate(av) {
@@ -1142,8 +1068,8 @@ function fightBody(av, f) {
 export function animateAvatar(av, dt, time, moving = false) {
   av.gearTick?.(time, moving);
   if (av.aura) {
-    av.aura.material.opacity = (av.dancing || av.ultTimer > 0) ? 0.78 : (0.38 + 0.16 * Math.sin(time * 1.8 + av.phase));
-    av.aura.rotation.z = time * (av.dancing ? 1.5 : 0.25);
+    av.aura.material.opacity = av.ultTimer > 0 ? 0.78 : (0.38 + 0.16 * Math.sin(time * 1.8 + av.phase));
+    av.aura.rotation.z = time * 0.25;
   }
   if (av.vfxGroup?.userData.chidori) {
     av.vfxGroup.userData.chidori.rotation.set(time * 16, time * 12, time * 9);
@@ -1177,47 +1103,8 @@ export function animateAvatar(av, dt, time, moving = false) {
   const k = av.meditate;
   av.hands.forEach((h, i) => {
     const s = i ? 1 : -1;
-    if (av.boxingMode && !av.seated && !av.bowing) {
-      // Tư thế thủ võ đài đấm bốc
-      const bob = Math.sin(time * 7 + i) * 0.04;
-      h.position.set(s * 0.22, 0.64 + bob, -0.36);
-    } else {
-      h.position.set(s * (0.05 + k * 0.05), 0.5 - k * 0.32, -0.36 + k * 0.02);
-    }
+    h.position.set(s * (0.05 + k * 0.05), 0.5 - k * 0.32, -0.36 + k * 0.02);
   });
-
-  // Vũ điệu Xõa Stress trên Sàn DJ (tương tự #party-dance 108 BPM của Sansa Temple + Vũ điệu Thần Nika)
-  if (av.dancing && !moving && !av.seated && !av.bowing) {
-    const beat = time * 11.31 + av.phase; // 108 BPM * 2 * PI / 60 = 11.31 rad/s chuẩn Sansa Temple
-    const bounce = Math.abs(Math.sin(beat));
-    av.root.position.y = av.baseY + bounce * 0.22;
-    av.upper.rotation.z = Math.sin(beat * 0.5) * 0.24;
-    av.upper.rotation.y = Math.cos(beat * 0.5) * 0.35;
-    av.head.rotation.z = -Math.sin(beat * 0.5) * 0.18;
-    av.head.rotation.x = Math.sin(beat) * 0.15;
-    av.legL.rotation.x = Math.sin(beat) * 0.55;
-    av.legR.rotation.x = -Math.sin(beat) * 0.55;
-    av.hands.forEach((h, i) => {
-      const s = i ? 1 : -1;
-      h.position.set(
-        s * (0.36 + Math.sin(beat * 0.5 + s * 0.7) * 0.14),
-        0.82 + Math.sin(beat + i * Math.PI) * 0.24,
-        -0.22 + Math.cos(beat * 0.5) * 0.08
-      );
-    });
-    if (av.danceSleeves?.length) {
-      av.danceSleeves.forEach((slv, i) => {
-        const s = i ? 1 : -1;
-        slv.scale.set(1.18 + Math.sin(beat + i) * 0.18, 1.15, 1.55 + Math.cos(beat * 0.5) * 0.25);
-        slv.rotation.z = s * Math.sin(beat * 0.5) * 0.32;
-      });
-    }
-  } else if (av.danceSleeves?.length) {
-    av.danceSleeves.forEach((slv) => {
-      slv.scale.set(0.85, 1.0, 1.25);
-      slv.rotation.z = 0;
-    });
-  }
 
   av.arms.forEach((a, i) => {
     const s = i ? 1 : -1, h = av.hands[i].position;
@@ -1237,7 +1124,7 @@ export function animateAvatar(av, dt, time, moving = false) {
     av.legR.rotation.x = -Math.sin(av.walk) * 0.6;
     av.root.position.y = av.baseY + Math.abs(Math.sin(av.walk)) * 0.06;
     av.skirt.rotation.z = Math.sin(av.walk) * 0.035;
-  } else if (!av.dancing) {
+  } else {
     av.legL.rotation.x *= 0.8; av.legR.rotation.x *= 0.8; av.skirt.rotation.z *= 0.8;
     av.root.position.y = av.baseY;
   }

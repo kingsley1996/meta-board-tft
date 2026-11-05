@@ -1,5 +1,5 @@
 // Những tấm sheet của chánh điện: bảng xếp hạng, vườn cây, bia tri ân, túi đồ, bài
-// viết pháp môn, cài đặt — và khung Đèn nguyện neo bên phải màn hình.
+// viết pháp môn, cài đặt.
 //
 // Lớp CSS và cây DOM giữ theo bản gốc (rank-row/podium/wish-card/card/setting…), chỉ
 // thay innerHTML bằng JSX. Số liệu đều lấy từ apps/api, không có bản sao ở máy khách.
@@ -8,15 +8,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Gain, TempleState } from './api';
 import { get, post, put } from './api';
-import { ITEMS, Sound, TEMPLE, local, sectOf } from './engine';
+import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, local, sectOf } from './engine';
 import type { GardenPlant } from './engine';
-import { launchLantern, petalShower } from './effects';
+import { petalShower } from './effects';
 import { guideOf, storyOf } from './stories';
-import { Icon, Sheet, ago, fmt, type Store } from './ui';
+import { Icon, Sheet, ago, fmt, type Look, type Store } from './ui';
 
 type RankRow = { rank: number; id: number; name: string; sect: string; title: string; honor: string; score: number; you: boolean };
 type Board = { scope: string; rows: RankRow[]; sects: { sect: string; score: number }[]; me: { rank: number | null; score: number } };
-type Lantern = { id: number; name: string; text: string; likes: number; mine: boolean; yours: string; rejoiced: boolean; at: string };
 type Donation = { name: string; note: string; amount: number; at: string };
 type SteleRow = { name: string; title: string; score: number };
 
@@ -364,6 +363,68 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   );
 }
 
+// ---- Hồ sơ: pháp danh & nhận vật ---------------------------------------------
+
+// Cả hai cú đổi đều đi qua PUT /profile rồi refreshLook: máy chủ là nơi giữ tên và
+// nhân vật, còn `look` trên sóng là cái báo cho phòng vẽ lại avatar của chính mình.
+export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) {
+  const st = s.state;
+  const [name, setName] = useState(st?.name ?? '');
+  const [busy, setBusy] = useState(false);
+  const hero = st?.appearance?.hero ?? '';
+  const trimmed = name.trim();
+  const dirty = trimmed !== '' && trimmed !== (st?.name ?? '');
+
+  const patch = async (body: Record<string, unknown>, ok: string) => {
+    setBusy(true);
+    try {
+      const r = await put<{ profile: Look }>('/profile', body);
+      s.refreshLook(r.profile);
+      await s.refresh();
+      s.toast(ok);
+    } catch (e) {
+      s.toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Sheet title="Hồ sơ" onClose={onClose}>
+      <form
+        className="sg-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (dirty) void patch({ name: trimmed }, 'Đã đổi pháp danh');
+        }}
+      >
+        <input value={name} maxLength={28} onChange={(e) => setName(e.target.value)} placeholder="Pháp danh" aria-label="Pháp danh" />
+        <button className="btn small gold" disabled={!dirty || busy}>
+          Đổi tên
+        </button>
+      </form>
+      <p className="muted">Tối đa 28 chữ, mọi người trong chánh điện thấy tên này.</p>
+      <div className="hero-grid modal-hero-grid">
+        {HEROES.map((h) => (
+          <button
+            key={h.id}
+            type="button"
+            className={`hero-card${h.id === hero ? ' on' : ''}`}
+            disabled={busy}
+            onClick={() => void patch({ appearance: { ...st?.appearance, hero: h.id } }, `Đã mời ${h.name}`)}
+          >
+            <span className="hc-thumb" style={{ backgroundPosition: HERO_SPRITE[h.id] ?? '0% 0%' }} />
+            <span className="hc-meta">
+              <b>{h.name}</b>
+              <small>{h.title}</small>
+            </span>
+          </button>
+        ))}
+      </div>
+    </Sheet>
+  );
+}
+
 // ---- Túi đồ ------------------------------------------------------------------
 
 const BAG_TABS = [
@@ -379,7 +440,6 @@ const BAG_TABS = [
 ];
 
 const UNEQUIPPABLE = ['hat', 'staff', 'cloud', 'pet'];
-
 function ItemIcon({ id }: { id: string }) {
   const it = ITEMS[id];
   const color = String(it?.data?.color ?? it?.data?.c1 ?? '#6b4a2a');
@@ -422,7 +482,6 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
       const r = await post<Gain & { left: number }>('/use', { item: id });
       s.apply({ state: r.state, gained: r.gained });
       if (id === 'huong_tram' || id === 'nen_sap' || id === 'hoa_dang') s.engine?.offer(id);
-      else if (id === 'den_hoa_dang') s.openLanternForm();
       Sound.chime();
     } catch (e) {
       s.toast((e as Error).message);
@@ -666,106 +725,5 @@ export function SettingsSheet({ s, onClose }: { s: Store; onClose: () => void })
         Phiên bản này chỉ có một chánh điện và một máy chủ: mọi người đang online đều gặp nhau ở đây.
       </p>
     </Sheet>
-  );
-}
-
-// ---- Đèn nguyện --------------------------------------------------------------
-
-export function WishDock({ s }: { s: Store }) {
-  const [open, setOpen] = useState(() => local.get('wishDock') !== 'off');
-  const [list, setList] = useState<Lantern[]>([]);
-  const layer = s.lanternLayer();
-
-  const load = useCallback(async () => {
-    try {
-      const r = await get<{ lanterns: Lantern[] }>('/lanterns');
-      setList(r.lanterns);
-      // Đèn của người khác bay ngang màn hình theo nhịp, như bản gốc launchLantern.
-      r.lanterns.slice(0, 3).forEach((l, i) => {
-        if (!l.mine) launchLantern(layer, l.name, l.text, i * 2600);
-      });
-    } catch {
-      // khung đèn nguyện là phần phụ: lỗi mạng thì để trống chứ không chặn HUD
-    }  }, [layer]);
-
-  useEffect(() => {
-    void load();
-    const t = window.setInterval(() => void load(), 45000);
-    return () => window.clearInterval(t);
-  }, [load]);
-
-  const rejoice = async (l: Lantern) => {
-    try {
-      const r = await post<{ state: TempleState; likes: number; gained: number }>(`/lanterns/${l.id}/rejoice`);
-      s.apply({ state: r.state, gained: r.gained });
-      setList((prev) => prev.map((x) => (x.id === l.id ? { ...x, likes: r.likes, rejoiced: true } : x)));
-      Sound.chime();
-    } catch (e) {
-      s.toast((e as Error).message);
-    }
-  };
-
-  if (!open) {
-    return (
-      <button className="wd-open" title="Mở khung Đèn nguyện" onClick={() => { setOpen(true); local.set('wishDock', 'on'); }}>
-        <Icon name="lantern" /> Đèn nguyện
-      </button>
-    );
-  }
-
-  return (
-    <aside className="wish-dock" aria-label="Đèn nguyện">
-      <header>
-        <span className="wd-lamp">
-          <Icon name="lantern" />
-        </span>
-        <div>
-          <b>Đèn nguyện</b>
-          <small>{list.length ? `${list.length} ngọn đèn đang sáng` : ''}</small>
-        </div>
-        <button
-          className="wd-x"
-          title="Tắt khung Đèn nguyện"
-          aria-label="Tắt khung Đèn nguyện"
-          onClick={() => {
-            setOpen(false);
-            local.set('wishDock', 'off');
-          }}
-        >
-          <Icon name="close" />
-        </button>
-      </header>
-      <div className="wd-list">
-        {list.map((l) => (
-          <div className={`wd-item${l.mine ? ' mine' : ''}`} key={l.id}>
-            <p className="wd-text">“{l.text}”</p>
-            <div className="wd-foot">
-              <span>
-                <b>{l.name}</b>
-                <small>{ago(l.at)}</small>
-              </span>
-              {l.mine || l.rejoiced ? (
-                <em>
-                  <Icon name="pray" /> {l.likes}
-                </em>
-              ) : (
-                <button className="wd-like" onClick={() => void rejoice(l)}>
-                  <Icon name="pray" /> {l.likes}
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-        {!list.length ? (
-          <div className="wd-empty">
-            <Icon name="lantern" />
-            <p>Chưa có đèn nào. Hãy thả ngọn đèn đầu tiên!</p>
-          </div>
-        ) : null}
-      </div>
-      <button className="btn gold wd-release" onClick={() => s.openLanternForm()}>
-        <Icon name="lantern" /> Thả đèn nguyện
-      </button>
-    </aside>
   );
 }

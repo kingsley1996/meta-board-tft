@@ -12,7 +12,6 @@ function member(id: number, temple = 'nhattru', room = 'chung'): { member: RoomM
     member: {
       profile,
       state: readState(profile, { x: id, z: 0, y: 0, r: 0, seat: -1, a: 0 }),
-      hidden: false,
       // dirty = false: muốn xem một nhịp gửi gì thì phải làm cho người đổi chuyển động.
       dirty: false,
       temple,
@@ -25,13 +24,35 @@ function member(id: number, temple = 'nhattru', room = 'chung'): { member: RoomM
 
 const texts = (inbox: Buffer[]) => inbox.map((frame) => frame.toString('utf8'));
 
+test('the online count on the wire is the number of people standing in the room', () => {
+  const rooms = new TempleRooms();
+  const a = member(1);
+  const b = member(2);
+  rooms.add(a.member);
+  rooms.add(b.member);
+
+  // Một lượt vào chưa kịp gỡ lượt trước (tab nối lại, gói 'join' thứ hai trên cùng socket)
+  // không được biến một người thành hai người.
+  const again = member(1);
+  rooms.add(again.member);
+  assert.equal(rooms.size, 2);
+
+  rooms.markDirty(again.member, readState(again.member.profile, { x: 3, z: 3 }));
+  rooms.tick(1);
+  const frame = b.inbox[0];
+  assert.equal(frame.readUInt8(0), 1, 'delta');
+  assert.equal(frame.readUInt16LE(1), 2, 'online');
+  assert.equal(frame.readUInt16LE(3), 1, 'one member moved');
+  assert.equal(rooms.snapshotOf(b.member).readUInt16LE(1), 2, 'snapshot counts the same');
+});
+
 test('publish reaches the whole room except the actor', () => {
   const rooms = new TempleRooms();
   const a = member(1);
   const b = member(2);
   rooms.add(a.member);
   rooms.add(b.member);
-  const frame = JSON.stringify({ t: 'lantern', name: 'Phật Tử 1', text: 'Nguyện an lành' });
+  const frame = JSON.stringify({ t: 'say', name: 'Phật Tử 1', text: 'Nguyện an lành' });
 
   rooms.publish('nhattru', 'chung', frame, 1);
   assert.deepEqual(texts(a.inbox), []);
@@ -53,8 +74,32 @@ test('publish reaches the whole room except the actor', () => {
 
 test('publish to a room nobody is in is a no-op', () => {
   const rooms = new TempleRooms();
-  rooms.publish('nhattru', 'khong-co-ai', JSON.stringify({ t: 'lantern' }));
+  rooms.publish('nhattru', 'khong-co-ai', JSON.stringify({ t: 'say' }));
   assert.equal(rooms.size, 0);
+});
+
+// Tin riêng thì phải tới đúng một người, dù hai người không đứng cùng chánh điện:
+// nhắn nhủ và lời mời kết bạn không được tràn ra cả phòng như emote.
+test('notify reaches one player wherever they are standing', () => {
+  const rooms = new TempleRooms();
+  const a = member(1);
+  const b = member(2);
+  const elsewhere = member(3, 'nhattru', 'tay');
+  const otherTemple = member(4, 'kimquang');
+  for (const m of [a, b, elsewhere, otherTemple]) rooms.add(m.member);
+
+  const note = JSON.stringify({ t: 'dm', by: { id: 1, name: 'Phật Tử 1' }, text: 'A Di Đà Phật' });
+  rooms.notify(2, note);
+  assert.deepEqual(texts(b.inbox), [note]);
+  assert.deepEqual(texts(a.inbox), []);
+  assert.deepEqual(texts(elsewhere.inbox), []);
+  assert.deepEqual(texts(otherTemple.inbox), []);
+
+  // Người đã rời phòng thì không còn ai để báo; id lạ cũng vậy.
+  rooms.remove(b.member);
+  rooms.notify(2, note);
+  rooms.notify(99, note);
+  assert.equal(b.inbox.length, 1);
 });
 
 test('a delta tick carries only the member who moved', () => {

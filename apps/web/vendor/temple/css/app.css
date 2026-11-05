@@ -253,12 +253,7 @@
 #temple-root .modal-card h3 { font-size: 21px; }
 #temple-root .modal-card p { font-size: 14px; color: #6b5640; line-height: 1.5; }
 
-/* ---------- đèn hoa đăng / chữ bay / toast ---------- */
-#temple-root .lantern-layer { position: fixed; inset: 0; z-index: 12; pointer-events: none; overflow: hidden; }
-#temple-root .lantern { position: absolute; bottom: -120px; width: 190px; text-align: center; animation: rise 16s linear forwards; }
-#temple-root .lantern .l { font-size: 34px; filter: drop-shadow(0 0 14px rgba(255,170,60,.9)); }
-#temple-root .lantern p { margin-top: 4px; font-size: 12px; line-height: 1.4; color: #ffe9c0; text-shadow: 0 1px 4px #000; background: rgba(30,18,8,.4); padding: 4px 8px; border-radius: 10px; }
-@keyframes rise { 0% { transform: translateY(0) translateX(0); opacity: 0; } 8% { opacity: 1; } 50% { transform: translateY(-55vh) translateX(20px); } 85% { opacity: 1; } 100% { transform: translateY(-110vh) translateX(-10px); opacity: 0; } }
+/* ---------- Chữ bay / toast ---------- */
 #temple-root .floaters { position: fixed; inset: 0; z-index: 15; pointer-events: none; }
 #temple-root .floater { position: absolute; left: 50%; top: 56%; transform: translateX(-50%); font-weight: 800; font-size: 18px; color: #ffd36b; text-shadow: 0 2px 6px rgba(0,0,0,.7); animation: floatUp 1.4s ease-out forwards; white-space: nowrap; }
 @keyframes floatUp { from { opacity: 0; transform: translate(-50%, 10px); } 15% { opacity: 1; } to { opacity: 0; transform: translate(-50%, -60px); } }
@@ -406,8 +401,11 @@
 #temple-root .lotus-load .petals { transform-origin: 50% 76%; animation: bloom 2.4s ease-in-out infinite; }
 @keyframes draw { 0% { stroke-dashoffset: 160; fill: rgba(242,196,109,0); } 55% { stroke-dashoffset: 0; fill: rgba(242,196,109,0); } 75% { stroke-dashoffset: 0; fill: rgba(242,196,109,.28); } 100% { stroke-dashoffset: 0; fill: rgba(242,196,109,0); opacity: .2; } }
 @keyframes bloom { 0%, 100% { transform: scale(.92); } 60% { transform: scale(1.04); } }
-#temple-root .boot-bar, #temple-root .loader .bar { width: 200px; height: 4px; margin: 12px auto 0; background: rgba(255,255,255,.12); border-radius: 4px; overflow: hidden; }
-#temple-root .boot-bar i, #temple-root .loader .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #f6d27e, #ffb84a); border-radius: 4px; transition: width .35s ease; box-shadow: 0 0 10px #ffcf70; }
+#temple-root .loader .bar { width: 200px; height: 4px; margin: 12px auto 0; background: rgba(255,255,255,.12); border-radius: 4px; overflow: hidden; }
+/* Thanh chờ đi bằng transform chứ không bằng width: dựng cảnh chùa là một nhịp chặn
+   main thread dài, và transition của transform chạy trên compositor nên nó trôi tiếp
+   ngay cả khi máy chính đang bận — thanh không còn khựng rồi nhảy từng nấc. */
+#temple-root .loader .bar i { display: block; height: 100%; width: 100%; border-radius: 4px; background: linear-gradient(90deg, #f6d27e, #ffb84a); box-shadow: 0 0 10px #ffcf70; transform-origin: left center; transform: scaleX(var(--p, 0)); transition: transform .9s cubic-bezier(.22, .61, .36, 1); will-change: transform; }
 #temple-root .loader { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 40%, #3d240f, #120a05 75%); color: #fbe3ae; transition: opacity .6s ease; }
 #temple-root .loader.out { opacity: 0; pointer-events: none; }
 #temple-root .loader-card { text-align: center; padding: 24px; max-width: 360px; }
@@ -907,40 +905,6 @@
 #temple-root .legend-banner.out { opacity: 0; }
 @keyframes legendIn { from { opacity: 0; transform: translate(-50%, -14px); } }
 
-/* Khung Đèn nguyện bên phải (PC) */
-#temple-root .wish-dock { position: absolute; right: 14px; top: calc(74px + var(--st)); bottom: calc(184px + var(--sb)); width: 300px; max-height: 620px; display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; color: #fbeccb; background: linear-gradient(180deg, rgba(58,26,10,.86), rgba(24,13,7,.86)); border: 1px solid rgba(246,210,126,.42); box-shadow: 0 10px 34px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,235,180,.18); backdrop-filter: blur(10px); }
-#temple-root .wish-dock header { display: flex; align-items: center; gap: 10px; padding: 11px 12px 9px; }
-#temple-root .wish-dock header > div { flex: 1; min-width: 0; }
-#temple-root .wish-dock header b { display: block; font-size: 15px; color: #ffe2a0; }
-#temple-root .wish-dock header small { font-size: 11px; opacity: .75; }
-#temple-root .wd-lamp { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #7a3206; background: radial-gradient(circle at 50% 40%, #ffeab5, #ffb867 62%, #e88a3a); box-shadow: 0 0 14px rgba(255,170,70,.7); }
-#temple-root .wd-lamp .i { width: 19px; height: 19px; }
-#temple-root .wd-x { flex: none; width: 30px; height: 30px; border: 0; border-radius: 50%; display: grid; place-items: center; color: #fbeccb; background: rgba(255,255,255,.1); cursor: pointer; }
-#temple-root .wd-x:hover { background: rgba(255,255,255,.22); }
-#temple-root .wd-x .i { width: 15px; height: 15px; }
-#temple-root .wd-tabs { display: flex; gap: 4px; margin: 0 12px 8px; padding: 3px; border-radius: 10px; background: rgba(0,0,0,.28); }
-#temple-root .wd-tabs button { flex: 1; padding: 5px 0; border: 0; border-radius: 8px; background: none; color: #e8d3aa; font-size: 12px; font-weight: 600; cursor: pointer; }
-#temple-root .wd-tabs button.on { background: linear-gradient(90deg, #d39a33, #f6d27e); color: #3a1c04; }
-#temple-root .wd-list { flex: 1; min-height: 0; overflow-y: auto; padding: 0 12px 8px; }
-#temple-root .wd-item { padding: 9px 11px; margin-bottom: 7px; border-radius: 12px; background: rgba(255,240,205,.08); border-left: 3px solid #f0a64a; animation: wdIn .4s ease-out; }
-#temple-root .wd-item.mine { background: rgba(246,210,126,.17); border-left-color: #ffe08a; }
-@keyframes wdIn { from { opacity: 0; transform: translateX(14px); } }
-#temple-root .wd-text { margin: 0 0 6px; font: italic 13.5px/1.42 Georgia, 'Times New Roman', serif; color: #fff4db; overflow-wrap: anywhere; }
-#temple-root .wd-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-#temple-root .wd-foot > span { min-width: 0; }
-#temple-root .wd-foot b { display: block; font-size: 12px; color: #ffd98a; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-#temple-root .wd-foot small { font-size: 10.5px; opacity: .7; }
-#temple-root .wd-foot em, #temple-root .wd-like { flex: none; display: inline-flex; align-items: center; gap: 4px; font: 700 12px/1 inherit; font-style: normal; color: #ffe2a0; }
-#temple-root .wd-foot .i { width: 14px; height: 14px; }
-#temple-root .wd-like { padding: 5px 9px; border: 1px solid rgba(246,210,126,.55); border-radius: 999px; background: none; cursor: pointer; }
-#temple-root .wd-like:hover:not(.done) { background: rgba(246,210,126,.2); }
-#temple-root .wd-like.done { border-color: transparent; opacity: .65; cursor: default; }
-#temple-root .wd-empty { padding: 26px 10px; text-align: center; font-size: 13px; opacity: .8; }
-#temple-root .wd-empty .i { width: 34px; height: 34px; }
-#temple-root .wd-release { margin: 0 12px 12px; width: calc(100% - 24px); }
-#temple-root .wd-open { position: absolute; right: 14px; top: calc(74px + var(--st)); display: flex; align-items: center; gap: 6px; padding: 8px 13px; border-radius: 999px; font-size: 13px; font-weight: 700; color: #ffe2a0; background: rgba(48,22,9,.88); border: 1px solid rgba(246,210,126,.5); cursor: pointer; }
-#temple-root .wd-open .i { width: 16px; height: 16px; }
-@media (max-width: 1099px), (max-height: 599px) { #temple-root .wish-dock, #temple-root .wd-open { display: none !important; } }
 #temple-root .hud .pop { z-index: 3; }
 /* Nhân vật của tôi trong Hồ sơ tu tập */
 #temple-root .my-char { margin-bottom: 12px; padding: 10px; border-radius: 18px; background: #fff; box-shadow: 0 2px 10px rgba(80,50,20,.07); }
@@ -1006,8 +970,6 @@
 #temple-root .act-body small { opacity: .65; font-size: 11px; }
 #temple-root .comm .act-row { color: var(--ink); background: rgba(160,110,40,.09); }
 #temple-root .comm .act-row:hover { background: rgba(160,110,40,.17); }
-#temple-root .wd-item.flash { animation: wdFlash 1.2s ease-in-out 2; }
-@keyframes wdFlash { 50% { background: rgba(255,214,120,.5); } }
 /* Sổ danh hiệu truyền thuyết */
 #temple-root .hb-now { display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 16px; color: #f8e7bf; background: linear-gradient(135deg, #4b120c, #24100a); border: 1px solid #a9792e; }
 #temple-root .hb-now img { flex: none; width: 92px; height: 92px; object-fit: cover; border-radius: 12px; border: 2px solid #e7b95a; box-shadow: 0 0 14px rgba(255,180,60,.5); }
@@ -1094,7 +1056,7 @@
 @media (max-width: 599px) { #temple-root .tabs { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 22px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 22px), transparent 100%); } }
 
 /* Ngạ quỷ */
-#temple-root.is-quy .actions, #temple-root.is-quy .ctx-wrap, #temple-root.is-quy .wish-dock, #temple-root.is-quy .wd-open, #temple-root.is-quy .side-menu button:not([data-sheet=settings]), #temple-root.is-quy .pcard-greets, #temple-root.is-quy .pcard-own, #temple-root.is-quy .pcard-acts, #temple-root.is-quy .pcard-chan { display: none !important; }
+#temple-root.is-quy .actions, #temple-root.is-quy .ctx-wrap, #temple-root.is-quy .side-menu button:not([data-sheet=settings]), #temple-root.is-quy .pcard-greets, #temple-root.is-quy .pcard-own, #temple-root.is-quy .pcard-acts, #temple-root.is-quy .pcard-chan { display: none !important; }
 #temple-root .quy-bar { position: absolute; left: 50%; bottom: calc(14px + var(--sb)); transform: translateX(-50%); width: min(320px, calc(100vw - 24px)); box-sizing: border-box; display: flex; flex-direction: column; gap: 5px; padding: 12px; border-radius: 16px; background: rgba(24, 34, 44, .88); border: 1px solid rgba(140, 170, 200, .4); color: #dbe6f0; text-align: center; }
 #temple-root .quy-bar .fund-track { margin: 3px 0; }
 #temple-root .quy-bar .btn.on { filter: grayscale(.5); }
@@ -1282,57 +1244,7 @@
   100% { transform: translateX(-65%); }
 }
 
-/* Thanh Đo Áp Lực & Combo Xả Stress (.stress-widget) */
-#temple-root .stress-widget {
-  position: absolute;
-  left: calc(12px + var(--sl));
-  top: calc(108px + var(--st));
-  z-index: 6;
-  width: min(295px, 68vw);
-  padding: 8px 12px;
-  border-radius: 16px;
-  background: rgba(24, 30, 24, 0.84);
-  border: 1px solid rgba(238, 236, 227, 0.24);
-  backdrop-filter: blur(10px);
-  color: #eeece3;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
-  pointer-events: auto;
-}
-#temple-root .ui-min .stress-widget { display: none; }
-#temple-root .sw-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  font-size: 12px;
-  margin-bottom: 5px;
-}
-#temple-root .sw-head b { color: #ffd36b; }
-#temple-root .combo-badge {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #ff2a85, #ff6b00);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  box-shadow: 0 0 10px rgba(255, 42, 133, 0.6);
-}
-#temple-root .sw-track {
-  height: 7px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
-  overflow: hidden;
-}
-#temple-root .sw-track i {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #ef4444, #f97316);
-  transition: width 0.25s ease, background 0.3s ease;
-}
-
-/* Thanh Khu Vực Xõa Stress (Sansa Travel Bar) */
+/* Thanh chọn không khí (Sansa Travel Bar) */
 #temple-root .custom-bar {
   position: absolute;
   left: 12px;
@@ -1368,46 +1280,10 @@
   border-color: #ffd36b;
   box-shadow: 0 3px 12px rgba(244, 201, 93, 0.38);
 }
-#temple-root .cb-pill.cb-dj { border-color: rgba(0, 240, 255, 0.55); }
-#temple-root .cb-pill.cb-box { border-color: rgba(255, 107, 74, 0.6); }
-#temple-root .cb-pill.cb-hero {
-  background: linear-gradient(135deg, rgba(44, 28, 78, 0.9), rgba(22, 34, 62, 0.92));
-  border-color: #00f0ff;
-  color: #fff;
-}
-#temple-root .cb-pill.cb-switch {
-  background: linear-gradient(135deg, rgba(180, 118, 34, 0.92), rgba(114, 62, 18, 0.94));
-  border-color: rgba(255, 230, 160, 0.65);
-  color: #fff;
-}
-
-/* Nút hành động Xõa Stress ở thanh dưới */
-#temple-root .act.act-stress span {
-  font-size: 20px;
-}
-#temple-root .act.act-dj {
-  border-color: rgba(0, 240, 255, 0.5);
-}
-#temple-root .act.act-dj.on {
-  background: linear-gradient(145deg, #00b4d8, #7209b7);
-  color: #fff;
-  box-shadow: 0 0 18px rgba(0, 240, 255, 0.6);
-}
-#temple-root .act.act-punch {
-  border-color: rgba(255, 90, 54, 0.55);
-}
-#temple-root .act.act-punch:active {
-  transform: scale(0.9);
-  background: linear-gradient(145deg, #ef4444, #b91c1c);
-}
-#temple-root .act.act-muyu {
-  border-color: rgba(255, 211, 107, 0.6);
-}
 
 @media (max-width: 600px) {
   #temple-root .custom-bar { bottom: calc(122px + var(--sb)); left: 8px; gap: 4px; }
   #temple-root .cb-pill { padding: 5px 9px; font-size: 11px; }
-  #temple-root .stress-widget { top: calc(102px + var(--st)); width: min(250px, 64vw); padding: 6px 10px; }
 }
 
 /* Bộ Sưu Tập Đồ Trang Phục 3D (Sansa Temple Maru & Lễ Hội) */

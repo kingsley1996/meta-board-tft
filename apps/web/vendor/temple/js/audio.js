@@ -122,24 +122,6 @@ export const Sound = {
   },
   chime() { this.bell(this.now, 660, 0.12, 2.5); },
   success() { [0, 0.12, 0.24].forEach((d, i) => this.bell(this.now + d, [523, 659, 784][i], 0.12, 2)); },
-  // Âm thanh Đấm Bốc Xả Nghiệp (Sub-bass punch + Anime Crit)
-  punchSfx(crit = false) {
-    this.init();
-    if (!this.ctx || !this.enabled) return;
-    const t = this.now, c = this.ctx;
-    const o = c.createOscillator(), g = c.createGain();
-    o.type = 'sine';
-    o.frequency.setValueAtTime(crit ? 210 : 155, t);
-    o.frequency.exponentialRampToValueAtTime(34, t + 0.16);
-    this.env(g, t, crit ? 0.95 : 0.75, 0.19);
-    o.connect(g).connect(this.bus.sfx); o.start(t); o.stop(t + 0.22);
-
-    const n = c.createBufferSource(), bp = c.createBiquadFilter(), gn = c.createGain();
-    n.buffer = this.noise; bp.type = 'bandpass'; bp.frequency.value = crit ? 1800 : 1100; bp.Q.value = 2.2;
-    this.env(gn, t, 0.65, 0.08);
-    n.connect(bp).connect(gn).connect(this.bus.sfx); n.start(t); n.stop(t + 0.1);
-    if (crit) this.bell(t + 0.02, 880, 0.22, 1.2);
-  },
   // Âm thanh Đại Mõ Phản Lực tăng cao độ theo Combo
   hyperMuyuSfx(combo = 1) {
     this.init();
@@ -152,47 +134,6 @@ export const Sound = {
     this.env(g, t, 0.65, 0.15);
     o.connect(g).connect(this.bus.sfx); o.start(t); o.stop(t + 0.17);
     if (combo % 5 === 0) this.bell(t, 523.25 * Math.min(2, 1 + Math.floor(combo / 10) * 0.25), 0.18, 1.5);
-  },
-  // Chế độ Sàn DJ Chú Đại Bi Remix / Tâm Kinh Lo-Fi / Trống Nika Gear 5
-  djTrack: 'zen',
-  djStep: 0,
-  djNext: 0,
-  setDjTrack(track = 'zen') {
-    this.init();
-    this.djTrack = track;
-    if (this.ctx) this.djNext = this.ctx.currentTime + 0.05;
-  },
-  playDjStep(t, step, mode) {
-    const c = this.ctx;
-    if (!c || !this.enabled) return;
-    // Kick 4-on-the-floor
-    if (step % 2 === 0 || (mode === 'nika' && step % 4 === 3)) {
-      const k = c.createOscillator(), kg = c.createGain();
-      k.frequency.setValueAtTime(mode === 'lofi' ? 110 : 150, t);
-      k.frequency.exponentialRampToValueAtTime(36, t + 0.12);
-      this.env(kg, t, mode === 'lofi' ? 0.45 : 0.72, 0.15);
-      k.connect(kg).connect(this.bus.music); k.start(t); k.stop(t + 0.17);
-    }
-    // Off-beat Hi-hat / Mõ điện tử
-    if (step % 2 === 1) {
-      this.mok(t, mode === 'lofi' ? 0.22 : 0.38);
-      const n = c.createBufferSource(), hp = c.createBiquadFilter(), hg = c.createGain();
-      n.buffer = this.noise; hp.type = 'highpass'; hp.frequency.value = 6500;
-      this.env(hg, t, 0.22, 0.045);
-      n.connect(hp).connect(hg).connect(this.bus.music); n.start(t); n.stop(t + 0.06);
-    }
-    // Bass & Pentatonic Buddhist Synth Lead
-    const scale = mode === 'lofi'
-      ? [220, 261.63, 293.66, 329.63, 392, 440, 329.63, 293.66]
-      : [293.66, 349.23, 392, 440, 523.25, 587.33, 523.25, 440];
-    const note = scale[step % scale.length];
-    const lead = c.createOscillator(), lg = c.createGain(), lp = c.createBiquadFilter();
-    lead.type = mode === 'lofi' ? 'triangle' : 'sawtooth';
-    lead.frequency.setValueAtTime(note, t);
-    lp.type = 'lowpass'; lp.frequency.value = mode === 'lofi' ? 1200 : 2600;
-    this.env(lg, t, mode === 'lofi' ? 0.14 : 0.2, 0.16);
-    lead.connect(lp).connect(lg).connect(this.bus.music);
-    lead.start(t); lead.stop(t + 0.18);
   },
   startDrone() {
     if (this.drone) return;
@@ -216,16 +157,6 @@ export const Sound = {
   },
   schedule() {
     if (!this.ctx) return;
-    if (this.djTrack && this.djTrack !== 'zen') {
-      const bpm = this.djTrack === 'lofi' ? 92 : this.djTrack === 'nika' ? 126 : 136;
-      const stepDur = 60 / bpm / 2;
-      if (this.djNext < this.ctx.currentTime - 0.5) this.djNext = this.ctx.currentTime + 0.05;
-      while (this.djNext < this.ctx.currentTime + 0.15) {
-        this.playDjStep(this.djNext, this.djStep++, this.djTrack);
-        this.djNext += stepDur;
-      }
-      return;
-    }
     if (!this.chanting || !this.active) return;
     const spb = 60 / this.tempo;
     if (this.nextBeat < this.ctx.currentTime - 1) this.nextBeat = this.ctx.currentTime + 0.1;

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { TempleHost } from '@/components/temple/temple-host';
+import { TempleApp } from '@/components/temple/temple-app';
 import { isLang } from '@/lib/i18n';
 
 const titles: Record<string, string> = {
@@ -21,5 +21,5 @@ export default async function TemplePage({ params }: { params: Promise<{ lang: s
   const { lang } = await params;
   if (!isLang(lang)) notFound();
 
-  return <TempleHost lang={lang} />;
+  return <TempleApp lang={lang} />;
 }

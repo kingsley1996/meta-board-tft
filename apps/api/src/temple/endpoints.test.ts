@@ -86,7 +86,6 @@ test(
       assert.equal(typeof me.me.id, 'number', 'the HUD gets the u32 id, never the uuid');
       assert.equal(me.me.level, 1);
       assert.equal(me.me.sen, 500, 'the wallet of the original build');
-      assert.equal(me.me.inventory.den_hoa_dang, 8);
       assert.equal(me.me.today.bows, 0);
       assert.equal(me.me.lifetime.bows, 0);
       assert.equal((await send('/api/temple/state')).status, 401, 'no cookie, no state');
@@ -111,6 +110,14 @@ test(
       assert.equal(after.sen, bows.state.sen, 'a PUT cannot print Sen');
       assert.equal(after.level, bows.state.level, 'nor the level');
       await put('/api/temple/profile', { name: 'Đồng Tu Một' }, me.cookie);
+
+      // Chọn nhận vật: id thật thì về tay máy khách, id bịa thì khước từ ngay — để
+      // resolveHero (avatar.js:877) không quay vòng random rồi lưu một nhân vật vô hình.
+      const hero = await put('/api/temple/profile', { appearance: { hero: 'zoro' } }, me.cookie);
+      assert.equal(hero.status, 200);
+      assert.equal(hero.json.profile.appearance.hero, 'zoro');
+      const fakeHero = await put('/api/temple/profile', { appearance: { hero: 'songoku' } }, me.cookie);
+      assert.equal(fakeHero.status, 400, 'a hero the engine cannot draw is not a choice');
 
       // --- Ngồi thiền đo bằng đồng hồ server ---------------------------------
       const early = await post('/api/temple/practice', { type: 'meditate_end' }, me.cookie);
@@ -144,25 +151,6 @@ test(
       ]);
       const broke = await post('/api/temple/use', { item: 'huong_tram' }, nothing.cookie);
       assert.equal(broke.status, 409, 'an empty bag is not an offering');
-
-      // --- Hoa đăng ----------------------------------------------------------
-      const lit = (await post('/api/temple/lanterns', { text: 'Nguyện cho muôn loài an lạc' }, me.cookie)).json;
-      assert.equal(lit.gained, 20, 'the incense was put out, so this is the base rate');
-      assert.equal(lit.state.inventory.den_hoa_dang, 7);
-      // Đèn của người chưa xác minh email nằm ở pending; khách thì chưa xác minh,
-      // nên lời nguyện chưa được phép hiện lên cả chánh điện.
-      const verified = (await get('/api/temple/me', me.cookie)).json.user.emailVerified as boolean;
-      assert.equal(lit.lantern.status, verified ? 'live' : 'pending');
-      const others = (await get('/api/temple/lanterns', nothing.cookie)).json.lanterns as Json[];
-      const visible = others.some((l) => l.id === lit.lantern.id);
-      assert.equal(visible, verified, 'a pending wish is invisible to everyone else');
-      const mine = (await get('/api/temple/lanterns', me.cookie)).json.lanterns as Json[];
-      assert.equal(mine[0].mine, true);
-      const rejoiced = (await post(`/api/temple/lanterns/${lit.lantern.id}/rejoice`, {}, nothing.cookie)).json;
-      assert.equal(rejoiced.likes, 1);
-      const again = await post(`/api/temple/lanterns/${lit.lantern.id}/rejoice`, {}, nothing.cookie);
-      assert.equal(again.status, 409, 'one rejoice per person per lantern');
-      assert.equal((await post('/api/temple/lanterns', { text: 'x'.repeat(200) }, me.cookie)).status, 400);
 
       // --- Vườn cây ----------------------------------------------------------
       // Vườn là của chung một chùa, nên so với cây của chính mình chứ không với số

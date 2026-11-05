@@ -10,12 +10,12 @@
 
 import * as THREE from 'three';
 import meta from '@/vendor/temple/data/meta.json';
+import { HERO_LIST } from '@/vendor/temple/js/avatar.js';
 import { Sound } from '@/vendor/temple/js/audio.js';
 import { BeadsView } from '@/vendor/temple/js/beads.js';
 import { showGardenTrees, showPlants } from '@/vendor/temple/js/chores.js';
 import { injectIcons } from '@/vendor/temple/js/icons.js';
 import { local } from '@/vendor/temple/js/prefs.js';
-import { preloadFigures } from '@/vendor/temple/js/statues.js';
 import { World } from '@/vendor/temple/js/world.js';
 import type { RemotePlayer } from './room';
 import { ABBOT, tellersOf } from './stories';
@@ -32,6 +32,26 @@ export const SECTS = meta.sects as Record<string, Sect>;
 // HUD vẽ <Icon name={`sect-${id}`}/> chứ không in ra field icon của meta.
 export const sectOf = (id: string): Sect => SECTS[id] ?? Object.values(SECTS)[0];
 
+export type Hero = { id: string; name: string; title: string };
+
+// 12 nhận vật engine nặn được, theo đúng thứ tự tấm ảnh tham khảo 4 cột × 3 hàng mà
+// .hc-thumb cắt (app.css:1170). Toạ độ lấy từ renderHeroGrid của HUD gốc (main.js:468).
+export const HEROES = HERO_LIST as Hero[];
+export const HERO_SPRITE: Record<string, string> = {
+  luffy_g5: '0% 0%',
+  naruto_sage: '33.33% 0%',
+  zoro: '66.66% 0%',
+  sasuke: '100% 0%',
+  sanji: '0% 50%',
+  kakashi: '33.33% 50%',
+  law: '66.66% 50%',
+  itachi: '100% 50%',
+  ace: '0% 100%',
+  shanks: '33.33% 100%',
+  minato: '66.66% 100%',
+  kaido: '100% 100%',
+};
+
 // "Nhiều chùa / nhiều server" đã cắt theo đề bài, nên id chùa là hằng số chứ không phải
 // lựa chọn của máy khách — máy khách gửi id lạ thì cũng chỉ vào được một chánh điện.
 export const TEMPLE = (meta.temples.find((t) => t.id === 'nhattru') ?? meta.temples[0]) as {
@@ -40,11 +60,6 @@ export const TEMPLE = (meta.temples.find((t) => t.id === 'nhattru') ?? meta.temp
   npc?: number;
   theme: { statues?: { kind: string }[]; view?: string; fog?: string; size?: number[] };
 };
-
-// Tượng lớn ngoài trời dựng theo khung cảnh, còn lại lấy từ danh sách tượng của chánh
-// điện (main.js:1140-1141) — thiếu một kind là thiếu một pho tượng trong cảnh.
-const VIEW_STATUES: Record<string, string[]> = { fansipan: ['amida', 'quanam'], sontra: ['quanam'] };
-const statueKinds = (t: typeof TEMPLE) => [...(t.theme.statues ?? []).map((s) => s.kind), ...(VIEW_STATUES[t.theme.view ?? ''] ?? [])];
 
 export const AMBIENCES = [
   { id: 'day', label: '☀️ Ban ngày', bg: null as string | null, fog: null as string | null, exp: 1.15 },
@@ -94,7 +109,6 @@ type WorldSlice = {
   warmUp: (maxMs?: number) => Promise<void>;
   start: () => void;
   stop: () => void;
-  resize: () => void;
   applyRoom: (players: RemotePlayer[], myId: number) => void;
   netState: () => { x: number; z: number; y: number; r: number; seat: number; a: number };
   sit: (cu?: unknown) => unknown;
@@ -165,7 +179,6 @@ export class TempleEngine {
   world: WorldSlice | null = null;
   beads: BeadsSlice | null = null;
   private ambience = 0;
-  private readonly onResize = () => this.world?.resize();
 
   constructor(private readonly h: EngineHandlers) {}
 
@@ -190,21 +203,20 @@ export class TempleEngine {
     world.setShowNames(local.get('names') !== false);
     this.world = world;
     this.beads = new BeadsView(beadsCanvas, () => this.h.onBead()) as unknown as BeadsSlice;
-    window.addEventListener('resize', this.onResize);
   }
 
-  // Đúng thứ tự main.js:1152-1215 chạy khi vào chùa: dựng cảnh → tải tượng → an vị →
-  // warmUp → start → chuông. Bỏ một bước là cảnh hiện ra trắng một khung hình.
+  // Đúng thứ tự main.js:1152-1215 chạy khi vào chùa: dựng cảnh → an vị → warmUp →
+  // start → chuông. Bỏ một bước là cảnh hiện ra trắng một khung hình.
   async enter(me: EnginePerson): Promise<void> {
     const world = this.world;
     if (!world) return;
-    this.h.onProgress(8, 'Thắp đèn chánh điện');
+    this.h.onProgress(10, 'Thắp đèn chánh điện');
+    // buildTemple là một nhịp blocking dài của main thread; nhả ba khung hình ở đây để
+    // hiệu ứng chờ kịp khởi động chuyển động trước khi cảnh bị dựng đè lên.
     await nextFrames(3);
-    await preloadFigures(statueKinds(TEMPLE)).catch(() => null);
-    this.h.onProgress(55, 'An vị tượng Phật');
-    await nextFrames(1);
     world.enterTemple(TEMPLE, me);
-    this.h.onProgress(80, 'Dọn sân chùa');
+    this.h.onProgress(72, 'Dọn sân chùa');
+    await nextFrames(1);
     await world.warmUp();
     world.start();
     await nextFrames(3);
@@ -382,7 +394,6 @@ export class TempleEngine {
   }
 
   dispose(): void {
-    window.removeEventListener('resize', this.onResize);
     this.beads?.stop();
     this.world?.stop();
     Sound.setActive(false);

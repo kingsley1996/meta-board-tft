@@ -6,7 +6,6 @@ import { packRoomFrame, TICK, type PlayerProfile, type PlayerState } from './pro
 export type RoomMember = {
   profile: PlayerProfile;
   state: PlayerState;
-  hidden: boolean;
   dirty: boolean;
   temple: string;
   room: string;
@@ -27,6 +26,11 @@ export class TempleRooms {
     const key = keyOf(member.temple, member.room);
     this.remove(member);
     const set = this.rooms.get(key) ?? new Set<RoomMember>();
+    // Một id đứng hai chỗ trong cùng phòng nghĩa là lượt vào trước chưa được gỡ (tab nối
+    // lại, hoặc một gói 'join' thứ hai trên cùng socket): số người online đếm thừa mãi
+    // cho tới khi tiến trình khởi động lại. Gỡ ở đây thay vì ghi vào "gone" — avatar của
+    // id đó vẫn còn trong phòng, chỉ là vừa được đứng tên hai lần.
+    for (const stale of [...set]) if (stale.profile.id === member.profile.id) set.delete(stale);
     const peers = [...set].map((other) => other.profile);
     set.add(member);
     this.rooms.set(key, set);
@@ -66,7 +70,10 @@ export class TempleRooms {
       const changed = members.filter((member) => member.dirty);
       if (!full && left.length === 0 && changed.length === 0) continue;
 
-      const online = members.filter((member) => !member.hidden).length;
+      // Số người trên frame phải đúng bằng số avatar mà máy khách dựng được, nên đếm
+      // theo thành viên của phòng chứ không theo "tab nào đang hiện": một người để tab
+      // nền vẫn đứng trong chánh điện, trừ khỏi số đếm là hai bên lệch nhau ngay.
+      const online = members.length;
       const states = (full ? members : changed).map((member) => member.state);
       const frame = packRoomFrame(full, online, states, left);
       for (const member of members) member.send(frame);
@@ -79,7 +86,7 @@ export class TempleRooms {
   snapshotOf(member: RoomMember): Buffer {
     const set = this.rooms.get(keyOf(member.temple, member.room));
     const members = set ? [...set] : [member];
-    return packRoomFrame(true, members.filter((m) => !m.hidden).length, members.map((m) => m.state), []);
+    return packRoomFrame(true, members.length, members.map((m) => m.state), []);
   }
 
   // Phát một tin JSON cho cả phòng, bỏ qua tác nhân (người gửi socket, hoặc người mà
@@ -89,6 +96,15 @@ export class TempleRooms {
     const set = this.rooms.get(keyOf(temple, room));
     if (!set) return;
     for (const other of set) if (other.profile.id !== exceptId) other.send(payload);
+  }
+
+  // Báo đích danh một người chơi, không hỏi họ đang ở phòng nào: tin nhắn riêng và lời
+  // mời kết bạn là chuyện của hai người, phát cả chánh điện thì thành tiếng ồn. Người
+  // ngoại tuyến không nhận gì cả — tin đã nằm trong database, họ thấy khi mở hộp thư.
+  notify(playerId: number, payload: string): void {
+    for (const set of this.rooms.values()) {
+      for (const member of set) if (member.profile.id === playerId) member.send(payload);
+    }
   }
 
   summary(): Record<string, number> {

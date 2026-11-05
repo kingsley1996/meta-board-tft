@@ -503,12 +503,10 @@ export function buildTemple(scene, theme, quality = 'high') {
   drawMerit();
 
   /* ============================================================================
-     3 KHU VỰC XÕA STRESS 3D NGOÀI SÂN CHÙA (GIỐNG SANSA TEMPLE HÀN QUỐC)
+     QUẢNG TRƯỜNG SÂN CHÙA
      Chánh điện bên trong giữ nguyên sự thanh tịnh, trang nghiêm để lễ Phật & tụng kinh.
-     Bước ra sân chùa ngoài trời là Quảng Trường Xõa Stress:
-     1. 🎧 Sàn DJ Ánh Trăng Ngoài Sân (Cyber-Lotus DJ Booth + Cổng Truss + Disco Ball + Lasers + LED Floor)
-     2. 🥊 Võ Đài Đấm Bốc Xả Nghiệp Ngoài Sân (Boxing Ring + 5 Bao Cát Vật Lý Lắc Lư)
-     3. 🥁 Đại Mõ Neon Phản Lực Ngoài Sân (Giant Combo Wooden Fish)
+     Bước ra sân chùa ngoài trời chỉ còn:
+     1. 🥁 Đại Mõ Neon Phản Lực Ngoài Sân (Giant Combo Wooden Fish)
      ============================================================================ */
   function makeSignSprite(title, sub, borderCol = '#ffd36b', glowCol = 'rgba(255,211,107,0.25)') {
     const tex = canvasTex(512, 160, (ctx, w, h) => {
@@ -537,7 +535,7 @@ export function buildTemple(scene, theme, quality = 'high') {
   const outZ = isCave ? Math.min(hd - 3.2, (c.z0 ?? 0) + 2.2) : (isPond ? Math.max(hw, hd) + 18.2 : hd + 11.2);
   const hostGroup = (!isCave && sur?.group) ? sur.group : g;
 
-  // Nền Đá Quảng Trường Sân Chùa (đảm bảo nhân vật đi bộ mượt mà quanh Sàn DJ & Võ Đài ở mọi ngôi chùa)
+  // Nền Đá Quảng Trường Sân Chùa (đảm bảo nhân vật đi bộ mượt mà quanh Đại Mõ ở mọi ngôi chùa)
   if (!isCave && sur?.group) {
     const terraceMat = new THREE.MeshStandardMaterial({ color: '#3b3530', roughness: 0.88 });
     const terraceBorderMat = new THREE.MeshStandardMaterial({ color: '#c89b4b', roughness: 0.45, metalness: 0.5 });
@@ -546,203 +544,9 @@ export function buildTemple(scene, theme, quality = 'high') {
     sur.group.add(mk(new THREE.BoxGeometry(22.8, 0.06, 10.8), terraceBorderMat, 0, outY - 0.01, outZ, { cast: false, receive: false }));
   }
 
-  // ---------- 1. 🎧 SÀN DJ ÁNH TRĂNG (Ngoài sân chùa bên trái) ----------
-  const djX = isCave ? -Math.max(4.6, hw - 3.3) : -6.2;
-  const djZ = outZ;
-  const djGroup = new THREE.Group();
-  djGroup.position.set(djX, outY, djZ);
-  djGroup.rotation.y = 0; // hướng về phía sân trước, lấy mái Chánh Điện cổ kính làm phông nền phía sau
-  hostGroup.add(djGroup);
-
-  const stageBaseMat = new THREE.MeshStandardMaterial({ color: '#1b1429', roughness: 0.35, metalness: 0.6 });
+  // ---------- 🥁 ĐẠI MÕ NEON PHẢN LỰC (Giữa Quảng Trường Sân Chùa) ----------
   const neonPinkMat = new THREE.MeshBasicMaterial({ color: '#ff2a85' });
-  const neonCyanMat = new THREE.MeshBasicMaterial({ color: '#00f0ff' });
   const neonGoldMat = new THREE.MeshBasicMaterial({ color: '#ffd36b' });
-
-  const djStageMesh = mk(new THREE.CylinderGeometry(2.55, 2.75, 0.18, 32), stageBaseMat, 0, 0.09, 0);
-  djGroup.add(djStageMesh);
-  djGroup.add(mk(new THREE.TorusGeometry(2.65, 0.05, 10, 48), neonCyanMat, 0, 0.18, 0, { rot: [Math.PI / 2, 0, 0], cast: false }));
-  djGroup.add(mk(new THREE.TorusGeometry(2.1, 0.04, 10, 48), neonPinkMat, 0, 0.19, 0, { rot: [Math.PI / 2, 0, 0], cast: false }));
-
-  // Sàn LED 4x4 nhấp nháy theo nhịp nhạc ngoài trời
-  const ledTiles = [];
-  const ledColors = [0xff2a85, 0x00f0ff, 0xffd36b, 0x9d4edd, 0x00f5d4, 0xff6b00];
-  for (let gx = -1.5; gx <= 1.5; gx += 1) {
-    for (let gz = -0.35; gz <= 1.65; gz += 0.66) {
-      const tm = new THREE.MeshBasicMaterial({ color: ledColors[(Math.abs(Math.round(gx * 2 + gz * 3))) % ledColors.length], transparent: true, opacity: 0.6 });
-      const tile = mk(new THREE.BoxGeometry(0.82, 0.03, 0.56), tm, gx * 0.9, 0.19, gz, { cast: false });
-      djGroup.add(tile);
-      ledTiles.push(tile);
-    }
-  }
-
-  // Bàn DJ (DJ Booth + 2 Mâm Đĩa Than Xoay + Equalizer)
-  const boothMat = new THREE.MeshStandardMaterial({ color: '#12131a', roughness: 0.25, metalness: 0.8 });
-  djGroup.add(mk(new THREE.BoxGeometry(1.9, 0.95, 0.78), boothMat, 0, 0.65, -1.15));
-  djGroup.add(mk(new THREE.BoxGeometry(1.96, 0.08, 0.84), neonGoldMat, 0, 1.14, -1.15, { cast: false }));
-  // Hoa sen Hologram trước bàn DJ
-  djGroup.add(mk(new THREE.OctahedronGeometry(0.28, 1), new THREE.MeshBasicMaterial({ color: '#00f0ff', wireframe: true }), 0, 0.68, -0.72, { cast: false }));
-
-  // 2 mâm đĩa xoay (Turntables)
-  const platters = [];
-  for (const s of [-0.52, 0.52]) {
-    const plGroup = new THREE.Group();
-    plGroup.position.set(s, 1.19, -1.15);
-    plGroup.add(mk(new THREE.CylinderGeometry(0.32, 0.32, 0.03, 24), new THREE.MeshStandardMaterial({ color: '#111115', roughness: 0.2 }), 0, 0, 0, { cast: false }));
-    plGroup.add(mk(new THREE.TorusGeometry(0.26, 0.02, 8, 24), s < 0 ? neonCyanMat : neonPinkMat, 0, 0.02, 0, { rot: [Math.PI / 2, 0, 0], cast: false }));
-    plGroup.add(mk(new THREE.BoxGeometry(0.22, 0.02, 0.04), neonGoldMat, 0, 0.03, 0, { cast: false }));
-    djGroup.add(plGroup);
-    platters.push(plGroup);
-  }
-
-  // 2 Cột Loa Thùng Khổng Lồ (Subwoofer Stacks) + Khung Giàn Truss Lễ Hội Ngoài Trời
-  const speakerCones = [];
-  const trussMat = new THREE.MeshStandardMaterial({ color: '#1e293b', metalness: 0.85, roughness: 0.25 });
-  djGroup.add(
-    mk(new THREE.CylinderGeometry(0.08, 0.09, 4.6, 12), trussMat, -2.15, 2.3, -1.15),
-    mk(new THREE.CylinderGeometry(0.08, 0.09, 4.6, 12), trussMat, 2.15, 2.3, -1.15),
-    mk(new THREE.CylinderGeometry(0.08, 0.08, 4.5, 12), trussMat, 0, 4.55, -1.15, { rot: [0, 0, Math.PI / 2] }),
-    mk(new THREE.BoxGeometry(4.4, 0.06, 0.06), neonCyanMat, 0, 4.62, -1.15, { cast: false })
-  );
-  for (const s of [-1.45, 1.45]) {
-    djGroup.add(mk(new THREE.BoxGeometry(0.76, 2.1, 0.72), boothMat, s, 1.22, -1.1));
-    djGroup.add(mk(new THREE.BoxGeometry(0.8, 0.06, 0.76), neonPinkMat, s, 2.28, -1.1, { cast: false }));
-    for (const cy of [0.65, 1.25, 1.85]) {
-      const cone = mk(new THREE.CylinderGeometry(0.24, 0.14, 0.12, 20), new THREE.MeshStandardMaterial({ color: '#282a36', metalness: 0.7, roughness: 0.3 }), s, cy, -0.72, { rot: [Math.PI / 2, 0, 0], cast: false });
-      const rim = mk(new THREE.TorusGeometry(0.24, 0.022, 8, 24), cy > 1.5 ? neonCyanMat : neonGoldMat, s, cy, -0.68, { cast: false });
-      djGroup.add(cone, rim);
-      speakerCones.push(cone);
-    }
-  }
-
-  // Quả cầu gương Hoa Sen (Disco Ball) treo trên giàn Truss ngoài trời + 4 Tia Laser quét sân chùa
-  const discoGroup = new THREE.Group();
-  discoGroup.position.set(0, 4.2, -0.4);
-  const discoBall = mk(new THREE.IcosahedronGeometry(0.42, 2), new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffd36b', emissiveIntensity: 0.45, metalness: 0.95, roughness: 0.08 }), 0, 0, 0, { cast: false });
-  discoGroup.add(discoBall);
-  const lasers = [];
-  const laserCols = ['#00f0ff', '#ff2a85', '#ffd36b', '#a855f7'];
-  for (let i = 0; i < 4; i++) {
-    const lMat = new THREE.MeshBasicMaterial({ color: laserCols[i], transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending });
-    const beam = mk(new THREE.ConeGeometry(1.4, 4.4, 12, 1, true), lMat, 0, -2.1, 0, { cast: false });
-    const pivot = new THREE.Group();
-    pivot.rotation.y = (i * Math.PI) / 2;
-    pivot.rotation.z = 0.42;
-    pivot.add(beam);
-    discoGroup.add(pivot);
-    lasers.push({ pivot, mat: lMat });
-  }
-  djGroup.add(discoGroup);
-
-  const djSign = makeSignSprite('🎧 SÀN DJ NGOÀI SÂN', 'Chạm để Quẩy Chú Đại Bi Remix', '#00f0ff', 'rgba(0,240,255,0.18)');
-  djSign.position.set(0, 3.35, -1.1);
-  djGroup.add(djSign);
-
-  let djPartyActive = false;
-
-  // ---------- 2. 🥊 VÕ ĐÀI ĐẤM BỐC XẢ NGHIỆP (Ngoài sân chùa bên phải) ----------
-  const boxX = isCave ? Math.max(4.6, hw - 3.3) : 6.2;
-  const boxZ = outZ;
-  const boxGroup = new THREE.Group();
-  boxGroup.position.set(boxX, outY, boxZ);
-  boxGroup.rotation.y = 0; // hướng về phía người chơi ngoài sân chùa
-  hostGroup.add(boxGroup);
-
-  const ringMat = new THREE.MeshStandardMaterial({ color: '#2b1216', roughness: 0.65 });
-  const ringBorderMat = new THREE.MeshStandardMaterial({ color: '#d9a443', metalness: 0.75, roughness: 0.3 });
-  const boxStageMesh = mk(new THREE.BoxGeometry(5.2, 0.16, 3.6), ringMat, 0, 0.08, 0);
-  boxGroup.add(boxStageMesh);
-  boxGroup.add(mk(new THREE.BoxGeometry(5.32, 0.06, 3.72), ringBorderMat, 0, 0.17, 0, { cast: false }));
-
-  // 4 Cột góc đài + Dây đài (chừa mặt trước để bước vào đấm)
-  const postMat = new THREE.MeshStandardMaterial({ color: '#dc2626', roughness: 0.4, metalness: 0.4 });
-  const ropeMat = new THREE.MeshStandardMaterial({ color: '#fbbf24', emissive: '#b45309', emissiveIntensity: 0.3, roughness: 0.4 });
-  for (const [px, pz] of [[-2.4, -1.6], [2.4, -1.6], [-2.4, 1.6], [2.4, 1.6]]) {
-    boxGroup.add(mk(new THREE.CylinderGeometry(0.09, 0.1, 1.55, 14), postMat, px, 0.85, pz));
-    boxGroup.add(mk(new THREE.SphereGeometry(0.13, 12, 10), ringBorderMat, px, 1.65, pz, { cast: false }));
-  }
-  for (const ry of [0.55, 0.95, 1.35]) {
-    // Dây lưng
-    boxGroup.add(mk(new THREE.CylinderGeometry(0.025, 0.025, 4.8, 8), ropeMat, 0, ry, -1.6, { rot: [0, 0, Math.PI / 2], cast: false }));
-    // Dây 2 bên hông
-    for (const sx of [-2.4, 2.4]) {
-      boxGroup.add(mk(new THREE.CylinderGeometry(0.025, 0.025, 3.2, 8), ropeMat, sx, ry, 0, { rot: [Math.PI / 2, 0, 0], cast: false }));
-    }
-  }
-
-  // Khung giá treo 5 Bao Cát Nghiệp Chướng
-  const gantryMat = new THREE.MeshStandardMaterial({ color: '#1f2937', metalness: 0.8, roughness: 0.3 });
-  boxGroup.add(
-    mk(new THREE.CylinderGeometry(0.1, 0.12, 3.6, 14), gantryMat, -2.2, 1.9, -0.4),
-    mk(new THREE.CylinderGeometry(0.1, 0.12, 3.6, 14), gantryMat, 2.2, 1.9, -0.4),
-    mk(new THREE.CylinderGeometry(0.1, 0.1, 4.7, 14), gantryMat, 0, 3.65, -0.4, { rot: [0, 0, Math.PI / 2] })
-  );
-
-  function makeBagTex(label, sub, bgHex) {
-    return canvasTex(256, 256, (ctx, w, h) => {
-      ctx.fillStyle = bgHex;
-      ctx.fillRect(0, 0, w, h);
-      // Đai bao cát trên & dưới
-      ctx.fillStyle = 'rgba(0,0,0,0.38)';
-      ctx.fillRect(0, 18, w, 26);
-      ctx.fillRect(0, h - 44, w, 26);
-      ctx.strokeStyle = '#ffd36b';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(4, 60, w - 8, h - 120);
-      // Biểu cảm mục tiêu xả giận
-      ctx.fillStyle = '#fff5d6';
-      ctx.font = '900 28px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('💥 MỤC TIÊU 💥', w / 2, 102);
-      ctx.font = '900 32px system-ui, sans-serif';
-      ctx.fillStyle = '#ffd36b';
-      ctx.fillText(label, w / 2, 146);
-      ctx.font = '700 20px system-ui, sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(sub, w / 2, 180);
-    });
-  }
-
-  const BAG_DEFS = [
-    { id: 'deadline', name: 'DEADLINE DÍ', sub: '-25% Áp lực', color: '#dc2626', x: -1.68 },
-    { id: 'boss', name: 'SẾP KHÓ TÍNH', sub: '-30% Bực bội', color: '#d97706', x: -0.84 },
-    { id: 'overthink', name: 'OVERTHINKING', sub: '-35% Âu lo', color: '#7c3aed', x: 0 },
-    { id: 'traffic', name: 'KẸT XE GIỜ TAN TẦM', sub: '-25% Mệt mỏi', color: '#0284c7', x: 0.84 },
-    { id: 'ex', name: 'NGƯỜI CŨ / CRUSH', sub: '-40% Suy tư', color: '#db2777', x: 1.68 },
-  ];
-
-  const bags = [];
-  const bagMeshes = [];
-  const shockwaves = [];
-  BAG_DEFS.forEach((def, idx) => {
-    const pivot = new THREE.Group();
-    pivot.position.set(def.x, 3.62, -0.4);
-    // Dây xích treo
-    pivot.add(mk(new THREE.CylinderGeometry(0.022, 0.022, 0.85, 8), ringBorderMat, 0, -0.42, 0, { cast: false }));
-    // Thân bao cát
-    const bagMat = new THREE.MeshStandardMaterial({
-      map: makeBagTex(def.name, def.sub, def.color),
-      roughness: 0.45,
-      metalness: 0.15,
-      emissive: '#ffffff',
-      emissiveIntensity: 0,
-    });
-    const body = mk(new THREE.CylinderGeometry(0.31, 0.33, 1.38, 22), bagMat, 0, -1.5, 0);
-    body.rotation.y = Math.PI; // hướng chữ ra phía người chơi (+z)
-    body.userData.bagIdx = idx;
-    const capTop = mk(new THREE.SphereGeometry(0.31, 16, 10), ringBorderMat, 0, -0.82, 0, { scale: [1, 0.35, 1], cast: false });
-    const capBot = mk(new THREE.SphereGeometry(0.33, 16, 10), ringBorderMat, 0, -2.18, 0, { scale: [1, 0.35, 1], cast: false });
-    pivot.add(body, capTop, capBot);
-    boxGroup.add(pivot);
-    bagMeshes.push(body);
-    bags.push({ idx, def, pivot, body, mat: bagMat, rx: 0, rz: 0, vx: 0, vz: 0, flash: 0 });
-  });
-
-  const boxSign = makeSignSprite('🥊 VÕ ĐÀI NGOÀI SÂN', 'Chạm vào Bao Cát để tung Tuyệt Chiêu!', '#ff6b4a', 'rgba(255,107,74,0.2)');
-  boxSign.position.set(0, 4.25, -0.2);
-  boxGroup.add(boxSign);
-
-  // ---------- 3. 🥁 ĐẠI MÕ NEON PHẢN LỰC (Giữa Quảng Trường Sân Chùa) ----------
   const muyuPos = new THREE.Vector3(0, outY, outZ - 1.2);
   const muyuGroup = new THREE.Group();
   muyuGroup.position.copy(muyuPos);
@@ -772,6 +576,7 @@ export function buildTemple(scene, theme, quality = 'high') {
   muyuGroup.add(muyuSign);
 
   let giantMuyuAnim = 1;
+const shockwaves = [];
 
   function spawnShockwave(worldPos, col = 0xffd36b) {
     const ring = new THREE.Mesh(
@@ -785,39 +590,6 @@ export function buildTemple(scene, theme, quality = 'high') {
   }
 
   updaters.push((dt, time) => {
-    // Cập nhật Sàn DJ
-    const beatSpeed = djPartyActive ? 14 : 4;
-    const pulse = 1 + Math.sin(time * beatSpeed) * (djPartyActive ? 0.16 : 0.04);
-    for (const pl of platters) pl.rotation.y += dt * (djPartyActive ? 8 : 2);
-    for (const sc of speakerCones) sc.scale.set(pulse, 1, pulse);
-    discoGroup.rotation.y += dt * (djPartyActive ? 2.4 : 0.6);
-    lasers.forEach((l, i) => {
-      l.pivot.rotation.z = 0.42 + Math.sin(time * (djPartyActive ? 4.5 : 1.2) + i * 1.5) * (djPartyActive ? 0.35 : 0.12);
-      l.mat.opacity = djPartyActive ? 0.34 + Math.sin(time * 10 + i) * 0.12 : 0.11;
-    });
-    ledTiles.forEach((tile, i) => {
-      const wave = Math.sin(time * (djPartyActive ? 8 : 2.2) + i * 0.7);
-      tile.material.opacity = djPartyActive ? 0.55 + wave * 0.35 : 0.32 + wave * 0.12;
-      if (djPartyActive && Math.floor(time * 4 + i) % 5 === 0) {
-        tile.material.color.setHex(ledColors[(i + Math.floor(time * 6)) % ledColors.length]);
-      }
-    });
-
-    // Cập nhật Vật lý Lắc Lư của 5 Bao Cát Nghiệp Chướng
-    for (const b of bags) {
-      const spring = 28, damp = 5.5;
-      b.vx += (-spring * b.rx - damp * b.vx) * dt;
-      b.vz += (-spring * b.rz - damp * b.vz) * dt;
-      b.rx += b.vx * dt;
-      b.rz += b.vz * dt;
-      b.pivot.rotation.x = b.rx;
-      b.pivot.rotation.z = b.rz;
-      if (b.flash > 0) {
-        b.flash = Math.max(0, b.flash - dt * 4);
-        b.mat.emissiveIntensity = b.flash * 0.85;
-      }
-    }
-
     // Cập nhật Đại Mõ Neon
     if (giantMuyuAnim < 1) {
       giantMuyuAnim = Math.min(1, giantMuyuAnim + dt / 0.15);
@@ -845,8 +617,6 @@ export function buildTemple(scene, theme, quality = 'high') {
 
   const stressZones = {
     hall: { pos: new THREE.Vector3(0, 0, Math.min(hd - 3.5, (c.z0 ?? 0) + 2.5)), yaw: 0, label: '🏯 Trong Chánh Điện Thanh Tịnh' },
-    dj: { pos: new THREE.Vector3(djX, outY + 0.18, djZ + 0.65), yaw: 0, label: '🎧 Sàn DJ Ánh Trăng (Ngoài Sân)' },
-    boxing: { pos: new THREE.Vector3(boxX, outY + 0.16, boxZ + 1.05), yaw: 0, label: '🥊 Võ Đài Đấm Bốc (Ngoài Sân)' },
     muyu: { pos: new THREE.Vector3(muyuPos.x, outY, muyuPos.z + 1.55), yaw: 0, label: '🥁 Đại Mõ Phản Lực (Ngoài Sân)' },
   };
 
@@ -857,24 +627,6 @@ export function buildTemple(scene, theme, quality = 'high') {
   return {
     group: g, cushions, bounds, altarZ, tableZ: tz, height: H,
     stressZones,
-    djStageMesh,
-    boxStageMesh,
-    bagMeshes,
-    bags,
-    giantMuyuMesh: giantMuyuBody,
-    setDjParty(on) { djPartyActive = !!on; },
-    hitBag(idx = 2, power = 1) {
-      const b = bags[idx] || bags[2];
-      if (!b) return null;
-      b.vx = -6.8 * power + rand(-1.5, 1.5);
-      b.vz = rand(-2.6, 2.6) * power;
-      b.flash = 1;
-      const wp = new THREE.Vector3();
-      b.body.getWorldPosition(wp);
-      wp.y = outY + 0.22;
-      spawnShockwave(wp, 0xff5a1a);
-      return b.def;
-    },
     hitGiantMuyu() {
       giantMuyuAnim = 0;
       spawnShockwave(new THREE.Vector3(muyuPos.x, outY + 0.2, muyuPos.z), 0xffd36b);
@@ -883,7 +635,7 @@ export function buildTemple(scene, theme, quality = 'high') {
     steleFace: face,
     setMerit: drawMerit,
     meritStele: merit,
-    // dữ liệu để đi ra ngoài: cảnh quan, cửa chính, nền đất (chừa khoảng sân lễ hội DJ & Đấm bốc không mọc cây)
+    // dữ liệu để đi ra ngoài: cảnh quan, cửa chính, nền đất (chừa khoảng sân đặt Đại Mõ không mọc cây)
     outdoor: !isCave ? {
       group: sur.group,
       groundY: sur.groundY ?? 0,
@@ -892,7 +644,7 @@ export function buildTemple(scene, theme, quality = 'high') {
       cable: sur.cable || null,
       walkR: sur.walkR || 0,
       blocks: sur.blocks,
-      noGarden: (x, z) => (Math.abs(x) < 14 && Math.abs(z - outZ) < 8) || (sur.noGarden ? sur.noGarden(x, z) : false),
+      noGarden: (x, z) => (Math.abs(x) < 2.4 && Math.abs(z - outZ) < 3) || (sur.noGarden ? sur.noGarden(x, z) : false),
       forest: sur.forest,
     } : null,
     setCushionLook(cu, look) {

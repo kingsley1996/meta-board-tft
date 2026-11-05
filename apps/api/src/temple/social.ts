@@ -9,7 +9,8 @@ import { ensureTempleProfile } from './identity.ts';
 import { ApiError, playerId, text, withUser } from './http.ts';
 import { addMerit } from './merit.ts';
 import { ensureTempleTables } from './schema.ts';
-import { playerByPlayerId, templeState, toPublic, type PublicPlayer, type PublicRow } from './state.ts';
+import { playerByPlayerId, templeState, toPublic, toPublicOf, type PublicPlayer, type PublicRow } from './state.ts';
+import { notifyPlayer } from './ws.ts';
 
 export const socialRouter = Router();
 
@@ -51,6 +52,8 @@ socialRouter.get('/friends', withUser(async (req, res, user) => {
 
 // Kết bạn hai chiều: một lời mời là một hàng pending từ phía mời; khi được chấp nhận
 // thì ghi hai hàng accepted (đè lên pending nếu có) để đọc danh sách bằng một query.
+// Phía được mời/b được nhận được báo qua socket ngay (t 'friend') thay vì phải mở lại
+// sheet "Đồng tu" mà đoán.
 socialRouter.post('/friends', withUser(async (req, res, user) => {
   await ensureTempleTables();
   const id = playerId(req.body?.id);
@@ -64,6 +67,7 @@ socialRouter.post('/friends', withUser(async (req, res, user) => {
       [user.id, other],
     );
     if (already.rows[0]?.status === 'accepted') throw new ApiError(409, 'already_friends', 'already friends');
+    const me = toPublicOf(await ensureTempleProfile(user.id));
     // Một chiều mời không biến thành bạn bè: chỉ khi phía kia cũng đã mời mình
     // (một hàng pending ngược chiều) thì hai chiều mới được ghi accepted.
     const invited = await pool.query(
@@ -75,6 +79,7 @@ socialRouter.post('/friends', withUser(async (req, res, user) => {
         "INSERT INTO temple_friends (user_id, friend_id, status) VALUES ($1, $2, 'accepted'), ($2, $1, 'accepted') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted'",
         [user.id, other],
       );
+      notifyPlayer(id, { t: 'friend', kind: 'accept', by: me });
       res.json({ accepted: true, player: await publicOne(other) });
       return;
     }
@@ -82,6 +87,7 @@ socialRouter.post('/friends', withUser(async (req, res, user) => {
       "INSERT INTO temple_friends (user_id, friend_id, status) VALUES ($1, $2, 'pending') ON CONFLICT (user_id, friend_id) DO NOTHING",
       [user.id, other],
     );
+    notifyPlayer(id, { t: 'friend', kind: 'request', by: me });
     res.json({ accepted: false, player: await publicOne(other) });
     return;
   }
@@ -96,6 +102,7 @@ socialRouter.post('/friends', withUser(async (req, res, user) => {
       "INSERT INTO temple_friends (user_id, friend_id, status) VALUES ($1, $2, 'accepted'), ($2, $1, 'accepted') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted'",
       [user.id, other],
     );
+    notifyPlayer(id, { t: 'friend', kind: 'accept', by: toPublicOf(await ensureTempleProfile(user.id)) });
     res.json({ accepted: true, player: await publicOne(other) });
     return;
   }
@@ -159,11 +166,12 @@ socialRouter.get('/dms/:id', withUser(async (req, res, user) => {
 
 socialRouter.post('/dms', withUser(async (req, res, user) => {
   await ensureTempleTables();
-  await ensureTempleProfile(user.id);
   const id = playerId(req.body?.id);
   const other = await userIdOf(id);
   const message = text(req.body?.text, MAX_DM, 'invalid_message');
+  const me = toPublicOf(await ensureTempleProfile(user.id));
   await pool.query('INSERT INTO temple_dms (from_user, to_user, text) VALUES ($1, $2, $3)', [user.id, other, message]);
+  notifyPlayer(id, { t: 'dm', by: me, text: message });
   res.json({ sent: true });
 }));
 

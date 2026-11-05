@@ -94,6 +94,19 @@ export function toPublic(row: PublicRow): PublicPlayer {
   };
 }
 
+// Cùng phần công khai, lấy từ hồ sơ đang có trong bộ nhớ thay vì đọc lại bảng: một
+// tuyến báo tin cho người khác thì tên/bậc của người hành động vừa nằm sẵn ở đó rồi.
+export function toPublicOf(profile: TempleProfile): PublicPlayer {
+  return {
+    id: profile.playerId,
+    name: profile.name,
+    sect: profile.sect,
+    title: profile.title,
+    honor: profile.honor,
+    level: profile.level,
+  };
+}
+
 export async function playerByPlayerId(playerId: number): Promise<PublicRow | null> {
   const { rows } = await pool.query<PublicRow>(
     'SELECT user_id, player_id, name, sect, title, honor, exp FROM temple_profiles WHERE player_id = $1',

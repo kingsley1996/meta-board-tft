@@ -7,16 +7,16 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { Gain, TempleState } from './api';
+import type { Gain, GuestReply, TempleState } from './api';
 import { TempleApiError, get, post } from './api';
-import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, hasWebGL, local, nextFrames, sectOf, type EngineCtx, type EnginePerson } from './engine';
-import { petalShower, launchLantern, floater } from './effects';
+import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, hasWebGL, local, sectOf, type EngineCtx, type EnginePerson } from './engine';
+import { petalShower, floater } from './effects';
 import { QUOTES } from './stories';
 import { TempleRoom, type RemotePlayer } from './room';
-import { BagSheet, GardenSheet, GuideSheet, RankSheet, SettingsSheet, SteleSheet, WishDock } from './hall';
+import { BagSheet, GardenSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, SteleSheet } from './hall';
 import { ChatModal, FriendsSheet, GroupSheet, NpcModal, PlayerCard, type NpcKind } from './people';
 import { ChantView, MeditateView, QueModal, WheelView } from './practice';
-import { Icon, Modal, Sheet, Toast, esc, fmt, type Look, type SheetKind, type Store, type ViewKind } from './ui';
+import { Icon, Modal, Sheet, Toast, esc, fmt, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
 
 type LevelUp = { level: number; title: string; sen: number };
 type Ann = { id: number; text: string; effect: string };
@@ -50,16 +50,16 @@ export function TempleApp({ lang }: { lang: string }) {
   const [tick, setTick] = useState(0);
   const [screen, setScreen] = useState<'loader' | 'hud'>('loader');
   const [loaderPct, setLoaderPct] = useState(4);
+  const [loaderOut, setLoaderOut] = useState(false);
   const [loaderStep, setLoaderStep] = useState('Mở cổng chùa');
   const [noGl, setNoGl] = useState(false);
   const [view, setView] = useState<ViewKind>('hall');
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   const [cardId, setCardId] = useState<number | null>(null);
   const [chatId, setChatId] = useState<number | null>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
   const [npc, setNpc] = useState<{ kind: NpcKind; index: number } | null>(null);
   const [queOpen, setQueOpen] = useState(false);
-  const [lanternOpen, setLanternOpen] = useState(false);
-  const [lanternText, setLanternText] = useState('');
   const [offerOpen, setOfferOpen] = useState(false);
   const [toastHtml, setToastHtml] = useState('');
   // Quote chỉ được rút sau khi hydrate: rút ở module scope thì server và client ra
@@ -83,7 +83,7 @@ export function TempleApp({ lang }: { lang: string }) {
   const playersRef = useRef<RemotePlayer[]>([]);
   const ambienceRef = useRef(AMBIENCES[0].label);
   const viewRef = useRef<ViewKind>('hall');
-  const lanternRef = useRef<HTMLDivElement | null>(null);
+  const fxRef = useRef<HTMLDivElement | null>(null);
   const beadsCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const sceneRef = useRef<HTMLCanvasElement | null>(null);
   const joyRef = useRef<HTMLDivElement | null>(null);
@@ -123,7 +123,7 @@ export function TempleApp({ lang }: { lang: string }) {
   const apply = (g: Gain) => {
     setState(g.state ?? stateRef.current);
     if (g.gained) {
-      floater(lanternRef.current, `<svg class="i"><use href="#i-incense"/></svg> +${fmt(g.gained)}`);
+      floater(fxRef.current, `<svg class="i"><use href="#i-incense"/></svg> +${fmt(g.gained)}`);
       Sound.chime();
     }
     if (g.level_ups?.length) setLevelQueue((q) => [...q, ...g.level_ups!.map((l) => ({ level: l.level, title: l.title, sen: l.sen }))]);
@@ -163,16 +163,20 @@ export function TempleApp({ lang }: { lang: string }) {
   const refreshLook = (profile: Look) => {
     const st = stateRef.current;
     if (!st) return;
-    engRef.current?.look({
+    const me: EnginePerson = {
       id: meRef.current,
-      name: st.name,
-      sect: st.sect,
+      name: profile.name ?? st.name,
+      sect: profile.sect ?? st.sect,
       title: st.title,
       honor: st.honor,
       level: st.level,
       appearance: profile.appearance ?? {},
       equipped: profile.equipped ?? {},
-    });
+    };
+    engRef.current?.look(me);
+    // Avatar của mình trong máy người khác vẽ từ hồ sơ máy chủ đang giữ, nên đổi xong
+    // phải báo một nhịp; không thì mình thấy tên/nhân vật mới mà cả phòng vẫn thấy cũ.
+    roomRef.current?.send({ t: 'look' });
   };
 
   const sendBows = async () => {
@@ -303,11 +307,6 @@ export function TempleApp({ lang }: { lang: string }) {
       await practice({ type: 'bell' });
       return;
     }
-    if (kind === 'den_hoa_dang') {
-      setLanternText('');
-      setLanternOpen(true);
-      return;
-    }
     try {
       const r = await post<Gain & { left: number }>('/use', { item: kind });
       apply(r);
@@ -317,26 +316,6 @@ export function TempleApp({ lang }: { lang: string }) {
       toast((e as Error).message);
     }
   };
-
-  const releaseLantern = async () => {
-    if (lanternBusy.current) return;
-    lanternBusy.current = true;
-    try {
-      const r = await post<{ state: TempleState; lantern: { id: number; text: string; status: string }; gained: number; level_ups: LevelUp[] }>('/lanterns', { text: lanternText.trim() });
-      apply({ state: r.state, gained: r.gained, level_ups: r.level_ups });
-      setLanternOpen(false);
-      if (r.lantern.status === 'live') launchLantern(lanternRef.current, stateRef.current?.name ?? '', r.lantern.text);
-      Sound.success();
-      petalShower(18);
-      toast(`<svg class="i"><use href="#i-lantern"/></svg> Đã thả đèn nguyện`);
-      void refresh().catch(() => null);
-    } catch (e) {
-      toast((e as Error).message);
-    } finally {
-      lanternBusy.current = false;
-    }
-  };
-  const lanternBusy = useRef(false);
 
   const setAmbienceBoth = (label: string) => {
     ambienceRef.current = label;
@@ -357,14 +336,36 @@ export function TempleApp({ lang }: { lang: string }) {
         },
         onFull: setFullInfo,
         onEvent: (msg) => {
-          if (msg.t === 'emote') engRef.current?.emote(Number(msg.id), String(msg.e ?? ''));
-          else if (msg.t === 'lantern') {
-            launchLantern(lanternRef.current, String(msg.name ?? ''), String(msg.text ?? ''));
-            toast(`<svg class="i"><use href="#i-lantern"/></svg> <b>${esc(msg.name)}</b> vừa thả một ngọn đèn`);
+          if (msg.t === 'emote') {
+            engRef.current?.emote(Number(msg.id), String(msg.e ?? ''));
+            return;
           }
+          // Nhắn riêng và lời mời kết bạn tới tay người nhận ngay tại đây: phía gửi đã
+          // được REST trả lời rồi, còn phía kia nếu không có tin này thì phải tự mở
+          // bảng "Đồng tu" mới thấy.
+          if (msg.t !== 'dm' && msg.t !== 'friend') return;
+          const by = msg.by as Notice['by'] | undefined;
+          if (!by?.id) return;
+          const kind = String(msg.kind ?? '');
+          Sound.chime();
+          setNotice({ t: msg.t, kind, by, text: String(msg.text ?? ''), at: new Date().toISOString() });
+          toast(
+            msg.t === 'dm'
+              ? `<svg class="i"><use href="#i-chat"/></svg> <b>${esc(by.name)}</b> đã nhắn cho bạn`
+              : `<svg class="i"><use href="#i-users"/></svg> <b>${esc(by.name)}</b> ${kind === 'accept' ? 'đã đồng ý kết bạn đồng tu' : 'muốn kết bạn đồng tu'}`,
+          );
         },
         onConnection: (up) => {
-          if (up) void refresh().catch(() => null);
+          // Mất nối thì hall phải còn đúng một mình mình. Không dọn thì avatar của người
+          // khác đứng bất động tại chỗ cuối họ đứng, và con số trên HUD lệch tới khi có
+          // một frame thật sự sau đó.
+          if (!up) {
+            playersRef.current = [];
+            setOnline(1);
+            engRef.current?.applyRoom([], meRef.current);
+            return;
+          }
+          void refresh().catch(() => null);
         },
       },
       TEMPLE.id,
@@ -391,7 +392,10 @@ export function TempleApp({ lang }: { lang: string }) {
       },
       onReady: () => {
         setLoaderPct(100);
-        void nextFrames(2).then(() => setScreen('hud'));
+        // Màn chờ mờ dần rồi mới gỡ (.loader.out của bản gốc), không cắt phựt: chính cú
+        // cắt đó làm cảnh chùa "nhảy" vào mặt người vừa bước qua cổng.
+        window.setTimeout(() => setLoaderOut(true), 550);
+        window.setTimeout(() => setScreen('hud'), 1150);
         window.setTimeout(() => setGuideFade(true), 9000);
       },
       onBowDone,
@@ -410,6 +414,10 @@ export function TempleApp({ lang }: { lang: string }) {
       onBead: tapBead,
     });
     engRef.current = engine;
+    // Xin phiên trước khi nặn World: request nằm trên dây trong lúc main thread dựng
+    // renderer, và lượt ghé đầu (chưa có cookie nào) không phải chờ thêm một nhịp nữa
+    // rồi mới tới lượt cảnh chùa. Attach fail thì chẳng còn ai chờ kết quả này.
+    const session = post<GuestReply>('/guest').catch(() => null);
     try {
       engine.attach(sceneRef.current!, joyRef.current!, beadsCanvasRef.current!);
     } catch {
@@ -420,27 +428,27 @@ export function TempleApp({ lang }: { lang: string }) {
 
     void (async () => {
       try {
-        // /state đòi phiên, mà lượt ghé đầu tiên thì chưa có cookie nào: một hàng
-        // khách được dựng ở đây, trước mọi lời gọi khác của chùa.
-        await post('/guest');
-        const r = await get<{ state: TempleState; guest: boolean; player_id: number }>('/state');
-        stateRef.current = r.state;
-        guestRef.current = r.guest;
-        meRef.current = r.player_id;
-        render();
+        const g = await session;
+        if (!g) throw new Error('Chùa đang bận, thử lại sau nhé');
+        guestRef.current = g.guest;
+        meRef.current = g.profile.playerId;
         setLoaderPct(4);
-        const person: EnginePerson = {
-          id: r.player_id,
-          name: r.state.name || DEFAULT_GUEST,
-          sect: r.state.sect,
-          title: r.state.title,
-          honor: r.state.honor,
-          level: r.state.level,
-          appearance: r.state.appearance,
-          equipped: r.state.equipped,
-        };
-        await engine.enter(person);
-        if (r.state.today.visits === 0) void practice({ type: 'visit' }, { silent: true });
+        // /state nuôi HUD (số hôm nay, ví, túi đồ) chứ không nuôi avatar, nên để nó chạy
+        // song song với nhịp dựng cảnh thay vì đứng chắn trước cổng chùa.
+        const hud = get<{ state: TempleState; guest: boolean; player_id: number }>('/state');
+        await engine.enter({
+          id: g.profile.playerId,
+          name: g.profile.name || DEFAULT_GUEST,
+          sect: g.profile.sect,
+          title: g.profile.title,
+          honor: g.profile.honor,
+          level: g.profile.level,
+          appearance: g.profile.appearance,
+          equipped: g.profile.equipped,
+        });
+        stateRef.current = (await hud).state;
+        render();
+        if (stateRef.current.today.visits === 0) void practice({ type: 'visit' }, { silent: true });
         startRoom();
         void get<{ rows: Ann[] }>('/announcements')
           .then((a) => setAnns(a.rows))
@@ -530,13 +538,16 @@ export function TempleApp({ lang }: { lang: string }) {
   }, []);
 
   useEffect(() => {
-    const onVis = () => roomRef.current?.setHidden(document.hidden);
-    document.addEventListener('visibilitychange', onVis);
     const onFs = () => setFsTick((n) => n + 1);
     document.addEventListener('fullscreenchange', onFs);
+    // Rời trang thì xin rời phòng ngay thay vì chờ máy chủ phát hiện socket chết: nếu
+    // không, avatar của mình còn đứng trong chánh điện thêm nửa phút và người khác đếm
+    // thừa một người.
+    const bye = () => roomRef.current?.close();
+    window.addEventListener('pagehide', bye);
     return () => {
-      document.removeEventListener('visibilitychange', onVis);
       document.removeEventListener('fullscreenchange', onFs);
+      window.removeEventListener('pagehide', bye);
     };
   }, []);
 
@@ -572,11 +583,6 @@ export function TempleApp({ lang }: { lang: string }) {
     practice,
     players: () => playersRef.current,
     player: (id) => playersRef.current.find((p) => p.id === id),
-    lanternLayer: () => lanternRef.current,
-    openLanternForm: () => {
-      setLanternText('');
-      setLanternOpen(true);
-    },
     refreshLook,
   };
   void tick;
@@ -595,7 +601,7 @@ export function TempleApp({ lang }: { lang: string }) {
       </div>
 
       {screen === 'loader' ? (
-        <section id="loader" className="loader">
+        <section id="loader" className={`loader${loaderOut ? ' out' : ''}`}>
           <div className="loader-card">
             <div className="lotus-load">
               <svg viewBox="0 0 100 100">
@@ -624,7 +630,7 @@ export function TempleApp({ lang }: { lang: string }) {
               <>
                 <h2>Đang về chùa…</h2>
                 <div className="bar">
-                  <i style={{ width: `${loaderPct}%` }} />
+                  <i style={{ ['--p' as string]: `${loaderPct / 100}` }} />
                 </div>
                 <small>{loaderStep}</small>
               </>
@@ -645,7 +651,7 @@ export function TempleApp({ lang }: { lang: string }) {
             </button>
           ) : null}
           <div className="hud-top">
-            <button id="meChip" className="me-chip" onClick={() => setSheet('bag')}>
+            <button id="meChip" className="me-chip" onClick={() => setSheet('profile')} title="Hồ sơ">
               <span className="me-ava" style={{ background: sectOf(st?.sect ?? '').color }}>
                 {meAva}
               </span>
@@ -749,6 +755,7 @@ export function TempleApp({ lang }: { lang: string }) {
                 ['friends', 'user', 'Đồng tu'],
                 ['garden', 'lotus', 'Vườn Phật'],
                 ['stele', 'medal', 'Bia tri ân'],
+                ['profile', 'palette', 'Hồ sơ'],
                 ['bag', 'bag', 'Túi đồ'],
                 ['guide', 'book', 'Thiền phái'],
                 ['settings', 'gear', 'Cài đặt'],
@@ -762,7 +769,6 @@ export function TempleApp({ lang }: { lang: string }) {
               </button>
             ))}
           </nav>
-          <WishDock s={store} />
           <p className={`guide${guideFade ? ' fade' : ''}`} dangerouslySetInnerHTML={{ __html: guide }} />
           <div className="ctx-wrap">
             <button className={`ctx${ctxUi.show ? '' : ' hidden'}`} onClick={clickCtx}>
@@ -807,7 +813,6 @@ export function TempleApp({ lang }: { lang: string }) {
                 ['huong_tram', 'incense', 'Thắp hương'],
                 ['nen_sap', 'candle', 'Thắp nến'],
                 ['hoa_dang', 'flower', 'Dâng hoa'],
-                ['den_hoa_dang', 'lantern', 'Thả đèn hoa đăng'],
               ].map(([id, icon, label]) => (
                 <button key={id} onClick={() => void doOffer(id)}>
                   <Icon name={icon} /> {label} <b>{inv[id] ?? 0}</b>
@@ -847,13 +852,14 @@ export function TempleApp({ lang }: { lang: string }) {
       {sheet === 'garden' ? <GardenSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'stele' ? <SteleSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'bag' ? <BagSheet s={store} onClose={() => setSheet(null)} /> : null}
+      {sheet === 'profile' ? <ProfileSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'guide' ? <GuideSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'settings' ? <SettingsSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'community' ? <GroupSheet s={store} onClose={() => setSheet(null)} /> : null}
-      {sheet === 'friends' ? <FriendsSheet s={store} onClose={() => setSheet(null)} onChat={(id) => { setSheet(null); setChatId(id); }} /> : null}
+      {sheet === 'friends' ? <FriendsSheet s={store} notice={notice} onClose={() => setSheet(null)} onChat={(id) => { setSheet(null); setChatId(id); }} /> : null}
 
       {cardId !== null ? <PlayerCard s={store} id={cardId} onClose={() => setCardId(null)} onChat={(id) => { setCardId(null); setChatId(id); }} /> : null}
-      {chatId !== null ? <ChatModal s={store} id={chatId} onClose={() => setChatId(null)} /> : null}
+      {chatId !== null ? <ChatModal s={store} id={chatId} notice={notice} onClose={() => setChatId(null)} /> : null}
       {npc ? <NpcModal s={store} kind={npc.kind} index={npc.index} onClose={() => setNpc(null)} /> : null}
 
       {queOpen ? (
@@ -864,24 +870,6 @@ export function TempleApp({ lang }: { lang: string }) {
             setQueDone(true);
           }}
         />
-      ) : null}
-
-      {lanternOpen ? (
-        <Modal onClose={() => setLanternOpen(false)}>
-          <h3>
-            <Icon name="lantern" /> Thả đèn nguyện
-          </h3>
-          <p className="muted">Ngọn đèn kèm lời nguyện của bạn sẽ bay ngang màn hình của mọi người trong chánh điện.</p>
-          <input maxLength={140} placeholder="Nguyện cầu bình an cho muôn loài 🪷" value={lanternText} onChange={(e) => setLanternText(e.target.value)} />
-          <div className="row">
-            <button className="btn ghost" onClick={() => setLanternOpen(false)}>
-              Để sau
-            </button>
-            <button className="btn gold" onClick={() => void releaseLantern()}>
-              Thả đèn <Icon name="lantern" />
-            </button>
-          </div>
-        </Modal>
       ) : null}
 
       {fullInfo ? (
@@ -915,7 +903,7 @@ export function TempleApp({ lang }: { lang: string }) {
         </Modal>
       ) : null}
 
-      <div id="lanternLayer" className="lantern-layer" ref={lanternRef} />
+      <div id="fxLayer" className="floaters" ref={fxRef} />
       <div className="floaters" />
       <Toast html={toastHtml} />
     </div>
