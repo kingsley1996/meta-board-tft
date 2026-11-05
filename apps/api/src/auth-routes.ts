@@ -13,6 +13,7 @@ import {
   hashPassword,
   linkGoogleAccount,
   markEmailVerified,
+  promoteGuest,
   sessionUser,
   toAuthUser,
   verifyPassword,
@@ -33,7 +34,7 @@ const secureFlag = secureCookieSuffix();
 
 export type AuthedRequest = Request & { authUser?: AuthUser | null };
 
-function setSessionCookie(res: Response, token: string, maxAge = SESSION_MAX_AGE): void {
+export function setSessionCookie(res: Response, token: string, maxAge = SESSION_MAX_AGE): void {
   res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAge}${secureFlag}`);
 }
 
@@ -61,7 +62,7 @@ const attempts = new Map<string, { count: number; resetAt: number }>();
 const ATTEMPT_LIMIT = 10;
 const ATTEMPT_WINDOW_MS = 60_000;
 
-function attemptAllowed(key: string): boolean {
+export function attemptAllowed(key: string): boolean {
   const now = Date.now();
   const entry = attempts.get(key);
   if (!entry || entry.resetAt <= now) {
@@ -73,7 +74,7 @@ function attemptAllowed(key: string): boolean {
   return entry.count <= ATTEMPT_LIMIT;
 }
 
-function attemptKey(kind: string, req: Request): string {
+export function attemptKey(kind: string, req: Request): string {
   return `${kind}:${req.ip ?? 'unknown'}`;
 }
 
@@ -138,9 +139,33 @@ authRouter.post('/register', async (req, res) => {
   const existing = await findUserByEmail(email);
   if (existing) return res.status(409).json({ error: 'email already registered', code: 'email_taken' });
 
+  const passwordHash = await hashPassword(password);
+
+  // Khách đang có phiên (do /api/temple/guest cấp) thì đăng ký là nâng cấp chính
+  // hàng users đó: cùng users.id nên công đức và bạn bè đã trồng trong chùa còn
+  // nguyên. Token khách bị thu lại và đổi lấy token mới.
+  const guestToken = cookieValue(req.headers.cookie, SESSION_COOKIE);
+  const guest = await sessionUser(guestToken);
+  if (guest?.isGuest) {
+    const promoted = await promoteGuest(guest.id, { email, passwordHash, name });
+    if (promoted) {
+      await deleteSession(guestToken);
+      if (requireEmailVerification()) {
+        const token = await createEmailToken(promoted.id, 'verify_email');
+        await sendVerificationEmail(email, token, lang);
+        clearSessionCookie(res);
+        return res.status(201).json({ ok: true, promoted: true });
+      }
+      const verified = requireEmailVerification() ? promoted : await markEmailVerified(promoted.id);
+      const session = await createSession(verified.id);
+      setSessionCookie(res, session);
+      return res.status(201).json({ ok: true, promoted: true, user: toAuthUser(verified) });
+    }
+  }
+
   const user = await createUser({
     email,
-    passwordHash: await hashPassword(password),
+    passwordHash,
     name: name || null,
     emailVerified: !requireEmailVerification(),
   });

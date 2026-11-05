@@ -264,11 +264,13 @@ CREATE TABLE IF NOT EXISTS users (
   google_id text UNIQUE,                -- Google "sub" claim
   email_verified_at timestamptz,
   role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  is_guest boolean NOT NULL DEFAULT false, -- entered the temple before registering
   created_at timestamptz NOT NULL DEFAULT now()
 );
 -- Databases created before the admin flow moved onto accounts. The clause is a
 -- no-op once the column exists, so the CHECK from CREATE TABLE is not doubled.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin'));
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_guest boolean NOT NULL DEFAULT false;
 CREATE TABLE IF NOT EXISTS user_sessions (
   token_hash text PRIMARY KEY,          -- sha256 of the opaque cookie token
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -656,3 +658,9 @@ ALTER TABLE usage_attempts ADD CONSTRAINT usage_attempts_cost_needs_line
 ALTER TABLE usage_attempts DROP CONSTRAINT IF EXISTS usage_attempts_quantity_has_unit;
 ALTER TABLE usage_attempts ADD CONSTRAINT usage_attempts_quantity_has_unit
   CHECK ((billed_unit IS NULL) = (billed_quantity IS NULL));
+
+-- Shrine tables (temple_profiles, temple_practice, temple_lanterns, temple_plants,
+-- temple_groups, ...) are NOT here: they live in src/temple/schema.sql and are applied
+-- by ensureTempleTables() on the first shrine request, so a fresh database can enter
+-- the temple without an operator step. Keeping them in their own file also means the
+-- shrine never pays for the TFT ledger and vice versa.

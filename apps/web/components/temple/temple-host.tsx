@@ -12,10 +12,40 @@ declare global {
     __STATIC_META__?: unknown;
     __STATIC_CONTENT__?: unknown;
     __TEMPLE_WS__?: string;
+    __TEMPLE_TICKET__?: () => Promise<string>;
+    __TEMPLE_PUSH_LOOK__?: (user: TempleUser | null | undefined) => Promise<void>;
   }
 }
 
+type TempleUser = { name?: string; sect?: string; appearance?: unknown; equipped?: unknown };
+
 const TOKEN_KEY = 'chuaxoa:token';
+
+async function templeApi(path: string, init: RequestInit): Promise<Record<string, unknown>> {
+  const res = await fetch(path, { cache: 'no-store', ...init });
+  if (!res.ok) throw new Error(`${path} -> ${res.status}`);
+  return (await res.json()) as Record<string, unknown>;
+}
+
+// Phòng chùa không nhận cookie của trang (đường WS đi thẳng tới apps/api, không qua
+// proxy /api), nên mỗi lần nối phải xin một vé chỉ dùng một lần. Vé chỉ có hiệu lực
+// với người đã có phiên: gọi /guest trước, cookie phiên khách tự được trình duyệt giữ.
+async function requestTicket(): Promise<string> {
+  await templeApi('/api/temple/guest', { method: 'POST' });
+  const body = await templeApi('/api/temple/ws-ticket', { method: 'POST' });
+  return String(body.ticket);
+}
+
+// Ngoại hình người chơi đã nặn ở onboarding sống trong hồ sơ máy khách; máy chủ mới
+// là nguồn vẽ avatar cho người khác nên phải đẩy nó lên một lần trước khi vào phòng.
+async function pushLook(user: TempleUser | null | undefined): Promise<void> {
+  if (!user) return;
+  await templeApi('/api/temple/profile', {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ name: user.name, sect: user.sect, appearance: user.appearance, equipped: user.equipped }),
+  });
+}
 
 // main.js gọi boot() ngay khi module được nạp, nên engine chỉ được import một
 // lần trong đời trang; import lại sẽ chạy đè lên state đang sống.
@@ -63,6 +93,8 @@ export function TempleHost({ lang }: { lang: string }) {
     // Rewrite của Next chỉ chuyển /api/*; cú pháp nâng cấp WebSocket thì không, nên
     // phòng chùa phải được nối thẳng tới apps/api thay vì đi qua trang.
     window.__TEMPLE_WS__ = process.env.NEXT_PUBLIC_TEMPLE_WS;
+    window.__TEMPLE_TICKET__ = requestTicket;
+    window.__TEMPLE_PUSH_LOOK__ = pushLook;
 
     // Có token là boot() đi nhánh người cũ: bỏ màn nặn nhân vật, vào thẳng chánh điện.
     if (!localStorage.getItem(TOKEN_KEY)) localStorage.setItem(TOKEN_KEY, 'tok_temple_next');

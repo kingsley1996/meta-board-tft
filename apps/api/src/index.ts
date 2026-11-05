@@ -35,6 +35,7 @@ import {
 import { getAssistantSettingsView, loadAssistantSettingsIntoEnv, updateAssistantSettings } from './settings.ts';
 import { readTurnstileConfig } from './turnstile.ts';
 import { attachTempleWs } from './temple/ws.ts';
+import { templeRouter } from './temple/routes.ts';
 
 // A half-configured challenge must fail startup, not silently disable protection.
 readTurnstileConfig();
@@ -477,6 +478,7 @@ const temple = attachTempleWs(server);
 app.get('/api/temple/rooms', (_req, res) => {
   res.json({ ok: true, clients: temple.rooms.size, rooms: temple.rooms.summary() });
 });
+app.use('/api/temple', templeRouter);
 
 // Đường cùng của /api: phải đăng ký sau mọi router vì Express thử theo thứ tự, kể cả
 // tuyến vừa thêm ở dưới — một catch-all phía trên sẽ nuốt trọn route mới.

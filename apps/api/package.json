@@ -15,7 +15,7 @@
     "seed:comps": "node --env-file-if-exists=.env seed/upsert-comps.ts",
     "seed:patch-notes": "node --env-file-if-exists=.env seed/sync-patch-notes.ts",
     "seed:membership": "node --env-file-if-exists=.env seed/membership-plans.ts",
-    "test": "node --test 'src/*.test.ts' 'src/assistant/*.test.ts' 'src/membership/*.test.ts' 'seed/*.test.ts'",
+    "test": "node --test 'src/*.test.ts' 'src/assistant/*.test.ts' 'src/membership/*.test.ts' 'src/temple/*.test.ts' 'seed/*.test.ts'",
     "test:quality": "node --env-file-if-exists=.env src/assistant/eval/accuracy.ts --file=./quality-cases.jsonl",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "eval": "node --env-file-if-exists=.env src/assistant/eval/run.ts",

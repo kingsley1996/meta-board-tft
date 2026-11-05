@@ -17,6 +17,7 @@ export type AuthUser = {
   emailVerified: boolean;
   hasPassword: boolean;
   role: UserRole;
+  isGuest: boolean;
 };
 
 export type UserRow = {
@@ -28,6 +29,7 @@ export type UserRow = {
   google_id: string | null;
   email_verified_at: Date | null;
   role: string;
+  is_guest: boolean;
   created_at: Date;
 };
 
@@ -52,12 +54,14 @@ export function ensureAccountTables(): Promise<void> {
         google_id text UNIQUE,
         email_verified_at timestamptz,
         role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+        is_guest boolean NOT NULL DEFAULT false,
         created_at timestamptz NOT NULL DEFAULT now()
       )
     `);
     await pool.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin'))
     `);
+    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS is_guest boolean NOT NULL DEFAULT false');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS user_sessions (
         token_hash text PRIMARY KEY,
@@ -128,6 +132,7 @@ export function toAuthUser(row: UserRow): AuthUser {
     emailVerified: row.email_verified_at !== null,
     hasPassword: row.password_hash !== null,
     role: row.role === 'admin' ? 'admin' : 'user',
+    isGuest: row.is_guest === true,
   };
 }
 
@@ -149,10 +154,11 @@ export async function createUser(input: {
   avatarUrl?: string | null;
   emailVerified?: boolean;
   role?: UserRole;
+  isGuest?: boolean;
 }): Promise<UserRow> {
   const { rows } = await pool.query<UserRow>(
-    `INSERT INTO users (id, email, password_hash, name, avatar_url, google_id, email_verified_at, role)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO users (id, email, password_hash, name, avatar_url, google_id, email_verified_at, role, is_guest)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING *`,
     [
       randomUUID(),
@@ -163,9 +169,31 @@ export async function createUser(input: {
       input.googleId ?? null,
       input.emailVerified ? new Date() : null,
       input.role ?? 'user',
+      input.isGuest ?? false,
     ],
   );
   return rows[0];
+}
+
+// Một người vào chùa lần đầu được cấp hàng users với is_guest (email giả, không mật
+// khẩu). Khi họ đăng ký, nâng cấp chính hàng đó thay vì tạo hàng mới: công đức, cây,
+// bạn bè đều tham chiếu users.id nên chúng ở lại nguyên vẹn.
+// Điều kiện is_guest trong WHERE chặn hai ca: nâng cấp lại một tài khoản thật (là
+// đường đè mật khẩu của người khác) và hai tab khách cùng giành một email.
+// email_verified_at không đổi ở đây — route /register quyết định, giống hệt nhánh
+// tạo tài khoản mới.
+export async function promoteGuest(
+  userId: string,
+  input: { email: string; passwordHash: string; name?: string | null }
+): Promise<UserRow | null> {
+  const { rows } = await pool.query<UserRow>(
+    `UPDATE users
+        SET email = $2, password_hash = $3, name = COALESCE($4, name), is_guest = false
+      WHERE id = $1 AND is_guest = true
+      RETURNING *`,
+    [userId, input.email.trim().toLowerCase(), input.passwordHash, input.name?.trim() || null],
+  );
+  return rows[0] ?? null;
 }
 
 export async function linkGoogleAccount(userId: string, googleId: string, avatarUrl: string | null): Promise<UserRow> {

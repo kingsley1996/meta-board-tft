@@ -2,11 +2,17 @@
 // `wss://…/ws` và đọc frame theo protocol v4, nên máy chủ phải nói đúng tiếng đó thay
 // vì đổi client. Phòng được key bằng `temple:room`, mã phòng lấy từ query của chính
 // đường WS vì join chỉ gửi temple (main.js:1294).
+//
+// Nhận dạng (tickets.ts, -- 04): vé xác minh ngay ở đây, trước khi phòng ghi nhận ai,
+// và hồ sơ vẽ avatar lấy từ Postgres chứ không từ máy khách. Một kết nối không có vé
+// còn hiệu lực bị đóng ngay, nên không có "chế độ khách tự khai".
 import type { Server } from 'node:http';
 import type { Duplex } from 'node:stream';
 import { WebSocketServer, type WebSocket } from 'ws';
-import { readProfile, readState } from './protocol.ts';
+import { readState, type PlayerProfile } from './protocol.ts';
 import { ROOM_TICK_MS, TempleRooms, type RoomMember } from './rooms.ts';
+import { ensureTempleProfile, templeProfile, toPlayerProfile } from './identity.ts';
+import { redeemWsTicket, type TicketHolder } from './tickets.ts';
 
 const MAX_PAYLOAD_BYTES = 8192;
 // Trình duyệt đóng mà không kịp báo (tab bị macOS thắt cổ, mất mạng, proxy cắt giữa
@@ -30,6 +36,16 @@ function send(ws: WebSocket, payload: Buffer | string): void {
   }
 }
 
+// Hồ sơ để vẽ một avatar. Đọc lại từ database theo từng lượt join (không phải theo
+// từng frame) nên một tab mở lại sau vài giờ cũng nhận được áo/chuỗi người chơi vừa
+// đổi. playerId trong vé phải khớp với hồ sơ: hai hàng khác nhau cấp cho cùng một
+// người thì frame nhị phân sẽ vẽ một người đứng hai chỗ.
+async function profileForJoin(holder: TicketHolder): Promise<PlayerProfile | null> {
+  const profile = (await templeProfile(holder.userId)) ?? (await ensureTempleProfile(holder.userId));
+  if (!profile || profile.playerId !== holder.playerId) return null;
+  return toPlayerProfile(profile);
+}
+
 export function attachTempleWs(server: Server): TempleRealtime {
   const rooms = new TempleRooms();
   // Một người chơi mở hai tab: state trên dây key bằng id nên tab thứ hai sẽ đè lên
@@ -45,10 +61,17 @@ export function attachTempleWs(server: Server): TempleRealtime {
       socket.destroy();
       return;
     }
-    wss.handleUpgrade(req, socket as Duplex, head, (ws) => onConnection(ws as TempleSocket, url));
+    wss.handleUpgrade(req, socket as Duplex, head, (ws) => void onConnection(ws as TempleSocket, url));
   });
 
-  function onConnection(ws: TempleSocket, url: URL): void {
+  async function onConnection(ws: TempleSocket, url: URL): Promise<void> {
+    const holder = redeemWsTicket(url.searchParams.get('ticket'));
+    if (!holder) {
+      // 1008 = policy violation: máy khách không có nhánh thử lại nào cho code này,
+      // nên nó dừng nối lại thay vì quay vòng xin vé mới mãi mãi.
+      ws.close(1008, 'ticket required');
+      return;
+    }
     const temple = url.searchParams.get('temple') || 'nhattru';
     const room = url.searchParams.get('room') || 'chung';
     ws.alive = true;
@@ -56,7 +79,7 @@ export function attachTempleWs(server: Server): TempleRealtime {
       ws.alive = true;
     });
 
-    ws.on('message', (raw: Buffer) => {
+    ws.on('message', async (raw: Buffer) => {
       let msg: Record<string, unknown>;
       try {
         msg = JSON.parse(raw.toString('utf8')) as Record<string, unknown>;
@@ -68,12 +91,17 @@ export function attachTempleWs(server: Server): TempleRealtime {
         return;
       }
 
-      const profile = readProfile(msg.prof);
+      let profile: PlayerProfile | null;
+      try {
+        profile = await profileForJoin(holder);
+      } catch (error) {
+        console.error('temple ws: profile read failed', error instanceof Error ? error.message : error);
+        ws.close(1011, 'profile unavailable');
+        return;
+      }
       if (!profile) {
-        // P2 sẽ lấy hồ sơ từ Postgres theo token; cho tới lúc đó máy khách phải tự
-        // khai, và một khai báo thiếu id/name thì không có gì để vẽ cho người khác.
-        console.warn('temple ws: join without a usable profile');
-        ws.close(1008, 'profile required');
+        console.warn(`temple ws: no profile row for ${holder.userId}`);
+        ws.close(1011, 'profile unavailable');
         return;
       }
 
@@ -100,7 +128,9 @@ export function attachTempleWs(server: Server): TempleRealtime {
       const peers = rooms.add(member);
       ws.member = member;
 
-      send(ws, JSON.stringify({ t: 'joined' }));
+      // id gửi lại vì từ giờ máy chủ mới là người biết số của mình: máy khách dùng nó
+      // để loại chính mình khỏi danh sách avatar vẽ từ frame (main.js:1335).
+      send(ws, JSON.stringify({ t: 'joined', id: profile.id }));
       if (peers.length) send(ws, JSON.stringify({ t: 'prof', p: peers }));
       rooms.broadcast(member, JSON.stringify({ t: 'prof', p: [profile] }));
       send(ws, rooms.snapshotOf(member));

@@ -74,25 +74,8 @@ export function packRoomFrame(
   return buffer;
 }
 
-// Máy khách chỉ biết vẽ một avatar từ những trường này; nhận thêm key từ trình duyệt
-// sẽ biến người chơi thành nơi gửi dữ liệu tuỳ ý vào máy chủ khác, nên lọc trắng.
-export function readProfile(raw: unknown): PlayerProfile | null {
-  if (!raw || typeof raw !== 'object') return null;
-  const p = raw as Record<string, unknown>;
-  const id = Number(p.id);
-  if (!Number.isInteger(id) || id < 0 || id > 4_294_967_295) return null;
-  const name = typeof p.name === 'string' ? p.name.slice(0, 28) : '';
-  if (!name) return null;
-  const profile: PlayerProfile = { id, name, level: Number(p.level) || 1 };
-  if (typeof p.honor === 'string') profile.honor = p.honor.slice(0, 40);
-  if (typeof p.sect === 'string') profile.sect = p.sect.slice(0, 24);
-  if (typeof p.title === 'string') profile.title = p.title.slice(0, 40);
-  if (typeof p.avatar === 'string' || p.avatar === null) profile.avatar = p.avatar as string | null;
-  if (p.appearance && typeof p.appearance === 'object') profile.appearance = p.appearance as Record<string, unknown>;
-  if (p.equipped && typeof p.equipped === 'object') profile.equipped = p.equipped as Record<string, string>;
-  if (p.q) profile.q = true;
-  return profile;
-}
+// Máy khách không còn tự khai những trường này: identity.ts dựng PlayerProfile từ
+// hàng temple_profiles theo vé, nên một gói tin không đổi được level/tên của ai đó.
 
 export function readState(profile: PlayerProfile, raw: Record<string, unknown>): PlayerState {
   return {
