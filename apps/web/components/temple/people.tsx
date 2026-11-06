@@ -10,7 +10,8 @@ import type { Gain, PublicPlayer } from './api';
 import { get, post } from './api';
 import { ITEMS, Sound, TEMPLE, sectOf } from './engine';
 import { ABBOT, HERMIT_LESSONS, WISHES, guideOf, storyOf, tellersOf } from './stories';
-import { Icon, Sheet, ago, esc, fmt, type Notice, type Store } from './ui';
+import { rungLabel } from '@/vendor/temple/js/ladder.js';
+import { Icon, Sheet, TitleBadge, ago, esc, fmt, type Notice, type Store } from './ui';
 
 export type Group = {
   id: number;
@@ -100,14 +101,11 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
         <div>
           <b>{p.name}</b>
           <p>
-            <Icon name={`sect-${p.sect}`} /> {sect.name} · Cấp {p.level}
+            <Icon name={`sect-${p.sect}`} /> {sect.name} · {rungLabel(p.level)}
           </p>
-          <small>{p.title}</small>
-          {p.honor ? (
-            <span className="honor">
-              <Icon name="spark" /> {p.honor}
-            </span>
-          ) : null}
+          <small>
+            <TitleBadge title={p.title} level={p.level} size={22} /> {p.title}
+          </small>
         </div>
       </div>
       {gear.length ? (
@@ -404,7 +402,7 @@ export function FriendsSheet({ s, notice, onClose }: { s: Store; notice: Notice 
       <div className="fr-body">
         <b>{p.name}</b>
         <small>
-          Cấp {p.level} · {p.title}
+          <TitleBadge title={p.title} level={p.level} size={18} /> {rungLabel(p.level)} · {p.title}
         </small>
       </div>
       <div className="fr-side" onClick={(e) => e.stopPropagation()}>
@@ -602,7 +600,7 @@ export function GroupSheet({ s, onClose }: { s: Store; onClose: () => void }) {
               <div className="fr-body">
                 <b>{m.name}</b>
                 <small>
-                  Cấp {m.level} · {m.title}
+                  <TitleBadge title={m.title} level={m.level} size={18} /> {rungLabel(m.level)} · {m.title}
                 </small>
               </div>
             </div>

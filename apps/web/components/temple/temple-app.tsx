@@ -16,7 +16,8 @@ import { TempleRoom, type RemotePlayer } from './room';
 import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, SteleSheet } from './hall';
 import { FriendsSheet, GroupSheet, NpcModal, PlayerCard, type NpcKind } from './people';
 import { MeditateView, QueModal, WheelView } from './practice';
-import { Icon, Modal, Sheet, Toast, esc, fmt, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
+import { rungLabel, rungOf } from '@/vendor/temple/js/ladder.js';
+import { Icon, Modal, Sheet, TitleBadge, Toast, esc, fmt, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
 
 type LevelUp = { level: number; title: string; sen: number };
 type Ann = { id: number; text: string; effect: string };
@@ -118,7 +119,12 @@ export function TempleApp({ lang }: { lang: string }) {
       floater(fxRef.current, `<svg class="i"><use href="#i-incense"/></svg> +${fmt(g.gained)}`);
       Sound.tap();
     }
-    if (g.level_ups?.length) setLevelQueue((q) => [...q, ...g.level_ups!.map((l) => ({ level: l.level, title: l.title, sen: l.sen }))]);
+    if (g.level_ups?.length) {
+      setLevelQueue((q) => [...q, ...g.level_ups!.map((l) => ({ level: l.level, title: l.title, sen: l.sen }))]);
+      // Nhãn trên đầu đi từ hồ sơ trên dây, nên lên bậc phải báo một nhịp: máy chủ đọc
+      // lại exp và phát danh hiệu mới cho cả phòng — trong đó có chính mình.
+      roomRef.current?.send({ t: 'look' });
+    }
   };
 
   const practice = async (body: Record<string, unknown>, opts: { silent?: boolean } = {}) => {
@@ -605,11 +611,12 @@ export function TempleApp({ lang }: { lang: string }) {
               </span>
               <span className="me-info">
                 <b>{st?.name || DEFAULT_GUEST}</b>
-                <small>{st?.title}</small>
+                <small>{st ? rungLabel(st.level) : ''}</small>
                 <i className="xp">
                   <i style={{ width: `${xpPct}%` }} />
                 </i>
               </span>
+              <TitleBadge title={st?.title} level={st?.level} size={26} />
               <span className="me-lv">{st?.level ?? 1}</span>
             </button>
             <div className="zoom-btns">
@@ -795,11 +802,11 @@ export function TempleApp({ lang }: { lang: string }) {
       {levelQueue.length ? (
         <Modal onClose={() => setLevelQueue((q) => q.slice(1))}>
           <div className="big">
-            <Icon name="spark" />
+            <TitleBadge big level={levelQueue[0].level} title={levelQueue[0].title} size={64} />
           </div>
-          <h3>Lên bậc {levelQueue[0].level}</h3>
+          <h3>{rungOf(levelQueue[0].level).stage === 1 ? 'Thăng vận' : 'Lên bậc'}</h3>
           <p>
-            Bậc mới: <b>{levelQueue[0].title}</b>
+            Mốc mới: <b>{levelQueue[0].title} · {rungLabel(levelQueue[0].level)}</b>
             <br />+{fmt(levelQueue[0].sen)} Tinh Hoa
           </p>
           <button className="btn gold" onClick={() => setLevelQueue((q) => q.slice(1))}>

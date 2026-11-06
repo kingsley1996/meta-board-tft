@@ -5,15 +5,17 @@ import { randomUUID } from 'node:crypto';
 
 // Import động toàn bộ: static import sẽ khởi tạo pg Pool trước khi đoạn loadEnvFile
 // bên dưới kịp đặt DATABASE_URL — cùng lý do với accounts.test.ts.
-test('levelFromExp follows the ladder of the original client', async () => {
+test('levelFromExp follows the 19-rung ladder of docs/SHRINE-LADDER.md', async () => {
   const { levelFromExp } = await import('./identity.ts');
-  assert.deepEqual(levelFromExp(0), { level: 1, title: 'Tân Binh', expNext: 50 });
-  assert.deepEqual(levelFromExp(49), { level: 1, title: 'Tân Binh', expNext: 50 });
-  assert.deepEqual(levelFromExp(50), { level: 2, title: 'Lữ Khách', expNext: 150 });
-  assert.deepEqual(levelFromExp(1600), { level: 7, title: 'Huyền Thoại', expNext: 2600 });
-  // Trên bậc chót thì exp vẫn tăng nhưng bậc không đổi; mốc kế tiếp chỉ là chỗ
+  assert.deepEqual(levelFromExp(0), { level: 1, title: 'Khai Vận', expNext: 180, realm: 1, realmName: 'Khai Vận', stage: 1 });
+  assert.deepEqual(levelFromExp(179), { level: 1, title: 'Khai Vận', expNext: 180, realm: 1, realmName: 'Khai Vận', stage: 1 });
+  assert.deepEqual(levelFromExp(180), { level: 2, title: 'Khai Vận', expNext: 350, realm: 1, realmName: 'Khai Vận', stage: 2 });
+  // Bậc đầu của vận mới phải là bậc 1: đổi vận phải thấy đổi số, không chỉ đổi tên.
+  assert.deepEqual(levelFromExp(500), { level: 4, title: 'Hanh Thông', expNext: 750, realm: 2, realmName: 'Hanh Thông', stage: 1 });
+  assert.deepEqual(levelFromExp(2200), { level: 8, title: 'Cát Khánh', expNext: 3000, realm: 3, realmName: 'Cát Khánh', stage: 2 });
+  // Trên đỉnh thang thì exp vẫn tăng nhưng vị trí không đổi; mốc kế tiếp chỉ là chỗ
   // trống để thanh tiến độ còn vẽ được.
-  assert.deepEqual(levelFromExp(99_999), { level: 7, title: 'Huyền Thoại', expNext: 2600 });
+  assert.deepEqual(levelFromExp(99_999), { level: 19, title: 'Như Ý', expNext: 38000, realm: 7, realmName: 'Như Ý', stage: 1 });
 });
 
 test('toPlayerProfile carries only what the room frame can draw', async () => {

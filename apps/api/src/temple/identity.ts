@@ -62,31 +62,36 @@ type TempleProfileRow = {
   meditate_start: Date | null;
 };
 
-// Ngưỡng exp giữ nguyên từ computeLevel() của bản gốc (api.js:195-213); chỉ tên bậc là
-// đổi sang hạng fantasy theo docs/SHRINE-CONTENT-MAP.md §2 — cố ý không mượn tên rank
-// TFT thật (Sắt → Thách Đấu) để người chơi không nhầm đây là thứ hạng xếp hạng đơn.
-const LEVELS: { level: number; exp: number; title: string }[] = [
-  { level: 1, exp: 0, title: 'Tân Binh' },
-  { level: 2, exp: 50, title: 'Lữ Khách' },
-  { level: 3, exp: 150, title: 'Người Thắp Đèn' },
-  { level: 4, exp: 320, title: 'Kẻ Thử Vận' },
-  { level: 5, exp: 600, title: 'Cao Thủ' },
-  { level: 6, exp: 1000, title: 'Bậc Thầy Hex' },
-  { level: 7, exp: 1600, title: 'Huyền Thoại' },
+// Thang 19 mốc ở docs/SHRINE-LADDER.md §3 (chốt 2026-11-06): sáu "vận" ba bậc cộng một
+// đỉnh Như Ý. `level` là vị trí 1..19 trên thang, `realm` 1..7 là vận — vận cũng chính là
+// bộ khung/ấn cắt từ sheet (7 cột), còn bậc chỉ hiện bằng chữ. Tên cố ý không mượn rank
+// TFT (Sắt → Thách Đấu) hay tên tu tiên/tăng lữ; xem §3.2 để biết vì sao.
+const REALMS = ['Khai Vận', 'Hanh Thông', 'Cát Khánh', 'Cát Tường', 'Hồng Phước', 'Đại Cát', 'Như Ý'];
+const MILESTONES = [
+  0, 180, 350, 500, 750, 1100, 1600, 2200, 3000, 4200, 5600, 7500, 9500, 12000, 15000, 18000, 22000,
+  27000, 33000,
 ];
 
-export function levelFromExp(exp: number): { level: number; title: string; expNext: number } {
-  let cur = LEVELS[0];
-  let next: (typeof LEVELS)[number] | null = null;
-  for (let i = 0; i < LEVELS.length; i += 1) {
-    if (exp >= LEVELS[i].exp) {
-      cur = LEVELS[i];
-      next = LEVELS[i + 1] || null;
-    }
-  }
-  // Bậc cuối của thang thì không còn mốc kế tiếp; bản gốc vẫn trả một khoảng
-  // 1000 điểm để thanh tiến độ không phải chia cho 0 (api.js:212).
-  return { level: cur.level, title: cur.title, expNext: next ? next.exp : cur.exp + 1000 };
+export type LadderRung = {
+  level: number;
+  title: string;
+  expNext: number;
+  realm: number;
+  realmName: string;
+  stage: number;
+};
+
+export function levelFromExp(exp: number): LadderRung {
+  let i = 0;
+  while (i + 1 < MILESTONES.length && exp >= MILESTONES[i + 1]) i += 1;
+  const level = i + 1;
+  // Ba bậc một vận; bậc 19 là đỉnh, đứng một mình nên không có "bậc 1" để đếm.
+  const realm = Math.min(REALMS.length, Math.ceil(level / 3));
+  const stage = realm === REALMS.length ? 1 : ((level - 1) % 3) + 1;
+  // Đỉnh thang vẫn phải trả một mốc kế tiếp để thanh tiến độ vẽ được, nhưng không gợi ý
+  // còn gì để lên (§3.3).
+  const expNext = i + 1 < MILESTONES.length ? MILESTONES[i + 1] : MILESTONES[i] + 5000;
+  return { level, title: REALMS[realm - 1], expNext, realm, realmName: REALMS[realm - 1], stage };
 }
 
 // '.invalid' được dành riêng (RFC 2606): không bao giờ có host thật, nên không thể
@@ -124,7 +129,9 @@ function toProfile(row: TempleProfileRow): TempleProfile {
     playerId: Number(row.player_id),
     name: row.name,
     sect: row.sect,
-    title: row.title || title,
+    // Dẫn xuất thuần từ exp: cột `title` trong DB là chữ để lại của thang cũ ("Lữ Khách"),
+    // mà thang đã đổi thì không có lý do gì để hàng cũ giữ nhãn cũ.
+    title,
     honor: row.honor,
     exp: row.exp,
     sen: row.sen,

@@ -50,7 +50,7 @@ hallRouter.get('/stele', withUser(async (req, res) => {
       ORDER BY score DESC
       LIMIT 12`,
   );
-  res.json({ rows: rows.map((r) => ({ name: r.name, title: r.title || levelFromExp(r.exp).title, score: r.score })) });
+  res.json({ rows: rows.map((r) => ({ name: r.name, title: levelFromExp(r.exp).title, score: r.score })) });
 }));
 
 hallRouter.get('/donations', withUser(async (req, res) => {

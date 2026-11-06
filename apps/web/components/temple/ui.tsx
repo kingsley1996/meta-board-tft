@@ -6,6 +6,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { REALMS, rungOf } from '@/vendor/temple/js/ladder.js';
 import type { Gain, PublicPlayer, TempleState } from './api';
 import type { TempleEngine } from './engine';
 import type { RemotePlayer, TempleRoom } from './room';
@@ -134,4 +135,21 @@ export function ago(at: string | number): string {
 export function dayLabel(day: string): string {
   const [y, m, d] = day.split('-');
   return `${d}/${m}/${y}`;
+}
+
+// 7 ấn danh hiệu cắt từ sheet của người dùng (hàng 3 = bản nhỏ, hàng 6 = bản nổi bật
+// cho modal). Ngang hàng một: one crest per VẬN (realm 1..7), không per mốc — 19 mốc
+// gom về 7 vận ở vendor/temple/js/ladder.js.
+export function TitleBadge({ title, level, size = 22, big = false }: { title?: string; level?: number; size?: number; big?: boolean }) {
+  const realm = level ? rungOf(level).realm : REALMS.indexOf(title ?? '') + 1;
+  if (!realm) return null;
+  return (
+    <img
+      src={`/temple/badges/danh-hieu-${big ? 'lg-' : ''}${realm}.png`}
+      alt=""
+      decoding="async"
+      draggable={false}
+      style={{ height: size, width: 'auto', verticalAlign: 'middle', flex: '0 0 auto' }}
+    />
+  );
 }

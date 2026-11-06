@@ -46,9 +46,9 @@ export function toState(profile: TempleProfile, today: PracticeDelta & { day: st
     id: profile.playerId,
     name: profile.name,
     sect: profile.sect,
-    // Danh hiệu đi theo bậc, không đi theo hàng vừa lưu: một người cầu may thêm 100 lần
-    // thì title phải đổi ngay mà không cần ai ghi lại cột title.
-    title: profile.title || ladder.title,
+    // Danh hiệu dẫn xuất thuần từ exp: một người cầu may thêm 100 lần thì title đổi ngay
+    // mà không cần ai ghi lại cột title (cột đó là chữ để lại của thang cũ).
+    title: ladder.title,
     honor: profile.honor,
     level: profile.level,
     exp: profile.exp,
@@ -88,7 +88,7 @@ export function toPublic(row: PublicRow): PublicPlayer {
     id: Number(row.player_id),
     name: row.name,
     sect: row.sect,
-    title: row.title || levelFromExp(row.exp).title,
+    title: levelFromExp(row.exp).title,
     honor: row.honor,
     level: levelFromExp(row.exp).level,
   };

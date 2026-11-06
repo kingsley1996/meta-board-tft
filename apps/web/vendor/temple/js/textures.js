@@ -1,5 +1,6 @@
 // Họa tiết vẽ bằng canvas (không cần file ảnh)
 import * as THREE from 'three';
+import { rungOf, titleOfLevel, rungLabel } from './ladder.js';
 
 export const rand = (a, b) => a + Math.random() * (b - a);
 const cache = new Map();
@@ -235,33 +236,65 @@ export const softDot = () => memo('dot', () => canvasTex(64, 64, (g) => {
   g.fillStyle = r; g.fillRect(0, 0, 64, 64);
 }));
 
-// Nhãn tên trên đầu người chơi
-// nhãn người mang danh hiệu truyền thuyết: dải vàng nổi trên tên, cao gấp rưỡi nhãn thường
-export function honorLabelTex(name, honor, level) {
+// Nhãn tên trên đầu nhân vật: khung danh hiệu cắt từ hàng 2 của sheet người dùng gửi.
+// Bảy cột khung = bảy VẬN của thang 19 mốc (xem ladder.js), còn bậc chỉ hiện bằng chữ.
+// Ấn hàng 3 dành riêng cho HUD/modal React.
+const frameImgs = [];
+function frameImg(n) {
+  if (!frameImgs[n]) {
+    const im = new Image();
+    im.src = '/temple/badges/danh-hieu-frame-' + n + '.png';
+    frameImgs[n] = im;
+  }
+  return frameImgs[n];
+}
+// world.js ghim cờ này vào tag để dựng lại nhãn ngay khi khung nạp xong.
+export function frameReady(level) {
+  const f = frameImg(rungOf(level).realm);
+  return f.complete && !!f.naturalWidth;
+}
+// Không "warm-up" bằng một vòng lặp lúc module nạp: frameReady được gọi mỗi nhịp phòng
+// và đã kích hoạt tải ảnh, còn vòng lặp chạy cả trên server (nơi không có `Image`).
+
+// Vẽ khung ở mọi bề rộng mà không méo hoa văn: hai đầu và giữa giữ nguyên tỷ lệ,
+// chỉ hai dải nền giữa chúng là giãn ngang.
+function drawFrame(g, im, x, y, w, h) {
+  const pw = im.naturalWidth, ph = im.naturalHeight, s = h / ph;
+  const cap = 0.18 * pw * s, mid = 0.2 * pw * s, fill = (w - 2 * cap - mid) / 2;
+  const P = (fx, fw, dx, dw) => g.drawImage(im, fx * pw, 0, fw * pw, ph, dx, y, dw, h);
+  P(0, 0.18, x, cap);
+  P(0.18, 0.22, x + cap, fill);
+  P(0.4, 0.2, x + cap + fill, mid);
+  P(0.6, 0.22, x + cap + fill + mid, fill);
+  P(0.82, 0.18, x + w - cap, cap);
+}
+
+export function danhHieuLabelTex(name, title, level) {
   return canvasTex(512, 192, (g, w) => {
+    const { realm } = rungOf(level), frame = frameImg(realm);
     g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.font = '800 38px -apple-system, Segoe UI, Roboto, sans-serif';
-    const hw = Math.min(w - 16, g.measureText(honor).width + 84), hx = (w - hw) / 2;
-    // biển sơn son thếp vàng, hai đầu đính hạt vàng
-    g.shadowColor = '#ffb52e'; g.shadowBlur = 16;
-    const lac = g.createLinearGradient(0, 8, 0, 74);
-    lac.addColorStop(0, '#9a2419'); lac.addColorStop(1, '#560d09');
-    g.fillStyle = lac; g.beginPath(); g.roundRect(hx, 8, hw, 66, 10); g.fill();
+    g.font = '800 27px -apple-system, Segoe UI, Roboto, sans-serif';
+    const label = title || titleOfLevel(level);
+    const tw = g.measureText(label).width;
+    // Lòng khung (vùng nền tối) chỉ rộng non nửa bản vẽ: giãn khung theo chữ chứ không
+    // condense chữ, nếu không chữ dài sẽ dính vào hoa văn hai đầu.
+    const hw = Math.min(w - 24, Math.max(250, tw / 0.5 + 10)), hx = (w - hw) / 2;
+    if (frame.complete && frame.naturalWidth) drawFrame(g, frame, hx, 2, hw, 88);
+    else { g.fillStyle = 'rgba(20,14,10,.6)'; g.beginPath(); g.roundRect(hx, 2, hw, 88, 12); g.fill(); }
+    // chữ nằm trên nền khung nhiều màu nên cần viền tối, nếu không mất trên nền vàng
+    g.shadowColor = 'rgba(0,0,0,.85)'; g.shadowBlur = 7;
+    g.fillStyle = '#ffe9a8';
+    g.fillText(label, Math.round(w / 2), 40);
     g.shadowBlur = 0;
-    const gold = g.createLinearGradient(hx, 0, hx + hw, 0);
-    gold.addColorStop(0, '#c98d2c'); gold.addColorStop(0.5, '#ffe9a8'); gold.addColorStop(1, '#c98d2c');
-    g.strokeStyle = gold; g.lineWidth = 4; g.stroke();
-    g.lineWidth = 1.5; g.beginPath(); g.roundRect(hx + 7, 15, hw - 14, 52, 6); g.stroke();
-    g.fillStyle = gold;
-    for (const x of [hx + 22, hx + hw - 22]) { g.beginPath(); g.moveTo(x, 33); g.lineTo(x + 8, 41); g.lineTo(x, 49); g.lineTo(x - 8, 41); g.closePath(); g.fill(); }
-    g.fillStyle = '#ffe9a8'; g.fillText(honor, w / 2, 43, Math.max(40, hw - 76));
     g.font = '600 40px -apple-system, Segoe UI, Roboto, sans-serif';
-    const tw = Math.min(w - 20, g.measureText(name).width + 40);
-    g.fillStyle = 'rgba(20,14,10,.6)'; g.beginPath(); g.roundRect((w - tw) / 2, 82, tw, 60, 30); g.fill();
-    g.fillStyle = '#fff'; g.fillText(name, w / 2, 113, w - 40);
-    g.font = '500 28px -apple-system, Segoe UI, Roboto, sans-serif'; g.fillStyle = '#fbe3ae'; g.fillText(`Cấp ${level}`, w / 2, 168);
+    const nw = Math.min(w - 20, g.measureText(name).width + 40);
+    g.fillStyle = 'rgba(20,14,10,.6)'; g.beginPath(); g.roundRect((w - nw) / 2, 96, nw, 58, 29); g.fill();
+    g.fillStyle = '#fff'; g.fillText(name, w / 2, 125, w - 40);
+    g.font = '500 26px -apple-system, Segoe UI, Roboto, sans-serif';
+    g.fillStyle = '#fbe3ae'; g.fillText(rungLabel(level), w / 2, 174);
   });
 }
+
 export function labelTex(name, sub, color = '#fbe3ae') {
   return canvasTex(512, 128, (g, w, h) => {
     g.font = '600 44px -apple-system, Segoe UI, Roboto, sans-serif';

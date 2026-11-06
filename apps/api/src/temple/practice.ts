@@ -154,9 +154,9 @@ practiceRouter.get('/leaderboard', withUser(async (req, res, user) => {
       id: Number(r.player_id),
       name: r.name,
       sect: r.sect,
-      // Fallback danh hiệu phải giống /state (theo bậc của exp tích luỹ): hai chỗ gọi
-      // một người bằng hai chữ khác nhau thì HUD tự mâu thuẫn ngay trên màn hình.
-      title: r.title || levelFromExp(r.exp).title,
+      // Danh hiệu phải dẫn xuất từ exp tích luỹ, giống /state: hai chỗ gọi một người
+      // bằng hai chữ khác nhau thì HUD tự mâu thuẫn ngay trên màn hình.
+      title: levelFromExp(r.exp).title,
       honor: r.honor,
       score: r.score,
       you: r.user_id === user.id,

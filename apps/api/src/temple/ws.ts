@@ -150,9 +150,11 @@ export function attachTempleWs(server: Server): TempleRealtime {
       ws.member = member;
 
       // id gửi lại vì từ giờ máy chủ mới là người biết số của mình: máy khách dùng nó
-      // để loại chính mình khỏi danh sách avatar vẽ từ frame (room.ts:197 → engine.applyRoom).
+      // để phân biệt mình với người khác khi dựng avatar từ frame (room.ts:197 →
+      // engine.applyRoom). Hồ sơ của chính mình cũng gửi kèm: nhãn danh hiệu trên đầu
+      // cần name/title/level của mình mà máy khách thì không được tự khai số liệu.
       send(ws, JSON.stringify({ t: 'joined', id: profile.id }));
-      if (peers.length) send(ws, JSON.stringify({ t: 'prof', p: peers }));
+      send(ws, JSON.stringify({ t: 'prof', p: [profile, ...peers] }));
       rooms.publish(temple, room, JSON.stringify({ t: 'prof', p: [profile] }), profile.id);
       send(ws, rooms.snapshotOf(member));
     });
@@ -181,7 +183,9 @@ export function attachTempleWs(server: Server): TempleRealtime {
         const fresh = await templeProfile(userId);
         if (!fresh || fresh.playerId !== member.profile.id) break;
         member.profile = toPlayerProfile(fresh);
-        rooms.publish(member.temple, member.room, JSON.stringify({ t: 'prof', p: [member.profile] }), member.profile.id);
+        // Không loại tác nhân: chính người vừa lên bậc/đổi tên cũng phải nhận lại hồ sơ
+        // của mình thì nhãn trên đầu họ mới đổi theo.
+        rooms.publish(member.temple, member.room, JSON.stringify({ t: 'prof', p: [member.profile] }));
         break;
       }
       case 'emote':

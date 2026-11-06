@@ -37,7 +37,8 @@ function phapDanh(used) {
   }
   return 'Phật tử';
 }
-import { labelTex, honorLabelTex, rand, canvasTex } from './textures.js';
+import { labelTex, danhHieuLabelTex, frameReady, rand, canvasTex } from './textures.js';
+import { rungOf } from './ladder.js';
 import { drawIcon, emoteColor, EMOTES } from './icons.js';
 
 let LOC_GEO = null, LOC_MAT = null;
@@ -53,8 +54,11 @@ const SKINS = ['#f1c7a3', '#e0a67e', '#d98b5f', '#b9734a'];
 const lerpAngle = (a, b, t) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * t;
 
 export { phapDanh };
-const playerLabel = (p) => (p.honor ? honorLabelTex(p.name, p.honor, p.level) : labelTex(p.name, `Cấp ${p.level}`));
-const fitLabel = (label, p) => { label.scale.set(1.6 / AV_SCALE, (p.honor ? 0.6 : 0.4) / AV_SCALE, 1); label.position.y = p.honor ? 2.45 : 2.35; };
+const playerLabel = (p) => danhHieuLabelTex(p.name, p.title, p.level);
+// Tên/bậc/khung đổi (hoặc asset vừa nạp xong) thì vẽ lại nhãn; gộp một chỗ để nhãn
+// của mình và của người khác dùng chung phép so.
+const labelTag = (p) => p.name + '|' + p.level + '|' + (p.title || '') + '|' + (frameReady(p.level) ? 1 : 0);
+const fitLabel = (label) => { label.scale.set(1.6 / AV_SCALE, 0.6 / AV_SCALE, 1); label.position.y = 2.45; };
 
 export class World {
   constructor(canvas, joyEl, itemsById) {
@@ -541,23 +545,48 @@ export class World {
   }
   setShowNpc(on) { this.showNpc = on; this.applyNpcVisible(); }
   applyNpcVisible() { const on = this.showNpc !== false && this.perfLevel < 3; this.npcs.forEach((n) => (n.root.visible = on)); }
-  setShowNames(on) { this.showNames = on; this.perfT = 0; this.remotes.forEach((r) => (r.label.visible = on)); this.npcs.forEach((n) => n.label && (n.label.visible = on)); }
+  setShowNames(on) { this.showNames = on; this.perfT = 0; if (this.player?.label) this.player.label.visible = on; this.remotes.forEach((r) => (r.label.visible = on)); this.npcs.forEach((n) => n.label && (n.label.visible = on)); }
+
+  // Danh hiệu trên đầu chính mình: hồ sơ của mình cũng đi qua wire phòng, nên vẽ từ
+  // đúng nguồn đó thay vì bỏ qua — người chơi thấy khung của mình và thấy nó đổi khi
+  // lên bậc, không phải hỏi người khác "mình đang là gì".
+  applyMeLabel(p) {
+    const av = this.player;
+    if (!av) return;
+    const tag = labelTag(p);
+    if (av.labelTag === tag) return;
+    av.labelTag = tag;
+    if (!av.label) {
+      av.label = new THREE.Sprite(new THREE.SpriteMaterial({ map: playerLabel(p), depthWrite: false, transparent: true }));
+      av.root.add(av.label);
+    } else {
+      av.label.material.map.dispose();
+      av.label.material.map = playerLabel(p);
+      av.label.material.needsUpdate = true;
+    }
+    fitLabel(av.label);
+    av.label.visible = this.showNames;
+    if (!p.q) this.setHalo(av, p.level);
+  }
 
   /* ---------------- người chơi khác ---------------- */
   applyRoom(players, myId) {
     const seen = new Set();
     for (const p of players) {
-      if (p.id === myId) continue;
+      if (p.id === myId) {
+        this.applyMeLabel(p);
+        continue;
+      }
       seen.add(p.id);
       const sig = JSON.stringify([p.appearance, p.equipped, p.q]);
-      const tag = p.name + '|' + p.level + '|' + (p.honor || '');
+      const tag = labelTag(p);
       let r = this.remotes.get(p.id);
       if (r && r.sig === sig && r.tag !== tag) {
         // lên cấp/đổi tên: chỉ thay nhãn, không dựng lại avatar
         r.label.material.map.dispose();
         r.label.material.map = playerLabel(p);
         r.label.material.needsUpdate = true;
-        fitLabel(r.label, p);
+        fitLabel(r.label);
         r.tag = tag;
         if (!p.q) this.setHalo(r.av, p.level);
       }
@@ -575,7 +604,7 @@ export class World {
         av.look = lk;
         if (p.q) setGhost(av, true); else this.setHalo(av, p.level);
         const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: playerLabel(p), depthWrite: false, transparent: true }));
-        fitLabel(label, p); label.visible = this.showNames;
+        fitLabel(label); label.visible = this.showNames;
         av.root.add(label);
         av.root.position.set(from ? from.x : p.x, 0, from ? from.z : p.z);
         this.scene.add(av.root);
@@ -1258,7 +1287,11 @@ export class World {
   // Hào quang sau đầu theo cấp: cấp 1 chưa có, càng lên cấp càng sáng và rộng. Sprite đặt ngang đầu nên phần đầu tự che phía trước.
   setHalo(av, level) {
     if (!av?.upper) return;
-    const tier = level >= 50 ? 3 : level >= 20 ? 2 : level >= 2 ? 1 : 0;
+    const r = rungOf(level).realm;
+    // Ngưỡng 2/20/50 của bản gốc lấy thang 60 bậc; với 19 mốc thì hai bậc cao nhất
+    // không ai với tới được. Aura bám theo vận: từ Cát Tường thành quầng rõ, từ Đại
+    // Cát thành quầng đầy.
+    const tier = r >= 6 ? 3 : r >= 4 ? 2 : r >= 2 ? 1 : 0;
     if (av.haloTier === tier) return;
     if (av.haloSprite) { av.haloSprite.removeFromParent(); av.haloSprite.material.dispose(); av.haloSprite = null; }
     av.haloTier = tier;

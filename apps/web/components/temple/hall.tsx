@@ -11,7 +11,7 @@ import { get, post, put } from './api';
 import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, TRACKS, local, sectOf } from './engine';
 import { luckyShower } from './effects';
 import { guideOf, storyOf } from './stories';
-import { Icon, Sheet, ago, fmt, type Look, type Store } from './ui';
+import { Icon, Sheet, TitleBadge, ago, fmt, type Look, type Store } from './ui';
 
 type RankRow = { rank: number; id: number; name: string; sect: string; title: string; honor: string; score: number; you: boolean };
 type Board = { scope: string; rows: RankRow[]; sects: { sect: string; score: number }[]; me: { rank: number | null; score: number } };
@@ -64,6 +64,7 @@ export function RankSheet({ s, onClose }: { s: Store; onClose: () => void }) {
                     <span className="ava" style={{ background: sect.color }}>
                       {(r.name.trim().split(/\s+/).pop() ?? '?')[0]?.toUpperCase()}
                     </span>
+                    <TitleBadge title={r.title} size={38} />
                     <b>{r.name}</b>
                     <small>{fmt(r.score)} điểm</small>
                     <div className="pstep">{k + 1}</div>
@@ -81,13 +82,8 @@ export function RankSheet({ s, onClose }: { s: Store; onClose: () => void }) {
               <span>
                 <b>{r.name}</b>
                 <small>
-                  <Icon name={`sect-${r.sect}`} /> {r.title}
+                  <TitleBadge title={r.title} size={20} /> <Icon name={`sect-${r.sect}`} /> {r.title}
                 </small>
-                {r.honor ? (
-                  <span className="honor">
-                    <Icon name="spark" /> {r.honor}
-                  </span>
-                ) : null}
               </span>
               <span className="sc">{fmt(r.score)}</span>
             </div>
@@ -192,7 +188,9 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
             </span>
             <span>
               <b>{r.name}</b>
-              <small>{r.title}</small>
+              <small>
+                <TitleBadge title={r.title} size={20} /> {r.title}
+              </small>
             </span>
             <span className="sc">{fmt(r.score)}</span>
           </div>
