@@ -396,6 +396,9 @@ export function TempleApp({ lang }: { lang: string }) {
   // Biết mình là ai trước khi xin phiên: /me trả 401 khi trình duyệt chưa có cookie
   // nào, và khi chưa có ai chọn gì thì đền không được tự mọc một hàng users.
   const probeSession = () => {
+    // "Thử lại" là bỏ lỗi lần trước: thẻ lỗi xếp trên màn lựa chọn, nên để bootError còn
+    // đó thì /me có 401 đi nữa người chơi vẫn chỉ thấy nút "Thử lại" — bấm mãi không tới.
+    setBootError('');
     get<GuestReply>('/me')
       .then((me) => void enterHall(Promise.resolve(me)))
       .catch((e: unknown) => {

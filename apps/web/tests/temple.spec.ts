@@ -184,23 +184,32 @@ test('tặng bùa, chúc phúc và lời mời kết bạn báo cho người kia
 });
 
 // Màn chờ: thanh tiến độ chạy bằng transform (compositor) và màn chờ mờ dần thay vì cắt cứng.
+//
+// Mồi --p bằng addInitScript, không rewrite HTML của trang: route.fulfill cắt ngang luồng
+// stream của next dev nên trang không mount client, và hết thứ để đo. addInitScript chạy
+// trước mọi script của trang — đúng chỗ cần cài hook.
 test('loading trôi và màn chờ mờ dần', async ({ browser }) => {
-  const ctx = await browser.newContext();
-  const page = await ctx.newPage();
-  await page.route('**/vi/temple', async (route) => {
-    const res = await route.fetch();
-    const html = (await res.body().then((b) => b.toString('utf8'))).replace(
-      '</head>',
-      '<script>window.__p=[];const o=CSSStyleDeclaration.prototype.setProperty;' +
-        'CSSStyleDeclaration.prototype.setProperty=function(k,v){if(k==="--p")window.__p.push(String(v));return o.call(this,k,v)};' +
-        'new MutationObserver(()=>{const l=document.querySelector("#loader");if(l&&l.classList.contains("out"))window.__out=1}).observe(document.documentElement,{childList:1,subtree:1,attributes:1,attributeFilter:["class"]});</script></head>',
-    );
-    await route.fulfill({ response: res, body: html });
+  const page = await (await browser.newContext()).newPage();
+  await page.addInitScript(() => {
+    const w = window as unknown as { __p: string[]; __out: number };
+    w.__p = [];
+    w.__out = 0;
+    const set = CSSStyleDeclaration.prototype.setProperty;
+    CSSStyleDeclaration.prototype.setProperty = function (k, v) {
+      if (k === '--p') w.__p.push(String(v));
+      return set.call(this, k, v);
+    };
+    // Lúc này documentElement còn chưa có nên phải quan sát từ document, không thì
+    // observe(null) ném và không bao giờ thấy cú mờ dần.
+    new MutationObserver(() => {
+      const l = document.querySelector('#loader');
+      if (l && l.classList.contains('out')) w.__out = 1;
+    }).observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   });
   await page.goto('/vi/temple');
   await reveal(page);
 
-  const seen = await page.evaluate(() => (window as unknown as { __p?: string[]; __out?: number }).__p ?? []);
+  const seen = await page.evaluate(() => (window as unknown as { __p?: string[] }).__p ?? []);
   const pct = seen.filter((v) => !Number.isNaN(parseFloat(v))).map((v) => parseFloat(v));
   expect(pct.length).toBeGreaterThanOrEqual(3);
   expect(pct[0]).toBeLessThan(pct[pct.length - 1]);
