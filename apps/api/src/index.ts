@@ -36,6 +36,7 @@ import { getAssistantSettingsView, loadAssistantSettingsIntoEnv, updateAssistant
 import { readTurnstileConfig } from './turnstile.ts';
 import { attachTempleWs } from './temple/ws.ts';
 import { templeRouter } from './temple/routes.ts';
+import { startTempleBots } from './temple/bots.ts';
 
 // A half-configured challenge must fail startup, not silently disable protection.
 readTurnstileConfig();
@@ -482,6 +483,12 @@ app.get('/api/temple/rooms', (_req, res) => {
 });
 app.use('/api/temple', templeRouter);
 
+// Bot đứng trong chánh điện lúc đền vắng (temple/bots.ts). Nó mượn đúng sổ phòng của
+// attachTempleWs nên người thật thấy bot y hệt thấy một RoomMember khác, và một cú tắt
+// máy phải gỡ chúng ra khỏi phòng trước khi đóng socket — không thì nhịp tick cuối gửi
+// một frame cho những kết nối đã chết.
+const templeBots = startTempleBots(temple.rooms);
+
 // Đường cùng của /api: phải đăng ký sau mọi router vì Express thử theo thứ tự, kể cả
 // tuyến vừa thêm ở dưới — một catch-all phía trên sẽ nuốt trọn route mới.
 app.use('/api', (_req, res) => res.status(404).json({ error: 'not found' }));
@@ -492,6 +499,7 @@ app.use('/api', (_req, res) => res.status(404).json({ error: 'not found' }));
 // The deadline is what keeps one stuck query from blocking the exit forever.
 function shutdown(signal: NodeJS.Signals): void {
   console.log(`${signal}: closing server`);
+  templeBots.stop();
   temple.close();
   server.close(() => {
     pool.end().then(

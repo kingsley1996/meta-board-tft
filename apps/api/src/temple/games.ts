@@ -50,7 +50,9 @@ const RESULT_MS = 3 * 60_000;
 // Lời mời bỏ ngỏ và trận bỏ dang phải tự hết hạn: người kia có thể đã tắt máy và không
 // ai bấm "Hủy" hộ ai. Cắt theo nhịp đọc của chính hai người chơi nên không cần đồng hồ
 // chạy nền — hết 10 phút là hàng chuyển sang 'dead' ngay lần mở bảng kế tiếp.
-const STALE_MS = 10 * 60_000;
+// Bot (bots.ts) đọc đúng con số này để lọc lời mời còn sống thay vì gọi expire(): hàng
+// chỉ chuyển 'dead' khi *có người mở bảng*, nên một lời mời chưa ai ngó vẫn còn đó.
+export const STALE_MS = 10 * 60_000;
 
 // ---- Độ May -------------------------------------------------------------------
 //
@@ -287,6 +289,95 @@ async function finish(row: GameRow, actor: string) {
   return rewards;
 }
 
+// ---- Lối đi chung cho máy khách và bot ------------------------------------------
+//
+// Ba hàm dưới đây là toàn bộ vòng đời một trận, không biết gì về HTTP. Bot đền
+// (bots.ts) đánh cùng những trận đó, và nếu nó đi đường vòng qua fetch() thì phải
+// có vé, có cookie, có nẹp withAccount — tức là thêm một lớp giấy tờ giả chỉ để gọi
+// được chính hàm đã tồn tại trong process. Validation và phần chống spam nằm ở đây
+// nên hai bên nhận đúng cùng một quy tắc.
+export async function inviteMatch(kindRaw: string, fromUserId: string, toPlayerId: number): Promise<GameMatch> {
+  await ensureTempleTables();
+  await ensureTempleProfile(fromUserId);
+  const kind = String(kindRaw ?? '');
+  if (!Object.hasOwn(RULES, kind)) throw new ApiError(400, 'invalid_game', 'the temple only runs dice and rock-paper-scissors');
+  const other = await userIdOf(toPlayerId);
+  if (other === fromUserId) throw new ApiError(400, 'self_game', 'nobody duels themselves');
+  const existing = await openBetween(kind as GameKind, fromUserId, other);
+  if (existing) throw new ApiError(409, 'already_open', 'a match between you two is still open');
+  // Một vòng lặp mời không được mọc ra cả chục ván chờ; nhịp này chặn cửa ghi, còn lời mời
+  // trùng thì đã bị 409 ở trên chặn trước (nên một cặp treo một ván, không treo cả chục).
+  cooldown(`${fromUserId}:game`, 5_000);
+
+  const created = await pool.query<GameRow>(
+    "INSERT INTO temple_games (kind, a_user, b_user) VALUES ($1, $2, $3) RETURNING *",
+    [kind, fromUserId, other],
+  );
+  const players = await luckRows([fromUserId, other]);
+  tellPeer(players, created.rows[0], fromUserId, 'invite');
+  return matchOf(created.rows[0], players, fromUserId);
+}
+
+// Nhận lời mời: cú UPDATE là nhịp chiếm chỗ, hai tab cùng bấm "Đồng ý" thì một tab nhận 409.
+export async function acceptMatch(gid: number, userId: string): Promise<GameMatch> {
+  await ensureTempleTables();
+  await ensureTempleProfile(userId);
+  const taken = await pool.query<GameRow>(
+    `UPDATE temple_games SET status = 'live', reason = '', updated_at = now()
+      WHERE id = $1 AND b_user = $2 AND status = 'invite'
+      RETURNING *`,
+    [gid, userId],
+  );
+  const row = taken.rows[0];
+  if (!row) {
+    const found = await loadGame(gid);
+    // Người ngoài cuộc thì 403, còn đúng người được mời nhưng lời mời đã hết chờ thì 409:
+    // hai trường hợp này HUD vẽ hai chữ khác nhau, không được gộp một.
+    if (found.b_user !== userId) throw new ApiError(403, 'not_your_game', 'this invitation is not yours to take');
+    throw new ApiError(409, 'match_not_live', 'that invitation is no longer waiting');
+  }
+  const players = await luckRows([row.a_user, row.b_user]);
+  tellPeer(players, row, userId, 'accept');
+  return matchOf(row, players, userId);
+}
+
+// Một nước đi: phần thân cũ của route /move, nay đứng riêng để bot gieo xúc xắc và ra đòn
+// oẳn tù tì bằng đúng đường của người thật — kể cả phần thưởng và trần điểm trong ngày.
+//
+// Các key vắng mặt có ý nghĩa: máy khách đọc `result` như bằng chứng "vòng vừa phân
+// định", nên nhịp mới là bên ra trước phải trả về *không có* hai key ấy, đúng như body
+// mà route từng gửi.
+export type GameMoveResult = {
+  match: GameMatch;
+  result?: RoundResult;
+  over?: boolean;
+  waiting?: boolean;
+} & Partial<GameReward>;
+
+export async function moveMatch(gid: number, userId: string, rawPick: unknown): Promise<GameMoveResult> {
+  await ensureTempleTables();
+  await ensureTempleProfile(userId);
+  const turn = await playTurn(gid, userId, rawPick);
+  const { row, result, players } = turn;
+  const match = matchOf(row, players, userId);
+
+  if (!result) {
+    // Bên ra trước chỉ báo "đến lượt bạn": tellPeer xây match theo mắt người nhận nên
+    // đòn vừa ghi của bên này không đi theo tin báo.
+    tellPeer(players, row, userId, 'move');
+    return { match, waiting: true };
+  }
+
+  if (row.status === 'over') {
+    const rewards = await finish(row, userId);
+    return { match, result, over: true, ...(rewards.get(userId) ?? { state: await templeState(userId) }) };
+  }
+
+  // Vòng kế tiếp: người ra đòn đã có result trong response, chỉ bên kia cần được báo.
+  tellPeer(players, row, userId, 'round', { result });
+  return { match, result, over: false };
+}
+
 // ---- Tuyến đọc ------------------------------------------------------------------
 
 // HUD gọi khi mở bảng và mỗi lần có tin 'game' tới. Không phân trang: list thứ nhất ngắn
@@ -332,50 +423,11 @@ gamesRouter.get('/games', withUser(async (req, res, user) => {
 // ---- Mời, nhận, thôi -------------------------------------------------------------
 
 gamesRouter.post('/games', withAccount(async (req, res, user) => {
-  await ensureTempleTables();
-  await ensureTempleProfile(user.id);
-  const kind = String(req.body?.kind ?? '');
-  if (!Object.hasOwn(RULES, kind)) throw new ApiError(400, 'invalid_game', 'the temple only runs dice and rock-paper-scissors');
-  const id = playerId(req.body?.id);
-  const other = await userIdOf(id);
-  if (other === user.id) throw new ApiError(400, 'self_game', 'nobody duels themselves');
-  const existing = await openBetween(kind as GameKind, user.id, other);
-  if (existing) throw new ApiError(409, 'already_open', 'a match between you two is still open');
-  // Một vòng lặp POST không được mọc ra cả chục ván chờ; nhịp này chặn cửa ghi, còn lời mời
-  // trùng thì đã bị 409 ở trên chặn trước (nên một cặp treo một ván, không treo cả chục).
-  cooldown(`${user.id}:game`, 5_000);
-
-  const created = await pool.query<GameRow>(
-    "INSERT INTO temple_games (kind, a_user, b_user) VALUES ($1, $2, $3) RETURNING *",
-    [kind, user.id, other],
-  );
-  const players = await luckRows([user.id, other]);
-  tellPeer(players, created.rows[0], user.id, 'invite');
-  res.status(201).json({ match: matchOf(created.rows[0], players, user.id) });
+  res.status(201).json({ match: await inviteMatch(String(req.body?.kind ?? ''), user.id, playerId(req.body?.id)) });
 }));
 
-// Nhận lời mời: cú UPDATE là nhịp chiếm chỗ, hai tab cùng bấm "Đồng ý" thì một tab nhận 409.
 gamesRouter.post('/games/:id/accept', withAccount(async (req, res, user) => {
-  await ensureTempleTables();
-  await ensureTempleProfile(user.id);
-  const gid = gameId(req.params.id);
-  const taken = await pool.query<GameRow>(
-    `UPDATE temple_games SET status = 'live', reason = '', updated_at = now()
-      WHERE id = $1 AND b_user = $2 AND status = 'invite'
-      RETURNING *`,
-    [gid, user.id],
-  );
-  const row = taken.rows[0];
-  if (!row) {
-    const found = await loadGame(gid);
-    // Người ngoài cuộc thì 403, còn đúng người được mời nhưng lời mời đã hết chờ thì 409:
-    // hai trường hợp này HUD vẽ hai chữ khác nhau, không được gộp một.
-    if (found.b_user !== user.id) throw new ApiError(403, 'not_your_game', 'this invitation is not yours to take');
-    throw new ApiError(409, 'match_not_live', 'that invitation is no longer waiting');
-  }
-  const players = await luckRows([row.a_user, row.b_user]);
-  tellPeer(players, row, user.id, 'accept');
-  res.json({ match: matchOf(row, players, user.id) });
+  res.json({ match: await acceptMatch(gameId(req.params.id), user.id) });
 }));
 
 gamesRouter.post('/games/:id/decline', withAccount(async (req, res, user) => {
@@ -483,32 +535,5 @@ async function playTurn(gid: number, userId: string, rawPick: unknown): Promise<
 }
 
 gamesRouter.post('/games/:id/move', withAccount(async (req, res, user) => {
-  await ensureTempleTables();
-  await ensureTempleProfile(user.id);
-  const turn = await playTurn(gameId(req.params.id), user.id, req.body?.pick);
-  const { row, result, players } = turn;
-  const match = matchOf(row, players, user.id);
-
-  if (!result) {
-    // Bên ra trước chỉ báo "đến lượt bạn": tellPeer xây match theo mắt người nhận nên
-    // đòn vừa ghi của bên này không đi theo tin báo.
-    tellPeer(players, row, user.id, 'move');
-    res.json({ match, waiting: true });
-    return;
-  }
-
-  if (row.status === 'over') {
-    const rewards = await finish(row, user.id);
-    res.json({
-      match,
-      result,
-      over: true,
-      ...(rewards.get(user.id) ?? { state: await templeState(user.id) }),
-    });
-    return;
-  }
-
-  // Vòng kế tiếp: người ra đòn đã có result trong response, chỉ bên kia cần được báo.
-  tellPeer(players, row, user.id, 'round', { result });
-  res.json({ match, result, over: false });
+  res.json(await moveMatch(gameId(req.params.id), user.id, req.body?.pick));
 }));

@@ -7,9 +7,9 @@ import { Router } from 'express';
 import { pool } from '../db.ts';
 import { ensureTempleProfile } from './identity.ts';
 import { ApiError, cooldown, num, playerId, text, withAccount, withUser } from './http.ts';
-import { addMerit } from './merit.ts';
+import { addMerit, type LevelUp } from './merit.ts';
 import { ensureTempleTables } from './schema.ts';
-import { playerByPlayerId, templeState, toPublic, toPublicOf, type PublicPlayer, type PublicRow } from './state.ts';
+import { playerByPlayerId, templeState, toPublic, toPublicOf, type PublicPlayer, type PublicRow, type TempleState } from './state.ts';
 import { notifyPlayer } from './ws.ts';
 
 export const socialRouter = Router();
@@ -93,17 +93,7 @@ socialRouter.post('/friends', withAccount(async (req, res, user) => {
   }
 
   if (action === 'accept') {
-    const invited = await pool.query(
-      "DELETE FROM temple_friends WHERE user_id = $2 AND friend_id = $1 AND status = 'pending' RETURNING user_id",
-      [user.id, other],
-    );
-    if (!invited.rowCount) throw new ApiError(409, 'no_invitation', 'that person has not asked to be friends');
-    await pool.query(
-      "INSERT INTO temple_friends (user_id, friend_id, status) VALUES ($1, $2, 'accepted'), ($2, $1, 'accepted') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted'",
-      [user.id, other],
-    );
-    notifyPlayer(id, { t: 'friend', kind: 'accept', by: toPublicOf(await ensureTempleProfile(user.id)) });
-    res.json({ accepted: true, player: await publicOne(other) });
+    res.json({ accepted: true, player: await acceptFriend(user.id, id) });
     return;
   }
 
@@ -265,28 +255,65 @@ socialRouter.get('/greetings', withUser(async (req, res, user) => {
   });
 }));
 
-socialRouter.post('/greetings', withAccount(async (req, res, user) => {
+// ---- Lối đi chung cho máy khách và bot -------------------------------------------
+//
+// Vì sao bot (bots.ts) gọi thẳng hai hàm dưới đây thay vì POST qua HTTP: tuyến ghi nào
+// cũng đứng sau withAccount, mà khách thì bị chặn cố ý (http.ts:50). Bot không phải
+// người dùng đăng ký — nó là một chỗ ngồi trong chánh điện — nên đường đúng là dùng
+// lại chính phần ghi, không phải cấp cho nó một mật khẩu giả.
+// Hai hàm dưới đây trả về *đúng* nội dung một response tuyến ghi, nên route chỉ còn là
+// `res.json(await ...)`: phần thân cũ không đổi một byte nào, và bot nhận cùng bộ số
+// (state, gained, level_ups) mà HUD đang đọc.
+export type SendGreetingResult = { state: TempleState; gained: number; level_ups: LevelUp[] };
+
+// Chấp nhận một lời kết bạn đang chờ. Bot (bots.ts) gọi hàm này khi một người thật gửi
+// lời mời tới một chỗ ngồi trong đền: không có nó thì lời mời nằm pending mãi, và người
+// mời thấy một đồng đội không bao giờ trả lời.
+export async function acceptFriend(userId: string, otherPlayerId: number): Promise<PublicPlayer> {
   await ensureTempleTables();
-  await ensureTempleProfile(user.id);
-  const id = playerId(req.body?.id);
+  const id = playerId(otherPlayerId);
   const other = await userIdOf(id);
-  const me = toPublicOf(await ensureTempleProfile(user.id));
-  const kind = String(req.body?.kind ?? 'chuc');
+  if (other === userId) throw new ApiError(400, 'self_friend', 'you are already friends with yourself');
+  const invited = await pool.query(
+    "DELETE FROM temple_friends WHERE user_id = $2 AND friend_id = $1 AND status = 'pending' RETURNING user_id",
+    [userId, other],
+  );
+  if (!invited.rowCount) throw new ApiError(409, 'no_invitation', 'that person has not asked to be friends');
+  await pool.query(
+    "INSERT INTO temple_friends (user_id, friend_id, status) VALUES ($1, $2, 'accepted'), ($2, $1, 'accepted') ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted'",
+    [userId, other],
+  );
+  notifyPlayer(id, { t: 'friend', kind: 'accept', by: toPublicOf(await ensureTempleProfile(userId)) });
+  return publicOne(other);
+}
+
+export async function sendGreeting(
+  fromUserId: string,
+  toPlayerId: number,
+  kindRaw: unknown,
+  textRaw: unknown,
+  giftRaw: unknown,
+): Promise<SendGreetingResult> {
+  await ensureTempleTables();
+  const me = toPublicOf(await ensureTempleProfile(fromUserId));
+  const id = playerId(toPlayerId);
+  const other = await userIdOf(id);
+  const kind = String(kindRaw ?? 'chuc');
   if (kind !== 'huong' && kind !== 'chuc') throw new ApiError(400, 'invalid_kind', 'kind must be huong or chuc');
-  const wish = req.body?.text ? text(req.body.text, 120, 'invalid_wish') : '';
-  const gift = num(req.body?.gift_sen ?? 0, 0, 10_000, 'invalid_gift');
+  const wish = textRaw ? text(textRaw, 120, 'invalid_wish') : '';
+  const gift = num(giftRaw ?? 0, 0, 10_000, 'invalid_gift');
   // Một lời chúc = 10 điểm, nên nhịp cũng phải do server giữ như mọi nhịp cầu may.
-  cooldown(`${user.id}:greeting`, 3_000);
+  cooldown(`${fromUserId}:greeting`, 3_000);
   if (gift) {
     const spent = await pool.query('UPDATE temple_profiles SET sen = sen - $2 WHERE user_id = $1 AND sen >= $2 RETURNING sen', [
-      user.id,
+      fromUserId,
       gift,
     ]);
     if (!spent.rowCount) throw new ApiError(409, 'not_enough_sen', 'not enough Sen in the wallet');
     await pool.query('UPDATE temple_profiles SET sen = sen + $2 WHERE user_id = $1', [other, gift]);
   }
   await pool.query('INSERT INTO temple_greetings (from_user, to_user, kind, text, gift_sen) VALUES ($1, $2, $3, $4, $5)', [
-    user.id,
+    fromUserId,
     other,
     kind,
     wish,
@@ -294,21 +321,45 @@ socialRouter.post('/greetings', withAccount(async (req, res, user) => {
   ]);
   // Người nhận phải thấy món quà tới tay ngay, không phải mở bảng "Đồng đội" mà đoán.
   notifyPlayer(id, { t: 'gift', kind, by: me, text: wish, gift_sen: gift });
-  const merit = await addMerit(user.id, { exp: 10 });
-  res.json({ state: await templeState(user.id), gained: merit.gained, level_ups: merit.levelUps });
-}));
+  const merit = await addMerit(fromUserId, { exp: 10 });
+  return { state: await templeState(fromUserId), gained: merit.gained, level_ups: merit.levelUps };
+}
 
-socialRouter.post('/greetings/:id/open', withUser(async (req, res, user) => {
+// Mở một món quà tới tay: cùng một hàng chỉ mở được một lần vì UPDATE có điều kiện
+// `seen_at IS NULL`, nên người bấm hai lần chỉ nhận thưởng một lần.
+export type OpenGreetingResult = {
+  state: TempleState;
+  gained: number;
+  level_ups: LevelUp[];
+  from: PublicPlayer;
+  gift_sen: number;
+};
+
+export async function openGreeting(greetingId: number, userId: string): Promise<OpenGreetingResult> {
   await ensureTempleTables();
-  const id = playerId(req.params.id, 'invalid_greeting_id');
+  const id = playerId(greetingId, 'invalid_greeting_id');
   const opened = await pool.query<{ from_user: string; gift_sen: number }>(
     'UPDATE temple_greetings SET seen_at = now() WHERE id = $1 AND to_user = $2 AND seen_at IS NULL RETURNING from_user, gift_sen',
-    [id, user.id],
+    [id, userId],
   );
   const row = opened.rows[0];
   if (!row) throw new ApiError(404, 'greeting_not_found', 'nothing to open here');
-  const merit = await addMerit(user.id, { exp: 5, sen: 5 });
-  res.json({ state: await templeState(user.id), gained: merit.gained, level_ups: merit.levelUps, from: await publicOne(row.from_user), gift_sen: row.gift_sen });
+  const merit = await addMerit(userId, { exp: 5, sen: 5 });
+  return {
+    state: await templeState(userId),
+    gained: merit.gained,
+    level_ups: merit.levelUps,
+    from: await publicOne(row.from_user),
+    gift_sen: row.gift_sen,
+  };
+}
+
+socialRouter.post('/greetings', withAccount(async (req, res, user) => {
+  res.json(await sendGreeting(user.id, playerId(req.body?.id), req.body?.kind, req.body?.text, req.body?.gift_sen));
+}));
+
+socialRouter.post('/greetings/:id/open', withUser(async (req, res, user) => {
+  res.json(await openGreeting(playerId(req.params.id), user.id));
 }));
 
 // ---- helpers ------------------------------------------------------------------

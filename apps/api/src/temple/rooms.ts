@@ -125,6 +125,15 @@ export class TempleRooms {
     }
   }
 
+  // Thành viên đang thật sự đứng trong phòng, đã trừ những người chỉ còn trong cửa sổ
+  // ân hạn. Bot đền (bots.ts) cần đúng hai thứ từ danh sách này: đếm người thật để biết
+  // có nên vào, và xem chỗ ngồi nào đã bị chiếm.
+  members(temple: string, room: string): RoomMember[] {
+    const set = this.rooms.get(keyOf(temple, room));
+    if (!set) return [];
+    return [...set].filter((member) => !member.leftAt);
+  }
+
   summary(): Record<string, number> {
     const out: Record<string, number> = {};
     for (const [key, set] of this.rooms) out[key] = set.size;

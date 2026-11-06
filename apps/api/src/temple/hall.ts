@@ -12,7 +12,9 @@ import { templeState } from './state.ts';
 
 export const hallRouter = Router();
 
-const TEMPLE_ID = 'nhattru';
+// Đền duy nhất đang mở, và là mã phòng mặc định mà ws.ts:93 gắn cho một kết nối không
+// hỏi temple. Bot đền (bots.ts) phải đứng đúng vào key này thì người thật mới thấy.
+export const TEMPLE_ID = 'nhattru';
 
 // Quẻ hiện tại: bốn thẻ tĩnh, dùng lại đúng khuôn `que` của bản gốc (api.js:99-102).
 // Phase 2 thay bằng comp thật lấy từ DB — xem SHRINE-PLAN.md §6.2.
