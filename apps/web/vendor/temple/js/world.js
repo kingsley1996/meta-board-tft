@@ -936,7 +936,7 @@ export class World {
     if (this.player?.label) labels.push(this.player.label);
     for (const r of this.remotes.values()) if (r.label) labels.push(r.label);
     const still = this.perfLevel >= 2 || this.showNames === false;
-    const step = Math.floor(time * 10);
+    const step = Math.floor(time * 6); // 6 ô / giây = một lượt sét dài đúng một giây
     for (const l of labels) {
       const map = l.material.map;
       const F = map?.frames;
