@@ -360,8 +360,9 @@ test(
       // Người bấm nước cuối phải thấy ván vừa rồi ngay tại chỗ, không phải sang tab khác
       // hoặc đoán qua một dòng toast. Hết cửa sổ thì hàng chỉ còn ở lịch sử.
       const fresh = (await get('/api/temple/games', A.cookie)).json;
+      assert.equal(fresh.result_ms, 180_000, 'the board hands the client the window it just applied');
       assert.ok(fresh.open.some((m: Json) => m.id === m6), 'a match that just ended is still on the board');
-      assert.ok(fresh.history.some((m: Json) => m.id === m6), 'and filed in the history at the same time');
+      assert.ok(!fresh.history.some((m: Json) => m.id === m6), 'and it is not filed twice, one row per tab');
       await pool.query("UPDATE temple_games SET updated_at = now() - (4 * INTERVAL '1 minute') WHERE id = $1", [m6]);
       const later = (await get('/api/temple/games', A.cookie)).json;
       assert.ok(!later.open.some((m: Json) => m.id === m6), 'four minutes later it is history only');

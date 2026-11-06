@@ -305,10 +305,17 @@ gamesRouter.get('/games', withUser(async (req, res, user) => {
       ORDER BY updated_at DESC LIMIT 20`,
     [user.id, RESULT_MS],
   );
+  // Hai tab chia nhau một hàng, không tab nào lặp lại hàng của tab kia: "Đang tỷ thí" giữ
+  // trận đang chờ/đang đánh và trận vừa hạ màn trong cửa sổ kết quả, "Từng đấu" nhận phần
+  // còn lại. Nếu không thì một ván vừa xong hiện ở cả hai chỗ và người chơi không biết chỗ
+  // nào là chỗ của nó.
   const history = await pool.query<GameRow>(
-    `SELECT * FROM temple_games WHERE (a_user = $1 OR b_user = $1) AND status IN ('over', 'dead')
+    `SELECT * FROM temple_games
+      WHERE (a_user = $1 OR b_user = $1)
+        AND status IN ('over', 'dead')
+        AND NOT (status = 'over' AND updated_at > now() - ($2::int * INTERVAL '1 millisecond'))
       ORDER BY updated_at DESC LIMIT 10`,
-    [user.id],
+    [user.id, RESULT_MS],
   );
   const players = await luckRows([...open.rows, ...history.rows].flatMap((r) => [r.a_user, r.b_user]));
   const today = await practiceToday(user.id);
@@ -316,6 +323,9 @@ gamesRouter.get('/games', withUser(async (req, res, user) => {
     open: open.rows.map((r) => matchOf(r, players, user.id)),
     history: history.rows.map((r) => matchOf(r, players, user.id)),
     cap: { today: today.gameExp ?? 0, max: SEN_CAP_DAY },
+    // Máy khách cần đúng con số này để hẹn một lần đọc lại: cửa sổ do máy chủ quyết, còn
+    // đồng hồ thì phải chạy ở nơi đang hiển thị danh sách.
+    result_ms: RESULT_MS,
   });
 }));
 

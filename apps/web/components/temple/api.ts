@@ -98,7 +98,7 @@ export type GameMatch = {
 // thắng lại +0 thay để người chơi tự đoán mình bị ăn gian.
 export type GameCap = { today: number; max: number; nominal?: number; awarded?: number };
 
-export type GamesPayload = { open: GameMatch[]; history: GameMatch[]; cap: GameCap };
+export type GamesPayload = { open: GameMatch[]; history: GameMatch[]; cap: GameCap; result_ms: number };
 
 // Một trận kết thúc thì phần thưởng của người nhận đi kèm tin báo (hoặc response),
 // nên HUD không phải đoán ví tiền sau ván thắng.

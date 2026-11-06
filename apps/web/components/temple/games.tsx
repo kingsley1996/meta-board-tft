@@ -274,6 +274,19 @@ export function GameSheet({ s, tick, onWaiting, onClose }: { s: Store; tick: num
     void load();
   }, [load, tick]);
 
+  // Hết cửa sổ "vừa xong" thì hàng phải rời bảng thật, không phải chờ tới lần mở bảng kế
+  // tiếp: cửa sổ nằm ở máy chủ (nơi quyết danh sách), còn đồng hồ thì phải chạy ở chỗ đang
+  // hiển thị nó. Không có nhịp này, một trận hạ màn vẫn ngồi ở "Đang tỷ thí" vô hạn trong
+  // khi "Từng đấu" đã có nó từ lâu mà người chơi không thấy.
+  useEffect(() => {
+    const ms = rows?.result_ms ?? 0;
+    if (!rows || !ms) return;
+    const left = rows.open.filter((m) => m.status === 'over').map((m) => ms - (Date.now() - new Date(m.at).getTime()));
+    if (!left.length) return;
+    const timer = window.setTimeout(() => void load(), Math.max(500, Math.min(...left)));
+    return () => window.clearTimeout(timer);
+  }, [rows, load]);
+
   const list = (tab === 'open' ? rows?.open : rows?.history) ?? [];
   const cap = rows?.cap;
   const full = !!cap && cap.today >= cap.max;
