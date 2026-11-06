@@ -269,30 +269,300 @@ function drawFrame(g, im, x, y, w, h) {
   P(0.82, 0.18, x + w - cap, cap);
 }
 
-export function danhHieuLabelTex(name, title, level) {
-  return canvasTex(512, 192, (g, w) => {
-    const { realm } = rungOf(level), frame = frameImg(realm);
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.font = '800 27px -apple-system, Segoe UI, Roboto, sans-serif';
-    const label = title || titleOfLevel(level);
-    const tw = g.measureText(label).width;
-    // Lòng khung (vùng nền tối) chỉ rộng non nửa bản vẽ: giãn khung theo chữ chứ không
-    // condense chữ, nếu không chữ dài sẽ dính vào hoa văn hai đầu.
-    const hw = Math.min(w - 24, Math.max(250, tw / 0.5 + 10)), hx = (w - hw) / 2;
-    if (frame.complete && frame.naturalWidth) drawFrame(g, frame, hx, 2, hw, 88);
-    else { g.fillStyle = 'rgba(20,14,10,.6)'; g.beginPath(); g.roundRect(hx, 2, hw, 88, 12); g.fill(); }
-    // chữ nằm trên nền khung nhiều màu nên cần viền tối, nếu không mất trên nền vàng
-    g.shadowColor = 'rgba(0,0,0,.85)'; g.shadowBlur = 7;
-    g.fillStyle = '#ffe9a8';
-    g.fillText(label, Math.round(w / 2), 40);
-    g.shadowBlur = 0;
-    g.font = '600 40px -apple-system, Segoe UI, Roboto, sans-serif';
-    const nw = Math.min(w - 20, g.measureText(name).width + 40);
-    g.fillStyle = 'rgba(20,14,10,.6)'; g.beginPath(); g.roundRect((w - nw) / 2, 96, nw, 58, 29); g.fill();
-    g.fillStyle = '#fff'; g.fillText(name, w / 2, 125, w - 40);
-    g.font = '500 26px -apple-system, Segoe UI, Roboto, sans-serif';
-    g.fillStyle = '#fbe3ae'; g.fillText(rungLabel(level), w / 2, 174);
+// Sao nhiều cánh vẽ bằng path: 5 cánh cho sao bậc, 4 cánh cho tia chớp.
+function pathStar(g, cx, cy, r, points, inner) {
+  g.beginPath();
+  for (let i = 0; i < points * 2; i += 1) {
+    const a = -Math.PI / 2 + (i * Math.PI) / points;
+    const rad = i % 2 ? r * inner : r;
+    if (i) g.lineTo(cx + Math.cos(a) * rad, cy + Math.sin(a) * rad);
+    else g.moveTo(cx + Math.cos(a) * rad, cy + Math.sin(a) * rad);
+  }
+  g.closePath();
+}
+
+// Sprite hiệu ứng của Kenney Particle Pack (CC0), xem docs/SHRINE-BADGE-FRAMES.md.
+// Bảy tệp 256px nạp một lần và dùng chung cho mọi nhãn.
+const FX_NAMES = ['spark_01', 'spark_02', 'spark_04', 'spark_07', 'star_06', 'star_09', 'flare_01'];
+// Số khoảnh khắc của một lượt sét. Vẽ thành dải ngang trong chính ảnh nhãn rồi chạy
+// bằng UV (world.js dời map.offset.x) vì hai lý do đã đo: mặt trong khung đặc 100%
+// nên một sprite sét đặt sau nhãn là vô hình, còn sprite sét đặt trước nhãn bằng
+// additive thì làm bloat nét chữ.
+const BOLT_FRAMES = 6;
+const fxImgs = {};
+function fxImg(n) {
+  if (!fxImgs[n]) {
+    const im = new Image();
+    im.src = '/temple/fx/' + n + '.png';
+    fxImgs[n] = im;
+  }
+  return fxImgs[n];
+}
+// world.js ghim cờ này vào tag: thiếu một sprite là cả 6 frame chỉ có nét viền, không
+// có sét, nên phải biết chắc cả bảy đã về rồi mới dựng nhãn.
+export function fxReady() {
+  FX_NAMES.forEach(fxImg);
+  return FX_NAMES.every((n) => fxImgs[n].complete && !!fxImgs[n].naturalWidth);
+}
+
+// Hue đo từ chính ảnh khung: cụm hue đông nhất trong vùng no màu của
+// danh-hieu-frame-N.png. Sét giữ đúng hue ấy nhưng đẩy sáng lên 78% để nó đọc là tia
+// sét chứ không phải vệt sơn cùng màu khung.
+const REALM_HUE = [15, 105, 195, 270, 30, 0, 210];
+const hsl = (h, s, l) => `hsl(${h}, ${s}%, ${l}%)`;
+const hsla = (h, s, l, a) => `hsla(${h}, ${s}%, ${l}%, ${a})`;
+
+// Tô màu sprite: sprite gốc trắng nên tint bằng source-atop trên canvas tạm rồi blit
+// lại bằng 'lighter'. Một canvas dùng chung, cấp phát theo cỡ lớn nhất từng thấy.
+let sprC = null, sprG = null;
+function fxSpr(g, im, x, y, w, h, alpha, tint, rot) {
+  if (!im.complete || !im.naturalWidth || alpha <= 0) return;
+  g.save();
+  g.globalCompositeOperation = 'lighter';
+  g.globalAlpha = Math.min(1, Math.max(0, alpha));
+  g.translate(x, y);
+  if (rot) g.rotate(rot);
+  const cw = Math.max(2, Math.ceil(w)), ch = Math.max(2, Math.ceil(h));
+  if (tint) {
+    if (!sprC) { sprC = document.createElement('canvas'); sprG = sprC.getContext('2d'); }
+    if (sprC.width < cw || sprC.height < ch) { sprC.width = cw; sprC.height = ch; }
+    sprG.globalCompositeOperation = 'source-over';
+    sprG.clearRect(0, 0, cw, ch);
+    sprG.drawImage(im, 0, 0, cw, ch);
+    sprG.globalCompositeOperation = 'source-atop';
+    sprG.fillStyle = tint;
+    sprG.fillRect(0, 0, cw, ch);
+    g.drawImage(sprC, 0, 0, cw, ch, -w / 2, -h / 2, w, h);
+  } else g.drawImage(im, -w / 2, -h / 2, w, h);
+  g.restore();
+}
+
+// Sao hạng: thân ngũ giác cắt sắc làm hai nửa sáng/tối ở 46% (khối nổi, không phải
+// vệt gradient đều) cộng quầng sao 4 cánh Kenney thở theo số frame.
+function rankStar(g, cx, cy, r, i) {
+  pathStar(g, cx, cy, r, 5, 0.47);
+  const f = g.createLinearGradient(0, cy - r, 0, cy + r);
+  f.addColorStop(0, '#ffefb2');
+  f.addColorStop(0.46, '#ffd257');
+  f.addColorStop(0.46, '#e0951f');
+  f.addColorStop(1, '#9c560a');
+  g.fillStyle = f;
+  g.fill();
+  pathStar(g, cx, cy, r, 5, 0.47);
+  g.strokeStyle = 'rgba(74,40,7,.9)';
+  g.lineWidth = 1.5;
+  g.stroke();
+  fxSpr(g, fxImg('star_06'), cx, cy - r * 0.15, r * 2.6, r * 2.6,
+    0.4 + 0.28 * Math.sin(i * 0.8 + 1), 'rgba(255,236,170,1)');
+}
+
+// Số sao = bậc của vận hiện tại, đúng cơ chế sao trong TFT: một sao, hai sao, ba sao là
+// trần. Đỉnh Như Ý không có bậc hai nên giữ ba sao — thang đã hết bậc, không tụt xuống
+// một sao ngay ở mốc cao nhất.
+function starsOf(level) {
+  const { realm, stage } = rungOf(level);
+  return realm === 7 ? 3 : stage;
+}
+
+// Mask nét chữ trắng trên nền trong, cache theo (chữ, font): lớp sét xuyên qua chữ
+// cắt bằng destination-in vào đúng mặt nạ này.
+let measureG = null;
+const glyphCache = new Map();
+function glyphMask(text, font) {
+  const key = text + '|' + font;
+  const hit = glyphCache.get(key);
+  if (hit) return hit;
+  if (!measureG) measureG = document.createElement('canvas').getContext('2d');
+  measureG.font = font;
+  const cw = Math.ceil(measureG.measureText(text).width) + 44, ch = Math.ceil(27 * 2.5);
+  const c = document.createElement('canvas');
+  c.width = cw; c.height = ch;
+  const s = c.getContext('2d');
+  s.font = font; s.textAlign = 'center'; s.textBaseline = 'middle';
+  s.fillStyle = '#fff';
+  s.fillText(text, cw / 2, ch / 2);
+  const e = { c, cw, ch };
+  glyphCache.set(key, e);
+  return e;
+}
+
+// Giật của sét phải xác định theo số frame, không theo Math.random: 6 frame của một
+// spritesheet được dựng lại mỗi lần người đó lên bậc, ngẫu nhiên thật sẽ làm sét đổi
+// dạng ngay cả khi không có gì thay đổi.
+const rnd = (seed) => {
+  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+};
+
+// Lõi sét đi ở 1/3 trên thân chữ — bổ ngang thân là lý do bản đầu tiên bị chê khó đọc.
+const BOLT_Y = 0.33;
+
+function boltPath(g, x0, y0, x1, y1, seg, amp, seed) {
+  g.beginPath();
+  g.moveTo(x0, y0);
+  for (let i = 1; i <= seg; i += 1) {
+    const f = i / seg;
+    g.lineTo(x0 + (x1 - x0) * f, y0 + (y1 - y0) * f + (rnd(seed + i * 7.3) - 0.5) * amp * (1 - Math.abs(f - 0.5) * 0.7));
+  }
+}
+
+// Thân sét: đầu sét (spark_07 nằm ngang) + ba nhánh phía sau + lõi gãy white-hot kéo
+// từ đuôi tới đầu + ba tia rẽ nhánh + điểm nóng tại đầu. k là tỷ lệ so với chữ.
+function boltBody(l, cw, ch, head, i, hue, k) {
+  l.globalCompositeOperation = 'lighter';
+  l.lineCap = 'round';
+  const by = ch * BOLT_Y, bw = cw * 0.5 * k;
+  fxSpr(l, fxImg('spark_07'), head, by, bw, bw * 0.3, k, hsl(hue, 95, 78), (rnd(i * 3.1) - 0.5) * 0.12);
+  for (let b = 0; b < 3; b += 1) {
+    const fx = head - bw * (0.22 + b * 0.24);
+    if (fx < 0) break;
+    const fy = by + ch * 0.26 * (rnd(i * 5 + b * 11) - 0.5) * 2;
+    const im = fxImg(['spark_01', 'spark_02', 'spark_04'][b]);
+    const s2 = bw * (0.46 - b * 0.08);
+    fxSpr(l, im, fx, fy, s2, s2 * 0.75, 0.62 * k - b * 0.1 * k, hsl(hue, 95, 78), (rnd(i * 9 + b) - 0.5) * 1.2);
+  }
+  const tail = Math.max(cw * 0.05, head - cw * 0.4);
+  for (const [w, a] of [[10, 0.45], [4, 0.8]]) {
+    boltPath(l, tail, by, head, by, 12, ch * 0.26, i);
+    l.strokeStyle = hsla(hue, 95, 62, a * k);
+    l.lineWidth = w * k;
+    l.stroke();
+  }
+  boltPath(l, tail, by, head, by, 12, ch * 0.26, i);
+  l.strokeStyle = hsla(0, 0, 100, 0.95 * k);
+  l.lineWidth = 2.2 * k;
+  l.stroke();
+  for (let b = 0; b < 3; b += 1) {
+    const bx = head - cw * (0.08 + b * 0.12), y2 = by + ch * 0.3 * (rnd(i + b) > 0.5 ? -1 : 1);
+    for (const [w, c, a] of [[3.5, hsla(hue, 95, 62, 0.5 * k)], [1.3, hsla(0, 0, 100, 0.85 * k)]]) {
+      boltPath(l, bx, by, bx + cw * 0.08, y2, 5, ch * 0.12, i * 13 + b);
+      l.strokeStyle = c;
+      l.lineWidth = w * k;
+      l.stroke();
+    }
+  }
+  const hot = l.createRadialGradient(head, by, 2, head, by, cw * 0.1);
+  hot.addColorStop(0, hsla(0, 0, 100, 0.3 * k));
+  hot.addColorStop(1, hsla(hue, 95, 60, 0));
+  l.fillStyle = hot;
+  l.fillRect(0, 0, cw, ch);
+}
+
+// Hai lớp sét phải sống đồng thời tới lúc ghép nên mỗi lớp cần canvas riêng; ép đúng cỡ
+// mặt nạ để một blit 5 tham số không ăn sang phần ô khác của frame trước.
+const layers = [null, null];
+function layer(n, w, h) {
+  let c = layers[n];
+  if (!c) { c = document.createElement('canvas'); layers[n] = c; }
+  if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+  const g = c.getContext('2d');
+  g.globalCompositeOperation = 'source-over';
+  g.globalAlpha = 1;
+  g.clearRect(0, 0, w, h);
+  return g;
+}
+
+// Sét chạy dọc chữ hạng, ghép theo thứ tự đã duyệt: quầng mờ quanh nét → lớp sét nổi
+// (SAU chữ) → chữ viền nâu đậm lót trên → lớp sét xuyên nét chữ. Chữ vẽ đè lên sét là
+// thứ giữ cho danh hiệu đọc được ở cỡ thật khi đứng xa.
+function titleBolt(g, text, cx, cy, font, i, hue) {
+  const { c: gc, cw, ch } = glyphMask(text, font);
+  const head = cw * (0.05 + 0.9 * (i / BOLT_FRAMES));
+  const lc = layer(0, cw, ch);
+  boltBody(lc, cw, ch, head, i, hue, 0.85);
+  lc.globalCompositeOperation = 'destination-in';
+  lc.drawImage(gc, 0, 0);
+  const uc = layer(1, cw, ch);
+  boltBody(uc, cw, ch, head, i, hue, 1.25);
+  fxSpr(uc, fxImg('star_09'), head, ch * BOLT_Y, cw * 0.18, cw * 0.18, 0.7, hsl(hue, 95, 80));
+  fxSpr(uc, fxImg('flare_01'), head, ch * BOLT_Y, cw * 0.46, cw * 0.3, 0.55, hsl(hue, 95, 82));
+  const dx = Math.round(cx - cw / 2), dy = Math.round(cy - ch / 2);
+  g.save();
+  g.globalCompositeOperation = 'lighter';
+  g.filter = 'blur(8px)';
+  g.globalAlpha = 0.1 + 0.16 * Math.max(0, 1 - Math.abs(head / cw - 0.5) * 1.6);
+  g.drawImage(gc, dx, dy);
+  g.restore();
+  g.save();
+  g.globalCompositeOperation = 'lighter';
+  g.drawImage(layers[1], dx, dy);
+  g.restore();
+  g.save();
+  g.font = font;
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.lineJoin = 'round';
+  g.lineWidth = 4.5;
+  g.strokeStyle = 'rgba(26,12,4,.92)';
+  g.strokeText(text, cx, cy);
+  g.lineWidth = 2;
+  g.strokeStyle = hsla(hue, 80, 32, 0.9);
+  g.strokeText(text, cx, cy);
+  g.shadowColor = 'rgba(0,0,0,.8)';
+  g.shadowBlur = 6;
+  const fill = g.createLinearGradient(0, cy - 16, 0, cy + 16);
+  fill.addColorStop(0, '#ffffff');
+  fill.addColorStop(0.55, '#fff2cf');
+  fill.addColorStop(1, '#ffd98d');
+  g.fillStyle = fill;
+  g.fillText(text, cx, cy);
+  g.restore();
+  g.save();
+  g.globalCompositeOperation = 'lighter';
+  g.drawImage(layers[0], dx, dy);
+  g.restore();
+}
+
+// Một ô 512x224 = một danh hiệu tĩnh, chỉ khác nhau ở đúng dải chữ hạng.
+function badgeCell(g, name, label, level, realm, hue, i) {
+  const W = 512;
+  const titleFont = '800 27px -apple-system, Segoe UI, Roboto, sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.font = titleFont;
+  const tw = g.measureText(label).width;
+  // Lòng khung (vùng nền tối) chỉ rộng non nửa bản vẽ: giãn khung theo chữ chứ không
+  // condense chữ, nếu không chữ dài sẽ dính vào hoa văn hai đầu.
+  const hw = Math.min(W - 24, Math.max(250, tw / 0.5 + 10)), hx = (W - hw) / 2;
+  const frame = frameImg(realm);
+  if (frame.complete && frame.naturalWidth) drawFrame(g, frame, hx, 34, hw, 88);
+  else { g.fillStyle = 'rgba(20,14,10,.6)'; g.beginPath(); g.roundRect(hx, 34, hw, 88, 12); g.fill(); }
+  // Dải 32px trên cùng dành riêng cho hàng sao, nằm ngay trên honor.
+  const n = starsOf(level);
+  for (let s = 0; s < n; s += 1) rankStar(g, W / 2 + (s - (n - 1) / 2) * 34, 18, 13, i);
+  titleBolt(g, label, W / 2, 72, titleFont, i, hue);
+  g.font = '600 40px -apple-system, Segoe UI, Roboto, sans-serif';
+  const nw = Math.min(W - 20, g.measureText(name).width + 40);
+  g.fillStyle = 'rgba(20,14,10,.6)';
+  g.beginPath();
+  g.roundRect((W - nw) / 2, 128, nw, 58, 29);
+  g.fill();
+  g.fillStyle = '#fff';
+  g.fillText(name, W / 2, 157, W - 40);
+  g.font = '500 26px -apple-system, Segoe UI, Roboto, sans-serif';
+  g.fillStyle = '#fbe3ae';
+  g.fillText(rungLabel(level), W / 2, 206);
+}
+
+// Nhãn là spritesheet ngang: F ô 512x224 kế tiếp nhau, repeat.x = 1/F nên cửa sổ UV
+// của sprite chỉ ăn đúng một ô và offset.x = k/F nhảy sang ô k. Mi-mapping vẫn bật:
+// hai mép trái/phải của mỗi ô là vùng nền trong suốt (khung bắt đầu từ x=12) nên các
+// ô không lẫn vào nhau ở bậc mi thấp.
+export function danhHieuLabelTex(name, title, level, frames = BOLT_FRAMES) {
+  const F = Math.max(1, frames);
+  const { realm } = rungOf(level);
+  const label = title || titleOfLevel(level);
+  const tex = canvasTex(512 * F, 224, (g) => {
+    for (let i = 0; i < F; i += 1) {
+      g.save();
+      g.translate(512 * i, 0);
+      badgeCell(g, name, label, level, realm, REALM_HUE[realm - 1], i);
+      g.restore();
+    }
   });
+  tex.repeat.set(1 / F, 1);
+  tex.frames = F;
+  return tex;
 }
 
 export function labelTex(name, sub, color = '#fbe3ae') {

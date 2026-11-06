@@ -151,6 +151,53 @@ so với **62.7k** của #2 (**0,65×**) — không nhìn thấy ở 59px, nhìn
 bản **để dùng thẳng** nếu phải dùng raster (nét + modal); #1 bỏ. Không sheet nào trong ba cái làm được
 chip 24px, BXH, canvas 3D, hay 10 danh hiệu — bốn việc đó vẫn là việc của vector.
 
+### 1.5 Sprite hiệu ứng cho chữ danh hiệu — Kenney *Particle Pack* 1.1, đã vào repo
+
+Bảy tệp 256px nằm ở `apps/web/public/temple/fx/` và chỉ dùng cho nhãn canvas trên đầu nhân vật
+(`vendor/temple/js/textures.js`). Nguồn `kenney.nl/assets/particle-pack`, tải bằng đường
+`/download-link/<hex>` kèm cookie + referer (thiếu một trong hai → 403 `{"error":"forbidden"}`).
+
+Bằng chứng licence — **nguyên văn `License.txt` bên trong zip**:
+
+```
+	Particle Pack (1.1)
+
+	by Kenney Vleugels (Kenney.nl)
+
+			------------------------------
+
+	License (Creative Commons Zero, CC0)
+	http://creativecommons.org/publicdomain/zero/1.0/
+
+	You may use these assets in personal and commercial projects.
+	Credit (Kenney or www.kenney.nl) would be nice but is not mandatory.
+```
+
+⇒ không phải xin phép, không bắt buộc ghi công, dùng được cho prod thương mại. Trong pack **không có
+GIF/animation nào** — toàn PNG tĩnh, nên hoạt ảnh là việc của mã (nung spritesheet, xem §7.5).
+
+Tệp đã lấy (từ `PNG (Transparent)/`, ép về 256px): `spark_01` `spark_02` `spark_04` `spark_07`
+(bốn dạng tia lửa/sét; `spark_07` là vệt nằm ngang, làm đầu sét), `star_06` (chớp 4 cánh, quầng quanh
+sao hạng), `star_09` (chớp 8 cánh, đỉnh đầu sét), `flare_01` (vệt sáng ngang, choá tại đầu sét).
+Kho còn `magic_*`, `light_*`, `trace_*`, `twirl_*`, `smoke_*`, `flame_*` và pack **Light Masks 1.0**
+(152 mask `cone_/fan_/ring_/streaks_`, cũng CC0) — đã thử render, bị từ chối vì không đọc ra trên nhãn
+384px, chưa dùng.
+
+**Hue của từng vận đo từ chính ảnh khung**, không đoán: với mỗi `public/temple/badges/danh-hieu-frame-N.png`,
+lấy mọi pixel có alpha>200, bão hoà>0.35 và 0.18<độ sáng<0.85, xếp vào các thùng hue 15°, cụm đông nhất cho
+màu trung bình và hue dưới đây. Tia sét giữ đúng hue đó nhưng nâng sáng lên 78% (`hsl(h, 95%, 78%)`) vì sét
+phải trắng hơn khung mới ra sét; nét viền chữ lấy cùng hue ở `hsla(h, 80%, 32%, .9)`.
+
+| Vận | khung | hue | màu trung bình cụm |
+|---|---|---|---|
+| I Khai Vận | 1 | 15° | `#aa5823` đồng |
+| II Hanh Thông | 2 | 105° | `#198a0d` lục |
+| III Cát Khánh | 3 | 195° | `#3685bd` lam |
+| IV Cát Tường | 4 | 270° | `#66149d` tía |
+| V Hồng Phước | 5 | 30° | `#ea9c22` kim |
+| VI Đại Cát | 6 | 0° | `#b01006` hoả |
+| VII Như Ý | 7 | 210° | `#194880` bạc |
+
 ## 2. Khung phải làm được gì (yêu cầu đo được, không phải thẩm mỹ)
 
 Điều kiện tiên quyết: **bậc phải đọc được mà không cần hiểu chữ Hán và không cần đọc hết nhãn.**

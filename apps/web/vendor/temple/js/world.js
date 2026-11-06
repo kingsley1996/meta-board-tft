@@ -37,7 +37,7 @@ function phapDanh(used) {
   }
   return 'Phật tử';
 }
-import { labelTex, danhHieuLabelTex, frameReady, rand, canvasTex } from './textures.js';
+import { labelTex, danhHieuLabelTex, frameReady, fxReady, rand, canvasTex } from './textures.js';
 import { rungOf } from './ladder.js';
 import { drawIcon, emoteColor, EMOTES } from './icons.js';
 
@@ -56,9 +56,10 @@ const lerpAngle = (a, b, t) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) 
 export { phapDanh };
 const playerLabel = (p) => danhHieuLabelTex(p.name, p.title, p.level);
 // Tên/bậc/khung đổi (hoặc asset vừa nạp xong) thì vẽ lại nhãn; gộp một chỗ để nhãn
-// của mình và của người khác dùng chung phép so.
-const labelTag = (p) => p.name + '|' + p.level + '|' + (p.title || '') + '|' + (frameReady(p.level) ? 1 : 0);
-const fitLabel = (label) => { label.scale.set(1.6 / AV_SCALE, 0.6 / AV_SCALE, 1); label.position.y = 2.45; };
+// của mình và của người khác dùng chung phép so. Sprite sét phải chờ đủ bảy tệp vì thiếu
+// một tệp là 6 frame chỉ còn nét viền, và nhãn sẽ không bao giờ được dựng lại nữa.
+const labelTag = (p) => [p.name, p.level, p.title || '', frameReady(p.level) ? 1 : 0, fxReady() ? 1 : 0].join('|');
+const fitLabel = (label) => { label.scale.set(1.6 / AV_SCALE, 0.7 / AV_SCALE, 1); label.position.y = 2.5; };
 
 export class World {
   constructor(canvas, joyEl, itemsById) {
@@ -927,6 +928,25 @@ export class World {
     }
     this.petT = 0;
   }
+  // Sét trên chữ hạng đã được nung sẵn 6 ô nằm ngang trong ảnh nhãn, nên nhịp hoạt
+  // ảnh chỉ là dời cửa sổ UV sang ô kế tiếp: không vẽ lại canvas, không nạp lại
+  // texture, không đụng material.needsUpdate (three refresh uniform sprite mỗi frame).
+  tickBolt(time) {
+    const labels = [];
+    if (this.player?.label) labels.push(this.player.label);
+    for (const r of this.remotes.values()) if (r.label) labels.push(r.label);
+    const still = this.perfLevel >= 2 || this.showNames === false;
+    const step = Math.floor(time * 10);
+    for (const l of labels) {
+      const map = l.material.map;
+      const F = map?.frames;
+      if (!F || F < 2) continue;
+      // Pha phải là số ô nguyên: offset.x giữa hai ô là cắt đôi spritesheet, một nửa
+      // nhãn hiện chữ của người này ghép khung của người kia.
+      if (l.fxPhase === undefined) l.fxPhase = Math.floor(rand(0, F));
+      map.offset.x = (still ? F >> 1 : (step + l.fxPhase) % F) / F;
+    }
+  }
   rankRemotes() {
     const me = this.player?.root.position, L = this.perfLevel;
     if (!me) return;
@@ -1257,6 +1277,7 @@ export class World {
     this._ctxT = (this._ctxT || 0) + dt;
     if (this._ctxT > 0.2) { this._ctxT = 0; this.emitContext(); }
 
+    this.tickBolt(time);
     this.renderer.render(this.scene, this.camera);
   }
 
