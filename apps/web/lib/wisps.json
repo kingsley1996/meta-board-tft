@@ -4,8 +4,8 @@
     "tierList": "https://api-hc.metatft.com/tft-stat-api/wisp_tiers",
     "lookup": "https://data.metatft.com/lookups/TFTSet18_latest_en_us.json",
     "lookupVi": "https://data.metatft.com/lookups/TFTSet18_latest_vi_vn.json",
-    "fetchedAt": "2026-11-04T05:33:23.163Z",
-    "tierListUpdated": "2026-11-04T05:33:08.974Z",
+    "fetchedAt": "2026-11-06T08:25:17.750Z",
+    "tierListUpdated": "2026-11-06T08:25:01.184Z",
     "curatedAt": "2026-11-01T01:03:38.561Z",
     "tftSet": "TFTSet18",
     "lookupPatch": "pbe",
@@ -23,27 +23,6 @@
         "patch": "18.4",
         "was": null,
         "now": 5
-      },
-      {
-        "name": "Hand Of Baron",
-        "variant": "base",
-        "patch": "18.5",
-        "was": 6,
-        "now": 4
-      },
-      {
-        "name": "Blood and Iron",
-        "variant": "base",
-        "patch": "18.5",
-        "was": 3,
-        "now": 4
-      },
-      {
-        "name": "Abandon Ship",
-        "variant": "base",
-        "patch": "18.5",
-        "was": 0,
-        "now": 2
       },
       {
         "name": "Three Me",
@@ -89,27 +68,15 @@
       },
       {
         "name": "Search Party",
-        "variant": "base",
-        "patch": "18.4b",
-        "was": 3,
-        "now": 1
-      },
-      {
-        "name": "Search Party",
         "variant": "upgrade",
         "patch": "18.4b",
-        "was": 3,
+        "was": 1,
         "now": 0
-      },
-      {
-        "name": "Moonlight Ritual",
-        "variant": "base",
-        "patch": "18.5b",
-        "was": 2,
-        "now": 3
       }
     ],
     "missingLookup": [
+      "DA_18_SuperCritical",
+      "DA_FoundBigFriend18",
       "DA_CrystalBall18"
     ]
   },
@@ -133,7 +100,7 @@
       "nameVi": "Rời Tàu",
       "tier": "S",
       "category": "Risky",
-      "cost": 0,
+      "cost": 2,
       "variant": "upgrade",
       "description": "Sell your board and bench, gain 10 gold and 10 rerolls.",
       "descriptionVi": "Bán toàn bộ bàn đấu và hàng chờ của bạn, nhận 10 vàng và 10 lượt đổi.",
@@ -354,7 +321,7 @@
       "nameVi": "Máu và Sắt",
       "tier": "S",
       "category": "Item",
-      "cost": 3,
+      "cost": 4,
       "variant": "upgrade",
       "description": "After 16 champion deaths, gain a component anvil.",
       "descriptionVi": "Sau 16 lần tướng tử trận, nhận 1 gói trang bị thành phần.",
@@ -835,7 +802,7 @@
       "nameVi": "Baron Chi Viện",
       "tier": "S",
       "category": "Combat",
-      "cost": 6,
+      "cost": 4,
       "variant": "upgrade",
       "description": "Your team gains Baron Buff, greatly increasing their stats.",
       "descriptionVi": "Đội của bạn nhận Bùa Baron, tăng mạnh chỉ số cho họ.",
@@ -1208,29 +1175,16 @@
     },
     {
       "apiName": "DA_18_SuperCritical",
-      "name": "Supercritical",
-      "nameVi": "Siêu Chí Mạng",
+      "name": "Super Critical",
+      "nameVi": null,
       "tier": "S",
-      "category": "Combat",
-      "cost": 2,
+      "category": null,
+      "cost": null,
       "variant": "base",
-      "description": "Allies with Precision gain 25% Critical Strike Damage.",
-      "descriptionVi": "Các đồng minh có Chuẩn Xác nhận 25% Sát Thương Chí Mạng.",
-      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
-      "round": "4-2 → 10-1"
-    },
-    {
-      "apiName": "DA_18_SupercriticalUpgrade",
-      "name": "Supercritical",
-      "nameVi": "Siêu Chí Mạng",
-      "tier": "S",
-      "category": "Combat",
-      "cost": 2,
-      "variant": "upgrade",
-      "description": "Allies with Precision gain 40% Critical Strike Damage.",
-      "descriptionVi": "Các đồng minh có Chuẩn Xác nhận 40% Sát Thương Chí Mạng.",
-      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
-      "round": "4-2 → 10-1"
+      "description": null,
+      "descriptionVi": null,
+      "icon": null,
+      "round": null
     },
     {
       "apiName": "DA_ThingamajigJar18",
@@ -1383,8 +1337,8 @@
       "category": "GoldXP",
       "cost": 0,
       "variant": "base",
-      "description": "The wilds couldn't find a wisp for you this roll. Gain 3 gold.",
-      "descriptionVi": "Đại ngàn không tìm được tinh linh nào cho bạn trong lượt này. Nhận 3 vàng.",
+      "description": "The wilds couldn't find a wisp for you this roll. Gain 2 gold.",
+      "descriptionVi": "Đại ngàn không tìm được tinh linh nào cho bạn trong lượt này. Nhận 2 vàng.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_goldxp_tier1.png",
       "round": "2-1 → 10-1"
     },
@@ -1396,8 +1350,8 @@
       "category": "GoldXP",
       "cost": 0,
       "variant": "upgrade",
-      "description": "The wilds couldn't find a wisp for you this roll. Gain 5 gold.",
-      "descriptionVi": "Đại ngàn không tìm được tinh linh nào cho bạn trong lượt này. Nhận 5 vàng.",
+      "description": "The wilds couldn't find a wisp for you this roll. Gain 3 gold.",
+      "descriptionVi": "Đại ngàn không tìm được tinh linh nào cho bạn trong lượt này. Nhận 3 vàng.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_goldxp_tier1.png",
       "round": "2-1 → 10-1"
     },
@@ -1526,8 +1480,8 @@
       "category": "Item",
       "cost": 17,
       "variant": "base",
-      "description": "Open an item store. Items cost 0 to 15 gold.",
-      "descriptionVi": "Mở cửa hàng trang bị. Trang bị có giá từ 0 đến 15 vàng.",
+      "description": "Open an item store. Items cost 0 to 17 gold.",
+      "descriptionVi": "Mở cửa hàng trang bị. Trang bị có giá từ 0 đến 17 vàng.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_item_tier2.png",
       "round": "3-1 → 4-7"
     },
@@ -1539,8 +1493,8 @@
       "category": "Item",
       "cost": 0,
       "variant": "upgrade",
-      "description": "Open an item store. Items cost 0 to 15 gold. Gain 1 Gold.",
-      "descriptionVi": "Mở cửa hàng trang bị. Trang bị có giá từ 0 đến 15 vàng. Nhận 1 Vàng.",
+      "description": "Open an item store. Items cost 0 to 17 gold. Gain 1 Gold.",
+      "descriptionVi": "Mở cửa hàng trang bị. Trang bị có giá từ 0 đến 17 vàng. Nhận 1 Vàng.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_item_tier2.png",
       "round": "3-5 → 5-7"
     },
@@ -1712,6 +1666,19 @@
       "descriptionVi": "Nhận 3 bản sao của 1 tướng 2 vàng mà bạn chưa sở hữu.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_champion_tier2.png",
       "round": "2-1 → 2-7"
+    },
+    {
+      "apiName": "DA_FoundBigFriend18",
+      "name": "Found Big Friend",
+      "nameVi": null,
+      "tier": "A",
+      "category": null,
+      "cost": null,
+      "variant": "base",
+      "description": null,
+      "descriptionVi": null,
+      "icon": null,
+      "round": null
     },
     {
       "apiName": "DA_18_GiantGrowth",
@@ -2180,32 +2147,6 @@
       "descriptionVi": "Tướng Đỡ Đòn được giảm 18 sát thương nhận vào mỗi lần bị tấn công.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier1.png",
       "round": "4-2 → 10-1"
-    },
-    {
-      "apiName": "DA_FoundBigFriend18",
-      "name": "Returning Friend",
-      "nameVi": "Bạn Bè Trở Lại",
-      "tier": "A",
-      "category": "Combat",
-      "cost": 0,
-      "variant": "base",
-      "description": "Gain a temporary Training Dummy with two Giant's Belts.",
-      "descriptionVi": "Nhận tạm thời 1 Hình Nhân mang 2 Đai Khổng Lồ.",
-      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier1.png",
-      "round": "4-2 → 5-7"
-    },
-    {
-      "apiName": "DA_FoundBigFriend18_Upgrade",
-      "name": "Returning Friend",
-      "nameVi": "Bạn Bè Trở Lại",
-      "tier": "A",
-      "category": "Combat",
-      "cost": 0,
-      "variant": "upgrade",
-      "description": "Gain a Training Dummy with Three Giant's Belts.",
-      "descriptionVi": "Nhận 1 Hình Nhân mang 3 Đai Khổng Lồ.",
-      "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier1.png",
-      "round": "4-2 → 5-7"
     },
     {
       "apiName": "DA_RolyPolys18",
@@ -2884,7 +2825,7 @@
       "round": "4-2 → 5-7"
     },
     {
-      "apiName": "DA_18_Drizzle_Upgrade",
+      "apiName": "DA_18_DrizzleUpgrade",
       "name": "Drizzle",
       "nameVi": "Rả Rích",
       "tier": "B",
@@ -3180,10 +3121,10 @@
       "description": "Your highest Health champion gains 15 Armor and 15 Magic Resist.",
       "descriptionVi": "Tướng nhiều Máu nhất của bạn nhận được 15 Giáp và 15 Kháng Phép.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier1.png",
-      "round": "4-2 → 5-7"
+      "round": "3-1 → 5-7"
     },
     {
-      "apiName": "DA_18_GroveArmor_Upgrade",
+      "apiName": "DA_18_GroveArmorUpgrade",
       "name": "Grove Armor",
       "nameVi": "Giáp Cây",
       "tier": "B",
@@ -3193,7 +3134,7 @@
       "description": "Your highest Health champion gains 25 Armor and 25 Magic Resist.",
       "descriptionVi": "Tướng nhiều Máu nhất của bạn nhận được 25 Giáp và 25 Kháng Phép.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier1.png",
-      "round": "4-2 → 5-7"
+      "round": "3-1 → 5-7"
     },
     {
       "apiName": "DA_HealthPotion18_Charm",
@@ -3203,7 +3144,7 @@
       "category": "Misc",
       "cost": 1,
       "variant": "base",
-      "description": "Gain a tempoary equippable Health Potion.",
+      "description": "Gain a temporary equippable Health Potion.",
       "descriptionVi": "Nhận 1 Bình Máu tạm thời có thể trang bị.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_misc_tier1.png",
       "round": "3-1 → 4-7"
@@ -4774,7 +4715,7 @@
       "nameVi": "Nghi Thức Ánh Trăng",
       "tier": "C",
       "category": "Combat",
-      "cost": 2,
+      "cost": 3,
       "variant": "upgrade",
       "description": "Your two lowest star 1-cost or 2-cost champions star up in combat.",
       "descriptionVi": "2 tướng 1 vàng hoặc 2 vàng có cấp sao thấp nhất của bạn sẽ được nâng sao trong giao tranh.",
@@ -4919,7 +4860,7 @@
       "category": "Combat",
       "cost": 1,
       "variant": "upgrade",
-      "description": "Gain a temporary Lifeblossom.",
+      "description": "Gain a temporary Lifebloom.",
       "descriptionVi": "Nhận 1 Hoa Sinh Mệnh tạm thời.",
       "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_combat_tier2.png",
       "round": "3-1 → 4-7"
