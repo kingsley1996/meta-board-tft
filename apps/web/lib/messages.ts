@@ -1094,7 +1094,7 @@ const vi: typeof en = {
     searchKinds: { champion: 'Tướng', item: 'Trang bị', augment: 'Nâng cấp', trait: 'Tộc hệ', comp: 'Đội hình' },
     itemPriority: 'Trang bị ưu tiên',
     compMap: 'Bản đồ comp',
-    temple: 'Chùa cầu may',
+    temple: 'Đền Cầu May',
   },
   itemPriority: {
     kicker: 'Trang bị ưu tiên',

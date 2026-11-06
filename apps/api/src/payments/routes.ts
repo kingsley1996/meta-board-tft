@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express';
-import { currentSessionUser } from '../auth-routes.ts';
+import { currentAccountUser } from '../auth-routes.ts';
 import { readPaymentProviders, PaymentProviderError, type PaymentProviderRegistry } from './index.ts';
 import { createOrder, getOrder, handleWebhook, listOrders, reconcileOrder } from '../membership/orders.ts';
 
@@ -31,7 +31,8 @@ function noStore(res: Response): void {
 }
 
 async function userId(req: Request, res: Response): Promise<string | null> {
-  const user = await currentSessionUser(req);
+  // An order is charged to an email, so a temple `is_guest` row cannot open one.
+  const user = await currentAccountUser(req);
   if (!user) {
     res.status(401).json({ error: 'Sign in to buy a plan.', code: 'unauthenticated' });
     return null;

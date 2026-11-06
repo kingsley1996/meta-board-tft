@@ -1,4 +1,4 @@
-# Review chức năng "Chùa Cầu May"
+# Review chức năng "Đền Cầu May"
 
 - **Ngày:** 2026-11-05
 - **Phạm vi:** `apps/web/components/temple/*`, `apps/api/src/temple/*`

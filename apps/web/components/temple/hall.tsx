@@ -11,7 +11,8 @@ import { get, post, put } from './api';
 import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, TRACKS, local, sectOf } from './engine';
 import { luckyShower } from './effects';
 import { guideOf, storyOf } from './stories';
-import { Icon, Sheet, TitleBadge, ago, fmt, type Look, type Store } from './ui';
+import { REALMS, REALM_ABOUT, ROMAN, realmLevels, rungOf } from '@/vendor/temple/js/ladder.js';
+import { GuestGate, Icon, Sheet, TitleBadge, ago, fmt, type Look, type Store } from './ui';
 
 type RankRow = { rank: number; id: number; name: string; sect: string; title: string; honor: string; score: number; you: boolean };
 type Board = { scope: string; rows: RankRow[]; sects: { sect: string; score: number }[]; me: { rank: number | null; score: number } };
@@ -140,7 +141,7 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   const give = async () => {
     try {
       const r = await post<Gain>('/donations', { amount, note: note.trim() });
-      s.apply({ state: r.state, gained: r.gained });
+      s.apply(r);
       setNote('');
       Sound.spark();
       luckyShower(24);
@@ -164,22 +165,28 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
             <small>Tên bạn hiện trên bảng đồng hành theo số Tinh Hoa đã gửi.</small>
           </div>
         </div>
-        <div className="chips">
-          {DONATE_CHIPS.map((n) => (
-            <button key={n} className={n === amount ? 'on' : ''} onClick={() => setAmount(n)}>
-              <Icon name="hex" /> {n}
-            </button>
-          ))}
-        </div>
-        <div className="sg-form">
-          <input maxLength={120} placeholder="Lời nhắn (không bắt buộc)" value={note} onChange={(e) => setNote(e.target.value)} />
-          <button className="btn gold" disabled={amount > (s.state?.sen ?? 0)} onClick={() => void give()}>
-            Gửi {fmt(amount)} Tinh Hoa
-          </button>
-        </div>
-        <p className="muted">
-          Ví đang có {fmt(s.state?.sen ?? 0)} Tinh Hoa.
-        </p>
+        {s.guest ? (
+          <GuestGate s={s} what="Bảng đồng hành" />
+        ) : (
+          <>
+            <div className="chips">
+              {DONATE_CHIPS.map((n) => (
+                <button key={n} className={n === amount ? 'on' : ''} onClick={() => setAmount(n)}>
+                  <Icon name="hex" /> {n}
+                </button>
+              ))}
+            </div>
+            <div className="sg-form">
+              <input maxLength={120} placeholder="Lời nhắn (không bắt buộc)" value={note} onChange={(e) => setNote(e.target.value)} />
+              <button className="btn gold" disabled={amount > (s.state?.sen ?? 0)} onClick={() => void give()}>
+                Gửi {fmt(amount)} Tinh Hoa
+              </button>
+            </div>
+            <p className="muted">
+              Ví đang có {fmt(s.state?.sen ?? 0)} Tinh Hoa.
+            </p>
+          </>
+        )}
         <div className="region">Bảng đồng hành</div>
         {rows.map((r, i) => (
           <div className="rank-row" key={r.name}>
@@ -241,19 +248,25 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
 
   return (
     <Sheet title="Hồ sơ" onClose={onClose}>
-      <form
-        className="sg-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (dirty) void patch({ name: trimmed }, 'Đã đổi tên');
-        }}
-      >
-        <input value={name} maxLength={28} onChange={(e) => setName(e.target.value)} placeholder="Tên hiển thị" aria-label="Tên hiển thị" />
-        <button className="btn small gold" disabled={!dirty || busy}>
-          Đổi tên
-        </button>
-      </form>
-      <p className="muted">Tối đa 28 chữ, mọi người trong sảnh thấy tên này.</p>
+      {s.guest ? (
+        <GuestGate s={s} what="Việc đổi tên" />
+      ) : (
+        <>
+          <form
+            className="sg-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (dirty) void patch({ name: trimmed }, 'Đã đổi tên');
+            }}
+          >
+            <input value={name} maxLength={28} onChange={(e) => setName(e.target.value)} placeholder="Tên hiển thị" aria-label="Tên hiển thị" />
+            <button className="btn small gold" disabled={!dirty || busy}>
+              Đổi tên
+            </button>
+          </form>
+          <p className="muted">Tối đa 28 chữ, mọi người trong sảnh thấy tên này.</p>
+        </>
+      )}
       <div className="hero-grid modal-hero-grid">
         {HEROES.map((h) => (
           <button
@@ -329,7 +342,7 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   const use = async (id: string) => {
     try {
       const r = await post<Gain & { left: number }>('/use', { item: id });
-      s.apply({ state: r.state, gained: r.gained });
+      s.apply(r);
       if (id === 'huong_tram' || id === 'nen_sap' || id === 'hoa_dang') s.engine?.offer(id);
       Sound.tap();
     } catch (e) {
@@ -434,6 +447,29 @@ export function GuideSheet({ s, onClose }: { s: Store; onClose: () => void }) {
         <p>Kéo nửa trái màn hình để đi, vuốt nửa phải để xoay góc nhìn. Chạm bệ ngồi để ngồi.</p>
         <p>Cầu may · Thiền · Dâng bùa · Quét sân. Mọi con số Điểm May Mắn đều do máy chủ tính, kể cả khi bạn đổi thiết bị.</p>
         <p>Máy tính: W A S D đi lại · B cầu may · E ngồi/đứng.</p>
+        <h4>
+          <Icon name="medal" /> Bảy vận cầu may
+        </h4>
+        <p className="muted">
+          Thang có 19 mốc, gom lại thành bảy vận — ba bậc một vận, riêng đỉnh Như Ý một bậc. Vận nào khung
+          ấy, ấn ấy; bạn đang ở {s.state ? `vận ${ROMAN[rungOf(s.state.level).realm - 1]}` : 'vận đầu'}.
+        </p>
+        <div className="realm-list">
+          {REALMS.map((name, i) => {
+            const [from, to] = realmLevels(i + 1);
+            return (
+              <div className={`realm-row${s.state && rungOf(s.state.level).realm === i + 1 ? ' on' : ''}`} key={name}>
+                <TitleBadge title={name} size={30} />
+                <div className="rl-body">
+                  <b>
+                    {name} <small>· bậc {from === to ? from : `${from}–${to}`}</small>
+                  </b>
+                  <p>{REALM_ABOUT[i]}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </Sheet>
   );

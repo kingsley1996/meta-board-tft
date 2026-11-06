@@ -4,7 +4,7 @@ import { TempleApp } from '@/components/temple/temple-app';
 import { isLang } from '@/lib/i18n';
 
 const titles: Record<string, string> = {
-  vi: 'Chùa Cầu May · TFTIQ',
+  vi: 'Đền Cầu May · TFTIQ',
   en: 'Lucky Temple · TFTIQ',
 };
 

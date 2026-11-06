@@ -11,7 +11,7 @@ import { get, post } from './api';
 import { ITEMS, Sound, TEMPLE, sectOf } from './engine';
 import { ABBOT, HERMIT_LESSONS, WISHES, guideOf, storyOf, tellersOf } from './stories';
 import { rungLabel } from '@/vendor/temple/js/ladder.js';
-import { Icon, Sheet, TitleBadge, ago, esc, fmt, type Notice, type Store } from './ui';
+import { GuestGate, Icon, Sheet, TitleBadge, ago, esc, fmt, type Notice, type Store } from './ui';
 
 export type Group = {
   id: number;
@@ -128,28 +128,34 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
           </div>
         </>
       ) : null}
-      <div className="region">Gửi lời chúc</div>
-      <div className="pcard-greets">
-        {WISHES.map((w) => (
-          <button className="chip" key={w} onClick={() => void greet('chuc', w)}>
-            {w}
-          </button>
-        ))}
-      </div>
-      <div className="pcard-own">
-        <input maxLength={80} placeholder="Hoặc tự viết lời chúc…" value={wish} onChange={(e) => setWish(e.target.value)} />
-        <button className="btn small gold" disabled={!wish.trim()} onClick={() => void greet('chuc', wish.trim())}>
-          Gửi
-        </button>
-      </div>
-      <div className="pcard-acts">
-        <button className="btn" onClick={() => void greet('huong', '')}>
-          <Icon name="incense" /> Tặng bùa
-        </button>
-        <button className="btn" onClick={() => void befriend()}>
-          <Icon name="users" /> Kết bạn đồng đội
-        </button>
-      </div>
+      {s.guest ? (
+        <GuestGate s={s} what="Tặng quà và kết bạn" />
+      ) : (
+        <>
+          <div className="region">Gửi lời chúc</div>
+          <div className="pcard-greets">
+            {WISHES.map((w) => (
+              <button className="chip" key={w} onClick={() => void greet('chuc', w)}>
+                {w}
+              </button>
+            ))}
+          </div>
+          <div className="pcard-own">
+            <input maxLength={80} placeholder="Hoặc tự viết lời chúc…" value={wish} onChange={(e) => setWish(e.target.value)} />
+            <button className="btn small gold" disabled={!wish.trim()} onClick={() => void greet('chuc', wish.trim())}>
+              Gửi
+            </button>
+          </div>
+          <div className="pcard-acts">
+            <button className="btn" onClick={() => void greet('huong', '')}>
+              <Icon name="incense" /> Tặng bùa
+            </button>
+            <button className="btn" onClick={() => void befriend()}>
+              <Icon name="users" /> Kết bạn đồng đội
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -437,45 +443,51 @@ export function FriendsSheet({ s, notice, onClose }: { s: Store; notice: Notice 
               <small>Chạm vào một người chơi trong sảnh để gửi lời chúc, tặng bùa hoặc kết bạn.</small>
             </div>
           </div>
-          {list.incoming.length ? (
+          {s.guest ? (
+            <GuestGate s={s} what="Kết bạn" />
+          ) : (
             <>
-              <div className="region">Lời mời kết bạn</div>
-              {list.incoming.map((p) =>
-                row(
-                  p,
-                  <>
-                    <button className="btn small gold" onClick={() => void act(p.id, 'accept')}>
-                      Đồng ý
-                    </button>
-                    <button className="btn small ghost" onClick={() => void act(p.id, 'decline')}>
-                      Từ chối
-                    </button>
-                  </>,
-                ),
-              )}
+              {list.incoming.length ? (
+                <>
+                  <div className="region">Lời mời kết bạn</div>
+                  {list.incoming.map((p) =>
+                    row(
+                      p,
+                      <>
+                        <button className="btn small gold" onClick={() => void act(p.id, 'accept')}>
+                          Đồng ý
+                        </button>
+                        <button className="btn small ghost" onClick={() => void act(p.id, 'decline')}>
+                          Từ chối
+                        </button>
+                      </>,
+                    ),
+                  )}
+                </>
+              ) : null}
+              <div className="region">Đồng đội ({list.friends.length})</div>
+              {list.friends.map((p) => row(p))}
+              {!list.friends.length ? (
+                <div className="wish-empty">
+                  <Icon name="users" />
+                  <p>Chưa có đồng đội. Chạm vào một người chơi trong sảnh để kết bạn.</p>
+                </div>
+              ) : null}
+              {list.outgoing.length ? (
+                <>
+                  <div className="region">Đang chờ đồng ý</div>
+                  {list.outgoing.map((p) =>
+                    row(
+                      p,
+                      <button className="btn small ghost" onClick={() => void act(p.id, 'remove')}>
+                        Thu hồi
+                      </button>,
+                    ),
+                  )}
+                </>
+              ) : null}
             </>
-          ) : null}
-          <div className="region">Đồng đội ({list.friends.length})</div>
-          {list.friends.map((p) => row(p))}
-          {!list.friends.length ? (
-            <div className="wish-empty">
-              <Icon name="users" />
-              <p>Chưa có đồng đội. Chạm vào một người chơi trong sảnh để kết bạn.</p>
-            </div>
-          ) : null}
-          {list.outgoing.length ? (
-            <>
-              <div className="region">Đang chờ đồng ý</div>
-              {list.outgoing.map((p) =>
-                row(
-                  p,
-                  <button className="btn small ghost" onClick={() => void act(p.id, 'remove')}>
-                    Thu hồi
-                  </button>,
-                ),
-              )}
-            </>
-          ) : null}
+          )}
         </div>
       ) : null}
 
@@ -649,18 +661,24 @@ export function GroupSheet({ s, onClose }: { s: Store; onClose: () => void }) {
               <small>Lập tổ đội rồi gửi mã mời cho bạn bè; tối đa 8 người.</small>
             </div>
           </div>
-          <div className="sg-form">
-            <input maxLength={30} placeholder="Tên tổ đội (VD: Gia Đình Sao Đỏ)" value={name} onChange={(e) => setName(e.target.value)} />
-            <button className="btn gold" disabled={name.trim().length < 2} onClick={() => void call('/group', { name: name.trim() })}>
-              Lập mới
-            </button>
-          </div>
-          <div className="sg-form">
-            <input maxLength={6} placeholder="Mã mời (6 ký tự)" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} />
-            <button className="btn" disabled={code.trim().length < 4} onClick={() => void call('/group/join', { code: code.trim() })}>
-              Gia nhập
-            </button>
-          </div>
+          {s.guest ? (
+            <GuestGate s={s} what="Tổ đội" />
+          ) : (
+            <>
+              <div className="sg-form">
+                <input maxLength={30} placeholder="Tên tổ đội (VD: Gia Đình Sao Đỏ)" value={name} onChange={(e) => setName(e.target.value)} />
+                <button className="btn gold" disabled={name.trim().length < 2} onClick={() => void call('/group', { name: name.trim() })}>
+                  Lập mới
+                </button>
+              </div>
+              <div className="sg-form">
+                <input maxLength={6} placeholder="Mã mời (6 ký tự)" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} />
+                <button className="btn" disabled={code.trim().length < 4} onClick={() => void call('/group/join', { code: code.trim() })}>
+                  Gia nhập
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </Sheet>

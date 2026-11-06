@@ -100,6 +100,7 @@ const MESSAGES: Record<string, string> = {
   greeting_not_found: 'Phần quà này đã mở rồi',
   invalid_wish: 'Lời nguyện quá dài',
   unknown_offering: 'Sảnh không nhận vật phẩm này',
+  guest_account_required: 'Chức năng này cần tài khoản — đăng ký để giữ lại điểm đang có nhé',
 };
 
 export async function templeApi<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {

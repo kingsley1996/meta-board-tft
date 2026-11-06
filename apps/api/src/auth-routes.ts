@@ -104,6 +104,19 @@ export async function currentSessionUser(req: Request): Promise<AuthUser | null>
   }
 }
 
+// Hàng `is_guest` mà đền cấp (email g-…@guest.invalid, không mật khẩu) chỉ là một
+// chỗ ngồi trong sảnh, không phải một tài khoản. Nếu phần còn lại của site nhận ra
+// nó thì người vừa bấm "Vào với tư cách khách" quay ra TFTIQ sẽ thấy mình "đang đăng
+// nhập" một người lạ, trang /login đá thẳng vào /profile nên không thể đăng ký, và
+// Coach/checkout tính cước cho một hộp thư không tồn tại. Vì vậy mọi tuyến ngoài
+// /api/temple dùng hàm này: khách = chưa đăng ký.
+// /api/auth/register vẫn đọc sessionUser thô (auth-routes.ts:148) để promoteGuest kịp
+// nâng cấp đúng hàng khách đang giữ điểm.
+export async function currentAccountUser(req: Request): Promise<AuthUser | null> {
+  const user = await currentSessionUser(req);
+  return user && !user.isGuest ? user : null;
+}
+
 export const authRouter = Router();
 
 // Public configuration must remain available even when the database is down.
@@ -229,7 +242,7 @@ authRouter.post('/logout', async (req, res) => {
 });
 
 authRouter.get('/me', async (req, res) => {
-  const user = await currentSessionUser(req);
+  const user = await currentAccountUser(req);
   if (!user) return res.status(401).json({ error: 'not signed in', code: 'unauthenticated' });
   res.json({ user });
 });

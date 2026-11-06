@@ -324,6 +324,19 @@
 #temple-root .prose .lead { font-size: 15.5px; font-style: italic; color: #5a4128; border-left: 3px solid var(--gold2); padding-left: 10px; }
 #temple-root .prose .src { font-size: 12px; color: var(--muted); }
 #temple-root .prose .src a { color: var(--gold2); word-break: break-all; }
+/* Bảy vận: cẩm nang liệt kê đủ 7, modal lên bậc trích một dòng. */
+#temple-root .realm-list { display: grid; gap: 6px; margin: 4px 0 10px; }
+#temple-root .realm-row { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 14px; background: #fff; border: 1px solid #f1e5cf; }
+#temple-root .realm-row.on { border-color: var(--gold2); background: #fffaf1; }
+#temple-root .realm-row img { flex: 0 0 auto; }
+#temple-root .realm-row b { font-size: 14.5px; color: #3b2a1a; }
+#temple-root .realm-row b small { font-weight: 400; color: var(--muted); font-size: 12px; }
+#temple-root .realm-row p { margin: 2px 0 0; font-size: 13.5px; font-style: italic; color: #5a4128; }
+#temple-root .realm-about { font-style: italic; color: #7a5210; }
+/* Lời mời đăng ký thế chỗ những nút khách không được bấm. */
+#temple-root .gate { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 13px; color: #7a5210; background: #fffaf1; border: 1px dashed var(--gold2); border-radius: 12px; padding: 8px 10px; margin: 6px 0; }
+#temple-root .gate .i { width: 15px; height: 15px; }
+#temple-root .gate a { color: var(--gold); font-weight: 700; }
 #temple-root .guide-hero { display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 16px; color: #fff; margin-bottom: 10px; }
 #temple-root .guide-hero .i { width: 46px; height: 46px; background: rgba(255,255,255,.9); border-radius: 14px; padding: 6px; }
 #temple-root .guide-hero b { font-size: 18px; display: block; } #temple-root .guide-hero small { opacity: .9; }
@@ -393,6 +406,10 @@
 #temple-root .loader h2 { font-size: 20px; margin-top: 6px; }
 #temple-root .loader small { display: block; margin-top: 8px; font-size: 12px; color: #c8b08a; min-height: 16px; }
 #temple-root .loader .quote { margin-top: 22px; font-size: 14px; font-style: italic; color: #e6d3b3; line-height: 1.6; opacity: 0; animation: fadein 1s .4s forwards; }
+/* Khối chọn lối vào: nền màn chờ tối nên nút ghost phải sáng hơn nền, không tối hơn. */
+#temple-root .loader-acts { display: grid; gap: 8px; margin-top: 18px; }
+#temple-root .loader .btn.ghost { background: rgba(251,227,174,.12); color: #fbe3ae; border: 1px solid rgba(251,227,174,.28); }
+#temple-root a.btn { text-decoration: none; }
 @keyframes fadein { to { opacity: 1; } }
 /* khung xương khi tải dữ liệu */
 #temple-root .skel { border-radius: 14px; margin-bottom: 8px; height: 64px; background: linear-gradient(100deg, #efe5d3 30%, #f8f1e5 50%, #efe5d3 70%); background-size: 300% 100%; animation: shimmer 1.2s linear infinite; }

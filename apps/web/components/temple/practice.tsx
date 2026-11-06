@@ -6,7 +6,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { get, post, type TempleState } from './api';
+import { get, post, type Gain, type TempleState } from './api';
 import { Sound } from './engine';
 import { luckyShower } from './effects';
 import { Icon, Modal, fmt, type Store } from './ui';
@@ -265,7 +265,7 @@ export function WheelView({ s }: { s: Store }) {
 // ---- Quẻ đội hình ------------------------------------------------------------
 
 export type QueCard = { rank: string; name: string; text: string; advice: string };
-type QueDraw = { state: TempleState; que: QueCard; already: boolean; gained: number };
+type QueDraw = { state: TempleState; que: QueCard; already: boolean; gained: number; level_ups?: Gain['level_ups'] };
 
 export function QueCardView({ q }: { q: QueCard }) {
   return (
@@ -301,7 +301,7 @@ export function QueModal({ s, onClose }: { s: Store; onClose: () => void }) {
     try {
       const r = await post<QueDraw>('/draws/que');
       setQue(r.que);
-      s.apply({ state: r.state, gained: r.already ? 0 : r.gained });
+      s.apply({ state: r.state, gained: r.already ? 0 : r.gained, level_ups: r.level_ups });
       Sound.spark();
       luckyShower(14);
     } catch (e) {

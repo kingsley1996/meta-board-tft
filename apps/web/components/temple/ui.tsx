@@ -53,6 +53,27 @@ export type Store = {
 
 export const fmt = (n: number) => Number(n || 0).toLocaleString('vi-VN');
 
+// /login?next= đưa người chơi quay lại đúng sảnh đền, và /api/auth/register nâng cấp
+// chính hàng khách đang có phiên (apps/api/src/accounts.ts:promoteGuest) — đăng ký
+// không phải làm lại từ đầu.
+export function loginUrls(lang: string): { login: string; signup: string } {
+  const next = `/${lang}/temple`;
+  return { login: `/${lang}/login?next=${next}`, signup: `/${lang}/login?mode=signup&next=${next}` };
+}
+
+// Khách bị máy chủ chặn mọi hành động social (403 guest_account_required). Vẽ nút rồi
+// để người chơi nhận một dòng lỗi đỏ là vô duyên, nên HUD thay hẳn chỗ nút bằng lời
+// mời đăng ký.
+export function GuestGate({ s, what }: { s: Store; what: string }) {
+  if (!s.guest) return null;
+  const { signup } = loginUrls(s.lang);
+  return (
+    <p className="gate">
+      <Icon name="lock" /> {what} cần một tài khoản. <a href={signup}>Đăng ký</a> — điểm đang có giữ nguyên.
+    </p>
+  );
+}
+
 export const esc = (t: unknown) =>
   String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string);
 

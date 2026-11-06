@@ -91,6 +91,37 @@ test(
 );
 
 test(
+  'a temple guest session is a visitor to the site, never an account',
+  { skip: !hasDb },
+  async () => {
+    const { pool } = await import('./db.ts');
+    const { createSession, createUser, deleteSession, hashPassword } = await import('./accounts.ts');
+    const { currentAccountUser, currentSessionUser } = await import('./auth-routes.ts');
+    const identity = await import('./temple/identity.ts');
+
+    // Both helpers only read req.headers.cookie, so a stub request is enough.
+    const withCookie = (token: string) => ({ headers: { cookie: `mb_session=${token}` } }) as never;
+
+    const guest = await identity.createGuest();
+    const real = await createUser({ email: `acct-${randomUUID()}@example.com`, passwordHash: await hashPassword('password-123') });
+    const realToken = await createSession(real.id);
+    try {
+      // The hall must still recognize its guest, or the luck points have no owner.
+      assert.equal((await currentSessionUser(withCookie(guest.token)))?.isGuest, true);
+      // ...but the nav, /profile, the Coach, membership and checkout must treat it as
+      // signed out: this row carries a g-…@guest.invalid email, so showing it as an
+      // account reads as a stranger the visitor never signed up as.
+      assert.equal(await currentAccountUser(withCookie(guest.token)), null);
+      assert.equal((await currentAccountUser(withCookie(realToken)))?.id, real.id, 'a real session is still an account');
+      assert.equal(await currentAccountUser(withCookie('nonsense')), null);
+    } finally {
+      await Promise.all([deleteSession(guest.token), deleteSession(realToken)]);
+      await pool.query('DELETE FROM users WHERE id = ANY($1::uuid[])', [[guest.user.id, real.id]]);
+    }
+  }
+);
+
+test(
   'role changes are validated and cannot demote the acting admin',
   { skip: !hasDb },
   async () => {

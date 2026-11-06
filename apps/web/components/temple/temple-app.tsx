@@ -16,8 +16,8 @@ import { TempleRoom, type RemotePlayer } from './room';
 import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, SteleSheet } from './hall';
 import { FriendsSheet, GroupSheet, NpcModal, PlayerCard, type NpcKind } from './people';
 import { MeditateView, QueModal, WheelView } from './practice';
-import { rungLabel, rungOf } from '@/vendor/temple/js/ladder.js';
-import { Icon, Modal, Sheet, TitleBadge, Toast, esc, fmt, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
+import { REALM_ABOUT, rungLabel, rungOf } from '@/vendor/temple/js/ladder.js';
+import { Icon, Modal, Sheet, TitleBadge, Toast, esc, fmt, loginUrls, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
 
 type LevelUp = { level: number; title: string; sen: number };
 type Ann = { id: number; text: string; effect: string };
@@ -68,6 +68,8 @@ export function TempleApp({ lang }: { lang: string }) {
   const [levelQueue, setLevelQueue] = useState<LevelUp[]>([]);
   // Boot fail thì màn chờ phải nói được lý do và cho bấm lại, chứ không đứng đó mãi.
   const [bootError, setBootError] = useState('');
+  // Màn chờ đang chờ người chơi chọn lối vào (khách / đăng nhập / đăng ký).
+  const [choice, setChoice] = useState(false);
   const [online, setOnline] = useState(1);
   const [ctxUi, setCtxUi] = useState<{ show: boolean; act: CtxAct; label: string; out: boolean; outside: boolean }>({ show: false, act: '', label: 'Ngồi xuống', out: false, outside: false });
   const [, setFsTick] = useState(0);
@@ -89,6 +91,12 @@ export function TempleApp({ lang }: { lang: string }) {
   const engRef = useRef<TempleEngine | null>(null);
   const roomRef = useRef<TempleRoom | null>(null);
   const startedRef = useRef(false);
+  // Màn chờ chỉ mờ dần khi cả hai việc đã xong: cảnh dựng xong (ready) và người chơi
+  // thực sự có phiên (entered). Trước đây ready là đủ, nên ai mở trang rồi bỏ đi cũng
+  // bị kéo vào sảnh với tư cách khách — đúng cái màn chờ mới phải ngăn.
+  const readyRef = useRef(false);
+  const enteredRef = useRef(false);
+  const revealedRef = useRef(false);
 
   const pendingBows = useRef(0);
   const bowsAt = useRef(Date.now());
@@ -310,6 +318,17 @@ export function TempleApp({ lang }: { lang: string }) {
     void roomRef.current.connect();
   };
 
+  // Màn chờ mờ dần rồi mới gỡ (.loader.out của bản gốc), không cắt phựt: chính cú cắt
+  // đó làm cảnh sảnh "nhảy" vào mặt người vừa bước qua cổng.
+  const reveal = () => {
+    if (revealedRef.current || !readyRef.current || !enteredRef.current) return;
+    revealedRef.current = true;
+    setLoaderPct(100);
+    window.setTimeout(() => setLoaderOut(true), 550);
+    window.setTimeout(() => setScreen('hud'), 1150);
+    window.setTimeout(() => setGuideFade(true), 9000);
+  };
+
   // Nối phòng + dựng engine: một lần trong đời trang, không phụ thuộc render.
   //
   // Tách phần "xin phiên → an vị → nối phòng" khỏi useEffect để màn chờ gọi lại được
@@ -347,10 +366,31 @@ export function TempleApp({ lang }: { lang: string }) {
         .then((a) => setAnns(a.rows))
         .catch(() => null);
       setWheelCan(false);
+      enteredRef.current = true;
+      reveal();
     } catch (e) {
       setLoaderPct(0);
       setBootError((e as Error).message || 'Sảnh đang bận, thử lại sau nhé');
     }
+  };
+
+  // Biết mình là ai trước khi xin phiên: /me trả 401 khi trình duyệt chưa có cookie
+  // nào, và khi chưa có ai chọn gì thì đền không được tự mọc một hàng users.
+  const probeSession = () => {
+    get<GuestReply>('/me')
+      .then((me) => void enterHall(Promise.resolve(me)))
+      .catch((e: unknown) => {
+        if ((e as TempleApiError).status === 401) setChoice(true);
+        else {
+          setLoaderPct(0);
+          setBootError((e as Error).message || 'Sảnh đang bận, thử lại sau nhé');
+        }
+      });
+  };
+
+  const enterAsGuest = () => {
+    setChoice(false);
+    void enterHall(post<GuestReply>('/guest'));
   };
 
   useEffect(() => {
@@ -368,12 +408,8 @@ export function TempleApp({ lang }: { lang: string }) {
         setLoaderStep(step);
       },
       onReady: () => {
-        setLoaderPct(100);
-        // Màn chờ mờ dần rồi mới gỡ (.loader.out của bản gốc), không cắt phựt: chính cú
-        // cắt đó làm cảnh sảnh "nhảy" vào mặt người vừa bước qua cổng.
-        window.setTimeout(() => setLoaderOut(true), 550);
-        window.setTimeout(() => setScreen('hud'), 1150);
-        window.setTimeout(() => setGuideFade(true), 9000);
+        readyRef.current = true;
+        reveal();
       },
       onBowDone,
       onContext: (ctx) => {
@@ -390,10 +426,6 @@ export function TempleApp({ lang }: { lang: string }) {
       onMerit: () => setSheet('stele'),
     });
     engRef.current = engine;
-    // Xin phiên trước khi nặn World: request nằm trên dây trong lúc main thread dựng
-    // renderer, và lượt ghé đầu (chưa có cookie nào) không phải chờ thêm một nhịp nữa
-    // rồi mới tới lượt cảnh chùa. Attach fail thì chẳng còn ai chờ kết quả này.
-    const session = post<GuestReply>('/guest').catch(() => null);
     try {
       engine.attach(sceneRef.current!, joyRef.current!);
     } catch {
@@ -402,7 +434,9 @@ export function TempleApp({ lang }: { lang: string }) {
       setNoGl(true);
       return;
     }
-    void enterHall(session);
+    // Dựng cảnh và hỏi "ai đang đứng ở cổng đây" chạy song song: engine mất cả giây,
+    // còn /me chỉ là một round trip ngắn.
+    probeSession();
 
     return () => {
       // Rời trang mà không đóng thì phòng vẫn nối, đồng hồ vẫn đẩy vị trí và máy còn
@@ -572,13 +606,25 @@ export function TempleApp({ lang }: { lang: string }) {
               <>
                 <h2>Chưa vào được sảnh</h2>
                 <small>{bootError}</small>
-                <button
-                  type="button"
-                  className="btn gold"
-                  onClick={() => void enterHall(post<GuestReply>('/guest').catch(() => null))}
-                >
+                <button type="button" className="btn gold" onClick={probeSession}>
                   Thử lại
                 </button>
+              </>
+            ) : choice ? (
+              <>
+                <h2>{TEMPLE.name}</h2>
+                <small>Cầu may trước trận, không cần tài khoản. Điểm đang có vẫn ở nguyên khi đăng ký.</small>
+                <div className="loader-acts">
+                  <button type="button" className="btn gold wide" onClick={enterAsGuest}>
+                    <Icon name="pray" /> Vào với tư cách khách
+                  </button>
+                  <a className="btn ghost wide" href={loginUrls(lang).signup}>
+                    Tạo tài khoản
+                  </a>
+                  <a className="btn ghost wide" href={loginUrls(lang).login}>
+                    Đã có tài khoản
+                  </a>
+                </div>
               </>
             ) : (
               <>
@@ -809,6 +855,7 @@ export function TempleApp({ lang }: { lang: string }) {
             Mốc mới: <b>{levelQueue[0].title} · {rungLabel(levelQueue[0].level)}</b>
             <br />+{fmt(levelQueue[0].sen)} Tinh Hoa
           </p>
+          <p className="realm-about">{REALM_ABOUT[rungOf(levelQueue[0].level).realm - 1]}</p>
           <button className="btn gold" onClick={() => setLevelQueue((q) => q.slice(1))}>
             Tiếp tục
           </button>

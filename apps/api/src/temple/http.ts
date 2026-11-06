@@ -41,6 +41,19 @@ export function withUser(handler: TempleHandler) {
   };
 }
 
+// Khách (`is_guest`) chỉ cầu may: mọi nhịp để lại dấu vết trong DB nhân danh một email
+// giả — kết bạn, nhắn tin, tặng quà, tùy hỷ, đổi tên — đều cần tài khoản. Điểm không
+// mất: /api/auth/register nâng cấp đúng hàng users đang có phiên (accounts.ts:
+// promoteGuest), nên hành trình "thử trước, đăng ký sau" vẫn giữ nguyên số liệu.
+// Chỉ phần *ghi* bị chặn; các tuyến đọc trả về danh sách rỗng chứ không 403, để HUD
+// vẽ nguyên một tấm CTA thay vì một hàng lỗi đỏ.
+export function withAccount(handler: TempleHandler) {
+  return withUser(async (req, res, user) => {
+    if (user.isGuest) throw new ApiError(403, 'guest_account_required', 'a registered account is required for this');
+    await handler(req, res, user);
+  });
+}
+
 export function num(value: unknown, min: number, max: number, code: string): number {
   const n = Math.trunc(Number(value));
   if (!Number.isFinite(n) || n < min || n > max) throw new ApiError(400, code, `expected a number between ${min} and ${max}`);

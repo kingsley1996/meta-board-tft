@@ -5,7 +5,7 @@
 import { Router } from 'express';
 import { pool } from '../db.ts';
 import { ensureTempleProfile, levelFromExp } from './identity.ts';
-import { ApiError, num, text, withUser } from './http.ts';
+import { ApiError, num, text, withAccount, withUser } from './http.ts';
 import { QUE_EXP, addMerit, grantItem, vnDay } from './merit.ts';
 import { ensureTempleTables } from './schema.ts';
 import { templeState } from './state.ts';
@@ -67,7 +67,9 @@ hallRouter.get('/donations', withUser(async (req, res) => {
 
 // Tùy hỷ bằng Sen — tiền nội bộ kiếm từ tu tập. Không có cổng thanh toán ở bất kỳ
 // đâu trong module chùa (quyết định economy-lite), nên tuyến này không thể "nạp".
-hallRouter.post('/donations', withUser(async (req, res, user) => {
+// Khách bị chặn: hàng temple_donations nhân danh một email giả thì bia đá sẽ khắc tên
+// một người không tồn tại.
+hallRouter.post('/donations', withAccount(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
   const amount = num(req.body?.amount, 10, 100_000, 'invalid_amount');

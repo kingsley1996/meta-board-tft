@@ -8,7 +8,7 @@ import { deleteGuide, guideExists, isGuideKind, listGuides, validateGuidePayload
 import { assistantRouter } from './assistant/index.ts';
 import { translateText } from './assistant/translate.ts';
 import { voiceRouter } from './voice.ts';
-import { authRouter, currentSessionUser, type AuthedRequest } from './auth-routes.ts';
+import { authRouter, currentAccountUser, currentSessionUser, type AuthedRequest } from './auth-routes.ts';
 import { membershipRouter } from './membership/routes.ts';
 import { adminMembershipRouter } from './membership/admin-routes.ts';
 import { paymentRouter, paymentWebhookRouter } from './payments/routes.ts';
@@ -397,10 +397,12 @@ app.use('/api', membershipRouter);
 app.use('/api', paymentRouter);
 // Resolve the signed-in user (if any) for the routes that bill an account: the
 // Coach and its history, and voice input (task #83/#84). A guest still reaches the
-// public status endpoints; the routes themselves answer 401.
+// public status endpoints; the routes themselves answer 401. A temple `is_guest`
+// row is not an account here either, so nobody meters Coach or voice spend against
+// a fake email.
 const resolveSessionUser = async (req: express.Request, _res: express.Response, next: express.NextFunction) => {
   try {
-    (req as AuthedRequest).authUser = await currentSessionUser(req);
+    (req as AuthedRequest).authUser = await currentAccountUser(req);
   } catch {
     (req as AuthedRequest).authUser = null;
   }

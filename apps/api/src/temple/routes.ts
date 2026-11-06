@@ -82,11 +82,19 @@ templeRouter.post('/ws-ticket', async (req, res) => {
 // Người chơi nặn nhân vật xong thì báo cho máy chủ cái avatar đó; không có tuyến này
 // thì sảnh đền chỉ biết mặc định ban đầu. Số liệu điểm (level/Tinh Hoa/điểm may) không
 // đổi được ở đây — identity.ts chỉ nhận name/sect/appearance/equipped.
+//
+// Khách được đổi hình dáng (áo, chuỗi, môn phái, nhân vật) vì đó là cách họ thử đền,
+// nhưng không được đổi tên: tên là thứ cả chánh điện đọc trên đầu avatar và khắc lên
+// bia đá, và hàng users của khách mang một email giả nên không ai chịu trách nhiệm về
+// nó. Muốn có tên riêng thì đăng ký — promoteGuest giữ nguyên điểm đang có.
 templeRouter.put('/profile', async (req, res) => {
   const user = await currentSessionUser(req);
   if (!user) return res.status(401).json({ error: 'not signed in', code: 'unauthenticated' });
   const patch = readProfilePatch(req.body);
   if (!patch) return res.status(400).json({ error: 'nothing to change', code: 'invalid_profile_patch' });
+  if (user.isGuest && patch.name !== undefined) {
+    return res.status(403).json({ error: 'a registered account is required to choose a name', code: 'guest_account_required' });
+  }
   const profile = await updateTempleProfile(user.id, patch);
   if (!profile) return res.status(404).json({ error: 'no such temple profile', code: 'profile_not_found' });
   res.json({ profile });

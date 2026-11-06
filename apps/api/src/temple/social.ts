@@ -6,7 +6,7 @@
 import { Router } from 'express';
 import { pool } from '../db.ts';
 import { ensureTempleProfile } from './identity.ts';
-import { ApiError, cooldown, num, playerId, text, withUser } from './http.ts';
+import { ApiError, cooldown, num, playerId, text, withAccount, withUser } from './http.ts';
 import { addMerit } from './merit.ts';
 import { ensureTempleTables } from './schema.ts';
 import { playerByPlayerId, templeState, toPublic, toPublicOf, type PublicPlayer, type PublicRow } from './state.ts';
@@ -54,7 +54,7 @@ socialRouter.get('/friends', withUser(async (req, res, user) => {
 // thì ghi hai hàng accepted (đè lên pending nếu có) để đọc danh sách bằng một query.
 // Phía được mời/b được nhận được báo qua socket ngay (t 'friend') thay vì phải mở lại
 // sheet "Đồng đội" mà đoán.
-socialRouter.post('/friends', withUser(async (req, res, user) => {
+socialRouter.post('/friends', withAccount(async (req, res, user) => {
   await ensureTempleTables();
   const id = playerId(req.body?.id);
   const action = String(req.body?.action ?? '');
@@ -168,7 +168,7 @@ socialRouter.get('/dms/:id', withUser(async (req, res, user) => {
   });
 }));
 
-socialRouter.post('/dms', withUser(async (req, res, user) => {
+socialRouter.post('/dms', withAccount(async (req, res, user) => {
   await ensureTempleTables();
   const id = playerId(req.body?.id);
   const other = await userIdOf(id);
@@ -192,7 +192,7 @@ socialRouter.get('/group', withUser(async (req, res, user) => {
   res.json({ group: await readGroup(groupId, user.id) });
 }));
 
-socialRouter.post('/group', withUser(async (req, res, user) => {
+socialRouter.post('/group', withAccount(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
   const name = text(req.body?.name, 40, 'invalid_group_name');
@@ -207,7 +207,7 @@ socialRouter.post('/group', withUser(async (req, res, user) => {
   res.status(201).json({ group: await readGroup(Number(created.rows[0].id), user.id) });
 }));
 
-socialRouter.post('/group/join', withUser(async (req, res, user) => {
+socialRouter.post('/group/join', withAccount(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
   const code = String(req.body?.code ?? '').trim().toUpperCase();
@@ -224,7 +224,7 @@ socialRouter.post('/group/join', withUser(async (req, res, user) => {
   res.json({ group: await readGroup(Number(target.id), user.id) });
 }));
 
-socialRouter.post('/group/leave', withUser(async (req, res, user) => {
+socialRouter.post('/group/leave', withAccount(async (req, res, user) => {
   await ensureTempleTables();
   await pool.query('DELETE FROM temple_group_members WHERE user_id = $1', [user.id]);
   res.json({ left: true });
@@ -232,7 +232,7 @@ socialRouter.post('/group/leave', withUser(async (req, res, user) => {
 
 // Bảng tin của tổ đội. Điểm chung của đội thì đọc từ temple_practice của từng
 // thành viên (xem readGroup), không có cột "total" cho ai đó ghi đè.
-socialRouter.post('/group/message', withUser(async (req, res, user) => {
+socialRouter.post('/group/message', withAccount(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
   const mine = await pool.query<{ group_id: string }>('SELECT group_id FROM temple_group_members WHERE user_id = $1', [user.id]);
@@ -265,7 +265,7 @@ socialRouter.get('/greetings', withUser(async (req, res, user) => {
   });
 }));
 
-socialRouter.post('/greetings', withUser(async (req, res, user) => {
+socialRouter.post('/greetings', withAccount(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
   const id = playerId(req.body?.id);

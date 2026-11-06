@@ -67,7 +67,22 @@ test(
       const guest = await identity.createGuest();
       users.push(guest.user.id);
       const cookie = `mb_session=${guest.token}`;
+      // Nâng cấp tại chỗ thay vì gọi /api/auth/register: router ở đây không có route
+      // đó, và phần lớn các tuyến bên dưới cần một tài khoản thật mới chạy được.
+      await pool.query('UPDATE users SET is_guest = false, email = $2 WHERE id = $1', [
+        guest.user.id,
+        `account-${guest.user.id}@example.com`,
+      ]);
       await put('/api/temple/profile', { name }, cookie);
+      return { cookie, user: guest.user.id, me: (await get('/api/temple/state', cookie)).json.state };
+    }
+
+    // Khách nguyên bản: chưa đăng ký, chưa tự đặt tên — đúng một hàng users mà
+    // POST /api/temple/guest mọc ra.
+    async function newGuest(): Promise<{ cookie: string; user: string; me: Json }> {
+      const guest = await identity.createGuest();
+      users.push(guest.user.id);
+      const cookie = `mb_session=${guest.token}`;
       return { cookie, user: guest.user.id, me: (await get('/api/temple/state', cookie)).json.state };
     }
 
@@ -283,6 +298,57 @@ test(
       const opened = (await post(`/api/temple/greetings/${box[0].id}/open`, {}, nothing.cookie)).json;
       assert.equal(opened.gained, 5);
       assert.equal((await post(`/api/temple/greetings/${box[0].id}/open`, {}, nothing.cookie)).status, 404, 'one open per gift');
+
+      // --- Khách chỉ cầu may -----------------------------------------------------
+      // Một hàng khách mang email giả, nên bất kỳ dấu vết công khai nào cũng nhân danh
+      // người không tồn tại. Phần *ghi* social phải 403; phần đọc thì không, vì HUD vẽ
+      // tấm CTA đăng ký từ một danh sách rỗng chứ không từ một hàng lỗi.
+      const visitor = await newGuest();
+      assert.equal(visitor.me.level, 1, 'a fresh guest starts at the first rung');
+      assert.equal((await post('/api/temple/practice', { type: 'bow', count: 3 }, visitor.cookie)).status, 200, 'cầu may still works');
+      for (const [path, body] of [
+        ['/friends', { id: me.me.id, action: 'add' }],
+        ['/dms', { id: me.me.id, text: 'Chào bạn' }],
+        ['/group', { name: 'Nhóm Của Khách' }],
+        ['/group/join', { code: 'ABCDEF' }],
+        ['/group/leave', {}],
+        ['/group/message', { text: 'Chào cả nhóm' }],
+        ['/greetings', { id: me.me.id, kind: 'chuc' }],
+        ['/donations', { amount: 50 }],
+      ] as [string, Json][]) {
+        const blocked = await post(`/api/temple${path}`, body, visitor.cookie);
+        assert.equal(blocked.status, 403, `POST ${path} is not for guests`);
+        assert.equal(blocked.code, 'guest_account_required', `POST ${path} says why`);
+      }
+      const guestName = await put('/api/temple/profile', { name: 'Tự Đặt' }, visitor.cookie);
+      assert.equal(guestName.status, 403, 'and a guest does not choose the name over their head');
+      assert.equal(guestName.code, 'guest_account_required');
+      // Hình dáng thì vẫn đổi được: đó là cách khách thử đền trước khi quyết định.
+      const guestLook = await put('/api/temple/profile', { appearance: { hero: 'zoro' } }, visitor.cookie);
+      assert.equal(guestLook.status, 200, 'but the avatar is still theirs to dress');
+      assert.equal(guestLook.json.profile.appearance.hero, 'zoro');
+      // Đọc thì mở hết, trả về rỗng chứ không 403.
+      for (const path of ['/friends', '/dms', '/group', '/greetings']) {
+        assert.equal((await get(`/api/temple${path}`, visitor.cookie)).status, 200, `GET ${path} stays open`);
+      }
+      // Quà thì khách vẫn nhận và mở được — chặn đầu nhận mới là cắt mất phần thưởng.
+      // Người gửi là `nothing`: `me` vừa gửi một quà ở blok trên và nhịp /greetings
+      // còn đang cooldown.
+      const toGuest = (await post('/api/temple/greetings', { id: visitor.me.id, kind: 'huong', text: 'Gửi lữ khách' }, nothing.cookie)).json;
+      assert.equal(toGuest.gained, 10);
+      const guestBox = (await get('/api/temple/greetings', visitor.cookie)).json.rows as Json[];
+      assert.equal(guestBox.length, 1);
+      assert.equal((await post(`/api/temple/greetings/${guestBox[0].id}/open`, {}, visitor.cookie)).status, 200, 'a guest can open a gift');
+
+      // Đăng ký nâng cấp đúng hàng khách đó (accounts.ts:promoteGuest), nên số liệu
+      // đang có không mất — đây là lời hứa "thử trước, giữ sau" của màn chờ.
+      await pool.query('UPDATE users SET is_guest = false, email = $2 WHERE id = $1', [
+        visitor.user,
+        `moved-${visitor.user}@example.com`,
+      ]);
+      const upgraded = (await get('/api/temple/state', visitor.cookie)).json.state;
+      assert.equal(upgraded.today.bows, 3, 'the bows the guest already made survive the upgrade');
+      assert.equal((await put('/api/temple/profile', { name: 'Đã Là Thành Viên' }, visitor.cookie)).status, 200, 'and now the name is theirs');
 
       // --- Tin chạy -----------------------------------------------------------
       assert.deepEqual((await get('/api/temple/announcements', me.cookie)).json.rows, [], 'the board is empty until the temple posts');

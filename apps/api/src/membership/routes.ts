@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { pool } from '../db.ts';
-import { currentSessionUser } from '../auth-routes.ts';
+import { currentAccountUser } from '../auth-routes.ts';
 import { listActiveOffers, listMembershipEvents, listPeriods, resolveEntitlement, type MembershipPeriod } from './lifecycle.ts';
 import { balances, type Metric, type PlanQuota } from './quota.ts';
 
@@ -33,9 +33,11 @@ function noStore(res: Response): Response {
 }
 
 /** The signed-in account, or a 401 that says so. Guest browsing never reaches
- *  these routes, and an unauthenticated response must not look like an empty plan. */
+ *  these routes, and an unauthenticated response must not look like an empty plan.
+ *  A temple `is_guest` row is a seat in the hall, not an account: there is no plan
+ *  to read behind a fake email. */
 async function userId(req: Request, res: Response): Promise<string | null> {
-  const user = await currentSessionUser(req);
+  const user = await currentAccountUser(req);
   if (!user) {
     res.status(401).json({ error: 'Sign in to see your plan.', code: 'unauthenticated' });
     return null;
