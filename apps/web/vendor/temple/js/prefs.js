@@ -1,4 +1,4 @@
-// Vài lựa chọn của máy này (âm thanh, nhịp mõ, hiện tên…) sống trong localStorage chứ
+// Vài lựa chọn của máy này (âm thanh, bài nhạc, hiện tên…) sống trong localStorage chứ
 // không phải trên server: đổi máy là mất, và đó là đúng ý — chúng là tuỳ ý của trình
 // duyệt, không phải hồ sơ tu tập.
 //

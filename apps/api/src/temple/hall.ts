@@ -1,5 +1,4 @@
-// Những gì cả chùa cùng nhìn thấy: vườn cây, bảng tri ân, vòng quay lộc, xỉ quẻ
-// và tin chạy.
+// Những gì cả sảnh cùng nhìn thấy: bảng đồng hành, vòng quay Hex, quẻ và tin chạy.
 //
 // Một nơi duy nhất: "multi-temple" đã bị cắt theo đề bài, nên temple không lấy từ
 // máy khách nữa. Column temple vẫn nằm trong schema để dữ liệu cũ không vô nghĩa.
@@ -7,133 +6,37 @@ import { Router } from 'express';
 import { pool } from '../db.ts';
 import { ensureTempleProfile, levelFromExp } from './identity.ts';
 import { ApiError, num, text, withUser } from './http.ts';
-import { QUE_EXP, addMerit, consumeItem, grantItem, vnDay } from './merit.ts';
+import { QUE_EXP, addMerit, grantItem, vnDay } from './merit.ts';
 import { ensureTempleTables } from './schema.ts';
 import { templeState } from './state.ts';
 
 export const hallRouter = Router();
 
 const TEMPLE_ID = 'nhattru';
-const CAP_PER_TEMPLE = 50;
-const PICK_INTERVAL_MS = 24 * 3_600_000;
 
-// Xỉ quẻ: bốn thẻ lấy nguyên văn từ hàng 'temple' của bản gốc (api.js:99-102), bỏ
-// nhánh nhà thờ vì nội dung chùa chỉ còn tiếng Việt.
+// Quẻ hiện tại: bốn thẻ tĩnh, dùng lại đúng khuôn `que` của bản gốc (api.js:99-102).
+// Phase 2 thay bằng comp thật lấy từ DB — xem SHRINE-PLAN.md §6.2.
 const QUE_CARDS = [
-  { rank: 'Thượng Cát · Tâm An', name: 'Hoa Sen Nở Sớm', text: 'Trăng trong đáy nước lòng thanh tịnh, gió thoảng hương sen dạ nhẹ nhàng.', advice: 'Hôm nay thuận lợi khi giữ lời nói hòa ái, làm việc thiện nhỏ và giữ tâm bình thản.' },
-  { rank: 'Đại Cát · Thuận Duyên', name: 'Mây Lành Hội Tụ', text: 'Gieo nhân lành ắt gặt quả ngọt, bước chân chánh niệm vạn sự hanh thông.', advice: 'Hãy mỉm cười với người xung quanh và dành vài phút tĩnh tâm lắng nghe hơi thở.' },
-  { rank: 'Trung Cát · Tĩnh Định', name: 'Trúc Xanh Vững Chãi', text: 'Gió lay cành trúc không xao động, giữ vững sơ tâm vượt dặm dài.', advice: 'Việc gì chưa rõ hãy chậm lại một nhịp, thở sâu ba hơi trước khi quyết định.' },
-  { rank: 'An Lành · Phước Báo', name: 'Suối Nguồn Từ Bi', text: 'Một niệm từ bi muôn oán giải, lòng biết ơn mở cửa phúc lành.', advice: 'Gửi lời hỏi thăm cha mẹ hoặc người thân để kết nối yêu thương hôm nay.' },
+  { rank: 'Thượng Cát · Khởi Sắc', name: 'Lõi Vào Tay', text: 'Vòng đầu đã mở hàng: tiền vào đều, lõi ra đúng thứ bạn cần.', advice: 'Đừng reroll sớm. Gom interest trước, comp sẽ tự lộ ra ở cấp 7.' },
+  { rank: 'Đại Cát · Vào Form', name: 'Bệ Nóng', text: 'Nhịp của bạn đang lên, ba round gần nhất thắng nhiều hơn thua.', advice: 'Chơi comp theo đúng lối bạn đã chọn thay vì đuổi theo bảng meta.' },
+  { rank: 'Trung Cát · Thử Thách', name: 'Ép Sân Muộn', text: 'Sân hôm nay đông người cùng bài, chỗ của bạn ở cuối bảng điểm.', advice: 'Đổi mục tiêu sang top 4: lấy lõi phòng thủ và giữ tiền đến cấp 8.' },
+  { rank: 'An Lành · Bình Tâm', name: 'Giữ Bình Tĩnh', text: 'Không có biến lớn, mọi thứ đi ngang — dễ khiến người chơi vội.', advice: 'Hai round đầu kém thì vẫn một kế hoạch. Reroll chỉ khi đã có 50 vàng nhàn rỗi.' },
 ];
 
-// Vòng quay lộc: sáu cung và trọng số đúng như api.js:701-709. Phần thưởng chỉ có
-// Sen/Ngọc/đồ trong túi — economy-lite, không có tiền thật ở bất kỳ đâu.
+// Vòng quay Hex: sáu cung và trọng số đúng như api.js:701-709. Phần thưởng chỉ có
+// Tinh Hoa/Tinh Thể/đồ trong túi — economy-lite, không có tiền thật ở bất kỳ đâu.
 type Segment = { label: string; pct: number; sen?: number; ngoc?: number; item?: string; count?: number; rare?: boolean };
 
 const WHEEL_SEGMENTS: Segment[] = [
-  { label: '30 Sen', pct: 30, sen: 30 },
-  { label: '50 Sen', pct: 25, sen: 50 },
-  { label: '20 Ngọc', pct: 15, ngoc: 20 },
-  { label: '3 Nén Hương Trầm', pct: 15, item: 'huong_tram', count: 3 },
-  { label: '5 Bó Hoa Dâng', pct: 10, item: 'hoa_dang', count: 5 },
-  { label: '100 Ngọc Quý', pct: 5, ngoc: 100, rare: true },
+  { label: '30 Tinh Hoa', pct: 30, sen: 30 },
+  { label: '50 Tinh Hoa', pct: 25, sen: 50 },
+  { label: '20 Tinh Thể', pct: 15, ngoc: 20 },
+  { label: '3 Bùa May', pct: 15, item: 'huong_tram', count: 3 },
+  { label: '5 Đóa Sao', pct: 10, item: 'hoa_dang', count: 5 },
+  { label: '100 Tinh Thể Quý', pct: 5, ngoc: 100, rare: true },
 ];
 
-// ---- Vườn cây ----------------------------------------------------------------
-
-hallRouter.get('/plants', withUser(async (req, res, user) => {
-  await ensureTempleTables();
-  res.json({ plants: await readPlants(user.id), cap: CAP_PER_TEMPLE });
-}));
-
-hallRouter.get('/garden', withUser(async (req, res) => {
-  await ensureTempleTables();
-  const { rows } = await pool.query<{ n: string }>('SELECT COUNT(*)::text AS n FROM temple_plants WHERE temple = $1', [TEMPLE_ID]);
-  res.json({ trees: Number(rows[0]?.n ?? 0) });
-}));
-
-// Chỉ ba id này là cây trồng được: chores.js:34 (PLANT_KIND) dựng mô hình 3D theo
-// đúng ba loại đó, nên một id khác dù có trong túi cũng chỉ là một cái hố trống.
-const SEEDS: Record<string, true> = { cay_bode: true, cay_sen: true, cay_sala: true };
-
-hallRouter.post('/plants', withUser(async (req, res, user) => {
-  await ensureTempleTables();
-  await ensureTempleProfile(user.id);
-  const item = String(req.body?.item ?? '');
-  if (!SEEDS[item]) throw new ApiError(400, 'not_a_seed', 'the temple only plants cay_bode, cay_sen and cay_sala');
-  const existing = await readPlants(user.id);
-  if (existing.length >= CAP_PER_TEMPLE) throw new ApiError(409, 'garden_full', 'the garden is full');
-  const spent = await spendItem(user.id, item);
-  if (!spent) throw new ApiError(409, 'out_of_seeds', 'no seeds left in the bag');
-
-  const x = coord(req.body?.x, -40, 40);
-  const z = coord(req.body?.z, -10, 40);
-  // Cây trồng hôm nay hái được ngay, đúng như bản gốc (api.js:852 đặt ripe: 1); một
-  // ngày ngủ chỉ tính từ lần hái kế tiếp.
-  await pool.query(
-    'INSERT INTO temple_plants (user_id, temple, item, x, z, per_pick, next_pick_at) VALUES ($1, $2, $3, $4, $5, 3, now())',
-    [user.id, TEMPLE_ID, item, x, z],
-  );
-  // 25 công đức cho một cây, đúng mốc bản gốc treo cho việc trồng (api.js:514).
-  const merit = await addMerit(user.id, { exp: 25 });
-  res.json({ state: await templeState(user.id), gained: merit.gained, level_ups: merit.levelUps });
-}));
-
-// Hái quả: ai cũng hái được, vì vườn là của chung cả chùa; cây vừa được hái thì sleeps
-// một ngày để người khác còn tới phiên.
-hallRouter.post('/plants/harvest', withUser(async (req, res, user) => {
-  await ensureTempleTables();
-  await ensureTempleProfile(user.id);
-  const id = num(req.body?.id, 1, Number.MAX_SAFE_INTEGER, 'invalid_plant_id');
-  // Một câu UPDATE chiếm cây: hai người bấm cùng lúc mà đọc rồi ghi thì cả hai đều thấy
-  // "chín" và đều được cộng quả. Điều kiện nằm trong WHERE nên người đến sau trả 0 hàng.
-  const { rows } = await pool.query<{ per_pick: number }>(
-    `UPDATE temple_plants
-        SET ripe = false, fruits = fruits + 1, next_pick_at = now() + ($2::int * INTERVAL '1 millisecond')
-      WHERE id = $1 AND ripe AND (next_pick_at IS NULL OR next_pick_at <= now())
-      RETURNING per_pick`,
-    [id, PICK_INTERVAL_MS],
-  );
-  const perPick = rows[0]?.per_pick;
-  if (perPick === undefined) {
-    const found = await pool.query('SELECT 1 FROM temple_plants WHERE id = $1', [id]);
-    if (!found.rowCount) throw new ApiError(404, 'plant_not_found', 'no such plant');
-    throw new ApiError(409, 'not_ripe', 'this tree is still growing');
-  }
-  const { rows: updated } = await pool.query<{ fruit: number }>(
-    'UPDATE temple_profiles SET fruit = fruit + $2, updated_at = now() WHERE user_id = $1 RETURNING fruit',
-    [user.id, perPick],
-  );
-  res.json({ state: await templeState(user.id), got: perPick, fruit: updated[0]?.fruit ?? 0 });
-}));
-
-// Đổi quả lấy Ngọc — cầu nối duy nhất giữa vườn và ví, tỉ lệ 1:1 như bản gốc
-// (api.js:871-877). Phải đọc số quả *trước* khi xoá: RETURNING của Postgres trả hàng
-// mới, mà hàng mới thì fruit đã bằng 0 rồi.
-hallRouter.post('/plants/exchange', withUser(async (req, res, user) => {
-  await ensureTempleTables();
-  await ensureTempleProfile(user.id);
-  const client = await pool.connect();
-  let converted = 0;
-  try {
-    await client.query('BEGIN');
-    const had = await client.query<{ fruit: number }>('SELECT fruit FROM temple_profiles WHERE user_id = $1 FOR UPDATE', [user.id]);
-    converted = had.rows[0]?.fruit ?? 0;
-    if (converted > 0) {
-      await client.query('UPDATE temple_profiles SET fruit = 0, ngoc = ngoc + $2, updated_at = now() WHERE user_id = $1', [user.id, converted]);
-    }
-    await client.query('COMMIT');
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
-  if (!converted) throw new ApiError(409, 'no_fruit', 'nothing to exchange yet');
-  res.json({ state: await templeState(user.id), ngoc: converted });
-}));
-
-// ---- Bảng tri ân --------------------------------------------------------------
+// ---- Bảng đồng hành -----------------------------------------------------------
 
 hallRouter.get('/stele', withUser(async (req, res) => {
   await ensureTempleTables();
@@ -205,7 +108,7 @@ hallRouter.post('/draws/wheel', withUser(async (req, res, user) => {
      ON CONFLICT (user_id, kind, day) DO NOTHING RETURNING user_id`,
     [user.id, day, result],
   );
-  // Một hàng cho mỗi người mỗi ngày làPK của temple_draws, nên quay hai lần thì lần
+  // Một hàng cho mỗi người mỗi ngày là khoá chính của temple_draws, nên quay hai lần thì lần
   // thứ hai trả về đúng kết quả đã nhận thay vì quay lại lần nữa.
   if (!won.rowCount) {
     const earlier = await readDraw(user.id, 'wheel');
@@ -246,8 +149,8 @@ hallRouter.post('/draws/que', withUser(async (req, res, user) => {
 
 // ---- Tin chạy -----------------------------------------------------------------
 
-// Bảng tin động: hàng nào chùa treo lên hàng đó chạy. Khi chưa treo gì thì HUD giữ
-// ticker trong meta.json, nên tuyến này trả mảng rỗng chứ không bịa tin.
+// Bảng tin động: hàng nào treo lên hàng đó chạy. Chưa treo gì thì mảng rỗng, và HUD
+// ẩn hẳn dải chữ chạy (temple-app.tsx:684) thay vì tự bịa một tin.
 hallRouter.get('/announcements', withUser(async (req, res) => {
   await ensureTempleTables();
   const { rows } = await pool.query<{ id: string; text: string; effect: string }>(
@@ -258,35 +161,6 @@ hallRouter.get('/announcements', withUser(async (req, res) => {
 
 // ---- helpers ------------------------------------------------------------------
 
-type PlantRow = { id: string; user_id: string; item: string; x: string; z: string; fruits: number; per_pick: number; ripe: boolean; next_pick_at: Date | null; created_at: Date; name: string };
-
-async function readPlants(userId: string) {
-  const { rows } = await pool.query<PlantRow>(
-    `SELECT l.id, l.user_id, l.item, l.x, l.z, l.fruits, l.per_pick, l.ripe, l.next_pick_at, l.created_at, p.name
-       FROM temple_plants l
-       JOIN temple_profiles p ON p.user_id = l.user_id
-      WHERE l.temple = $1
-      ORDER BY l.created_at DESC
-      LIMIT $2`,
-    [TEMPLE_ID, CAP_PER_TEMPLE],
-  );
-  return rows.map((r) => ({
-    id: Number(r.id),
-    item: r.item,
-    owner: r.name,
-    mine: r.user_id === userId,
-    x: Number(r.x),
-    z: Number(r.z),
-    fruits: r.fruits,
-    per_pick: r.per_pick,
-    ripe: r.ripe,
-    // chores.js:57 tính cỡ cây theo (now - p.at)/7 ngày, nên ngày trồng phải ra tới
-    // máy khách: thiếu nó thì cây nào cũng mới trồng và vườn toàn cây con.
-    at: r.created_at.getTime(),
-    next_at: r.next_pick_at ? r.next_pick_at.toISOString() : null,
-  }));
-}
-
 async function readDraw(userId: string, kind: 'wheel' | 'que'): Promise<{ result: Record<string, unknown>; day: string } | null> {
   const { rows } = await pool.query<{ result: Record<string, unknown>; day: Date | string }>(
     'SELECT result, day FROM temple_draws WHERE user_id = $1 AND kind = $2 AND day = $3',
@@ -294,19 +168,6 @@ async function readDraw(userId: string, kind: 'wheel' | 'que'): Promise<{ result
   );
   if (!rows.length) return null;
   return { result: rows[0].result, day: vnDay() };
-}
-
-// Đành cây đèn/hạt giống phải trừ khỏi túi trước khi chùa nhận lời nguyện, và trừ
-// bằng SQL nguyên tử (consumeItem) để hai cú chạm liền không cùng trừ từ 15 xuống 14.
-async function spendItem(userId: string, item: string): Promise<boolean> {
-  await ensureTempleProfile(userId);
-  return (await consumeItem(userId, item)) !== null;
-}
-
-function coord(value: unknown, min: number, max: number): number {
-  const n = Number(value);
-  if (!Number.isFinite(n) || n < min || n > max) throw new ApiError(400, 'invalid_spot', `spot must be between ${min} and ${max}`);
-  return Math.round(n * 100) / 100;
 }
 
 function pickWeighted(weights: number[]): number {

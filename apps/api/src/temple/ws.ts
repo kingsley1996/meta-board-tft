@@ -75,13 +75,21 @@ export function attachTempleWs(server: Server): TempleRealtime {
   });
 
   async function onConnection(ws: TempleSocket, url: URL): Promise<void> {
-    const holder = redeemWsTicket(url.searchParams.get('ticket'));
-    if (!holder) {
+    const claim = redeemWsTicket(url.searchParams.get('ticket'));
+    if (!claim.ok) {
       // 1008 = policy violation: máy khách không có nhánh thử lại nào cho code này,
-      // nên nó dừng nối lại thay vì quay vòng xin vé mới mãi mãi.
-      ws.close(1008, 'ticket required');
+      // nên nó dừng nối lại thay vì quay vòng xin vé giả mãi mãi. Vé *hết hạn* thì khác:
+      // đó là người thật đã xin vé nhưng main thread còn đang dựng cảnh nên socket mở
+      // chậm hơn TTL. 4009 là code để máy khách thử lại — nó xin vé mới sau backoff,
+      // còn kẻ gõ tay một vé cũ thì rơi vào nhánh 1008 vì vé đó chưa từng được cấp.
+      if (claim.reason === 'expired') {
+        ws.close(4009, 'ticket expired');
+        return;
+      }
+      ws.close(1008, claim.reason === 'absent' ? 'ticket required' : 'ticket invalid');
       return;
     }
+    const holder = claim.holder;
     const temple = url.searchParams.get('temple') || 'nhattru';
     const room = url.searchParams.get('room') || 'chung';
     ws.alive = true;
@@ -90,6 +98,10 @@ export function attachTempleWs(server: Server): TempleRealtime {
     });
 
     ws.on('message', async (raw: Buffer) => {
+      // Một gói tin là bằng chứng sống ngang giá trị với một cú pong: tab bị thắt
+      // nhịp độ có thể trả lời ping trễ hơn một nhịp heartbeat, và đá socket của một
+      // người đang đứng giữa chánh điện thì cả phòng thấy avatar họ nhấp nháy.
+      ws.alive = true;
       let msg: Record<string, unknown>;
       try {
         msg = JSON.parse(raw.toString('utf8')) as Record<string, unknown>;

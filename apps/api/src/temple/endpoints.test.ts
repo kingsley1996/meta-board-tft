@@ -83,7 +83,7 @@ test(
 
     try {
       // --- Nạp HUD -----------------------------------------------------------
-      const me = await newUser('Đồng Tu Một');
+      const me = await newUser('Lữ Khách Một');
       assert.equal(typeof me.me.id, 'number', 'the HUD gets the u32 id, never the uuid');
       assert.equal(me.me.level, 1);
       assert.equal(me.me.sen, 500, 'the wallet of the original build');
@@ -91,7 +91,7 @@ test(
       assert.equal(me.me.lifetime.bows, 0);
       assert.equal((await send('/api/temple/state')).status, 401, 'no cookie, no state');
 
-      // --- Nhịp lạy: ngưỡng nằm ở server, không ở máy khách ------------------
+      // --- Nhịp cầu may: ngưỡng nằm ở server, không ở máy khách ----------------
       const bows = (await post('/api/temple/practice', { type: 'bow', count: 3 }, me.cookie)).json;
       assert.equal(bows.gained, 15, 'three bows at five merit each, exactly the original ladder');
       assert.equal(bows.state.today.bows, 3);
@@ -102,7 +102,7 @@ test(
       assert.equal(over.code, 'invalid_count');
       const junk = await post('/api/temple/practice', { type: 'mo' }, me.cookie);
       assert.equal(junk.status, 400, 'the wooden fish was cut from the temple');
-      // Tần suất cũng là của chùa: một vòng lặp gửi cùng một nhịp phải bị chặn.
+// Tần suất cũng là của server: một vòng lặp gửi cùng một nhịp phải bị chặn.
       const fast = await post('/api/temple/practice', { type: 'bow', count: 1 }, me.cookie);
       assert.equal(fast.status, 429, 'two packets inside one beat pay once');
       assert.equal(fast.code, 'too_fast');
@@ -117,7 +117,11 @@ test(
       assert.equal(after.name, 'Ai Đó');
       assert.equal(after.sen, bows.state.sen, 'a PUT cannot print Sen');
       assert.equal(after.level, bows.state.level, 'nor the level');
-      await put('/api/temple/profile', { name: 'Đồng Tu Một' }, me.cookie);
+      await put('/api/temple/profile', { name: 'Lữ Khách Một' }, me.cookie);
+
+      // Vòng hạt đã bị bỏ hẳn: không còn type nào nhận số hạt.
+      assert.equal((await post('/api/temple/practice', { type: 'bead', count: 30 }, me.cookie)).status, 400);
+
 
       // Chọn nhận vật: id thật thì về tay máy khách, id bịa thì khước từ ngay — để
       // resolveHero (avatar.js:877) không quay vòng random rồi lưu một nhân vật vô hình.
@@ -134,7 +138,7 @@ test(
       const fakeHero = await put('/api/temple/profile', { appearance: { hero: 'songoku' } }, me.cookie);
       assert.equal(fakeHero.status, 400, 'a hero the engine cannot draw is not a choice');
 
-      // --- Ngồi thiền đo bằng đồng hồ server ---------------------------------
+      // --- Nhịp thiền đo bằng đồng hồ server -------------------------------
       const early = await post('/api/temple/practice', { type: 'meditate_end' }, me.cookie);
       assert.equal(early.status, 400, 'ending a sit that never started');
       assert.equal((await post('/api/temple/practice', { type: 'meditate_start' }, me.cookie)).status, 200);
@@ -158,50 +162,31 @@ test(
       assert.equal(winners[0].json.extra.minutes, 7, 'and it is the only one paid');
       assert.equal(paid.find((r) => r.status !== 200)?.code, 'not_meditating');
 
-      // --- Dâng hương: trừ đồ trước, cộng công đức sau ------------------------
+      // --- Dâng bùa: trừ đồ trước, cộng điểm sau -------------------------------
       const used = (await post('/api/temple/use', { item: 'huong_tram' }, me.cookie)).json;
       assert.equal(used.state.inventory.huong_tram, 14);
       assert.equal(used.left, 14, 'the same request says what is left in the bag');
       assert.ok(used.state.buff_until, 'the offering opened the +20% window');
-      // Cống hương này tới ngay sau cú lạy bị too_fast ở trên, nên phải chờ qua cửa sổ
-      // 3 giây của nhịp lạy (COOLDOWN_MS) — nếu không thì con số bên dưới là 429 chứ
+      // Lá bùa này tới ngay sau cú cầu may bị too_fast ở trên, nên phải chờ qua cửa sổ
+      // 3 giây của nhịp cầu may (COOLDOWN_MS) — nếu không thì con số bên dưới là 429 chứ
       // không phải 30.
       await new Promise((r) => setTimeout(r, 3200));
       const buffed = (await post('/api/temple/practice', { type: 'bow', count: 5 }, me.cookie)).json;
-      assert.equal(buffed.gained, 30, 'five bows x 5 x 1.2 while the incense still burns');
+      assert.equal(buffed.gained, 30, 'five x 5 x 1.2 while the charm buff is still open');
       assert.equal((await post('/api/temple/use', { item: 'guong_su' }, me.cookie)).status, 400);
-      // Tắt hương: mọi con số bên dưới là mức nền, không phải mức nhân.
+      // Tắt buff: mọi con số bên dưới là mức nền, không phải mức nhân.
       await pool.query('UPDATE temple_profiles SET buff_until = NULL WHERE user_id = $1', [me.user]);
 
-      const nothing = await newUser('Không Hương');
+      const nothing = await newUser('Không Bùa');
       await pool.query("UPDATE temple_profiles SET inventory = '{\"lt_huou\": 1}'::jsonb WHERE user_id = (SELECT user_id FROM temple_profiles WHERE player_id = $1)", [
         nothing.me.id,
       ]);
       const broke = await post('/api/temple/use', { item: 'huong_tram' }, nothing.cookie);
       assert.equal(broke.status, 409, 'an empty bag is not an offering');
 
-      // --- Vườn cây ----------------------------------------------------------
-      // Vườn là của chung một chùa, nên so với cây của chính mình chứ không với số
-      // hàng của cả vườn: một người đang trồng ở dev không được làm bài test đỏ.
-      const treesBefore = (await get('/api/temple/garden', me.cookie)).json.trees as number;
-      assert.equal((await post('/api/temple/plants', { item: 'cay_bode', x: 3.5, z: 12 }, me.cookie)).status, 200);
-      assert.equal((await post('/api/temple/plants', { item: 'ao_lam', x: 1, z: 1 }, me.cookie)).status, 400, 'only seeds go in the ground');
-      const garden = (await get('/api/temple/plants', me.cookie)).json;
-      const own = garden.plants.filter((p: Json) => p.mine);
-      assert.equal(own.length, 1);
-      const picked = (await post('/api/temple/plants/harvest', { id: own[0].id }, nothing.cookie)).json;
-      assert.equal(picked.got, 3);
-      assert.equal(picked.state.fruit, 8, 'five from the gift pack plus one pick');
-      assert.equal((await post('/api/temple/plants/harvest', { id: own[0].id }, nothing.cookie)).status, 409, 'the tree sleeps a day');
-      const traded = (await post('/api/temple/plants/exchange', {}, nothing.cookie)).json;
-      assert.equal(traded.ngoc, 8);
-      assert.equal(traded.state.fruit, 0);
-      assert.equal((await post('/api/temple/plants/exchange', {}, nothing.cookie)).status, 409, 'nothing left to trade');
-      assert.equal((await get('/api/temple/garden', me.cookie)).json.trees, treesBefore + 1);
-
-      // --- Bảng tri ân: trả bằng Sen nội bộ -----------------------------------
+      // --- Bảng đồng hành: trả bằng Tinh Hoa nội bộ ----------------------------
       const before = (await get('/api/temple/state', me.cookie)).json.state.sen as number;
-      const gave = (await post('/api/temple/donations', { amount: 120, note: 'Cúng dường tam bảo' }, me.cookie)).json;
+      const gave = (await post('/api/temple/donations', { amount: 120, note: 'Gửi lời chúc sảnh' }, me.cookie)).json;
       assert.equal(gave.state.sen, before - 120 + Math.ceil(gave.gained * 0.4), 'the offering pays Sen only through the merit ratio');
       assert.equal((await post('/api/temple/donations', { amount: 100_000 }, nothing.cookie)).status, 409, 'Sen cannot go negative');
       assert.equal((await post('/api/temple/donations', { amount: 9_999_999 }, me.cookie)).status, 400, 'and a gift that large is not a gift');
@@ -211,9 +196,9 @@ test(
       // bậc của chính người cúng, không phải honor và cũng không phải rỗng.
       const donorTitle = (await get('/api/temple/state', me.cookie)).json.state.title as string;
       assert.equal(stele[0].title, donorTitle);
-      assert.equal(((await get('/api/temple/donations', me.cookie)).json.rows as Json[])[0].note, 'Cúng dường tam bảo');
+      assert.equal(((await get('/api/temple/donations', me.cookie)).json.rows as Json[])[0].note, 'Gửi lời chúc sảnh');
 
-      // --- Lộc: một lần mỗi ngày ---------------------------------------------
+      // --- Vòng quay và quẻ: một lần mỗi ngày ----------------------------------
       const wheel = (await post('/api/temple/draws/wheel', {}, me.cookie)).json;
       const repeat = (await post('/api/temple/draws/wheel', {}, me.cookie)).json;
       assert.equal(repeat.again, true, 'the day already drew');
@@ -250,7 +235,7 @@ test(
       assert.equal(await dayAt('2026-11-04T16:30:00Z'), '2026-11-04', 'and an hour earlier it is still yesterday there');
       assert.equal(await dayAt((new Date()).toISOString()), vnDay(), 'the same window the ledger writes with');
 
-      // --- Bạn bè, thư riêng, nhóm đồng tu ------------------------------------
+      // --- Đồng đội, thư riêng, tổ đội -----------------------------------------
       const asked = (await post('/api/temple/friends', { id: nothing.me.id, action: 'add' }, me.cookie)).json;
       assert.equal(asked.accepted, false);
       assert.equal(((await get('/api/temple/friends', nothing.cookie)).json.incoming as Json[]).length, 1);
@@ -259,7 +244,7 @@ test(
       assert.equal((await post('/api/temple/friends', { id: me.me.id, action: 'add' }, me.cookie)).status, 400, 'not friends with yourself');
       assert.equal((await post('/api/temple/friends', { id: 4_294_967_294, action: 'add' }, me.cookie)).status, 404);
 
-      assert.equal((await post('/api/temple/dms', { id: nothing.me.id, text: 'A Di Đà Phật' }, me.cookie)).status, 200);
+      assert.equal((await post('/api/temple/dms', { id: nothing.me.id, text: 'Chúc bạn top 1' }, me.cookie)).status, 200);
       const thread = (await get(`/api/temple/dms/${nothing.me.id}`, me.cookie)).json;
       assert.equal((thread.messages as Json[]).length, 1);
       assert.equal(thread.messages[0].mine, true, 'the sender sees it as theirs');
@@ -272,23 +257,23 @@ test(
       assert.equal(((await get('/api/temple/dms', nothing.cookie)).json.threads as Json[])[0].unseen, 0, 'opening the thread read it');
       assert.equal((await post('/api/temple/dms', { id: nothing.me.id, text: '   ' }, me.cookie)).status, 400);
 
-      const group = (await post('/api/temple/group', { name: 'Đạo Tràng Test' }, me.cookie)).json.group;
+      const group = (await post('/api/temple/group', { name: 'Tổ Đội Test' }, me.cookie)).json.group;
       assert.equal(group.members.length, 1);
       assert.equal(group.owner, true);
       const joined = (await post('/api/temple/group/join', { code: group.code.toLowerCase() }, nothing.cookie)).json.group;
       assert.equal(joined.members.length, 2);
       assert.ok(joined.merit > 0, 'group merit is summed from each member practice');
       assert.equal((await post('/api/temple/group', { name: 'Nhóm Khác' }, me.cookie)).status, 409, 'one group at a time');
-      assert.equal((await post('/api/temple/group/message', { text: 'Chúc mọi người tu tập an lạc' }, nothing.cookie)).status, 200);
+      assert.equal((await post('/api/temple/group/message', { text: 'Chúc cả đội top 1' }, nothing.cookie)).status, 200);
       const board2 = (await get('/api/temple/group', me.cookie)).json.group;
       assert.equal((board2.messages as Json[]).length, 1);
       const stranger = await newUser('Người Ngoài');
       assert.equal((await post('/api/temple/group/join', { code: 'ZZZZZZ' }, stranger.cookie)).status, 404);
 
-      // --- Kết duyên ----------------------------------------------------------
-      const sent = (await post('/api/temple/greetings', { id: nothing.me.id, kind: 'huong', text: 'Gửi bạn nén hương' }, me.cookie)).json;
+      // --- Quà cầu may ----------------------------------------------------------
+      const sent = (await post('/api/temple/greetings', { id: nothing.me.id, kind: 'huong', text: 'Gửi bạn lá bùa' }, me.cookie)).json;
       assert.equal(sent.gained, 10);
-      // Quà kết duyên phải nằm trong khoảng số nguyên: 'abc' từng rơi xuống cột integer
+      // Quà cầu may phải nằm trong khoảng số nguyên
       // thành một cú 500, còn 10001 in ra một món quà không ai trả nổi.
       assert.equal((await post('/api/temple/greetings', { id: nothing.me.id, kind: 'chuc', gift_sen: 'abc' }, me.cookie)).status, 400, 'a gift has to be a number');
       assert.equal((await post('/api/temple/greetings', { id: nothing.me.id, kind: 'chuc', gift_sen: 10_001 }, me.cookie)).status, 400, 'and within the gift ceiling');

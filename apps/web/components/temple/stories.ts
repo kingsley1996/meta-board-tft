@@ -1,6 +1,6 @@
-// Lời thoại và bài viết của người trong chùa. Lấy nguyên văn từ data/content.json của
-// bản gốc và hai bảng tên trong main.js:1047-1049 — đây là nội dung, không phải
-// engine, nên nó nằm bên phía HUD.
+// Lời thoại của ba vị hướng dẫn trong sảnh và mấy dòng chữ cho màn chờ. Phần truyện lấy
+// nguyên văn từ data/content.json của bản gốc, hai bảng tên lấy từ main.js:1047-1049 —
+// đây là nội dung, không phải engine, nên nó nằm bên phía HUD.
 import content from '@/vendor/temple/data/content.json';
 
 export type Tale = { title: string; text: string };
@@ -18,19 +18,15 @@ export type Story = {
   sources?: Source[];
 };
 
-// Bài giới thiệu pháp môn: mỗi thiền phái một trang, thầy trụ trì dẫn người chơi sang
-// đây khi họ hỏi "về pháp môn của con".
+// Bài giới thiệu lối chơi: mỗi lối một trang, huấn luyện viên dẫn người chơi sang đây khi
+// họ hỏi "về lối chơi của tôi". Nội dung đọc từ data/content.json, khoá theo id trong meta.json.
 export type Guide = {
   name: string;
   subtitle: string;
   origin: string;
-  history: string[];
-  essence: string[];
   practice: { title: string; text: string }[];
-  daily: string[];
-  chants: { name: string; text: string }[];
   inApp: string;
-  sources: Source[];
+  chants: { name: string; text: string }[];
 };
 
 const TALES_BY_TEMPLE = (content.tales ?? {}) as Record<string, Teller[]>;
@@ -41,37 +37,37 @@ export const tellersOf = (templeId: string): Teller[] => TALES_BY_TEMPLE[templeI
 export const storyOf = (templeId: string): Story => STORIES[templeId] ?? {};
 export const guideOf = (sectId: string): Guide | null => GUIDES[sectId] ?? null;
 
-export const ABBOT = 'Thầy Tâm Liên';
+export const ABBOT = 'HLV Tomo';
 
-// Lão Hành Khất: bán "bí kiếp" mà thật ra là tám lời dạy (main.js:1049).
+// Nhà Phân Tích: tám chiêu bán cho người ghé sảnh (main.js:1049 từng là tám "thức").
 export const HERMIT_LESSONS = [
-  'Thức thứ nhất: Thở. Chưa thở được thì chưa làm được gì.',
-  'Thức thứ hai: Lắng. Nghe người khác nói hết câu.',
-  'Thức thứ ba: Nhịn. Lời nặng để qua đêm rồi hãy nói.',
-  'Thức thứ tư: Xả. Nắm chặt bao nhiêu, mỏi tay bấy nhiêu.',
-  'Thức thứ năm: Tha. Người đầu tiên được nhẹ lòng là mình.',
-  'Thức thứ sáu: Cho. Có cây kẹo cũng chia cho người khác một nửa.',
-  'Thức thứ bảy: Niệm. Một câu Phật hiệu, trăm mối lo tan.',
-  'Thức cuối: Vạn Phật quy tâm. Không tìm đâu xa, tuyệt học ở ngay trong lòng bạn.',
+  'Chiêu thứ nhất: Tiền. Giữ 50 vàng trước để lấy lãi, tiêu sau. Nghèo cuối trận là nghèo từ giữa trận.',
+  'Chiêu thứ hai: Ngó bảng. Bốn người cùng giữ một tướng thì không ai lên 3 sao được đâu.',
+  'Chiêu thứ ba: Nhịn. Thấy hàng ngon không có nghĩa là phải mua. Mua sai một vòng là mất cả nhịp.',
+  'Chiêu thứ tư: Đọc bản vá. Meta đổi từng tuần, đội hình mạnh hôm nay chưa chắc còn ngày mai.',
+  'Chiêu thứ năm: Xếp chỗ. Chủ lực đứng sai ô thua nhanh hơn đứng sai tướng.',
+  'Chiêu thứ sáu: Ghép đồ theo món, không theo sở thích. Thiếu một mảnh là cả món nằm không.',
+  'Chiêu thứ bảy: Chọn ấn theo bài đang có, không theo ấn mạnh nhất trên giấy.',
+  'Chiêu cuối: Top 4 là một chiến thắng. Tám người vào queue, chỉ một người nhất, còn lại tính bằng hạng.',
 ];
 
-// Lời chúc gửi kèm quà kết duyên (main.js: pcard.greets).
+// Lời chúc gửi kèm quà tặng (main.js: pcard.greets).
 export const WISHES = [
-  'Chúc bạn thân tâm thường an lạc',
-  'Chúc bạn một ngày chánh niệm',
-  'Nguyện bạn và gia đình luôn bình an',
-  'Chúc bạn tinh tấn trên đường tu',
+  'Chúc bạn một ngày toàn top 4',
+  'Chúc bạn về đúng bài mình cần',
+  'Chúc bạn lên 3 sao đúng chủ lực',
+  'Chúc bạn queue sạch, không gặp người bỏ trận',
 ];
 
 // Câu chữ cho màn chờ (help.js:8-16 của bản gốc). help.js bị xoá cùng main.js vì màn
-// chờ giờ là React, nhưng mấy câu này là nội dung chứ không phải code.
+// chờ giờ là React, nhưng mấy dòng này là nội dung chứ không phải code.
 export const QUOTES = [
-  '“Tâm an thì cảnh an.”',
-  '“Một niệm thanh tịnh là một niệm Phật.”',
-  '“Gieo nhân lành, gặt quả lành.”',
-  '“Hạnh phúc không có đường đi, hạnh phúc chính là con đường.”',
-  '“Mỗi bước chân là một bước an lạc.”',
-  '“Không làm các điều ác, siêng làm các việc lành, giữ tâm ý trong sạch – đó là lời chư Phật dạy.” (Kinh Pháp Cú)',
-  '“Lời nói dịu dàng như hoa sen nở.”',
-  '“Hơn ngàn lời vô nghĩa, một lời có ích hơn, nghe xong được an tịnh.” (Kinh Pháp Cú)',
+  '“Chuẩn bị kỹ thì vận may đến gần hơn một chút.”',
+  '“Thở một hơi trước khi mở hàng. Tay vững thì chọn đúng.”',
+  '“Thua một round không phải thua cả trận.”',
+  '“Đọc bảng xếp hạng trước khi đọc ý mình.”',
+  '“Bình tĩnh là một loại trang bị.”',
+  '“Không có đội hình vạn năng, chỉ có người đọc được tình huống.”',
+  '“Chơi đủ lâu thì số liệu sẽ đứng về phía bạn.”',
+  '“Vào queue cho vui, thắng thua tính sau.”',
 ];

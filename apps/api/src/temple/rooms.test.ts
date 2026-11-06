@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readState, type PlayerProfile } from './protocol.ts';
+import { readState, TICK, type PlayerProfile } from './protocol.ts';
 import { TempleRooms, type RoomMember } from './rooms.ts';
 
 // Một thành viên giả: send() ghi lại nguyên bytes mà phòng đưa cho nó, nên test kiểm
 // tra được "ai nhận gì" — cả tin JSON lẫn frame nhị phân — mà không phải dựng server.
 function member(id: number, temple = 'nhattru', room = 'chung'): { member: RoomMember; inbox: Buffer[] } {
-  const profile: PlayerProfile = { id, name: `Phật Tử ${id}`, level: 1 };
+  const profile: PlayerProfile = { id, name: `Lữ Khách ${id}`, level: 1 };
   const inbox: Buffer[] = [];
   return {
     member: {
@@ -52,7 +52,7 @@ test('publish reaches the whole room except the actor', () => {
   const b = member(2);
   rooms.add(a.member);
   rooms.add(b.member);
-  const frame = JSON.stringify({ t: 'say', name: 'Phật Tử 1', text: 'Nguyện an lành' });
+  const frame = JSON.stringify({ t: 'say', name: 'Lữ Khách 1', text: 'Chúc bạn toàn top 4' });
 
   rooms.publish('nhattru', 'chung', frame, 1);
   assert.deepEqual(texts(a.inbox), []);
@@ -88,7 +88,7 @@ test('notify reaches one player wherever they are standing', () => {
   const otherTemple = member(4, 'kimquang');
   for (const m of [a, b, elsewhere, otherTemple]) rooms.add(m.member);
 
-  const note = JSON.stringify({ t: 'dm', by: { id: 1, name: 'Phật Tử 1' }, text: 'A Di Đà Phật' });
+  const note = JSON.stringify({ t: 'dm', by: { id: 1, name: 'Lữ Khách 1' }, text: 'Lên 3 sao nhé' });
   rooms.notify(2, note);
   assert.deepEqual(texts(b.inbox), [note]);
   assert.deepEqual(texts(a.inbox), []);
@@ -131,8 +131,15 @@ test('a member who leaves is named in the next frame for those who stay', () => 
   rooms.add(a.member);
   rooms.add(b.member);
 
-  rooms.remove(a.member);
+  // Rời phòng chỉ là đánh dấu: avatar còn đứng nguyên chỗ cũ cho tới khi hết cửa sổ ân
+  // hạn, vì một cú rớt mạng nối lại trong vài trăm ms mà báo "gone" thì cả phòng thấy
+  // người đó biến mất rồi nhảy về (0,0) khi join lại.
+  rooms.remove(a.member, 1);
   rooms.tick(1);
+  assert.equal(rooms.size, 2, 'still standing in the hall during the grace window');
+  assert.equal(b.inbox.length, 0, 'and there is nothing to tell anyone yet');
+
+  rooms.tick(1 + TICK.goneGraceMs);
   assert.equal(rooms.size, 1);
   // Không chỉ ngừng gửi cho người cũ: người còn lại phải được báo ai vừa rời để avatar
   // ma bị xoá trên máy khách (room.ts đọc danh sách "gone" ở cuối frame).
@@ -141,6 +148,44 @@ test('a member who leaves is named in the next frame for those who stay', () => 
   assert.equal(frame.readUInt16LE(3), 0);
   assert.equal(frame.readUInt16LE(5), 1);
   assert.equal(frame.readUInt32LE(7), 1);
+});
+
+// Nối lại trong cửa sổ ân hạn phải vô hình với phần còn lại của chánh điện: không có
+// "gone", không có avatar bị dựng lại, và người đang ngồi thiền vẫn ngồi đúng chỗ.
+test('a reconnect inside the grace window takes over the same cushion unseen', () => {
+  const rooms = new TempleRooms();
+  const a = member(1);
+  const b = member(2);
+  rooms.add(a.member);
+  rooms.add(b.member);
+  rooms.markDirty(a.member, readState(a.member.profile, { x: 2.4, z: 5.1, seat: 7, a: 3 }));
+  rooms.tick(1);
+  a.inbox.length = 0;
+  b.inbox.length = 0;
+
+  rooms.remove(a.member, 2);
+  // Gói 'join' của một tab mở lại chưa kịp kê vị trí: readState cho ra (0,0) đứng.
+  const back = member(1);
+  back.member.state = readState(back.member.profile, {});
+  rooms.add(back.member);
+  rooms.tick(3);
+  assert.equal(b.inbox.length, 0, 'no gone, no resync — the hall notices nothing');
+
+  const snap = rooms.snapshotOf(b.member);
+  assert.equal(snap.readUInt16LE(3), 2, 'both are still in the room');
+  const at = snap.readUInt32LE(5) === 1 ? 5 : 5 + 15;
+  assert.equal(snap.readInt16LE(at + 4) / 100, 2.4, 'and the meditating one kept their place');
+  assert.equal(snap.readInt16LE(at + 12), 7, 'on the same cushion');
+  assert.equal(snap.readUInt8(at + 14), 3, 'still meditating, not standing');
+
+  // Máy khách nào kê vị trí trong gói join thì vị trí đó thắng, không bị chỗ cũ đè lên.
+  const third = member(3);
+  third.member.state = readState(third.member.profile, { x: 8, z: 8, seat: -1, a: 1 });
+  rooms.add(third.member);
+  const s2 = rooms.snapshotOf(b.member);
+  const ids: number[] = [];
+  for (let o = 5, n = s2.readUInt16LE(3); o < 5 + n * 15; o += 15) ids.push(s2.readUInt32LE(o));
+  assert.deepEqual(ids.sort((x, y) => x - y), [1, 2, 3], 'three people stand in the hall');
 });
 
 // Một frame không được vừa đứng tên ai đó vừa báo người đó đã đi: máy khách đọc entries

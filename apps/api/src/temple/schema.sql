@@ -1,15 +1,15 @@
--- Bảng cho chánh điện nhiều người (module chùa: src/temple/*).
+-- Bảng cho sảnh đền nhiều người (module temple: src/temple/*).
 --
 -- File này là nguồn duy nhất: src/temple/schema.ts đọc và chạy đúng nội dung này mỗi
--- lần module chùa chạm Postgres, nên Supabase mới dựng cũng vào chùa được mà không
+-- lần module temple chạm Postgres, nên Supabase mới dựng cũng lên được mà không
 -- chờ operator chạy migration tay — và không có bản sao thứ hai để lệch về sau.
 --
--- Mọi hàng đều đi theo users.id. Người lạ bước vào chùa được cấp một users.id thật
+-- Mọi hàng đều đi theo users.id. Người lạ bước vào sảnh được cấp một users.id thật
 -- (is_guest = true, email giả, không mật khẩu); khi người đó đăng ký tài khoản thì
--- hàng users được nâng cấp tại chỗ, toàn bộ công đức dưới đây giữ nguyên.
+-- hàng users được nâng cấp tại chỗ, toàn bộ điểm dưới đây giữ nguyên.
 
 -- Cột is_guest nằm trên users (src/accounts.ts thêm nó lúc chạy), vì quyền ghi dữ
--- liệu chùa phải đi theo đúng khoá ngoại users(id) mà các bảng dưới tham chiếu.
+-- liệu sảnh đền phải đi theo đúng khoá ngoại users(id) mà các bảng dưới tham chiếu.
 
 CREATE TABLE IF NOT EXISTS temple_profiles (
   user_id uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -18,12 +18,18 @@ CREATE TABLE IF NOT EXISTS temple_profiles (
   -- tự chọn: nếu không thì hai người cùng khai một id và avatar đè nhau.
   player_id bigint NOT NULL UNIQUE CHECK (player_id BETWEEN 1 AND 4294967295),
   name text NOT NULL CHECK (name <> '' AND char_length(name) <= 28),
-  sect text NOT NULL DEFAULT 'tinhdo',
+  -- 'flex' là lối chơi mặc định của bản Đền. Database dựng từ trước còn hàng mang id
+  -- thiền phái cũ; đoạn UPDATE dưới đổi chúng sang id mới nên không ai rơi vào nhánh
+  -- dự phòng của sectOf() chỉ vì bảng danh hiệu đổi tên.
+  sect text NOT NULL DEFAULT 'flex',
   title text NOT NULL DEFAULT '',
   honor text NOT NULL DEFAULT '',
   exp integer NOT NULL DEFAULT 0,
   sen integer NOT NULL DEFAULT 500,
   ngoc integer NOT NULL DEFAULT 200,
+  -- duc và fruit là hai ví tiền của các tính năng đã cắt (vườn cây, và cột Đức của nhịp
+  -- đọc meta). Column để lại cho hàng cũ không thành dữ liệu mồ côi; không còn route nào
+  -- cộng hay tiêu, chỉ state.ts vận chuyển nguyên trạng cho tới khi HUD bỏ hẳn nhãn.
   duc integer NOT NULL DEFAULT 100,
   fruit integer NOT NULL DEFAULT 5,
   streak integer NOT NULL DEFAULT 0,
@@ -33,9 +39,9 @@ CREATE TABLE IF NOT EXISTS temple_profiles (
   equipped jsonb NOT NULL DEFAULT '{}'::jsonb,
   inventory jsonb NOT NULL DEFAULT '{}'::jsonb,
   no_chan boolean NOT NULL DEFAULT false,
-  -- Hai mốc chỉ máy chủ được quyền viết. buff_until là hạn "hương trầm" nhân đôi
-  -- công đức; meditate_start là giờ ngồi thiền để số phút tính ở server, không phải
-  -- do máy khách tự khai.
+  -- Hai mốc chỉ máy chủ được quyền viết. buff_until là hạn của lá bùa nhân đôi điểm;
+  -- meditate_start là giờ mở một nhịp thiền để số phút tính ở server, không phải do
+  -- máy khách tự khai.
   buff_until timestamptz,
   meditate_start timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -48,9 +54,29 @@ CREATE TABLE IF NOT EXISTS temple_profiles (
 ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS buff_until timestamptz;
 ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS meditate_start timestamptz;
 
--- Một hàng cho mỗi ngày hành trì: chuỗi ngày, BXH và sổ công đức đều cộng từ đây.
--- Không lưu từng lần lạy vì máy khách đẩy số liệu theo nhịp, và thứ cần hỏi là
--- "hôm nay bao nhiêu", không phải "lạy lúc mấy giờ".
+-- Set DEFAULT là idempotent và không đụng hàng cũ: database đã dựng với 'tinhdo' vẫn
+-- lên được, chỉ hàng sinh sau này mới nhận 'flex'.
+ALTER TABLE temple_profiles ALTER COLUMN sect SET DEFAULT 'flex';
+
+-- Hồ sơ đã lưu thì phải đổi id theo, nếu không sectOf() không tra ra lối chơi mới và
+-- avatar về màu dự phòng. Cặp id cũ/mới chọn theo màu: #4f8a4a/#c4688a/#c0602e giữ
+-- nguyên sắc, nên người chơi chỉ thấy nhãn khác đi chứ không phải đổi màu đồ.
+UPDATE temple_profiles SET sect = CASE sect
+    WHEN 'truclam' THEN 'fast8'
+    WHEN 'tinhdo'  THEN 'reroll'
+    WHEN 'lamte'   THEN 'tempo'
+    WHEN 'taodong' THEN 'flex'
+  END
+  WHERE sect IN ('truclam', 'tinhdo', 'lamte', 'taodong');
+
+-- Tổ đội đổi hạn mức từ 10 xuống 8, đúng sĩ số một lobby TFT. Chỉ đổi DEFAULT nên hàng
+-- cũ giữ con số của chính nó, và 10 vẫn nằm trong khoảng CHECK nên không hàng nào bị
+-- từ chối khi chạy lại file này.
+ALTER TABLE temple_groups ALTER COLUMN max_members SET DEFAULT 8;
+
+-- Một hàng cho mỗi ngày cầu may: chuỗi ngày, BXH và sổ điểm đều cộng từ đây.
+-- Không lưu từng lần nhấn vì máy khách đẩy số liệu theo nhịp, và thứ cần hỏi là
+-- "hôm nay bao nhiêu", không phải "làm lúc mấy giờ".
 CREATE TABLE IF NOT EXISTS temple_practice (
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   day date NOT NULL,
@@ -59,7 +85,7 @@ CREATE TABLE IF NOT EXISTS temple_practice (
   rounds integer NOT NULL DEFAULT 0,
   meditate_min integer NOT NULL DEFAULT 0,
   chants integer NOT NULL DEFAULT 0,
-  -- Cú "ghé chùa" chỉ có công đức lần đầu trong ngày; giữ lại con số này để server
+  -- Cú "ghé sảnh" chỉ có điểm lần đầu trong ngày; giữ lại con số này để server
   -- biết đã trả phần thưởng đó chưa, thay vì tin một lá thư từ máy khách.
   visits integer NOT NULL DEFAULT 0,
   exp integer NOT NULL DEFAULT 0,
@@ -85,7 +111,7 @@ CREATE TABLE IF NOT EXISTS temple_plants (
 );
 CREATE INDEX IF NOT EXISTS temple_plants_temple_idx ON temple_plants (temple, created_at DESC);
 
--- Bảng tri ân: mỗi lần tùy hỷ một hàng, và bảng vàng cộng từ đó.
+-- Bảng đồng hành: mỗi lần dâng một hàng, và bia vàng cộng từ đó.
 CREATE TABLE IF NOT EXISTS temple_donations (
   id bigserial PRIMARY KEY,
   user_id uuid REFERENCES users(id) ON DELETE SET NULL,
@@ -97,7 +123,7 @@ CREATE TABLE IF NOT EXISTS temple_donations (
 );
 CREATE INDEX IF NOT EXISTS temple_donations_recent_idx ON temple_donations (created_at DESC);
 
--- Kết duyên: hương/lời chúc gửi cho một người cụ thể, có thể kèm Sen.
+-- Quà cầu may: bùa/lời chúc gửi cho một người cụ thể, có thể kèm Tinh Hoa.
 CREATE TABLE IF NOT EXISTS temple_greetings (
   id bigserial PRIMARY KEY,
   from_user uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -138,14 +164,14 @@ CREATE INDEX IF NOT EXISTS temple_dms_thread_idx ON temple_dms (to_user, from_us
 -- chỉ mục riêng; thread_idx chỉ dẫn đầu bằng to_user.
 CREATE INDEX IF NOT EXISTS temple_dms_from_idx ON temple_dms (from_user, created_at DESC);
 
--- Nhóm đồng tu (thay cho "Tăng đoàn" của bản gốc): một nhóm có mã mời, hạn mức thành
--- viên, và quỹ công đức chung do chính nhóm đóng góp.
+-- Tổ đội (bản gốc gọi là nhóm đồng tu): một nhóm có mã mời, hạn mức thành viên — 8
+-- người đúng sĩ số một lobby TFT — và quỹ điểm chung do chính đội đóng góp.
 CREATE TABLE IF NOT EXISTS temple_groups (
   id bigserial PRIMARY KEY,
   name text NOT NULL CHECK (char_length(name) BETWEEN 2 AND 40),
   code text NOT NULL UNIQUE CHECK (char_length(code) BETWEEN 4 AND 12),
   owner_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  max_members integer NOT NULL DEFAULT 10 CHECK (max_members BETWEEN 2 AND 100),
+  max_members integer NOT NULL DEFAULT 8 CHECK (max_members BETWEEN 2 AND 100),
   goal integer NOT NULL DEFAULT 1000 CHECK (goal > 0),
   created_at timestamptz NOT NULL DEFAULT now()
 );
@@ -165,8 +191,8 @@ CREATE TABLE IF NOT EXISTS temple_group_messages (
 );
 CREATE INDEX IF NOT EXISTS temple_group_messages_thread_idx ON temple_group_messages (group_id, created_at DESC);
 
--- Quay lộc / xin xăm: một hàng cho mỗi người mỗi loại mỗi ngày, vừa là giới hạn
--- vừa là lịch sử để bảng lộc hiển thị lại đúng kết quả đã nhận.
+-- Vòng quay Hex / quẻ đội hình: một hàng cho mỗi người mỗi loại mỗi ngày, vừa là giới
+-- hạn vừa là lịch sử để bảng hiển thị lại đúng kết quả đã nhận.
 CREATE TABLE IF NOT EXISTS temple_draws (
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   kind text NOT NULL CHECK (kind IN ('wheel', 'que')),
@@ -176,7 +202,7 @@ CREATE TABLE IF NOT EXISTS temple_draws (
   PRIMARY KEY (user_id, kind, day)
 );
 
--- Tin chạy / thông bạch trong chùa.
+-- Tin chạy trong sảnh.
 CREATE TABLE IF NOT EXISTS temple_announcements (
   id bigserial PRIMARY KEY,
   text text NOT NULL CHECK (char_length(text) BETWEEN 1 AND 200),

@@ -32,8 +32,14 @@ export type PlayerProfile = {
 const ENTRY_BYTES = 15;
 const FULL_SNAPSHOT_MS = 5_000;
 const DELTA_TICK_MS = 250;
+// Cửa sổ ân hạn cho một socket vừa đứt. Di chuyển của máy khách nội suy mỗi khung
+// hình với tốc độ dt*8, nên một avatar bị xoá rồi dựng lại giữa chánh điện bị kéo
+// về (0,0) rồi trượt lại chỗ cũ mất cỡ một giây — đúng cái người chơi gọi là "chớp
+// tắt, nhảy vị trí". Tab bị treo, proxy cắt giữa chừng hay một cú pong trễ đều nối
+// lại trong cỡ vài trăm ms, đủ để không ai phải thấy gì.
+const GONE_GRACE_MS = 3_000;
 
-export const TICK = { fullSnapshotMs: FULL_SNAPSHOT_MS, deltaMs: DELTA_TICK_MS };
+export const TICK = { fullSnapshotMs: FULL_SNAPSHOT_MS, deltaMs: DELTA_TICK_MS, goneGraceMs: GONE_GRACE_MS };
 
 // i16 với tỉ lệ 1/100 cho toạ độ, 1/1000 cho góc quay: đủ cho sân chùa vài chục mét
 // và giữ được frame gọn. Ngoài khoảng đó là client đã gửi dữ liệu không hợp lệ.
@@ -87,4 +93,11 @@ export function readState(profile: PlayerProfile, raw: Record<string, unknown>):
     seat: Number.isInteger(raw.seat) ? Math.max(-1, Math.min(32_767, raw.seat as number)) : -1,
     a: Number(raw.a) || 0,
   };
+}
+
+// readState của một gói 'join' không kê vị trí cho ra đúng hình này. Phòng dùng nó
+// để biết "máy khách chưa kịp nói mình ở đâu" chứ không phải "người này đang đứng ở
+// gốc sân chùa": một cú nối lại rơi vào hình này thì giữ chỗ cũ của người đó.
+export function isUnknownState(s: PlayerState): boolean {
+  return s.x === 0 && s.z === 0 && s.y === 0 && s.r === 0 && s.seat === -1 && s.a === 0;
 }

@@ -1,13 +1,13 @@
-// Danh tính trong chùa: ai vừa bước vào, hồ sơ của họ nằm ở đâu.
+// Danh tính trong sảnh đền: ai vừa bước vào, hồ sơ của họ nằm ở đâu.
 //
-// Người lạ không cần tài khoản để vào chánh điện — máy chủ cấp một hàng users với
+// Người lạ không cần tài khoản để vào sảnh — máy chủ cấp một hàng users với
 // is_guest = true, email giả không nhận thư, và không mật khẩu. Khi người đó đăng ký
 // thì hàng đó được nâng cấp tại chỗ (accounts.ts: promoteGuest), vẫn nguyên users.id,
-// nên công đức, cây, bạn bè đã lưu dưới khoá users(id) tự động ở lại.
+// nên điểm, đồ và bạn bè đã lưu dưới khoá users(id) tự động ở lại.
 //
 // Giá trị mặc định lấy đúng như source gốc đã khởi tạo nhân vật (api.js:296-337):
-// áo lam, chuỗi gỗ, bồ đoàn nâu, Hươu Lộc Uyển tặng sẵn — đổi số này là đổi cảm giác
-// "ngày đầu đi chùa" mà người viết engine đã chọn.
+// Áo Choàng Lam, Vòng Gỗ, Bệ Nâu, Hươu Non tặng sẵn — đổi số này là đổi cảm giác
+// "ngày đầu vào sảnh" mà người viết engine đã chọn.
 import { randomBytes } from 'node:crypto';
 import { createSession, createUser, type UserRow } from '../accounts.ts';
 import { pool } from '../db.ts';
@@ -34,7 +34,7 @@ export type TempleProfile = {
   noChan: boolean;
   level: number;
   expNext: number;
-  // Hai mốc chỉ server viết: nhân đôi công đức tới giờ này, và giờ bắt đầu ngồi thiền.
+  // Hai mốc chỉ server viết: hết hạn buff nhân đôi điểm, và giờ mở một nhịp thiền.
   buffUntil: string | null;
   meditateStart: string | null;
 };
@@ -62,16 +62,17 @@ type TempleProfileRow = {
   meditate_start: Date | null;
 };
 
-// Bậc thếp lấy nguyên văn từ computeLevel() của bản gốc (api.js:195-213), bỏ nhánh
-// 'church' vì nội dung chùa chỉ còn tiếng Việt theo đề bài.
+// Ngưỡng exp giữ nguyên từ computeLevel() của bản gốc (api.js:195-213); chỉ tên bậc là
+// đổi sang hạng fantasy theo docs/SHRINE-CONTENT-MAP.md §2 — cố ý không mượn tên rank
+// TFT thật (Sắt → Thách Đấu) để người chơi không nhầm đây là thứ hạng xếp hạng đơn.
 const LEVELS: { level: number; exp: number; title: string }[] = [
-  { level: 1, exp: 0, title: 'Phật tử Sơ Tâm' },
-  { level: 2, exp: 50, title: 'Phật tử Tinh Tấn' },
-  { level: 3, exp: 150, title: 'Cư sĩ Thanh Tịnh' },
-  { level: 4, exp: 320, title: 'Hành giả Chánh Niệm' },
-  { level: 5, exp: 600, title: 'Thiền sinh An Định' },
-  { level: 6, exp: 1000, title: 'Hộ Pháp Tâm Thành' },
-  { level: 7, exp: 1600, title: 'Bồ Tát Giữa Đời' },
+  { level: 1, exp: 0, title: 'Tân Binh' },
+  { level: 2, exp: 50, title: 'Lữ Khách' },
+  { level: 3, exp: 150, title: 'Người Thắp Đèn' },
+  { level: 4, exp: 320, title: 'Kẻ Thử Vận' },
+  { level: 5, exp: 600, title: 'Cao Thủ' },
+  { level: 6, exp: 1000, title: 'Bậc Thầy Hex' },
+  { level: 7, exp: 1600, title: 'Huyền Thoại' },
 ];
 
 export function levelFromExp(exp: number): { level: number; title: string; expNext: number } {
@@ -84,7 +85,7 @@ export function levelFromExp(exp: number): { level: number; title: string; expNe
     }
   }
   // Bậc cuối của thang thì không còn mốc kế tiếp; bản gốc vẫn trả một khoảng
-  // 1000 công đức để thanh tiến độ không phải chia cho 0 (api.js:212).
+  // 1000 điểm để thanh tiến độ không phải chia cho 0 (api.js:212).
   return { level: cur.level, title: cur.title, expNext: next ? next.exp : cur.exp + 1000 };
 }
 
@@ -93,17 +94,17 @@ export function levelFromExp(exp: number): { level: number; title: string; expNe
 const GUEST_EMAIL_SUFFIX = '@guest.invalid';
 
 // Vần để ghép tên khách. Chữ này tự chọn, không phải dữ liệu chép từ source: bản
-// gốc chỉ có một tên cố định ('Phật Tử An Lạc', api.js:301) nên cả chùa sẽ đầy
+// gốc chỉ có một tên cố định ('Phật Tử An Lạc', api.js:301) nên cả sảnh sẽ đầy
 // người trùng nhau. Onboarding cho đổi lại tên ngay lần vào đầu.
-const DHARMA_GIVEN = ['Liên', 'An', 'Tịnh', 'Minh', 'Diệu', 'Hòa', 'Phúc', 'Lộc', 'Thọ', 'Tâm', 'Giác', 'Từ'];
+const GUEST_GIVEN = ['An', 'Bình', 'Cẩm', 'Dương', 'Hà', 'Hải', 'Hoàng', 'Khánh', 'Lam', 'Long', 'Minh', 'Nam', 'Nhi', 'Phong', 'Quang', 'Sơn', 'Thạch', 'Vân', 'Vũ', 'Yên'];
 
-function dharmaName(): string {
-  const i = Math.floor(Math.random() * DHARMA_GIVEN.length);
-  let j = Math.floor(Math.random() * (DHARMA_GIVEN.length - 1));
-  if (j >= i) j += 1; // hai từ khác nhau, để không ai tên "Phật Tử An An"
-  // Cùng khuôn với tên mặc định bản gốc 'Phật Tử An Lạc' (api.js:301). Người dùng
-  // tự đổi ở onboarding; nhãn này chỉ để avatar trong chánh điện có tên.
-  return `Phật Tử ${DHARMA_GIVEN[i]} ${DHARMA_GIVEN[j]}`;
+function guestName(): string {
+  const i = Math.floor(Math.random() * GUEST_GIVEN.length);
+  let j = Math.floor(Math.random() * (GUEST_GIVEN.length - 1));
+  if (j >= i) j += 1; // hai từ khác nhau, để không ai tên "Lữ Khách An An"
+  // Cùng khuôn hai-vần với tên mặc định bản gốc (api.js:301). Người dùng tự đổi ở
+  // onboarding; nhãn này chỉ để avatar trong sảnh có tên.
+  return `Lữ Khách ${GUEST_GIVEN[i]} ${GUEST_GIVEN[j]}`;
 }
 
 function newPlayerId(): number {
@@ -148,25 +149,24 @@ function toProfile(row: TempleProfileRow): TempleProfile {
 export async function ensureTempleProfile(userId: string): Promise<TempleProfile> {
   await ensureTempleTables();
   const seed = {
-    name: dharmaName(),
+    name: guestName(),
     player_id: newPlayerId(),
-    sect: 'tinhdo',
-    // 'Tâm Sáng Như Sen' là honor mặc định bản gốc cấp cho người mới (api.js:305).
-    honor: 'Tâm Sáng Như Sen',
-    // Người mới đã có sẵn 20 công đức và chuỗi 1 ngày (api.js:306-311): vào chùa lần
-    // đầu mà thanh tiến độ trống trơn thì HUD hiện "0/50" thay vì một nhịp đã tu.
+    sect: 'flex',
+    honor: 'Lữ khách cầu may',
+    // Người mới đã có sẵn 20 Điểm May Mắn và chuỗi 1 ngày (api.js:306-311): vào sảnh
+    // lần đầu mà thanh tiến độ trống trơn thì HUD hiện "0/50" thay vì một nhịp đã làm.
     exp: 20,
     streak: 1,
     best_streak: 1,
     appearance: { hero: 'luffy_g5', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
     // Id phải là id có thật trong meta.json: world.js:474 tra this.items[id].data, nên
-    // một id lạ (bản mock cũ viết 'bo_doan_nau'/'pet_nai') nghĩa là không có bồ đoàn,
-    // không có bạn đồng hành — người mới vào chùa mà tay không.
+    // một id lạ (bản mock cũ viết 'bo_doan_nau'/'pet_nai') nghĩa là không có bệ ngồi,
+    // không có bạn đồng hành — người mới vào sảnh mà tay không.
     equipped: { robe: 'ao_lam', beads: 'chuoi_go', cushion: 'bd_nau', hat: null, staff: null, cloud: null, pet: 'lt_huou' },
-    // Gói đồ ngày đầu, đúng số bản gốc phát (api.js:123-130 · api.js:333), trừ đèn hoa
-    // đăng vì tính năng đó đã bỏ: hương, nến, hoa dâng, hai loại cây cho vườn và một
-    // bạn Hươu Lộc Uyển.
-    inventory: { huong_tram: 15, nen_sap: 10, hoa_dang: 10, cay_bode: 3, cay_sen: 3, lt_huou: 1 },
+    // Gói đồ ngày đầu, đúng số bản gốc phát (api.js:123-130 · api.js:333), trừ hai thứ
+    // đã bỏ theo plan: đèn hoa đăng và hạt giống vườn (`cay_bode`/`cay_sen`). Ba món
+    // consumable giữ id cũ vì id là identifier, chỉ tên trong meta.json đổi.
+    inventory: { huong_tram: 15, nen_sap: 10, hoa_dang: 10, lt_huou: 1 },
   };
   for (let attempt = 0; ; attempt += 1) {
     try {
@@ -228,7 +228,7 @@ export type GuestSession = { user: UserRow; token: string; profile: TempleProfil
 
 export async function createGuest(): Promise<GuestSession> {
   // ensureAccountTables đi trước createUser: hàng users mới cần cột is_guest, và trên
-  // database vừa dựng xong chưa từng chạy module chùa thì cột đó chưa tồn tại.
+  // database vừa dựng xong chưa từng chạy module temple thì cột đó chưa tồn tại.
   await ensureTempleTables();
   const user = await createUser({
     email: `g-${randomBytes(9).toString('hex')}${GUEST_EMAIL_SUFFIX}`,
@@ -240,7 +240,7 @@ export async function createGuest(): Promise<GuestSession> {
 }
 
 // Phần hồ sơ người chơi được tự đổi: tên, pháp môn, ngoại hình và đồ đang mặc.
-// level/Sen/Ngọc/công đức không nằm ở đây — máy chủ cộng chúng từ temple_practice,
+// level/Sen/Ngọc/điểm không nằm ở đây — máy chủ cộng chúng từ temple_practice,
 // nên một request không in ra được người mới bậc 7.
 export type ProfilePatch = {
   name?: string;

@@ -1,16 +1,15 @@
-// Những tấm sheet của chánh điện: bảng xếp hạng, vườn cây, bia tri ân, túi đồ, bài
-// viết pháp môn, cài đặt.
+// Những tấm sheet của sảnh đền: bảng xếp hạng, bảng đồng hành, túi đồ, cẩm nang lối
+// chơi, cài đặt.
 //
 // Lớp CSS và cây DOM giữ theo bản gốc (rank-row/podium/wish-card/card/setting…), chỉ
 // thay innerHTML bằng JSX. Số liệu đều lấy từ apps/api, không có bản sao ở máy khách.
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Gain, TempleState } from './api';
+import type { Gain } from './api';
 import { get, post, put } from './api';
-import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, local, sectOf } from './engine';
-import type { GardenPlant } from './engine';
-import { petalShower } from './effects';
+import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, TRACKS, local, sectOf } from './engine';
+import { luckyShower } from './effects';
 import { guideOf, storyOf } from './stories';
 import { Icon, Sheet, ago, fmt, type Look, type Store } from './ui';
 
@@ -38,34 +37,13 @@ export function RankSheet({ s, onClose }: { s: Store; onClose: () => void }) {
       .catch((e: Error) => s.toast(e.message));
   }, [scope]);
 
-  const max = Math.max(1, ...(board?.sects.map((x) => x.score) ?? [1]));
   const medal = (i: number) => (i <= 3 ? <i className={`medal m${i}`}>{i}</i> : <>{i}</>);
   const podium = board?.rows.slice(0, 3) ?? [];
 
   return (
-    <Sheet title="Bảng xếp hạng tinh tấn" onClose={onClose} tabs={SCOPES} tab={scope} onTab={setScope}>
-      {board?.sects.length ? (
-        <>
-          <div className="region">Thiền phái tinh tấn</div>
-          <div className="sect-bars">
-            {board.sects.map((x) => {
-              const sect = sectOf(x.sect);
-              return (
-                <div className="sect-bar" key={x.sect}>
-                  <span>
-                    <Icon name={`sect-${x.sect}`} /> {sect.name}
-                  </span>
-                  <div className="bar">
-                    <i style={{ width: `${(x.score / max) * 100}%`, background: sect.color }} />
-                  </div>
-                  <span>{fmt(x.score)}</span>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      ) : null}
-      <div className="region">Phật tử tinh tấn</div>
+    <Sheet title="BXH Cầu May" onClose={onClose} tabs={SCOPES} tab={scope} onTab={setScope}>
+      <p className="muted">Bảng chuyên cần theo Điểm May Mắn, không phải thứ hạng xếp hạng đơn.</p>
+      <div className="region">Nhà lữ hành</div>
       {!board ? (
         <div className="empty">Đang mở bảng…</div>
       ) : (
@@ -124,145 +102,16 @@ export function RankSheet({ s, onClose }: { s: Store; onClose: () => void }) {
                 </span>
                 <span>
                   <b>Bạn</b>
-                  <small>Điểm tinh tấn = công đức từ hành trì</small>
+                  <small>Điểm May Mắn cộng từ nhịp cầu may trong khoảng này</small>
                 </span>
                 <span className="sc">{fmt(board.me.score)}</span>
               </div>
             ) : (
-              <p className="muted">Bạn chưa có điểm trong giai đoạn này. Lạy Phật, lần hạt, thiền định để ghi danh nhé.</p>
+              <p className="muted">Bạn chưa có điểm trong khoảng này. Cầu may, Vòng quay Hex hay thiền đều ghi danh được.</p>
             )}
           </div>
         </>
       )}
-    </Sheet>
-  );
-}
-
-// ---- Vườn cây ----------------------------------------------------------------
-
-const SEEDS = ['cay_bode', 'cay_sen', 'cay_sala'];
-
-export function GardenSheet({ s, onClose }: { s: Store; onClose: () => void }) {
-  const [plants, setPlants] = useState<GardenPlant[]>([]);
-  const [trees, setTrees] = useState(0);
-  const [cap, setCap] = useState(50);
-
-  const load = useCallback(async () => {
-    try {
-      const [p, g] = await Promise.all([get<{ plants: GardenPlant[]; cap: number }>('/plants'), get<{ trees: number }>('/garden')]);
-      setPlants(p.plants);
-      setCap(p.cap);
-      setTrees(g.trees);
-      s.engine?.plants(p.plants);
-      s.engine?.gardenTrees(g.trees);
-    } catch (e) {
-      s.toast((e as Error).message);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  const plant = async (item: string) => {
-    // Trồng ngay chỗ mình đang đứng: toạ độ do engine đo, không phải người chơi gõ số.
-    const here = s.engine?.myPosition();
-    try {
-      const r = await post<Gain>('/plants', { item, x: here?.x ?? 0, z: here ? here.z + 2 : 6 });
-      s.apply({ state: r.state, gained: r.gained });
-      Sound.success();
-      await load();
-      s.toast(`<svg class="i"><use href="#i-lotus"/></svg> Đã trồng ${ITEMS[item]?.name ?? 'cây'} trước sân`);
-    } catch (e) {
-      s.toast((e as Error).message);
-    }
-  };
-
-  const seeds = SEEDS.map((id) => ({ id, n: s.state?.inventory[id] ?? 0 })).filter((x) => x.n > 0);
-
-  return (
-    <Sheet title="Vườn Phật" onClose={onClose}>
-      <div className="comm">
-        <div className="comm-hero">
-          <div className="hero-glow" />
-          <div className="hero-ic">
-            <Icon name="lotus" />
-          </div>
-          <div className="hero-body">
-            <b>Vườn cây của cả chùa</b>
-            <p>
-              {trees} cây đang lớn · vườn chung tối đa {cap} cây
-            </p>
-            <small>Cây chín thì ai cũng hái được; hái xong cây ngủ một ngày. Quả đổi được Ngọc.</small>
-          </div>
-        </div>
-        <div className="row-btns">
-          {seeds.map((x) => (
-            <button className="btn gold" key={x.id} onClick={() => void plant(x.id)}>
-              <Icon name="lotus" /> Trồng {ITEMS[x.id]?.name ?? x.id} ({x.n})
-            </button>
-          ))}
-          {!seeds.length ? <p className="muted">Túi chưa có hạt giống. Vòng quay lộc mỗi ngày có thể tặng hạt.</p> : null}
-          <button
-            className="btn ghost"
-            onClick={async () => {
-              try {
-                const r = await post<{ state: TempleState; ngoc: number }>('/plants/exchange');
-                s.apply({ state: r.state });
-                Sound.success();
-                petalShower(18);
-                s.toast(`<svg class="i"><use href="#i-ngoc"/></svg> Đã đổi ${fmt(r.ngoc)} quả lấy ${fmt(r.ngoc)} Ngọc`);
-              } catch (e) {
-                s.toast((e as Error).message);
-              }
-            }}
-          >
-            <Icon name="ngoc" /> Đổi {fmt(s.state?.fruit ?? 0)} quả lấy Ngọc
-          </button>
-        </div>
-        <div className="region">Cây trong vườn</div>
-        {plants.map((p) => (
-          <div className="friend-row" key={p.id}>
-            <span className="ava" style={{ background: String(ITEMS[p.item]?.data?.color ?? '#4f8a4a') }}>
-              <Icon name="lotus" />
-            </span>
-            <div className="fr-body">
-              <b>
-                {ITEMS[p.item]?.name ?? p.item} {p.mine ? <span className="tag gold">Của bạn</span> : null}
-              </b>
-              <small>
-                {p.owner} · đã hái {p.fruits} lần
-                {p.ripe ? ' · đang chín' : p.next_at ? ` · ${ago(p.next_at)} nữa mới hái được` : ''}
-              </small>
-            </div>
-            <div className="fr-side">
-              <button
-                className="btn small gold"
-                disabled={!p.ripe}
-                onClick={async () => {
-                  try {
-                    const r = await post<{ state: TempleState; got: number; fruit: number }>('/plants/harvest', { id: p.id });
-                    s.apply({ state: r.state });
-                    Sound.chime();
-                    await load();
-                    s.toast(`<svg class="i"><use href="#i-spark"/></svg> Hái được ${r.got} quả quý`);
-                  } catch (e) {
-                    s.toast((e as Error).message);
-                  }
-                }}
-              >
-                Hái
-              </button>
-            </div>
-          </div>
-        ))}
-        {!plants.length ? (
-          <div className="wish-empty">
-            <Icon name="lotus" />
-            <p>Vườn còn trống. Trồng một cây bồ đề để lấy bóng mát cho cả chùa.</p>
-          </div>
-        ) : null}
-      </div>
     </Sheet>
   );
 }
@@ -297,8 +146,8 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
       const r = await post<Gain>('/donations', { amount, note: note.trim() });
       s.apply({ state: r.state, gained: r.gained });
       setNote('');
-      Sound.success();
-      petalShower(24);
+      Sound.spark();
+      luckyShower(24);
       await load();
     } catch (e) {
       s.toast((e as Error).message);
@@ -306,7 +155,7 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   };
 
   return (
-    <Sheet title="Bảng tri ân" onClose={onClose}>
+    <Sheet title="Bảng đồng hành" onClose={onClose}>
       <div className="comm">
         <div className="comm-hero">
           <div className="hero-glow" />
@@ -314,28 +163,28 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
             <Icon name="heart" />
           </div>
           <div className="hero-body">
-            <b>Tùy hỷ công đức</b>
-            <p>Sen là tiền nội bộ kiếm từ tu tập, không nạp bằng tiền thật</p>
-            <small>Tên bạn được khắc lên bia đá trước sân chùa theo số Sen đã tùy hỷ.</small>
+            <b>Chia sẻ Tinh Hoa</b>
+            <p>Tinh Hoa là điểm nội bộ kiếm từ cầu may, không nạp bằng tiền thật</p>
+            <small>Tên bạn hiện trên bảng đồng hành theo số Tinh Hoa đã gửi.</small>
           </div>
         </div>
         <div className="chips">
           {DONATE_CHIPS.map((n) => (
             <button key={n} className={n === amount ? 'on' : ''} onClick={() => setAmount(n)}>
-              <Icon name="sen" /> {n}
+              <Icon name="hex" /> {n}
             </button>
           ))}
         </div>
         <div className="sg-form">
           <input maxLength={120} placeholder="Lời nhắn (không bắt buộc)" value={note} onChange={(e) => setNote(e.target.value)} />
           <button className="btn gold" disabled={amount > (s.state?.sen ?? 0)} onClick={() => void give()}>
-            Tùy hỷ {fmt(amount)} Sen
+            Gửi {fmt(amount)} Tinh Hoa
           </button>
         </div>
         <p className="muted">
-          Ví đang có {fmt(s.state?.sen ?? 0)} Sen.
+          Ví đang có {fmt(s.state?.sen ?? 0)} Tinh Hoa.
         </p>
-        <div className="region">Bia công đức</div>
+        <div className="region">Bảng đồng hành</div>
         {rows.map((r, i) => (
           <div className="rank-row" key={r.name}>
             <span className="no">
@@ -348,7 +197,7 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
             <span className="sc">{fmt(r.score)}</span>
           </div>
         ))}
-        {!rows.length ? <div className="empty">Chưa ai tùy hỷ. Hãy là người đầu tiên khắc tên lên bia.</div> : null}
+        {!rows.length ? <div className="empty">Chưa ai gửi. Hãy là người đầu tiên hiện tên trên bảng.</div> : null}
         <div className="region">Lời nhắn gần đây</div>
         {list.map((d, i) => (
           <div className="dn-row" key={i}>
@@ -357,7 +206,7 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
               <small>{ago(d.at)}</small>
             </span>
             <span className="sc">
-              <Icon name="sen" /> {fmt(d.amount)}
+              <Icon name="hex" /> {fmt(d.amount)}
             </span>
           </div>
         ))}
@@ -366,7 +215,7 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   );
 }
 
-// ---- Hồ sơ: pháp danh & nhận vật ---------------------------------------------
+// ---- Hồ sơ: tên hiển thị & nhân vật ------------------------------------------
 
 // Cả hai cú đổi đều đi qua PUT /profile rồi refreshLook: máy chủ là nơi giữ tên và
 // nhân vật, còn `look` trên sóng là cái báo cho phòng vẽ lại avatar của chính mình.
@@ -398,15 +247,15 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
         className="sg-form"
         onSubmit={(e) => {
           e.preventDefault();
-          if (dirty) void patch({ name: trimmed }, 'Đã đổi pháp danh');
+          if (dirty) void patch({ name: trimmed }, 'Đã đổi tên');
         }}
       >
-        <input value={name} maxLength={28} onChange={(e) => setName(e.target.value)} placeholder="Pháp danh" aria-label="Pháp danh" />
+        <input value={name} maxLength={28} onChange={(e) => setName(e.target.value)} placeholder="Tên hiển thị" aria-label="Tên hiển thị" />
         <button className="btn small gold" disabled={!dirty || busy}>
           Đổi tên
         </button>
       </form>
-      <p className="muted">Tối đa 28 chữ, mọi người trong chánh điện thấy tên này.</p>
+      <p className="muted">Tối đa 28 chữ, mọi người trong sảnh thấy tên này.</p>
       <div className="hero-grid modal-hero-grid">
         {HEROES.map((h) => (
           <button
@@ -431,15 +280,14 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
 // ---- Túi đồ ------------------------------------------------------------------
 
 const BAG_TABS = [
-  { id: 'consumable', label: 'Lễ vật' },
-  { id: 'plant', label: 'Cây Phật' },
-  { id: 'robe', label: 'Áo tràng' },
-  { id: 'beads', label: 'Tràng hạt' },
-  { id: 'cushion', label: 'Bồ đoàn' },
+  { id: 'consumable', label: 'Đồ Dâng' },
+  { id: 'robe', label: 'Áo Choàng' },
+  { id: 'beads', label: 'Dây Chuyền' },
+  { id: 'cushion', label: 'Bệ Ngồi' },
   { id: 'hat', label: 'Mũ' },
-  { id: 'staff', label: 'Pháp khí' },
+  { id: 'staff', label: 'Gậy' },
   { id: 'cloud', label: 'Mây' },
-  { id: 'pet', label: 'Linh thú' },
+  { id: 'pet', label: 'Linh Thú' },
 ];
 
 const UNEQUIPPABLE = ['hat', 'staff', 'cloud', 'pet'];
@@ -448,7 +296,7 @@ function ItemIcon({ id }: { id: string }) {
   const color = String(it?.data?.color ?? it?.data?.c1 ?? '#6b4a2a');
   return (
     <span className="ic tint" style={{ background: color }}>
-      <Icon name={it?.type === 'plant' || it?.type === 'fruit' ? 'lotus' : 'gift'} />
+      <Icon name="gift" />
     </span>
   );
 }
@@ -461,7 +309,7 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   const list = (Object.keys(ITEMS) as string[]).filter((id) => {
     const it = ITEMS[id];
     if (it.type !== tab) return false;
-    return tab === 'consumable' || tab === 'plant' ? (inv[id] ?? 0) > 0 : it.id in inv;
+    return tab === 'consumable' ? (inv[id] ?? 0) > 0 : it.id in inv;
   });
 
   // Mặc/ tháo: một cú PUT /profile rồi engine vẽ lại chính avatar đó, để người khác
@@ -472,7 +320,7 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
         equipped: { ...equipped, [slot]: id },
       });
       s.refreshLook(r.profile);
-      Sound.chime();
+      Sound.tap();
       await s.refresh();
       s.toast(id ? 'Đã thay đổi' : 'Đã tháo');
     } catch (e) {
@@ -485,7 +333,7 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
       const r = await post<Gain & { left: number }>('/use', { item: id });
       s.apply({ state: r.state, gained: r.gained });
       if (id === 'huong_tram' || id === 'nen_sap' || id === 'hoa_dang') s.engine?.offer(id);
-      Sound.chime();
+      Sound.tap();
     } catch (e) {
       s.toast((e as Error).message);
     }
@@ -495,7 +343,7 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
     <Sheet title="Túi đồ" onClose={onClose} tabs={BAG_TABS} tab={tab} onTab={setTab}>
       {list.map((id) => {
         const it = ITEMS[id];
-        const stack = tab === 'consumable' || tab === 'plant';
+        const stack = tab === 'consumable';
         const worn = equipped[it.type ?? ''] === id;
         return (
           <div className="card" key={id}>
@@ -526,24 +374,23 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
           </div>
         );
       })}
-      {!list.length ? <div className="empty">Ngăn này trống. Vòng quay lộc mỗi ngày và việc hành trì sẽ tặng thêm đồ.</div> : null}
-      {tab === 'plant' ? <p className="muted">Ra sân chùa, mở Vườn Phật để trồng cây, hái quả và đổi Ngọc.</p> : null}
+      {!list.length ? <div className="empty">Ngăn này trống. Vòng quay Hex mỗi ngày và nhịp cầu may sẽ tặng thêm đồ.</div> : null}
     </Sheet>
   );
 }
 
-// ---- Pháp môn & cách chơi ----------------------------------------------------
+// ---- Lối chơi & cách chơi ----------------------------------------------------
 
 export function GuideSheet({ s, onClose }: { s: Store; onClose: () => void }) {
-  const sect = s.state?.sect ?? 'tinhdo';
+  const sect = s.state?.sect ?? 'flex';
   const [tab, setTab] = useState(sect);
   const g = guideOf(tab);
   const story = storyOf(TEMPLE.id);
 
   return (
-    <Sheet title="Hướng dẫn tu tập" onClose={onClose}>
+    <Sheet title="Cẩm nang" onClose={onClose}>
       <div className="tabs howto-tabs">
-        {['truclam', 'tinhdo', 'lamte', 'taodong'].map((id) => (
+        {['reroll', 'fast8', 'fast9', 'tempo', 'flex'].map((id) => (
           <button key={id} className={id === tab ? 'on' : ''} onClick={() => setTab(id)}>
             {sectOf(id).name}
           </button>
@@ -555,7 +402,7 @@ export function GuideSheet({ s, onClose }: { s: Store; onClose: () => void }) {
             <h3>{g.subtitle}</h3>
             <p>{g.origin}</p>
             <h4>
-              <Icon name="book" /> Hành trì
+              <Icon name="book" /> Nhịp chơi
             </h4>
             {g.practice.map((p) => (
               <p key={p.title}>
@@ -563,11 +410,11 @@ export function GuideSheet({ s, onClose }: { s: Store; onClose: () => void }) {
               </p>
             ))}
             <h4>
-              <Icon name="pray" /> Trong chùa này
+              <Icon name="pray" /> Trong sảnh này
             </h4>
             <p>{g.inApp}</p>
             <h4>
-              <Icon name="drum" /> Câu niệm
+              <Icon name="spark" /> Lời chúc
             </h4>
             {g.chants.map((c) => (
               <p key={c.name}>
@@ -576,7 +423,7 @@ export function GuideSheet({ s, onClose }: { s: Store; onClose: () => void }) {
             ))}
           </>
         ) : (
-          <p className="muted">Chưa có bài viết cho phái này.</p>
+          <p className="muted">Chưa có bài viết cho lối chơi này.</p>
         )}
         <h4>
           <Icon name="temple" /> {TEMPLE.name}
@@ -586,9 +433,9 @@ export function GuideSheet({ s, onClose }: { s: Store; onClose: () => void }) {
         <h4>
           <Icon name="spark" /> Cách chơi
         </h4>
-        <p>Kéo nửa trái màn hình để đi, vuốt nửa phải để xoay góc nhìn. Chạm bồ đoàn để ngồi.</p>
-        <p>Hành trì: Lạy Phật · Tràng hạt (tròn 108 hạt được thưởng thêm) · Tụng kinh · Thiền · Dâng lễ · Quét sân. Mọi con số công đức đều do máy chủ tính, kể cả khi bạn đổi thiết bị.</p>
-        <p>Máy tính: W A S D đi lại · B lạy · T tràng hạt · E ngồi/đứng.</p>
+        <p>Kéo nửa trái màn hình để đi, vuốt nửa phải để xoay góc nhìn. Chạm bệ ngồi để ngồi.</p>
+        <p>Cầu may · Thiền · Dâng bùa · Quét sân. Mọi con số Điểm May Mắn đều do máy chủ tính, kể cả khi bạn đổi thiết bị.</p>
+        <p>Máy tính: W A S D đi lại · B cầu may · E ngồi/đứng.</p>
       </div>
     </Sheet>
   );
@@ -598,15 +445,15 @@ export function GuideSheet({ s, onClose }: { s: Store; onClose: () => void }) {
 
 const VOLUMES: [string, string, string][] = [
   ['master', 'sound', 'Âm lượng tổng'],
-  ['music', 'sound', 'Nhạc nền chùa'],
-  ['rhythm', 'drum', 'Mõ & chuông'],
-  ['voice', 'pray', 'Tiếng niệm đại chúng'],
-  ['sfx', 'bell', 'Hiệu ứng (chuông dâng lễ, lần hạt)'],
+  ['music', 'sound', 'Nhạc nền'],
+  ['sfx', 'spark', 'Hiệu ứng'],
 ];
 
 export function SettingsSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   const [, bump] = useState(0);
   const again = () => bump((n) => n + 1);
+
+  const playing = TRACKS.find((t) => t.id === Sound.trackId) ?? null;
 
   const toggleFullscreen = async () => {
     try {
@@ -632,31 +479,7 @@ export function SettingsSheet({ s, onClose }: { s: Store; onClose: () => void })
         />
       </label>
       <label className="setting">
-        <Icon name="drum" /> Tiếng mõ niệm Phật nền{' '}
-        <input
-          type="checkbox"
-          checked={!!Sound.chanting}
-          onChange={(e) => {
-            Sound.setChanting(e.target.checked);
-            again();
-          }}
-        />
-      </label>
-      <label className="setting">
-        <Icon name="sound" /> Tiếng niệm của đại chúng{' '}
-        <input
-          type="checkbox"
-          checked={!!Sound.voice}
-          onChange={(e) => {
-            Sound.voice = e.target.checked;
-            local.set('voice2', e.target.checked);
-            Sound.refreshLoop();
-            again();
-          }}
-        />
-      </label>
-      <label className="setting">
-        <Icon name="sound" /> Nhạc nền chùa{' '}
+        <Icon name="sound" /> Nhạc nền{' '}
         <input
           type="checkbox"
           checked={!!Sound.musicOn}
@@ -667,6 +490,37 @@ export function SettingsSheet({ s, onClose }: { s: Store; onClose: () => void })
           }}
         />
       </label>
+      <div className="region">Bảng nhạc</div>
+      <div className="chips music-chips">
+        {TRACKS.map((t) => (
+          <button
+            key={t.id}
+            className={t.id === Sound.trackId ? 'on' : ''}
+            onClick={() => {
+              Sound.init();
+              if (!Sound.musicOn) Sound.setMusicOn(true); // chọn bài là phải nghe thấy bài đó
+              Sound.setTrack(t.id);
+              again();
+            }}
+          >
+            {t.title}
+          </button>
+        ))}
+      </div>
+      <p className="muted music-note">
+        {playing ? (
+          <>
+            Đang phát <b>{playing.title}</b> · {playing.artist} ·{' '}
+            <a href={playing.url} target="_blank" rel="noopener noreferrer">
+              {playing.license}
+            </a>
+          </>
+        ) : Sound.musicOn ? (
+          'Chưa chọn bài nào.'
+        ) : (
+          'Nhạc nền đang tắt.'
+        )}
+      </p>
       <div className="vol-box">
         {VOLUMES.map(([key, icon, label]) => (
           <label className="setting vol" key={key}>
@@ -679,8 +533,7 @@ export function SettingsSheet({ s, onClose }: { s: Store; onClose: () => void })
               onChange={(e) => {
                 Sound.init();
                 Sound.setVolume(key, Number(e.target.value) / 100);
-                if (key === 'rhythm') Sound.mok(Sound.now, 0.45);
-                else if (key !== 'voice') Sound.chime();
+                Sound.tap();
               }}
             />
           </label>
@@ -725,7 +578,7 @@ export function SettingsSheet({ s, onClose }: { s: Store; onClose: () => void })
         <input type="checkbox" checked={!!document.fullscreenElement} onChange={() => void toggleFullscreen()} />
       </label>
       <p className="muted">
-        Phiên bản này chỉ có một chánh điện và một máy chủ: mọi người đang online đều gặp nhau ở đây.
+        Phiên bản này chỉ có một sảnh đền và một máy chủ: mọi người đang online đều gặp nhau ở đây.
       </p>
     </Sheet>
   );

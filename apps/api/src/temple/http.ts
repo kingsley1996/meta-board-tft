@@ -1,4 +1,4 @@
-// Nẹp chung cho các tuyến HTTP của chùa: một lần kiểm phiên, một lần bắt lỗi.
+// Nẹp chung cho các tuyến HTTP của sảnh đền: một lần kiểm phiên, một lần bắt lỗi.
 //
 // Vì sao không viết tay ở từng route: HUD sẽ gọi hai chục tuyến, và tuyến nào cũng
 // phải trả lời y hệt nhau khi người chơi hết hạn phiên hoặc khi máy chủ từ chối một
@@ -56,7 +56,7 @@ export function text(value: unknown, max: number, code: string): string {
   return t;
 }
 
-// id trên dây của chùa là player_id (số nguyên u32 mà frame nhị phân mang), không
+// id trên dây của sảnh là player_id (số nguyên u32 mà frame nhị phân mang), không
 // phải uuid. uuid không rời khỏi server, nên HUD muốn nhắn cho ai cũng chỉ cần biết
 // cái số nó đã nhìn thấy trong chánh điện.
 export function playerId(value: unknown, code = 'invalid_player_id'): number {
@@ -73,7 +73,7 @@ export function idName(value: unknown, code = 'invalid_id'): string {
 //
 // Con số đã nằm ở máy chủ nhưng tần suất thì máy khách quyết, nên không chặn nhịp thì
 // một vòng lặp POST mua được cả bảng xếp hạng. Các mốc dưới (practice.ts, social.ts)
-// đều đặt thấp hơn nhịp máy khách thật gửi — chặn kẻ spam mà không ăn gian công đức
+// đều đặt thấp hơn nhịp máy khách thật gửi — chặn kẻ spam mà không ăn gian điểm
 // của người tu thật.
 const lastAct = new Map<string, number>();
 

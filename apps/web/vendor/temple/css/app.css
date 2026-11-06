@@ -142,19 +142,8 @@
   #temple-root .side-menu em { display: none; }
 }
 
-/* ---------- tràng hạt ---------- */
-#temple-root .beads { position: fixed; left: 0; right: 0; bottom: 0; height: 46%; z-index: 20; background: linear-gradient(to bottom, rgba(20,10,6,0), rgba(20,10,6,.72) 22%, rgba(20,10,6,.9)); color: #fff4dc; }
-#temple-root .beads .back { position: fixed; }
-@media (max-height: 480px) { #temple-root .beads { left: auto; top: 0; height: auto; width: 46%; background: linear-gradient(to right, rgba(20,10,6,0), rgba(20,10,6,.8) 24%); } }
-#temple-root #beadsCanvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
 #temple-root .pill { position: absolute; top: calc(12px + var(--st)); height: 44px; padding: 0 16px; border-radius: 999px; background: rgba(255,255,255,.8); color: var(--ink); box-shadow: 0 2px 10px rgba(0,0,0,.06); font-size: 15px; }
 #temple-root .pill.back { left: 12px; }
-#temple-root .bead-count { position: absolute; left: 22px; bottom: calc(26px + var(--sb)); pointer-events: none; }
-#temple-root .bead-count b { font-size: 48px; font-weight: 700; }
-#temple-root .bead-count span { font-size: 18px; color: #e6d3ae; }
-#temple-root .bead-count small { display: block; font-size: 13px; color: #e6d3ae; margin-top: 2px; }
-#temple-root .bead-hint { position: absolute; right: 22px; max-width: 42%; bottom: calc(30px + var(--sb)); font-size: 12px; color: #e6d3ae; pointer-events: none; text-align: right; line-height: 1.6; }
-#temple-root #beadGain { color: #b07a26; font-weight: 700; }
 
 /* ---------- thiền ---------- */
 #temple-root .meditate { position: fixed; inset: 0; z-index: 25; display: grid; place-items: center; background: rgba(8,5,3,.55); }
@@ -209,9 +198,6 @@
 #temple-root .rank-row .sc { font-weight: 700; color: #7a5210; }
 #temple-root .rank-row.me { box-shadow: 0 0 0 2px var(--gold2) inset; }
 #temple-root .me-rank { position: sticky; bottom: -18px; background: var(--cream); padding: 8px 0; }
-#temple-root .sect-bars { display: grid; gap: 6px; margin-bottom: 12px; }
-#temple-root .sect-bar { display: grid; grid-template-columns: 80px 1fr 60px; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; }
-#temple-root .sect-bar .bar { margin: 0; height: 10px; }
 #temple-root .filters { display: flex; gap: 8px; margin-bottom: 10px; }
 #temple-root .filters select { flex: 1; height: 38px; border-radius: 12px; border: 1px solid #e2d4bd; background: #fff; padding: 0 8px; color: var(--ink); }
 #temple-root .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 10px 0; }
@@ -336,8 +322,6 @@
 #temple-root .prose ul, #temple-root .prose ol { margin: 0 0 8px 20px; }
 #temple-root .prose li { margin-bottom: 4px; }
 #temple-root .prose .lead { font-size: 15.5px; font-style: italic; color: #5a4128; border-left: 3px solid var(--gold2); padding-left: 10px; }
-#temple-root .prose .chant { background: #fff8ea; border: 1px solid #ecd9b4; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; white-space: pre-line; }
-#temple-root .prose .chant b { display: block; color: #7a5210; margin-bottom: 4px; }
 #temple-root .prose .src { font-size: 12px; color: var(--muted); }
 #temple-root .prose .src a { color: var(--gold2); word-break: break-all; }
 #temple-root .guide-hero { display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 16px; color: #fff; margin-bottom: 10px; }
@@ -375,10 +359,7 @@
   #temple-root .setup { flex-direction: row; }
   #temple-root .setup-preview { flex: 0 0 42%; min-height: 0; }
   #temple-root .setup-card { flex: 1; max-height: 100vh; overflow: auto; border-radius: 22px 0 0 22px; }
-  /* tràng hạt, thiền */
-  #temple-root .bead-count b { font-size: 36px; }
-  #temple-root .bead-count { left: calc(18px + var(--sl)); bottom: calc(14px + var(--sb)); }
-  #temple-root .bead-hint { bottom: calc(16px + var(--sb)); right: calc(18px + var(--sr)); }
+  /* thiền */
   #temple-root .med-run { gap: 8px; } #temple-root .breath { width: 140px; height: 140px; } #temple-root .med-time { font-size: 32px; }
   #temple-root .med-pick { padding: 16px; gap: 10px; max-height: 94vh; overflow: auto; }
   /* bản đồ: bản đồ trái, thẻ chùa phải */
@@ -463,6 +444,10 @@
 #temple-root .name-grant .i { width: 18px; height: 18px; }
 #temple-root #fName:read-only { background: #f7f0e2; font-weight: 700; }
 #temple-root .help-btn .i { width: 16px; height: 16px; }
+#temple-root .help-btn.esc-btn { width: auto; padding: 0 9px; border-radius: 9px; background: rgba(0,0,0,.34); color: #f6ead2; border-color: rgba(255,255,255,.22); font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
+#temple-root .music-chips button { height: 36px; padding: 0 13px; font-size: 13px; }
+#temple-root .music-note { font-size: 12px; margin: 6px 2px 10px; color: var(--muted); }
+#temple-root .music-note a { color: var(--gold); text-decoration: underline; }
 #temple-root .vol-box { background: #fff; border-radius: 14px; padding: 4px 12px; margin: 8px 0; }
 #temple-root .setting.vol { gap: 8px; }
 #temple-root .setting.vol span { flex: 0 0 42%; font-size: 13px; }
@@ -847,44 +832,6 @@
 #temple-root .checkin-note { font-size: 13px; margin: 6px 0; }
 #temple-root .badge.dot { min-width: 10px; width: 10px; height: 10px; padding: 0; }
 @media (max-width: 480px) { #temple-root .map-head h3 { font-size: 0; flex: 0 0 auto; } #temple-root .map-head h3 .i { font-size: 20px; } #temple-root .map-tabs { flex: 1; } #temple-root .map-tabs button { flex: 1; } }
-/* tụng kinh, gõ mõ */
-#temple-root section.chant { --h: clamp(130px, 24vh, 240px); position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; flex-direction: column; padding: 34px 16px calc(12px + var(--sb)); color: #fbe3ae; background: linear-gradient(transparent, rgba(20,11,5,.82) 26%, rgba(20,11,5,.94)); }
-#temple-root .chant .back { position: fixed; top: calc(12px + var(--st, 0px)); left: 12px; }
-#temple-root .chant-pick { display: flex; gap: 8px; overflow-x: auto; flex: none; padding-bottom: 6px; scrollbar-width: none; justify-content: safe center; }
-#temple-root .chant-pick button { flex: none; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(242,196,109,.35); background: rgba(255,255,255,.06); color: inherit; font-size: 14px; }
-#temple-root .chant-pick button.on { background: linear-gradient(#f6d27e, #c8902f); color: #3a2205; font-weight: 700; border-color: transparent; }
-#temple-root .chant-note { flex: none; margin: 6px 0; text-align: center; font-size: 13px; color: #d9c29a; }
-#temple-root .chant-lines { position: relative; flex: none; height: var(--h); overflow-y: auto; text-align: center; padding: calc(var(--h) / 2 - 20px) 0; scrollbar-width: none; -webkit-mask-image: linear-gradient(transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(transparent, #000 14%, #000 86%, transparent); }
-#temple-root .chant-lines p { margin: 0; padding: 7px 6px; font-size: 18px; line-height: 1.4; color: rgba(251,227,174,.55); transition: color .2s, transform .2s; }
-#temple-root .chant-lines p.done { color: rgba(251,227,174,.3); }
-#temple-root .chant-lines p.on { color: #ffe9a8; font-weight: 700; transform: scale(1.08); }
-#temple-root .chant-lines p.big { font-size: 24px; }
-#temple-root .chant-foot { flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
-#temple-root .chant-count b { font-size: 34px; font-weight: 700; }
-#temple-root .chant-count span { color: #d9c29a; }
-#temple-root .chant-count small { display: block; font-size: 12px; color: #d9c29a; min-height: 16px; }
-#temple-root .mo { width: 112px; height: 92px; padding: 0; background: none; border: 0; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-#temple-root .mo svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 8px 14px rgba(0,0,0,.5)); }
-#temple-root .mo.hit svg { animation: moHit .16s ease-out; }
-@keyframes moHit { 40% { transform: scale(.92) translateY(4px); filter: drop-shadow(0 0 18px rgba(255,200,110,.7)); } }
-#temple-root .chant-auto { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; text-align: right; font-size: 13px; }
-#temple-root .chant-auto label { display: flex; gap: 6px; align-items: center; }
-#temple-root .chant-tempo input { width: 76px; }
-#temple-root .chant-auto small { font-size: 11px; color: #d9c29a; line-height: 1.3; }
-@media (min-width: 900px) { #temple-root section.chant { --h: clamp(150px, 30vh, 300px); } }
-/* điện thoại ngang: bảng kinh thành cột bên phải, chừa nửa trái cho nhân vật */
-@media (max-height: 480px) {
-  #temple-root section.chant { top: 0; left: auto; width: min(54vw, 440px); padding: calc(10px + var(--st, 0px)) calc(12px + var(--sr, 0px)) calc(8px + var(--sb)) 22px; background: linear-gradient(90deg, transparent, rgba(20,11,5,.84) 9%, rgba(20,11,5,.94)); }
-  #temple-root .chant-note { display: none; }
-  #temple-root .chant-lines { flex: 1; height: auto; min-height: 0; padding: 22% 0; }
-  #temple-root .chant-lines p { font-size: 15px; padding: 4px; }
-  #temple-root .chant-foot { gap: 6px; }
-  #temple-root .chant-count b { font-size: 24px; }
-  #temple-root .mo { width: 74px; height: 60px; }
-  #temple-root .chant-auto small { display: none; }
-  #temple-root .chant-tempo input { width: 60px; }
-}
-
 /* ---------- Cửa hàng: đồ hiếm, đồ quý, xem thử ---------- */
 #temple-root .card.rank-hiem { box-shadow: 0 0 0 1.5px #d9b25a inset; }
 #temple-root .card.rank-quy { background: linear-gradient(120deg, #fff8e2, #fff 60%); box-shadow: 0 0 0 2px #e0a93a inset, 0 4px 16px rgba(200,144,47,.28); }

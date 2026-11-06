@@ -1,5 +1,5 @@
-// Tuyến vào của chùa. API cho HUD sẽ về ở P2b/P3; bốn route dưới đây là nền danh
-// tính: không có chúng thì không có ai để mà lưu công đức.
+// Tuyến vào của sảnh đền. Bốn route danh tính dưới đây đứng ở file này; mọi tuyến
+// khác gắn vào cùng một gốc. Không có chúng thì không có ai để mà cộng điểm.
 import { Router } from 'express';
 import { attemptAllowed, attemptKey, currentSessionUser, setSessionCookie } from '../auth-routes.ts';
 import { toAuthUser } from '../accounts.ts';
@@ -14,7 +14,7 @@ import { withUser } from './http.ts';
 
 export const templeRouter = Router();
 
-// Danh tính ở file này; nhịp tu tập, hoa đăng/vườn cây/bảng tri ân và bạn bè nằm
+// Danh tính ở file này; nhịp cầu may, bảng đồng hành và bạn bè nằm
 // trong từng module riêng rồi gắn vào cùng một gốc /api/temple, để HUD chỉ phải biết
 // một tiền tố.
 templeRouter.use(practiceRouter);
@@ -23,8 +23,8 @@ templeRouter.use(socialRouter);
 
 // Vào chùa không cần tài khoản (-- 01): một cú POST đổi lấy phiên khách (cookie như
 // mọi phiên thật) và một hồ sơ nhân vật. Người đăng ký sau đó sẽ được nâng cấp chính
-// hàng users này (-- 02, ở /api/auth/register), nên cây và công đức trồng từ hôm nay
-// vẫn còn đó.
+// hàng users này (-- 02, ở /api/auth/register), nên điểm may và đồ đã nhận từ hôm
+// nay vẫn còn đó.
 templeRouter.post('/guest', async (req, res) => {
   const signedIn = await currentSessionUser(req);
   if (signedIn) {
@@ -80,7 +80,7 @@ templeRouter.post('/ws-ticket', async (req, res) => {
 });
 
 // Người chơi nặn nhân vật xong thì báo cho máy chủ cái avatar đó; không có tuyến này
-// thì chánh điện chỉ biết mặc định ban đầu. Số liệu điểm (level/Sen/công đức) không
+// thì sảnh đền chỉ biết mặc định ban đầu. Số liệu điểm (level/Tinh Hoa/điểm may) không
 // đổi được ở đây — identity.ts chỉ nhận name/sect/appearance/equipped.
 templeRouter.put('/profile', async (req, res) => {
   const user = await currentSessionUser(req);

@@ -29,8 +29,8 @@ export type TempleState = {
   journal?: { day: string; exp: number }[];
 };
 
-// Hồ sơ của người khác thì khác một điểm: Sen/Ngọc/công đức là chuyện riêng, còn
-// avatar trong chánh điện thì ai cũng thấy. Table này giữ phần công khai.
+// Hồ sơ của người khác thì khác một điểm: ví và điểm may là chuyện riêng, còn
+// avatar trong sảnh thì ai cũng thấy. Table này giữ phần công khai.
 export type PublicPlayer = {
   id: number;
   name: string;
@@ -46,7 +46,7 @@ export function toState(profile: TempleProfile, today: PracticeDelta & { day: st
     id: profile.playerId,
     name: profile.name,
     sect: profile.sect,
-    // Danh hiệu đi theo bậc, không đi theo hàng vừa lưu: một người lạy thêm 100 lạy
+    // Danh hiệu đi theo bậc, không đi theo hàng vừa lưu: một người cầu may thêm 100 lần
     // thì title phải đổi ngay mà không cần ai ghi lại cột title.
     title: profile.title || ladder.title,
     honor: profile.honor,

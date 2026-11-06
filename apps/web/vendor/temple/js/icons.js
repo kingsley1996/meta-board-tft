@@ -63,11 +63,14 @@ const P = {
   // tiền tệ (tô màu)
   sen: '<path d="M12 5c1.8 2 2.6 4.3 2.6 6.4S13.6 15.6 12 17c-1.6-1.4-2.6-3.5-2.6-5.6S10.2 7 12 5z" fill="#f2a5b8" stroke="#c4688a"/><path d="M12 17c-2.6.2-6-1.4-7.5-5.2 2.8-.2 5 .8 6.6 2.6M12 17c2.6.2 6-1.4 7.5-5.2-2.8-.2-5 .8-6.6 2.6" fill="#f6c3d0" stroke="#c4688a"/><path d="M6 18.5c2 .8 4 1.2 6 1.2s4-.4 6-1.2" stroke="#4f8a4a"/>',
   ngoc: '<path d="M6 4h12l3 5-9 11L3 9l3-5z" fill="#8fd3e8" stroke="#3a8aa8"/><path d="M3 9h18M9 4l3 5 3-5M12 9v11" stroke="#3a8aa8" opacity=".7"/>',
-  // thiền phái (tô màu)
-  'sect-truclam': '<path d="M9 21V3M15 21V6" stroke="#2f6a2a"/><path d="M9 8h0M9 13h0M15 11h0M15 16h0" stroke="#2f6a2a" stroke-width="3"/><path d="M9 6c-3-1-4.5-.5-6 1 2 .7 4 .6 6-1zM15 9c3-1.3 4.6-.7 6 .8-2 .8-4 .6-6-.8zM9 11c2.5-1.5 4.5-1.2 5.5-.2-1.8.9-3.6 1-5.5.2z" fill="#7ab86a" stroke="#2f6a2a"/>',
-  'sect-tinhdo': '<path d="M12 4c2 2.2 3 4.6 3 7s-1.1 4.6-3 6c-1.9-1.4-3-3.6-3-6s1-4.8 3-7z" fill="#f6c3d0" stroke="#a8466a"/><path d="M12 17c-3 .2-6.6-1.6-8-5.6 3-.3 5.4.8 7.2 2.8M12 17c3 .2 6.6-1.6 8-5.6-3-.3-5.4.8-7.2 2.8" fill="#f2a5b8" stroke="#a8466a"/><path d="M5 19.5c2.2.9 4.6 1.3 7 1.3s4.8-.4 7-1.3" stroke="#4f8a4a"/>',
-  'sect-lamte': '<path d="M12 2v2" stroke="#8a3a12"/><path d="M7.5 7.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5v8c0 2-2 3.5-4.5 3.5s-4.5-1.5-4.5-3.5z" fill="#e8743a" stroke="#8a3a12"/><path d="M7.5 11.5h9M12 4v15" stroke="#8a3a12" opacity=".6"/><path d="M10 19v2.5h4V19" stroke="#8a3a12"/><path d="M12 8.5c1 1.2 1 2.2 0 3-1-.8-1-1.8 0-3z" fill="#ffd36b" stroke="none"/>',
-  'sect-taodong': '<path d="M12 3c3.5 4.5 6 7.8 6 11a6 6 0 01-12 0c0-3.2 2.5-6.5 6-11z" fill="#9cc8ea" stroke="#2f5f8a"/><path d="M9 14.5a3 3 0 003 3" stroke="#fff"/>',
+  hex: '<path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z" fill="#f2a5b8" stroke="#c4688a"/><path d="M12 7.2 16 9.5v4.6L12 16.4 8 14.1V9.5z" fill="#f6c3d0" stroke="#c4688a" opacity=".85"/>',
+  // lối chơi (tô màu) — id phải khớp sects trong meta.json, HUD vẽ qua
+  // <Icon name={`sect-${id}`}/>; thiếu một id là biểu tượng biến mất hẳn.
+  'sect-reroll': '<path d="M20.5 12a8.5 8.5 0 01-8.5 8.5A8.5 8.5 0 015 13.5" fill="none" stroke="#c4688a"/><path d="M3.5 12A8.5 8.5 0 0112 3.5a8.5 8.5 0 017 3.7" fill="none" stroke="#c4688a"/><path d="M10.4 5.2 12 1.2 8 1z" fill="#f2a5b8" stroke="#c4688a"/><path d="M13.6 18.8 12 22.8 16 23z" fill="#f2a5b8" stroke="#c4688a"/>',
+  'sect-fast8': '<path d="M13.4 2 4.8 13.9h4.7L8.2 22 19.2 9.4h-5z" fill="#a8d69a" stroke="#4f8a4a"/>',
+  'sect-fast9': '<path d="M12 2.5c3 2.5 4.4 5.5 4.4 8.6L12 18.2l-4.4-7.1c0-3.1 1.4-6.1 4.4-8.6z" fill="#bfe0f5" stroke="#3f6f9a"/><circle cx="12" cy="9.6" r="1.7" fill="#fff" stroke="#3f6f9a"/><path d="M7.6 11.6 4.4 14.2l1.2 3.4 3-3.3M16.4 11.6l3.2 2.6-1.2 3.4-3-3.3" fill="#8ab8dc" stroke="#3f6f9a"/><path d="M12 18.6v3.2" stroke="#3f6f9a"/>',
+  'sect-tempo': '<circle cx="12" cy="14.2" r="7" fill="#f6c9a4" stroke="#c0602e"/><path d="M12 14.2V9.6M10 2.8h4M12 2.8v4.4M19.6 7.6l1.6-1.6" stroke="#c0602e"/>',
+  'sect-flex': '<path d="M12 3.5 20 8l-8 4.5L4 8z" fill="#d9c6f2" stroke="#8a5cc8"/><path d="M4 12.4 12 17l8-4.6M4 16.6 12 21.2l8-4.6" stroke="#8a5cc8"/>',
 };
 
 export function injectIcons() {
@@ -85,8 +88,8 @@ export const ITEM_ICON = { huong_tram: 'incense', nen_sap: 'candle', hoa_dang: '
 export const TYPE_ICON = { robe: 'robe', beads: 'beads', cushion: 'cushion', consumable: 'gift' };
 
 // biểu cảm gửi trong chùa (mã gửi qua mạng → icon)
-export const EMOTES = ['pray', 'sen', 'wheel', 'smile'];
-const EMOTE_COLOR = { pray: '#ffd36b', sen: '#f2a5b8', wheel: '#ffd36b', smile: '#ffe9a8' };
+export const EMOTES = ['pray', 'hex', 'wheel', 'smile'];
+const EMOTE_COLOR = { pray: '#ffd36b', hex: '#f2a5b8', wheel: '#ffd36b', smile: '#ffe9a8' };
 // Vẽ một icon lên canvas 2D (dùng cho sprite 3D)
 export function drawIcon(g, name, x, y, size, color = '#ffd36b', onload) {
   const body = P[name]; if (!body) return;

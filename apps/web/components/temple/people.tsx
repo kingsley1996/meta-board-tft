@@ -1,11 +1,11 @@
-// Người trong chùa: thẻ một đạo hữu vừa chạm phải, ba vị NPC kể chuyện, và hai tấm
-// sheet "Đồng tu" (bạn bè · tin nhắn · quà kết duyên) và "Cộng đồng" (nhóm đồng tu).
+// Người trong sảnh: thẻ một người chơi vừa chạm phải, ba vị NPC hướng dẫn, và hai tấm
+// sheet "Đồng đội" (bạn bè · quà tặng) và "Cộng đồng" (tổ đội).
 //
 // Mọi người được định danh bằng player_id — con số đang hiện trên đầu avatar trong
-// chánh điện — vì đó là thứ duy nhất người chơi nhìn thấy để mà chọn.
+// sảnh — vì đó là thứ duy nhất người chơi nhìn thấy để mà chọn.
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Gain, PublicPlayer } from './api';
 import { get, post } from './api';
 import { ITEMS, Sound, TEMPLE, sectOf } from './engine';
@@ -25,13 +25,11 @@ export type Group = {
 };
 
 type FriendList = { friends: PublicPlayer[]; incoming: PublicPlayer[]; outgoing: PublicPlayer[] };
-type Thread = { player: PublicPlayer; last: string; unseen: number };
-type Dm = { player: PublicPlayer; messages: { mine: boolean; text: string; at: string }[] };
 type Greeting = { id: number; from: PublicPlayer | null; kind: string; text: string; gift_sen: number; seen: boolean; at: string };
 
 const EMPTY_FRIENDS: FriendList = { friends: [], incoming: [], outgoing: [] };
 
-// Chữ cái đầu của tiếng cuối trong pháp danh, trên nền màu thiền phái — đúng cách bản
+// Chữ cái đầu của tiếng cuối trong tên hiển thị, trên nền màu lối chơi — đúng cách bản
 // gốc vẽ avatar khi không có ảnh (main.js:2361).
 export function Ava({ name, sect, cls = '' }: { name: string; sect: string; cls?: string }) {
   const initial = (name.trim().split(/\s+/).pop() ?? '?')[0]?.toUpperCase() ?? '?';
@@ -56,9 +54,9 @@ function Head({ ava, name, sub }: { ava: string; name: string; sub: string }) {
   );
 }
 
-// ---- Thẻ một đạo hữu ---------------------------------------------------------
+// ---- Thẻ một người chơi ---------------------------------------------------------
 
-export function PlayerCard({ s, id, onClose, onChat }: { s: Store; id: number; onClose: () => void; onChat: (id: number) => void }) {
+export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: () => void }) {
   const p = s.player(id);
   const [wish, setWish] = useState('');
   if (!p) return null;
@@ -70,8 +68,8 @@ export function PlayerCard({ s, id, onClose, onChat }: { s: Store; id: number; o
   const befriend = async () => {
     try {
       const r = await post<{ accepted?: boolean }>('/friends', { id, action: 'add' });
-      Sound.chime();
-      s.toast(r.accepted ? `<svg class="i"><use href="#i-users"/></svg> Hai bạn đã thành đồng tu` : `<svg class="i"><use href="#i-users"/></svg> Đã gửi lời mời kết bạn tới <b>${esc(p.name)}</b>`);
+      Sound.tap();
+      s.toast(r.accepted ? `<svg class="i"><use href="#i-users"/></svg> Hai bạn đã thành đồng đội` : `<svg class="i"><use href="#i-users"/></svg> Đã gửi lời mời kết bạn tới <b>${esc(p.name)}</b>`);
       onClose();
     } catch (e) {
       s.toast((e as Error).message);
@@ -82,10 +80,10 @@ export function PlayerCard({ s, id, onClose, onChat }: { s: Store; id: number; o
     try {
       const res = await post<Gain>('/greetings', { id, kind, text });
       s.apply(res);
-      Sound.chime();
+      Sound.tap();
       // Emote là của chính mình: bản gốc không múa hộ người khác.
-      s.engine?.emote(s.me, kind === 'huong' ? 'sen' : 'pray');
-      s.toast(kind === 'huong' ? `<svg class="i"><use href="#i-incense"/></svg> Đã tặng nén hương cho <b>${esc(p.name)}</b>` : `<svg class="i"><use href="#i-pray"/></svg> Đã gửi lời chúc tới <b>${esc(p.name)}</b>`);
+      s.engine?.emote(s.me, kind === 'huong' ? 'hex' : 'pray');
+      s.toast(kind === 'huong' ? `<svg class="i"><use href="#i-incense"/></svg> Đã tặng Bùa May Mắn cho <b>${esc(p.name)}</b>` : `<svg class="i"><use href="#i-pray"/></svg> Đã gửi lời chúc tới <b>${esc(p.name)}</b>`);
       onClose();
     } catch (e) {
       s.toast((e as Error).message);
@@ -120,7 +118,7 @@ export function PlayerCard({ s, id, onClose, onChat }: { s: Store; id: number; o
               {gear.map((it) => (
                 <div className="pcard-item" key={it.id}>
                   <span className="ic tint" style={{ background: String((it.data?.color as string) ?? (it.data?.c1 as string) ?? '#6b4a2a') }}>
-                    <Icon name="lotus" />
+                    <Icon name="hex" />
                   </span>
                   <span>
                     <small>{it.type}</small>
@@ -148,26 +146,21 @@ export function PlayerCard({ s, id, onClose, onChat }: { s: Store; id: number; o
       </div>
       <div className="pcard-acts">
         <button className="btn" onClick={() => void greet('huong', '')}>
-          <Icon name="incense" /> Tặng hương
+          <Icon name="incense" /> Tặng bùa
         </button>
         <button className="btn" onClick={() => void befriend()}>
-          <Icon name="users" /> Kết bạn đồng tu
-        </button>
-      </div>
-      <div className="pcard-acts">
-        <button className="btn gold" onClick={() => onChat(id)}>
-          <Icon name="chat" /> Nhắn tin
+          <Icon name="users" /> Kết bạn đồng đội
         </button>
       </div>
     </div>
   );
 }
 
-// ---- Ba vị trong chùa --------------------------------------------------------
+// ---- Ba vị hướng dẫn ---------------------------------------------------------
 
 export type NpcKind = 'abbot' | 'hermit' | 'teller';
 
-// Thầy trụ trì, Lão Hành Khất và người kể chuyện: cùng một khung thoại
+// Huấn luyện viên, Nhà Phân Tích và Tiên Tri Hex: cùng một khung thoại
 // (.abbot-head/.abbot-say/.abbot-opts) như bản gốc, chỉ khác nội dung.
 export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcKind; index?: number; onClose: () => void }) {
   const story = storyOf(TEMPLE.id);
@@ -197,16 +190,16 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
     </button>
   );
 
-  const chime = () => Sound.chime();
+  const tap = () => Sound.tap();
 
   if (kind === 'hermit') {
     return wrap(
       '#7a6a52',
-      'Lão Hành Khất',
-      'Bán bí kiếp, chỉ bán cho người hữu duyên',
+      'Nhà Phân Tích',
+      'Mổ số liệu bản vá, chỉ nói khi có số',
       say(
-        `<p>Lại là con à? Bí kiếp bán rồi miễn trả lại nhé. Nhưng lão nói thật: chiêu hay nhất không nằm trong sách đâu, đọc đi rồi biết.</p>${HERMIT_LESSONS.map((l) => `<p>${l}</p>`).join('')}`,
-        <Btn label="Con xin phép cụ" icon="pray" onClick={onClose} />,
+        `<p>Lại là bạn à? Bí kíp bán rồi, không đổi trả. Nhưng tôi nói thật: chiêu mạnh nhất không nằm trong bảng số đâu, đọc rồi tự khắc thấy.</p>${HERMIT_LESSONS.map((l) => `<p>${l}</p>`).join('')}`,
+        <Btn label="Tôi xin phép" icon="pray" onClick={onClose} />,
       ),
     );
   }
@@ -220,7 +213,7 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
             label={t.title}
             icon="scroll"
             onClick={() => {
-              chime();
+              tap();
               setTale(i);
             }}
           />
@@ -233,7 +226,7 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
       teller.name,
       `${teller.role} · ${TEMPLE.name}`,
       tale === null
-        ? say(`<p>Chào ${esc(s.state?.name ?? 'đạo hữu')}! Tôi là ${teller.name}, ${teller.role.toLowerCase()} ở đây. Bạn ghé ${TEMPLE.name} lần này, có muốn nghe tôi kể vài chuyện xưa không?</p>`, menu)
+        ? say(`<p>Chào ${esc(s.state?.name ?? 'nhà lữ hành')}! Tôi là ${teller.name}, ${teller.role.toLowerCase()} ở đây. Bạn ghé ${TEMPLE.name} lần này, có muốn nghe tôi kể vài chuyện không?</p>`, menu)
         : say(
             `<h4 class="tale-title">${teller.tales[tale].title}</h4><p>${teller.tales[tale].text}</p>`,
             <Btn
@@ -241,7 +234,7 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
               icon="scroll"
               gold
               onClick={() => {
-                chime();
+                tap();
                 setTale(null);
               }}
             />,
@@ -249,36 +242,36 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
     );
   }
 
-  // Trụ trì: kể sự tích chùa từng trang một, đúng thứ tự main.js:1093-1108.
+  // Huấn luyện viên: kể chuyện đền từng trang một, đúng thứ tự main.js:1093-1108.
   const pages = story.story?.length ? story.story : [TEMPLE.name];
-  const head = <Head ava="#c98a2e" name={ABBOT} sub={`Trụ trì ${TEMPLE.name}`} />;
+  const head = <Head ava="#c98a2e" name={ABBOT} sub={`Huấn luyện viên ${TEMPLE.name}`} />;
   const menu = (
     <>
       <Btn
-        label="Thầy kể sự tích chùa"
+        label="Kể chuyện đền"
         icon="story"
         onClick={() => {
-          chime();
+          tap();
           setPage(0);
         }}
       />
       <Btn
-        label="Chùa có gì đặc sắc ạ?"
+        label="Đền có gì hay?"
         icon="temple"
         onClick={() => {
-          chime();
+          tap();
           setPage(-2);
         }}
       />
       <Btn
-        label="Về pháp môn của con"
+        label="Về lối chơi của tôi"
         icon="book"
         onClick={() => {
-          chime();
+          tap();
           setPage(-3);
         }}
       />
-      <Btn label="Con xin phép thầy" icon="pray" gold onClick={onClose} />
+      <Btn label="Thôi, cảm ơn" icon="pray" gold onClick={onClose} />
     </>
   );
 
@@ -289,30 +282,30 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
       `<p>${pages[page]}</p><small class="muted">(${page + 1}/${pages.length})</small>`,
       last ? (
         <Btn
-          label="Dạ, con hiểu rồi"
+          label="Hiểu rồi"
           icon="pray"
           gold
           onClick={() => {
-            chime();
+            tap();
             setPage(-1);
           }}
         />
       ) : (
         <>
           <Btn
-            label="Thầy kể tiếp ạ"
+            label="Kể tiếp"
             icon="scroll"
             gold
             onClick={() => {
-              chime();
+              tap();
               setPage(page + 1);
             }}
           />
           <Btn
-            label="Con hỏi chuyện khác"
+            label="Hỏi chuyện khác"
             icon="pray"
             onClick={() => {
-              chime();
+              tap();
               setPage(-1);
             }}
           />
@@ -321,13 +314,13 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
     );
   } else if (page === -2) {
     body = say(
-      story.highlights?.length ? `<p>Chùa mình có mấy điều con nên biết:</p><ul>${story.highlights.map((h) => `<li>${h}</li>`).join('')}</ul>` : `<p>${story.intro ?? ''}</p>`,
+      story.highlights?.length ? `<p>Đền này có mấy điều bạn nên biết:</p><ul>${story.highlights.map((h) => `<li>${h}</li>`).join('')}</ul>` : `<p>${story.intro ?? ''}</p>`,
       <Btn
-        label="Dạ"
+        label="Được"
         icon="pray"
         gold
         onClick={() => {
-          chime();
+          tap();
           setPage(-1);
         }}
       />,
@@ -336,21 +329,21 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
     const g = s.state ? guideOf(s.state.sect) : null;
     body = say(
       g
-        ? `<p><b>${g.subtitle}</b></p><p>${g.essence[0] ?? ''}</p><p>${g.inApp}</p>`
-        : `<p>Con hãy chọn một thiền phái rồi thầy chỉ cho: mỗi phái có một pháp môn riêng, hợp với căn cơ của mỗi người.</p>`,
+        ? `<p><b>${g.subtitle}</b></p><p>${g.origin}</p><p>${g.inApp}</p>`
+        : `<p>Chọn một lối chơi trước đã: mỗi lối có một cách lên đồ riêng, hợp với tay của từng người.</p>`,
       <Btn
-        label="Dạ, con cảm ơn thầy"
+        label="Cảm ơn"
         icon="pray"
         gold
         onClick={() => {
-          chime();
+          tap();
           setPage(-1);
         }}
       />,
     );
   } else {
     body = say(
-      `<p>A Di Đà Phật! ${s.state?.name ?? 'Con'} cần hỏi thầy điều gì?</p>`,
+      `<p>Chào ${esc(s.state?.name ?? 'bạn')}! Hôm nay bạn cần tôi xem gì?</p>`,
       menu,
     );
   }
@@ -365,23 +358,20 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
   );
 }
 
-// ---- Đồng tu: bạn bè · tin nhắn · quà kết duyên ------------------------------
+// ---- Đồng đội: bạn bè · quà tặng ---------------------------------------------
 
-export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice: Notice | null; onClose: () => void; onChat: (id: number) => void }) {
+export function FriendsSheet({ s, notice, onClose }: { s: Store; notice: Notice | null; onClose: () => void }) {
   const [tab, setTab] = useState('friends');
   const [list, setList] = useState<FriendList>(EMPTY_FRIENDS);
-  const [threads, setThreads] = useState<Thread[]>([]);
   const [gifts, setGifts] = useState<Greeting[]>([]);
 
   const load = useCallback(async () => {
     try {
-      const [f, d, g] = await Promise.all([
+      const [f, g] = await Promise.all([
         get<FriendList>('/friends'),
-        get<{ threads: Thread[] }>('/dms'),
         get<{ rows: Greeting[] }>('/greetings'),
       ]);
       setList(f);
-      setThreads(d.threads);
       setGifts(g.rows);
     } catch {
       // sheet vẫn mở được với danh sách rỗng; lỗi mạng thì tab nào cũng trống
@@ -401,7 +391,7 @@ export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice:
   const act = async (id: number, action: string) => {
     try {
       await post('/friends', { id, action });
-      Sound.chime();
+      Sound.tap();
       await load();
     } catch (e) {
       s.toast((e as Error).message);
@@ -423,17 +413,15 @@ export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice:
     </div>
   );
 
-  const unseen = threads.reduce((n, t) => n + t.unseen, 0);
   const unopened = gifts.filter((g) => !g.seen).length;
 
   return (
     <Sheet
-      title="Đồng tu"
+      title="Đồng đội"
       onClose={onClose}
       tabs={[
         { id: 'friends', label: `Bạn (${list.friends.length})` },
-        { id: 'chat', label: unseen ? `Tin nhắn · ${unseen}` : 'Tin nhắn' },
-        { id: 'gifts', label: unopened ? `Quà kết duyên · ${unopened}` : 'Quà kết duyên' },
+        { id: 'gifts', label: unopened ? `Quà tặng · ${unopened}` : 'Quà tặng' },
       ]}
       tab={tab}
       onTab={setTab}
@@ -446,9 +434,9 @@ export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice:
               <Icon name="users" />
             </div>
             <div className="hero-body">
-              <b>Bạn đồng tu</b>
-              <p>{list.friends.length ? `${list.friends.length} bạn đã kết duyên` : 'Cùng nhau tinh tấn'}</p>
-              <small>Chạm vào một Phật tử trong chánh điện để gửi lời chúc, tặng hương hoặc kết bạn.</small>
+              <b>Đồng đội</b>
+              <p>{list.friends.length ? `${list.friends.length} người chung đội` : 'Cùng nhau chơi tốt hơn'}</p>
+              <small>Chạm vào một người chơi trong sảnh để gửi lời chúc, tặng bùa hoặc kết bạn.</small>
             </div>
           </div>
           {list.incoming.length ? (
@@ -469,19 +457,12 @@ export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice:
               )}
             </>
           ) : null}
-          <div className="region">Bạn đồng tu ({list.friends.length})</div>
-          {list.friends.map((p) =>
-            row(
-              p,
-              <button className="btn small ghost icon-btn" title="Nhắn tin" aria-label="Nhắn tin" onClick={() => onChat(p.id)}>
-                <Icon name="chat" />
-              </button>,
-            ),
-          )}
+          <div className="region">Đồng đội ({list.friends.length})</div>
+          {list.friends.map((p) => row(p))}
           {!list.friends.length ? (
             <div className="wish-empty">
               <Icon name="users" />
-              <p>Chưa có bạn đồng tu. Chạm vào một Phật tử trong chánh điện để kết bạn.</p>
+              <p>Chưa có đồng đội. Chạm vào một người chơi trong sảnh để kết bạn.</p>
             </div>
           ) : null}
           {list.outgoing.length ? (
@@ -500,44 +481,9 @@ export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice:
         </div>
       ) : null}
 
-      {tab === 'chat' ? (
-        <div className="comm">
-          <div className="comm-hero friend-hero">
-            <div className="hero-glow" />
-            <div className="hero-ic">
-              <Icon name="chat" />
-            </div>
-            <div className="hero-body">
-              <b>Tin nhắn riêng</b>
-              <p>Trò chuyện với bạn đồng tu</p>
-              <small>Lời lẽ hoà nhã, ái ngữ nhé.</small>
-            </div>
-          </div>
-          {threads.map((t) => (
-            <div className={`friend-row${t.unseen ? ' unread' : ''}`} key={t.player.id} onClick={() => onChat(t.player.id)}>
-              <Ava name={t.player.name} sect={t.player.sect} />
-              <div className="fr-body">
-                <b>{t.player.name}</b>
-                <small>{t.last.slice(0, 48)}</small>
-              </div>
-              <div className="fr-side">
-                <small>{ago(t.last)}</small>
-                {t.unseen ? <i className="tab-dot">{t.unseen}</i> : null}
-              </div>
-            </div>
-          ))}
-          {!threads.length ? (
-            <div className="wish-empty">
-              <Icon name="chat" />
-              <p>Chưa có cuộc trò chuyện nào. Vào tab Bạn, chạm vào một đạo hữu để nhắn tin.</p>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
       {tab === 'gifts' ? (
         <div className="comm">
-          <div className="region">Quà kết duyên nhận được</div>
+          <div className="region">Quà tặng nhận được</div>
           {gifts.map((g) => (
             <div className="wish-card" key={g.id}>
               <div className="wish-lamp">
@@ -545,13 +491,13 @@ export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice:
               </div>
               <div className="wish-main">
                 <div className="wish-top">
-                  <b>{g.from?.name ?? 'Một đạo hữu'}</b>
+                  <b>{g.from?.name ?? 'Một người chơi'}</b>
                   {g.seen ? <span className="tag">Đã mở</span> : <span className="tag gold">Mới</span>}
                 </div>
-                <p className="wish-text">{g.text ? `“${g.text}”` : g.kind === 'huong' ? 'Gửi bạn một nén hương trầm' : 'Gửi bạn một lời chúc'}</p>
+                <p className="wish-text">{g.text ? `“${g.text}”` : g.kind === 'huong' ? 'Gửi bạn một Bùa May Mắn' : 'Gửi bạn một lời chúc'}</p>
                 <div className="wish-meta">
                   {ago(g.at)}
-                  {g.gift_sen ? ` · ${fmt(g.gift_sen)} Sen` : ''}
+                  {g.gift_sen ? ` · ${fmt(g.gift_sen)} Tinh Hoa` : ''}
                 </div>
               </div>
               {g.seen ? null : (
@@ -561,7 +507,7 @@ export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice:
                     try {
                       const r = await post<Gain & { from: PublicPlayer; gift_sen: number }>(`/greetings/${g.id}/open`);
                       s.apply(r);
-                      Sound.success();
+                      Sound.spark();
                       await load();
                     } catch (e) {
                       s.toast((e as Error).message);
@@ -576,7 +522,7 @@ export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice:
           {!gifts.length ? (
             <div className="wish-empty">
               <Icon name="gift" />
-              <p>Chưa có món quà nào. Tặng hương hoặc gửi lời chúc cho một đạo hữu để kết duyên.</p>
+              <p>Chưa có món quà nào. Tặng bùa hoặc gửi lời chúc cho một người chơi.</p>
             </div>
           ) : null}
         </div>
@@ -585,108 +531,7 @@ export function FriendsSheet({ s, notice, onClose, onChat }: { s: Store; notice:
   );
 }
 
-// ---- Hộp thư riêng -----------------------------------------------------------
-
-export function ChatModal({ s, id, notice, onClose }: { s: Store; id: number; notice: Notice | null; onClose: () => void }) {
-  const [dm, setDm] = useState<Dm | null>(null);
-  const [text, setText] = useState('');
-  const list = useRef<HTMLDivElement>(null);
-  const sending = useRef(false);
-
-  useEffect(() => {
-    void get<Dm>(`/dms/${id}`)
-      .then((r) => {
-        setDm(r);
-        requestAnimationFrame(() => list.current?.scrollTo({ top: list.current.scrollHeight }));
-      })
-      .catch((e: Error) => s.toast(e.message));
-  }, [id]);
-
-  // Hộp thư đang mở mà tin tới thì vẽ ngay: gói tin báo của máy chủ mang theo cả nội
-  // dung, nên không phải xin lại GET /dms/:id. Chưa mở kịp hồ sơ thì để lượt GET kế
-  // tiếp đọc — tin đã nằm trong database rồi, không mất.
-  useEffect(() => {
-    if (!notice || notice.t !== 'dm' || notice.by.id !== id) return;
-    setDm((prev) => (prev ? { ...prev, messages: [...prev.messages, { mine: false, text: notice.text, at: notice.at }] } : prev));
-  }, [notice, id]);
-
-  useEffect(() => {
-    list.current?.scrollTo({ top: list.current.scrollHeight });
-  }, [dm?.messages.length]);
-
-  const send = async () => {
-    const body = text.trim();
-    if (!body || sending.current) return;
-    sending.current = true;
-    setText('');
-    try {
-      await post('/dms', { id, text: body });
-      setDm((prev) => (prev ? { ...prev, messages: [...prev.messages, { mine: true, text: body, at: new Date().toISOString() }] } : prev));
-    } catch (e) {
-      setText(body);
-      s.toast((e as Error).message);
-    } finally {
-      sending.current = false;
-    }
-  };
-
-  return (
-    <div className="modal" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <div className="chat">
-          <div className="chat-head">
-            {dm ? <Ava name={dm.player.name} sect={dm.player.sect} /> : <span className="ava" />}
-            <div>
-              <b>{dm?.player.name ?? '…'}</b>
-              <small>{dm ? `Cấp ${dm.player.level} · ${dm.player.title}` : 'Đang mở hộp thư'}</small>
-            </div>
-            <button className="help-btn" aria-label="Đóng" onClick={onClose}>
-              <Icon name="close" />
-            </button>
-          </div>
-          <div className="chat-list" ref={list}>
-            {dm?.messages.map((m, i) => (
-              <div className={`chat-msg${m.mine ? ' me' : ''}`} key={i}>
-                <span>{m.text}</span>
-                <small>{ago(m.at)}</small>
-              </div>
-            ))}
-            {dm && !dm.messages.length ? (
-              <div className="chat-empty">
-                <Icon name="pray" />
-                <p>
-                  Gửi lời chào đầu tiên tới <b>{dm.player.name}</b>.
-                  <br />
-                  Nam mô A Di Đà Phật!
-                </p>
-              </div>
-            ) : null}
-          </div>
-          <div className="chat-input">
-            <textarea
-              rows={1}
-              maxLength={400}
-              placeholder={dm ? `Nhắn cho ${dm.player.name}…` : '…'}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  void send();
-                }
-              }}
-            />
-            <button className="btn gold icon-btn" aria-label="Gửi" onClick={() => void send()}>
-              <Icon name="send" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---- Nhóm đồng tu ------------------------------------------------------------
+// ---- Tổ đội ------------------------------------------------------------------
 
 export function GroupSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   const [group, setGroup] = useState<Group | null>(null);
@@ -714,7 +559,7 @@ export function GroupSheet({ s, onClose }: { s: Store; onClose: () => void }) {
     try {
       const r = await post<{ group?: Group | null }>(path, body);
       if (r.group !== undefined) setGroup(r.group ?? null);
-      Sound.success();
+      Sound.spark();
       await load();
     } catch (e) {
       s.toast((e as Error).message);
@@ -745,7 +590,7 @@ export function GroupSheet({ s, onClose }: { s: Store; onClose: () => void }) {
                 <i style={{ width: `${pct}%` }} />
               </div>
               <small>
-                Công đức chung {fmt(group.merit)} / {fmt(group.goal)}
+                Điểm chung {fmt(group.merit)} / {fmt(group.goal)}
                 {group.merit >= group.goal ? ' – đã đạt!' : ''}
               </small>
             </div>
@@ -772,10 +617,10 @@ export function GroupSheet({ s, onClose }: { s: Store; onClose: () => void }) {
                 <small>{ago(m.at)}</small>
               </div>
             ))}
-            {!group.messages.length ? <p className="muted">Chưa có lời nào. Gửi lời chào đầu tiên cho nhóm nhé.</p> : null}
+            {!group.messages.length ? <p className="muted">Chưa có lời nào. Gửi lời chào đầu tiên cho tổ đội nhé.</p> : null}
           </div>
           <div className="chat-input">
-            <textarea rows={1} maxLength={400} placeholder="Nhắn cho cả nhóm…" value={text} onChange={(e) => setText(e.target.value)} />
+            <textarea rows={1} maxLength={400} placeholder="Nhắn cho cả tổ đội…" value={text} onChange={(e) => setText(e.target.value)} />
             <button
               className="btn gold icon-btn"
               aria-label="Gửi"
@@ -790,7 +635,7 @@ export function GroupSheet({ s, onClose }: { s: Store; onClose: () => void }) {
             </button>
           </div>
           <button className="btn ghost wide" style={{ marginTop: 12, color: '#a0522d' }} onClick={() => void call('/group/leave', {})}>
-            Rời nhóm
+            Rời tổ đội
           </button>
         </div>
       ) : (
@@ -801,13 +646,13 @@ export function GroupSheet({ s, onClose }: { s: Store; onClose: () => void }) {
               <Icon name="temple" />
             </div>
             <div className="hero-body">
-              <b>Nhóm đồng tu</b>
-              <p>Cùng nhau tu tập, cùng thấy công đức chung</p>
-              <small>Lập nhóm rồi gửi mã mời cho bạn bè; mỗi nhóm tối đa {10} người.</small>
+              <b>Tổ đội</b>
+              <p>Cùng nhau chơi, cùng thấy điểm chung</p>
+              <small>Lập tổ đội rồi gửi mã mời cho bạn bè; tối đa 8 người.</small>
             </div>
           </div>
           <div className="sg-form">
-            <input maxLength={30} placeholder="Tên nhóm (VD: Gia đình Sen Hồng)" value={name} onChange={(e) => setName(e.target.value)} />
+            <input maxLength={30} placeholder="Tên tổ đội (VD: Gia Đình Sao Đỏ)" value={name} onChange={(e) => setName(e.target.value)} />
             <button className="btn gold" disabled={name.trim().length < 2} onClick={() => void call('/group', { name: name.trim() })}>
               Lập mới
             </button>

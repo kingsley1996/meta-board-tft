@@ -1,4 +1,4 @@
-// Chạy DDL của chùa. Nội dung nằm ở schema.sql cùng thư mục — một nguồn duy nhất,
+// Chạy DDL của sảnh đền. Nội dung nằm ở schema.sql cùng thư mục — một nguồn duy nhất,
 // không có bản sao trong TypeScript để mà lệch.
 //
 // ensureAccountTables đi trước vì bảng chùa khoá ngoại vào users(id): một database

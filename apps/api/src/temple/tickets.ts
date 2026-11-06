@@ -54,11 +54,20 @@ export async function issueWsTicket(userId: string): Promise<TicketIssue> {
 
 // Một vé = một phiên kết nối. Đọc xong là xoá, kể cả khi kết nối thất bại: để vé sống
 // tới hết hạn nghĩa là kẻ nghe được đường dây còn nguyên quyền vào chùa.
-export function redeemWsTicket(token: string | null): TicketHolder | null {
-  if (!token) return null;
+//
+// Lý do phải phân biệt "hết hạn" với "không phải vé": máy khách xin vé rồi mở socket
+// ngay trong cùng một nhịp, nhưng dựng cảnh chùa là một khúc blocking dài của main
+// thread. Máy yếu thì khoảng đó vượt TTL, vé chết trước khi socket kịp nối, và nếu coi
+// nó như vé giả thì người thật bị khoá ngoài chánh điện cả phiên.
+export type TicketRedeem = { ok: true; holder: TicketHolder } | { ok: false; reason: 'absent' | 'unknown' | 'expired' };
+
+export function redeemWsTicket(token: string | null): TicketRedeem {
+  if (!token) return { ok: false, reason: 'absent' };
   const key = hashToken(token);
   const entry = issued.get(key);
-  if (!entry) return null;
+  if (!entry) return { ok: false, reason: 'unknown' };
   issued.delete(key);
-  return entry.expiresAt > Date.now() ? { userId: entry.userId, playerId: entry.playerId } : null;
+  return entry.expiresAt > Date.now()
+    ? { ok: true, holder: { userId: entry.userId, playerId: entry.playerId } }
+    : { ok: false, reason: 'expired' };
 }

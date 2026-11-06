@@ -1,8 +1,8 @@
-// Nhịp hành trì: lạy, lần chuỗi, tụng kinh, ngồi thiền, chuông, quét sân — và bảng
+// Nhịp cầu may: 3 lần cầu một gói, rồi một nhịp ngồi — và bảng
 // xếp hạng cộng từ những nhịp đó.
 //
-// Máy khách gửi "tôi vừa làm gì, bao nhiêu lần"; số công đức, bậc, Sen đều tính ở
-// đây. Bảng quy đổi giữ nguyên như bản gốc (api.js:449-526) để cảm giác tu tập không
+// Máy khách gửi "tôi vừa làm gì, bao nhiêu lần"; số Điểm May Mắn, bậc, Tinh Hoa đều tính ở
+// đây. Bảng quy đổi giữ nguyên như bản gốc (api.js:449-526) để cảm giác một phiên không
 // đổi, chỉ đổi chỗ nó được quyết định.
 import { Router } from 'express';
 import { pool } from '../db.ts';
@@ -24,18 +24,19 @@ import { ensureTempleTables } from './schema.ts';
 
 export const practiceRouter = Router();
 
-// Đồ thắp hương: số công đức ghi trong chính mô tả của meta.json, không phải số bịa
-// thêm. nen_sap/hoa_dang chỉ có công đức, riêng nén hương mở buff 20% trong 10 phút.
+// Đồ dâng bùa: ba con số dưới đây là nguồn duy nhất — mô tả trong meta.json chỉ còn
+// là chữ, không chứa điểm nữa. nen_sap/hoa_dang chỉ có điểm, riêng bùa (huong_tram)
+// mở buff 20% trong 10 phút.
 const OFFERINGS: Record<string, { exp: number; buffMs?: number }> = {
   huong_tram: { exp: 10, buffMs: 10 * 60_000 },
   nen_sap: { exp: 5 },
   hoa_dang: { exp: 8 },
 };
 
-// Máy khách tự gom nhịp: 4 lạy một lần gửi (temple-app.tsx:205, tối đa 5 lạy một gói),
-// 30 hạt mỗi 4 giây (:525). Các mốc dưới thấp hơn nhịp thật của người tu nên không ăn
-// gian công đức của ai, nhưng một vòng lặp POST thì dính.
-const COOLDOWN_MS: Record<string, number> = { bow: 3_000, bead: 3_000, bell: 1_500, chant_done: 10_000 };
+// Máy khách tự gom nhịp: 4 lần cầu một lần gửi (temple-app.tsx, tối đa 5 lần một gói).
+// Mốc dưới đây thấp hơn nhịp thật của người chơi nên không ăn gian điểm của ai, nhưng
+// một vòng lặp POST thì dính.
+const COOLDOWN_MS: Record<string, number> = { bow: 3_000 };
 
 practiceRouter.post('/practice', withUser(async (req, res, user) => {
   await ensureTempleTables();
@@ -49,10 +50,9 @@ practiceRouter.post('/practice', withUser(async (req, res, user) => {
   const extra: Record<string, number> = {};
   const practice: PracticeDelta = {};
   let exp = 0;
-  let duc = 0;
 
   if (type === 'visit') {
-    // Một chùa một nơi nên không còn "dấu chân hành hương" của bản gốc; mốc này chỉ
+    // Một sảnh duy nhất nên không còn "dấu chân hành hương" của bản gốc; mốc này chỉ
     // trả công cho lần đặt chân đầu tiên trong ngày, và temple_practice.visits là
     // bằng chứng máy chủ tự giữ thay vì tin máy khách.
     const today = await practiceRow(user.id);
@@ -65,21 +65,6 @@ practiceRouter.post('/practice', withUser(async (req, res, user) => {
   } else if (type === 'bow') {
     exp = count * MERIT_PER.bow;
     practice.bows = count;
-  } else if (type === 'bead') {
-    const before = await lifetimeBeads(user.id);
-    const roundsDone = Math.floor((before + count) / 108) - Math.floor(before / 108);
-    exp = count * MERIT_PER.bead + roundsDone * MERIT_PER.round;
-    practice.beads = count;
-    if (roundsDone > 0) {
-      practice.rounds = roundsDone;
-      extra.rounds = roundsDone;
-    }
-  } else if (type === 'chant_done') {
-    exp = MERIT_PER.chant_done;
-    practice.chants = 1;
-    duc = 5;
-  } else if (type === 'bell') {
-    exp = MERIT_PER.bell;
   } else if (type === 'meditate_start') {
     const started = await startMeditation(user.id);
     res.json({ state: await templeState(user.id), meditate_start: started });
@@ -93,13 +78,13 @@ practiceRouter.post('/practice', withUser(async (req, res, user) => {
     throw new ApiError(400, 'unknown_practice_type', `the temple does not track "${type}"`);
   }
 
-  const result = await addMerit(user.id, { exp, duc, practice });
+  const result = await addMerit(user.id, { exp, practice });
   const streak = await touchStreak(user.id);
   res.json({ state: await templeState(user.id), gained: result.gained, extra, level_ups: result.levelUps, streak });
 }));
 
-// Thắp hương / dâng hoa / dâng nến: trừ một món khỏi túi rồi mới cộng công đức, để
-// không ai bấm cùng một nén hương hai lần mà vẫn được tính.
+// Dâng bùa / nến / đóa sao: trừ một món khỏi túi rồi mới cộng điểm, để
+// không ai bấm cùng một lá bùa hai lần mà vẫn được tính.
 practiceRouter.post('/use', withUser(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
@@ -121,12 +106,12 @@ practiceRouter.post('/use', withUser(async (req, res, user) => {
   res.json({ state: await templeState(user.id), left: spent[item] ?? 0, gained: result.gained, level_ups: result.levelUps });
 }));
 
-// BXH. Cộng từ temple_practice theo cửa sổ ngày, không lấy exp tích luỹ: người tu
-// từ tháng trước mà ngồi không thì không nên đứng trên người vừa lạy hôm nay.
+// BXH. Cộng từ temple_practice theo cửa sổ ngày, không lấy exp tích luỹ: người chơi
+// từ tháng trước mà nghỉ thì không nên đứng trên người vừa cầu may hôm nay.
 // now() chứ không phải CURRENT_DATE: CURRENT_DATE đã là một `date` nên cộng thêm 7
 // tiếng rồi cast ::date vẫn trả đúng ngày UTC cũ, tức là cửa sổ đi sau giờ Hà Nội
-// bảy tiếng trong khi bumpPractice() ghi ngày Hà Nội — người lạy lúc 6h sáng thấy
-// công đức của mình biến mất khỏi "Hôm nay".
+// bảy tiếng trong khi bumpPractice() ghi ngày Hà Nội — người cầu may lúc 6h sáng thấy
+// điểm của mình biến mất khỏi "Hôm nay".
 const SCOPES: Record<string, string> = {
   day: `p.day = (now() + INTERVAL '7 hours')::date`,
   week: `p.day >= (now() + INTERVAL '7 hours')::date - 6`,
@@ -182,7 +167,7 @@ practiceRouter.get('/leaderboard', withUser(async (req, res, user) => {
   });
 }));
 
-// Sổ công đức: 28 ngày gần nhất, để HUD vẽ biểu đồ "ngày nào tu bao nhiêu".
+// Sổ điểm: 28 ngày gần nhất, để HUD vẽ biểu đồ "ngày nào kiếm bao nhiêu điểm".
 practiceRouter.get('/merit', withUser(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
@@ -197,21 +182,11 @@ async function practiceRow(userId: string): Promise<{ visits: number; meditate_m
   return rows[0] ?? { visits: 0, meditate_min: 0 };
 }
 
-// Số hạt cả đời = tổng từng ngày. Giữ từng ngày thay vì một cột cộng dồn vì sổ công
-// đức và BXH tuần cũng đọc đúng những hàng đó.
-async function lifetimeBeads(userId: string): Promise<number> {
-  const { rows } = await pool.query<{ total: string | null }>(
-    'SELECT SUM(beads)::text AS total FROM temple_practice WHERE user_id = $1',
-    [userId],
-  );
-  return Number(rows[0]?.total ?? 0) || 0;
-}
-
-// Đồng hồ ngồi thiền là đồng hồ server. Máy khách chỉ báo "con bắt đầu" và "con xong";
+// Đồng hồ thiền là đồng hồ server. Máy khách chỉ báo "bắt đầu" và "xong";
 // nếu nó được gửi số phút thì một gói tin là mua được cả ngày đứng nhất BXH.
 //
 // Mỗi nhịp là một câu UPDATE chiếm chỗ: hai request cùng đọc rồi cùng ghi thì mỗi cú
-// meditate_end đều được cộng công đức.
+// kết thúc đều được cộng điểm.
 async function startMeditation(userId: string): Promise<string> {
   const { rows } = await pool.query<{ meditate_start: Date }>(
     'UPDATE temple_profiles SET meditate_start = now() WHERE user_id = $1 AND meditate_start IS NULL RETURNING meditate_start',

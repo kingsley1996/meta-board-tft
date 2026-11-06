@@ -83,15 +83,22 @@ export class TempleRoom {
       // đứng gốc sân chùa trên máy người khác cho tới khi mình bước đi.
       this.lastSent = '';
       this.handlers.onConnection(true);
-      ws.send(JSON.stringify({ t: 'join', temple: this.temple, room: this.room, v: 4 }));
+      // Kèm theo vị trí hiện tại: máy chủ dựng thành viên phòng từ chính gói tin này,
+      // nên một cú nối lại mà không kê position thì người đó bị đặt về (0,0) đứng ngay
+      // giữa sân chùa, và tới nhịp đẩy 200ms sau mới được kéo về chỗ đang ngồi thiền.
+      ws.send(JSON.stringify({ t: 'join', temple: this.temple, room: this.room, v: 4, ...(this.state() ?? {}) }));
       this.startPush();
     };
     ws.onerror = () => ws.close();
     ws.onclose = (ev) => {
       this.handlers.onConnection(false);
       this.stopPush();
-      // 1008/4003/4008 là từ chối có chủ đích (không vé, vé hết hạn, quy chế): nối lại
+      // 1008/4003/4008 là từ chối có chủ đích (không vé, vé giả, quy chế): nối lại
       // ngay chỉ đốt vé và tiếp tay cho một vòng lặp không lối thoát.
+      // 4009 = vé hết hạn thì *không* nằm trong danh sách này: máy chậm dựng cảnh có
+      // thể mở socket sau khi vé quá TTL, và người thật đó phải vào được chùa ở nhịp
+      // thử lại kế tiếp (mỗi nhịp xin một vé mới, vé cũ đã bị server đốt nên trần vé
+      // không bị phình).
       // 4000 = "ở nơi khác đã mở" — tab bị đá mà nối lại thì hai tab đá lẫn nhau liên
       // tục, đúng như bản gốc dừng hẳn ở code này (main.js ở commit cca9c6d).
       if (this.closed || ev.code === 1008 || ev.code === 4000 || ev.code === 4003 || ev.code === 4008) return;
@@ -158,7 +165,8 @@ export class TempleRoom {
   private readBinary(buffer: ArrayBuffer): void {
     const v = new DataView(buffer);
     // kind 2 là "cả phòng" (full resync) nên bản đồ cũ bị vứt; kind 1 chỉ là phần đổi.
-    if (v.getUint8(0) === 2) this.states.clear();
+    const full = v.getUint8(0) === 2;
+    if (full) this.states.clear();
     const n = v.getUint16(3, true);
     let o = 5;
     for (let i = 0; i < n; i++, o += ENTRY_BYTES) {
@@ -182,6 +190,10 @@ export class TempleRoom {
       this.states.delete(id);
       this.profs.delete(id);
     }
+    // Frame full kê mọi người đang đứng trong phòng, nên hồ sơ không có tên trong đó là
+    // của người đã rời đi lúc máy khách đứt nối: dọn để một phiên dài không tích lại
+    // tên của từng người từng ghé.
+    if (full) for (const id of [...this.profs.keys()]) if (!this.states.has(id)) this.profs.delete(id);
     this.emitPlayers(v.getUint16(1, true));
   }
 
@@ -191,8 +203,11 @@ export class TempleRoom {
         for (const p of (msg.p ?? []) as RemotePlayer[]) this.profs.set(p.id, p);
         return;
       case 'joined':
-        this.profs.clear();
-        this.states.clear();
+        // Không vứt hai bản đồ nữa. Máy chủ đã cấp ân hạn 3 giây cho một cú rớt mạng,
+        // nên reconnect thường là cùng những người này quay lại; xoá sạch ở đây nghĩa là
+        // chính mình thấy cả chánh điện biến mất rồi dựng lại (avatar mới nào cũng bay
+        // từ toạ độ thô về chỗ ngồi). Frame full ngay sau đó sẽ tự dọn những ai không còn
+        // đứng trong phòng.
         this.handlers.onJoined(Number(msg.id ?? 0));
         return;
       default:

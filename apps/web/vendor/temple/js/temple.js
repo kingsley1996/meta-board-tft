@@ -504,38 +504,14 @@ export function buildTemple(scene, theme, quality = 'high') {
 
   /* ============================================================================
      QUẢNG TRƯỜNG SÂN CHÙA
-     Chánh điện bên trong giữ nguyên sự thanh tịnh, trang nghiêm để lễ Phật & tụng kinh.
-     Bước ra sân chùa ngoài trời chỉ còn:
-     1. 🥁 Đại Mõ Neon Phản Lực Ngoài Sân (Giant Combo Wooden Fish)
+     Nền đá phía trước cửa chính để nhân vật đi bộ mượt mà ở mọi ngôi chùa.
      ============================================================================ */
-  function makeSignSprite(title, sub, borderCol = '#ffd36b', glowCol = 'rgba(255,211,107,0.25)') {
-    const tex = canvasTex(512, 160, (ctx, w, h) => {
-      ctx.fillStyle = 'rgba(18, 22, 18, 0.88)';
-      ctx.beginPath(); ctx.roundRect(8, 8, w - 16, h - 16, 28); ctx.fill();
-      ctx.strokeStyle = borderCol; ctx.lineWidth = 5;
-      ctx.beginPath(); ctx.roundRect(8, 8, w - 16, h - 16, 28); ctx.stroke();
-      ctx.fillStyle = glowCol;
-      ctx.beginPath(); ctx.roundRect(16, 16, w - 32, h - 32, 20); ctx.fill();
-      ctx.textAlign = 'center';
-      ctx.font = '800 34px system-ui, sans-serif';
-      ctx.fillStyle = borderCol;
-      ctx.fillText(title, w / 2, 68);
-      ctx.font = '600 22px system-ui, sans-serif';
-      ctx.fillStyle = '#eeece3';
-      ctx.fillText(sub, w / 2, 114);
-    });
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
-    sp.scale.set(2.9, 0.9, 1);
-    return sp;
-  }
-
   // Toạ độ Quảng Trường Sân Chùa Ngoài Trời (phía trước cửa chính chánh điện)
   const isPond = theme.view === 'pond';
   const outY = isCave ? 0 : (isPond ? (sur.groundY ?? -2.4) + 0.14 : (sur.groundY ?? 0));
   const outZ = isCave ? Math.min(hd - 3.2, (c.z0 ?? 0) + 2.2) : (isPond ? Math.max(hw, hd) + 18.2 : hd + 11.2);
-  const hostGroup = (!isCave && sur?.group) ? sur.group : g;
 
-  // Nền Đá Quảng Trường Sân Chùa (đảm bảo nhân vật đi bộ mượt mà quanh Đại Mõ ở mọi ngôi chùa)
+  // Nền Đá Quảng Trường Sân Chùa
   if (!isCave && sur?.group) {
     const terraceMat = new THREE.MeshStandardMaterial({ color: '#3b3530', roughness: 0.88 });
     const terraceBorderMat = new THREE.MeshStandardMaterial({ color: '#c89b4b', roughness: 0.45, metalness: 0.5 });
@@ -544,80 +520,8 @@ export function buildTemple(scene, theme, quality = 'high') {
     sur.group.add(mk(new THREE.BoxGeometry(22.8, 0.06, 10.8), terraceBorderMat, 0, outY - 0.01, outZ, { cast: false, receive: false }));
   }
 
-  // ---------- 🥁 ĐẠI MÕ NEON PHẢN LỰC (Giữa Quảng Trường Sân Chùa) ----------
-  const neonPinkMat = new THREE.MeshBasicMaterial({ color: '#ff2a85' });
-  const neonGoldMat = new THREE.MeshBasicMaterial({ color: '#ffd36b' });
-  const muyuPos = new THREE.Vector3(0, outY, outZ - 1.2);
-  const muyuGroup = new THREE.Group();
-  muyuGroup.position.copy(muyuPos);
-  hostGroup.add(muyuGroup);
-
-  const pedMat = new THREE.MeshStandardMaterial({ color: '#4e140d', roughness: 0.4 });
-  muyuGroup.add(mk(new THREE.CylinderGeometry(0.68, 0.82, 0.72, 24), pedMat, 0, 0.36, 0));
-  muyuGroup.add(mk(new THREE.TorusGeometry(0.72, 0.045, 10, 32), neonGoldMat, 0, 0.73, 0, { rot: [Math.PI / 2, 0, 0], cast: false }));
-
-  const giantMuyuMat = new THREE.MeshStandardMaterial({ color: '#e09f3e', emissive: '#ff9e00', emissiveIntensity: 0.28, roughness: 0.3, metalness: 0.45 });
-  const giantMuyuBody = mk(new THREE.SphereGeometry(0.56, 24, 18), giantMuyuMat, 0, 1.18, 0, { scale: [1.22, 0.86, 1.08] });
-  const giantMuyuSlit = mk(new THREE.TorusGeometry(0.42, 0.035, 8, 24, Math.PI), new THREE.MeshStandardMaterial({ color: '#240b04', roughness: 0.9 }), 0, 1.14, 0.42, { rot: [0, 0, Math.PI], cast: false });
-  muyuGroup.add(giantMuyuBody, giantMuyuSlit);
-
-  const giantMalletPivot = new THREE.Group();
-  giantMalletPivot.position.set(0.75, 1.65, 0.15);
-  giantMalletPivot.rotation.z = 0.45;
-  giantMalletPivot.add(
-    mk(new THREE.CylinderGeometry(0.035, 0.035, 0.85, 10), new THREE.MeshStandardMaterial({ color: '#d4a373' }), -0.35, 0, 0, { rot: [0, 0, Math.PI / 2], cast: false }),
-    mk(new THREE.SphereGeometry(0.11, 14, 12), neonPinkMat, -0.78, 0, 0, { cast: false })
-  );
-  muyuGroup.add(giantMalletPivot);
-
-  const muyuSign = makeSignSprite('🥁 ĐẠI MÕ SÂN CHÙA', 'Gõ Liên Thanh Xả Stress Cực Đã', '#ffd36b', 'rgba(255,211,107,0.2)');
-  muyuSign.position.set(0, 2.38, 0);
-  muyuSign.scale.set(2.3, 0.72, 1);
-  muyuGroup.add(muyuSign);
-
-  let giantMuyuAnim = 1;
-const shockwaves = [];
-
-  function spawnShockwave(worldPos, col = 0xffd36b) {
-    const ring = new THREE.Mesh(
-      new THREE.RingGeometry(0.25, 0.42, 32),
-      new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.95, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending })
-    );
-    ring.position.copy(worldPos);
-    ring.rotation.x = -Math.PI / 2;
-    hostGroup.add(ring);
-    shockwaves.push({ mesh: ring, t: 0 });
-  }
-
-  updaters.push((dt, time) => {
-    // Cập nhật Đại Mõ Neon
-    if (giantMuyuAnim < 1) {
-      giantMuyuAnim = Math.min(1, giantMuyuAnim + dt / 0.15);
-      const k = Math.sin(giantMuyuAnim * Math.PI);
-      giantMalletPivot.rotation.z = 0.45 - k * 0.75;
-      giantMuyuBody.scale.set(1.22 + k * 0.14, 0.86 - k * 0.12, 1.08 + k * 0.14);
-      giantMuyuMat.emissiveIntensity = 0.28 + k * 0.9;
-    }
-
-    // Cập nhật sóng xung kích (Shockwaves)
-    for (let i = shockwaves.length - 1; i >= 0; i--) {
-      const sw = shockwaves[i];
-      sw.t += dt * 2.4;
-      if (sw.t >= 1) {
-        hostGroup.remove(sw.mesh);
-        sw.mesh.geometry.dispose();
-        sw.mesh.material.dispose();
-        shockwaves.splice(i, 1);
-      } else {
-        sw.mesh.scale.setScalar(1 + sw.t * 4.5);
-        sw.mesh.material.opacity = (1 - sw.t) * 0.9;
-      }
-    }
-  });
-
   const stressZones = {
     hall: { pos: new THREE.Vector3(0, 0, Math.min(hd - 3.5, (c.z0 ?? 0) + 2.5)), yaw: 0, label: '🏯 Trong Chánh Điện Thanh Tịnh' },
-    muyu: { pos: new THREE.Vector3(muyuPos.x, outY, muyuPos.z + 1.55), yaw: 0, label: '🥁 Đại Mõ Phản Lực (Ngoài Sân)' },
   };
 
   const bounds = { minX: -hw + 1, maxX: hw - 1, minZ: tz + 1.2, maxZ: hd - 1 };
@@ -627,15 +531,11 @@ const shockwaves = [];
   return {
     group: g, cushions, bounds, altarZ, tableZ: tz, height: H,
     stressZones,
-    hitGiantMuyu() {
-      giantMuyuAnim = 0;
-      spawnShockwave(new THREE.Vector3(muyuPos.x, outY + 0.2, muyuPos.z), 0xffd36b);
-    },
     setStele: drawStele,
     steleFace: face,
     setMerit: drawMerit,
     meritStele: merit,
-    // dữ liệu để đi ra ngoài: cảnh quan, cửa chính, nền đất (chừa khoảng sân đặt Đại Mõ không mọc cây)
+    // dữ liệu để đi ra ngoài: cảnh quan, cửa chính, nền đất (chừa khoảng sân trống trước thềm)
     outdoor: !isCave ? {
       group: sur.group,
       groundY: sur.groundY ?? 0,

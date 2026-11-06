@@ -1,8 +1,8 @@
 // Hai hiệu ứng ăn mừng của HUD, giữ nguyên từ share.js (bản gốc) — share.js bị cắt
-// theo nhóm C nhưng hai hàm này không liên quan gì tới chia sẻ, chỉ là cánh sen rơi
-// và dòng "+N công đức" bay lên.'use client';
+// theo nhóm C nhưng hai hàm này không liên quan gì tới chia sẻ: một mảng mảnh sáng rơi
+// và dòng "+N điểm" bay lên.'use client';
 
-export function petalShower(n = 36, chars = ['🌸', '🌸', '✨']): void {
+export function luckyShower(n = 36, chars = ['💠', '✨', '⭐']): void {
   const layer = document.createElement('div');
   layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:46;overflow:hidden';
   document.body.appendChild(layer);

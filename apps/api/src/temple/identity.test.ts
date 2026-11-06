@@ -7,13 +7,13 @@ import { randomUUID } from 'node:crypto';
 // bên dưới kịp đặt DATABASE_URL — cùng lý do với accounts.test.ts.
 test('levelFromExp follows the ladder of the original client', async () => {
   const { levelFromExp } = await import('./identity.ts');
-  assert.deepEqual(levelFromExp(0), { level: 1, title: 'Phật tử Sơ Tâm', expNext: 50 });
-  assert.deepEqual(levelFromExp(49), { level: 1, title: 'Phật tử Sơ Tâm', expNext: 50 });
-  assert.deepEqual(levelFromExp(50), { level: 2, title: 'Phật tử Tinh Tấn', expNext: 150 });
-  assert.deepEqual(levelFromExp(1600), { level: 7, title: 'Bồ Tát Giữa Đời', expNext: 2600 });
+  assert.deepEqual(levelFromExp(0), { level: 1, title: 'Tân Binh', expNext: 50 });
+  assert.deepEqual(levelFromExp(49), { level: 1, title: 'Tân Binh', expNext: 50 });
+  assert.deepEqual(levelFromExp(50), { level: 2, title: 'Lữ Khách', expNext: 150 });
+  assert.deepEqual(levelFromExp(1600), { level: 7, title: 'Huyền Thoại', expNext: 2600 });
   // Trên bậc chót thì exp vẫn tăng nhưng bậc không đổi; mốc kế tiếp chỉ là chỗ
   // trống để thanh tiến độ còn vẽ được.
-  assert.deepEqual(levelFromExp(99_999), { level: 7, title: 'Bồ Tát Giữa Đời', expNext: 2600 });
+  assert.deepEqual(levelFromExp(99_999), { level: 7, title: 'Huyền Thoại', expNext: 2600 });
 });
 
 test('toPlayerProfile carries only what the room frame can draw', async () => {
@@ -21,10 +21,10 @@ test('toPlayerProfile carries only what the room frame can draw', async () => {
   const profile = {
     userId: randomUUID(),
     playerId: 42,
-    name: 'Phật Tử An Lạc',
-    sect: 'tinhdo',
-    title: 'Cư sĩ Thanh Tịnh',
-    honor: 'Tâm Sáng Như Sen',
+    name: 'Lữ Khách An Lạc',
+    sect: 'flex',
+    title: 'Người Thắp Đèn',
+    honor: 'Lữ khách cầu may',
     exp: 150,
     sen: 500,
     ngoc: 200,
@@ -43,7 +43,7 @@ test('toPlayerProfile carries only what the room frame can draw', async () => {
   };
   const wire = toPlayerProfile(profile);
   assert.equal(wire.id, 42);
-  assert.equal(wire.name, 'Phật Tử An Lạc');
+  assert.equal(wire.name, 'Lữ Khách An Lạc');
   assert.equal(wire.level, 3);
   // sen/ngoc/duc là số liệu riêng tư: chúng không được đi theo avatar.
   assert.equal(Object.keys(wire).sort().join(','), 'appearance,equipped,honor,id,level,name,sect,title');
@@ -82,18 +82,21 @@ test(
       const profile = guest.profile;
       assert.equal(profile.userId, guest.user.id);
       assert.ok(profile.playerId >= 1 && profile.playerId <= 4_294_967_295, 'player id fits the u32 frame');
-      assert.match(profile.name, /^Phật Tử /);
+      assert.match(profile.name, /^Lữ Khách /);
       assert.ok(profile.name.length <= 28);
       assert.equal(profile.sen, 500);
       assert.equal(profile.ngoc, 200);
       assert.equal(profile.duc, 100);
+      assert.equal(profile.sect, 'flex', 'a new profile starts on the flex playstyle, not a sect id');
       assert.equal(profile.equipped.robe, 'ao_lam', 'defaults copied from the original client');
       // Ba id này phải có thật trong meta.json: world.js:474 tra this.items[id].data,
-      // nên một id lạ là một người mới không bồ đoàn, không bạn đồng hành.
+      // nên một id lạ là một người mới không bệ ngồi, không bạn đồng hành.
       assert.equal(profile.equipped.cushion, 'bd_nau');
       assert.equal(profile.equipped.pet, 'lt_huou');
       assert.equal(profile.inventory.lt_huou, 1);
-      assert.equal(profile.inventory.cay_bode, 3);
+      // Vườn đã bị cắt: gói ngày đầu không được còn hạt giống, nếu không HUD sẽ hiện
+      // một món đồ không route nào dùng được nữa.
+      assert.equal(profile.inventory.cay_bode, undefined, 'no seeds in the starter pack');
       assert.equal(profile.level, levelFromExp(profile.exp).level);
 
       // Idempotent: gọi lại không được mọc thêm hồ sơ hay đổi tên đang dùng.
@@ -101,7 +104,7 @@ test(
       assert.deepEqual(again, profile);
 
       // Hai khách khác nhau không được trùng player id — frame nhị phân coi trùng id
-      // là một người, avatar sẽ đè nhau trong chánh điện.
+      // là một người, avatar sẽ đè nhau trong sảnh.
       const other = await createGuest();
       others.push(other.user.id);
       assert.notEqual(other.profile.playerId, profile.playerId);

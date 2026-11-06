@@ -13,8 +13,8 @@ if (!process.env.DATABASE_URL) {
 }
 const hasDb = Boolean(process.env.DATABASE_URL);
 
-// Nhánh hết hạn (15 giây) không được chờ bằng sleep trong test: vé chết vẫn bị từ chối
-// qua đúng một cửa `expiresAt > now` như vé lạ, và cửa đó được test ở đây rồi.
+// Nhánh hết hạn (15 giây) không được chờ bằng sleep trong test: đồng hồ của riêng test
+// bị quay tới sau TTL, vẫn đi qua đúng một cửa `expiresAt > now` như máy chủ thật.
 test(
   'a temple ws ticket opens exactly one connection',
   { skip: !hasDb },
@@ -35,14 +35,44 @@ test(
       assert.equal(ticket.profile.userId, user.id);
       assert.ok(ticket.profile.name.length <= 28);
 
-      assert.deepEqual(redeemWsTicket(ticket.token), { userId: user.id, playerId: ticket.playerId });
+      assert.deepEqual(redeemWsTicket(ticket.token), { ok: true, holder: { userId: user.id, playerId: ticket.playerId } });
       // Một vé = một kết nối: nối lại bằng đúng vé vừa dùng phải bị coi như vé giả.
-      assert.equal(redeemWsTicket(ticket.token), null);
+      assert.deepEqual(redeemWsTicket(ticket.token), { ok: false, reason: 'unknown' });
 
-      assert.equal(redeemWsTicket('khong-phai-ve-cua-chua'), null);
-      assert.equal(redeemWsTicket(null), null);
-      assert.equal(redeemWsTicket(''), null);
+      assert.deepEqual(redeemWsTicket('khong-phai-ve-cua-chua'), { ok: false, reason: 'unknown' });
+      assert.deepEqual(redeemWsTicket(null), { ok: false, reason: 'absent' });
+      assert.deepEqual(redeemWsTicket(''), { ok: false, reason: 'absent' });
     } finally {
+      await pool.query('DELETE FROM users WHERE id = $1', [user.id]);
+    }
+  }
+);
+
+// Máy chậm dựng cảnh mở socket sau khi vé quá TTL. Nhánh đó phải trả 'expired' chứ
+// không phải 'unknown' vì ws.ts đổi nó thành một code để máy khách thử lại; vé của
+// người gõ tay một chuỗi bịa ra thì vẫn là 'unknown' và bị chặn vĩnh viễn.
+// Không sleep chờ TTL: quay đồng hồ của riêng test, đúng chỗ `expiresAt > now`.
+test(
+  'a ticket that aged out is reported as expired, not as a forgery',
+  { skip: !hasDb },
+  async () => {
+    const { pool } = await import('../db.ts');
+    const { createUser } = await import('../accounts.ts');
+    const { issueWsTicket, redeemWsTicket, TICKET_TTL_MS } = await import('./tickets.ts');
+
+    const user = await createUser({ email: `test-${randomUUID()}@example.com`, emailVerified: true });
+    const realNow = Date.now;
+    try {
+      const issued = await issueWsTicket(user.id);
+      assert.ok(issued.ok);
+      Date.now = () => realNow() + TICKET_TTL_MS + 1_000;
+      assert.deepEqual(redeemWsTicket(issued.ticket.token), { ok: false, reason: 'expired' });
+      // Vé hết hạn vẫn bị đốt: lần thử tiếp theo là 'unknown', không phải vòng lặp
+      // 'expired' mãi mãi trên cùng một chuỗi.
+      Date.now = realNow;
+      assert.deepEqual(redeemWsTicket(issued.ticket.token), { ok: false, reason: 'unknown' });
+    } finally {
+      Date.now = realNow;
       await pool.query('DELETE FROM users WHERE id = $1', [user.id]);
     }
   }
@@ -77,7 +107,7 @@ test(
       if (neighbour.ok) tokens.push(neighbour.ticket.token);
 
       // Dùng bớt một vé thì cửa lại mở: trần là vé *chưa nối*, không phải vé *đã xin*.
-      assert.ok(redeemWsTicket(tokens[0]));
+      assert.ok(redeemWsTicket(tokens[0]).ok);
       const after = await issueWsTicket(user.id);
       assert.ok(after.ok, 'redeeming one ticket frees one slot');
     } finally {

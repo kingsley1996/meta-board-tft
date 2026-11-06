@@ -1,6 +1,6 @@
-// Người quen của chùa: bạn bè, thư riêng, nhóm đồng tu và quà kết duyên.
+// Người quen của sảnh đền: đồng đội, thư riêng, tổ đội và quà cầu may.
 //
-// Mọi tuyến ở đây định danh người bằng player_id (số mà chánh điện đang hiển thị trên
+// Mọi tuyến ở đây định danh người bằng player_id (số mà sảnh đang hiển thị trên
 // đầu avatar), không phải uuid. Người chơi nhìn thấy cái gì thì mới chọn được bằng
 // cái đó.
 import { Router } from 'express';
@@ -50,10 +50,10 @@ socialRouter.get('/friends', withUser(async (req, res, user) => {
   res.json({ friends: pick(accepted), incoming: pick(incoming.rows.map((r) => r.user_id)), outgoing: pick(outgoing) });
 }));
 
-// Kết bạn hai chiều: một lời mời là một hàng pending từ phía mời; khi được chấp nhận
+// Kết đồng đội hai chiều: một lời mời là một hàng pending từ phía mời; khi được chấp nhận
 // thì ghi hai hàng accepted (đè lên pending nếu có) để đọc danh sách bằng một query.
 // Phía được mời/b được nhận được báo qua socket ngay (t 'friend') thay vì phải mở lại
-// sheet "Đồng tu" mà đoán.
+// sheet "Đồng đội" mà đoán.
 socialRouter.post('/friends', withUser(async (req, res, user) => {
   await ensureTempleTables();
   const id = playerId(req.body?.id);
@@ -179,8 +179,8 @@ socialRouter.post('/dms', withUser(async (req, res, user) => {
   res.json({ sent: true });
 }));
 
-// Nhóm đồng tu (thay cho "Tăng đoàn" của bản gốc): tự đặt tên, lấy mã mời mà vào,
-// giới hạn thành viên theo cột max_members của hàng nhóm.
+// Tổ đội (bản gốc là nhóm đồng tu): tự đặt tên, lấy mã mời mà vào, giới hạn thành
+// viên theo cột max_members của hàng nhóm — mặc định 8, đúng sĩ số một lobby TFT.
 socialRouter.get('/group', withUser(async (req, res, user) => {
   await ensureTempleTables();
   const mine = await pool.query<{ group_id: string }>('SELECT group_id FROM temple_group_members WHERE user_id = $1 LIMIT 1', [user.id]);
@@ -230,7 +230,7 @@ socialRouter.post('/group/leave', withUser(async (req, res, user) => {
   res.json({ left: true });
 }));
 
-// Bảng tin của nhóm. Công đức chung của nhóm thì đọc từ temple_practice của từng
+// Bảng tin của tổ đội. Điểm chung của đội thì đọc từ temple_practice của từng
 // thành viên (xem readGroup), không có cột "total" cho ai đó ghi đè.
 socialRouter.post('/group/message', withUser(async (req, res, user) => {
   await ensureTempleTables();
@@ -242,8 +242,8 @@ socialRouter.post('/group/message', withUser(async (req, res, user) => {
   res.json({ sent: true });
 }));
 
-// Quà kết duyên: một nén hương hoặc một lời chúc gửi cho một người. Người nhận cộng
-// công đức khi *mở*, nên tuyến này trả về phần thưởng thay vì âm thầm ghi điểm.
+// Quà cầu may: một lá bùa hoặc một lời chúc gửi cho một người. Người nhận cộng điểm
+// khi *mở*, nên tuyến này trả về phần thưởng thay vì âm thầm ghi điểm.
 socialRouter.get('/greetings', withUser(async (req, res, user) => {
   await ensureTempleTables();
   const { rows } = await pool.query<{ id: string; from_user: string; kind: string; text: string; gift_sen: number; seen_at: Date | null; created_at: Date }>(
@@ -274,7 +274,7 @@ socialRouter.post('/greetings', withUser(async (req, res, user) => {
   if (kind !== 'huong' && kind !== 'chuc') throw new ApiError(400, 'invalid_kind', 'kind must be huong or chuc');
   const wish = req.body?.text ? text(req.body.text, 120, 'invalid_wish') : '';
   const gift = num(req.body?.gift_sen ?? 0, 0, 10_000, 'invalid_gift');
-  // Một lời chúc = 10 công đức, nên nhịp cũng phải do chùa giữ như các nhịp hành trì.
+  // Một lời chúc = 10 điểm, nên nhịp cũng phải do server giữ như mọi nhịp cầu may.
   cooldown(`${user.id}:greeting`, 3_000);
   if (gift) {
     const spent = await pool.query('UPDATE temple_profiles SET sen = sen - $2 WHERE user_id = $1 AND sen >= $2 RETURNING sen', [

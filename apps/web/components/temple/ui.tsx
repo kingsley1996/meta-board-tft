@@ -1,4 +1,4 @@
-// Mảnh giao diện dùng chung của HUD chùa: biểu tượng, con số, khung sheet/modal.
+// Mảnh giao diện dùng chung của HUD sảnh đền: biểu tượng, con số, khung sheet/modal.
 //
 // Tên lớp giữ nguyên như vendor/temple/css/app.css đang định nghĩa — bản gốc vẽ HUD
 // bằng innerHTML với đúng mấy lớp này, nên React chỉ việc dựng lại cùng một cây DOM
@@ -10,8 +10,8 @@ import type { Gain, PublicPlayer, TempleState } from './api';
 import type { TempleEngine } from './engine';
 import type { RemotePlayer, TempleRoom } from './room';
 
-export type ViewKind = 'hall' | 'beads' | 'chant' | 'meditate' | 'wheel' | 'que';
-export type SheetKind = 'rank' | 'community' | 'friends' | 'garden' | 'stele' | 'bag' | 'guide' | 'settings' | 'profile';
+export type ViewKind = 'hall' | 'meditate' | 'wheel' | 'que';
+export type SheetKind = 'rank' | 'community' | 'friends' | 'stele' | 'bag' | 'guide' | 'settings' | 'profile';
 
 export type Look = { name?: string; sect?: string; appearance?: Record<string, string>; equipped?: Record<string, string | null> };
 

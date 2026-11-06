@@ -4,7 +4,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GROUND_R, buildGrounds } from './grounds.js';
 import { makePet, beastTag } from './pets.js';
 import { buildTemple } from './temple.js';
-import { makeAvatar, animateAvatar, setSeated, disposeAvatar, setGhost, HERO_LIST, HERO_MAP, triggerUltimate } from './avatar.js';
+import { makeAvatar, animateAvatar, setSeated, disposeAvatar, setGhost, HERO_LIST, HERO_MAP } from './avatar.js';
 
 // Cỡ nhân vật trong chùa: nhỏ lại cho chánh điện đỡ chật khi đông người; tên giữ nguyên cỡ để vẫn dễ đọc
 const AV_SCALE = 0.82;
@@ -563,6 +563,11 @@ export class World {
       }
       if (!r || r.sig !== sig) {
         const prev = r;
+        // Dựng lại avatar (đổi áo, hoặc hồ sơ vừa được phát lại lúc người đó reconnect):
+        // phải đặt nó đúng chỗ người cũ đang đứng. Nhảy về toạ độ thô rồi để vòng nội
+        // suy kéo đi là cái mà người xem gọi là "đang thiền bị giật ra chỗ khác rồi nhảy
+        // lại", và nó càng rõ khi người đó đang ngồi trên bệ.
+        const from = prev ? { x: prev.av.root.position.x, z: prev.av.root.position.z } : null;
         if (prev) { disposeAvatar(prev.av); if (prev.cushion?.occupant === prev.av) prev.cushion.occupant = null; }
         const lk = this.look(p);
         const av = makeAvatar(lk);
@@ -572,7 +577,7 @@ export class World {
         const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: playerLabel(p), depthWrite: false, transparent: true }));
         fitLabel(label, p); label.visible = this.showNames;
         av.root.add(label);
-        av.root.position.set(p.x, 0, p.z);
+        av.root.position.set(from ? from.x : p.x, 0, from ? from.z : p.z);
         this.scene.add(av.root);
         r = { av, label, sig, tag, x: p.x, z: p.z, r: p.r, cushion: null };
         this.remotes.set(p.id, r);
@@ -714,28 +719,6 @@ export class World {
     if (immediate) this.player.bowT = 0;
   }
   get seated() { return !!this.seat; }
-  // Mõ gỗ và dùi đặt trước bồ đoàn khi tụng kinh
-  showMo(on) {
-    if (this.mo) { this.scene.remove(this.mo.group); this.mo.group.traverse((o) => { o.geometry?.dispose(); o.material?.dispose(); }); this.mo = null; }
-    if (!on || !this.seat) return;
-    const group = new THREE.Group();
-    const wood = new THREE.MeshStandardMaterial({ color: '#8a4a1e', roughness: 0.45 });
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.2, 20, 14), wood);
-    body.scale.set(1.1, 0.8, 1); body.position.y = 0.16; body.castShadow = true;
-    const slit = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.012, 6, 20, Math.PI), new THREE.MeshStandardMaterial({ color: '#2a1408', roughness: 1 }));
-    slit.position.set(0, 0.14, -0.19); slit.rotation.z = Math.PI;
-    const pivot = new THREE.Group(); pivot.position.set(0.42, 0.34, 0); pivot.rotation.z = 0.45;
-    const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.42, 8), new THREE.MeshStandardMaterial({ color: '#c79a5c', roughness: 0.6 }));
-    stick.rotation.z = Math.PI / 2; stick.position.x = -0.18;
-    const tip = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), new THREE.MeshStandardMaterial({ color: '#5a3a22', roughness: 0.8 }));
-    tip.position.x = -0.4;
-    pivot.add(stick, tip);
-    group.add(body, slit, pivot);
-    group.position.set(this.seat.pos.x + 0.8, 0, this.seat.pos.z - 0.25); // đặt bên phải để camera sau lưng vẫn thấy
-    this.scene.add(group);
-    this.mo = { group, body, pivot, t: 1 };
-  }
-  strikeMo() { if (this.mo) this.mo.t = 0; }
   // Đẩy khung hình lên trên để nhân vật không bị bảng kinh che (px = 0: trả về bình thường)
   liftView(px, sideX = 0) {
     const c = this.camera, el = this.renderer.domElement, w = el.clientWidth, h = el.clientHeight;
@@ -832,11 +815,6 @@ export class World {
     if (!this.temple) return;
     const ndc = new THREE.Vector2((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1);
     this.ray.setFromCamera(ndc, this.camera);
-    // Chạm vào Đại Mõ Neon Phản Lực?
-    if (this.temple.giantMuyuMesh && this.ray.intersectObject(this.temple.giantMuyuMesh, false).length) {
-      this.hitHyperMuyu();
-      return;
-    }
     // chạm vào thầy trụ trì?
     if (this.abbot && this.ray.intersectObject(this.abbot.root, true).length) { this.onTalk?.(); return; }
     if (this.hermit && this.ray.intersectObject(this.hermit.root, true).length) { this.onHermit?.(); return; }
@@ -1078,12 +1056,6 @@ export class World {
     const time = this.clock.elapsedTime;
     if (!this.temple) return;
     this.tickPerf(raw, dt);
-    if (this.mo && this.mo.t < 1) {
-      const m = this.mo; m.t = Math.min(1, m.t + dt / 0.18);
-      const k = Math.sin(m.t * Math.PI); // dùi nện xuống rồi nhấc lên, mõ nảy nhẹ
-      m.pivot.rotation.z = 0.45 - k * 0.65;
-      m.body.scale.set(1.1 + k * 0.05, 0.8 - k * 0.06, 1 + k * 0.05);
-    }
     const P = this.player;
 
     // nhập liệu di chuyển
@@ -1332,7 +1304,7 @@ export class World {
     return n;
   }
 
-  /* ---------------- KHU VỰC XÕA STRESS NGOÀI SÂN CHÙA (SANSA MARU × NARUTO/ONE PIECE 3D) ---------------- */
+  /* ---------------- ĐIỂM ĐỨNG TRONG SẢNH ---------------- */
   teleportToZone(zoneKey = 'hall') {
     if (!this.temple?.stressZones || !this.player) return null;
     const z = this.temple.stressZones[zoneKey] || this.temple.stressZones.hall;
@@ -1353,26 +1325,6 @@ export class World {
     this.updateFog();
     this.emitContext();
     return z;
-  }
-
-  hitHyperMuyu() {
-    if (!this.temple || !this.player) return;
-    if (this.seat) this.stand();
-    this.doorTrip = null;
-    const mz = this.temple.stressZones?.muyu;
-    if (mz && this.player.root.position.distanceTo(mz.pos) > 3.6) {
-      const gy = mz.pos.y || 0;
-      this.groundY = gy;
-      this.player.groundY = gy;
-      this.player.baseY = gy;
-      this.player.root.position.copy(mz.pos);
-      this.cam.yaw = mz.yaw ?? 0;
-      this.updateFog();
-    }
-    this.player.root.rotation.y = 0;
-    triggerUltimate(this.player);
-    this.temple.hitGiantMuyu?.();
-    this.onGiantMuyuHit?.();
   }
 
   screenshot() {
