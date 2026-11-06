@@ -246,6 +246,50 @@
 #temple-root .toast { position: fixed; left: 50%; top: calc(140px + var(--st)); transform: translate(-50%, -10px); z-index: 60; background: rgba(20,14,10,.88); color: #fbe3ae; padding: 12px 18px; border-radius: 14px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; text-align: center; max-width: 86vw; line-height: 1.45; }
 #temple-root .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+/* ---------- Thông báo của người khác gửi cho mình ---------- */
+/* Quà, lời chúc, lời mời kết bạn: một chồng thẻ giữa lề phải, không phải dòng toast
+   thoáng qua. Bản PC ôm sát mép vì side-menu đã xuống đáy giữa; bản dọc phải lùi vào
+   trong để nhường dải icon + nút ctx đang giữ chính chỗ đó. */
+#temple-root .notices { position: fixed; z-index: 55; top: 50%; right: calc(14px + var(--sr)); transform: translateY(-50%); display: grid; gap: 8px; width: min(300px, 40vw); }
+#temple-root .notice { display: grid; grid-template-columns: 38px minmax(0, 1fr) 22px; align-items: center; gap: 8px; padding: 8px 9px; border-radius: 16px; text-align: left; cursor: pointer; background: var(--cream); border: 1px solid #ecd6a8; box-shadow: 0 10px 30px rgba(0,0,0,.45); animation: noticeIn .22s ease-out; }
+#temple-root .notice-ic { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #6b3f06; background: linear-gradient(145deg, #f8dc97, #e7ae4b); }
+#temple-root .notice-ic .i { width: 21px; height: 21px; }
+#temple-root .notice-body { min-width: 0; }
+#temple-root .notice-body b { display: block; font-size: 13.5px; color: var(--ink); }
+#temple-root .notice-body p { margin: 1px 0 0; font-size: 12.5px; line-height: 1.35; color: #5a4128; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+#temple-root .notice-x { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; color: #8a7357; background: rgba(120,80,30,.12); }
+#temple-root .notice-x .i { width: 12px; height: 12px; }
+@keyframes noticeIn { from { opacity: 0; transform: translateX(16px); } }
+@media (orientation: portrait) and (max-width: 899px) {
+  #temple-root .notices { right: calc(64px + var(--sr)); width: min(268px, calc(100vw - 76px)); }
+  /* Bảng mở trên điện thoại chiếm gần hết màn dọc, nên chồng thẻ lùi lên dải trống
+     trên cùng và chỉ giữ tin mới nhất: bảng phía sau đã tự đọc lại, không cần thấy cả
+     chồng để biết có quà. */
+  #temple-root .notices.with-sheet { top: calc(52px + var(--st)); bottom: auto; transform: none; right: calc(10px + var(--sr)); width: min(250px, calc(100vw - 20px)); }
+  #temple-root .notices.with-sheet .notice:not(:last-child) { display: none; }
+  /* một hàng gọn đủ cao để nằm trọn trên mép trên của bảng (86vh → còn ~100px) */
+  #temple-root .notices.with-sheet .notice { grid-template-columns: 28px minmax(0, 1fr) 18px; gap: 6px; padding: 4px 7px; }
+  #temple-root .notices.with-sheet .notice-ic { width: 28px; height: 28px; }
+  #temple-root .notices.with-sheet .notice-ic .i { width: 16px; height: 16px; }
+  #temple-root .notices.with-sheet .notice-x { width: 18px; height: 18px; }
+  #temple-root .notices.with-sheet .notice-body b { font-size: 12.5px; }
+  #temple-root .notices.with-sheet .notice-body p { font-size: 11.5px; -webkit-line-clamp: 1; }
+}
+@media (min-width: 900px) {
+  /* sheet mở giữa màn hình: chồng thẻ co lại vừa đúng dải còn lại, không che bảng */
+  #temple-root .notices.with-sheet { width: min(300px, calc(50vw - 302px)); }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #temple-root .notices { gap: 6px; width: min(230px, 30vw); }
+  /* bản ngang sheet là ngăn kéo ôm phải nên chồng thẻ phải lùi hẳn sang trái của nó */
+  #temple-root .notices.with-sheet { right: calc(min(460px, 62vw) + 12px + var(--sr)); width: min(230px, 28vw); }
+  #temple-root .notice { grid-template-columns: 30px minmax(0, 1fr) 20px; padding: 5px 7px; gap: 6px; }
+  #temple-root .notice-ic { width: 30px; height: 30px; }
+  #temple-root .notice-ic .i { width: 17px; height: 17px; }
+  #temple-root .notice-body b { font-size: 12.5px; }
+  #temple-root .notice-body p { font-size: 11.5px; -webkit-line-clamp: 1; }
+}
+
 /* ---------- Icon SVG ---------- */
 #temple-root .i { width: 1.15em; height: 1.15em; vertical-align: -.22em; flex: none; display: inline-block; }
 #temple-root .logo .i { width: 1em; height: 1em; }

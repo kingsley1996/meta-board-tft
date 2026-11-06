@@ -364,8 +364,8 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
 
 // ---- Đồng đội: bạn bè · quà tặng ---------------------------------------------
 
-export function FriendsSheet({ s, notice, onClose }: { s: Store; notice: Notice | null; onClose: () => void }) {
-  const [tab, setTab] = useState('friends');
+export function FriendsSheet({ s, notice, tab0, onClose }: { s: Store; notice: Notice | null; tab0: string | null; onClose: () => void }) {
+  const [tab, setTab] = useState(tab0 ?? 'friends');
   const [list, setList] = useState<FriendList>(EMPTY_FRIENDS);
   const [gifts, setGifts] = useState<Greeting[]>([]);
 
@@ -391,6 +391,11 @@ export function FriendsSheet({ s, notice, onClose }: { s: Store; notice: Notice 
   useEffect(() => {
     if (notice) void load();
   }, [notice, load]);
+
+  // Bấm vào thẻ thông báo phải mở đúng tab: quà thì tới Quà tặng, lời mời thì ở Bạn.
+  useEffect(() => {
+    if (tab0) setTab(tab0);
+  }, [tab0]);
 
   const act = async (id: number, action: string) => {
     try {

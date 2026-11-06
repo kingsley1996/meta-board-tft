@@ -6,7 +6,7 @@
 // checkin/chore/map/share/coach không được dựng lại. Mọi con số đọc từ apps/api.
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Gain, GuestReply, TempleState } from './api';
 import { TempleApiError, get, post } from './api';
 import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, hasWebGL, local, sectOf, type EngineCtx, type EnginePerson } from './engine';
@@ -17,7 +17,7 @@ import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, SteleShee
 import { FriendsSheet, GroupSheet, NpcModal, PlayerCard, type NpcKind } from './people';
 import { MeditateView, QueModal, WheelView } from './practice';
 import { REALM_ABOUT, rungLabel, rungOf } from '@/vendor/temple/js/ladder.js';
-import { Icon, Modal, Sheet, TitleBadge, Toast, esc, fmt, loginUrls, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
+import { Icon, Modal, Notices, Sheet, TitleBadge, Toast, fmt, loginUrls, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
 
 type LevelUp = { level: number; title: string; sen: number };
 type Ann = { id: number; text: string; effect: string };
@@ -55,7 +55,9 @@ export function TempleApp({ lang }: { lang: string }) {
   const [view, setView] = useState<ViewKind>('hall');
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   const [cardId, setCardId] = useState<number | null>(null);
-  const [notice, setNotice] = useState<Notice | null>(null);
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [friendsTab, setFriendsTab] = useState<string | null>(null);
+  const noticeSeq = useRef(0);
   const [npc, setNpc] = useState<{ kind: NpcKind; index: number } | null>(null);
   const [queOpen, setQueOpen] = useState(false);
   const [offerOpen, setOfferOpen] = useState(false);
@@ -119,6 +121,17 @@ export function TempleApp({ lang }: { lang: string }) {
     setGuide(html);
     setGuideFade(false);
     window.setTimeout(() => setGuideFade(true), 5000);
+  };
+
+  // Tin social của chính mình (quà, lời chúc, lời mời kết bạn) xếp thành chồng giữa lề
+  // phải chứ không phải một dòng toast thoáng qua rồi hết: người nhận phải còn thấy nó
+  // khi đang ngồi, và bấm vào là tới thẳng bảng cần xem.
+  const pushNotice = (n: Omit<Notice, 'id'>) => setNotices((v) => [...v, { ...n, id: (noticeSeq.current += 1) }].slice(-6));
+  const dismissNotice = useCallback((id: number) => setNotices((v) => v.filter((x) => x.id !== id)), []);
+  const openNotice = (n: Notice) => {
+    setFriendsTab(n.t === 'gift' ? 'gifts' : 'friends');
+    setSheet('friends');
+    dismissNotice(n.id);
   };
 
   const apply = (g: Gain) => {
@@ -280,15 +293,21 @@ export function TempleApp({ lang }: { lang: string }) {
             engRef.current?.emote(Number(msg.id), String(msg.e ?? ''));
             return;
           }
-          // Lời mời kết bạn tới tay người nhận ngay tại đây: phía gửi đã được REST trả
-          // lời rồi, còn phía kia nếu không có tin này thì phải tự mở bảng "Đồng đội" mới thấy.
-          if (msg.t !== 'friend') return;
+          // Quà, lời chúc và lời mời kết bạn tới tay người nhận ngay tại đây: phía gửi
+          // đã được REST trả lời rồi, còn phía kia nếu không có tin này thì phải tự mở
+          // bảng "Đồng đội" mới thấy.
+          if (msg.t !== 'friend' && msg.t !== 'gift') return;
           const by = msg.by as Notice['by'] | undefined;
           if (!by?.id) return;
-          const kind = String(msg.kind ?? '');
           Sound.tap();
-          setNotice({ t: msg.t, kind, by, text: String(msg.text ?? ''), at: new Date().toISOString() });
-          toast(`<svg class="i"><use href="#i-users"/></svg> <b>${esc(by.name)}</b> ${kind === 'accept' ? 'đã chấp nhận lời mời kết bạn' : 'muốn kết bạn với bạn'}`);
+          pushNotice({
+            t: msg.t === 'gift' ? 'gift' : 'friend',
+            kind: String(msg.kind ?? ''),
+            by,
+            text: String(msg.text ?? ''),
+            gift_sen: Number(msg.gift_sen ?? 0),
+            at: new Date().toISOString(),
+          });
         },
         onConnection: (up) => {
           if (staleHall.current !== null) {
@@ -824,7 +843,17 @@ export function TempleApp({ lang }: { lang: string }) {
       {sheet === 'guide' ? <GuideSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'settings' ? <SettingsSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'community' ? <GroupSheet s={store} onClose={() => setSheet(null)} /> : null}
-      {sheet === 'friends' ? <FriendsSheet s={store} notice={notice} onClose={() => setSheet(null)} /> : null}
+      {sheet === 'friends' ? (
+        <FriendsSheet
+          s={store}
+          notice={notices[notices.length - 1] ?? null}
+          tab0={friendsTab}
+          onClose={() => {
+            setSheet(null);
+            setFriendsTab(null);
+          }}
+        />
+      ) : null}
 
       {/* Thẻ phải nằm trong khung .modal-card: toàn bộ CSS của nó (rộng 420px, nền phủ,
           lời chúc một hàng) gắn với selector .modal-card:has(.pcard), mount trần là vỡ. */}
@@ -864,6 +893,7 @@ export function TempleApp({ lang }: { lang: string }) {
 
       <div id="fxLayer" className="floaters" ref={fxRef} />
       <div className="floaters" />
+      <Notices items={notices} sheetOpen={sheet !== null} onDismiss={dismissNotice} onOpen={openNotice} />
       <Toast html={toastHtml} />
     </div>
   );

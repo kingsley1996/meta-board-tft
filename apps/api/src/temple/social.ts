@@ -270,6 +270,7 @@ socialRouter.post('/greetings', withAccount(async (req, res, user) => {
   await ensureTempleProfile(user.id);
   const id = playerId(req.body?.id);
   const other = await userIdOf(id);
+  const me = toPublicOf(await ensureTempleProfile(user.id));
   const kind = String(req.body?.kind ?? 'chuc');
   if (kind !== 'huong' && kind !== 'chuc') throw new ApiError(400, 'invalid_kind', 'kind must be huong or chuc');
   const wish = req.body?.text ? text(req.body.text, 120, 'invalid_wish') : '';
@@ -291,6 +292,8 @@ socialRouter.post('/greetings', withAccount(async (req, res, user) => {
     wish,
     gift,
   ]);
+  // Người nhận phải thấy món quà tới tay ngay, không phải mở bảng "Đồng đội" mà đoán.
+  notifyPlayer(id, { t: 'gift', kind, by: me, text: wish, gift_sen: gift });
   const merit = await addMerit(user.id, { exp: 10 });
   res.json({ state: await templeState(user.id), gained: merit.gained, level_ups: merit.levelUps });
 }));
