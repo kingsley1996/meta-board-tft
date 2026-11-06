@@ -1352,3 +1352,60 @@
 @media (max-width: 480px) {
   #temple-root .outfit-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- Tỷ thí (xúc xắc · oẳn tù tì) ---------- */
+#temple-root .duel { background: #fff; border: 1px solid #f1e5cf; border-radius: 18px; padding: 12px; margin-bottom: 10px; }
+#temple-root .duel.open { border-color: #e2c27a; box-shadow: 0 0 0 2px rgba(242,196,109,.35) inset; }
+#temple-root .duel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+#temple-root .duel-kind { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #7a5210; background: #fbe9b8; padding: 3px 10px; border-radius: 999px; }
+#temple-root .duel-kind .i { width: 14px; height: 14px; }
+#temple-root .duel-head small { min-width: 0; text-align: right; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+#temple-root .duel-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 6px; border-radius: 12px; }
+#temple-root .duel-row + .duel-row { margin-top: 2px; }
+#temple-root .duel-row.me { background: #fffaf0; box-shadow: 0 0 0 1px #f2c46d inset; }
+#temple-root .duel-row.win { background: #f1f8ee; box-shadow: 0 0 0 1px #cfe4c3 inset; }
+#temple-root .duel-row.win .duel-sc { color: #2f8a3a; }
+#temple-root .duel-who { min-width: 0; }
+#temple-root .duel-who b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#temple-root .duel-who small { display: block; font-size: 11.5px; color: var(--muted); }
+#temple-root .duel-idle { font-size: 12px; color: var(--muted); font-style: italic; white-space: nowrap; }
+#temple-root .duel-hand { display: inline-flex; align-items: center; gap: 5px; font-size: 15px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+#temple-root .duel-hand .i { width: 18px; height: 18px; color: #a5650f; }
+#temple-root .duel-dice { display: inline-flex; align-items: center; gap: 4px; }
+#temple-root .duel-dice b { margin-left: 4px; font-size: 14px; font-weight: 800; color: #7a5210; white-space: nowrap; }
+#temple-root .duel-dice b small { font-size: 11px; font-weight: 600; color: var(--muted); }
+#temple-root .die { width: 26px; height: 26px; flex: none; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); border-radius: 7px; background: #fffdf6; border: 1px solid #e6d5b5; }
+#temple-root .die i { width: 5px; height: 5px; border-radius: 50%; background: var(--ink); place-self: center; }
+#temple-root .duel-sc { justify-self: end; text-align: right; font-size: 18px; font-weight: 800; color: var(--gold2); font-variant-numeric: tabular-nums; }
+#temple-root .duel-last { font-size: 12.5px; color: #5a4632; background: #faf3e2; border-radius: 12px; padding: 8px 10px; margin: 8px 0 0; line-height: 1.45; }
+#temple-root .duel-last .i { width: 15px; height: 15px; vertical-align: -2px; color: #a5650f; }
+#temple-root .duel-last b { font-weight: 700; }
+#temple-root .duel-last em { font-style: normal; color: var(--muted); }
+#temple-root .duel-last-head { display: flex; align-items: center; gap: 6px; }
+#temple-root .duel-vs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 7px; }
+#temple-root .duel-vs .duel-dice, #temple-root .duel-vs .duel-hand { font-size: 13px; }
+#temple-root .duel-vs .die { width: 20px; height: 20px; }
+#temple-root .duel-vs .die i { width: 4px; height: 4px; }
+#temple-root .duel-luck { margin: 7px 0 0; font-size: 11.5px; color: var(--muted); }
+#temple-root .duel-cap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #7a5210; background: #fdf3dd; border-radius: 10px; padding: 6px 10px; margin: 0 0 10px; }
+#temple-root .duel-cap .i { width: 14px; height: 14px; color: #a5650f; }
+#temple-root .duel-cap.full { color: #8a4a12; background: #fbe9d6; }
+#temple-root .duel-at { display: block; font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+#temple-root .duel-acts { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+#temple-root .duel-acts > * { flex: 1 1 0; display: flex; }
+#temple-root .rps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+#temple-root .rps button { display: grid; place-items: center; gap: 4px; padding: 10px 0; border-radius: 14px; background: #fff; border: 1px solid #ecd9b4; color: var(--ink); transition: transform .1s, background .2s; }
+#temple-root .rps button:hover { background: #fff8ea; border-color: #e2c27a; }
+#temple-root .rps button:active { transform: scale(.95); }
+#temple-root .rps .i { width: 22px; height: 22px; color: #a5650f; }
+#temple-root .rps em { font-style: normal; font-size: 11.5px; font-weight: 600; }
+@media (max-width: 440px) {
+  /* Một hàng chỉ còn ba cột: tên + điểm trên dòng đầu, nước đi rơi xuống dòng hai.
+     Để nguyên bốn cột thì điểm bị đẩy xuống thành một số lẻ loi sát lề trái. */
+  #temple-root .duel-row { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 6px 8px; padding: 8px 4px; }
+  #temple-root .duel-who { grid-column: 2; grid-row: 1; }
+  #temple-root .duel-sc { grid-column: 3; grid-row: 1; font-size: 16px; }
+  #temple-root .duel-idle, #temple-root .duel-hand, #temple-root .duel-dice { grid-column: 2 / -1; grid-row: 2; justify-self: start; }
+  #temple-root .die { width: 22px; height: 22px; }
+  #temple-root .die i { width: 4px; height: 4px; }
+}

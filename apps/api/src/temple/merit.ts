@@ -43,6 +43,8 @@ export type PracticeDelta = {
   bows?: number;
   meditateMin?: number;
   visits?: number;
+  // Điểm tỷ thí đã nhận trong ngày — trần của trò chơi đọc từ đây, xem games.ts:SEN_CAP_DAY.
+  gameExp?: number;
   exp?: number;
 };
 
@@ -118,6 +120,7 @@ export async function bumpPractice(db: Queryable, userId: string, delta: Practic
   push('bows', delta.bows ?? 0);
   push('meditate_min', delta.meditateMin ?? 0);
   push('visits', delta.visits ?? 0);
+  push('game_exp', delta.gameExp ?? 0);
   push('exp', delta.exp ?? 0);
   if (!cols.length) return;
 
@@ -161,14 +164,16 @@ export async function practiceToday(userId: string, day = vnDay()): Promise<Prac
     bows: number;
     meditate_min: number;
     visits: number;
+    game_exp: number;
     exp: number;
-  }>('SELECT bows, meditate_min, visits, exp FROM temple_practice WHERE user_id = $1 AND day = $2', [userId, day]);
+  }>('SELECT bows, meditate_min, visits, game_exp, exp FROM temple_practice WHERE user_id = $1 AND day = $2', [userId, day]);
   const row = rows[0];
   return {
     day,
     bows: row?.bows ?? 0,
     meditateMin: row?.meditate_min ?? 0,
     visits: row?.visits ?? 0,
+    gameExp: row?.game_exp ?? 0,
     exp: row?.exp ?? 0,
   };
 }

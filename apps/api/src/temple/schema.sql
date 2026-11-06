@@ -88,11 +88,15 @@ CREATE TABLE IF NOT EXISTS temple_practice (
   -- Cú "ghé sảnh" chỉ có điểm lần đầu trong ngày; giữ lại con số này để server
   -- biết đã trả phần thưởng đó chưa, thay vì tin một lá thư từ máy khách.
   visits integer NOT NULL DEFAULT 0,
+  game_exp integer NOT NULL DEFAULT 0,
   exp integer NOT NULL DEFAULT 0,
   PRIMARY KEY (user_id, day),
   CHECK (bows >= 0 AND beads >= 0 AND rounds >= 0 AND meditate_min >= 0 AND chants >= 0 AND visits >= 0)
 );
 ALTER TABLE temple_practice ADD COLUMN IF NOT EXISTS visits integer NOT NULL DEFAULT 0;
+-- Điểm tỷ thí đã nhận trong ngày (theo danh nghĩa phần thưởng, chưa nhân bùa). Trần mỗi
+-- ngày của trò chơi đọc từ cột này, nên hết ngày là hết trần mà không cần đồng hồ dọn dẹp.
+ALTER TABLE temple_practice ADD COLUMN IF NOT EXISTS game_exp integer NOT NULL DEFAULT 0;
 CREATE INDEX IF NOT EXISTS temple_practice_day_idx ON temple_practice (day DESC, exp DESC);
 
 CREATE TABLE IF NOT EXISTS temple_plants (
@@ -201,6 +205,41 @@ CREATE TABLE IF NOT EXISTS temple_draws (
   created_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (user_id, kind, day)
 );
+
+-- Tỷ thí giữa hai người chơi: xúc xắc và oẳn tù tì.
+--
+-- Một hàng là một trận, không phải một vòng: vòng hiện trường nằm ở a_move/b_move/round
+-- nên hai cú POST đồng thời chỉ cần một hàng để phân thắng. Nước đi của bên ra trước
+-- được giữ bí mật ở máy chủ (games.ts giấu pick oẳn tù tì cho tới khi bên kia đã ra),
+-- nên trên dây không bao giờ có cả hai nước của một vòng chưa phân định.
+CREATE TABLE IF NOT EXISTS temple_games (
+  id bigserial PRIMARY KEY,
+  kind text NOT NULL CHECK (kind IN ('dice', 'rps')),
+  -- 'invite' = chờ người được mời chấp thuận, 'live' = đang đánh, 'over' = có kết quả,
+  -- 'dead' = từ chối/rút lui/quá hạn (reason nói rõ là đường nào).
+  status text NOT NULL DEFAULT 'invite' CHECK (status IN ('invite', 'live', 'over', 'dead')),
+  -- Bên a là bên chủ động mời; winner rỗng nghĩa là hòa.
+  a_user uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  b_user uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  winner uuid REFERENCES users(id) ON DELETE CASCADE,
+  reason text NOT NULL DEFAULT '',
+  round integer NOT NULL DEFAULT 1 CHECK (round BETWEEN 1 AND 12),
+  a_score integer NOT NULL DEFAULT 0 CHECK (a_score >= 0),
+  b_score integer NOT NULL DEFAULT 0 CHECK (b_score >= 0),
+  -- Nước đi của vòng hiện tại; NULL bên nào là bên đó chưa tới lượt. Sau mỗi vòng cả hai
+  -- được ghi NULL lại nên không ai "dùng đỡ" phần thưởng của vòng trước.
+  a_move jsonb,
+  b_move jsonb,
+  -- Vòng vừa phân định, để người mở lại trang vẫn thấy xúc xắc ra sao thay vì chỉ thấy tỉ số.
+  result jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  CHECK (a_user <> b_user)
+);
+-- Danh sách "trận đang mở của tôi" hỏi theo cả hai chiều, nên mỗi chiều một chỉ mục;
+-- khoá chính chỉ đánh theo id.
+CREATE INDEX IF NOT EXISTS temple_games_a_idx ON temple_games (a_user, status, updated_at DESC);
+CREATE INDEX IF NOT EXISTS temple_games_b_idx ON temple_games (b_user, status, updated_at DESC);
 
 -- Tin chạy trong sảnh.
 CREATE TABLE IF NOT EXISTS temple_announcements (

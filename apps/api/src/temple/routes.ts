@@ -3,6 +3,7 @@
 import { Router } from 'express';
 import { attemptAllowed, attemptKey, currentSessionUser, setSessionCookie } from '../auth-routes.ts';
 import { toAuthUser } from '../accounts.ts';
+import { gamesRouter } from './games.ts';
 import { hallRouter } from './hall.ts';
 import { createGuest, ensureTempleProfile, readProfilePatch, templeProfile, updateTempleProfile } from './identity.ts';
 import { practiceRouter } from './practice.ts';
@@ -14,12 +15,13 @@ import { withUser } from './http.ts';
 
 export const templeRouter = Router();
 
-// Danh tính ở file này; nhịp cầu may, bảng đồng hành và bạn bè nằm
+// Danh tính ở file này; nhịp cầu may, bảng đồng hành, bạn bè và trận tỷ thí nằm
 // trong từng module riêng rồi gắn vào cùng một gốc /api/temple, để HUD chỉ phải biết
 // một tiền tố.
 templeRouter.use(practiceRouter);
 templeRouter.use(hallRouter);
 templeRouter.use(socialRouter);
+templeRouter.use(gamesRouter);
 
 // Vào chùa không cần tài khoản (-- 01): một cú POST đổi lấy phiên khách (cookie như
 // mọi phiên thật) và một hồ sơ nhân vật. Người đăng ký sau đó sẽ được nâng cấp chính

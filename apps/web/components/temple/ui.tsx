@@ -12,14 +12,16 @@ import type { TempleEngine } from './engine';
 import type { RemotePlayer, TempleRoom } from './room';
 
 export type ViewKind = 'hall' | 'meditate' | 'wheel' | 'que';
-export type SheetKind = 'rank' | 'community' | 'friends' | 'stele' | 'bag' | 'guide' | 'settings' | 'profile';
+export type SheetKind = 'rank' | 'community' | 'friends' | 'stele' | 'bag' | 'guide' | 'settings' | 'profile' | 'games';
 
 export type Look = { name?: string; sect?: string; appearance?: Record<string, string>; equipped?: Record<string, string | null> };
 
-// Tin máy chủ vừa đẩy tới cho chính mình (t 'gift' / 'friend'). HUD xếp chúng thành
-// một chồng giữa lề phải; mỗi thẻ tự biến mất sau vài giây, bấm vào thì mở đúng bảng
-// cần mở — người chơi không phải đoán ai vừa tặng mình cái gì.
-export type Notice = { id: number; t: 'gift' | 'friend'; kind: string; by: PublicPlayer; text: string; gift_sen: number; at: string };
+// Tin máy chủ vừa đẩy tới cho chính mình (t 'gift' / 'friend' / 'game'). HUD xếp chúng
+// thành một chồng giữa lề phải; mỗi thẻ tự biến mất sau vài giây, bấm vào thì mở đúng
+// bảng cần mở — người chơi không phải đoán ai vừa tặng mình cái gì hay ai đang chờ mình
+// trả lời lời mời tỷ thí. Với 'game', `text` là cả câu do temple-app dựng (máy chủ gửi
+// mã sự kiện, không gửi lời văn), còn `kind` giữ nguyên mã đó để mở đúng bảng.
+export type Notice = { id: number; t: 'gift' | 'friend' | 'game'; kind: string; by: PublicPlayer; text: string; gift_sen: number; at: string };
 
 export type Store = {
   lang: string;
@@ -118,6 +120,7 @@ export function Notices({
 }
 
 function noticeLine(n: Notice): string {
+  if (n.t === 'game') return n.text;
   if (n.t === 'friend') return n.kind === 'accept' ? 'đã chấp nhận lời mời kết bạn' : 'muốn kết bạn với bạn';
   const gift = n.gift_sen ? ` kèm ${fmt(n.gift_sen)} Tinh Hoa` : '';
   if (n.text) return `${n.kind === 'huong' ? 'tặng bùa, nhắn' : 'chúc'}: “${n.text}”${gift}`;
@@ -129,7 +132,7 @@ function NoticeCard({ n, onDismiss, onOpen }: { n: Notice; onDismiss: (id: numbe
     const timer = window.setTimeout(() => onDismiss(n.id), NOTICE_MS);
     return () => window.clearTimeout(timer);
   }, [n.id, onDismiss]);
-  const ic = n.t === 'friend' ? 'users' : n.kind === 'huong' ? 'incense' : 'pray';
+  const ic = n.t === 'game' ? 'dice' : n.t === 'friend' ? 'users' : n.kind === 'huong' ? 'incense' : 'pray';
   return (
     <div className="notice" onClick={() => onOpen(n)}>
       <span className="notice-ic">

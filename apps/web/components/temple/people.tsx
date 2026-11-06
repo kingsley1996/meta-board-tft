@@ -6,7 +6,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Gain, PublicPlayer } from './api';
+import type { Gain, GameKind, PublicPlayer } from './api';
 import { get, post } from './api';
 import { ITEMS, Sound, TEMPLE, sectOf } from './engine';
 import { ABBOT, HERMIT_LESSONS, WISHES, guideOf, storyOf, tellersOf } from './stories';
@@ -65,6 +65,19 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
   const gear = Object.values(p.equipped ?? {})
     .map((itemId) => (typeof itemId === 'string' ? ITEMS[itemId] : undefined))
     .filter((it) => !!it);
+
+  // Lời mời tỷ thí nằm ở thẻ người chơi chứ không ở bảng Tỷ Thí: người chơi chỉ cần
+  // đúng một thứ để chọn — cái tên vừa chạm phải.
+  const challenge = async (kind: GameKind) => {
+    try {
+      await post('/games', { kind, id });
+      Sound.tap();
+      s.toast(`<svg class="i"><use href="#i-${kind === 'dice' ? 'dice' : 'scissors'}"/></svg> Đã mời <b>${esc(p.name)}</b> tỷ thí`);
+      onClose();
+    } catch (e) {
+      s.toast((e as Error).message);
+    }
+  };
 
   const befriend = async () => {
     try {
@@ -152,6 +165,15 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
             </button>
             <button className="btn" onClick={() => void befriend()}>
               <Icon name="users" /> Kết bạn đồng đội
+            </button>
+          </div>
+          <div className="region">Tỷ thí</div>
+          <div className="pcard-acts">
+            <button className="btn" onClick={() => void challenge('dice')}>
+              <Icon name="dice" /> Xúc Xắc
+            </button>
+            <button className="btn" onClick={() => void challenge('rps')}>
+              <Icon name="scissors" /> Oẳn Tù Tì
             </button>
           </div>
         </>

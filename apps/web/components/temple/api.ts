@@ -69,6 +69,49 @@ export type Gain = {
   extra?: Record<string, number | boolean>;
 };
 
+export type GameKind = 'dice' | 'rps';
+
+// Một nước đi trong trận. Xúc xắc thì có `dice`/`total`; oẳn tù tì chỉ có `pick`, và
+// khi vòng còn chờ bên kia thì máy chủ giấu đòn của đối thủ — bên đó chỉ còn `bonus`.
+export type GameMove = { dice?: number[]; pick?: string; bonus: number; total?: number };
+export type GameRound = { round: number; a: GameMove; b: GameMove; winner: '' | 'a' | 'b'; luck: [number, number] };
+export type GamePlayer = PublicPlayer & { luck: number; bonus: number };
+export type GameSide = { player: GamePlayer; score: number; moved: boolean; move: GameMove | null };
+export type GameMatch = {
+  id: number;
+  kind: GameKind;
+  status: 'invite' | 'live' | 'over' | 'dead';
+  reason: string;
+  round: number;
+  max_rounds: number;
+  wins_needed: number;
+  a: GameSide;
+  b: GameSide;
+  // player_id của người thắng, null là hòa — và chỉ có khi trận đã ngã ngũ.
+  winner: number | null;
+  result: GameRound | null;
+  at: string;
+};
+
+// Trần tỷ thí trong ngày, máy chủ tính và gửi kèm: đã nhận bao nhiêu, trần ở đâu, và ván
+// vừa rồi đáng ra được bao nhiêu so với thực nhận. Có nó HUD mới nói đúng vì sao một ván
+// thắng lại +0 thay để người chơi tự đoán mình bị ăn gian.
+export type GameCap = { today: number; max: number; nominal?: number; awarded?: number };
+
+export type GamesPayload = { open: GameMatch[]; history: GameMatch[]; cap: GameCap };
+
+// Một trận kết thúc thì phần thưởng của người nhận đi kèm tin báo (hoặc response),
+// nên HUD không phải đoán ví tiền sau ván thắng.
+export type GameOutcome = 'win' | 'lose' | 'draw';
+export type GameReply = Gain & {
+  match: GameMatch;
+  result?: GameRound;
+  waiting?: boolean;
+  over?: boolean;
+  outcome?: GameOutcome;
+  cap?: GameCap;
+};
+
 export class TempleApiError extends Error {
   status: number;
   code: string;
@@ -101,6 +144,17 @@ const MESSAGES: Record<string, string> = {
   invalid_wish: 'Lời nguyện quá dài',
   unknown_offering: 'Sảnh không nhận vật phẩm này',
   guest_account_required: 'Chức năng này cần tài khoản — đăng ký để giữ lại điểm đang có nhé',
+  no_such_game: 'Ván này không còn trong sảnh',
+  invalid_game: 'Sảnh chỉ mở hai môn: xúc xắc và oẳn tù tì',
+  invalid_game_id: 'Không tìm thấy ván này',
+  invalid_sign: 'Chọn Búa, Bao hoặc Kéo thôi',
+  self_game: 'Không ai tỷ thí với chính mình',
+  already_open: 'Hai bạn còn một ván chưa ngã ngũ',
+  match_not_live: 'Lời mời này không còn chờ nữa',
+  match_finished: 'Ván này đã kết thúc rồi',
+  already_moved: 'Vòng này bạn đã ra nước đi rồi',
+  not_your_game: 'Ván này không có tên bạn',
+  profile_missing: 'Sảnh chưa đọc được hồ sơ của hai người này',
 };
 
 export async function templeApi<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {

@@ -7,13 +7,14 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Gain, GuestReply, TempleState } from './api';
+import type { Gain, GameMatch, GuestReply, TempleState } from './api';
 import { TempleApiError, get, post } from './api';
 import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, hasWebGL, local, sectOf, type EngineCtx, type EnginePerson } from './engine';
 import { luckyShower, floater } from './effects';
 import { QUOTES } from './stories';
 import { TempleRoom, type RemotePlayer } from './room';
 import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, SteleSheet } from './hall';
+import { GameSheet, KIND_NAME } from './games';
 import { FriendsSheet, GroupSheet, NpcModal, PlayerCard, type NpcKind } from './people';
 import { MeditateView, QueModal, WheelView } from './practice';
 import { REALM_ABOUT, rungLabel, rungOf } from '@/vendor/temple/js/ladder.js';
@@ -24,6 +25,21 @@ type Ann = { id: number; text: string; effect: string };
 type CtxAct = 'talk' | 'tell' | 'door' | 'ride' | 'unride' | 'stand' | 'sit' | '';
 
 const DEFAULT_GUEST = 'Nhà lữ hành';
+
+// Câu chữ trên thẻ thông báo tỷ thí. Thẻ luôn vẽ "<b>tên người vừa hành động</b> + câu
+// này", nên mỗi dòng phải đọc được tiếp sau một cái tên. Phần trăm thắng/thua và tỉ số
+// nói theo mắt người nhận, vì tấm thẻ là của họ.
+function gameLine(kind: string, m: GameMatch, me: number): string {
+  if (kind === 'invite') return 'mời bạn tỷ thí';
+  if (kind === 'accept') return 'đã nhận lời mời · ván bắt đầu';
+  if (kind === 'decline') return 'đã từ chối lời mời';
+  if (kind === 'cancel') return 'đã bỏ ván';
+  const mine = m.a.player.id === me ? m.a : m.b;
+  const theirs = mine === m.a ? m.b : m.a;
+  const score = `${mine.score}–${theirs.score}`;
+  const verdict = !m.winner ? `hòa ${score}` : m.winner === me ? `bạn thắng ${score}` : `bạn thua ${score}`;
+  return `vừa xong ván ${KIND_NAME[m.kind]} · ${verdict}`;
+}
 
 function ctxAct(ctx: EngineCtx): CtxAct {
   if (ctx.cable === 'riding') return 'unride';
@@ -57,6 +73,11 @@ export function TempleApp({ lang }: { lang: string }) {
   const [cardId, setCardId] = useState<number | null>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [friendsTab, setFriendsTab] = useState<string | null>(null);
+  // Mỗi tin 'game' là một nhịp bảo bảng Tỷ Thí đọc lại: trận nằm trong database của máy
+  // chủ, còn nước đi của đối thủ thì không có cách nào biết sớm hơn.
+  const [gameTick, setGameTick] = useState(0);
+  // Lời mời đang chờ mình trả lời — con số ở góc bảng, không phải trong người chơi.
+  const [duelWait, setDuelWait] = useState(0);
   const noticeSeq = useRef(0);
   const [npc, setNpc] = useState<{ kind: NpcKind; index: number } | null>(null);
   const [queOpen, setQueOpen] = useState(false);
@@ -129,8 +150,12 @@ export function TempleApp({ lang }: { lang: string }) {
   const pushNotice = (n: Omit<Notice, 'id'>) => setNotices((v) => [...v, { ...n, id: (noticeSeq.current += 1) }].slice(-6));
   const dismissNotice = useCallback((id: number) => setNotices((v) => v.filter((x) => x.id !== id)), []);
   const openNotice = (n: Notice) => {
-    setFriendsTab(n.t === 'gift' ? 'gifts' : 'friends');
-    setSheet('friends');
+    // Lời mời tỷ thí thì mở bảng Tỷ Thí, các tin khác vẫn về bảng Đồng đội như trước.
+    if (n.t === 'game') setSheet('games');
+    else {
+      setFriendsTab(n.t === 'gift' ? 'gifts' : 'friends');
+      setSheet('friends');
+    }
     dismissNotice(n.id);
   };
 
@@ -146,6 +171,36 @@ export function TempleApp({ lang }: { lang: string }) {
       // lại exp và phát danh hiệu mới cho cả phòng — trong đó có chính mình.
       roomRef.current?.send({ t: 'look' });
     }
+  };
+
+  // Tin tỷ thí: máy chủ báo khi có lời mời, khi bên kia nhận/từ chối/bỏ ván, và khi ván
+  // ngã ngũ. Hai nhịp trong ván ('move'/'round') không thành thẻ — bảng đang mở thì nó
+  // tự đọc lại theo gameTick, còn đóng bảng thì một dòng "đối thủ vừa gieo" chẳng để làm
+  // gì cho ai, vì người nhận không có gì phải trả lời.
+  const gameEvent = (msg: Record<string, unknown>) => {
+    const kind = String(msg.kind ?? '');
+    const match = msg.match as GameMatch | undefined;
+    setGameTick((n) => n + 1);
+    if (!match) return;
+    const by = msg.by as Notice['by'] | undefined;
+    if (!by?.id) return;
+    // Người ra đòn cuối đã nhận trọn kết quả trong response của chính họ, nên phần
+    // thưởng trong tin này là của người kia — cộng thẳng vào ví và hàng đợi lên bậc.
+    if (kind === 'over') {
+      apply({ state: msg.state as TempleState, gained: Number(msg.gained ?? 0), level_ups: (msg.level_ups as Gain['level_ups']) ?? [] });
+      if (msg.outcome === 'win') luckyShower(20);
+    }
+    if (kind === 'move' || kind === 'round') return;
+    // Đối thủ nhận lời thì bảng thi đấu tự mở ở máy người mời: khoảnh khắc trận bắt đầu là
+    // khoảnh khắc hai người đang chờ nhau, không ai phải đi bấm lại menu giữa chừng.
+    if (kind === 'accept') {
+      Sound.tap();
+      setSheet('games');
+      return;
+    }
+    Sound.tap();
+    if (kind === 'invite') setDuelWait((n) => n + 1);
+    pushNotice({ t: 'game', kind, by, text: gameLine(kind, match, meRef.current), gift_sen: 0, at: new Date().toISOString() });
   };
 
   const practice = async (body: Record<string, unknown>, opts: { silent?: boolean } = {}) => {
@@ -291,6 +346,11 @@ export function TempleApp({ lang }: { lang: string }) {
         onEvent: (msg) => {
           if (msg.t === 'emote') {
             engRef.current?.emote(Number(msg.id), String(msg.e ?? ''));
+            return;
+          }
+          // Tỷ thí: lời mời, kết quả và các nước đi tới tay người kia qua cùng một cửa.
+          if (msg.t === 'game') {
+            gameEvent(msg);
             return;
           }
           // Quà, lời chúc và lời mời kết bạn tới tay người nhận ngay tại đây: phía gửi
@@ -779,6 +839,7 @@ export function TempleApp({ lang }: { lang: string }) {
                 ['rank', 'trophy', 'Xếp hạng'],
                 ['community', 'users', 'Cộng đồng'],
                 ['friends', 'user', 'Đồng đội'],
+                ['games', 'dice', 'Tỷ thí'],
                 ['stele', 'medal', 'Bảng đồng hành'],
                 ['profile', 'palette', 'Hồ sơ'],
                 ['bag', 'bag', 'Túi đồ'],
@@ -791,6 +852,8 @@ export function TempleApp({ lang }: { lang: string }) {
                   <Icon name={icon} />
                 </span>
                 <em>{label}</em>
+                {/* lời mời còn chờ trả lời; im đi khi bảng đang mở vì ván đó đã hiện ra trước mắt */}
+                {kind === 'games' && duelWait && sheet !== 'games' ? <i className="badge">{duelWait}</i> : null}
               </button>
             ))}
           </nav>
@@ -846,6 +909,7 @@ export function TempleApp({ lang }: { lang: string }) {
       {sheet === 'guide' ? <GuideSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'settings' ? <SettingsSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'community' ? <GroupSheet s={store} onClose={() => setSheet(null)} /> : null}
+      {sheet === 'games' ? <GameSheet s={store} tick={gameTick} onWaiting={setDuelWait} onClose={() => setSheet(null)} /> : null}
       {sheet === 'friends' ? (
         <FriendsSheet
           s={store}

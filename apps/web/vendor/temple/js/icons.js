@@ -15,6 +15,11 @@ const P = {
   expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
   dice: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor"/>',
   compress: '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
+  // oẳn tù tì — ba đòn trong trận "Tỷ Thí"; tên khớp mã mà /api/temple trả về
+  // (bua→rock, bao→paper, keo→scissors).
+  rock: '<path d="M5.5 12.8A4.8 4.8 0 0110.3 8h3.4a4.8 4.8 0 014.8 4.8v2.4A4.8 4.8 0 0113.7 20h-3.4A4.8 4.8 0 015.5 15.2z"/><path d="M9 9.4v3M12 8.6v3.8M15 9.4v3"/><path d="M6 13.7c-1.8-.7-3.7.5-3.9 2.3-.2 1.6 1 3 2.6 3.3l2.6.4"/>',
+  paper: '<path d="M18 11.5V6.8a2 2 0 10-4 0v4.2"/><path d="M14 10.5V4.8a2 2 0 10-4 0v6.2"/><path d="M10 11V6.8a2 2 0 10-4 0V13"/><path d="M18 8.8a2 2 0 114 0v6.4a7.8 7.8 0 01-7.8 7.8h-1.4c-2.7 0-4.4-.9-5.8-2.4l-3.4-3.7a2 2 0 012.9-2.8l1.7 1.9"/>',
+  scissors: '<circle cx="6.2" cy="6.2" r="2.8"/><circle cx="6.2" cy="17.8" r="2.8"/><path d="M19.6 4L8.4 15.7M8.4 8.3l3.4 3.4M14.6 14.6l5 5.4"/>',
   // giao diện
   scroll: '<path d="M7 4h11a2 2 0 012 2v1H9"/><path d="M7 4a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V8"/><path d="M9 11h7M9 15h5"/>',
   bag: '<path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/>',
