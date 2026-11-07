@@ -282,6 +282,27 @@ test(
       for (const it of WEARABLE_POOL) assert.ok(bag.includes(it.id), `${it.id} is still missing from the admin bag`);
       assert.ok(WEARABLE_POOL.some((it) => it.rank === 'quy'), 'and the Quý pieces are part of what got handed over');
 
+      // Admin thử tạo hình cũng là việc vận hành: /hero trả giá 0 cho đúng tài khoản đó
+      // và không cú bấm nào trừ ví, kể cả cú mà người thường phải trả 100.
+      const { HERO_IDS } = await import('./heroes.ts');
+      assert.equal((await get('/api/temple/hero', me.cookie)).json.cost, 100, 'a normal account still pays');
+      assert.equal((await get('/api/temple/hero', boss.cookie)).json.cost, 0, 'the free pass is read from users.role, not from the client');
+      const bossWallet = (await get('/api/temple/state', boss.cookie)).json.state.ngoc as number;
+      const wears = (await get('/api/temple/state', boss.cookie)).json.state.appearance.hero as string;
+      // Hai hình chắc chắn chưa đứng: hình đang mặc thì spent 0 ở tài khoản nào cũng vậy,
+      // nên nó không chứng minh được gì.
+      const unseen = HERO_IDS.filter((h) => h !== wears).slice(0, 2);
+      const firstForm = (await post('/api/temple/hero', { hero: unseen[0] }, boss.cookie)).json;
+      assert.equal(firstForm.spent, 0, 'the admin pays nothing to open a form');
+      const secondForm = await post('/api/temple/hero', { hero: unseen[1] }, boss.cookie);
+      assert.equal(secondForm.json.spent, 0, 'and not on the second form either, which is the one a player buys');
+      assert.equal(secondForm.json.state.ngoc, bossWallet, 'the wallet never moved');
+      assert.deepEqual(
+        [firstForm.state.heroes, secondForm.json.state.heroes].map((h: string[]) => h.length),
+        [1, 2],
+        'free does not mean unrecorded: each form still lands in the collection',
+      );
+
       // --- BXH ---------------------------------------------------------------
       const board = (await get('/api/temple/leaderboard?scope=day', me.cookie)).json;
       const row = (board.rows as Json[]).find((r) => r.you);

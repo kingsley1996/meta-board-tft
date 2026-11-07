@@ -229,23 +229,26 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
   const st = s.state;
   const [name, setName] = useState(st?.name ?? '');
   const [busy, setBusy] = useState(false);
-  // Giá một hình mới đọc từ server (heroes.ts:HERO_COST_NGOC) — HUD không giữ bản sao
-  // nào của con số 100, nên đổi giá chỉ có một chỗ để đổi.
-  const [cost, setCost] = useState(0);
+  // Giá một hình mới đọc từ server cho *đúng tài khoản này* (heroes.ts:priceFor): người
+  // thường là 100, admin là 0 — HUD không tự suy ra quy tắc từ cờ admin, và cũng không
+  // giữ bản sao nào của con số 100. null = chưa đọc được giá, khác với 0 = được miễn.
+  const [price, setPrice] = useState<number | null>(null);
   const hero = st?.appearance?.hero ?? '';
   const owned = st?.heroes ?? [];
   // Bộ sưu tập còn trống = người này chưa chọn lần nào, nên cả 12 ô đang cùng một giá:
   // miễn phí. Đây là nhánh "lần đầu" của đề bài, không phải nhánh đã sở hữu.
   const untouched = owned.length === 0;
+  // Giá 0 từ server nghĩa là cả 12 ô đều bấm được ngay, không ô nào mang nhãn khoá.
+  const openAll = price === 0;
   const trimmed = name.trim();
   const dirty = trimmed !== '' && trimmed !== (st?.name ?? '');
 
   useEffect(() => {
     void get<{ cost: number }>('/hero')
-      .then((r) => setCost(r.cost))
+      .then((r) => setPrice(r.cost))
       // Đọc giá thất bại thì ô khoá chỉ còn dấu khoá: thà không hiện số hơn là hiện một
       // số của riêng máy khách.
-      .catch(() => setCost(0));
+      .catch(() => setPrice(null));
   }, []);
 
   const patch = async (body: Record<string, unknown>, ok: string) => {
@@ -328,17 +331,20 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
         </>
       )}
       <p className="muted hero-note">
-        {untouched
-          ? `Chọn một nhân vật, lần đầu miễn phí.${cost ? ` Mỗi hình mới sau đó trả ${fmt(cost)} Kim Cương.` : ''}`
-          : `${owned.length}/12 nhân vật đã mở · đã mở thì dùng lại miễn phí${cost ? `, hình mới ${fmt(cost)} Kim Cương` : ''}.`}
+        {openAll
+          ? `${owned.length}/12 nhân vật đã mở · tài khoản quản trị đổi được mọi hình, không trừ Kim Cương.`
+          : untouched
+            ? `Chọn một nhân vật, lần đầu miễn phí.${price ? ` Mỗi hình mới sau đó trả ${fmt(price)} Kim Cương.` : ''}`
+            : `${owned.length}/12 nhân vật đã mở · đã mở thì dùng lại miễn phí${price ? `, hình mới ${fmt(price)} Kim Cương` : ''}.`}
       </p>
       <div className="hero-grid modal-hero-grid">
         {HEROES.map((h) => {
           const current = h.id === hero;
           const has = owned.includes(h.id);
-          // Khoá = chưa mở mà cũng không còn suất miễn phí đầu. Bấm vào vẫn được: server
-          // trả 409 kèm đúng số dư, HUD không được đoán hộ người chơi mua nổi hay không.
-          const locked = !current && !has && !untouched;
+          // Khoá = chưa mở mà cũng không còn suất miễn phí đầu, và server không trả giá 0
+          // cho tài khoản này. Bấm vào vẫn được: server trả 409 kèm đúng số dư, HUD không
+          // được đoán hộ người chơi mua nổi hay không.
+          const locked = !current && !has && !untouched && !openAll;
           return (
             <button key={h.id} type="button" className={`hero-card${current ? ' on' : ''}${locked ? ' locked' : ''}`} disabled={busy} onClick={() => void pick(h.id, h.name)}>
               <span className="hc-thumb" style={{ backgroundPosition: HERO_SPRITE[h.id] ?? '0% 0%' }} />
@@ -349,7 +355,7 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
               {current ? <span className="hc-flag">Đang dùng</span> : null}
               {locked ? (
                 <span className="hc-cost">
-                  <Icon name="ngoc" /> {cost ? fmt(cost) : 'khoá'}
+                  <Icon name="ngoc" /> {price ? fmt(price) : 'khoá'}
                 </span>
               ) : null}
             </button>

@@ -15,8 +15,14 @@
 //
 // Khách dùng được tuyến này, giống hai cửa hàng (shop.ts): nó chỉ đụng ví và avatar của
 // chính người bấm, không để lại hàng nào nhân danh một email giả ngoài sảnh.
+//
+// Tài khoản admin (`users.role`) đổi được cả 12 hình mà không trừ đồng nào, cùng hướng
+// với /admin/gear (đổ cả 63 món mặc được vào túi để thử đồ Quý/Hiếm ngay): thử tạo hình
+// là việc vận hành, không phải việc phải trả Kim Cương. `role` đọc từ hàng users chứ
+// không từ máy khách, nên không ai tự phong được bằng một cú PUT.
 import { Router } from 'express';
 import { pool } from '../db.ts';
+import type { AuthUser } from '../accounts.ts';
 import { ensureTempleProfile } from './identity.ts';
 import { ApiError, idName, withUser } from './http.ts';
 import { ensureTempleTables } from './schema.ts';
@@ -47,6 +53,11 @@ export const HERO_IDS = [
 // Quý giữa bảng; quà lên bậc ở merit.ts:92 (bậc 2 +40, bậc 3 +60) vừa đủ trả cho nó.
 export const HERO_COST_NGOC = 100;
 
+// Giá một hình mới *cho tài khoản này*. Cả hai response đều trả nó thay vì hằng số để
+// HUD không phải tự suy ra quy tắc "admin thì miễn phí" từ một cờ nào khác: một chỗ
+// quyết giá, và chỗ đó là server.
+const priceFor = (user: AuthUser): number => (user.role === 'admin' ? 0 : HERO_COST_NGOC);
+
 // Bộ sưu tập + giá, cho ô nhân vật trong Hồ sơ vẽ trước khi người chơi bấm cú nào.
 // Giá không có bản sao ở máy khách: catalog.ts đọc giá đồ từ meta.json, còn nhân vật
 // thì không nằm trong asset nào, nên con số duy nhất là hằng số dưới đây và HUD lấy
@@ -54,7 +65,7 @@ export const HERO_COST_NGOC = 100;
 heroRouter.get('/hero', withUser(async (req, res, user) => {
   await ensureTempleTables();
   const profile = await ensureTempleProfile(user.id);
-  res.json({ heroes: profile.heroes, cost: HERO_COST_NGOC, current: profile.appearance?.hero ?? null });
+  res.json({ heroes: profile.heroes, cost: priceFor(user), current: profile.appearance?.hero ?? null });
 }));
 
 heroRouter.post('/hero', withUser(async (req, res, user) => {
@@ -67,8 +78,9 @@ heroRouter.post('/hero', withUser(async (req, res, user) => {
   // lần hai), và vòng lặp nhanh nhất có thể viết ra là duyệt 12 ô — tốn nhiều nhất
   // 11 × 100 Kim Cương rồi từ đó về sau miễn phí hết. Chặn nhịp chỉ tổ khiến một người
   // bấm qua bấm lại giữa hai hình bị chậm.
-  const { spent } = await pickHero(user.id, hero);
-  res.json({ state: await templeState(user.id), hero, spent, cost: HERO_COST_NGOC });
+  const cost = priceFor(user);
+  const { spent } = await pickHero(user.id, hero, cost);
+  res.json({ state: await templeState(user.id), hero, spent, cost });
 }));
 
 // ---- helpers ------------------------------------------------------------------
@@ -90,7 +102,11 @@ export function heroInBody(body: Record<string, unknown> | undefined): boolean {
 // Toàn bộ điều kiện đứng SAU `FOR UPDATE`, cùng khuôn với shop.ts:payAndGrant. Hai cú
 // bấm cùng lúc mà cùng thấy "chưa sở hữu" thì người chơi mất 200 Kim Cương cho một
 // nhân vật; khoá hàng hồ sơ trước khi đọc ví chặn đúng chuyện đó.
-async function pickHero(userId: string, hero: string): Promise<{ spent: number }> {
+//
+// `price` là giá của *tài khoản này* (priceFor): 0 với admin, HERO_COST_NGOC với người
+// thường. Số trừ đi vẫn tính lại từ điều kiện sở hữu bên dưới chứ không lấy thẳng
+// `price`, nên một cú bấm vào hình đang mặc hoặc đã mở luôn trả spent 0.
+async function pickHero(userId: string, hero: string, price: number): Promise<{ spent: number }> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -105,8 +121,8 @@ async function pickHero(userId: string, hero: string): Promise<{ spent: number }
     // Đang đứng đúng hình đó rồi thì không có gì để mua, kể cả khi `heroes` còn rỗng:
     // lần bấm đó chính là lần chọn đầu, và lần chọn đầu là miễn phí.
     const isFirstPick = owned.length === 0;
-    const free = wears || isFirstPick || owned.includes(hero);
-    const cost = free ? 0 : HERO_COST_NGOC;
+    const free = wears || isFirstPick || owned.includes(hero) || price === 0;
+    const cost = free ? 0 : price;
     if (!free && row.ngoc < cost) throw new ApiError(409, 'not_enough_ngoc', `not enough ngoc: a new form costs ${cost}`);
     // Chỉ id chưa có mới được ghi thêm vào bộ sưu tập; chọn lại món đã mở thì danh sách
     // giữ nguyên, và ngoc - 0 không phải một cú ghi vô nghĩa vì updated_at vẫn phải chạy.

@@ -225,6 +225,11 @@ Không đủ 100 → `409 not_enough_ngoc`. Giá 100 dẫn xuất từ nền kin
   khiến người chơi tưởng mình vừa đổi được hình; đi thẳng qua curl mà không mất đồng thì cơ chế khoá
   vô hiệu.
 - Khách dùng được tuyến này, ví khách cũng bị trừ thật (dev đo: 200 → 100 → 0 rồi 409).
+- **Tài khoản admin (`users.role = 'admin'`) đổi được cả 12 hình mà không trừ đồng nào**, cùng hướng
+  với `/admin/gear` ở §4: thử tạo hình là việc vận hành. `GET/POST /hero` trả `cost` theo *đúng tài
+  khoản đang gọi* (`heroes.ts:priceFor`) chứ HUD không tự suy ra quy tắc từ cờ `admin`, nên máy
+  khách không có bản sao luật nào — `cost: 0` là "mở hết", khác với "chưa đọc được giá" (HUD vẫn vẽ
+  nhãn khoá). Hình admin mở vẫn ghi vào `heroes` như mọi cú mua khác.
 
 ### 9.2 Hồ sơ: bậc hiện tại + thanh tiến độ
 
