@@ -20,7 +20,7 @@ import { MeditateView, QueModal, WheelView } from './practice';
 import { REALM_ABOUT, rungLabel, rungOf } from '@/vendor/temple/js/ladder.js';
 import { Icon, Modal, Notices, Sheet, TitleBadge, Toast, fmt, loginUrls, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
 
-type LevelUp = { level: number; title: string; sen: number };
+type LevelUp = NonNullable<Gain['level_ups']>[number];
 type Ann = { id: number; text: string; effect: string };
 type CtxAct = 'talk' | 'tell' | 'door' | 'ride' | 'unride' | 'stand' | 'sit' | '';
 
@@ -101,6 +101,7 @@ export function TempleApp({ lang }: { lang: string }) {
   // giá trị chốt trong closure lần render đầu.
   const stateRef = useRef<TempleState | null>(null);
   const guestRef = useRef(false);
+  const adminRef = useRef(false);
   const meRef = useRef(0);
   const bowRef = useRef<'idle' | 'bowing' | 'stopping'>('idle');
   const ctxRef = useRef<EngineCtx | null>(null);
@@ -166,7 +167,7 @@ export function TempleApp({ lang }: { lang: string }) {
       Sound.tap();
     }
     if (g.level_ups?.length) {
-      setLevelQueue((q) => [...q, ...g.level_ups!.map((l) => ({ level: l.level, title: l.title, sen: l.sen }))]);
+      setLevelQueue((q) => [...q, ...g.level_ups!]);
       // Nhãn trên đầu đi từ hồ sơ trên dây, nên lên bậc phải báo một nhịp: máy chủ đọc
       // lại exp và phát danh hiệu mới cho cả phòng — trong đó có chính mình.
       roomRef.current?.send({ t: 'look' });
@@ -219,9 +220,10 @@ export function TempleApp({ lang }: { lang: string }) {
 
   const refresh = async () => {
     try {
-      const r = await get<{ state: TempleState; guest: boolean; player_id: number }>('/state');
+      const r = await get<{ state: TempleState; guest: boolean; admin: boolean; player_id: number }>('/state');
       stateRef.current = r.state;
       guestRef.current = r.guest;
+      adminRef.current = r.admin === true;
       meRef.current = r.player_id;
       render();
     } catch (e) {
@@ -424,7 +426,7 @@ export function TempleApp({ lang }: { lang: string }) {
       setLoaderPct(4);
       // /state nuôi HUD (số hôm nay, ví, túi đồ) chứ không nuôi avatar, nên để nó chạy
       // song song với nhịp dựng cảnh thay vì đứng chắn trước cổng đền.
-      const hud = get<{ state: TempleState; guest: boolean; player_id: number }>('/state');
+      const hud = get<{ state: TempleState; guest: boolean; admin: boolean; player_id: number }>('/state');
       await engine.enter({
         id: g.profile.playerId,
         name: g.profile.name || DEFAULT_GUEST,
@@ -438,7 +440,9 @@ export function TempleApp({ lang }: { lang: string }) {
       // Phòng đi trước bảng số: /state fail thì người chơi vẫn thấy đồng đội quanh mình,
       // và nhịp nối phòng đã tự gọi refresh() để lấy lại số.
       startRoom();
-      stateRef.current = (await hud).state;
+      const hudR = await hud;
+      stateRef.current = hudR.state;
+      adminRef.current = hudR.admin === true;
       render();
       if (stateRef.current.today.visits === 0) void practice({ type: 'visit' }, { silent: true });
       void get<{ rows: Ann[] }>('/announcements')
@@ -616,6 +620,7 @@ export function TempleApp({ lang }: { lang: string }) {
   const store: Store = {
     lang,
     guest: guestRef.current,
+    isAdmin: adminRef.current,
     state: st,
     engine: engRef.current,
     room: roomRef.current,
@@ -770,10 +775,10 @@ export function TempleApp({ lang }: { lang: string }) {
                 </svg>
               </button>
               <div className="wallet">
-                <span>
+                <span title="Tinh Hoa">
                   <Icon name="hex" /> <b>{fmt(st?.sen ?? 0)}</b>
                 </span>
-                <span>
+                <span title="Kim Cương">
                   <Icon name="ngoc" /> <b>{fmt(st?.ngoc ?? 0)}</b>
                 </span>
               </div>
@@ -952,6 +957,7 @@ export function TempleApp({ lang }: { lang: string }) {
           <p>
             Mốc mới: <b>{levelQueue[0].title} · {rungLabel(levelQueue[0].level)}</b>
             <br />+{fmt(levelQueue[0].sen)} Tinh Hoa
+            <br />+{fmt(levelQueue[0].ngoc)} Kim Cương
           </p>
           <p className="realm-about">{REALM_ABOUT[rungOf(levelQueue[0].level).realm - 1]}</p>
           <button className="btn gold" onClick={() => setLevelQueue((q) => q.slice(1))}>

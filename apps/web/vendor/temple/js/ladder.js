@@ -21,8 +21,10 @@ export const REALM_ABOUT = [
 
 // level là vị trí 1..19 trên thang; realm 1..7 là vận, khớp đúng công thức trong
 // levelFromExp() phía máy chủ.
+export const LADDER_TOP = (REALMS.length - 1) * 3 + 1;
+
 export function rungOf(level) {
-  const n = Math.min(19, Math.max(1, Math.round(level) || 1));
+  const n = Math.min(LADDER_TOP, Math.max(1, Math.round(level) || 1));
   const realm = Math.min(REALMS.length, Math.ceil(n / 3));
   return { level: n, realm, stage: realm === REALMS.length ? 1 : ((n - 1) % 3) + 1 };
 }
@@ -38,5 +40,5 @@ export function rungLabel(level) {
 // dùng để nói "vận này từ bậc nào tới bậc nào" thay vì bắt người chơi tự đếm.
 export function realmLevels(realm) {
   const from = (realm - 1) * 3 + 1;
-  return [from, Math.min(19, from + 2)];
+  return [from, Math.min(LADDER_TOP, from + 2)];
 }

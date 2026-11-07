@@ -6,12 +6,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Gain } from './api';
+import type { Gain, TempleState } from './api';
 import { get, post, put } from './api';
 import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, TRACKS, local, sectOf } from './engine';
 import { luckyShower } from './effects';
 import { guideOf, storyOf } from './stories';
-import { REALMS, REALM_ABOUT, ROMAN, realmLevels, rungOf } from '@/vendor/temple/js/ladder.js';
+import { LADDER_TOP, REALMS, REALM_ABOUT, ROMAN, realmLevels, rungOf } from '@/vendor/temple/js/ladder.js';
 import { itemThumb } from '@/vendor/temple/js/thumbs.js';
 import { GuestGate, Icon, Sheet, TitleBadge, ago, fmt, type Look, type Store } from './ui';
 
@@ -285,7 +285,66 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
           </button>
         ))}
       </div>
+      {s.isAdmin ? <AdminBlock s={s} /> : null}
     </Sheet>
+  );
+}
+
+// Khối Quản trị: chỉ hiện với tài khoản admin (users.role = 'admin'), và hai tuyến
+// /api/temple/admin/* vẫn tự chặn 403 ở server (admin.ts:withAdmin) — đây là lối tắt
+// cho người vận hành thử bậc/thử đồ, không phải cửa sau để máy khách tự sửa số.
+
+// rungLabel đã chứa chữ "bậc" (bậc trong một vận), nên ghép thêm "Bậc 4 ·" vào nó thì
+// thành đôi. Trong dropdown của khối Quản trị dùng thẳng tên vận + vị trí trên thang.
+const rungName = (level: number) => `${REALMS[rungOf(level).realm - 1]} · Bậc ${level}`;
+
+function AdminBlock({ s }: { s: Store }) {
+  const st = s.state;
+  const [level, setLevel] = useState(st?.level ?? 1);
+  const [busy, setBusy] = useState(false);
+
+  const run = async (path: string, body: Record<string, unknown>, ok: string) => {
+    setBusy(true);
+    try {
+      const r = await post<{ state: TempleState }>(`/admin/${path}`, body);
+      s.apply({ state: r.state, gained: 0 });
+      // Nhãn trên đầu avatar do phòng phát từ hồ sơ trên dây, nên đổi bậc phải báo
+      // một nhịp — nếu không thì chính admin vẫn thấy bậc cũ cho tới khi tải lại.
+      s.room?.send({ t: 'look' });
+      s.toast(ok);
+    } catch (e) {
+      s.toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="admin-block">
+      <h4>Quản trị</h4>
+      <form
+        className="sg-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (level !== st?.level) void run('level', { level }, `Đã đặt ${rungName(level)}`);
+        }}
+      >
+        <select value={level} onChange={(e) => setLevel(Number(e.target.value))} aria-label="Bậc của nhân vật">
+          {Array.from({ length: LADDER_TOP }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={n}>
+              {rungName(n)}
+            </option>
+          ))}
+        </select>
+        <button className="btn small gold" disabled={busy || level === st?.level}>
+          Đặt bậc
+        </button>
+      </form>
+      <button className="btn small ghost" disabled={busy} onClick={() => void run('gear', {}, 'Đã cấp toàn bộ trang bị vào túi')}>
+        Cấp toàn bộ trang bị
+      </button>
+      <p className="muted">Chỉ áp lên nhân vật của chính tài khoản này. Trang bị lại từng món ở Túi đồ.</p>
+    </div>
   );
 }
 

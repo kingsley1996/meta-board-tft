@@ -26,16 +26,16 @@ const QUE_CARDS = [
 ];
 
 // Vòng quay Hex: sáu cung và trọng số đúng như api.js:701-709. Phần thưởng chỉ có
-// Tinh Hoa/Tinh Thể/đồ trong túi — economy-lite, không có tiền thật ở bất kỳ đâu.
+// Tinh Hoa/Kim Cương/đồ trong túi — economy-lite, không có tiền thật ở bất kỳ đâu.
 type Segment = { label: string; pct: number; sen?: number; ngoc?: number; item?: string; count?: number; rare?: boolean };
 
 const WHEEL_SEGMENTS: Segment[] = [
   { label: '30 Tinh Hoa', pct: 30, sen: 30 },
   { label: '50 Tinh Hoa', pct: 25, sen: 50 },
-  { label: '20 Tinh Thể', pct: 15, ngoc: 20 },
+  { label: '20 Kim Cương', pct: 15, ngoc: 20 },
   { label: '3 Bùa May', pct: 15, item: 'huong_tram', count: 3 },
   { label: '5 Đóa Sao', pct: 10, item: 'hoa_dang', count: 5 },
-  { label: '100 Tinh Thể Quý', pct: 5, ngoc: 100, rare: true },
+  { label: '100 Kim Cương Quý', pct: 5, ngoc: 100, rare: true },
 ];
 
 // ---- Bảng đồng hành -----------------------------------------------------------

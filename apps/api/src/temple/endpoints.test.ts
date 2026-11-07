@@ -227,6 +227,36 @@ test(
       assert.equal(queAgain.gained, 0, 'reading the same fortune twice does not pay twice');
       assert.equal((await get('/api/temple/draws/que', me.cookie)).json.que.rank, que.que.rank);
 
+      // --- Lên bậc: Tinh Hoa và Kim Cương cùng rơi xuống ví ---------------------
+      // Ngưỡng bậc 2 là 180 Điểm May (identity.ts:71) nên dịch exp bằng SQL rồi trả
+      // một nhịp cầu may thật: phần thưởng phải ra từ addMerit, không từ máy khách.
+      const climber = await newUser('Bậc Thang');
+      await pool.query('UPDATE temple_profiles SET exp = 170 WHERE user_id = $1', [climber.user]);
+      const up = (await post('/api/temple/practice', { type: 'bow', count: 3 }, climber.cookie)).json;
+      assert.equal(up.level_ups.length, 1, 'one rung crossed');
+      assert.equal(up.level_ups[0].level, 2);
+      assert.equal(up.level_ups[0].sen, 100, 'level × 50 Tinh Hoa');
+      assert.equal(up.level_ups[0].ngoc, 40, 'level × 20 Kim Cương = the same bonus at the 2.5 ratio');
+      assert.equal(up.state.sen, 500 + 6 + 100, 'the wallet gain is the ratio plus the rung bonus');
+      assert.equal(up.state.ngoc, 200 + 40, 'and Kim Cương only ever arrives as a grant');
+
+      // --- Admin: hai tuyến chỉ sửa được chính mình ----------------------------
+      const { WEARABLE_POOL } = await import('./catalog.ts');
+      const boss = await newUser('Thủ Đền');
+      await pool.query("UPDATE users SET role = 'admin' WHERE id = $1", [boss.user]);
+      assert.equal((await get('/api/temple/state', boss.cookie)).json.admin, true, 'the HUD gets the flag, the gate stays on the server');
+      assert.equal((await get('/api/temple/state', me.cookie)).json.admin, false);
+      assert.equal((await post('/api/temple/admin/level', { level: 19 }, me.cookie)).status, 403, 'a normal account cannot self-promote');
+      assert.equal((await post('/api/temple/admin/level', { level: 20 }, boss.cookie)).status, 400, 'the ladder has 19 rungs');
+      const promoted = (await post('/api/temple/admin/level', { level: 19 }, boss.cookie)).json;
+      assert.equal(promoted.state.level, 19);
+      assert.equal(promoted.state.exp, 33_000, 'a rung is written as its own milestone, never a raw number');
+      const kit = await post('/api/temple/admin/gear', {}, boss.cookie);
+      assert.equal(kit.status, 200);
+      const bag = Object.keys(kit.json.state.inventory as Record<string, number>);
+      for (const it of WEARABLE_POOL) assert.ok(bag.includes(it.id), `${it.id} is still missing from the admin bag`);
+      assert.ok(WEARABLE_POOL.some((it) => it.rank === 'quy'), 'and the Quý pieces are part of what got handed over');
+
       // --- BXH ---------------------------------------------------------------
       const board = (await get('/api/temple/leaderboard?scope=day', me.cookie)).json;
       const row = (board.rows as Json[]).find((r) => r.you);

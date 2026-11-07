@@ -230,8 +230,14 @@ của hồ sơ" thì phải tách thành quyết định riêng (hiện chỉ se
   client chỉ toast). 18 mốc mà mốc nào cũng bật modal thì modal thành noise.
 - **Lên vận**: modal **THĂNG VẬN** (dùng lại modal sẵn ở `temple-app.tsx:795-803`, đổi chữ và nội
   dung), thưởng sen = `100/200/400/800/1500/3000` theo vận II→đỉnh, thay cho `level × 50` cũ
-  (`merit.ts:82-87`). Con số vẫn là **sen** (Tinh thể/`ngoc` không đụng) — economy-lite, không tiền thật.
+  (`merit.ts:82-87`). Con số vẫn là **sen** — economy-lite, không tiền thật. Từ 2026-11-07 mỗi bậc
+  mới trả thêm Kim Cương (`ngoc`) = `level × 20`, đúng bằng phần thưởng sen đổi theo tỷ giá 2.5
+  (`merit.ts:NGOC_PER_LEVEL`); bảng thưởng theo vận dưới đây nếu làm thì cộng cả hai cột.
 - **Treo danh hiệu**: đổi trong panel Hồ sơ, không thưởng.
+- **Admin tự đặt bậc**: khối Quản trị trong Hồ sơ gọi `POST /api/temple/admin/level`
+  (`admin.ts:withAdmin`, chặn 403 với tài khoản thường) ghi thẳng `exp` bằng mốc §3.1 của bậc chọn.
+  Đường đó không đi qua `merit.ts` nên **không** sinh thưởng lên bậc — nó là công cụ để người vận
+  hành thử khung/ấn từng vận, không phải cửa sau cho người chơi cày hộ.
 - Thanh tiến độ HUD vẽ theo *bậc hiện tại → bậc kế* (không phải → vận kế) để luôn có nhịp phản hồi
   ≤ 2 ngày với người chuyên.
 - Chip cấp trong HUD chỉ in **nhãn ngắn** (`Cát Tường · bậc 2`) — không in chữ Hán trong chip 60px;

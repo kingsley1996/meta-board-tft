@@ -19,13 +19,16 @@ thực thi**: tên/chuỗi nào thay, thay thành gì, thay ở đâu. Mọi con
 
 ## 1. Tiền tệ
 
+Hai tên dưới đây là tên chốt (2026-11-07) — mọi nhãn UI, toast và phần thưởng đều dùng
+**Tinh Hoa** / **Kim Cương**, không còn biến thể nào khác. Field DB giữ nguyên `sen`/`ngoc`.
+
 | Cũ | Mới | Field DB | Ghi chú |
 |---|---|---|---|
 | Công đức | **Điểm May Mắn** | `exp` | giữ field, chỉ đổi nhãn |
-| Sen | **Mảnh Hex** | `sen` | field không đổi; gate từ ngữ **không** quét `sen` |
-| Ngọc | **Tinh Thể** | `ngoc` | chỉ từ Wheel + đổi quà, không có cổng tiền thật |
+| Sen | **Tinh Hoa** | `sen` | field không đổi; gate từ ngữ **không** quét `sen` |
+| Ngọc | **Kim Cương** | `ngoc` | từ Wheel, thưởng lên bậc và đổi quà; không có cổng tiền thật |
 | Đức | *(xoá)* | `duc` | server vẫn vận chuyển, không HUD nào hiển thị |
-| Quả | *(xoá theo vườn)* | `fruit` | `hall.ts:123` đang đổi quả → Ngọc: bỏ cả đường đó |
+| Quả | *(xoá theo vườn)* | `fruit` | `hall.ts:123` từng đổi quả → Kim Cương: đã bỏ cả đường đó |
 
 ## 2. Cấp (7 bậc, ngưỡng exp giữ nguyên)
 
@@ -68,6 +71,10 @@ theo màu (`#4f8a4a`/`#c4688a`/`#c0602e` giữ nguyên) nên avatar không đổ
 Chỉ hai chuỗi hiển thị: `name` và `description` (`hall.tsx:505`). `data.color/sash/model/...` giữ
 nguyên — đó là thông số render, không phải copy. **3 mục `type: plant` và 1 `type: fruit` bị xoá** theo vườn → còn **66**. Quy tắc: bỏ hết từ vựng Phật/kinh, giữ đúng 1 dòng, không giải thích cơ chế.
 
+63/66 mục thuộc nhóm mặc được (`WEARABLE` trong `catalog.ts`). Tài khoản admin có nút **Cấp toàn bộ
+trang bị** (`POST /api/temple/admin/gear`, khối Quản trị trong Hồ sơ) đổ cả 63 món vào túi để thử đồ
+ngay — người thường vẫn phải mua qua Cửa hàng hoặc đổi duyên ở cửa Lão Hành Khất.
+
 ### 4.1. Dâng lễ (`consumable`, 3) — thành bộ đồ cầu may
 
 | id | Cũ | Mới |
@@ -78,7 +85,7 @@ nguyên — đó là thông số render, không phải copy. **3 mục `type: pl
 
 ### 4.2. Áo choàng (`robe`, 19) — `ao_*` + 2 item legend
 
-`ao_lam/ao_xam/ao_nau/ao_trang/ao_vang` (miễn phí/mua bằng Mảnh Hex) → **Áo Choàng Lam / Xám / Nâu /
+`ao_lam/ao_xam/ao_nau/ao_trang/ao_vang` (miễn phí/mua bằng Tinh Hoa) → **Áo Choàng Lam / Xám / Nâu /
 Trắng / Vàng Cam** (đổi tên, mô tả thành "màu áo mặc khi vào sảnh", bỏ chữ "Phật tử", "chú tiểu").
 `ao_sen` Áo hoa sen → **Áo Choàng Hồng Sương**. `ao_vulan` Áo Vu Lan hồng → **Áo Choàng Má Hồng**
 (Vu Lan là lễ Phật giáo). `ao_may_bac` → **Áo Choàng Mây Bạc** (giữ). `ao_truc` → **Áo Choàng Trúc

@@ -63,7 +63,7 @@ export type GuestReply = {
 export type Gain = {
   state: TempleState;
   gained?: number;
-  level_ups?: { level: number; title: string; sen: number }[];
+  level_ups?: { level: number; title: string; sen: number; ngoc: number }[];
   // Nhịp cầu may nào có số liệu riêng thì máy chủ bỏ vào đây (số phút thiền, số
   // số vòng vừa tròn…). HUD đọc nó để nói đúng con số thay vì tự đếm ở máy khách.
   extra?: Record<string, number | boolean>;
@@ -141,7 +141,7 @@ const MESSAGES: Record<string, string> = {
   wrong_currency: 'Món này phải trả bằng loại tiền khác',
   level_locked: 'Cần lên bậc cao hơn mới mua được món này',
   already_owned: 'Bạn đã có món này rồi',
-  not_enough_ngoc: 'Không đủ Ngọc trong ví',
+  not_enough_ngoc: 'Không đủ Kim Cương trong ví',
   no_duyen_offer: 'Món này không nằm trên chiếu hôm nay',
   duyen_sold_out: 'Hôm nay lão bán hết phần rồi — mai hãy quay lại',
   already_exchanged: 'Món này bạn đã đổi hôm nay rồi',
@@ -165,6 +165,7 @@ const MESSAGES: Record<string, string> = {
   already_moved: 'Vòng này bạn đã ra nước đi rồi',
   not_your_game: 'Ván này không có tên bạn',
   profile_missing: 'Sảnh chưa đọc được hồ sơ của hai người này',
+  admin_only: 'Khối này chỉ tài khoản admin dùng được',
 };
 
 export async function templeApi<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {

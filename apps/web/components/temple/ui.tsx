@@ -26,6 +26,10 @@ export type Notice = { id: number; t: 'gift' | 'friend' | 'game'; kind: string; 
 export type Store = {
   lang: string;
   guest: boolean;
+  // Tài khoản admin (`users.role`) thì Hồ sơ vẽ thêm khối tự đặt bậc và cấp trang bị.
+  // Quyền thật vẫn nằm ở server (admin.ts:withAdmin) — cờ này chỉ quyết người thường
+  // có phải thấy một hàng nút lúc nào cũng bị 403 hay không.
+  isAdmin: boolean;
   state: TempleState | null;
   engine: TempleEngine | null;
   room: TempleRoom | null;

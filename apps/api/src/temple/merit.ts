@@ -8,8 +8,8 @@
 //
 // Bảng quy đổi lấy đúng như bản gốc đã tính (api.js:449-526). Sen luôn đi kèm công
 // đức với tỉ lệ 0.4 (api.js:523) và lên bậc thưởng thêm level × 50 Sen
-// (api.js:267-271) — economy-lite nên hai loại tiền này chỉ ra từ đây, không có
-// đường mua bằng tiền thật.
+// (api.js:267-271) — economy-lite nên Điểm May Mắn, Tinh Hoa và Kim Cương đều chỉ ra
+// từ đây, không có đường mua bằng tiền thật.
 import { pool } from '../db.ts';
 import { levelFromExp, type TempleProfile, templeProfile } from './identity.ts';
 
@@ -21,6 +21,11 @@ export function vnDay(at: Date = new Date()): string {
 }
 
 export const SEN_PER_EXP = 0.4;
+// Kim Cương cho mỗi bậc mới, dẫn xuất chứ không phải số mới: thưởng lên bậc là
+// level × 50 Tinh Hoa, chia theo tỷ giá 2.5 Tinh Hoa / 1 Kim Cương đã dùng để định
+// giá chiếu Lão Hành Khất (catalog.ts:100, kiểm chứng bằng ví ngày đầu 500:200 ở
+// schema.sql). 50 / 2.5 = 20 Kim Cương mỗi bậc.
+export const NGOC_PER_LEVEL = 20;
 // Ngưỡng chống "một gói tin làm giàu". Máy khách gửi số lần, không gửi điểm, nên chỉ
 // cần chặn ở phía số lần; gói to hơn con số này chỉ có thể là vòng lặp POST.
 export const MAX_COUNT = 30;
@@ -48,7 +53,7 @@ export type PracticeDelta = {
   exp?: number;
 };
 
-export type LevelUp = { level: number; title: string; sen: number };
+export type LevelUp = { level: number; title: string; sen: number; ngoc: number };
 
 export type MeritResult = { profile: TempleProfile; gained: number; levelUps: LevelUp[] };
 
@@ -82,16 +87,19 @@ export async function addMerit(
     const before = levelFromExp(row.exp).level;
     const levelUps: LevelUp[] = [];
     let sen = row.sen + Math.ceil(expGain * SEN_PER_EXP) + (gain.sen ?? 0);
+    let ngoc = gain.ngoc ?? 0;
     if (reached.level > before) {
       const bonus = reached.level * 50;
+      const ngocBonus = reached.level * NGOC_PER_LEVEL;
       sen += bonus;
-      levelUps.push({ level: reached.level, title: reached.title, sen: bonus });
+      ngoc += ngocBonus;
+      levelUps.push({ level: reached.level, title: reached.title, sen: bonus, ngoc: ngocBonus });
     }
     await client.query(
       `UPDATE temple_profiles
          SET exp = exp + $2, sen = $3, ngoc = ngoc + $4, updated_at = now()
        WHERE user_id = $1`,
-      [userId, expGain, sen, gain.ngoc ?? 0],
+      [userId, expGain, sen, ngoc],
     );
     await bumpPractice(client, userId, { ...gain.practice, exp: (gain.practice?.exp ?? 0) + expGain });
     await client.query('COMMIT');

@@ -94,6 +94,15 @@ export function levelFromExp(exp: number): LadderRung {
   return { level, title: REALMS[realm - 1], expNext, realm, realmName: REALMS[realm - 1], stage };
 }
 
+// Số bậc của thang — HUD vẽ đúng bấy nhiêu lựa chọn trong ô đặt bậc của admin.
+export const LADDER_SIZE = MILESTONES.length;
+
+// Ngược của levelFromExp: bậc -> mốc Điểm May của chính nó. Admin đặt bậc là đặt exp
+// về mốc đó, nên không bao giờ có hồ sơ mà `level` và `exp` cãi nhau.
+export function expForLevel(level: number): number | null {
+  return level >= 1 && level <= MILESTONES.length ? MILESTONES[level - 1]! : null;
+}
+
 // '.invalid' được dành riêng (RFC 2606): không bao giờ có host thật, nên không thể
 // trùng với email của người đăng ký sau này và không thư nào gửi tới được.
 const GUEST_EMAIL_SUFFIX = '@guest.invalid';

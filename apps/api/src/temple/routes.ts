@@ -3,6 +3,7 @@
 import { Router } from 'express';
 import { attemptAllowed, attemptKey, currentSessionUser, setSessionCookie } from '../auth-routes.ts';
 import { toAuthUser } from '../accounts.ts';
+import { adminRouter } from './admin.ts';
 import { gamesRouter } from './games.ts';
 import { hallRouter } from './hall.ts';
 import { createGuest, ensureTempleProfile, readProfilePatch, templeProfile, updateTempleProfile } from './identity.ts';
@@ -24,6 +25,7 @@ templeRouter.use(hallRouter);
 templeRouter.use(socialRouter);
 templeRouter.use(gamesRouter);
 templeRouter.use(shopRouter);
+templeRouter.use(adminRouter);
 
 // Vào chùa không cần tài khoản (-- 01): một cú POST đổi lấy phiên khách (cookie như
 // mọi phiên thật) và một hồ sơ nhân vật. Người đăng ký sau đó sẽ được nâng cấp chính
@@ -62,7 +64,9 @@ templeRouter.get('/me', async (req, res) => {
 templeRouter.get('/state', withUser(async (req, res, user) => {
   await ensureTempleTables();
   const profile = await ensureTempleProfile(user.id);
-  res.json({ state: await templeState(user.id, { journal: true }), guest: user.isGuest, player_id: profile.playerId });
+  // `admin` là cờ hiển thị, không phải quyền: hai tuyến /api/temple/admin/* vẫn tự
+  // chặn 403 ở server (http.ts:withAdmin). HUD dùng nó để vẽ hay ẩn khối Hồ sơ.
+  res.json({ state: await templeState(user.id, { journal: true }), guest: user.isGuest, admin: user.role === 'admin', player_id: profile.playerId });
 }));
 
 // Xin vé (-- 03) trước khi nối WebSocket. Cookie phiên đi theo request HTTP này (cùng

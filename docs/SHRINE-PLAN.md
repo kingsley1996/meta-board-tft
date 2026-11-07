@@ -133,7 +133,7 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
 3. **Thắp đèn cầu may** (tùy chọn, xem Phase 2b): nhập mục tiêu ngắn, prefill theo comp vừa rút; đèn bay lên sảnh, người khác "tiếp lửa".
 4. **Khởi động**: ngồi 1–5 phút, màn hình xoay tip/comp; tính điểm như thiền hiện tại.
 5. **Đọc meta**: đọc/nghe một bài ngắn từ comp guide hoặc patch notes; có link nguồn.
-6. **Quay Hex**: 1 lượt/ngày, nhận mảnh Hex/bùa/đèn.
+6. **Quay Hex**: 1 lượt/ngày, nhận Tinh Hoa/Kim Cương/bùa/đèn.
 7. **Vào trận**: nút "Mang quẻ vào trận" mở trang comp hoặc copy nội dung; không có Riot API.
 
 Điểm quan trọng: **đền là lớp nghi lễ + khám phá nội dung**, không phải nơi thay đổi kết quả trận.
@@ -151,8 +151,8 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
 | Cấp 1–7 | Phật tử → Bồ Tát | Tân binh → Huyền thoại | Không dùng tên rank TFT thật để tránh nhầm |
 | Phái | 4 thiền phái | 5 lối chơi: Reroll, Fast 8, Fast 9, Flex, Tempo | Lấy đúng `style` trong DB |
 | Công đức | Công đức | **Điểm may mắn** | Field `exp` giữ nguyên |
-| Sen | Sen | **Mảnh Hex** | Field `sen` giữ nguyên |
-| Ngọc | Ngọc | **Tinh thể** | Field `ngoc` giữ nguyên |
+| Sen | Sen | **Tinh Hoa** | Field `sen` giữ nguyên |
+| Ngọc | Ngọc | **Kim Cương** | Field `ngoc` giữ nguyên |
 | Quả | Quả | Bỏ (theo vườn) | Field `fruit` để dormant |
 | Lạy Phật | 3 lạy | **3 lần Cầu may** | Giữ cơ chế đếm |
 | Tràng hạt 108 | Lần 108 hạt | **Vòng Hex 30 hạt** | Đề xuất 30 cho vừa một phiên trước trận; sửa cả server/client |
@@ -160,7 +160,7 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
 | Thiền | Thiền | **Khởi động** | Giữ timer, thêm tip xoay vòng |
 | Dâng lễ | Hương/nến/hoa/chuông | **Bùa may mắn / Nến Hex / Đóa sao** | Bỏ chuông; thay animation 3D bằng glow Hex nếu kịp |
 | Xỉ quẻ | 4 quẻ Phật | **Quẻ đội hình** | Server trả comp thật + lời đọc từ tips/stages |
-| Vòng quay lộc | Sen/Ngọc/hương/hoa | **Vòng quay Hex** | Thưởng: mảnh Hex, tinh thể, bùa, đèn |
+| Vòng quay lộc | Sen/Ngọc/hương/hoa | **Vòng quay Hex** | Thưởng: Tinh Hoa, Kim Cương, bùa, đèn |
 | Vườn Phật | Trồng/hái/đổi quả | **Bỏ** | Ẩn UI + route; giữ bảng dormant |
 | Bia tri ân | Donate nội bộ | **Bảng đồng hành** | Giữ, đổi copy |
 | BXH | Điểm tu tập | **BXH cầu may** | Ghi rõ "chuyên cần, không phải rank TFT" |
@@ -185,8 +185,8 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
 | Chùa / Chánh điện | Đền / Sảnh đền |
 | Phật tử / đạo hữu | Nhà lữ hành / người chơi |
 | Công đức | Điểm may mắn |
-| Sen | Mảnh Hex |
-| Ngọc | Tinh thể |
+| Sen | Tinh Hoa |
+| Ngọc | Kim Cương |
 | Lạy Phật | Cầu may |
 | Tràng hạt | Vòng Hex |
 | Tụng kinh | Đọc meta |
@@ -244,7 +244,7 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
   - Người mới mặc định: `flex`.
 - `honor` mặc định "Tâm Sáng Như Sen" → "Lữ khách cầu may".
 - Bỏ **cả 3** id cây khỏi gói đồ mới — `cay_bode`, `cay_sen` **và `cay_sala`** (3.0 mục 7); đồ cũ
-  trong túi để dormant hoặc convert thành mảnh Hex.
+  trong túi để dormant hoặc convert thành Tinh Hoa.
 - **`duc`:** quyết một trong hai — map sang một vật phẩm TFT, hoặc xoá khỏi `exp`/API. Hiện nó đi
   qua đường truyền mà không HUD nào hiển thị.
 - **`temple_draws`:** dọn hàng `kind='que'` cũ (snapshot chữ Phật) trước khi bật quẻ đội hình.

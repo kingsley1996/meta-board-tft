@@ -125,7 +125,10 @@
 #temple-root .joy .knob { position: absolute; left: 39px; top: 39px; width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,.55); box-shadow: 0 2px 10px rgba(0,0,0,.3); }
 
 @media (min-width: 900px) {
-  #temple-root .side-menu { flex-direction: row; top: auto; bottom: calc(18px + var(--sb)); left: 50%; right: auto; transform: translateX(-50%); }
+  /* 10 nút một hàng thì tới 1440 là nút cuối chui xuống cụm hành trì góc phải.
+     Ôm một dải giữa đáy và cho phép gãy dòng: từ ~1240px trở xuống là hai hàng
+     năm nút, luôn tránh được cả cụm hành trì lẫn thẻ thông báo lề trái. */
+  #temple-root .side-menu { flex-direction: row; top: auto; bottom: calc(18px + var(--sb)); left: 0; right: 0; margin: 0 auto; max-width: 640px; justify-content: center; flex-wrap: wrap; }
   #temple-root .side-menu button { width: auto; height: 50px; padding: 0 14px; display: flex; gap: 6px; }
   #temple-root .side-menu em { display: inline; font-style: normal; font-size: 13px; }
   #temple-root .actions { grid-template-columns: repeat(3, 76px); }
@@ -133,11 +136,9 @@
   #temple-root .ctx-wrap { width: 248px; bottom: calc(186px + var(--sb)); }
   #temple-root .pop { bottom: calc(186px + var(--sb)); }
 }
-/* màn vừa: đặt menu sát trái để không đè cụm hành trì, hẹp hơn nữa thì chỉ còn icon */
-@media (min-width: 900px) and (max-width: 1480px) and (min-height: 481px) {
-  #temple-root .side-menu { left: 12px; transform: none; }
-}
 @media (min-width: 900px) and (max-width: 1240px) and (min-height: 481px) {
+  /* chỉ icon: hai hàng năm ô 50px, hẹp hơn nữa thì vẫn không chạm mép */
+  #temple-root .side-menu { max-width: 300px; }
   #temple-root .side-menu button { width: 50px; padding: 0; justify-content: center; }
   #temple-root .side-menu em { display: none; }
 }
@@ -646,7 +647,7 @@
 #temple-root .chip { padding: 7px 11px; border-radius: 999px; background: #fff; border: 1px solid #ecd9b4; font-size: 12.5px; color: #4a3626; font-weight: 600; }
 #temple-root .chip:active { background: #fbe9b8; }
 #temple-root .pcard-own { display: flex; gap: 6px; margin-bottom: 10px; }
-#temple-root .pcard-own input, #temple-root .sg-form input { flex: 1; min-width: 0; height: 40px; padding: 0 12px; border-radius: 12px; border: 1px solid #e6d5b5; background: #fff; font: inherit; font-size: 14px; }
+#temple-root .pcard-own input, #temple-root .sg-form input, #temple-root .sg-form select { flex: 1; min-width: 0; height: 40px; padding: 0 12px; border-radius: 12px; border: 1px solid #e6d5b5; background: #fff; font: inherit; font-size: 14px; }
 #temple-root .pcard-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 #temple-root .pcard-acts .btn small { font-weight: 500; opacity: .75; }
 #temple-root .inbox { text-align: left; display: grid; gap: 8px; margin: 10px 0 14px; max-height: 46vh; overflow-y: auto; }
@@ -662,6 +663,10 @@
 #temple-root .sg-week { font-weight: 800; color: #a5650f; font-size: 14px; }
 #temple-root .sg-form { display: flex; gap: 8px; margin-bottom: 10px; }
 #temple-root .sg-code { font-family: ui-monospace, Menlo, monospace; letter-spacing: .12em; background: rgba(255,255,255,.18); padding: 1px 6px; border-radius: 6px; }
+#temple-root .admin-block { margin-top: 16px; padding-top: 14px; border-top: 1px dashed #d9c39c; }
+#temple-root .admin-block h4 { font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: #7a5210; margin-bottom: 10px; }
+#temple-root .admin-block > .btn { width: 100%; }
+#temple-root .admin-block .muted { margin-top: 8px; }
 #temple-root .perk-bar.light { background: rgba(255,255,255,.2); margin: 8px 0 4px; }
 #temple-root .rank-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; margin-bottom: 6px; border-radius: 14px; background: #fff; border: 1px solid #f1e5cf; }
 #temple-root .rank-row b { flex: 1; min-width: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -101,6 +101,11 @@ const SEN_PER_NGOC = 2.5;
 
 const WEARABLE = new Set(['robe', 'beads', 'cushion', 'hat', 'staff', 'pet', 'cloud', 'bikiep']);
 
+// Mọi món mặc/đeo được, không kể nó nằm ở cửa hàng hay trên chiếu lão. Tuyến admin
+// (admin.ts) cấp nguyên một lần để thử hết các khung hình avatar mà không phải đi
+// qua 66 nhịp mua.
+export const WEARABLE_POOL: CatalogItem[] = CATALOG.filter((i) => WEARABLE.has(i.type));
+
 const median = (xs: number[]): number => {
   if (!xs.length) return 0;
   const s = [...xs].sort((a, b) => a - b);

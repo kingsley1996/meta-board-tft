@@ -54,6 +54,16 @@ export function withAccount(handler: TempleHandler) {
   });
 }
 
+// Tuyến chỉ tài khoản admin (`users.role = 'admin'`) được chạm. `role` đến từ hàng
+// users mà currentSessionUser đọc ra, không từ máy khách, và mã 403 `admin_only` là
+// đúng mã cả repo này dùng cho các router admin (index.ts:adminGuard).
+export function withAdmin(handler: TempleHandler) {
+  return withUser(async (req, res, user) => {
+    if (user.role !== 'admin') throw new ApiError(403, 'admin_only', 'an admin account is required for this');
+    await handler(req, res, user);
+  });
+}
+
 export function num(value: unknown, min: number, max: number, code: string): number {
   const n = Math.trunc(Number(value));
   if (!Number.isFinite(n) || n < min || n > max) throw new ApiError(400, code, `expected a number between ${min} and ${max}`);
