@@ -456,7 +456,10 @@ test gate) ~1 ngày, làm trước 3b cũng được vì nó không đụng art.
 
 ## 8. Rủi ro và điểm cần chốt
 
-1. **Avatar anime:** 12 nhân vật Luffy/Naruto… không phải TFT. Giữ nguyên thì đền vẫn "lệch tông"; thay bằng model TFT là việc lớn. Đề xuất: MVP giữ tạm, Phase 3 quyết định genericize hoặc thay bằng portrait champion cho HUD.
+1. **Avatar anime:** 12 nhân vật không phải TFT. Đã quyết 2026-11-07: **giữ model, đổi tên** theo nét
+   vẽ thật của từng hình + khoá bộ sưu tập (lần đầu miễn phí, hình mới 100 Kim Cương) — chi tiết ở
+   `SHRINE-CONTENT-MAP.md` §9. Model vẫn là chibi anime gốc; thay bằng portrait champion TFT vẫn là
+   việc lớn, chưa làm.
 2. **Chất 3D sau khi bỏ đồ chùa:** tượng đã là pengu vàng, nhưng hương án/lư hương/lọ sen vẫn dựng
    vô điều kiện (`temple.js:285-343`). Bỏ chúng dễ, thay bằng bàn Hex đẹp thì cần thời gian. Nếu
    Phase 3 gấp, có thể chỉ cắt đồ thờ và thêm banner 2D.

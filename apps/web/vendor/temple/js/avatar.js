@@ -6,10 +6,10 @@ import { addGear } from './gear.js';
 export const HERO_LIST = [
   {
     id: 'luffy_g5',
-    name: 'Luffy Gear 5',
-    title: 'Thần Mặt Trời Nika',
-    quote: 'Nhịp trống giải phóng! Xõa hết áp lực!',
-    skillName: 'Gomu Gomu no Bajrang Gun',
+    name: 'Mây Bồng',
+    title: 'Nhịp Trống Tự Do',
+    quote: 'Trống gõ rồi — xõa hết áp lực!',
+    skillName: 'Trống Mây – Cú Đấm Bông',
     skillColor: '#f8fafc',
     robeColor: '#ffffff',
     pantsColor: '#f1f5f9',
@@ -19,10 +19,10 @@ export const HERO_LIST = [
   },
   {
     id: 'naruto_sage',
-    name: 'Naruto Lục Đạo',
-    title: 'Cửu Vĩ Tiên Nhân',
-    quote: 'Tâm bất biến giữa dòng đời vạn biến, dattebayo!',
-    skillName: 'Siêu Đại Ngọc Rasenshuriken',
+    name: 'Gai Vàng',
+    title: 'Tiên Nhân Áo Cam',
+    quote: 'Tâm bất biến giữa dòng đời vạn biến!',
+    skillName: 'Xoáy Ngọc – Đại Phong Xa',
     skillColor: '#facc15',
     robeColor: '#f59e0b',
     pantsColor: '#1e1b18',
@@ -32,10 +32,10 @@ export const HERO_LIST = [
   },
   {
     id: 'zoro',
-    name: 'Roronoa Zoro',
-    title: 'Tam Kiếm Phái',
-    quote: 'Chém bay phiền não bằng Tam Thiên Thế Giới!',
-    skillName: 'Tam Kiếm Phái: Luyện Ngục Quỷ Trảm',
+    name: 'Ba Kiếm',
+    title: 'Đao Khách Xanh Rêu',
+    quote: 'Chém bay phiền não bằng ba lưỡi kiếm!',
+    skillName: 'Tam Đao – Luyện Ngục Trảm',
     skillColor: '#22c55e',
     robeColor: '#14532d',
     pantsColor: '#111827',
@@ -45,10 +45,10 @@ export const HERO_LIST = [
   },
   {
     id: 'sasuke',
-    name: 'Sasuke Uchiha',
-    title: 'Lôi Kiếm Chidori',
-    quote: 'Ngàn chim hót xé tan bóng tối stress!',
-    skillName: 'Chidori – Thiên Điểu Lôi Kích',
+    name: 'Én Đêm',
+    title: 'Kiếm Ánh Xanh',
+    quote: 'Ngàn tia xé tan bóng tối deadline!',
+    skillName: 'Lôi Kiếm – Ngàn Tia',
     skillColor: '#38bdf8',
     robeColor: '#64748b',
     pantsColor: '#0f172a',
@@ -58,10 +58,10 @@ export const HERO_LIST = [
   },
   {
     id: 'sanji',
-    name: 'Vinsmoke Sanji',
-    title: 'Hắc Cước Hỏa Diễm',
-    quote: 'Một cú đá Diable Jambe nướng chín mọi deadline!',
-    skillName: 'Diable Jambe – Cú Đá Hỏa Diễm',
+    name: 'Mái Che',
+    title: 'Chủ Bếp Chân Hỏa',
+    quote: 'Một cú đá nướng chín mọi deadline!',
+    skillName: 'Gót Lửa – Cú Đá Nướng',
     skillColor: '#f97316',
     robeColor: '#18181b',
     pantsColor: '#09090b',
@@ -71,10 +71,10 @@ export const HERO_LIST = [
   },
   {
     id: 'kakashi',
-    name: 'Kakashi Hatake',
-    title: 'Ninja Sao Chép',
-    quote: 'Đọc sách tịnh tâm, mọi chuyện cứ để Kamui lo.',
-    skillName: 'Lôi Thiết – Raikiri Cắt Sét',
+    name: 'Sương Bạc',
+    title: 'Người Che Một Mắt',
+    quote: 'Đọc sách tịnh tâm, chuyện đời cứ để mai tính.',
+    skillName: 'Sét Tơ – Tay Chớp Bạc',
     skillColor: '#38bdf8',
     robeColor: '#3f6212',
     pantsColor: '#1e293b',
@@ -84,10 +84,10 @@ export const HERO_LIST = [
   },
   {
     id: 'law',
-    name: 'Trafalgar Law',
-    title: 'Bác Sĩ Tử Thần',
-    quote: 'ROOM! Phẫu thuật tách toàn bộ muộn phiền ra khỏi đầu!',
-    skillName: 'ROOM – Gamma Knife',
+    name: 'Mũ Đốm',
+    title: 'Bác Sĩ Áo Vàng',
+    quote: 'Vẽ một vòng riêng — tách muộn phiền ra khỏi đầu!',
+    skillName: 'Dao Gamma – Vùng Riêng',
     skillColor: '#2dd4bf',
     robeColor: '#facc15',
     pantsColor: '#1d4ed8',
@@ -97,10 +97,10 @@ export const HERO_LIST = [
   },
   {
     id: 'itachi',
-    name: 'Itachi Uchiha',
-    title: 'Ảo Thuật Akatsuki',
-    quote: 'Tha thứ cho bản thân và mỉm cười an nhiên.',
-    skillName: 'Amaterasu – Thiên Chiếu Hắc Hỏa',
+    name: 'Tóc Dài',
+    title: 'Ảo Thuật Áo Đen',
+    quote: 'Tha thứ cho mình rồi mỉm cười an nhiên.',
+    skillName: 'Hắc Hỏa – Lửa Không Tắt',
     skillColor: '#ef4444',
     robeColor: '#18181b',
     pantsColor: '#0f172a',
@@ -110,10 +110,10 @@ export const HERO_LIST = [
   },
   {
     id: 'ace',
-    name: 'Portgas D. Ace',
-    title: 'Hỏa Quyền Bất Diệt',
+    name: 'Mũ Cam',
+    title: 'Hỏa Quyền Tuổi Trẻ',
     quote: 'Sống không hối tiếc! Đốt cháy mọi âu lo!',
-    skillName: 'Hiken – Hỏa Quyền Đại Viêm Đế',
+    skillName: 'Hỏa Quyền – Cú Đấm Nung',
     skillColor: '#ff5722',
     robeColor: '#d97706',
     pantsColor: '#18181b',
@@ -123,10 +123,10 @@ export const HERO_LIST = [
   },
   {
     id: 'shanks',
-    name: 'Shanks Tóc Đỏ',
-    title: 'Tứ Hoàng Bá Vương',
+    name: 'Tóc Đỏ',
+    title: 'Bá Vương Gác Việc',
     quote: 'Nể mặt tôi, hôm nay hãy gác công việc lại và quẩy lên!',
-    skillName: 'Thần Tị – Kamusari Haki Bá Vương',
+    skillName: 'Sét Gọi Bạn – Cú Đấm Biển',
     skillColor: '#dc2626',
     robeColor: '#f8fafc',
     pantsColor: '#573b26',
@@ -136,10 +136,10 @@ export const HERO_LIST = [
   },
   {
     id: 'minato',
-    name: 'Minato Namikaze',
-    title: 'Tia Chớp Vàng Làng Lá',
+    name: 'Chớp Vàng',
+    title: 'Áo Trắng Nhanh Nhất',
     quote: 'Nhanh hơn cả tốc độ deadline dí!',
-    skillName: 'Phi Lôi Thần Thuật – Rasengan',
+    skillName: 'Nhảy Tia – Cầu Xoáy',
     skillColor: '#fde047',
     robeColor: '#f8fafc',
     pantsColor: '#1e293b',
@@ -149,10 +149,10 @@ export const HERO_LIST = [
   },
   {
     id: 'kaido',
-    name: 'Kaido Bách Thú',
+    name: 'Sừng Trâu',
     title: 'Sinh Vật Mạnh Nhất',
-    quote: 'Worororo! Mọi áp lực đều không thể làm trầy da ta!',
-    skillName: 'Lôi Minh Bát Quái – Hassaikai',
+    quote: 'Ha ha! Mọi áp lực đều không thể làm trầy da ta!',
+    skillName: 'Sét Rền – Tám Hướng',
     skillColor: '#a855f7',
     robeColor: '#581c87',
     pantsColor: '#1e293b',
@@ -299,7 +299,7 @@ function makeHeroFaceTex(heroId) {
     g.save();
     g.translate(cx, cy);
     if (type === 'wink') {
-      // Mắt nhắm có vết sẹo dọc (Zoro mắt trái)
+      // Mắt nhắm có vết sẹo dọc (Ba Kiếm, mắt trái)
       g.strokeStyle = '#3b2314'; g.lineWidth = 8; g.lineCap = 'round';
       g.beginPath(); g.moveTo(-36, 4); g.quadraticCurveTo(0, 14, 36, 2); g.stroke();
       g.strokeStyle = '#7c2d12'; g.lineWidth = 5;
@@ -315,7 +315,7 @@ function makeHeroFaceTex(heroId) {
     g.lineWidth = 7; g.strokeStyle = '#1e140e';
     g.stroke();
 
-    // Tròng mắt theo hệ (Gear 5, Sharingan, Rinnegan, Sage, chuẩn)
+    // Tròng mắt theo hệ (mây trắng, mắt đỏ, mắt vòng, tiên nhân, chuẩn)
     if (type === 'rinnegan') {
       g.fillStyle = '#a855f7';
       g.beginPath(); g.ellipse(0, 0, 38, 30, 0, 0, Math.PI * 2); g.fill();
@@ -387,11 +387,11 @@ function makeHeroFaceTex(heroId) {
     drawAnimeEye(R_X, EYE_Y, '#ef4444', 'nika', false);
     drawBrow(L_X, 178, '#f8fafc', 0.05, true);
     drawBrow(R_X, 178, '#f8fafc', -0.05, true);
-    // Sẹo dưới mắt trái của Luffy
+    // Sẹo dưới mắt trái của Mây Bồng
     g.strokeStyle = '#7c2d12'; g.lineWidth = 4;
     g.beginPath(); g.moveTo(L_X - 24, EYE_Y + 46); g.quadraticCurveTo(L_X, EYE_Y + 54, L_X + 22, EYE_Y + 46); g.stroke();
     g.beginPath(); g.moveTo(L_X - 10, EYE_Y + 42); g.lineTo(L_X - 12, EYE_Y + 56); g.moveTo(L_X + 8, EYE_Y + 42); g.lineTo(L_X + 10, EYE_Y + 56); g.stroke();
-    // Nụ cười rộng rạng rỡ của Thần Nika
+    // Nụ cười rộng rạng rỡ của Mây Bồng
     g.fillStyle = '#ffffff'; g.strokeStyle = '#1e1b18'; g.lineWidth = 6;
     g.beginPath(); g.moveTo(175, 325); g.quadraticCurveTo(256, 340, 337, 325); g.quadraticCurveTo(256, 405, 175, 325); g.fill(); g.stroke();
     g.beginPath(); g.moveTo(190, 352); g.quadraticCurveTo(256, 362, 322, 352); g.stroke();
@@ -433,7 +433,7 @@ function makeHeroFaceTex(heroId) {
     drawAnimeEye(R_X, EYE_Y, '#1d4ed8', 'normal');
     drawBrow(L_X, 178, '#ca8a04', 0.1, true);
     drawBrow(R_X, 178, '#ca8a04', -0.1, true);
-    // Râu dê Sanji & nụ cười lịch lãm
+    // Râu dê Mái Che & nụ cười lịch lãm
     g.strokeStyle = '#451a03'; g.lineWidth = 6;
     g.beginPath(); g.moveTo(210, 340); g.quadraticCurveTo(256, 362, 304, 336); g.stroke();
     g.fillStyle = '#ca8a04';
@@ -465,7 +465,7 @@ function makeHeroFaceTex(heroId) {
     drawAnimeEye(R_X, EYE_Y, '#dc2626', 'sharingan');
     drawBrow(L_X, 182, '#0f172a', 0.14);
     drawBrow(R_X, 182, '#0f172a', -0.14);
-    // Hai đường nếp đặc trưng dưới mắt Itachi
+    // Hai đường nếp đặc trưng dưới mắt Tóc Dài
     g.strokeStyle = '#451a03'; g.lineWidth = 4;
     g.beginPath(); g.moveTo(L_X + 26, EYE_Y + 28); g.lineTo(L_X + 42, EYE_Y + 75); g.stroke();
     g.beginPath(); g.moveTo(R_X - 26, EYE_Y + 28); g.lineTo(R_X - 42, EYE_Y + 75); g.stroke();
@@ -489,7 +489,7 @@ function makeHeroFaceTex(heroId) {
     drawAnimeEye(R_X, EYE_Y, '#1e293b', 'normal');
     drawBrow(L_X, 180, '#7f1d1d', 0.18);
     drawBrow(R_X, 180, '#7f1d1d', -0.18);
-    // 3 vết sẹo dài qua mắt trái của Shanks
+    // 3 vết sẹo dài qua mắt trái của Tóc Đỏ
     g.strokeStyle = '#991b1b'; g.lineWidth = 4.5;
     for (const dx of [-12, 0, 12]) {
       g.beginPath(); g.moveTo(L_X + dx + 8, EYE_Y - 58); g.lineTo(L_X + dx - 10, EYE_Y + 58); g.stroke();
@@ -509,7 +509,7 @@ function makeHeroFaceTex(heroId) {
     drawAnimeEye(R_X, EYE_Y, '#dc2626', 'normal');
     drawBrow(L_X, 174, '#09090b', 0.32);
     drawBrow(R_X, 174, '#09090b', -0.32);
-    // Râu rồng & miệng gầm dữ dội của Kaido
+    // Râu rồng & miệng gầm dữ dội của Sừng Trâu
     g.fillStyle = '#ffffff'; g.strokeStyle = '#09090b'; g.lineWidth = 6;
     g.beginPath(); g.roundRect(190, 332, 132, 42, 12); g.fill(); g.stroke();
     g.beginPath(); g.moveTo(190, 353); g.lineTo(322, 353); g.stroke();
@@ -541,7 +541,7 @@ function m(geo, material, x = 0, y = 0, z = 0, o = {}) {
 function buildHeroHead3D(head, hero) {
   const id = hero.id;
 
-  // Băng trán Ninja Làng Lá 3D (Naruto, Kakashi, Itachi, Minato)
+  // Băng trán vải vũ công 3D (Gai Vàng, Sương Bạc, Tóc Dài, Chớp Vàng)
   const addHeadband = (bandColor = '#1e293b', plateColor = '#cbd5e1', slanted = false, crossed = false) => {
     const hb = new THREE.Group();
     hb.add(m(new THREE.CylinderGeometry(0.468, 0.468, 0.14, 32, 1, true), mat(bandColor, { roughness: 0.5, side: THREE.DoubleSide }), 0, 0.16, 0));
@@ -619,7 +619,7 @@ function buildHeroHead3D(head, hero) {
       head.add(m(G.spike, hairM, -0.08 + i * 0.07, 0.52 - i * 0.03, -0.05 + (i % 2) * 0.12, { rot: [-0.2, 0, 0.48], scale: [1.1, 1.35, 1.0] }));
     }
   } else if (id === 'law') {
-    // Mũ lông vòm trắng chấm đen đặc trưng của Trafalgar Law
+    // Mũ lông vòm trắng chấm đen đặc trưng của Mũ Đốm
     const hatTex = (() => {
       if (typeof document === 'undefined') return null;
       const c = document.createElement('canvas'); c.width = 256; c.height = 256;
@@ -686,7 +686,7 @@ function buildHeroHead3D(head, hero) {
       const a = (i / 12) * Math.PI * 1.4 - Math.PI * 0.7;
       head.add(m(G.spike, hairM, Math.sin(a) * 0.42, 0.25 + (i % 3) * 0.12, 0.18 + Math.cos(a) * 0.22, { rot: [0.6, 0, -Math.sin(a) * 0.8], scale: [1.2, 1.35, 1.2] }));
     }
-    // Cặp sừng Kaido uốn cong 3D
+    // Cặp sừng trâu uốn cong 3D
     for (const s of [-1, 1]) {
       const pts = [
         new THREE.Vector3(s * 0.28, 0.28, -0.05),
@@ -740,7 +740,7 @@ function buildHeroProps3D(upper, hands, legR, hero) {
       upper.add(sw);
     }
   } else if (id === 'sasuke') {
-    // Tuyệt chiêu Lôi Kiếm Chidori phóng sét xanh rực trên bàn tay trái
+    // Tuyệt chiêu Lôi Kiếm – Ngàn Tia phóng sét xanh rực trên bàn tay trái
     const chidori = new THREE.Group();
     const boltM = new THREE.MeshBasicMaterial({ color: '#38bdf8' });
     const coreM = new THREE.MeshBasicMaterial({ color: '#e0f2fe', transparent: true, opacity: 0.88 });
@@ -752,7 +752,7 @@ function buildHeroProps3D(upper, hands, legR, hero) {
     hands[1].add(chidori);
     vfxGroup.userData.chidori = chidori;
   } else if (id === 'sanji') {
-    // Ngọn lửa Hắc Cước Diable Jambe bốc cháy ở chân phải
+    // Ngọn lửa Gót Lửa bốc cháy ở chân phải
     const fire = new THREE.Group();
     fire.position.set(0, -0.12, -0.04);
     fire.add(m(new THREE.ConeGeometry(0.15, 0.38, 10), new THREE.MeshBasicMaterial({ color: '#f97316', transparent: true, opacity: 0.85 }), 0, 0.08, 0, { cast: false }));
@@ -769,7 +769,7 @@ function buildHeroProps3D(upper, hands, legR, hero) {
     kikoku.add(m(new THREE.SphereGeometry(0.065, 10, 8), mat('#f8fafc'), 0, 0.33, 0));
     upper.add(kikoku);
   } else if (id === 'itachi') {
-    // Cổ áo choàng Akatsuki cao che cằm + họa tiết mây đỏ
+    // Cổ áo choàng cao che cằm + họa tiết mây đỏ (Tóc Dài)
     const colM = mat('#18181b', { roughness: 0.7, side: THREE.DoubleSide });
     upper.add(m(new THREE.CylinderGeometry(0.28, 0.24, 0.22, 24, 1, true), colM, 0, 0.68, 0));
     upper.add(m(new THREE.CylinderGeometry(0.27, 0.23, 0.21, 24, 1, true), mat('#991b1b', { side: THREE.BackSide }), 0, 0.68, 0));
@@ -796,7 +796,7 @@ function buildHeroProps3D(upper, hands, legR, hero) {
     const flameHem = m(new THREE.CylinderGeometry(0.49, 0.51, 0.14, 20, 1, true, -Math.PI * 0.6, Math.PI * 1.2), mat('#dc2626', { side: THREE.DoubleSide }), 0, -0.01, 0.05);
     upper.add(cloak, flameHem);
   } else if (id === 'kaido') {
-    // Áo choàng lông tím Bách Thú + Chùy gai sắt Hassaikai khổng lồ
+    // Áo choàng lông tím của Sừng Trâu + chùy gai sắt khổng lồ
     const furM = mat('#581c87', { roughness: 0.9 });
     for (let i = -3; i <= 3; i++) {
       upper.add(m(new THREE.SphereGeometry(0.18, 12, 10), furM, i * 0.13, 0.54 - Math.abs(i) * 0.04, 0.22, { scale: [1, 1.3, 1] }));
@@ -890,7 +890,7 @@ export function makeAvatar(opts = {}) {
   const upper = new THREE.Group();
   root.add(upper);
 
-  // Thân áo 3D Chibi (riêng Ace và Kaido lộ cơ ngực khỏe khoắn)
+  // Thân áo 3D Chibi (riêng Mũ Cam và Sừng Trâu lộ cơ ngực khỏe khoắn)
   const bareChest = !outfit?.sansaRobe && (hero.id === 'ace' || hero.id === 'kaido');
   const torsoMat = bareChest ? skinM : robeM;
   upper.add(m(G.torso, torsoMat, 0, -0.05, 0, { scale: [1, 1, 0.88] }));

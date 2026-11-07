@@ -6,6 +6,7 @@ import { toAuthUser } from '../accounts.ts';
 import { adminRouter } from './admin.ts';
 import { gamesRouter } from './games.ts';
 import { hallRouter } from './hall.ts';
+import { heroRouter, heroInBody } from './heroes.ts';
 import { createGuest, ensureTempleProfile, readProfilePatch, templeProfile, updateTempleProfile } from './identity.ts';
 import { practiceRouter } from './practice.ts';
 import { shopRouter } from './shop.ts';
@@ -25,6 +26,7 @@ templeRouter.use(hallRouter);
 templeRouter.use(socialRouter);
 templeRouter.use(gamesRouter);
 templeRouter.use(shopRouter);
+templeRouter.use(heroRouter);
 templeRouter.use(adminRouter);
 
 // Vào chùa không cần tài khoản (-- 01): một cú POST đổi lấy phiên khách (cookie như
@@ -91,13 +93,18 @@ templeRouter.post('/ws-ticket', async (req, res) => {
 // thì sảnh đền chỉ biết mặc định ban đầu. Số liệu điểm (level/Tinh Hoa/điểm may) không
 // đổi được ở đây — identity.ts chỉ nhận name/sect/appearance/equipped.
 //
-// Khách được đổi hình dáng (áo, chuỗi, môn phái, nhân vật) vì đó là cách họ thử đền,
+// Khách được đổi hình dáng (áo, chuỗi, kiểu tóc, môn phái) vì đó là cách họ thử đền,
 // nhưng không được đổi tên: tên là thứ cả chánh điện đọc trên đầu avatar và khắc lên
 // bia đá, và hàng users của khách mang một email giả nên không ai chịu trách nhiệm về
 // nó. Muốn có tên riêng thì đăng ký — promoteGuest giữ nguyên điểm đang có.
+// Riêng nhân vật thì khách hay người đăng ký đều phải qua POST /hero: nó trừ ví.
 templeRouter.put('/profile', async (req, res) => {
   const user = await currentSessionUser(req);
   if (!user) return res.status(401).json({ error: 'not signed in', code: 'unauthenticated' });
+  // Nhân vật là món phải mở, không phải một key trong avatar: xem heroes.ts.
+  if (heroInBody(req.body)) {
+    return res.status(400).json({ error: 'a character is changed with POST /hero', code: 'hero_needs_purchase' });
+  }
   const patch = readProfilePatch(req.body);
   if (!patch) return res.status(400).json({ error: 'nothing to change', code: 'invalid_profile_patch' });
   if (user.isGuest && patch.name !== undefined) {

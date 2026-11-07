@@ -31,6 +31,9 @@ export type TempleProfile = {
   appearance: Record<string, unknown>;
   equipped: Record<string, string | null>;
   inventory: Record<string, number>;
+  // id những nhân vật người này đã mở. Rỗng = chưa chọn lần nào, nên lần chọn đầu
+  // không mất tiền (heroes.ts).
+  heroes: string[];
   noChan: boolean;
   level: number;
   expNext: number;
@@ -57,6 +60,7 @@ type TempleProfileRow = {
   appearance: Record<string, unknown>;
   equipped: Record<string, string | null>;
   inventory: Record<string, number>;
+  heroes: string[] | null;
   no_chan: boolean;
   buff_until: Date | null;
   meditate_start: Date | null;
@@ -152,6 +156,7 @@ function toProfile(row: TempleProfileRow): TempleProfile {
     appearance: row.appearance,
     equipped: row.equipped,
     inventory: row.inventory,
+    heroes: row.heroes ?? [],
     noChan: row.no_chan,
     level,
     expNext,
@@ -187,8 +192,10 @@ export async function ensureTempleProfile(userId: string): Promise<TempleProfile
   for (let attempt = 0; ; attempt += 1) {
     try {
       await pool.query(
-        `INSERT INTO temple_profiles (user_id, player_id, name, sect, honor, exp, streak, best_streak, appearance, equipped, inventory)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        // heroes '{}' chứ không phải [nhân vật đang đứng]: người mới chưa chọn lần nào,
+        // nên lần mở màn hình Hồ sơ họ đổi được một nhân vật miễn phí (heroes.ts).
+        `INSERT INTO temple_profiles (user_id, player_id, name, sect, honor, exp, streak, best_streak, appearance, equipped, inventory, heroes)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, '{}')
          ON CONFLICT (user_id) DO NOTHING`,
         [
           userId,
@@ -266,13 +273,11 @@ export type ProfilePatch = {
 };
 
 const ID_PATTERN = /^[0-9a-z_]{1,24}$/;
-const APPEARANCE_KEYS = ['hero', 'hair'];
+// 'hair' đổi miễn phí ở đây; 'hero' thì không — nhân vật là món phải mở, nên nó đi qua
+// POST /hero (heroes.ts) nơi có ví và bộ sưu tập. PUT /profile mà còn nhận hero thì một
+// cú tự khai đổi được hình đang mặc mà không trả Kim Cương nào.
+const APPEARANCE_KEYS = ['hair'];
 const EQUIPPED_KEYS = ['robe', 'beads', 'cushion', 'hat', 'staff', 'cloud', 'pet'];
-
-// avatar.js:HERO_LIST — 12 nhân vật engine nặn được. Id lạ không rơi về áo lam như
-// đồ trang phục: resolveHero (avatar.js:877) quay vòng sang một nhân vật ngẫu nhiên
-// rồi hồ sơ lưu nguyên cái id không ai vẽ được đó.
-const HERO_IDS = ['luffy_g5', 'naruto_sage', 'zoro', 'sasuke', 'sanji', 'kakashi', 'law', 'itachi', 'ace', 'shanks', 'minato', 'kaido'];
 
 function cleanId(value: unknown): string | null | undefined {
   if (value === null) return null;
@@ -282,8 +287,7 @@ function cleanId(value: unknown): string | null | undefined {
 
 // Lọc trắng ngay ở ranh giới: id áo/ chuỗi là chữ thường không dấu nên kiểm khuông
 // là đủ, và engine tự rơi về áo lam khi gặp id lạ (world.js:476) — một id bịa ra chỉ
-// làm hỏng avatar của chính người nhập, không làm hỏng chánh điện. Riêng nhận vật thì
-// phải khước từ outright, vì id lạ không rơi về đâu cả mà quay vòng ngẫu nhiên.
+// làm hỏng avatar của chính người nhập, không làm hỏng chánh điện.
 export function readProfilePatch(body: Record<string, unknown> | undefined): ProfilePatch | null {
   if (!body || typeof body !== 'object') return null;
   const patch: ProfilePatch = {};
@@ -303,7 +307,6 @@ export function readProfilePatch(body: Record<string, unknown> | undefined): Pro
     for (const key of APPEARANCE_KEYS) {
       const id = cleanId(src[key]);
       if (id === undefined) continue;
-      if (key === 'hero' && id !== null && !HERO_IDS.includes(id)) return null;
       out[key] = id;
     }
     if (typeof src.gender === 'string' && (src.gender === 'nam' || src.gender === 'nu')) out.gender = src.gender;

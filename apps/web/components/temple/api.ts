@@ -18,6 +18,9 @@ export type TempleState = {
   honor: string;
   level: number;
   exp: number;
+  // Mốc Điểm May của bậc hiện tại và của bậc kế: thanh tiến độ trong Hồ sơ đo đoạn đã
+  // đi *trong* bậc, khác với chip dưới HUD (chip chia cho cả thang).
+  exp_prev: number;
   exp_next: number;
   sen: number;
   ngoc: number;
@@ -25,6 +28,8 @@ export type TempleState = {
   best_streak: number;
   inventory: Record<string, number>;
   appearance: Record<string, string>;
+  // id những nhân vật đã mở. Rỗng = chưa chọn lần nào -> 12 ô đều còn suất miễn phí.
+  heroes: string[];
   equipped: Record<string, string | null>;
   buff_until: string | null;
   meditate_start: string | null;
@@ -166,6 +171,9 @@ const MESSAGES: Record<string, string> = {
   not_your_game: 'Ván này không có tên bạn',
   profile_missing: 'Sảnh chưa đọc được hồ sơ của hai người này',
   admin_only: 'Khối này chỉ tài khoản admin dùng được',
+  no_such_hero: 'Sảnh không vẽ được nhân vật này',
+  invalid_hero: 'Không hiểu nhân vật này',
+  hero_needs_purchase: 'Nhân vật phải đổi ở ô chọn hình, nơi trừ Kim Cương',
 };
 
 export async function templeApi<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {

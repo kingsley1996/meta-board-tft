@@ -221,17 +221,32 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   );
 }
 
-// ---- Hồ sơ: tên hiển thị & nhân vật ------------------------------------------
+// ---- Hồ sơ: bậc, tên hiển thị & nhân vật --------------------------------------
 
-// Cả hai cú đổi đều đi qua PUT /profile rồi refreshLook: máy chủ là nơi giữ tên và
-// nhân vật, còn `look` trên sóng là cái báo cho phòng vẽ lại avatar của chính mình.
+// Ba thứ trên một tấm Hồ sơ: mình đang đứng đâu trên thang (dẫn xuất từ exp, server
+// tính), mình tên gì (PUT /profile), và mình mặc hình nào (POST /hero — có ví ở đó).
 export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   const st = s.state;
   const [name, setName] = useState(st?.name ?? '');
   const [busy, setBusy] = useState(false);
+  // Giá một hình mới đọc từ server (heroes.ts:HERO_COST_NGOC) — HUD không giữ bản sao
+  // nào của con số 100, nên đổi giá chỉ có một chỗ để đổi.
+  const [cost, setCost] = useState(0);
   const hero = st?.appearance?.hero ?? '';
+  const owned = st?.heroes ?? [];
+  // Bộ sưu tập còn trống = người này chưa chọn lần nào, nên cả 12 ô đang cùng một giá:
+  // miễn phí. Đây là nhánh "lần đầu" của đề bài, không phải nhánh đã sở hữu.
+  const untouched = owned.length === 0;
   const trimmed = name.trim();
   const dirty = trimmed !== '' && trimmed !== (st?.name ?? '');
+
+  useEffect(() => {
+    void get<{ cost: number }>('/hero')
+      .then((r) => setCost(r.cost))
+      // Đọc giá thất bại thì ô khoá chỉ còn dấu khoá: thà không hiện số hơn là hiện một
+      // số của riêng máy khách.
+      .catch(() => setCost(0));
+  }, []);
 
   const patch = async (body: Record<string, unknown>, ok: string) => {
     setBusy(true);
@@ -247,8 +262,52 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
     }
   };
 
+  // Cú đổi hình không đi qua PUT /profile nữa: giá phải trừ ở nơi có ví, và state trong
+  // response là số dư *sau* cú trừ nên ví + bộ sưu tập + avatar vẽ lại cùng một nhịp.
+  const pick = async (id: string, label: string) => {
+    setBusy(true);
+    try {
+      const r = await post<{ state: TempleState; spent: number }>('/hero', { hero: id });
+      s.apply({ state: r.state, gained: 0 });
+      s.refreshLook({ name: r.state.name, sect: r.state.sect, appearance: r.state.appearance, equipped: r.state.equipped });
+      s.toast(r.spent ? `Đã mời ${label} · −${fmt(r.spent)} Kim Cương` : `Đã mời ${label}`);
+    } catch (e) {
+      s.toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // exp_prev/exp_next là hai mốc của riêng bậc này (state.ts), nên thanh dưới đây đo
+  // đoạn đường *trong* bậc chứ không phải tỉ lệ trên cả thang như chip ở HUD.
+  const span = st ? st.exp_next - st.exp_prev : 0;
+  const pct = st && span > 0 ? Math.max(0, Math.min(100, ((st.exp - st.exp_prev) / span) * 100)) : 0;
+  const toNext = st ? Math.max(0, st.exp_next - st.exp) : 0;
+  const atTop = st ? st.level >= LADDER_TOP : false;
+
   return (
     <Sheet title="Hồ sơ" onClose={onClose}>
+      {st ? (
+        <div className="pf-rank">
+          <TitleBadge level={st.level} size={40} />
+          <div className="pf-rank-body">
+            <div className="pf-rank-line">
+              <b>
+                {st.title} · Bậc {st.level}
+              </b>
+              <span className="muted">{fmt(st.exp)} Điểm May</span>
+            </div>
+            <span className="xp pf-xp">
+              <i style={{ width: `${pct}%` }} />
+            </span>
+            <small className="muted">
+              {atTop
+                ? 'Đỉnh thang rồi — không còn bậc nào phía trên.'
+                : `Còn ${fmt(toNext)} Điểm May tới Bậc ${st.level + 1}${st.level + 1 === LADDER_TOP ? ' · Đỉnh Như Ý' : ''}.`}
+            </small>
+          </div>
+        </div>
+      ) : null}
       {s.guest ? (
         <GuestGate s={s} what="Việc đổi tên" />
       ) : (
@@ -268,22 +327,34 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
           <p className="muted">Tối đa 28 chữ, mọi người trong sảnh thấy tên này.</p>
         </>
       )}
+      <p className="muted hero-note">
+        {untouched
+          ? `Chọn một nhân vật, lần đầu miễn phí.${cost ? ` Mỗi hình mới sau đó trả ${fmt(cost)} Kim Cương.` : ''}`
+          : `${owned.length}/12 nhân vật đã mở · đã mở thì dùng lại miễn phí${cost ? `, hình mới ${fmt(cost)} Kim Cương` : ''}.`}
+      </p>
       <div className="hero-grid modal-hero-grid">
-        {HEROES.map((h) => (
-          <button
-            key={h.id}
-            type="button"
-            className={`hero-card${h.id === hero ? ' on' : ''}`}
-            disabled={busy}
-            onClick={() => void patch({ appearance: { ...st?.appearance, hero: h.id } }, `Đã mời ${h.name}`)}
-          >
-            <span className="hc-thumb" style={{ backgroundPosition: HERO_SPRITE[h.id] ?? '0% 0%' }} />
-            <span className="hc-meta">
-              <b>{h.name}</b>
-              <small>{h.title}</small>
-            </span>
-          </button>
-        ))}
+        {HEROES.map((h) => {
+          const current = h.id === hero;
+          const has = owned.includes(h.id);
+          // Khoá = chưa mở mà cũng không còn suất miễn phí đầu. Bấm vào vẫn được: server
+          // trả 409 kèm đúng số dư, HUD không được đoán hộ người chơi mua nổi hay không.
+          const locked = !current && !has && !untouched;
+          return (
+            <button key={h.id} type="button" className={`hero-card${current ? ' on' : ''}${locked ? ' locked' : ''}`} disabled={busy} onClick={() => void pick(h.id, h.name)}>
+              <span className="hc-thumb" style={{ backgroundPosition: HERO_SPRITE[h.id] ?? '0% 0%' }} />
+              <span className="hc-meta">
+                <b>{h.name}</b>
+                <small>{h.title}</small>
+              </span>
+              {current ? <span className="hc-flag">Đang dùng</span> : null}
+              {locked ? (
+                <span className="hc-cost">
+                  <Icon name="ngoc" /> {cost ? fmt(cost) : 'khoá'}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
       </div>
       {s.isAdmin ? <AdminBlock s={s} /> : null}
     </Sheet>

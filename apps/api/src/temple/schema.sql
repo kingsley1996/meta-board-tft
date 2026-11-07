@@ -38,6 +38,10 @@ CREATE TABLE IF NOT EXISTS temple_profiles (
   appearance jsonb NOT NULL DEFAULT '{}'::jsonb,
   equipped jsonb NOT NULL DEFAULT '{}'::jsonb,
   inventory jsonb NOT NULL DEFAULT '{}'::jsonb,
+  -- Bộ sưu tập nhân vật đã mở (text[] id trong HERO_LIST). Để nullable có chủ ý: hàng
+  -- mới sinh ghi '{}' = chưa chọn lần nào, còn hàng cũ là NULL = đã đứng một hình từ
+  -- trước khi cơ chế này tồn tại, và bản backfill dưới chỉ chạy trên đúng nhóm NULL.
+  heroes text[],
   no_chan boolean NOT NULL DEFAULT false,
   -- Hai mốc chỉ máy chủ được quyền viết. buff_until là hạn của lá bùa nhân đôi điểm;
   -- meditate_start là giờ mở một nhịp thiền để số phút tính ở server, không phải do
@@ -53,6 +57,14 @@ CREATE TABLE IF NOT EXISTS temple_profiles (
 -- vẫn lên được mà không cần migration tay.
 ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS buff_until timestamptz;
 ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS meditate_start timestamptz;
+
+-- Bộ sưu tập nhân vật đã mở (text[] id trong HERO_LIST). NULL = hàng sinh trước khi cơ
+-- chế này tồn tại, nên khởi đầu của nó là đúng nhân vật đang đứng: không ai bị đòi 100
+-- Kim Cương để được giữ nguyên hình mình đang có. Hàng mới INSERT '{}' — nghĩa là chưa
+-- chọn lần nào, và lần chọn đầu là miễn phí (heroes.ts).
+ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS heroes text[];
+UPDATE temple_profiles SET heroes = ARRAY[appearance ->> 'hero']
+  WHERE heroes IS NULL AND appearance ? 'hero';
 
 -- Set DEFAULT là idempotent và không đụng hàng cũ: database đã dựng với 'tinhdo' vẫn
 -- lên được, chỉ hàng sinh sau này mới nhận 'flex'.

@@ -138,20 +138,45 @@ test(
       assert.equal((await post('/api/temple/practice', { type: 'bead', count: 30 }, me.cookie)).status, 400);
 
 
-      // Chọn nhận vật: id thật thì về tay máy khách, id bịa thì khước từ ngay — để
-      // resolveHero (avatar.js:877) không quay vòng random rồi lưu một nhân vật vô hình.
-      const hero = await put('/api/temple/profile', { appearance: { hero: 'zoro' } }, me.cookie);
-      assert.equal(hero.status, 200);
-      assert.equal(hero.json.profile.appearance.hero, 'zoro');
-      // Một gói chỉ đổi nhân vật không được xoá những gì còn lại trên người: hàng lối
-      // được gộp (jsonb ||) thay vì thay cả object.
-      assert.equal(hero.json.profile.appearance.hair, 'ngan', 'the seed haircut survives a hero-only packet');
-      assert.equal(hero.json.profile.equipped.beads, 'chuoi_go', 'nor does it strip the bag');
+      // Chọn nhân vật: lần đầu miễn phí, hình mới trả 100 Kim Cương, hình đã mở thì
+      // dùng lại không mất gì. Id bịa thì 404 — resolveHero (avatar.js:877) không rơi
+      // về hình nào cả mà quay vòng random rồi lưu một nhân vật vô hình.
+      const first = await post('/api/temple/hero', { hero: 'zoro' }, me.cookie);
+      assert.equal(first.status, 200);
+      assert.equal(first.json.spent, 0, 'a player who has never picked gets the first form free');
+      assert.equal(first.json.state.appearance.hero, 'zoro');
+      assert.deepEqual(first.json.state.heroes, ['zoro'], 'and the pick lands in the collection');
+      // Cú đổi hình không được xoá những gì còn lại trên người: hàng lối được gộp
+      // (jsonb ||) thay vì thay cả object.
+      assert.equal(first.json.state.appearance.hair, 'ngan', 'a hero packet keeps the seed haircut');
+      assert.equal(first.json.state.equipped.beads, 'chuoi_go', 'nor does it strip the bag');
       const unequip = await put('/api/temple/profile', { equipped: { pet: null } }, me.cookie);
       assert.equal(unequip.json.profile.equipped.pet, null, 'an explicit null still takes the pet off');
       assert.equal(unequip.json.profile.equipped.beads, 'chuoi_go', 'and leaves the rest worn');
-      const fakeHero = await put('/api/temple/profile', { appearance: { hero: 'songoku' } }, me.cookie);
-      assert.equal(fakeHero.status, 400, 'a hero the engine cannot draw is not a choice');
+
+      const wallet = first.json.state.ngoc as number;
+      const second = await post('/api/temple/hero', { hero: 'kaido' }, me.cookie);
+      assert.equal(second.json.spent, 100, 'every new form after the first one is paid for');
+      assert.equal(second.json.state.ngoc, wallet - 100, 'and it leaves the wallet on the way out');
+      assert.deepEqual(second.json.state.heroes, ['zoro', 'kaido'], 'the collection remembers both');
+      const again = await post('/api/temple/hero', { hero: 'zoro' }, me.cookie);
+      assert.equal(again.json.spent, 0, 'wearing an unlocked form again is free');
+      assert.equal(again.json.state.heroes.length, 2, 'and it does not get listed twice');
+
+      await pool.query('UPDATE temple_profiles SET ngoc = 50 WHERE user_id = $1', [me.user]);
+      const brokeForm = await post('/api/temple/hero', { hero: 'law' }, me.cookie);
+      assert.equal(brokeForm.status, 409, 'an empty wallet stops a new form');
+      assert.equal(brokeForm.code, 'not_enough_ngoc');
+      const back = await post('/api/temple/hero', { hero: 'kaido' }, me.cookie);
+      assert.equal(back.status, 200, 'but it never locks the collection you already paid for');
+      const fakeHero = await post('/api/temple/hero', { hero: 'songoku' }, me.cookie);
+      assert.equal(fakeHero.status, 404, 'a hero the engine cannot draw is not a choice');
+      // PUT /profile không còn là đường vòng qua giá: im lặng bỏ qua sẽ trả 200 và người
+      // bấm tưởng mình vừa đổi được hình.
+      const bypass = await put('/api/temple/profile', { appearance: { hero: 'sasuke' } }, me.cookie);
+      assert.equal(bypass.status, 400, 'the wallet cannot be skipped by editing appearance');
+      assert.equal(bypass.code, 'hero_needs_purchase');
+      assert.equal((await get('/api/temple/state', me.cookie)).json.state.appearance.hero, 'kaido', 'and nothing moved');
 
       // --- Nhịp thiền đo bằng đồng hồ server -------------------------------
       const early = await post('/api/temple/practice', { type: 'meditate_end' }, me.cookie);
@@ -353,10 +378,14 @@ test(
       const guestName = await put('/api/temple/profile', { name: 'Tự Đặt' }, visitor.cookie);
       assert.equal(guestName.status, 403, 'and a guest does not choose the name over their head');
       assert.equal(guestName.code, 'guest_account_required');
-      // Hình dáng thì vẫn đổi được: đó là cách khách thử đền trước khi quyết định.
-      const guestLook = await put('/api/temple/profile', { appearance: { hero: 'zoro' } }, visitor.cookie);
+      // Hình dáng thì vẫn đổi được, và nhân vật cũng vậy: hai thứ đó chỉ đụng ví và
+      // avatar của chính người bấm, không để lại dấu vết công khai nào dưới một email giả.
+      const guestLook = await put('/api/temple/profile', { appearance: { skin: '#112233' } }, visitor.cookie);
       assert.equal(guestLook.status, 200, 'but the avatar is still theirs to dress');
-      assert.equal(guestLook.json.profile.appearance.hero, 'zoro');
+      assert.equal(guestLook.json.profile.appearance.skin, '#112233');
+      const guestHero = await post('/api/temple/hero', { hero: 'zoro' }, visitor.cookie);
+      assert.equal(guestHero.json.spent, 0, 'and the first form is free for a guest too');
+      assert.equal(guestHero.json.state.appearance.hero, 'zoro');
       // Đọc thì mở hết, trả về rỗng chứ không 403.
       for (const path of ['/friends', '/dms', '/group', '/greetings']) {
         assert.equal((await get(`/api/temple${path}`, visitor.cookie)).status, 200, `GET ${path} stays open`);

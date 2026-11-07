@@ -35,6 +35,8 @@ test('toPlayerProfile carries only what the room frame can draw', async () => {
     streak: 1,
     bestStreak: 1,
     appearance: { hero: 'luffy_g5' },
+    // Bộ sưu tập đi kèm hình đang mặc: hồ sơ này là một người đã mở đúng một nhân vật.
+    heroes: ['luffy_g5'],
     equipped: { robe: 'ao_lam', hat: null },
     inventory: { pet_nai: 1 },
     noChan: false,

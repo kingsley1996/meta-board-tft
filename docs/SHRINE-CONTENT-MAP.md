@@ -13,7 +13,7 @@ thực thi**: tên/chuỗi nào thay, thay thành gì, thay ở đâu. Mọi con
 | 4 | Tên cấp theo hướng **fantasy**, không dùng rank TFT thật (Sắt→Thách Đấu) | ✅ |
 | 5 | **Giữ `/temple`**, không đổi `/shrine` | ✅ |
 | 6 | 15 map chùa: **giữ cả 15 làm theme, admin chọn một bản** qua `/admin/settings`; khoá `size`/`cushions`/`view` | ✅ |
-| 7 | Avatar anime 12 nhân vật: **giữ cho MVP**, quyết ở Phase 3 | ✅ |
+| 7 | Avatar anime 12 nhân vật: **giữ cho MVP**, quyết ở Phase 3 → đã quyết 2026-11-07, xem §9 | ✅ |
 | 8 | Đèn cầu may (Phase 2b): **hoãn**, không nhắc trong UI | ✅ |
 | 9 | `meta.json.donate` + `fund` (số TK + tên thật, **không code nào đọc**): **xoá** | ✅ |
 
@@ -178,4 +178,64 @@ chuông (`bell` trong `practice.ts`), quả + đường đổi quả→Ngọc (`
 `e11b660`), đổi `/temple`→`/shrine`.
 **Giữ nguyên:** khung HUD, phòng WS, bạn bè/nhóm/DM, bia tri ân (đổi tên thành Bảng Đồng Hành, bỏ
 thông tin ngân hàng), BXH (đổi thành BXH Cầu May + ghi rõ "chuyên cần, không phải rank TFT"), 12
-avatar, tượng pengu vàng trên bàn thờ.
+avatar (tên thì đổi, xem §9), tượng pengu vàng trên bàn thờ.
+
+## 9. 12 nhân vật: tên mới + bộ sưu tập có khoá (2026-11-07)
+
+`apps/web/vendor/temple/js/avatar.js:6-165` là nguồn duy nhất của `HERO_LIST`. **Id không đổi** —
+id là khoá trong `appearance.hero`, trong cột `heroes` của DB và trong atlas sprite; chỉ `name` và
+`title` đổi. Tên cũ là tên nhân vật anime có bản quyền; tên mới tả đúng phần `buildHeroHead3D`
+(`avatar.js:541-700`) thực vẽ, nên người chơi nhìn hình là đọc được tên mà không cần biết tên gốc.
+
+| id | `name` mới | `title` đi kèm | Nét vẽ trong engine |
+|---|---|---|---|
+| `luffy_g5` | **Mây Bồng** | Nhịp Trống Tự Do | tóc mây trắng xoăn bồng, mũ rơm đeo lưng |
+| `naruto_sage` | **Gai Vàng** | Tiên Nhân Áo Cam | tóc vàng dựng + hai sừng chakra, áo cam |
+| `zoro` | **Ba Kiếm** | Đao Khách Xanh Rêu | tóc xanh rêu gai nhọn, ba khuyên tai vàng |
+| `sasuke` | **Én Đêm** | Kiếm Ánh Xanh | tóc đen ánh xanh xòe hai bên ôm má |
+| `sanji` | **Mái Che** | Chủ Bếp Chân Hỏa | tóc vàng rẽ ngôi che một bên mắt |
+| `kakashi` | **Sương Bạc** | Người Che Một Mắt | tóc bạch kim dựng nghiêng, băng trán che mắt |
+| `law` | **Mũ Đốm** | Bác Sĩ Áo Vàng | mũ vòm trắng chấm đen, áo vàng |
+| `itachi` | **Tóc Dài** | Ảo Thuật Áo Đen | tóc đen dài hai bên má, áo đen |
+| `ace` | **Mũ Cam** | Hỏa Quyền Tuổi Trẻ | mũ cao bồi cam hai huy hiệu, tóc đen xoăn |
+| `shanks` | **Tóc Đỏ** | Bá Vương Gác Việc | tóc đỏ rực rẽ ngôi |
+| `minato` | **Chớp Vàng** | Áo Trắng Nhanh Nhất | tóc vàng hai lọn ôm má, áo trắng |
+| `kaido` | **Sừng Trâu** | Sinh Vật Mạnh Nhất | bờm tóc đen + cặp sừng trâu cong khổng lồ |
+
+### 9.1 Bộ sưu tập: chọn lần đầu miễn phí, hình mới 100 Kim Cương
+
+Cơ chế nằm ở `apps/api/src/temple/heroes.ts`, cột mới `temple_profiles.heroes text[]` (danh sách id
+đã mở). Cột có ba trạng thái và mỗi trạng thái một giá:
+
+| Trạng thái | Nghĩa | Giá khi chọn |
+|---|---|---|
+| `NULL` | hàng tạo trước cơ chế này | backfill `schema.sql` ghi đúng nhân vật họ đang đứng → **0**, không ai bị đòi 100 để giữ nguyên hình |
+| `'{}'` | tài khoản mới | lần chọn đầu **0**, hình khác tiếp theo **100** |
+| `[id…]` | đã mở | id đã nằm trong danh sách **0** (dùng lại), id ngoài danh sách **100** |
+
+Không đủ 100 → `409 not_enough_ngoc`. Giá 100 dẫn xuất từ nền kinh tế thật chứ không phải số tròn
+ước lượng: giá Kim Cương trong `meta.json.items` chạy 60–300, thưởng lên bậc ở `merit.ts:93` là
+`level × 20` (Bậc 2 +40, Bậc 3 +60) → một hình mới ≈ hai bậc đầu tiên.
+
+- Một transaction duy nhất theo khuôn `shop.ts:payAndGrant` (`BEGIN` → `SELECT … FOR UPDATE` → điều
+  kiện → `UPDATE` → `COMMIT`). `FOR UPDATE` làm cú bấm đúp vô hại: lượt thứ hai thấy id đã vào
+  `heroes` nên trả `spent 0`; vì vậy **không có cooldown**.
+- `PUT /profile` không còn nhận `appearance.hero`: whitelist `APPEARANCE_KEYS` (`identity.ts`) chỉ
+  còn `hair`, và `routes.ts` trả `400 hero_needs_purchase` cho body có key `hero`. Im lặng bỏ qua sẽ
+  khiến người chơi tưởng mình vừa đổi được hình; đi thẳng qua curl mà không mất đồng thì cơ chế khoá
+  vô hiệu.
+- Khách dùng được tuyến này, ví khách cũng bị trừ thật (dev đo: 200 → 100 → 0 rồi 409).
+
+### 9.2 Hồ sơ: bậc hiện tại + thanh tiến độ
+
+`ProfileSheet` (`apps/web/components/temple/hall.tsx`) có khối `.pf-rank`: ấn danh hiệu
+(`<TitleBadge>`), `title · Bậc N`, số Điểm May và thanh `.pf-xp`. Thanh đo **đoạn đã đi trong bậc**,
+không phải tỉ lệ exp/`exp_next` tuyệt đối — hai bậc có độ dài khác nhau rất nhiều (180 → 350 → 500)
+nên tỉ lệ tuyệt đối nhảy lùi khi vừa lên bậc. Vì vậy `state.ts` gửi thêm `exp_prev = expForLevel(level)`:
+
+```
+pct   = (exp - exp_prev) / (exp_next - exp_prev)     // expForLevel / exp_next theo ladder.js
+còn   = exp_next - exp                                // "Còn 140 Điểm May tới Bậc 2."
+```
+
+Bậc cao nhất (`LADDER_TOP` = 19) thì thanh đầy và dòng "còn thiếu" biến mất.

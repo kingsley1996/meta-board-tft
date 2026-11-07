@@ -1,7 +1,7 @@
 // Mô-đun đọc của chùa: mọi response của HUD đều đi qua đây, để HUD chỉ phải biết
 // đúng một kiểu dữ liệu thay vì hai mươi hình dạng khác nhau theo từng tuyến.
 import { pool } from '../db.ts';
-import { levelFromExp, templeProfile, type TempleProfile } from './identity.ts';
+import { expForLevel, levelFromExp, templeProfile, type TempleProfile } from './identity.ts';
 import { practiceJournal, practiceLifetime, practiceToday, type PracticeDelta } from './merit.ts';
 
 export type TempleState = {
@@ -12,6 +12,10 @@ export type TempleState = {
   honor: string;
   level: number;
   exp: number;
+  // Hai mốc của riêng bậc hiện tại: exp_prev là điểm đã chạm tới khi bước lên bậc này,
+  // exp_next là điểm của bậc kế. HUD cần cả hai chứ không chỉ exp_next vì thanh tiến độ
+  // phải đo đoạn đã đi *trong* bậc, không phải tỉ lệ trên cả thang.
+  exp_prev: number;
   exp_next: number;
   sen: number;
   ngoc: number;
@@ -21,6 +25,8 @@ export type TempleState = {
   best_streak: number;
   inventory: Record<string, number>;
   appearance: Record<string, unknown>;
+  // 12 ô nhân vật trong Hồ sơ vẽ khoá hay mở theo danh sách này (heroes.ts).
+  heroes: string[];
   equipped: Record<string, string | null>;
   buff_until: string | null;
   meditate_start: string | null;
@@ -52,6 +58,9 @@ export function toState(profile: TempleProfile, today: PracticeDelta & { day: st
     honor: profile.honor,
     level: profile.level,
     exp: profile.exp,
+    // Đỉnh thang vẫn có mốc của chính nó (bậc 19 = 33000) nên thanh tiến độ không cần
+    // một nhánh riêng cho "đã hết thang".
+    exp_prev: expForLevel(ladder.level) ?? 0,
     exp_next: ladder.expNext,
     sen: profile.sen,
     ngoc: profile.ngoc,
@@ -61,6 +70,7 @@ export function toState(profile: TempleProfile, today: PracticeDelta & { day: st
     best_streak: profile.bestStreak,
     inventory: profile.inventory,
     appearance: profile.appearance,
+    heroes: profile.heroes,
     equipped: profile.equipped,
     buff_until: profile.buffUntil,
     meditate_start: profile.meditateStart,

@@ -1154,8 +1154,16 @@
 }
 #temple-root .modal-hero-grid {
   max-height: 54vh;
+  /* Bốn cột là bề rộng của màn hình chứ không phải của tấm sheet: ở 1440px ô nhân vật
+     cuối bị cắt mất nửa phải, và nhãn giá treo ở góc lại còn chờm ra ngoài. Ba cột thì
+     vừa tên + tước, vừa còn chỗ cho chip "100"; dưới 720px còn hai cột. */
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 720px) {
+  #temple-root .modal-hero-grid { grid-template-columns: repeat(3, 1fr); }
 }
 #temple-root .hero-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1212,6 +1220,60 @@
 }
 #temple-root .hero-card.on .hc-meta b { color: #ffd36b; }
 #temple-root .hero-card.on .hc-meta small { color: #cbd5c0; }
+
+/* Ô chưa mở: ảnh giữ nguyên (đó là lý do người chơi muốn mở nó) nhưng cả thẻ chìm đi,
+   và giá treo ở góc. Không mờ toàn bộ thẻ vì chữ "100" phải đọc được trên màn hình 5". */
+#temple-root .hero-card.locked {
+  background: #eceadf;
+  border-color: #cbc7b6;
+  color: #6b7065;
+}
+#temple-root .hero-card.locked .hc-thumb { filter: saturate(0.45); }
+#temple-root .hc-cost,
+#temple-root .hc-flag {
+  position: absolute;
+  top: -7px;
+  right: -5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.45;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+}
+#temple-root .hc-cost {
+  background: #232b22;
+  color: #ffd36b;
+  border: 1px solid rgba(255, 211, 107, 0.7);
+}
+#temple-root .hc-cost .i { width: 11px; height: 11px; }
+#temple-root .hc-flag { background: var(--gold, #ffd36b); color: #3a2205; }
+#temple-root .hero-note { margin: 0 0 8px; font-size: 12px; }
+
+/* Hàng bậc + thanh tiến độ đầu tấm Hồ sơ: cùng khuôn .xp của chip HUD nhưng kéo đầy
+   chiều ngang sheet, và đo đoạn đường trong một bậc (exp_prev → exp_next) thay vì chia
+   cho cả thang. */
+#temple-root .pf-rank {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #232b22, #161c16);
+  border: 1.5px solid rgba(255, 211, 107, 0.5);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+#temple-root .pf-rank-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+#temple-root .pf-rank-line { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+#temple-root .pf-rank-line b { font-size: 14px; color: #ffd36b; white-space: nowrap; }
+#temple-root .pf-rank .muted,
+#temple-root .pf-rank small.muted { color: #cbd5c0; font-size: 11px; }
+#temple-root .pf-xp { width: 100%; height: 6px; margin-top: 0; background: rgba(255, 255, 255, 0.16); }
 
 /* Sansa Moonlight Radio Pill (.sansa-radio) */
 #temple-root .sansa-radio {
