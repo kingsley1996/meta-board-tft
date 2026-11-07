@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Gain, GameKind, PublicPlayer } from './api';
 import { get, post } from './api';
 import { ITEMS, Sound, TEMPLE, sectOf } from './engine';
+import { ItemIcon, RANK_LABEL } from './hall';
 import { ABBOT, HERMIT_LESSONS, WISHES, guideOf, storyOf, tellersOf } from './stories';
 import { rungLabel } from '@/vendor/temple/js/ladder.js';
 import { GuestGate, Icon, Sheet, TitleBadge, ago, esc, fmt, type Notice, type Store } from './ui';
@@ -186,6 +187,11 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
 
 export type NpcKind = 'abbot' | 'hermit' | 'teller';
 
+// Trả lời của GET /hermit: chiếu duyên hôm nay bày món nào, còn mấy phần. Cả sảnh
+// cùng thấy một chiếu (máy chủ quay theo ngày, không theo người), nên đây là số của
+// riêng người bấm: món đã đổi rồi tự nhảy khỏi `offers`.
+type Mat = { left: number; offers: { id: string; price: number }[]; total: number };
+
 // Huấn luyện viên, Nhà Phân Tích và Tiên Tri Hex: cùng một khung thoại
 // (.abbot-head/.abbot-say/.abbot-opts) như bản gốc, chỉ khác nội dung.
 export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcKind; index?: number; onClose: () => void }) {
@@ -193,6 +199,17 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
   const teller = tellersOf(TEMPLE.id)[index];
   const [page, setPage] = useState(-1);
   const [tale, setTale] = useState<number | null>(null);
+  const [mat, setMat] = useState<Mat | null>(null);
+
+  // Chiếu duyên chỉ hỏi khi cụ già được chạm phải, và hỏi lại sau mỗi lần đổi để
+  // người chơi thấy đúng số phần lão còn lại hôm nay.
+  useEffect(() => {
+    if (kind !== 'hermit') return;
+    setMat(null);
+    void get<Mat>('/hermit')
+      .then(setMat)
+      .catch((e: Error) => s.toast(e.message));
+  }, [kind]);
 
   const say = (html: string, opts: React.ReactNode) => (
     <>
@@ -219,15 +236,56 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
   const tap = () => Sound.tap();
 
   if (kind === 'hermit') {
-    return wrap(
-      '#7a6a52',
-      'Nhà Phân Tích',
-      'Mổ số liệu bản vá, chỉ nói khi có số',
-      say(
-        `<p>Lại là bạn à? Bí kíp bán rồi, không đổi trả. Nhưng tôi nói thật: chiêu mạnh nhất không nằm trong bảng số đâu, đọc rồi tự khắc thấy.</p>${HERMIT_LESSONS.map((l) => `<p>${l}</p>`).join('')}`,
-        <Btn label="Tôi xin phép" icon="pray" onClick={onClose} />,
-      ),
-    );
+    // Ba trạng thái của chiếu — hết phần hôm nay, hết hàng vì con đã gom sạch, và còn
+    // duyên. Lời văn theo talkHermit() của bản gốc (main.js:1050-1075).
+    const GREET = '<p>Này, khoan đã! Lão nhìn cốt cách của con là biết ngay: kỳ tài ngàn năm có một.</p>';
+    const bye = <Btn label="Con xin phép cụ" icon="pray" onClick={onClose} />;
+    const trade = async (id: string) => {
+      try {
+        const r = await post<Gain & { item: string }>('/hermit/exchange', { item: id });
+        s.apply(r);
+        Sound.spark();
+        s.toast(`Lão Hành Khất đưa con ${ITEMS[id]?.name ?? id}`);
+        setMat(await get<Mat>('/hermit'));
+      } catch (e) {
+        s.toast((e as Error).message);
+      }
+    };
+    const body = !mat
+      ? say('<p>Lão đang trải chiếu… để lão xem hôm nay duyên con tới đâu.</p>', bye)
+      : mat.left <= 0
+        ? say(`${GREET}<p>Khổ nỗi hôm nay lão bán hết hàng rồi. Ngày mai con ghé lại xem duyên còn không nhé.</p>`, bye)
+        : !mat.offers.length
+          ? say(
+              `<p>Lại là con à? Chiếu lão bày hết trơn rồi, mà món nào con cũng đã cầm — hôm nay lão không còn gì để cho con nữa.</p>${HERMIT_LESSONS.map((l) => `<p>${l}</p>`).join('')}`,
+              bye,
+            )
+          : say(
+              `${GREET}<p>Lão có ${mat.total} món đồ không bày ở cửa hàng, hôm nay trải ${mat.offers.length} món, còn ${mat.left} phần. Giá mỗi món một khác, hàng Quý thì nặng tay, không mặc cả. Ngày mai chiếu đổi mặt — dồn hết thì một tuần là xem hết mặt chiếu, còn sạch gia tài của lão thì tính bằng mùa.</p>`,
+              <>
+                {mat.offers.map(({ id, price }) => {
+                  const it = ITEMS[id];
+                  const rank = String(it?.data?.rank ?? '');
+                  return (
+                    <div className={`card${rank ? ` rank-${rank}` : ''}`} key={id}>
+                      <ItemIcon id={id} />
+                      <div className="body">
+                        <b>{it?.name ?? id}</b>
+                        {rank ? <span className="tag rank">{RANK_LABEL[rank] ?? 'Hiếm'}</span> : null}
+                        <p>{it?.description ?? ''}</p>
+                      </div>
+                      <div className="side">
+                        <button className="btn small gold" onClick={() => void trade(id)}>
+                          <Icon name="sen" /> {fmt(price)}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+                {bye}
+              </>,
+            );
+    return wrap('#7a6a52', 'Lão Hành Khất', 'Bán bí kiếp, chỉ bán cho người hữu duyên', body);
   }
 
   if (kind === 'teller' && teller) {

@@ -106,6 +106,7 @@ type WorldSlice = {
   moving: boolean;
   walkTarget: unknown;
   enterTemple: (temple: unknown, me: unknown, keepPos?: boolean) => void;
+  setPlayerLook: (me: unknown) => void;
   warmUp: (maxMs?: number) => Promise<void>;
   start: () => void;
   stop: () => void;
@@ -235,8 +236,12 @@ export class TempleEngine {
     this.world?.applyRoom(players, myId);
   }
 
+  // Đổi trang bị thì thay người, không thay cả ngôi chùa. enterTemple dựng lại
+  // buildTemple, đặt seat = null và bắt người đang ngồi đứng dậy (world.js:148-149),
+  // nên một cú mặc áo làm mất cả bồ đoàn đang ngồi; setPlayerLook chỉ dựng lại avatar
+  // và tự sơn lại cushion tại chỗ ngồi (world.js:510).
   look(me: EnginePerson): void {
-    this.world?.enterTemple(TEMPLE, me, true);
+    this.world?.setPlayerLook(me);
   }
 
   sit(): boolean {

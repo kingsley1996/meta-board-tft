@@ -12,7 +12,7 @@ import type { TempleEngine } from './engine';
 import type { RemotePlayer, TempleRoom } from './room';
 
 export type ViewKind = 'hall' | 'meditate' | 'wheel' | 'que';
-export type SheetKind = 'rank' | 'community' | 'friends' | 'stele' | 'bag' | 'guide' | 'settings' | 'profile' | 'games';
+export type SheetKind = 'rank' | 'community' | 'friends' | 'stele' | 'shop' | 'bag' | 'guide' | 'settings' | 'profile' | 'games';
 
 export type Look = { name?: string; sect?: string; appearance?: Record<string, string>; equipped?: Record<string, string | null> };
 

@@ -50,6 +50,11 @@ const ROOM = 'chung';
 const BEAT_MS = ROOM_TICK_MS;
 // Đúng tốc độ bước của người thật (world.js:1138) — bot đi nhanh hơn là trông như trượt.
 const SPEED = 2.8;
+// Một cú lạy dài đúng chu kỳ của máy khách (avatar.js:1024 BOW_TIME = 2,6 s): bot đếm
+// số cái theo đồng hồ thật nên điều người ta nhìn thấy và điều ghi vào sổ là một.
+const BOW_MS = 2600;
+// Người thật gom 4 cú một gói rồi mới gửi (temple-app.tsx:277); bot cũng gom từng ấy.
+const BOW_BATCH = 4;
 const PRESENCE_BEATS = 8;
 const BOT_COUNT = 6;
 // Từ số người thật này thì hall không còn "vắng" nữa và bot nhường chỗ.
@@ -67,8 +72,8 @@ const DZ = 2.4;
 const SEATS = COLS.length * ROWS;
 // Kẽ giữa hai cột ghế — đi dọc đây thì không băng qua người đang ngồi.
 const AISLES = [-7.6, -5.2, -2.8, 0, 2.8, 5.2, 7.6];
-// Dải sàn giữa ban thờ và hàng ghế đầu: chỗ đứng vái, và yaw 0 là hướng ban thờ
-// (thế ngồi bị máy khách khoá về 0 — world.js:1168).
+// Dải sàn giữa ban thờ và hàng ghế đầu: chỗ đứng nhìn lên ban thờ, và yaw 0 là hướng
+// ban thờ (thế ngồi bị máy khách khoá về 0 — world.js:1168).
 const FRONT_Z = -6.9;
 
 type Point = { x: number; z: number };
@@ -195,7 +200,10 @@ type Bot = {
   begun: number;
   until: number;
   meditate: boolean;
-  bows: number;
+  // Nhịp cầu may: số cú còn thiếu, số đã lạy nhưng chưa ghi sổ, và mốc cú kế tiếp.
+  bowsLeft: number;
+  bowsQueued: number;
+  nextBow: number;
   next: { greet: number; duel: number; inbox: number; emote: number };
 };
 
@@ -272,8 +280,13 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
       bot.yaw = 0;
       bot.anim = bot.meditate ? 3 : 0;
     } else if (bot.mood === 'pray') {
+      // Cầu may của người thật là *ngồi trên bệ* rồi lạy — bấm nút khi chưa ngồi thì
+      // máy khách tự ngồi xuống (temple-app.tsx:284), nên bot cũng vậy: về ghế của mình,
+      // yaw 0 hướng ban thờ, và giữ thế lạy trên dây cho tới cú cuối.
+      bot.seat = bot.cushion;
       bot.yaw = 0;
       bot.anim = 2;
+      bot.nextBow = now + BOW_MS;
     } else {
       bot.anim = 0;
     }
@@ -290,24 +303,35 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
   function choose(bot: Bot, now: number): void {
     const roll = Math.random();
     bot.meditate = false;
-    bot.bows = 0;
+    bot.bowsLeft = 0;
+    bot.bowsQueued = 0;
+    bot.nextBow = 0;
+    // Không có ghế thì không ngồi được: hai việc dưới đây bỏ, chỉ còn đi dạo.
+    if (bot.cushion < 0) {
+      roam(bot, now);
+      return;
+    }
     if (roll < 0.4) {
       bot.mood = 'sit';
       bot.meditate = Math.random() < 0.5;
       bot.until = now + walkMs(bot, seatOf(bot.cushion)) + rnd(60_000, 240_000);
       walkTo(bot, seatOf(bot.cushion));
-    } else if (roll < 0.68) {
+    } else if (roll < 0.8) {
       bot.mood = 'pray';
-      bot.bows = Math.round(rnd(3, 7));
-      bot.until = now + walkMs(bot, { x: nearest(COLS, bot.pos.x), z: FRONT_Z }) + bot.bows * 2600 + 900;
-      walkTo(bot, { x: nearest(COLS, bot.pos.x), z: FRONT_Z });
+      bot.bowsLeft = Math.round(rnd(3, 8));
+      bot.until = now + walkMs(bot, seatOf(bot.cushion)) + bot.bowsLeft * BOW_MS + 1200;
+      walkTo(bot, seatOf(bot.cushion));
     } else {
-      bot.mood = 'roam';
-      const to = spotOnFloor();
-      bot.until = now + walkMs(bot, to) + rnd(20_000, 45_000);
-      walkTo(bot, to);
+      roam(bot, now);
     }
     push(bot);
+  }
+
+  function roam(bot: Bot, now: number): void {
+    bot.mood = 'roam';
+    const to = spotOnFloor();
+    bot.until = now + walkMs(bot, to) + rnd(20_000, 45_000);
+    walkTo(bot, to);
   }
 
   function walkMs(bot: Bot, to: Point): number {
@@ -316,14 +340,30 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
     return (d / SPEED) * 1000;
   }
 
-  // Một nhịp cầu may của người thật là "vái ba lần" rồi im lặng vài giây; bot đi theo
-  // đúng nghĩa đen đó: cúi lạy `bows` lần, mỗi lần ăn MERIT_PER.bow, rồi đứng dậy.
+  // Đồng hồ lạy chạy trong lúc bot ngồi yên: mỗi BOW_MS là một cú, gom đủ gói thì ghi
+  // sổ bằng đúng công thức mà tuyến /practice của người chơi dùng (practice.ts:65-67).
+  // Không bao giờ cộng vượt số cú đã lạy, nên bot không bao giờ giàu hơn người thật.
+  async function bowTick(bot: Bot, now: number): Promise<void> {
+    if (bot.mood !== 'pray' || !bot.begun || bot.bowsLeft <= 0 || now < bot.nextBow) return;
+    bot.bowsLeft -= 1;
+    bot.bowsQueued += 1;
+    bot.nextBow += BOW_MS;
+    if (bot.bowsLeft === 0) {
+      bot.anim = 0;
+      push(bot);
+    }
+    if (bot.bowsQueued < BOW_BATCH) return;
+    await credit(bot, { exp: bot.bowsQueued * MERIT_PER.bow, practice: { bows: bot.bowsQueued } });
+    bot.bowsQueued = 0;
+  }
+
   async function settle(bot: Bot, now: number): Promise<void> {
     if (!bot.begun) return;
     const held = Math.max(0, now - bot.begun);
     if (bot.mood === 'pray') {
-      const count = Math.max(1, Math.min(8, Math.round(held / 2600)));
-      await credit(bot, { exp: count * MERIT_PER.bow, practice: { bows: count } });
+      // Phần lẻ chưa thành gói: cùng một cách flush mà máy khách làm trước khi đứng dậy.
+      if (bot.bowsQueued) await credit(bot, { exp: bot.bowsQueued * MERIT_PER.bow, practice: { bows: bot.bowsQueued } });
+      bot.bowsQueued = 0;
     } else if (bot.mood === 'sit' && bot.meditate) {
       const today = await practiceToday(bot.entry.userId);
       const minutes = Math.min(
@@ -467,7 +507,9 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
       begun: 0,
       until: 0,
       meditate: false,
-      bows: 0,
+      bowsLeft: 0,
+      bowsQueued: 0,
+      nextBow: 0,
       next: { greet: 0, duel: 0, inbox: 0, emote: 0 },
     };
     rooms.add(member);
@@ -548,6 +590,7 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
     if (beat % PRESENCE_BEATS === 0) await presence(now);
     for (const bot of [...present.values()]) {
       step(bot, now);
+      await bowTick(bot, now);
       if (now >= bot.until) {
         await settle(bot, now);
         choose(bot, now);

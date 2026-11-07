@@ -12,6 +12,7 @@ import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, TRACKS, local, sectOf } from
 import { luckyShower } from './effects';
 import { guideOf, storyOf } from './stories';
 import { REALMS, REALM_ABOUT, ROMAN, realmLevels, rungOf } from '@/vendor/temple/js/ladder.js';
+import { itemThumb } from '@/vendor/temple/js/thumbs.js';
 import { GuestGate, Icon, Sheet, TitleBadge, ago, fmt, type Look, type Store } from './ui';
 
 type RankRow = { rank: number; id: number; name: string; sect: string; title: string; honor: string; score: number; you: boolean };
@@ -302,12 +303,34 @@ const BAG_TABS = [
 ];
 
 const UNEQUIPPABLE = ['hat', 'staff', 'cloud', 'pet'];
-function ItemIcon({ id }: { id: string }) {
+
+// Hình minh hoạ cho món đồ: đúng lối của bản gốc — thumbs.js dựng từng món bằng một
+// WebGLRenderer tạm 144px, lưu dataURL theo id rồi giải phóng context. Món không có
+// cảnh vẽ (đồ dâng, bí kiếp) hoặc máy không có WebGL thì ở lại ô phẳng nhuộm màu.
+export function ItemIcon({ id }: { id: string }) {
   const it = ITEMS[id];
   const color = String(it?.data?.color ?? it?.data?.c1 ?? '#6b4a2a');
+  const [src, setSrc] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    if (!it) return;
+    void itemThumb(it).then((t: string | null) => {
+      if (live) setSrc(t);
+    });
+    return () => {
+      live = false;
+    };
+  }, [it]);
+  if (!src) {
+    return (
+      <span className="ic tint" style={{ background: color }}>
+        <Icon name="gift" />
+      </span>
+    );
+  }
   return (
-    <span className="ic tint" style={{ background: color }}>
-      <Icon name="gift" />
+    <span className="ic thumb">
+      <img src={src} alt="" width={72} height={72} />
     </span>
   );
 }
@@ -386,6 +409,87 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
         );
       })}
       {!list.length ? <div className="empty">Ngăn này trống. Vòng quay Hex mỗi ngày và nhịp cầu may sẽ tặng thêm đồ.</div> : null}
+    </Sheet>
+  );
+}
+
+// ---- Cửa hàng ----------------------------------------------------------------
+
+// Bốn chữ này là PET_RANK của bản gốc (main.js:3426) — cùng thứ tự vận đang in trên
+// khung danh hiệu, chỉ khác chỗ nó gắn lên món đồ chứ không lên người.
+export const RANK_LABEL: Record<string, string> = { thuong: 'Thường', quy: 'Quý', hiem: 'Hiếm', toi_thuong: 'Tối thượng' };
+
+// Cửa hàng chỉ bày món có giá trong meta.json. Máy khách đọc cùng tệp asset nên biết
+// giá để vẽ, nhưng cái giá bấm mua là máy chủ tra lại ở catalog.ts — sửa body không
+// đổi được giá.
+export function ShopSheet({ s, onClose }: { s: Store; onClose: () => void }) {
+  const [tab, setTab] = useState('consumable');
+  const inv = s.state?.inventory ?? {};
+  const level = s.state?.level ?? 1;
+
+  const buy = async (id: string, currency: 'sen' | 'ngoc') => {
+    try {
+      const r = await post<Gain & { item: string }>('/shop/buy', { item: id, currency });
+      s.apply(r);
+      Sound.spark();
+      s.toast(`Đã mua ${ITEMS[id]?.name ?? id}`);
+    } catch (e) {
+      s.toast((e as Error).message);
+    }
+  };
+
+  // `default` là đồ ngày đầu đã mặc sẵn trên người, không bày bán — đó đúng là quy tắc
+  // của bản gốc (main.js:2503), và cũng là 4 món Lão Hành Khất giữ.
+  const list = Object.values(ITEMS).filter((it) => it.type === tab && it.data?.default !== true);
+
+  return (
+    <Sheet title="Cửa hàng" onClose={onClose} tabs={BAG_TABS} tab={tab} onTab={setTab}>
+      {list.map((it) => {
+        const stack = tab === 'consumable';
+        const have = !stack && it.id in inv;
+        const locked = level < (it.unlock_level ?? 1);
+        const rank = String(it.data?.rank ?? '');
+        const priced = (it.price_sen ?? 0) > 0 || (it.price_ngoc ?? 0) > 0;
+        return (
+          <div className={`card${rank ? ` rank-${rank}` : ''}`} key={it.id}>
+            <ItemIcon id={it.id} />
+            <div className="body">
+              <b>{it.name}</b>
+              {rank ? <span className="tag rank">{RANK_LABEL[rank] ?? 'Hiếm'}</span> : null} {stack ? <small>(có {inv[it.id] ?? 0})</small> : null}
+              <p>{it.description ?? ''}</p>
+              {!priced ? (
+                <div className="lock">
+                  <Icon name="spark" /> Không bày bán — Lão Hành Khất giữ món này, đổi duyên lấy.
+                </div>
+              ) : null}
+              {locked ? (
+                <div className="lock">
+                  <Icon name="lock" /> Cần cấp {it.unlock_level}
+                </div>
+              ) : null}
+            </div>
+            <div className="side">
+              {have ? (
+                <span className="tag green">Đã có</span>
+              ) : (
+                <>
+                  {(it.price_sen ?? 0) > 0 ? (
+                    <button className="btn small gold" disabled={locked} onClick={() => void buy(it.id, 'sen')}>
+                      <Icon name="sen" /> {fmt(it.price_sen ?? 0)}
+                    </button>
+                  ) : null}
+                  {(it.price_ngoc ?? 0) > 0 ? (
+                    <button className="btn small ghost" disabled={locked} onClick={() => void buy(it.id, 'ngoc')}>
+                      <Icon name="ngoc" /> {fmt(it.price_ngoc ?? 0)}
+                    </button>
+                  ) : null}
+                </>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {!list.length ? <div className="empty">Ngăn này trống.</div> : null}
     </Sheet>
   );
 }

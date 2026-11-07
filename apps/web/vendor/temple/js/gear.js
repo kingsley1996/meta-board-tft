@@ -211,6 +211,11 @@ export function addGear(av, { hat, staff, cloud }) {
   const parts = { sways: [], rings: [] };
   if (HATS[hat?.model]) {
     const h = model('h' + hat.model, HATS[hat.model]);
+    // Dải mũ của cả bốn mẫu viết cho đầu bán kính ~0.40, còn đầu chibi trong avatar.js
+    // là hình cầu 0.46 (G.head), nên vòng trôn ốc 0.405 nằm trọn bên trong khối đầu và
+    // người chơi mua nón xong không thấy gì. Nhân tỉ lệ 1.15 quanh tâm đầu: vòng 0.466
+    // tính cả ống 0.03 là 0.496, ló ra ngoài mặt cắt đầu (0.441 ở cao độ 0.13).
+    h.scale.setScalar(1.15);
     av.head.add(h);
     h.traverse((o) => { if (o.userData.sway) parts.sways.push(o); });
   }

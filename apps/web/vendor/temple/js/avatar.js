@@ -870,9 +870,12 @@ export function makeAvatar(opts = {}) {
   const hero = resolveHero(opts);
   const outfit = resolveOutfit(opts);
   const useOutfitColors = outfit && outfit.id !== 'default';
-  const rColor = useOutfitColors && outfit.robeColor ? outfit.robeColor : hero.robeColor;
+  // Món áo trong túi có màu riêng (data.color / data.sash trong meta.json). Hai dòng
+  // dưới chỉ nhìn tướng và pháp phục nên mặc áo nào cũng ra màu của tướng: 19 món áo
+  // mua xong không đổi gì trên nhân vật.
+  const rColor = opts.robe?.color || (useOutfitColors && outfit.robeColor ? outfit.robeColor : hero.robeColor);
   const pColor = useOutfitColors && outfit.pantsColor ? outfit.pantsColor : hero.pantsColor;
-  const sColor = useOutfitColors && outfit.sashColor ? outfit.sashColor : hero.sashColor;
+  const sColor = opts.robe?.sash || (useOutfitColors && outfit.sashColor ? outfit.sashColor : hero.sashColor);
 
   const skinM = mat(hero.skin, { roughness: 0.52 });
   const robeM = mat(rColor, {
@@ -917,13 +920,22 @@ export function makeAvatar(opts = {}) {
     const foldMat = mat(sColor, { roughness: 0.78 });
     upper.add(m(new THREE.BoxGeometry(0.22, 0.46, 0.04), foldMat, 0, 0.34, -0.33, { rot: [-0.12, 0, 0.18] }));
   }
-  if (outfit?.malaColor) {
-    // Chuỗi Tràng Hạt 108 Hạt gỗ Bồ Đề đeo cổ chuẩn Thiền viện Sansa
-    const beadMat = mat(outfit.malaColor, { roughness: 0.45 });
-    for (let b = 0; b < 16; b++) {
-      const ang = (b / 16) * Math.PI * 2;
-      upper.add(m(new THREE.SphereGeometry(0.032, 8, 8), beadMat, Math.sin(ang) * 0.25, 0.56 - Math.cos(ang) * 0.10, -0.05 - Math.cos(ang) * 0.24));
+  // Chuỗi Tràng Hạt đeo cổ: màu lấy từ món đang đeo (c1/c2 luân phiên, metal cho
+  // chuỗi kim); pháp phục Sansa vẫn giữ chuỗi malaColor của riêng nó khi chưa đeo gì.
+  // Vòng hạt cũ (x 0.25, y 0.46..0.66) nằm trọn BÊN TRONG thân: áo là LatheGeometry
+  // có bán kính 0.345 ở cao độ 0.46, đầu chibi che xuống tới 0.52 — nên đeo chuỗi
+  // nào cũng không thấy. Dải mới vẽ riêng cung trước (±109°) với bán kính 0.34 trễ
+  // dần xuống 0.46 ở giữa ngực: đủ ló khỏi mặt áo, và không chui vào khối đầu.
+  const mala = opts.beads?.c1 ? opts.beads : outfit?.malaColor ? { c1: outfit.malaColor, c2: outfit.malaColor } : null;
+  if (mala) {
+    const beadMats = [mat(mala.c1, { roughness: 0.35, metalness: mala.metal || 0.1 }),
+      mat(mala.c2 || mala.c1, { roughness: 0.35, metalness: mala.metal || 0.1 })];
+    for (let b = 0; b < 17; b++) {
+      const ang = -1.9 + (b / 16) * 3.8;
+      upper.add(m(new THREE.SphereGeometry(0.045, 10, 10), beadMats[b % 2], Math.sin(ang) * 0.34, 0.58 - Math.cos(ang) * 0.12, -0.04 - Math.cos(ang) * 0.34));
     }
+    // Mặt ngọc ở đáy chữ V giữa ngực, hạt to nhất và bóng nhất của dây.
+    upper.add(m(new THREE.SphereGeometry(0.06, 12, 12), mat(mala.c2 || mala.c1, { roughness: 0.22, metalness: (mala.metal || 0.1) + 0.25 }), 0, 0.44, -0.36));
   }
   if (outfit?.kasaColor) {
     // Y Hậu Cà Sa (Kasa / 가사) đỏ son viền vàng vắt chéo vai trái xuống hông phải

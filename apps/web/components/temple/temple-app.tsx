@@ -13,7 +13,7 @@ import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, hasWebGL, local, sectOf,
 import { luckyShower, floater } from './effects';
 import { QUOTES } from './stories';
 import { TempleRoom, type RemotePlayer } from './room';
-import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, SteleSheet } from './hall';
+import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, ShopSheet, SteleSheet } from './hall';
 import { GameSheet, KIND_NAME } from './games';
 import { FriendsSheet, GroupSheet, NpcModal, PlayerCard, type NpcKind } from './people';
 import { MeditateView, QueModal, WheelView } from './practice';
@@ -842,6 +842,7 @@ export function TempleApp({ lang }: { lang: string }) {
                 ['games', 'dice', 'Tỷ thí'],
                 ['stele', 'medal', 'Bảng đồng hành'],
                 ['profile', 'palette', 'Hồ sơ'],
+                ['shop', 'shop', 'Cửa hàng'],
                 ['bag', 'bag', 'Túi đồ'],
                 ['guide', 'book', 'Hướng dẫn'],
                 ['settings', 'gear', 'Cài đặt'],
@@ -904,6 +905,7 @@ export function TempleApp({ lang }: { lang: string }) {
 
       {sheet === 'rank' ? <RankSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'stele' ? <SteleSheet s={store} onClose={() => setSheet(null)} /> : null}
+      {sheet === 'shop' ? <ShopSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'bag' ? <BagSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'profile' ? <ProfileSheet s={store} onClose={() => setSheet(null)} /> : null}
       {sheet === 'guide' ? <GuideSheet s={store} onClose={() => setSheet(null)} /> : null}

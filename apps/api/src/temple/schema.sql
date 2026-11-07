@@ -206,6 +206,18 @@ CREATE TABLE IF NOT EXISTS temple_draws (
   PRIMARY KEY (user_id, kind, day)
 );
 
+-- Đổi duyên với Lão Hành Khất: một hàng là một món "không bán" đã đổi trong ngày.
+-- Ba món một ngày đúng như cánh cổng bản gốc (api.js:916); giá thì theo thang dẫn xuất
+-- trong catalog.ts, không còn bằng nhau. Khoá (user, item, day) là chỗ chặn cú chạm đúp
+-- đổi cùng một món hai lần; shop.ts ghi hàng này trong cùng transaction với nhịp trừ ví.
+CREATE TABLE IF NOT EXISTS temple_exchanges (
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  item text NOT NULL,
+  day date NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, item, day)
+);
+
 -- Tỷ thí giữa hai người chơi: xúc xắc và oẳn tù tì.
 --
 -- Một hàng là một trận, không phải một vòng: vòng hiện trường nằm ở a_move/b_move/round
