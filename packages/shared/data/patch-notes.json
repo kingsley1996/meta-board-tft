@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-04T05:32:59.266Z",
+  "generatedAt": "2026-11-07T07:41:07.153Z",
   "latestPatch": "18.6",
   "livePatch": "18.6",
   "patches": [
@@ -14,9 +14,9 @@
       "publishedAt": "2026-11-03T19:00:00.000Z",
       "updatedAt": "2026-11-03T19:00:00.000Z",
       "version": "18.6",
-      "revision": "8fS5GiC5F7poI3AWd5cN3e",
+      "revision": "El9SUR6RDRmKNBwRFHDMP0",
       "sha256": {
-        "en": "ae879beb0bc6a8dd56507ceb6d359c6538d1418d9e0a38d37ea57a91f642ea6b",
+        "en": "ca7a08f719bd3ebd3c898f9796e5229981eb183ee9f380adbdcc0c02dbcdb080",
         "vi": "2a171c05cec3a6f7893560307492fe6b1f4056158b026c2a1b0270a93255c458"
       },
       "url": {
@@ -388,7 +388,7 @@
             "vi": "Xe Đồ Lạ"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_item_tier2.png",
-          "cost": 0,
+          "cost": 17,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -409,7 +409,7 @@
             "vi": "Chơi Đường Giữa"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_shop_tier2.png",
-          "cost": null,
+          "cost": 5,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
@@ -430,7 +430,7 @@
             "vi": "Chơi Đường Giữa"
           },
           "icon": "https://cdn.metatft.com/cdn-cgi/image/width=64,format=auto/https://cdn.metatft.com/file/metatft/charms/categories/t_shopcardsicon18_shop_tier2.png",
-          "cost": null,
+          "cost": 5,
           "day": null,
           "dayDate": null,
           "heading": "WISPS",
