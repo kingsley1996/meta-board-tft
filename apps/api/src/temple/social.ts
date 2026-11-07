@@ -232,12 +232,13 @@ socialRouter.post('/group/message', withAccount(async (req, res, user) => {
   res.json({ sent: true });
 }));
 
-// Quà cầu may: một lá bùa hoặc một lời chúc gửi cho một người. Người nhận cộng điểm
-// khi *mở*, nên tuyến này trả về phần thưởng thay vì âm thầm ghi điểm.
+// Quà cầu may: một lá bùa hoặc một lời chúc gửi cho một người. Thưởng mở quà đã cộng
+// xong lúc quà tới (sendGreeting), nên tuyến này chỉ còn là sổ đọc — không còn trạng
+// thái "chưa mở" để báo về máy khách.
 socialRouter.get('/greetings', withUser(async (req, res, user) => {
   await ensureTempleTables();
-  const { rows } = await pool.query<{ id: string; from_user: string; kind: string; text: string; gift_sen: number; seen_at: Date | null; created_at: Date }>(
-    `SELECT id, from_user, kind, text, gift_sen, seen_at, created_at FROM temple_greetings
+  const { rows } = await pool.query<{ id: string; from_user: string; kind: string; text: string; gift_sen: number; created_at: Date }>(
+    `SELECT id, from_user, kind, text, gift_sen, created_at FROM temple_greetings
       WHERE to_user = $1 ORDER BY created_at DESC LIMIT 60`,
     [user.id],
   );
@@ -249,7 +250,6 @@ socialRouter.get('/greetings', withUser(async (req, res, user) => {
       kind: r.kind,
       text: r.text,
       gift_sen: r.gift_sen,
-      seen: !!r.seen_at,
       at: r.created_at.toISOString(),
     })),
   });
@@ -312,54 +312,23 @@ export async function sendGreeting(
     if (!spent.rowCount) throw new ApiError(409, 'not_enough_sen', 'not enough Sen in the wallet');
     await pool.query('UPDATE temple_profiles SET sen = sen + $2 WHERE user_id = $1', [other, gift]);
   }
-  await pool.query('INSERT INTO temple_greetings (from_user, to_user, kind, text, gift_sen) VALUES ($1, $2, $3, $4, $5)', [
-    fromUserId,
-    other,
-    kind,
-    wish,
-    gift,
-  ]);
+  await pool.query(
+    'INSERT INTO temple_greetings (from_user, to_user, kind, text, gift_sen, seen_at) VALUES ($1, $2, $3, $4, $5, now())',
+    [fromUserId, other, kind, wish, gift],
+  );
+  // Phần thưởng mở quà cộng NGAY lúc quà tới tay, không chờ người nhận bấm. Lý do là
+  // số đo trên dev: 496 lời chúc chưa mở nằm chờ, trong khi GET /greetings dưới đây chỉ
+  // trả 60 hàng mới nhất (`LIMIT 60`) — bấm hết 60 thẻ cũng không với tới phần còn lại,
+  // mỗi thẻ lại chỉ đáng 5 Điểm May. Quà vẫn đúng bằng số từng trả, chỉ đổi chỗ ghi.
+  await addMerit(other, { exp: 5, sen: 5 });
   // Người nhận phải thấy món quà tới tay ngay, không phải mở bảng "Đồng đội" mà đoán.
   notifyPlayer(id, { t: 'gift', kind, by: me, text: wish, gift_sen: gift });
   const merit = await addMerit(fromUserId, { exp: 10 });
   return { state: await templeState(fromUserId), gained: merit.gained, level_ups: merit.levelUps };
 }
 
-// Mở một món quà tới tay: cùng một hàng chỉ mở được một lần vì UPDATE có điều kiện
-// `seen_at IS NULL`, nên người bấm hai lần chỉ nhận thưởng một lần.
-export type OpenGreetingResult = {
-  state: TempleState;
-  gained: number;
-  level_ups: LevelUp[];
-  from: PublicPlayer;
-  gift_sen: number;
-};
-
-export async function openGreeting(greetingId: number, userId: string): Promise<OpenGreetingResult> {
-  await ensureTempleTables();
-  const id = playerId(greetingId, 'invalid_greeting_id');
-  const opened = await pool.query<{ from_user: string; gift_sen: number }>(
-    'UPDATE temple_greetings SET seen_at = now() WHERE id = $1 AND to_user = $2 AND seen_at IS NULL RETURNING from_user, gift_sen',
-    [id, userId],
-  );
-  const row = opened.rows[0];
-  if (!row) throw new ApiError(404, 'greeting_not_found', 'nothing to open here');
-  const merit = await addMerit(userId, { exp: 5, sen: 5 });
-  return {
-    state: await templeState(userId),
-    gained: merit.gained,
-    level_ups: merit.levelUps,
-    from: await publicOne(row.from_user),
-    gift_sen: row.gift_sen,
-  };
-}
-
 socialRouter.post('/greetings', withAccount(async (req, res, user) => {
   res.json(await sendGreeting(user.id, playerId(req.body?.id), req.body?.kind, req.body?.text, req.body?.gift_sen));
-}));
-
-socialRouter.post('/greetings/:id/open', withUser(async (req, res, user) => {
-  res.json(await openGreeting(playerId(req.params.id), user.id));
 }));
 
 // ---- helpers ------------------------------------------------------------------

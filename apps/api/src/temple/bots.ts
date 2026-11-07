@@ -35,7 +35,7 @@ import {
   vnDay,
 } from './merit.ts';
 import { ROOM_TICK_MS, type RoomMember, type TempleRooms } from './rooms.ts';
-import { acceptFriend, openGreeting, sendGreeting } from './social.ts';
+import { acceptFriend, sendGreeting } from './social.ts';
 import { ensureTempleTables } from './schema.ts';
 import type { PlayerProfile, PlayerState } from './protocol.ts';
 
@@ -410,12 +410,9 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
     await sendGreeting(bot.entry.userId, peer.profile.id, kind, kind === 'huong' && !toHuman ? '' : pick(WISHES), 0);
   }
 
+  // Hộp thư của bot chỉ còn việc phải làm: quà tới tay là đã ghi sổ và đã cộng thưởng
+  // ở social.ts:sendGreeting, nên không còn gì để "mở" nữa.
   async function inbox(bot: Bot): Promise<void> {
-    const unseen = await pool.query<{ id: string }>(
-      'SELECT id FROM temple_greetings WHERE to_user = $1 AND seen_at IS NULL ORDER BY created_at ASC LIMIT 3',
-      [bot.entry.userId],
-    );
-    for (const row of unseen.rows) await openGreeting(Number(row.id), bot.entry.userId);
     const asked = await pool.query<{ player_id: string }>(
       `SELECT pr.player_id FROM temple_friends f JOIN temple_profiles pr ON pr.user_id = f.user_id
         WHERE f.friend_id = $1 AND f.status = 'pending' ORDER BY f.created_at ASC LIMIT 3`,

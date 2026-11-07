@@ -362,6 +362,10 @@ test(
       assert.equal((await post('/api/temple/group/join', { code: 'ZZZZZZ' }, stranger.cookie)).status, 404);
 
       // --- Quà cầu may ----------------------------------------------------------
+      // Thưởng mở quà nay cộng ngay lúc quà tới tay (social.ts:sendGreeting), nên phép
+      // đo là ví người *nhận* đổi ra sao quanh một cú gửi — không còn lượt bấm ở đầu kia.
+      const purse = async (c: string) => ((await get('/api/temple/state', c)).json.state as Json);
+      const giftBefore = await purse(nothing.cookie);
       const sent = (await post('/api/temple/greetings', { id: nothing.me.id, kind: 'huong', text: 'Gửi bạn lá bùa' }, me.cookie)).json;
       assert.equal(sent.gained, 10);
       // Quà cầu may phải nằm trong khoảng số nguyên
@@ -371,9 +375,13 @@ test(
       const box = (await get('/api/temple/greetings', nothing.cookie)).json.rows as Json[];
       assert.equal(box.length, 1);
       assert.equal(box[0].from.id, me.me.id, 'the inbox shows who sent it');
-      const opened = (await post(`/api/temple/greetings/${box[0].id}/open`, {}, nothing.cookie)).json;
-      assert.equal(opened.gained, 5);
-      assert.equal((await post(`/api/temple/greetings/${box[0].id}/open`, {}, nothing.cookie)).status, 404, 'one open per gift');
+      assert.equal('seen' in box[0], false, 'and the log reports no read/unread state — there is nothing left to open');
+      const giftAfter = await purse(nothing.cookie);
+      assert.equal(Number(giftAfter.exp) - Number(giftBefore.exp), 5, 'the +5 Điểm May the open button used to pay is in the wallet at arrival');
+      assert.equal(Number(giftAfter.sen) - Number(giftBefore.sen), 7, 'and +7 Tinh Hoa: the 5 the gift pays plus 2 from the 0.4 ratio on those points');
+      assert.equal((await post(`/api/temple/greetings/${box[0].id}/open`, {}, nothing.cookie)).status, 404, 'the open route is gone');
+      const stamped = await pool.query<{ seen_at: Date | null }>('SELECT seen_at FROM temple_greetings WHERE id = $1', [box[0].id]);
+      assert.ok(stamped.rows[0]?.seen_at, 'the row is born already granted, so no gift can wait unopened');
 
       // --- Khách chỉ cầu may -----------------------------------------------------
       // Một hàng khách mang email giả, nên bất kỳ dấu vết công khai nào cũng nhân danh
@@ -411,14 +419,16 @@ test(
       for (const path of ['/friends', '/dms', '/group', '/greetings']) {
         assert.equal((await get(`/api/temple${path}`, visitor.cookie)).status, 200, `GET ${path} stays open`);
       }
-      // Quà thì khách vẫn nhận và mở được — chặn đầu nhận mới là cắt mất phần thưởng.
-      // Người gửi là `nothing`: `me` vừa gửi một quà ở blok trên và nhịp /greetings
-      // còn đang cooldown.
+      // Quà thì khách vẫn nhận được, phần thưởng vẫn vào ví — chặn đầu nhận mới là cắt
+      // mất phần thưởng. Người gửi là `nothing`: `me` vừa gửi một quà ở blok trên và nhịp
+      // /greetings còn đang cooldown.
+      const guestBefore = await purse(visitor.cookie);
       const toGuest = (await post('/api/temple/greetings', { id: visitor.me.id, kind: 'huong', text: 'Gửi lữ khách' }, nothing.cookie)).json;
       assert.equal(toGuest.gained, 10);
       const guestBox = (await get('/api/temple/greetings', visitor.cookie)).json.rows as Json[];
       assert.equal(guestBox.length, 1);
-      assert.equal((await post(`/api/temple/greetings/${guestBox[0].id}/open`, {}, visitor.cookie)).status, 200, 'a guest can open a gift');
+      const guestAfter = await purse(visitor.cookie);
+      assert.equal(Number(guestAfter.exp) - Number(guestBefore.exp), 5, 'a guest is paid for the gift at arrival, with no click to make');
 
       // Đăng ký nâng cấp đúng hàng khách đó (accounts.ts:promoteGuest), nên số liệu
       // đang có không mất — đây là lời hứa "thử trước, giữ sau" của màn chờ.

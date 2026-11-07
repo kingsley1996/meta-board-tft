@@ -572,6 +572,7 @@
 #temple-root .seg button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
 #temple-root .comm-bar .btn { flex: none; }
 
+#temple-root .wish-note { margin: 0 2px 10px; }
 #temple-root .wish-card { display: flex; gap: 12px; align-items: flex-start; padding: 12px; margin-bottom: 10px; border-radius: 18px; background: #fff; box-shadow: 0 2px 10px rgba(80,50,20,.07); border: 1px solid #f1e5cf; animation: up .3s ease-out both; }
 #temple-root .wish-card.mine { background: linear-gradient(180deg, #fffaf0, #fff); border-color: #f2d48f; }
 #temple-root .wish-lamp { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #b4520f; background: radial-gradient(circle at 50% 40%, #ffe6a8, #ffb867 60%, #f08a3a); box-shadow: 0 0 14px rgba(255,160,70,.55); }

@@ -27,7 +27,7 @@ export type Group = {
 };
 
 type FriendList = { friends: PublicPlayer[]; incoming: PublicPlayer[]; outgoing: PublicPlayer[] };
-type Greeting = { id: number; from: PublicPlayer | null; kind: string; text: string; gift_sen: number; seen: boolean; at: string };
+type Greeting = { id: number; from: PublicPlayer | null; kind: string; text: string; gift_sen: number; at: string };
 
 const EMPTY_FRIENDS: FriendList = { friends: [], incoming: [], outgoing: [] };
 
@@ -502,15 +502,13 @@ export function FriendsSheet({ s, notice, tab0, onClose }: { s: Store; notice: N
     </div>
   );
 
-  const unopened = gifts.filter((g) => !g.seen).length;
-
   return (
     <Sheet
       title="Đồng đội"
       onClose={onClose}
       tabs={[
         { id: 'friends', label: `Bạn (${list.friends.length})` },
-        { id: 'gifts', label: unopened ? `Quà tặng · ${unopened}` : 'Quà tặng' },
+        { id: 'gifts', label: `Quà tặng (${gifts.length})` },
       ]}
       tab={tab}
       onTab={setTab}
@@ -579,6 +577,7 @@ export function FriendsSheet({ s, notice, tab0, onClose }: { s: Store; notice: N
       {tab === 'gifts' ? (
         <div className="comm">
           <div className="region">Quà tặng nhận được</div>
+          <p className="muted wish-note">Đã vào ví khi quà tới — mỗi lời chúc +5 Điểm May, +7 Tinh Hoa.</p>
           {gifts.map((g) => (
             <div className="wish-card" key={g.id}>
               <div className="wish-lamp">
@@ -587,7 +586,6 @@ export function FriendsSheet({ s, notice, tab0, onClose }: { s: Store; notice: N
               <div className="wish-main">
                 <div className="wish-top">
                   <b>{g.from?.name ?? 'Một người chơi'}</b>
-                  {g.seen ? <span className="tag">Đã mở</span> : <span className="tag gold">Mới</span>}
                 </div>
                 <p className="wish-text">{g.text ? `“${g.text}”` : g.kind === 'huong' ? 'Gửi bạn một Bùa May Mắn' : 'Gửi bạn một lời chúc'}</p>
                 <div className="wish-meta">
@@ -595,23 +593,6 @@ export function FriendsSheet({ s, notice, tab0, onClose }: { s: Store; notice: N
                   {g.gift_sen ? ` · ${fmt(g.gift_sen)} Tinh Hoa` : ''}
                 </div>
               </div>
-              {g.seen ? null : (
-                <button
-                  className="btn small gold"
-                  onClick={async () => {
-                    try {
-                      const r = await post<Gain & { from: PublicPlayer; gift_sen: number }>(`/greetings/${g.id}/open`);
-                      s.apply(r);
-                      Sound.spark();
-                      await load();
-                    } catch (e) {
-                      s.toast((e as Error).message);
-                    }
-                  }}
-                >
-                  Mở quà
-                </button>
-              )}
             </div>
           ))}
           {!gifts.length ? (

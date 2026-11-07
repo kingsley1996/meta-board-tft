@@ -147,11 +147,18 @@ CREATE TABLE IF NOT EXISTS temple_greetings (
   kind text NOT NULL CHECK (kind IN ('huong', 'chuc')),
   text text NOT NULL DEFAULT '',
   gift_sen integer NOT NULL DEFAULT 0 CHECK (gift_sen >= 0),
+  -- "đã ghi sổ" chứ không còn là "người nhận đã bấm mở": thưởng mở quà nay cộng ngay
+  -- lúc quà tới (social.ts:sendGreeting), nên hàng mới sinh đã có dấu này.
   seen_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   CHECK (char_length(text) <= 120)
 );
 CREATE INDEX IF NOT EXISTS temple_greetings_inbox_idx ON temple_greetings (to_user, seen_at, created_at DESC);
+
+-- Hàng cũ chưa bấm mở: đóng dấu cho đúng nghĩa mới của cột. **Không hồi tố phần thưởng**
+-- — 496 hàng chưa mở trên dev nhân mỗi 5 Điểm May là +2.480 điểm, đủ kéo người ta mấy
+-- bậc từ một đống chữ bot gửi mà trước giờ không ai bấm nổi (hộp thư chỉ đọc 60 hàng).
+UPDATE temple_greetings SET seen_at = now() WHERE seen_at IS NULL;
 
 CREATE TABLE IF NOT EXISTS temple_friends (
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,

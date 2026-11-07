@@ -43,7 +43,7 @@ phá quyết định đó.
 | Dâng bùa / nến / đóa sao | 10 / 5 / 8 | `practice.ts:30-34,88-107` | trừ đồ trong cùng UPDATE (`merit.ts:218-229`); bùa mở buff ×1.2 / 10 phút |
 | Quẻ đội hình | 15 | `merit.ts:40`, `hall.ts:130-148` | 1 lần/ngày (PK `temple_draws`) |
 | Tùy hỷ | `ceil(amount/10)` | `hall.ts:86` | theo số donate |
-| Gửi lời chúc / mở quà | 10 / 5 | `social.ts:278,307` | chúc cooldown 3s |
+| Gửi lời chúc + quà tới tay | 10 / 5 | `social.ts:326,323` | chúc cooldown 3s. Phần thưởng đầu nhận (2026-11-07) **cộng lúc quà tới**, không còn nút mở: dev đo được 496 hàng `chuc` chưa mở trong khi hộp thư chỉ đọc 60 hàng (`social.ts:240` `LIMIT 60`), nên số lớn quà không với tới được. |
 | Buff lá bùa | ×1.2 | `merit.ts:53-56` | hết hạn theo `buff_until` |
 
 Vòng quay Hex **không** cộng exp (`hall.ts:98-122`) — chỉ sen/ngoc/đồ.
