@@ -101,7 +101,7 @@ export function levelFromExp(exp: number): LadderRung {
 // Số bậc của thang — HUD vẽ đúng bấy nhiêu lựa chọn trong ô đặt bậc của admin.
 export const LADDER_SIZE = MILESTONES.length;
 
-// Ngược của levelFromExp: bậc -> mốc Điểm May của chính nó. Admin đặt bậc là đặt exp
+// Ngược của levelFromExp: bậc -> mốc Điểm May Mắn của chính nó. Admin đặt bậc là đặt exp
 // về mốc đó, nên không bao giờ có hồ sơ mà `level` và `exp` cãi nhau.
 export function expForLevel(level: number): number | null {
   return level >= 1 && level <= MILESTONES.length ? MILESTONES[level - 1]! : null;

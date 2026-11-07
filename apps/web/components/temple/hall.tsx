@@ -1,4 +1,4 @@
-// Những tấm sheet của sảnh đền: bảng xếp hạng, bảng đồng hành, túi đồ, cẩm nang lối
+// Những tấm sheet của sảnh đền: bảng xếp hạng, bảng tri ân, túi đồ, cẩm nang lối
 // chơi, cài đặt.
 //
 // Lớp CSS và cây DOM giữ theo bản gốc (rank-row/podium/wish-card/card/setting…), chỉ
@@ -26,7 +26,7 @@ const SCOPES = [
   { id: 'all', label: 'Tất cả' },
 ];
 
-// ---- Bảng xếp hạng ------------------------------------------------------------
+// ---- Bảng xếp hạng ----------------------------------------------------------
 
 export function RankSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   const [scope, setScope] = useState('week');
@@ -43,8 +43,8 @@ export function RankSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   const podium = board?.rows.slice(0, 3) ?? [];
 
   return (
-    <Sheet title="BXH Cầu May" onClose={onClose} tabs={SCOPES} tab={scope} onTab={setScope}>
-      <p className="muted">Bảng chuyên cần theo Điểm May Mắn, không phải thứ hạng xếp hạng đơn.</p>
+    <Sheet title="Bảng Xếp Hạng" onClose={onClose} tabs={SCOPES} tab={scope} onTab={setScope}>
+      <p className="muted">Đếm Điểm May Mắn hành trì trong khoảng đang xem, không phải hạng xếp hạng đơn.</p>
       <div className="region">Nhà lữ hành</div>
       {!board ? (
         <div className="empty">Đang mở bảng…</div>
@@ -114,7 +114,7 @@ export function RankSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   );
 }
 
-// ---- Bia tri ân --------------------------------------------------------------
+// ---- Bảng tri ân --------------------------------------------------------------
 
 const DONATE_CHIPS = [50, 100, 200, 500];
 
@@ -129,7 +129,7 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
       const [st, dn] = await Promise.all([get<{ rows: SteleRow[] }>('/stele'), get<{ rows: Donation[] }>('/donations')]);
       setRows(st.rows);
       setList(dn.rows);
-      s.engine?.stele(st.rows);
+      s.engine?.meritPlaque(st.rows);
     } catch (e) {
       s.toast((e as Error).message);
     }
@@ -153,7 +153,7 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
   };
 
   return (
-    <Sheet title="Bảng đồng hành" onClose={onClose}>
+    <Sheet title="Bảng Tri Ân" onClose={onClose}>
       <div className="comm">
         <div className="comm-hero">
           <div className="hero-glow" />
@@ -163,11 +163,11 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
           <div className="hero-body">
             <b>Chia sẻ Tinh Hoa</b>
             <p>Tinh Hoa là điểm nội bộ kiếm từ cầu may, không nạp bằng tiền thật</p>
-            <small>Tên bạn hiện trên bảng đồng hành theo số Tinh Hoa đã gửi.</small>
+            <small>Tên bạn được khắc trên bảng theo số Tinh Hoa đã đóng góp.</small>
           </div>
         </div>
         {s.guest ? (
-          <GuestGate s={s} what="Bảng đồng hành" />
+          <GuestGate s={s} what="Bảng Tri Ân" />
         ) : (
           <>
             <div className="chips">
@@ -188,9 +188,9 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
             </p>
           </>
         )}
-        <div className="region">Bảng đồng hành</div>
+        <div className="region">Ghi danh đóng góp</div>
         {rows.map((r, i) => (
-          <div className="rank-row" key={r.name}>
+          <div className="rank-row" key={`${i}-${r.name}`}>
             <span className="no">
               <i className={`medal m${Math.min(3, i + 1)}`}>{i + 1}</i>
             </span>
@@ -203,7 +203,7 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
             <span className="sc">{fmt(r.score)}</span>
           </div>
         ))}
-        {!rows.length ? <div className="empty">Chưa ai gửi. Hãy là người đầu tiên hiện tên trên bảng.</div> : null}
+        {!rows.length ? <div className="empty">Chưa ai đóng góp. Hãy là người đầu tiên hiện tên trên bảng.</div> : null}
         <div className="region">Lời nhắn gần đây</div>
         {list.map((d, i) => (
           <div className="dn-row" key={i}>
@@ -298,7 +298,7 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
               <b>
                 {st.title} · Bậc {st.level}
               </b>
-              <span className="muted">{fmt(st.exp)} Điểm May</span>
+              <span className="muted">{fmt(st.exp)} Điểm May Mắn</span>
             </div>
             <span className="xp pf-xp">
               <i style={{ width: `${pct}%` }} />
@@ -306,7 +306,7 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
             <small className="muted">
               {atTop
                 ? 'Đỉnh thang rồi — không còn bậc nào phía trên.'
-                : `Còn ${fmt(toNext)} Điểm May tới Bậc ${st.level + 1}${st.level + 1 === LADDER_TOP ? ' · Đỉnh Như Ý' : ''}.`}
+                : `Còn ${fmt(toNext)} Điểm May Mắn tới Bậc ${st.level + 1}${st.level + 1 === LADDER_TOP ? ' · Đỉnh Như Ý' : ''}.`}
             </small>
           </div>
         </div>

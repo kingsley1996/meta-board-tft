@@ -413,7 +413,7 @@ export function buildTemple(scene, theme, quality = 'high') {
   // thảm lót dưới bồ đoàn gộp thành một khối → 1 lượt vẽ cho cả chánh điện
   if (matGeos.length) { g.add(mk(mergeGeometries(matGeos), matM, 0, 0, 0, { cast: false })); matGeos.forEach((x) => x.dispose()); }
 
-  /* ---------- bia Bảng vàng tinh tấn ---------- */
+  /* ---------- bia xếp hạng: Điểm May Mắn hành trì, đối xứng với bảng tri ân ---------- */
   const steleCanvas = document.createElement('canvas');
   steleCanvas.width = 512; steleCanvas.height = 768;
   const steleTex = new THREE.CanvasTexture(steleCanvas);
@@ -443,8 +443,8 @@ export function buildTemple(scene, theme, quality = 'high') {
     c.strokeStyle = '#d9a645'; c.lineWidth = 10; c.strokeRect(14, 14, w - 28, h - 28);
     c.lineWidth = 2; c.strokeRect(30, 30, w - 60, h - 60);
     c.fillStyle = '#f6d27e'; c.textAlign = 'center';
-    c.font = '700 44px Georgia, serif'; c.fillText('BẢNG VÀNG', w / 2, 100);
-    c.font = '600 30px Georgia, serif'; c.fillText('TINH TẤN TUẦN NÀY', w / 2, 146);
+    c.font = '700 40px Georgia, serif'; c.fillText('BẢNG XẾP HẠNG', w / 2, 100);
+    c.font = '600 30px Georgia, serif'; c.fillText('ĐIỂM MAY MẮN TUẦN NÀY', w / 2, 146);
     c.font = '400 22px Georgia, serif'; c.fillStyle = '#c9a76a'; c.fillText(subtitle, w / 2, 182);
     c.fillStyle = '#d9a645'; c.fillRect(120, 204, w - 240, 2);
     if (!rows.length) { c.fillStyle = '#c9a76a'; c.font = 'italic 26px Georgia, serif'; c.fillText('Chưa có ai ghi danh.', w / 2, 330); c.fillText('Hãy là người đầu tiên!', w / 2, 370); }
@@ -454,17 +454,17 @@ export function buildTemple(scene, theme, quality = 'high') {
       c.beginPath(); c.arc(76, y - 4, 22, 0, Math.PI * 2); c.fillStyle = mc; c.fill();
       c.textAlign = 'center'; c.font = '700 24px Georgia, serif'; c.fillStyle = i < 3 ? '#3a2205' : '#f3e2bc'; c.fillText(String(i + 1), 76, y + 4);
       c.textAlign = 'left';
-      c.font = `${i === 0 ? 700 : 600} ${i === 0 ? 34 : 30}px Georgia, serif`; c.fillStyle = i === 0 ? '#ffe08a' : '#f3e2bc';
-      let name = r.name; while (c.measureText(name).width > 260 && name.length > 3) name = name.slice(0, -2) + '…';
+      c.font = `${i === 0 ? 700 : 600} ${i === 0 ? 28 : 24}px Georgia, serif`; c.fillStyle = i === 0 ? '#ffe08a' : '#f3e2bc';
+      let name = r.name; while (c.measureText(name).width > 252 && name.length > 3) name = name.slice(0, -2) + '…';
       c.fillText(name, 116, y);
-      c.font = '20px Georgia, serif'; c.fillStyle = '#c9a76a'; c.fillText(r.title || '', 116, y + 30);
-      c.textAlign = 'right'; c.font = '600 26px Georgia, serif'; c.fillStyle = '#f6d27e'; c.fillText(String(r.score), w - 54, y + 8);
+      c.font = '19px Georgia, serif'; c.fillStyle = '#c9a76a'; c.fillText(r.title || '', 116, y + 27);
+      c.textAlign = 'right'; c.font = '600 25px Georgia, serif'; c.fillStyle = '#f6d27e'; c.fillText(String(r.score), w - 54, y + 6);
     });
     steleTex.needsUpdate = true;
   }
   drawStele();
 
-  /* ---------- bia công đức: đối xứng với Bảng vàng, ghi danh người tuỳ hỷ, chạm để mở Ủng hộ ---------- */
+  /* ---------- bảng tri ân: đối xứng với Bảng xếp hạng, ghi danh người đóng góp, chạm để mở Bảng Tri Ân ---------- */
   const meritCanvas = document.createElement('canvas');
   meritCanvas.width = 512; meritCanvas.height = 768;
   const meritTex = new THREE.CanvasTexture(meritCanvas);
@@ -479,25 +479,30 @@ export function buildTemple(scene, theme, quality = 'high') {
   // không thêm đèn riêng cho bia này (đỡ nặng máy), tự sáng mạnh hơn để vẫn đọc được
   merit.add(mk(new THREE.PlaneGeometry(2.25, 3.35), new THREE.MeshStandardMaterial({ map: meritTex, roughness: 0.6, emissive: '#ffffff', emissiveMap: meritTex, emissiveIntensity: 0.6 }), 0, 2.95, 0.17, { cast: false }));
   g.add(merit);
-  function drawMerit(rows = []) {
+  function drawMerit(rows = [], subtitle = '') {
     const c = meritCanvas.getContext('2d'), w = 512, h = 768;
     const bg = c.createLinearGradient(0, 0, 0, h); bg.addColorStop(0, '#4a1f16'); bg.addColorStop(1, '#23100b');
     c.fillStyle = bg; c.fillRect(0, 0, w, h);
     c.strokeStyle = '#d9a645'; c.lineWidth = 10; c.strokeRect(14, 14, w - 28, h - 28);
     c.lineWidth = 2; c.strokeRect(30, 30, w - 60, h - 60);
     c.fillStyle = '#f6d27e'; c.textAlign = 'center';
-    c.font = '700 44px Georgia, serif'; c.fillText('BIA CÔNG ĐỨC', w / 2, 100);
-    c.font = '400 24px Georgia, serif'; c.fillStyle = '#c9a76a'; c.fillText('Tuỳ hỷ những tấm lòng ủng hộ', w / 2, 146);
-    c.fillStyle = '#d9a645'; c.fillRect(120, 170, w - 240, 2);
-    if (!rows.length) { c.fillStyle = '#c9a76a'; c.font = 'italic 26px Georgia, serif'; c.fillText('Chưa có ai ghi danh.', w / 2, 330); c.fillText('Xin tuỳ hỷ cùng chúng con!', w / 2, 370); }
+    c.font = '700 44px Georgia, serif'; c.fillText('BẢNG TRI ÂN', w / 2, 100);
+    c.font = '600 30px Georgia, serif'; c.fillText('TINH HOA ĐÓNG GÓP', w / 2, 146);
+    c.font = '400 22px Georgia, serif'; c.fillStyle = '#c9a76a'; c.fillText(subtitle, w / 2, 182);
+    c.fillStyle = '#d9a645'; c.fillRect(120, 204, w - 240, 2);
+    if (!rows.length) { c.fillStyle = '#c9a76a'; c.font = 'italic 26px Georgia, serif'; c.fillText('Chưa có ai ghi danh.', w / 2, 330); c.fillText('Mời bạn gửi tấm lòng!', w / 2, 370); }
     rows.slice(0, 9).forEach((r, i) => {
-      c.font = `600 ${i === 0 ? 34 : 30}px Georgia, serif`; c.fillStyle = i === 0 ? '#ffe08a' : '#f3e2bc';
-      let name = r.name; while (c.measureText(name).width > 400 && name.length > 3) name = name.slice(0, -2) + '…';
-      c.fillText(name, w / 2, 222 + i * 47);
+      const y = 240 + i * 47;
+      c.textAlign = 'left';
+      c.font = `${i === 0 ? 700 : 500} ${i === 0 ? 30 : 26}px Georgia, serif`; c.fillStyle = i === 0 ? '#ffe08a' : '#f3e2bc';
+      let name = r.name; while (c.measureText(name).width > 290 && name.length > 3) name = name.slice(0, -2) + '…';
+      c.fillText(name, 58, y);
+      c.textAlign = 'right'; c.font = '600 24px Georgia, serif'; c.fillStyle = '#f6d27e'; c.fillText(String(r.score), w - 54, y);
     });
+    c.textAlign = 'center';
     c.fillStyle = '#d9a645'; c.fillRect(120, 650, w - 240, 2);
-    c.font = '600 25px Georgia, serif'; c.fillStyle = '#ffe08a'; c.fillText('Chạm vào bia để tuỳ hỷ', w / 2, 690);
-    c.font = '400 20px Georgia, serif'; c.fillStyle = '#c9a76a'; c.fillText('ủng hộ Niệm Phật Online', w / 2, 722);
+    c.font = '600 25px Georgia, serif'; c.fillStyle = '#ffe08a'; c.fillText('Chạm vào bảng để gửi tấm lòng', w / 2, 690);
+    c.font = '400 20px Georgia, serif'; c.fillStyle = '#c9a76a'; c.fillText(subtitle ? `ủng hộ ${subtitle}` : 'ủng hộ đền', w / 2, 722);
     meritTex.needsUpdate = true;
   }
   drawMerit();

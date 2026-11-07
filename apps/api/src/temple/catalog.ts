@@ -94,7 +94,7 @@ export const DUYEN_POOL: CatalogItem[] = CATALOG.filter(isDuyen);
 //     cánh cổng bản gốc đã đi.
 //
 // Ra: 4 món nền 100, chuỗi/bồ đoàn 550, áo/mũ 680, gậy 700, bí kiếp 950, mây 900 —
-// tổng chiếu 10.630 Sen. Ở nhịp chăm trung bình của roster bot (218 Điểm May mỗi
+// tổng chiếu 10.630 Sen. Ở nhịp chăm trung bình của roster bot (218 Điểm May Mắn mỗi
 // ngày => ~109 Sen/day) thì sạch chiếu mất khoảng ba tháng, tức là một cái đích để
 // đeo đuổi chứ không phải thứ mua được bằng hai cú quay.
 const SEN_PER_NGOC = 2.5;

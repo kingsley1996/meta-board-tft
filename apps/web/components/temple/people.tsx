@@ -577,7 +577,7 @@ export function FriendsSheet({ s, notice, tab0, onClose }: { s: Store; notice: N
       {tab === 'gifts' ? (
         <div className="comm">
           <div className="region">Quà tặng nhận được</div>
-          <p className="muted wish-note">Đã vào ví khi quà tới — mỗi lời chúc +5 Điểm May, +7 Tinh Hoa.</p>
+          <p className="muted wish-note">Đã vào ví khi quà tới — mỗi lời chúc +5 Điểm May Mắn, +7 Tinh Hoa.</p>
           {gifts.map((g) => (
             <div className="wish-card" key={g.id}>
               <div className="wish-lamp">

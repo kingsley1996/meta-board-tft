@@ -128,7 +128,7 @@ type WorldSlice = {
   isInside: (x: number, z: number) => boolean;
   walkable: (x: number, z: number, curY?: number) => number | null;
   emitContext: () => void;
-  temple: { setStele: (rows: unknown[], subtitle?: string) => void; setMerit: (rows: unknown[]) => void; addIncense: () => void; brightenCandles: () => void; offerFlowers: () => void };
+  temple: { setStele: (rows: unknown[], subtitle?: string) => void; setMerit: (rows: unknown[], subtitle?: string) => void; addIncense: () => void; brightenCandles: () => void; offerFlowers: () => void };
   onBow?: () => void;
   onContext?: (ctx: EngineCtx) => void;
   onToast?: (html: string) => void;
@@ -178,7 +178,7 @@ export class TempleEngine {
     world.onHermit = () => this.h.onNpc('hermit');
     world.onTell = (i) => this.h.onNpc('teller', i);
     world.onPlayerTap = (id) => this.h.onPlayerTap(id);
-    // Bia công đức mở trễ một nhịp: cú chạm vừa rồi mà đóng sheet ngay thì người chơi
+    // Bảng tri ân mở trễ một nhịp: cú chạm vừa rồi mà đóng sheet ngay thì người chơi
     // tưởng bấm không ăn (main.js:1183).
     world.onMerit = () => window.setTimeout(() => this.h.onMerit(), 350);
     world.abbotInfo = () => ({ name: ABBOT });
@@ -336,12 +336,14 @@ export class TempleEngine {
     else t.offerFlowers();
   }
 
-  stele(rows: { name: string; title: string; score: number }[]): void {
+  // Hai tấm bia khắc tên ngay trong chánh điện: trái = Điểm May Mắn hành trì, phải =
+  // Tinh Hoa đóng góp. Sảnh gọi cả hai lúc dựng cảnh, không chờ ai mở sheet.
+  rankPlaque(rows: { name: string; title: string; score: number }[]): void {
     this.world?.temple.setStele(rows, TEMPLE.name);
   }
 
-  meritBoard(rows: { name: string }[]): void {
-    this.world?.temple.setMerit(rows);
+  meritPlaque(rows: { name: string; title: string; score: number }[]): void {
+    this.world?.temple.setMerit(rows, TEMPLE.name);
   }
 
   start(): void {

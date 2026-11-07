@@ -37,7 +37,7 @@ const SIGNS: Record<string, string> = { bua: 'keo', keo: 'bao', bao: 'bua' };
 // người thua cần lý do ở lại trận sau hơn là cần thêm một cái thua.
 const REWARD = { win: 40, lose: 12, draw: 20 };
 
-// Trần Điểm May từ tỷ thí trong một ngày (theo danh nghĩa phần thưởng, chưa nhân bùa):
+// Trần Điểm May Mắn từ tỷ thí trong một ngày (theo danh nghĩa phần thưởng, chưa nhân bùa):
 // ba ván thắng. Qua trần thì vẫn mời, vẫn đánh, vẫn thấy kết quả — chỉ là ví không dày
 // thêm. Ghi sổ ở temple_practice.game_exp, cùng một hàng với các nhịp cầu may khác.
 const SEN_CAP_DAY = 120;

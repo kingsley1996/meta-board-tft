@@ -330,7 +330,7 @@ test(
       const dead = board.history.find((m: Json) => m.id === stale);
       assert.equal(dead.reason, 'expired', 'and it is filed as expired, not silently dropped');
 
-      // ---- Trần Điểm May tỷ thí trong ngày ---------------------------------------------
+      // ---- Trần Điểm May Mắn tỷ thí trong ngày ---------------------------------------------
       // Ghi sổ như thể hai người đã ăn gần hết trần: 110/120. Ván đáng ra 40 (thắng) hoặc
       // 12 (thua) nhưng phần còn lại của ngày chỉ 10, nên cả hai bên đều chỉ nhận 10.
       const m5 = await seedMatch('dice', A, B, 'live');

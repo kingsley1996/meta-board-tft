@@ -224,19 +224,33 @@ test(
       const broke = await post('/api/temple/use', { item: 'huong_tram' }, nothing.cookie);
       assert.equal(broke.status, 409, 'an empty bag is not an offering');
 
-      // --- Bảng đồng hành: trả bằng Tinh Hoa nội bộ ----------------------------
+      // --- Bảng tri ân: trả bằng Tinh Hoa nội bộ -------------------------------
       const before = (await get('/api/temple/state', me.cookie)).json.state.sen as number;
       const gave = (await post('/api/temple/donations', { amount: 120, note: 'Gửi lời chúc sảnh' }, me.cookie)).json;
       assert.equal(gave.state.sen, before - 120 + Math.ceil(gave.gained * 0.4), 'the offering pays Sen only through the merit ratio');
       assert.equal((await post('/api/temple/donations', { amount: 100_000 }, nothing.cookie)).status, 409, 'Sen cannot go negative');
       assert.equal((await post('/api/temple/donations', { amount: 9_999_999 }, me.cookie)).status, 400, 'and a gift that large is not a gift');
-      const stele = (await get('/api/temple/stele', me.cookie)).json.rows as Json[];
-      assert.equal(stele[0].score, 120);
-      // temple.js:439 khắc name/title/score lên bia, nên title phải là danh hiệu theo
-      // bậc của chính người cúng, không phải honor và cũng không phải rỗng.
+      // Tìm dòng theo tên chứ không lấy hàng đầu: /stele đọc cả DB nên một người cúng
+      // nhiều hơn (account thật đang chơi trên dev) sẽ chiếm chỗ số 1.
+      const mine = ((await get('/api/temple/stele', me.cookie)).json.rows as Json[]).find((r) => r.name === 'Lữ Khách Một');
+      assert.equal(mine?.score, 120);
+      // temple.js khắc name/title/score lên bia, nên title phải là danh hiệu theo bậc của
+      // chính người đóng góp, không phải honor và cũng không phải rỗng.
       const donorTitle = (await get('/api/temple/state', me.cookie)).json.state.title as string;
-      assert.equal(stele[0].title, donorTitle);
-      assert.equal(((await get('/api/temple/donations', me.cookie)).json.rows as Json[])[0].note, 'Gửi lời chúc sảnh');
+      assert.equal(mine?.title, donorTitle);
+      assert.ok(((await get('/api/temple/donations', me.cookie)).json.rows as Json[]).some((r) => r.note === 'Gửi lời chúc sảnh'));
+
+      // Hai tài khoản trùng tên hiển thị là hai dòng bia, không phải một dòng cộng dồn.
+      // Gộp theo GROUP BY p.name từng đúc 9 người cùng tên trên dev thành một dòng.
+      const twin = await newUser('Lữ Khách Một');
+      await post('/api/temple/donations', { amount: 200 }, twin.cookie);
+      const twins = ((await get('/api/temple/stele', me.cookie)).json.rows as Json[]).filter((r) => r.name === 'Lữ Khách Một');
+      assert.equal(twins.length, 2, 'same-name donors keep separate lines on the plaque');
+      assert.deepEqual(
+        twins.map((r) => r.score).sort((a, b) => (a as number) - (b as number)),
+        [120, 200],
+        'and each line carries only its own giving',
+      );
 
       // --- Vòng quay và quẻ: một lần mỗi ngày ----------------------------------
       const wheel = (await post('/api/temple/draws/wheel', {}, me.cookie)).json;
@@ -253,7 +267,7 @@ test(
       assert.equal((await get('/api/temple/draws/que', me.cookie)).json.que.rank, que.que.rank);
 
       // --- Lên bậc: Tinh Hoa và Kim Cương cùng rơi xuống ví ---------------------
-      // Ngưỡng bậc 2 là 180 Điểm May (identity.ts:71) nên dịch exp bằng SQL rồi trả
+      // Ngưỡng bậc 2 là 180 Điểm May Mắn (identity.ts:71) nên dịch exp bằng SQL rồi trả
       // một nhịp cầu may thật: phần thưởng phải ra từ addMerit, không từ máy khách.
       const climber = await newUser('Bậc Thang');
       await pool.query('UPDATE temple_profiles SET exp = 170 WHERE user_id = $1', [climber.user]);
@@ -377,7 +391,7 @@ test(
       assert.equal(box[0].from.id, me.me.id, 'the inbox shows who sent it');
       assert.equal('seen' in box[0], false, 'and the log reports no read/unread state — there is nothing left to open');
       const giftAfter = await purse(nothing.cookie);
-      assert.equal(Number(giftAfter.exp) - Number(giftBefore.exp), 5, 'the +5 Điểm May the open button used to pay is in the wallet at arrival');
+      assert.equal(Number(giftAfter.exp) - Number(giftBefore.exp), 5, 'the +5 Điểm May Mắn the open button used to pay is in the wallet at arrival');
       assert.equal(Number(giftAfter.sen) - Number(giftBefore.sen), 7, 'and +7 Tinh Hoa: the 5 the gift pays plus 2 from the 0.4 ratio on those points');
       assert.equal((await post(`/api/temple/greetings/${box[0].id}/open`, {}, nothing.cookie)).status, 404, 'the open route is gone');
       const stamped = await pool.query<{ seen_at: Date | null }>('SELECT seen_at FROM temple_greetings WHERE id = $1', [box[0].id]);

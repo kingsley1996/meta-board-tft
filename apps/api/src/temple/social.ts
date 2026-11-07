@@ -319,7 +319,7 @@ export async function sendGreeting(
   // Phần thưởng mở quà cộng NGAY lúc quà tới tay, không chờ người nhận bấm. Lý do là
   // số đo trên dev: 496 lời chúc chưa mở nằm chờ, trong khi GET /greetings dưới đây chỉ
   // trả 60 hàng mới nhất (`LIMIT 60`) — bấm hết 60 thẻ cũng không với tới phần còn lại,
-  // mỗi thẻ lại chỉ đáng 5 Điểm May. Quà vẫn đúng bằng số từng trả, chỉ đổi chỗ ghi.
+  // mỗi thẻ lại chỉ đáng 5 Điểm May Mắn. Quà vẫn đúng bằng số từng trả, chỉ đổi chỗ ghi.
   await addMerit(other, { exp: 5, sen: 5 });
   // Người nhận phải thấy món quà tới tay ngay, không phải mở bảng "Đồng đội" mà đoán.
   notifyPlayer(id, { t: 'gift', kind, by: me, text: wish, gift_sen: gift });

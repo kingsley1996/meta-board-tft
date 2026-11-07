@@ -162,7 +162,7 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
 | Xỉ quẻ | 4 quẻ Phật | **Quẻ đội hình** | Server trả comp thật + lời đọc từ tips/stages |
 | Vòng quay lộc | Sen/Ngọc/hương/hoa | **Vòng quay Hex** | Thưởng: Tinh Hoa, Kim Cương, bùa, đèn |
 | Vườn Phật | Trồng/hái/đổi quả | **Bỏ** | Ẩn UI + route; giữ bảng dormant |
-| Bia tri ân | Donate nội bộ | **Bảng đồng hành** | Giữ, đổi copy |
+| Bia tri ân | Donate nội bộ | **Bảng Tri Ân** | Giữ, đổi copy |
 | BXH | Điểm tu tập | **BXH cầu may** | Ghi rõ "chuyên cần, không phải rank TFT" |
 | Hồ sơ | Tên, nhân vật, áo tràng | **Nhà lữ hành, trang phục Hex** | Đổi tên/emoji/màu; giữ slot |
 | Túi đồ | Đồ chùa + hạt giống | **Trang bị** | Bỏ tab cây/hạt giống |
@@ -195,7 +195,7 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
 | Xỉ quẻ | Quẻ đội hình |
 | Vòng quay lộc | Vòng quay Hex |
 | Vườn Phật | (bỏ) |
-| Bia tri ân | Bảng đồng hành |
+| Bia tri ân | Bảng Tri Ân |
 | Đồng tu | Đồng đội |
 | Nhóm đồng tu | Tổ đội |
 | Thiền phái | Lối chơi |

@@ -244,13 +244,13 @@ function Duel({
         Sound.spark();
         if (r.outcome === "win") luckyShower(18);
         // Ván vẫn chơi và vẫn phân thắng thua, chỉ cái ví là đứng lại: nói rõ là trần
-        // hôm nay chứ không để "+0 Điểm May" tự nó thành một câu đố.
+        // hôm nay chứ không để "+0 Điểm May Mắn" tự nó thành một câu đố.
         const capped =
           r.cap &&
           r.cap.nominal !== undefined &&
           (r.cap.awarded ?? 0) < r.cap.nominal;
         s.toast(
-          `<svg class="i"><use href="#i-${r.outcome === "win" ? "trophy" : "spark"}"/></svg> ${OUTCOME[r.outcome]} ván ${KIND_NAME[m.kind]} · +${fmt(r.gained ?? 0)} Điểm May${capped ? " · trần hôm nay" : ""}`,
+          `<svg class="i"><use href="#i-${r.outcome === "win" ? "trophy" : "spark"}"/></svg> ${OUTCOME[r.outcome]} ván ${KIND_NAME[m.kind]} · +${fmt(r.gained ?? 0)} Điểm May Mắn${capped ? " · trần hôm nay" : ""}`,
         );
       } else if (r.waiting) {
         s.toast(

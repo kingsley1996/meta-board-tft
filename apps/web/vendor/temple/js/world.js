@@ -859,7 +859,7 @@ export class World {
     // chạm vào bồ đoàn?
     const meshes = this.temple.cushions.map((c) => c.mesh);
     const hitC = this.ray.intersectObjects(meshes, false)[0];
-    // chạm vào bia công đức (nếu không có bồ đoàn nằm gần hơn)
+    // chạm vào bảng tri ân (nếu không có bồ đoàn nằm gần hơn)
     const hitM = this.temple.meritStele && this.ray.intersectObject(this.temple.meritStele, true)[0];
     if (hitM && (!hitC || hitM.distance < hitC.distance)) { this.onMerit?.(); return; }
     let target, cushion = null;

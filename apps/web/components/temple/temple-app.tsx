@@ -26,6 +26,16 @@ type CtxAct = 'talk' | 'tell' | 'door' | 'ride' | 'unride' | 'stand' | 'sit' | '
 
 const DEFAULT_GUEST = 'Nhà lữ hành';
 
+type PlaqueRow = { name: string; title: string; score: number };
+
+// Hai tấm bia khắc ngay trong chánh điện phải mang số thật lúc cảnh dựng xong, không chờ
+// ai mở sheet. Trái = Điểm May Mắn tuần này, phải = Tinh Hoa đóng góp.
+async function paintPlaques(engine: TempleEngine): Promise<void> {
+  const [board, stele] = await Promise.all([get<{ rows: PlaqueRow[] }>('/leaderboard?scope=week'), get<{ rows: PlaqueRow[] }>('/stele')]);
+  engine.rankPlaque(board.rows);
+  engine.meritPlaque(stele.rows);
+}
+
 // Câu chữ trên thẻ thông báo tỷ thí. Thẻ luôn vẽ "<b>tên người vừa hành động</b> + câu
 // này", nên mỗi dòng phải đọc được tiếp sau một cái tên. Phần trăm thắng/thua và tỉ số
 // nói theo mắt người nhận, vì tấm thẻ là của họ.
@@ -496,6 +506,9 @@ export function TempleApp({ lang }: { lang: string }) {
       onReady: () => {
         readyRef.current = true;
         reveal();
+        // Bia chỉ tồn tại sau cú enterTemple bên trong engine.enter, nên số liệu phải đổ
+        // ở đây; gọi lúc attach thì world.temple còn chưa có và bia giữ khắc "trống".
+        void paintPlaques(engine).catch(() => {});
       },
       onBowDone,
       onContext: (ctx) => {
@@ -841,11 +854,11 @@ export function TempleApp({ lang }: { lang: string }) {
           <nav className="side-menu">
             {(
               [
-                ['rank', 'trophy', 'Xếp hạng'],
+                ['rank', 'trophy', 'BXH'],
                 ['community', 'users', 'Cộng đồng'],
                 ['friends', 'user', 'Đồng đội'],
                 ['games', 'dice', 'Tỷ thí'],
-                ['stele', 'medal', 'Bảng đồng hành'],
+                ['stele', 'medal', 'Bảng Tri Ân'],
                 ['profile', 'palette', 'Hồ sơ'],
                 ['shop', 'shop', 'Cửa hàng'],
                 ['bag', 'bag', 'Túi đồ'],

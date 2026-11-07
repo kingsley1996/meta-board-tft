@@ -127,10 +127,10 @@ CREATE TABLE IF NOT EXISTS temple_plants (
 );
 CREATE INDEX IF NOT EXISTS temple_plants_temple_idx ON temple_plants (temple, created_at DESC);
 
--- Bảng đồng hành: mỗi lần dâng một hàng, và bia vàng cộng từ đó.
+-- Bảng tri ân: mỗi lần đóng góp một hàng; điểm khắc trên bia là tổng Tinh Hoa từng người.
 CREATE TABLE IF NOT EXISTS temple_donations (
   id bigserial PRIMARY KEY,
-  user_id uuid REFERENCES users(id) ON DELETE SET NULL,
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   temple text NOT NULL,
   amount integer NOT NULL CHECK (amount > 0),
   note text NOT NULL DEFAULT '',
@@ -138,6 +138,15 @@ CREATE TABLE IF NOT EXISTS temple_donations (
   CHECK (char_length(note) <= 120)
 );
 CREATE INDEX IF NOT EXISTS temple_donations_recent_idx ON temple_donations (created_at DESC);
+-- Bản sao của bảng này ở DB cũ để hàng thành mồ côi: khoá ngoài là SET NULL khi xoá tài
+-- khoản, còn hai tuyến đọc (/stele, /donations) lại INNER JOIN temple_profiles — nên mỗi
+-- lần xoá user là hàng của họ biến mất khỏi bảng mà vẫn nằm trong DB (đo trên dev: 51/52
+-- hàng có user_id NULL). Đổi sang CASCADE như mọi bảng temple khác rồi dọn xác.
+-- Thứ tự bắt buộc: xoá hàng NULL TRƯỚC khi cột thành NOT NULL, nếu không ALTER fail.
+ALTER TABLE temple_donations DROP CONSTRAINT IF EXISTS temple_donations_user_id_fkey;
+DELETE FROM temple_donations WHERE user_id IS NULL;
+ALTER TABLE temple_donations ALTER COLUMN user_id SET NOT NULL;
+ALTER TABLE temple_donations ADD CONSTRAINT temple_donations_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 -- Quà cầu may: bùa/lời chúc gửi cho một người cụ thể, có thể kèm Tinh Hoa.
 CREATE TABLE IF NOT EXISTS temple_greetings (
@@ -156,7 +165,7 @@ CREATE TABLE IF NOT EXISTS temple_greetings (
 CREATE INDEX IF NOT EXISTS temple_greetings_inbox_idx ON temple_greetings (to_user, seen_at, created_at DESC);
 
 -- Hàng cũ chưa bấm mở: đóng dấu cho đúng nghĩa mới của cột. **Không hồi tố phần thưởng**
--- — 496 hàng chưa mở trên dev nhân mỗi 5 Điểm May là +2.480 điểm, đủ kéo người ta mấy
+-- — 496 hàng chưa mở trên dev nhân mỗi 5 Điểm May Mắn là +2.480 điểm, đủ kéo người ta mấy
 -- bậc từ một đống chữ bot gửi mà trước giờ không ai bấm nổi (hộp thư chỉ đọc 60 hàng).
 UPDATE temple_greetings SET seen_at = now() WHERE seen_at IS NULL;
 

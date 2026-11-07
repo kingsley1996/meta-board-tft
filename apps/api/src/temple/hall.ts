@@ -1,4 +1,4 @@
-// Những gì cả sảnh cùng nhìn thấy: bảng đồng hành, vòng quay Hex, quẻ và tin chạy.
+// Những gì cả sảnh cùng nhìn thấy: bảng tri ân, vòng quay Hex, quẻ và tin chạy.
 //
 // Một nơi duy nhất: "multi-temple" đã bị cắt theo đề bài, nên temple không lấy từ
 // máy khách nữa. Column temple vẫn nằm trong schema để dữ liệu cũ không vô nghĩa.
@@ -38,17 +38,19 @@ const WHEEL_SEGMENTS: Segment[] = [
   { label: '100 Kim Cương Quý', pct: 5, ngoc: 100, rare: true },
 ];
 
-// ---- Bảng đồng hành -----------------------------------------------------------
+// ---- Bảng tri ân --------------------------------------------------------------
 
 hallRouter.get('/stele', withUser(async (req, res) => {
   await ensureTempleTables();
-  // temple.js:439 (drawStele) khắc đúng ba chữ name/title/score lên bia, nên đây trả
-  // về title chứ không phải honor như mấy bảng khác.
-  const { rows } = await pool.query<{ name: string; title: string; exp: number; score: number }>(
-    `SELECT p.name, p.title, p.exp, SUM(d.amount)::int AS score
+  // Mỗi người một dòng, điểm là tổng Tinh Hoa đã đóng góp. Gom theo user_id chứ không theo
+  // tên: trên dev có 9 tài khoản khác cùng mang một tên hiển thị, gom theo tên sẽ đúc họ
+  // thành một dòng có điểm cộng dồn của cả chín. Danh hiệu tính từ exp chứ không đọc cột
+  // title — cột đó do máy khách gửi lên và có thể lệch với thang cấp hiện tại.
+  const { rows } = await pool.query<{ name: string; exp: number; score: number }>(
+    `SELECT p.name, p.exp, SUM(d.amount)::int AS score
        FROM temple_donations d
        JOIN temple_profiles p ON p.user_id = d.user_id
-      GROUP BY p.name, p.title, p.exp
+      GROUP BY p.user_id, p.name, p.exp
       ORDER BY score DESC
       LIMIT 12`,
   );
@@ -67,9 +69,9 @@ hallRouter.get('/donations', withUser(async (req, res) => {
   res.json({ rows: rows.map((r) => ({ name: r.name, note: r.note, amount: r.amount, at: r.created_at.toISOString() })) });
 }));
 
-// Tùy hỷ bằng Sen — tiền nội bộ kiếm từ tu tập. Không có cổng thanh toán ở bất kỳ
-// đâu trong module chùa (quyết định economy-lite), nên tuyến này không thể "nạp".
-// Khách bị chặn: hàng temple_donations nhân danh một email giả thì bia đá sẽ khắc tên
+// Gửi Tinh Hoa — tiền nội bộ kiếm từ hành trì. Không có cổng thanh toán ở bất kỳ
+// đâu trong module đền (quyết định economy-lite), nên tuyến này không thể "nạp".
+// Khách bị chặn: hàng temple_donations nhân danh một email giả thì Bảng Tri Ân sẽ khắc tên
 // một người không tồn tại.
 hallRouter.post('/donations', withAccount(async (req, res, user) => {
   await ensureTempleTables();

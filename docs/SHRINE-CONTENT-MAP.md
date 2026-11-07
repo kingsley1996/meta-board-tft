@@ -176,7 +176,7 @@ Số dòng chứa từ vựng cũ (kể comment, để biết chỗ nào phải 
 `showPlants` trong `chores.js`, `grounds.js:53,77` `gardenBlock`, `temple_plants` để dormant), mõ,
 chuông (`bell` trong `practice.ts`), quả + đường đổi quả→Ngọc (`hall.ts:123`), `duc`, đèn (đã bỏ ở
 `e11b660`), đổi `/temple`→`/shrine`.
-**Giữ nguyên:** khung HUD, phòng WS, bạn bè/nhóm/DM, bia tri ân (đổi tên thành Bảng Đồng Hành, bỏ
+**Giữ nguyên:** khung HUD, phòng WS, bạn bè/nhóm/DM, bia tri ân (đổi tên thành Bảng Tri Ân, bỏ
 thông tin ngân hàng), BXH (đổi thành BXH Cầu May + ghi rõ "chuyên cần, không phải rank TFT"), 12
 avatar (tên thì đổi, xem §9), tượng pengu vàng trên bàn thờ.
 
@@ -234,13 +234,13 @@ Không đủ 100 → `409 not_enough_ngoc`. Giá 100 dẫn xuất từ nền kin
 ### 9.2 Hồ sơ: bậc hiện tại + thanh tiến độ
 
 `ProfileSheet` (`apps/web/components/temple/hall.tsx`) có khối `.pf-rank`: ấn danh hiệu
-(`<TitleBadge>`), `title · Bậc N`, số Điểm May và thanh `.pf-xp`. Thanh đo **đoạn đã đi trong bậc**,
+(`<TitleBadge>`), `title · Bậc N`, số Điểm May Mắn và thanh `.pf-xp`. Thanh đo **đoạn đã đi trong bậc**,
 không phải tỉ lệ exp/`exp_next` tuyệt đối — hai bậc có độ dài khác nhau rất nhiều (180 → 350 → 500)
 nên tỉ lệ tuyệt đối nhảy lùi khi vừa lên bậc. Vì vậy `state.ts` gửi thêm `exp_prev = expForLevel(level)`:
 
 ```
 pct   = (exp - exp_prev) / (exp_next - exp_prev)     // expForLevel / exp_next theo ladder.js
-còn   = exp_next - exp                                // "Còn 140 Điểm May tới Bậc 2."
+còn   = exp_next - exp                                // "Còn 140 Điểm May Mắn tới Bậc 2."
 ```
 
 Bậc cao nhất (`LADDER_TOP` = 19) thì thanh đầy và dòng "còn thiếu" biến mất.
