@@ -8,7 +8,7 @@ thực thi**: tên/chuỗi nào thay, thay thành gì, thay ở đâu. Mọi con
 | # | Quyết định | Trạng thái |
 |---|---|---|
 | 1 | Một vòng = **30 hạt** (sửa đủ 10 điểm, xem §7) | ✅ |
-| 2 | Khởi động mặc định **5 phút** | ✅ |
+| 2 | Thiền mặc định **5 phút** (giữ tên tính năng, chốt 2026-11-07) | ✅ |
 | 3 | Tổ đội **8 người** (khớp lobby TFT) | ✅ |
 | 4 | Tên cấp theo hướng **fantasy**, không dùng rank TFT thật (Sắt→Thách Đấu) | ✅ |
 | 5 | **Giữ `/temple`**, không đổi `/shrine` | ✅ |
@@ -134,10 +134,16 @@ Giữ 7 (`lt_nghe`, `lt_su_tu_xanh`, `lt_thanh_long`, `lt_chu_tuoc`, `lt_huyen_v
 ## 5. Glossary + từ cấm
 
 Xem bảng đầy đủ ở `SHRINE-PLAN.md` §5.1. **Từ cấm trong chuỗi hiển thị** (gate kiểm):
-`chùa`, `phật`, `thiền`, `tụng`, `lạy`, `kinh`, `mõ`, `chuông`, `công đức`, `bồ đoàn`, `áo tràng`,
+`chùa`, `phật`, `tụng`, `lạy`, `kinh`, `mõ`, `chuông`, `công đức`, `bồ đoàn`, `áo tràng`,
 `tràng hạt`, `đồng tu`, `đạo hữu`, `trụ trì`, `ẩn sĩ`, `bồ tát`, `cư sĩ`, `niệm`, `hương án`, `lư
 hương`, `vườn`, `hạt giống`, `quẻ bói`, `an di đà phật`, `sen` (chỉ trong chuỗi, **không** quét field
 `price_sen`/`chuoi_*`/biến).
+
+**Ngoại lệ — `thiền` KHÔNG phải từ cấm** (chủ project chốt 2026-11-07): thiền là tính năng được chấp
+nhận giữ lại và hợp lệ của Đền Cầu May. Mọi chuỗi "Thiền định", "Xả thiền", "Bạn đang thiền rồi",
+"thiền ngắn" đều đúng, không đổi, và gate phải bỏ qua chúng. Đã gỡ `thiền` khỏi danh sách trên;
+hàng Thiền trong `SHRINE-PLAN.md` §5/§5.1 giờ đọc là **"Thiền — giữ nguyên"**. Việc đổi **thiền phái
+→ lối chơi** (§3) là chuyện khác và vẫn giữ nguyên kết quả.
 
 Gate: `grep -riE` trên `apps/web/components/temple/*.ts*`, `apps/api/src/temple/*.ts`,
 `apps/web/vendor/temple/data/*.json`, `apps/web/lib/messages.ts` — chỉ so khớp **trong chuỗi đơn/kép

@@ -139,7 +139,7 @@ export function MeditateView({ s }: { s: Store }) {
           <h3>{done.complete ? 'Tròn nhịp' : 'Dừng sớm'}</h3>
           <p>
             Bạn đã thiền {done.minutes} phút
-            <br />+{fmt(done.gained)} điểm may mắn
+            <br />+{fmt(done.gained)} Điểm May Mắn
           </p>
           <p className="muted">{QUOTES[done.minutes % QUOTES.length]}</p>
           <button

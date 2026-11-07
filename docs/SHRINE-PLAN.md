@@ -131,7 +131,7 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
 1. **Mở đền** trước khi queue: HUD hiện patch hiện tại, 3 comp top, trạng thái "hôm nay đã cầu may chưa".
 2. **Rút quẻ đội hình** (1 lần/ngày): server chọn một comp thật từ DB theo lối chơi + tier; thẻ quẻ hiện board unit, items, augment, 2–3 tip, nút "Xem comp đầy đủ".
 3. **Thắp đèn cầu may** (tùy chọn, xem Phase 2b): nhập mục tiêu ngắn, prefill theo comp vừa rút; đèn bay lên sảnh, người khác "tiếp lửa".
-4. **Khởi động**: ngồi 1–5 phút, màn hình xoay tip/comp; tính điểm như thiền hiện tại.
+4. **Thiền** (giữ tên, chủ project chốt 2026-11-07): ngồi 1–5 phút, màn hình xoay tip/comp; tính điểm như hiện tại.
 5. **Đọc meta**: đọc/nghe một bài ngắn từ comp guide hoặc patch notes; có link nguồn.
 6. **Quay Hex**: 1 lượt/ngày, nhận Tinh Hoa/Kim Cương/bùa/đèn.
 7. **Vào trận**: nút "Mang quẻ vào trận" mở trang comp hoặc copy nội dung; không có Riot API.
@@ -157,7 +157,7 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
 | Lạy Phật | 3 lạy | **3 lần Cầu may** | Giữ cơ chế đếm |
 | Tràng hạt 108 | Lần 108 hạt | **Vòng Hex 30 hạt** | Đề xuất 30 cho vừa một phiên trước trận; sửa cả server/client |
 | Tụng kinh + mõ | Kinh Phật, gõ mõ | **Đọc meta** | Nội dung: comp guide/patch; nút "Tiếp", bỏ mõ tự động |
-| Thiền | Thiền | **Khởi động** | Giữ timer, thêm tip xoay vòng |
+| Thiền | Thiền | **Giữ nguyên: Thiền** | Chủ project chốt 2026-11-07: thiền là tính năng hợp lệ của Đền, không đổi tên. Giữ timer, thêm tip xoay vòng |
 | Dâng lễ | Hương/nến/hoa/chuông | **Bùa may mắn / Nến Hex / Đóa sao** | Bỏ chuông; thay animation 3D bằng glow Hex nếu kịp |
 | Xỉ quẻ | 4 quẻ Phật | **Quẻ đội hình** | Server trả comp thật + lời đọc từ tips/stages |
 | Vòng quay lộc | Sen/Ngọc/hương/hoa | **Vòng quay Hex** | Thưởng: Tinh Hoa, Kim Cương, bùa, đèn |
@@ -190,7 +190,7 @@ Phần lớn UI giữ được. Cái cần thay là **copy + nguồn nội dung*
 | Lạy Phật | Cầu may |
 | Tràng hạt | Vòng Hex |
 | Tụng kinh | Đọc meta |
-| Thiền | Khởi động |
+| Thiền | Thiền — **giữ nguyên**, không phải từ cấm (chốt 2026-11-07) |
 | Dâng lễ | Dâng bùa |
 | Xỉ quẻ | Quẻ đội hình |
 | Vòng quay lộc | Vòng quay Hex |
@@ -277,7 +277,7 @@ Lantern hiện đã bị bỏ (commit `e11b660`) vì ngõ cụt duyệt đèn. N
 ### Phase 0 — Chốt nội dung (1–2 ngày)
 
 - Viết `docs/SHRINE-CONTENT-MAP.md`: glossary, danh sách từ cấm, bảng map item/level/style, danh sách giữ/bỏ.
-- Chốt 3 con số: **30 hạt/vòng**, **5 phút khởi động mặc định**, **tổ đội 8 người**.
+- Chốt 3 con số: **30 hạt/vòng**, **5 phút thiền mặc định**, **tổ đội 8 người**.
 - Chốt tên cấp: fantasy (Tân binh → Huyền thoại), không dùng rank TFT thật.
 - Chốt số phận 14 map chùa còn lại: **giữ cả 15, admin chọn một theme** (3.0.1 + Phase 3a), không picker cho user, không tách room. *(đã chốt)*
 - **Chốt 6 điểm 3.0 còn mở:** số hạt (mục 2), `temple_draws` cũ (mục 3), `duc` (mục 5),

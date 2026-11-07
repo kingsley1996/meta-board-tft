@@ -26,17 +26,6 @@ function haloTexture(tier) {
   return (HALO_TEX[tier] = t);
 }
 
-// Pháp danh ngẫu nhiên cho Phật tử ảo
-const PD_A = ['Diệu', 'Minh', 'Tâm', 'Thiện', 'Nhuận', 'Chánh', 'Huệ', 'Thanh', 'Tịnh', 'Phước', 'Đức', 'Nguyên', 'Quảng', 'Từ', 'Hạnh', 'Như', 'Viên', 'An'];
-const PD_B = ['An', 'Hạnh', 'Hiền', 'Liên', 'Ngọc', 'Tâm', 'Từ', 'Quang', 'Huệ', 'Nguyên', 'Tuệ', 'Hòa', 'Lạc', 'Thảo', 'Như', 'Nhàn', 'Châu', 'Hương', 'Trí', 'Đạo', 'Bảo', 'Phúc', 'Giác', 'Duyên', 'Thiện', 'Minh'];
-function phapDanh(used) {
-  for (let k = 0; k < 40; k++) {
-    const a = PD_A[Math.floor(Math.random() * PD_A.length)], b = PD_B[Math.floor(Math.random() * PD_B.length)];
-    const n = `${a} ${b}`;
-    if (a !== b && !used.has(n) && n !== 'Quảng Đức') { used.add(n); return n; }
-  }
-  return 'Phật tử';
-}
 import { labelTex, danhHieuLabelTex, frameReady, fxReady, rand, canvasTex } from './textures.js';
 import { rungOf } from './ladder.js';
 import { drawIcon, emoteColor, EMOTES } from './icons.js';
@@ -53,7 +42,6 @@ function glowTex() {
 const SKINS = ['#f1c7a3', '#e0a67e', '#d98b5f', '#b9734a'];
 const lerpAngle = (a, b, t) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * t;
 
-export { phapDanh };
 const playerLabel = (p) => danhHieuLabelTex(p.name, p.title, p.level);
 // Tên/bậc/khung đổi (hoặc asset vừa nạp xong) thì vẽ lại nhãn; gộp một chỗ để nhãn
 // của mình và của người khác dùng chung phép so. Sprite sét phải chờ đủ bảy tệp vì thiếu
@@ -124,9 +112,9 @@ export class World {
   /* ---------------- chùa ---------------- */
   enterTemple(temple, me, keepPos = false) {
     const prevPos = keepPos && this.player ? this.player.root.position.clone() : null;
-    this.faded?.clear(); this.camOcc = undefined; if (this.ride) { this.ride.cb.cabin.visible = false; this.ride = null; if (this.player) this.player.root.visible = true; }
+    this.faded?.clear(); this.camOcc = undefined;
     if (this.temple) this.temple.dispose();
-    this.npcs.forEach(disposeAvatar); this.npcs = []; this.npcNames = new Set();
+    this.npcs.forEach(disposeAvatar); this.npcs = [];
     if (this.abbot) { disposeAvatar(this.abbot); this.abbot = null; }
     if (this.hermit) { disposeAvatar(this.hermit); this.hermit = null; }
     (this.tellers || []).forEach(disposeAvatar); this.tellers = []; this.tellerJob = null;
@@ -253,9 +241,9 @@ export class World {
     [this.scene.fog.near, this.scene.fog.far] = out ? [400, 2500] : this._fogIn;
   }
 
-  /* ---------------- sư trụ trì ---------------- */
+  /* ---------------- huấn luyện viên ---------------- */
   spawnAbbot(temple) {
-    const info = this.abbotInfo?.(temple) || { name: 'Thầy trụ trì' };
+    const info = this.abbotInfo?.(temple) || { name: 'Huấn luyện viên' };
     const av = makeAvatar({ hero: 'naruto_sage', appearance: { hero: 'naruto_sage', hair: 'troc', skin: '#f5cba7' }, robe: { color: '#c98a2e', sash: '#8a3f14' } });
     setSeated(av, false);
     av.root.scale.setScalar(0.95);
@@ -266,7 +254,7 @@ export class World {
     // avatar nhìn về -z khi rotation = 0 → quay ra phía đại chúng (+z), hơi nghiêng vào giữa
     av.homeRot = Math.atan2(0.4, -1);
     av.root.rotation.y = av.homeRot;
-    const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex(info.name, 'Lục Đạo Trụ Trì · chạm để thưa chuyện', '#ffd36b'), depthWrite: false, transparent: true }));
+    const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex(info.name, 'Huấn luyện viên · chạm để trò chuyện', '#ffd36b'), depthWrite: false, transparent: true }));
     label.scale.set(1.9, 0.48, 1); label.position.y = 2.25;
     av.root.add(label);
     // vầng sáng nhẹ dưới chân để dễ nhận ra
@@ -275,7 +263,7 @@ export class World {
     this.scene.add(av.root);
     this.abbot = av;
   }
-  // Lão hành khất đứng phía đối diện thầy trụ trì
+  // Lão hành khất đứng phía đối diện huấn luyện viên
   spawnHermit(temple) {
     const av = makeAvatar({ hero: 'shanks', appearance: { hero: 'shanks', hair: 'dai', skin: '#c99a78' }, robe: { color: '#7a6a52', sash: '#4a3a28' } });
     setSeated(av, false);
@@ -381,85 +369,6 @@ export class World {
       this.tellers.push(av);
     });
   }
-  /* ---------------- cáp treo (Núi Bà Huyền) ---------------- */
-  nearCable() {
-    const cb = this.od?.cable, p = this.player?.root.position;
-    return !!(cb && p && this.outside && Math.hypot(p.x - cb.station.x, p.z - cb.station.z) < cb.station.r);
-  }
-  rideCable() {
-    const cb = this.od?.cable; if (!cb || this.ride) return;
-    const pts = cb.path, cum = [0];
-    for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + pts[i].distanceTo(pts[i - 1]));
-    this.ride = { cb, pts, cum, L: cum.at(-1), s: 0, phase: cb.tour ? 'tour' : 'up', t: 0, stop: -1, look: new THREE.Vector3().copy(pts[1]) };
-    this.walkTarget = null; this.walkPath = null;
-    this.player.root.visible = false;
-    cb.cabin.visible = true;
-    if (!cb.tour) this.onRide?.('up');
-    this.emitContext();
-  }
-  endRide() {
-    const r = this.ride; if (!r) return;
-    r.cb.cabin.visible = false;
-    this.ride = null;
-    this.player.root.visible = true;
-    this.camOcc = undefined;
-    this.cam.target.set(this.player.root.position.x, (this.groundY || 0) + 1.9, this.player.root.position.z);
-    this.onRide?.('end');
-    this.emitContext();
-  }
-  rideCamera(dt, time) {
-    const r = this.ride, { pts, cum } = r, cabin = r.cb.cabin;
-    if (r.phase === 'tour') {
-      // tham quan dưới chân núi trước khi lên cáp: máy quay lướt qua từng điểm
-      const list = r.cb.tour;
-      if (r.stop < 0 || r.t >= list[r.stop].dur) {
-        r.stop++; r.t = 0;
-        if (r.stop >= list.length) { r.phase = 'up'; this.onRide?.('up'); }
-        else {
-          const st = list[r.stop];
-          this.camera.position.set(...st.from); r.look.set(...st.look);
-          this.onRide?.('stop', st.text);
-        }
-      }
-      if (r.phase === 'tour') {
-        const st = list[r.stop]; r.t += dt;
-        const k = THREE.MathUtils.smoothstep(r.t / st.dur, 0, 1);
-        this.camera.position.set(...st.from).lerp(new THREE.Vector3(...st.to), k);
-        this.camera.lookAt(r.look);
-        cabin.position.copy(pts[0]);
-        return;
-      }
-    }
-    if (r.phase === 'up' || r.phase === 'down') {
-      r.s += (r.phase === 'up' ? 1 : -1) * dt * (r.cb.speed || 13) * Math.min(1, 0.25 + Math.min(r.s, r.L - r.s) / 25);
-      if (r.phase === 'up' && r.s >= r.L) { r.s = r.L; r.phase = 'top'; r.t = 0; this.onRide?.('top'); }
-      if (r.phase === 'down' && r.s <= 0) { this.endRide(); return; }
-    } else if ((r.t += dt) > 12) {
-      if (r.cb.oneWay) { this.endRide(); return; }
-      r.phase = 'down'; this.onRide?.('down');
-    }
-    let i = 1; while (i < cum.length - 1 && cum[i] < r.s) i++;
-    const a = pts[i - 1], b = pts[i], f = THREE.MathUtils.clamp((r.s - cum[i - 1]) / (cum[i] - cum[i - 1]), 0, 1);
-    cabin.position.copy(a).lerp(b, f);
-    const dir = b.clone().sub(a).normalize(); if (r.phase === 'down') dir.negate();
-    cabin.rotation.y = Math.atan2(dir.x, dir.z);
-    cabin.rotation.z = Math.sin(time * 1.3) * 0.015;
-    let pos, look;
-    if (r.phase === 'top') {
-      // quanh tượng Phật Bà trên đỉnh
-      const st = r.cb.statue, ang = r.cb.facing - 0.9 + r.t * 0.15;
-      pos = new THREE.Vector3(st.x + Math.sin(ang) * 58, st.y - 6 + Math.sin(r.t * 0.5) * 3, st.z + Math.cos(ang) * 58);
-      look = st.clone().add(new THREE.Vector3(0, -4, 0));
-    } else {
-      const side = new THREE.Vector3(dir.z, 0, -dir.x);
-      pos = cabin.position.clone().addScaledVector(dir, -10).addScaledVector(side, 5).add(new THREE.Vector3(0, 1.5, 0));
-      // nhìn xuôi đường cáp; lên thì hướng dần về tượng, xuống thì ngắm đồng bằng
-      look = r.phase === 'up' ? cabin.position.clone().addScaledVector(dir, 30).lerp(r.cb.statue, Math.min(0.6, r.s / r.L)) : cabin.position.clone().addScaledVector(dir, 40).add(new THREE.Vector3(0, -12, 0));
-    }
-    this.camera.position.lerp(pos, Math.min(1, dt * 3));
-    r.look.lerp(look, Math.min(1, dt * 3));
-    this.camera.lookAt(r.look);
-  }
   nearTeller(d = 2.6) {
     if (!this.player) return -1;
     const p = this.player.root.position;
@@ -526,7 +435,7 @@ export class World {
     av.bowing = Math.random() < 0.4; av.bowT = Math.random();
     av.bowSlow = rand(1.8, 2.6); // NPC lạy chậm rãi, mỗi người một nhịp
     av.nextChange = rand(8, 30);
-    av.npcName = `${heroDef.name} (${phapDanh(this.npcNames ||= new Set())})`;
+    av.npcName = `${heroDef.name} · khách vãng lai`;
     const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex(av.npcName, `${av.outfit?.name || heroDef.title}`, '#d9c9a8'), depthWrite: false, transparent: true, opacity: 0.85 }));
     label.scale.set(1.45 / AV_SCALE, 0.34 / AV_SCALE, 1); label.position.y = 1.95; label.visible = false;
     av.root.add(label); av.label = label;
@@ -766,7 +675,7 @@ export class World {
   emitContext() {
     const p = this.player?.root.position;
     const nearDoor = !!(this.od && p && !this.seat && Math.abs(p.x) < this.od.doorW / 2 + 1.5 && Math.abs(p.z - this.od.hd) < 3.5);
-    const ctx = { seated: !!this.seat, canSit: !this.seat && !this.outside && !!this.nearestFreeCushion(), canTalk: !this.seat && this.nearAbbot(), teller: this.seat || this.ride ? -1 : this.nearTeller(), cable: this.ride ? 'riding' : (!this.seat && this.nearCable() ? 'near' : null), door: nearDoor ? (this.outside ? 'in' : 'out') : null, outside: this.outside };
+    const ctx = { seated: !!this.seat, canSit: !this.seat && !this.outside && !!this.nearestFreeCushion(), canTalk: !this.seat && this.nearAbbot(), teller: this.seat ? -1 : this.nearTeller(), door: nearDoor ? (this.outside ? 'in' : 'out') : null, outside: this.outside };
     const sig = JSON.stringify(ctx);
     if (sig !== this.ctxSig) { this.ctxSig = sig; this.onContext?.(ctx); }
   }
@@ -1113,7 +1022,6 @@ export class World {
     if (this.keys.KeyS || this.keys.ArrowDown) iy = 1;
     if (this.keys.KeyA || this.keys.ArrowLeft) ix = -1;
     if (this.keys.KeyD || this.keys.ArrowRight) ix = 1;
-    if (this.ride) { ix = 0; iy = 0; this.walkTarget = null; }
     const mag = Math.min(1, Math.hypot(ix, iy));
     let mx = 0, mz = 0;
     if (mag > 0.15) {
@@ -1270,8 +1178,7 @@ export class World {
       this.camOcc = Math.min(goal, (this.camOcc ?? full) + dt * 4); // vào nhanh, lùi ra từ từ
       pos.copy(head).addScaledVector(dir, this.camOcc);
     }
-    if (this.ride) this.rideCamera(dt, time);
-    else { this.camera.position.copy(pos); this.camera.lookAt(cam.target); }
+    this.camera.position.copy(pos); this.camera.lookAt(cam.target);
 
     if (!this.seat && !this._ctxT) { this._ctxT = 0; }
     this._ctxT = (this._ctxT || 0) + dt;

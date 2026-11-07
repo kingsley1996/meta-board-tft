@@ -1949,7 +1949,7 @@ const signTex = (text, sub) => ctex('sign' + text, 512, 128, (g, w, h) => {
   g.fillStyle = '#ffe2a0'; g.textAlign = 'center'; g.font = 'bold 50px sans-serif'; g.fillText(text, w / 2, 66);
   g.font = '26px sans-serif'; g.fillText(sub, w / 2, 104);
 }, { repeat: false });
-function cableStation(env, w = 9, d = 7, h = 4.6, label = 'GA CÁP TREO', sub = 'Chùa Bà · lên đỉnh núi') {
+function cableStation(env, w = 9, d = 7, h = 4.6, label = 'GA CÁP TREO', sub = 'Lên đỉnh núi') {
   const g = new THREE.Group();
   const roofM = env.std('stRoof', { color: '#8a2a16', roughness: 0.7 });
   const colM = env.std('stCol', { color: '#d9d2c4', roughness: 0.6 });
@@ -2089,7 +2089,7 @@ VIEWS.baden = (c) => {
   });
   g.add(mesh(merge(parts), towerM, { cast: true }));
   g.add(mesh(merge(cables), dark));
-  for (const [P, label, sub] of [[M, 'GA CÁP TREO', 'Chùa Bà · lên đỉnh núi'], [T, 'GA ĐỈNH NÚI', 'Tượng Phật Bà'], [F, 'GA CHÂN NÚI', 'Núi Bà Huyền']]) {
+  for (const [P, label, sub] of [[M, 'GA CÁP TREO', 'Lên đỉnh núi'], [T, 'GA ĐỈNH NÚI', 'Tượng trên đỉnh'], [F, 'GA CHÂN NÚI', 'Chân núi']]) {
     const sg = cableStation(env, 9, 7, CH - 1.4, label, sub); sg.position.set(P.x, P.y, P.z); sg.rotation.y = Math.atan2(-(T.x - M.x), -(T.z - M.z)) + PI; g.add(sg);
   }
   // cabin chạy vòng: một chiều lên bên phải, chiều về bên trái
@@ -2111,10 +2111,6 @@ VIEWS.baden = (c) => {
   c.upd.push((dt) => {
     for (const k of cabins) { k.s += dt * 4.2 * k.dirn; const yaw = at(k.s, k.dirn > 0 ? 1.6 : -1.6, tmp); k.cb.position.copy(tmp); k.cb.rotation.y = yaw; }
   });
-  // cabin riêng cho người chơi đi (thế giới điều khiển)
-  const ride = cabinMesh(env); ride.visible = false; g.add(ride);
-  const upPath = up.map((p, i) => { const q = p.clone(); const nx = up[Math.min(i + 1, up.length - 1)], pv = up[Math.max(i - 1, 0)]; const side = new V3(nx.z - pv.z, 0, -(nx.x - pv.x)).normalize(); return q.addScaledVector(side, 1.6).add(new V3(0, 0.4, 0)); });
-  c.cable = { station: { x: M.x, z: M.z, r: 4.5 }, path: upPath, cabin: ride, statue: new V3(S.x, S.H + 30, S.z), facing: statue.rotation.y, summit: T.clone() };
 
   if (!I) {
     const hl = hall(env, { w: 20, d: 11, h: 5.2, tiers: 2, plinth: 1.6, wall: '#e9c46a', door: '#8a1e12', frame: '#4a1a0e', col: '#a3261a', tile: '#a0301c', under: '#4a2216', stepW: 8, bays: 7 });
@@ -2320,24 +2316,24 @@ VIEWS.fansipan = (c) => {
   /* ---- tháp đá 11 tầng trên trục chính ---- */
   const pagoda = tieredTower(env, { sides: 4, tiers: 11, r0: 2.7, rTop: 1.05, h0: 2.8, hTier: 1.42, hShrink: 0.2, face: 'brick', color: '#958b78', cornice: '#7a7468', base: 0.9, finial: '#8a7a50' });
   pagoda.position.set(0, gy, 28); g.add(pagoda);
-  plaque(6.5, gy, 28, 0, 'BẢO THÁP 11 TẦNG', 'Ốp đá sa thạch · dáng tháp Phổ Minh');
+  plaque(6.5, gy, 28, 0, 'THÁP MƯỜI MỘT TẦNG', 'Ốp đá · dáng tháp cổ');
 
   /* ---- hành lang tả vu, hữu vu ---- */
   for (const k of [-1, 1]) {
     const lv = hall(env, { w: 18, d: 5, h: 3.2, plinth: 0.35, ver: 0.8, over: 0.9, steps: false, roofH: 2.2, wall: '#6d5238', door: '#4a2c18', frame: '#2e1c10', col: WOOD, tile: TILE, under: UNDER, stone: STONE, bays: 7 });
     lv.position.set(k * 22, gy, 29); lv.rotation.y = -k * PI / 2; g.add(lv);
   }
-  plaque(-16.5, gy, 15.5, 0.5, 'TẢ VU · HỮU VU', 'Hành lang hai bên thượng điện');
+  plaque(-16.5, gy, 15.5, 0.5, 'HÀNH LANG HAI BÊN', 'Lối đi quanh sân');
 
   /* ---- lầu Đại Hồng Chung: bố cục thẳng đứng, cao 35 m, 8 mái ---- */
   const bell = tieredTower(env, { sides: 8, tiers: 4, r0: 4.4, rTop: 2.7, h0: 8, hTier: 5.6, hShrink: 0.18, roof: 'curved', face: 'plaster', color: '#7a6548', tile: TILE, under: UNDER, base: 1, finial: '#8a7a50', finialH: 4 });
   bell.position.set(-36, gy, 20); g.add(bell);
-  plaque(-28, gy, 27, 0.6, 'ĐẠI HỒNG CHUNG', 'Vọng Lĩnh Cao Đài · cao 35 m');
+  plaque(-28, gy, 27, 0.6, 'LẦU VỌNG', 'Cao 35 m · nhìn ra thung lũng');
 
   /* ---- cổng Thanh Vân Đắc Lộ, đầu 80 bậc đá ---- */
   const tv = gate(env, { wall: '#807c72', tile: TILE, under: UNDER, w: 3.4, h: 4.2 });
   tv.position.set(-8, landY, 72); tv.scale.setScalar(0.8); g.add(tv);
-  plaque(2.5, landY, 66.5, 0.3, 'THANH VÂN ĐẮC LỘ', 'Từ đây 80 bậc đá lên chùa');
+  plaque(2.5, landY, 66.5, 0.3, 'CỔNG ĐÁ', 'Từ đây 80 bậc đá lên đỉnh');
 
   /* ---- đường La Hán: 18 tượng đồng trên bệ đá chẻ, cây đỗ quyên hai bên ---- */
   const bronzeDk = env.std('ksBronze', { color: '#4a4034', roughness: 0.5, metalness: 0.65 }), piles = [], arhats = [];
@@ -2351,7 +2347,7 @@ VIEWS.fansipan = (c) => {
   }
   g.add(mesh(merge(piles), texMat(env, 'ksPile', stoneTex('#7d6a50'), 0.5, 0.5), { cast: true }));
   g.add(mesh(merge(arhats), bronzeDk, { cast: true }));
-  plaque(-21, gy, -20, 2.7, 'ĐƯỜNG LA HÁN', '18 tượng đồng · lên Đại tượng');
+  plaque(-21, gy, -20, 2.7, 'ĐƯỜNG TƯỢNG ĐỒNG', '18 tượng đồng · lên đỉnh');
 
   /* ---- Đại tượng A Di Đà: đồng sẫm, ngồi trên đài sen, bệ đá khối chạm rồng ---- */
   const buddha = buildStatue('amida', 'bronze', { halo: false }); const BS = 21.5 / 5.3;
@@ -2360,7 +2356,7 @@ VIEWS.fansipan = (c) => {
   g.add(mesh(new THREE.BoxGeometry(23, 3.4, 23), [baseM, baseM, baseTop, baseTop, baseM, baseM], { pos: [0, terrY + 1.7, -71], cast: true }));
   g.add(mesh(boxUV(19, 1, 19, 3), baseTop, { pos: [0, terrY + 3.9, -71], cast: true }));
   buddha.scale.setScalar(BS); buddha.position.set(0, terrY + 4.3, -71); g.add(buddha);
-  plaque(-8, terrY, -56, 0.35, 'ĐẠI TƯỢNG A DI ĐÀ', 'Đồng ghép, tượng ngồi cao 21,5 m');
+  plaque(-8, terrY, -56, 0.35, 'TƯỢNG ĐỒNG LỚN', 'Đồng ghép · cao 21,5 m');
   const censer = new THREE.LatheGeometry([[0, 0], [1, 0], [1.1, 0.3], [0.7, 0.6], [1.3, 1.1], [1.5, 1.8], [1.3, 2.1], [0, 2]].map(([a, b]) => new THREE.Vector2(a, b)), 20);
   g.add(mesh(censer, bronzeDk, { pos: [0, terrY, -54], cast: true }));
 
@@ -2369,7 +2365,7 @@ VIEWS.fansipan = (c) => {
   qa.traverse((o) => { if (o.isMesh && o.material?.color) { o.material = o.material.clone(); o.material.color.multiplyScalar(0.6); } });
   qa.scale.setScalar(1.2); qa.position.set(-40, gy + 3.2, -6); qa.rotation.y = 0.5; g.add(qa);
   g.add(rocks(env, [[-40, gy - 0.2, -6, 4.4, 0.8], [-37, gy - 0.3, -9, 3, 0.7], [-43, gy - 0.3, -3, 2.6, 0.7]], '#6f6b62', 44));
-  plaque(-33, gy, -2, 1.0, 'QUAN THẾ ÂM BỒ TÁT', 'Trên tảng đá cao');
+  plaque(-33, gy, -2, 1.0, 'TƯỢNG TRÊN ĐÁ', 'Trên tảng đá cao');
 
   /* ---- chóp đỉnh 3.143 m ---- */
   const sum = steelSummit(env); sum.position.set(36, peakY, -50); sum.rotation.y = -0.5; g.add(sum);
@@ -2475,26 +2471,6 @@ VIEWS.fansipan = (c) => {
     for (const k of cabins) { k.s += dt * 5 * k.dirn; const yaw = at(k.s, k.dirn > 0 ? 1.8 : -1.8, tmp); k.cb.position.copy(tmp); k.cb.rotation.y = yaw; }
     trainT = (trainT + dt * 0.05) % 2; const f = trainT < 1 ? trainT : 2 - trainT; train.position.copy(rail0).lerp(rail1, 0.05 + f * 0.8); train.position.y += 0.1;
   });
-  const ride = cabinMesh(env); ride.scale.setScalar(1.25); ride.visible = false; g.add(ride);
-  const upPath = line.map((p, i) => { const q = p.clone(), nx = line[Math.min(i + 1, n)], pv = line[Math.max(i - 1, 0)]; return q.add(new V3(nx.z - pv.z, 0, -(nx.x - pv.x)).normalize().multiplyScalar(1.8)).add(new V3(0, 0.4, 0)); });
-  const W = (x, y, z) => [tx + x, ty + y, tz + z];
-  c.cable = {
-    station: { x: M.x, z: M.z, r: 7 }, path: upPath, cabin: ride, statue: new V3(0, terrY + 18, -71), facing: 0, summit: M.clone(), speed: 17, oneWay: true,
-    tour: [
-      { from: W(82, 42, 92), to: W(44, 22, 64), look: W(30, 8, -14), dur: 10, text: 'Thị trấn Sa Pa: nhà thờ đá xám nhìn ra quảng trường, nơi có phiên chợ tình tối thứ bảy.' },
-      { from: W(-34, 34, 18), to: W(-150, 36, 2), look: W(-110, 0, -54), dur: 9, text: 'Hồ Sa Pa giữa thị trấn, mây núi soi bóng mặt nước.' },
-      { from: [230, townY + 40, 720], to: [150, townY - 10, 520], look: [60, townY - 62, 420], dur: 11, text: 'Thung lũng Mường Hoa: ruộng bậc thang men sườn núi, bên cạnh là bản Cát Cát của người H’Mông.' },
-      { from: [130, townY + 30, 730], to: [108, F.y + 14, 668], look: [F.x, F.y + 4, F.z], dur: 9, text: 'Tàu leo núi Mường Hoa chạy từ thị trấn tới ga Hoàng Liên, cạnh Bảo An Thiền Tự (độ cao 1.604 m).' },
-    ],
-    say: {
-      btn: 'Tham quan Sa Pa & đi cáp treo',
-      hint: 'Bạn đang ở sân chùa. Ga cáp treo ở bãi dưới 80 bậc đá – lại gần để tham quan Sa Pa và đi cáp treo.',
-      go: 'Đang đưa bạn xuống ga cáp treo… tới nơi bấm “Tham quan Sa Pa & đi cáp treo”.',
-      up: 'Cáp treo ba dây dài khoảng 6.292 m, chênh cao 1.410 m, vượt thung lũng Mường Hoa xuyên biển mây lên gần đỉnh Fansipan…',
-      top: 'Đại tượng A Di Đà bằng đồng cao 21,5 m trên đỉnh Fansipan – “nóc nhà Đông Dương”. Nam mô A Di Đà Phật.',
-    },
-  };
-
   if (!I) {
     const hl = hall(env, { w: 22, d: 14, h: 5, plinth: 0.9, wall: '#6d5238', door: '#4a2c18', frame: '#2e1c10', col: WOOD, tile: TILE, under: UNDER, stone: STONE, bays: 5 });
     hl.position.y = gy; g.add(hl);
@@ -2774,7 +2750,7 @@ VIEWS.sontra = (c) => {
   }
   /* tam quan và lối vào hai hàng La Hán đá trắng */
   const tq = gate(env, { wall: '#e8d3a0', tile: '#9a4a26', under: '#5a3a24', w: 4.6, h: 5.4 }); tq.position.set(0, gy, Z1 - 1); g.add(tq);
-  roadSign(env, g, 10.5, gy, Z1 - 4, 0.2, 'CỔNG TAM QUAN', 'Chùa Vọng Hải · Sơn Trà, Đà Nẵng');
+  roadSign(env, g, 10.5, gy, Z1 - 4, 0.2, 'CỔNG ĐÁ', 'Lối vào sân · hướng biển');
   const piles = [], arhats = [], z0 = hd + 7, dz = (Z1 - 5 - z0) / 8;
   for (let i = 0; i < 18; i++) {
     const k = i % 2 ? 1 : -1, x = k * 6.2, z = z0 + (i >> 1) * dz;
@@ -2783,7 +2759,7 @@ VIEWS.sontra = (c) => {
   }
   g.add(mesh(merge(piles), texMat(env, 'luPile', stoneTex('#a89e8c'), 0.5, 0.5), { cast: true }));
   g.add(mesh(merge(arhats), env.std('luArhat', { color: WHITE, roughness: 0.7 }), { cast: true }));
-  roadSign(env, g, -11, gy, z0 + 2, 0.5, '18 VỊ LA HÁN', 'Đá trắng, mỗi vị một thần thái');
+  roadSign(env, g, -11, gy, z0 + 2, 0.5, 'MƯỜI TÁM TƯỢNG ĐÁ', 'Đá trắng, mỗi tượng một thần thái');
   /* tượng Quan Thế Âm trên đài sen, mặt hướng ra biển */
   const QX = 29, QZ = 20, QR = 9;
   const stoneW = env.std('luWhite', { map: texRepeat(stoneTex(WHITE), 3, 3), roughness: 0.85 });
@@ -2799,11 +2775,11 @@ VIEWS.sontra = (c) => {
   const qs = 40 / qa.userData.height;
   qa.traverse((o) => { if (o.isMesh) o.castShadow = true; });
   qa.scale.setScalar(qs); qa.position.set(QX, gy + 3.2, QZ); g.add(qa);
-  roadSign(env, g, QX - 11, gy, QZ + 11, -0.5, 'QUAN THẾ ÂM BỒ TÁT', 'Cao 67 m ngoài đời · hướng biển Đông');
+  roadSign(env, g, QX - 11, gy, QZ + 11, -0.5, 'TƯỢNG ĐÁ TRẮNG', 'Cao 67 m · hướng biển Đông');
   /* tháp Xá Lợi và cây xanh */
   const tw = tieredTower(env, { sides: 8, tiers: 7, r0: 3, rTop: 1.5, h0: 4, hTier: 2.8, hShrink: 0.2, face: 'plaster', color: '#e8dcc0', cornice: '#9a4a26', base: 1, finial: '#c8a040', finialH: 4 });
   tw.position.set(-29, gy, 20); g.add(tw);
-  roadSign(env, g, -20, gy, 28, 0.5, 'THÁP XÁ LỢI', 'Bảy tầng, thờ xá lợi và tượng Phật');
+  roadSign(env, g, -20, gy, 28, 0.5, 'THÁP BẢY TẦNG', 'Bảy tầng · nhìn ra biển');
   g.add(forest(env, 'bodhi', [[-38, 40], [38, 42], [-38, -8], [40, -10], [-16, 44], [17, 44]].map(([x, z]) => ({ x, z, y: gy, s: 1.05 })), { seed: 8 }));
   const garden = wideGarden(env, g, { h, gy, r: 78, color: '#b0a690', spokes: [[-44, 8, -78, 8], [44, 8, 78, 8], [0, 50, 0, 78]], avoid: (x, z) => yard(x, z) < 6 || Math.abs(x) < 3 && z > 50, trees: [['bodhi', 24, [0.8, 1.1], 1], ['broad', 30, [0.7, 1.1], 2], ['flower', 34, [0.7, 1], 3]], seed: 60, tile: '#9a4a26', col: '#b8352a', under: '#5a3a24', wall: '#e8d3a0' });
   const avoid = (x, z) => yard(x, z) < 3;
@@ -2858,7 +2834,7 @@ VIEWS.nuisam = (c) => {
   g.add(roofTop(y0 + 8.7, W * 0.42, D * 0.42, 4));
   /* cổng, lư hương lớn, đèn lồng đỏ */
   const gt = gate(env, { wall: WALL, tile: TILE, under: UNDER, w: 4.8, h: 5.4 }); gt.position.set(0, gy, Z1 - 1); g.add(gt);
-  roadSign(env, g, 10, gy, Z1 - 4, 0.25, 'MIẾU BÀ THẤT SƠN', 'Di tích quốc gia · Châu Đốc, An Giang');
+  roadSign(env, g, 10, gy, Z1 - 4, 0.25, 'MIẾU NÚI', 'Châu Đốc, An Giang');
   const burner = new THREE.LatheGeometry([[0, 0], [1.3, 0], [1.4, 0.3], [0.9, 0.7], [1.6, 1.2], [1.8, 2], [1.5, 2.3], [0, 2.2]].map(([a, b]) => new THREE.Vector2(a, b)), 20);
   g.add(mesh(burner, env.std('nsBurner', { color: '#6a5230', roughness: 0.45, metalness: 0.7 }), { pos: [0, gy, D / 2 + 13], cast: true }));
   const posts = [], lamps = [];
@@ -2882,7 +2858,7 @@ VIEWS.nuisam = (c) => {
   /* lăng Thoại Ngọc Hầu nằm đối diện miếu */
   const lang = hall(env, { w: 13, d: 9, h: 3.8, plinth: 1.6, wall: '#b8ac90', door: '#4a3020', frame: '#2e1c10', col: '#7a6a50', tile: '#6a5a48', under: '#3a2a1c', stone: '#6f7a78', bays: 3, stepW: 7 });
   lang.position.set(0, gy, Z1 + 27); lang.rotation.y = PI; g.add(lang);
-  roadSign(env, g, 11, gy, Z1 + 16, 3.4, 'LĂNG THOẠI NGỌC HẦU', 'Đối diện Miếu Bà · di tích quốc gia');
+  roadSign(env, g, 11, gy, Z1 + 16, 3.4, 'LĂNG ĐÁ', 'Đối diện miếu · di tích quốc gia');
   /* cây */
   g.add(forest(env, 'bodhi', [[-33, 36], [33, 36], [-33, -8], [33, -8], [-24, 30], [24, 30]].map(([x, z]) => ({ x, z, y: gy, s: 1 })), { seed: 6 }));
   const garden = wideGarden(env, g, { h, gy, r: 84, color: '#a89e8c', spokes: [[-40, 10, -84, 10], [40, 10, 84, 10], [0, -18, 0, -84]], avoid: (x, z) => yard(x, z) < 6 || Math.abs(z - (Z1 + 22)) < 15, trees: [['palm', 30, [0.8, 1.2], 1], ['bodhi', 18, [0.8, 1.1], 2], ['flower', 30, [0.7, 1], 3]], seed: 70, tile: TILE, col: RED, under: UNDER, wall: WALL });
@@ -2935,8 +2911,8 @@ VIEWS.cuuphong = (c) => {
   }
   /* hai điện đá hai bên điện chính */
   for (const k of [-1, 1]) { const hl = hall(env, { ...hallO, w: 24, d: 18, h: 7, tiers: 2, plinth: 1.2, stepW: 9 }); hl.position.set(k * 50, gy, -3); g.add(hl); }
-  roadSign(env, g, -38, gy, 14, 0.3, 'ĐIỆN QUAN ÂM', 'Vách đá chạm kể chuyện Phật');
-  roadSign(env, g, 38, gy, 14, -0.3, 'ĐIỆN GIÁO CHỦ', 'Tượng đồng nguyên khối');
+  roadSign(env, g, -38, gy, 14, 0.3, 'ĐIỆN ĐÁ', 'Vách đá chạm khắc');
+  roadSign(env, g, 38, gy, 14, -0.3, 'ĐIỆN LỚN', 'Tượng đồng nguyên khối');
   /* vạc đồng và bồ đề trước sân */
   const urn = new THREE.LatheGeometry([[0, 0], [1.1, 0], [1.3, 0.5], [1, 0.9], [2.1, 1.6], [2.4, 2.8], [2.2, 3.5], [1.8, 3.4], [0, 3]].map(([a, b]) => new THREE.Vector2(a, b)), 22);
   g.add(mesh(urn, env.std('cpUrn', { color: '#6a5230', roughness: 0.42, metalness: 0.72 }), { pos: [0, gy, hd + 13], cast: true }));
@@ -2949,13 +2925,13 @@ VIEWS.cuuphong = (c) => {
     blocks.push([x, z, 1.7]);
   }
   g.add(mesh(merge(parts.map((x) => (x.index ? x.toNonIndexed() : x))), texMat(env, 'cpColumn', stoneTex('#6c6a64'), 1, 2), { cast: true }));
-  roadSign(env, g, 4.5, gy, hd + 24, -0.3, 'VƯỜN CỘT KINH', '32 cột đá khắc lời kinh');
+  roadSign(env, g, 4.5, gy, hd + 24, -0.3, 'SÂN CỘT ĐÁ', '32 cột đá khắc hoa văn');
   const tq = gate(env, { wall: '#9a948a', tile: TILE, under: UNDER, w: 6, h: 7 }); tq.position.set(0, gy, Z1); g.add(tq);
-  roadSign(env, g, 12, gy, Z1 - 5, 0.25, 'CHÙA CỬU PHONG', 'Hồ lớn giữa muôn đỉnh núi đá');
-  /* gian chùa ngọc và ngọn tháp ở vườn sau */
+  roadSign(env, g, 12, gy, Z1 - 5, 0.25, 'SẢNH HỒ ĐÁ', 'Hồ lớn giữa muôn đỉnh núi đá');
+  /* gian đá ngọc và ngọn tháp ở vườn sau */
   const jade = hall(env, { w: 9, d: 8, h: 3.6, plinth: 0.9, ver: 0.8, over: 1, wall: '#d6e6d8', door: '#3e6a5a', frame: '#2a4a40', col: '#5e9c86', tile: '#3f8a74', under: '#2a4a40', bays: 3, ornament: 'gourd' });
   jade.position.set(-60, gy, -62); jade.rotation.y = 0.5; g.add(jade);
-  roadSign(env, g, -50, gy, -50, 0.5, 'GIAN CHÙA NGỌC', 'Nơi tịnh tâm sau vườn');
+  roadSign(env, g, -50, gy, -50, 0.5, 'GIAN ĐÁ NGỌC', 'Nơi tĩnh tâm phía sau');
   const tw = tieredTower(env, { sides: 8, tiers: 7, r0: 4, rTop: 2, h0: 5, hTier: 3.2, hShrink: 0.2, face: 'plaster', color: '#a7a397', cornice: TILE, base: 1.2, finial: '#c8a040', finialH: 4 });
   tw.position.set(60, gy, -62); g.add(tw);
   const pos = [[-60, -62, 7.5], [60, -62, 6.5], [0, hd + 13, 2.8], ...ponds.map(([x, z, r]) => [x, z, r + 0.5])];
@@ -3038,12 +3014,12 @@ VIEWS.hoangoc = (c) => {
   }
   g.add(mesh(merge(beds.map((x) => (x.index ? x.toNonIndexed() : x))), mos, { cast: true }), mesh(merge(blooms), env.std('hnBloom', { vertexColors: true, roughness: 0.8 })));
   g.add(forest(env, 'pine', [[-44, 26], [-46, 48], [-44, 68], [46, 72], [46, -8], [-46, -10], [18, 70], [-16, -20], [16, -20]].map(([x, z]) => ({ x, z, y: gy, s: 1.15 })), { seed: 33 }));
-  roadSign(env, g, -13, gy, hd + 42, 0.5, 'RỒNG VE CHAI', 'Khảm từ vỏ chai, mảnh sành');
+  roadSign(env, g, -13, gy, hd + 42, 0.5, 'RỒNG MẢNH SÀNH', 'Khảm từ mảnh sành, vỏ chai');
   /* hai cột rồng khảm trước cửa và đài chuông lớn */
   for (const k of [-1, 1]) { g.add(mesh(cylUV(0.8, 0.9, 8.5, 14, 2), mos, { pos: [k * 9, gy + 4.25, hd + 5], cast: true })); blocks.push([k * 9, hd + 5, 1.5]); }
   const tw = tieredTower(env, { sides: 8, tiers: 7, r0: 5, rTop: 2.5, h0: 6, hTier: 3.8, hShrink: 0.18, face: 'plaster', color: '#efd9a0', cornice: TILE, base: 1.6, finial: '#c8a040', finialH: 5 });
   tw.position.set(30, gy, 44); g.add(tw); blocks.push([30, 44, 7.5]);
-  roadSign(env, g, 18, gy, 54, -0.5, 'THÁP CHUÔNG BẢY TẦNG', 'Vọng tiếng chuông khắp đồi thông');
+  roadSign(env, g, 18, gy, 54, -0.5, 'THÁP BẢY TẦNG', 'Nhìn khắp đồi thông');
   const BX = 31, BZ = 12;
   g.add(columns(env, [[-3.5, -3.5], [3.5, -3.5], [-3.5, 3.5], [3.5, 3.5]].map(([x, z]) => [BX + x, BZ + z]), 5.2, 0.28, RED));
   const rf = hipRoof(env, { w: 10, d: 10, h: 3, tile: TILE, under: UNDER, ornament: 'gourd' }); rf.position.set(BX, gy + 5.2, BZ); g.add(rf);
@@ -3057,7 +3033,7 @@ VIEWS.hoangoc = (c) => {
   g.add(mesh(cylUV(5, 5.6, 1.4, 28, 2), env.std('hnBase', { map: texRepeat(stoneTex('#e6e0d2'), 3, 3), roughness: 0.85 }), { pos: [0, qy + 0.6, QZ], cast: true }));
   blocks.push([0, QZ, 6.2]);
   const tq = gate(env, { wall: WALL, tile: TILE, under: UNDER, w: 5, h: 5.8 }); tq.position.set(0, gy, Z1); g.add(tq);
-  roadSign(env, g, 10.5, gy, Z1 - 4, 0.25, 'CHÙA HOA NGỌC', 'Đà Lạt · ngàn mảnh sành thành hoa');
+  roadSign(env, g, 10.5, gy, Z1 - 4, 0.25, 'SẢNH HOA NGỌC', 'Ngàn mảnh sành thành hoa');
   /* đồi hoa cẩm tú cầu: những bụi tròn tím xanh */
   const R = mulberry(61), bush = [];
   const fields = [[72, 24, 24], [-68, -46, 22], [74, -58, 20]];
@@ -3074,10 +3050,6 @@ VIEWS.hoangoc = (c) => {
   g.add(forest(env, 'pine', scatter(env.hq ? 460 : 200, { r0: 146, r1: 560, seed: 91, y: ground, s: [1, 1.8] }), { seed: 91, variants: 4 }));
   return { groundY: gy, walkR: ER, blocks: [...blocks, ...garden], noGarden: nope };
 };
-
-// hướng nắng riêng cho ảnh mô hình (để mặt tiền được chiếu sáng)
-const MODEL_MOOD = { lamkinh: { az: 50, el: 30 }, tranho: { az: 70, el: 24 }, thienmau: { az: 40, el: 7 }, nhattru: { az: 60, el: 40 }, huongson: { az: 40, el: 38, fogBase: -3, fogHF: 0.02 }, baison: { az: 55, el: 32 }, vinhan: { az: 40, el: 50 }, doivang: { az: 60, el: 34 }, linhson: { az: 50, el: 30 } };
-const VIEW_OF = { linhung: 'sontra', nuisam: 'nuisam', lamkinh: 'citadel', nhattru: 'pond', tranho: 'lake', huongson: 'cave', dinhmay: 'clouds', baison: 'mountain', thienmau: 'river', vinhan: 'palm', doivang: 'garden', linhson: 'baden', kimson: 'fansipan', cuuphong: 'cuuphong', hoangoc: 'hoangoc' };
 
 function disposeGroup(g) {
   const geos = new Set(), mats = new Set();
@@ -3123,7 +3095,6 @@ export function buildSurroundings(scene, theme, quality = 'high') {
     blocks: res.blocks || null,
     noGarden: res.noGarden || null,
     forest: (kind, list, o) => forest(env, kind, list, o),
-    cable: c.cable || null,
     mouth: theme.wall === 'rock' ? { ...CAVE_MOUTH, z: D / 2 + CAVE_MOUTH.zOff } : null,
     sun: { dir: env.sunDir.clone(), color: env.sunColor.clone(), intensity: env.sunI },
     outerWallMaterial: wallMat,
@@ -3131,30 +3102,5 @@ export function buildSurroundings(scene, theme, quality = 'high') {
     boostSun(i) { env.U.uSunBoost.value.copy(env.sunColor).multiplyScalar(i); },
     update(dt, time) { env.U.uTime.value = time; for (const u of c.upd) u(dt, time); },
     dispose() { scene.remove(g); disposeGroup(g); },
-  };
-}
-
-// Mô hình ngoại thất ngôi chùa cho thẻ xem trước trên bản đồ
-export function buildTempleModel(templeId, theme = {}, opts = {}) {
-  const view = theme.view || VIEW_OF[templeId] || 'garden';
-  const quality = opts.quality || (typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches ? 'low' : 'high');
-  const env = makeEnv(view, quality, { far: 2000, fogScale: 0.55, mood: MODEL_MOOD[templeId] });
-  const g = new THREE.Group(); g.name = 'templeModel:' + templeId;
-  g.add(makeSky(env, false));
-  const c = { env, g, I: false, theme, upd: [], camera: null };
-  (VIEWS[view] || VIEWS.garden)(c);
-  const sun = new THREE.DirectionalLight(env.sunColor, env.sunI);
-  sun.position.copy(env.sunDir).multiplyScalar(90);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(env.hq ? 2048 : 1024, env.hq ? 2048 : 1024);
-  Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, near: 1, far: 220 });
-  sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.04;
-  g.add(sun, sun.target);
-  const cam = c.camera || { pos: [20, 10, 30], target: [0, 4, 0] };
-  return {
-    group: g,
-    camera: { pos: cam.pos, target: cam.target, fov: 40, far: 2000 },
-    update(dt, time) { env.U.uTime.value = time; for (const u of c.upd) u(dt, time); },
-    dispose() { g.parent?.remove(g); disposeGroup(g); },
   };
 }

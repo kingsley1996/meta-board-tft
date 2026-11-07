@@ -80,7 +80,7 @@ export type EnginePerson = {
   equipped: Record<string, unknown>;
 };
 
-export type EngineCtx = { seated: boolean; canSit: boolean; canTalk: boolean; teller: number | null; door?: 'in' | 'out' | null; outside: boolean; cable?: 'riding' | 'near' | null };
+export type EngineCtx = { seated: boolean; canSit: boolean; canTalk: boolean; teller: number | null; door?: 'in' | 'out' | null; outside: boolean };
 
 export type EngineHandlers = {
   onProgress: (pct: number, step: string) => void;

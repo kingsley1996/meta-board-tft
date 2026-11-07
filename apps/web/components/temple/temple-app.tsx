@@ -11,7 +11,7 @@ import type { Gain, GameMatch, GuestReply, TempleState } from './api';
 import { TempleApiError, get, post } from './api';
 import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, hasWebGL, local, sectOf, type EngineCtx, type EnginePerson } from './engine';
 import { luckyShower, floater } from './effects';
-import { QUOTES } from './stories';
+import { QUOTES, tellersOf } from './stories';
 import { TempleRoom, type RemotePlayer } from './room';
 import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, ShopSheet, SteleSheet } from './hall';
 import { GameSheet, KIND_NAME } from './games';
@@ -22,7 +22,7 @@ import { Icon, Modal, Notices, Sheet, TitleBadge, Toast, fmt, loginUrls, type Lo
 
 type LevelUp = NonNullable<Gain['level_ups']>[number];
 type Ann = { id: number; text: string; effect: string };
-type CtxAct = 'talk' | 'tell' | 'door' | 'ride' | 'unride' | 'stand' | 'sit' | '';
+type CtxAct = 'talk' | 'tell' | 'door' | 'stand' | 'sit' | '';
 
 const DEFAULT_GUEST = 'Nhà lữ hành';
 
@@ -52,21 +52,17 @@ function gameLine(kind: string, m: GameMatch, me: number): string {
 }
 
 function ctxAct(ctx: EngineCtx): CtxAct {
-  if (ctx.cable === 'riding') return 'unride';
   if (ctx.seated) return '';
   if (ctx.canTalk) return 'talk';
   if (ctx.teller !== null && ctx.teller >= 0) return 'tell';
-  if (ctx.cable) return 'ride';
   if (ctx.door && !ctx.canSit) return 'door';
   return '';
 }
 
 function ctxLabel(ctx: EngineCtx, act: CtxAct): string {
-  if (ctx.cable === 'riding') return 'Rời cáp treo';
-  if (act === 'ride') return 'Đi cáp treo lên đỉnh';
   if (ctx.seated) return 'Đứng dậy';
   if (act === 'talk') return 'Gặp huấn luyện viên';
-  if (act === 'tell') return 'Nghe tiên tri Hex';
+  if (act === 'tell') return `Nghe ${tellersOf(TEMPLE.id)[ctx.teller ?? 0]?.name ?? 'kể chuyện'}`;
   if (act === 'door') return ctx.door === 'out' ? 'Ra sân ngắm cảnh' : 'Vào sảnh';
   return 'Ngồi xuống';
 }
@@ -220,7 +216,7 @@ export function TempleApp({ lang }: { lang: string }) {
       const ms = (r as unknown as { meditate_start?: unknown }).meditate_start;
       if (typeof ms === 'string') r.state = { ...r.state, meditate_start: ms };
       apply(r);
-      if (!opts.silent && r.gained) toast(`<svg class="i"><use href="#i-spark"/></svg> +${fmt(r.gained)} điểm may`);
+      if (!opts.silent && r.gained) toast(`<svg class="i"><use href="#i-spark"/></svg> +${fmt(r.gained)} Điểm May Mắn`);
       return r;
     } catch (e) {
       if ((e as TempleApiError).status !== 429) toast((e as Error).message);
@@ -515,7 +511,7 @@ export function TempleApp({ lang }: { lang: string }) {
         ctxRef.current = ctx;
         Sound.setOutdoors?.(!!ctx.outside);
         const act = ctxAct(ctx);
-        setCtxUi({ show: ctx.seated || ctx.canSit || ctx.canTalk || (ctx.teller !== null && ctx.teller >= 0) || !!ctx.door || !!ctx.cable, act, label: ctxLabel(ctx, act), out: !!ctx.door, outside: !!ctx.outside });
+        setCtxUi({ show: ctx.seated || ctx.canSit || ctx.canTalk || (ctx.teller !== null && ctx.teller >= 0) || !!ctx.door, act, label: ctxLabel(ctx, act), out: !!ctx.door, outside: !!ctx.outside });
         if (!ctx.seated && bowRef.current !== 'idle') clickBowStop();
         if (ctx.outside) setGuideFade(true);
       },

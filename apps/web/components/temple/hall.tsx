@@ -685,7 +685,7 @@ export function GuideSheet({ s, onClose }: { s: Store; onClose: () => void }) {
           <Icon name="spark" /> Cách chơi
         </h4>
         <p>Kéo nửa trái màn hình để đi, vuốt nửa phải để xoay góc nhìn. Chạm bệ ngồi để ngồi.</p>
-        <p>Cầu may · Thiền · Dâng bùa · Quét sân. Mọi con số Điểm May Mắn đều do máy chủ tính, kể cả khi bạn đổi thiết bị.</p>
+        <p>Cầu may · Thiền · Dâng bùa · Tỷ thí. Mọi con số Điểm May Mắn đều do máy chủ tính, kể cả khi bạn đổi thiết bị.</p>
         <p>Máy tính: W A S D đi lại · B cầu may · E ngồi/đứng.</p>
         <h4>
           <Icon name="medal" /> Bảy vận cầu may
@@ -837,7 +837,7 @@ export function SettingsSheet({ s, onClose }: { s: Store; onClose: () => void })
         />
       </label>
       <label className="setting">
-        <Icon name="child" /> Hiện chú tiểu NPC{' '}
+        <Icon name="child" /> Hiện người chơi ảo{' '}
         <input
           type="checkbox"
           defaultChecked={local.get('npc') !== false}

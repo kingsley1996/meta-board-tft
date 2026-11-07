@@ -60,7 +60,7 @@ const BOT_COUNT = 6;
 // Từ số người thật này thì hall không còn "vắng" nữa và bot nhường chỗ.
 const HUMANS_FULL = 4;
 
-// ---- lưới bồ đoàn ---------------------------------------------------------------
+// ---- lưới bệ ngồi ---------------------------------------------------------------
 //
 // Chép từ theme.cushions của đền 'nhattru' trong vendor/temple/data/meta.json, và thứ
 // tự phải đúng như vòng lặp dựng ghế trong temple.js:402 (hàng trước, cột sau) vì chỉ
@@ -102,12 +102,12 @@ type BotDef = {
 // vận Như Ý mà mặc áo tặng ngày đầu thì ngược nhau.
 const ROSTER: BotDef[] = [
   {
-    slug: 'minh_anh', name: 'Đồng Tu Minh Anh', sect: 'reroll', exp: 260, days: 6,
+    slug: 'minh_anh', name: 'Lữ Khách Minh Anh', sect: 'reroll', exp: 260, days: 6,
     look: { hero: 'luffy_g5', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
     kit: { robe: 'ao_lam', beads: 'chuoi_go', cushion: 'bd_nau', hat: null, staff: null, cloud: null, pet: 'lt_huou' },
   },
   {
-    slug: 'dieu_lien', name: 'Phật Tử Diệu Liên', sect: 'tempo', exp: 420, days: 8,
+    slug: 'dieu_lien', name: 'Người Thắp Đèn Diệu Liên', sect: 'tempo', exp: 420, days: 8,
     look: { hero: 'naruto_sage', gender: 'nu', hair: 'dai', skin: '#efd6bb' },
     kit: { robe: 'ao_xam', beads: 'chuoi_bode', cushion: 'bd_xam', hat: null, staff: null, cloud: null, pet: 'lt_tho_ngoc' },
   },
@@ -117,7 +117,7 @@ const ROSTER: BotDef[] = [
     kit: { robe: 'ao_nau', beads: 'chuoi_go', cushion: 'bd_vang', hat: 'mu_kim_co', staff: null, cloud: null, pet: null },
   },
   {
-    slug: 'thanh_tung', name: 'Đồng Tu Thanh Tùng', sect: 'fast8', exp: 900, days: 10,
+    slug: 'thanh_tung', name: 'Lữ Khách Thanh Tùng', sect: 'fast8', exp: 900, days: 10,
     look: { hero: 'sasuke', gender: 'nam', hair: 'ngan', skin: '#f0c9a8' },
     kit: { robe: 'ao_trang', beads: 'chuoi_tram', cushion: 'bd_nau', hat: null, staff: 'tr_thien_truong', cloud: null, pet: 'lt_nghe' },
   },
@@ -127,12 +127,12 @@ const ROSTER: BotDef[] = [
     kit: { robe: 'ao_sen', beads: 'chuoi_go', cushion: 'bd_sen', hat: null, staff: null, cloud: null, pet: 'lt_su_tu_xanh' },
   },
   {
-    slug: 'hue_tam', name: 'Phật Tử Tuệ Tâm', sect: 'reroll', exp: 1750, days: 12,
+    slug: 'hue_tam', name: 'Người Thắp Đèn Tuệ Tâm', sect: 'reroll', exp: 1750, days: 12,
     look: { hero: 'kakashi', gender: 'nam', hair: 'trau', skin: '#e6bd94' },
     kit: { robe: 'ao_vulan', beads: 'chuoi_bode', cushion: 'bd_may', hat: 'mu_tu_kim', staff: null, cloud: null, pet: null },
   },
   {
-    slug: 'quoc_bao', name: 'Đồng Tu Quốc Bảo', sect: 'flex', exp: 2400, days: 11,
+    slug: 'quoc_bao', name: 'Lữ Khách Quốc Bảo', sect: 'flex', exp: 2400, days: 11,
     look: { hero: 'law', gender: 'nam', hair: 'ngan', skin: '#f1c9a0' },
     kit: { robe: 'ao_truc', beads: 'chuoi_thach_anh', cushion: 'bd_tuyet', hat: null, staff: 'tr_dinh_ba', cloud: null, pet: 'lt_chu_tuoc' },
   },
@@ -142,12 +142,12 @@ const ROSTER: BotDef[] = [
     kit: { robe: 'ao_nguyet', beads: 'chuoi_tram', cushion: 'bd_ngoc', hat: null, staff: null, cloud: 'may_can_dau', pet: 'lt_huyen_vu' },
   },
   {
-    slug: 'chan_nhu', name: 'Chân Như', sect: 'tempo', exp: 4600, days: 14,
+    slug: 'chan_nhu', name: 'Chân Kim', sect: 'tempo', exp: 4600, days: 14,
     look: { hero: 'ace', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
     kit: { robe: 'ao_may_bac', beads: 'chuoi_luu_ly', cushion: 'bd_tram_sen', hat: 'mu_ty_lu', staff: 'tr_nguyet_nha', cloud: null, pet: 'lt_bach_tuong' },
   },
   {
-    slug: 'bich_dao', name: 'Đồng Tu Bích Đào', sect: 'reroll', exp: 6200, days: 16,
+    slug: 'bich_dao', name: 'Lữ Khách Bích Đào', sect: 'reroll', exp: 6200, days: 16,
     look: { hero: 'shanks', gender: 'nu', hair: 'dai', skin: '#efd6bb' },
     kit: { robe: 'ao_lien_hoa', beads: 'chuoi_ngoc', cushion: 'bd_mai_rua', hat: null, staff: null, cloud: null, pet: 'lt_trau_vang' },
   },
@@ -166,14 +166,14 @@ const ROSTER: BotDef[] = [
 // Lời chúc gửi cho người. Câu chúc nào cũng có chữ: một thẻ thông báo chỉ toàn icon
 // không nói được ai vừa chúc mình, còn quà tặng giữa hai bot thì không cần lời.
 const WISHES = [
-  'Nguyện bạn một ngày an lành',
-  'Chúc bạn tinh tấn từ sớm',
-  'Mong bạn sức khỏe dồi dào',
-  'Nguyện bạn qua cơn mệt mỏi',
-  'Chúc bạn một lòng sáng suốt',
-  'Mong nhà bạn yên ấm',
-  'Nguyện bạn đủ duyên gặp người lành',
-  'Chúc bạn ngủ ngon và dậy nhẹ nhõm',
+  'Chúc bạn một ngày toàn top 4',
+  'Chúc bạn về đúng bài mình cần',
+  'Chúc bạn lên 3 sao đúng chủ lực',
+  'Chúc bạn queue sạch, không gặp người bỏ trận',
+  'Chúc bạn vào trận tay vững',
+  'Chúc bạn đủ vàng đúng nhịp',
+  'Chúc bạn một ván không ai tranh bài',
+  'Chúc bạn thắng round cuối bằng một máu',
 ];
 
 const SIGNS = ['bua', 'bao', 'keo'];

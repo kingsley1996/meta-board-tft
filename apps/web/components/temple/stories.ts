@@ -1,6 +1,6 @@
-// Lời thoại của ba vị hướng dẫn trong sảnh và mấy dòng chữ cho màn chờ. Phần truyện lấy
-// nguyên văn từ data/content.json của bản gốc, hai bảng tên lấy từ main.js:1047-1049 —
-// đây là nội dung, không phải engine, nên nó nằm bên phía HUD.
+// Lời thoại của ba vị hướng dẫn trong sảnh và mấy dòng chữ cho màn chờ. Chỉ đền đang chạy
+// (`nhattru`) có truyện, viết lại cho Đền Cầu May ngày 2026-11-07; 14 đền còn lại đã cắt
+// khỏi content.json. Đây là nội dung, không phải engine, nên nằm bên HUD.
 import content from '@/vendor/temple/data/content.json';
 
 export type Tale = { title: string; text: string };
@@ -39,7 +39,7 @@ export const guideOf = (sectId: string): Guide | null => GUIDES[sectId] ?? null;
 
 export const ABBOT = 'HLV Tomo';
 
-// Nhà Phân Tích: tám chiêu bán cho người ghé sảnh (main.js:1049 từng là tám "thức").
+// Lão Hành Khất: tám chiêu bán cho người ghé sảnh — vai thương nhân, không phải nhà phân tích.
 export const HERMIT_LESSONS = [
   'Chiêu thứ nhất: Tiền. Giữ 50 vàng trước để lấy lãi, tiêu sau. Nghèo cuối trận là nghèo từ giữa trận.',
   'Chiêu thứ hai: Ngó bảng. Bốn người cùng giữ một tướng thì không ai lên 3 sao được đâu.',

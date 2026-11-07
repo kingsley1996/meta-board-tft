@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   const { lang } = await params;
   return {
     title: titles[isLang(lang) ? lang : 'vi'] ?? titles.vi,
-    description: 'Chánh điện 3D: lễ Phật, thắp hương, gieo quẻ cầu may trước khi vào trận TFT.',
+    description: 'Sảnh 3D Đền Cầu May trước trận TFT: ngồi thiền, rút quẻ đội hình, dâng bùa lấy vía.',
     robots: { index: false, follow: false },
   };
 }

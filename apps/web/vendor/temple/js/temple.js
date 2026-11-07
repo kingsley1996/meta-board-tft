@@ -526,7 +526,7 @@ export function buildTemple(scene, theme, quality = 'high') {
   }
 
   const stressZones = {
-    hall: { pos: new THREE.Vector3(0, 0, Math.min(hd - 3.5, (c.z0 ?? 0) + 2.5)), yaw: 0, label: '🏯 Trong Chánh Điện Thanh Tịnh' },
+    hall: { pos: new THREE.Vector3(0, 0, Math.min(hd - 3.5, (c.z0 ?? 0) + 2.5)), yaw: 0, label: 'Trong sảnh Đền Cầu May' },
   };
 
   const bounds = { minX: -hw + 1, maxX: hw - 1, minZ: tz + 1.2, maxZ: hd - 1 };
@@ -546,7 +546,6 @@ export function buildTemple(scene, theme, quality = 'high') {
       groundY: sur.groundY ?? 0,
       doorW: Math.min(6, W * 0.3),
       hw, hd, W, D, H,
-      cable: sur.cable || null,
       walkR: sur.walkR || 0,
       blocks: sur.blocks,
       noGarden: (x, z) => (Math.abs(x) < 2.4 && Math.abs(z - outZ) < 3) || (sur.noGarden ? sur.noGarden(x, z) : false),
