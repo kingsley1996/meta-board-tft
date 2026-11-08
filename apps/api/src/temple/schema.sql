@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS temple_exchanges (
   PRIMARY KEY (user_id, item, day)
 );
 
--- Tỷ thí giữa hai người chơi: xúc xắc và oẳn tù tì.
+-- Tỷ thí giữa hai người chơi: xúc xắc, oẳn tù tì và cờ caro.
 --
 -- Một hàng là một trận, không phải một vòng: vòng hiện trường nằm ở a_move/b_move/round
 -- nên hai cú POST đồng thời chỉ cần một hàng để phân thắng. Nước đi của bên ra trước
@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS temple_exchanges (
 -- nên trên dây không bao giờ có cả hai nước của một vòng chưa phân định.
 CREATE TABLE IF NOT EXISTS temple_games (
   id bigserial PRIMARY KEY,
-  kind text NOT NULL CHECK (kind IN ('dice', 'rps')),
+  kind text NOT NULL CHECK (kind IN ('dice', 'rps', 'caro')),
   -- 'invite' = chờ người được mời chấp thuận, 'live' = đang đánh, 'over' = có kết quả,
   -- 'dead' = từ chối/rút lui/quá hạn (reason nói rõ là đường nào).
   status text NOT NULL DEFAULT 'invite' CHECK (status IN ('invite', 'live', 'over', 'dead')),
@@ -263,7 +263,9 @@ CREATE TABLE IF NOT EXISTS temple_games (
   b_user uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   winner uuid REFERENCES users(id) ON DELETE CASCADE,
   reason text NOT NULL DEFAULT '',
-  round integer NOT NULL DEFAULT 1 CHECK (round BETWEEN 1 AND 12),
+  -- Trần vòng 41 là của caro (81 ô, mỗi vòng hai nước, nước chót thuộc bên a); hai môn
+  -- cũ vẫn chỉ tới 3 và 7.
+  round integer NOT NULL DEFAULT 1 CHECK (round BETWEEN 1 AND 41),
   a_score integer NOT NULL DEFAULT 0 CHECK (a_score >= 0),
   b_score integer NOT NULL DEFAULT 0 CHECK (b_score >= 0),
   -- Nước đi của vòng hiện tại; NULL bên nào là bên đó chưa tới lượt. Sau mỗi vòng cả hai
@@ -272,10 +274,23 @@ CREATE TABLE IF NOT EXISTS temple_games (
   b_move jsonb,
   -- Vòng vừa phân định, để người mở lại trang vẫn thấy xúc xắc ra sao thay vì chỉ thấy tỉ số.
   result jsonb NOT NULL DEFAULT '{}'::jsonb,
+  -- Bàn caro: 81 ký tự, '.' ô trống, 'a'/'b' ô đã đặt. Sự thật duy nhất của mặt trận, nên
+  -- nó nằm ở hàng chứ không suy ra từ `result` (thứ chỉ có khi trận ngã ngũ). Hai môn kia
+  -- để trống — cột DEFAULT '' nên hàng cũ không phải sửa gì.
+  board text NOT NULL DEFAULT '',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CHECK (a_user <> b_user)
 );
+-- Database đã có bảng này từ trước chưa biết gì về caro: CREATE TABLE IF NOT EXISTS bỏ
+-- qua toàn bộ định nghĩa, nên hai ràng buộc cũ phải được thay và cột phải được thêm.
+-- Cùng khuôn ALTER mà temple_donations dùng ở trên — idempotent, chạy lại bao nhiêu lần
+-- cũng không chết vì ràng buộc đã tồn tại.
+ALTER TABLE temple_games ADD COLUMN IF NOT EXISTS board text NOT NULL DEFAULT '';
+ALTER TABLE temple_games DROP CONSTRAINT IF EXISTS temple_games_kind_check;
+ALTER TABLE temple_games ADD CONSTRAINT temple_games_kind_check CHECK (kind IN ('dice', 'rps', 'caro'));
+ALTER TABLE temple_games DROP CONSTRAINT IF EXISTS temple_games_round_check;
+ALTER TABLE temple_games ADD CONSTRAINT temple_games_round_check CHECK (round BETWEEN 1 AND 41);
 -- Danh sách "trận đang mở của tôi" hỏi theo cả hai chiều, nên mỗi chiều một chỉ mục;
 -- khoá chính chỉ đánh theo id.
 CREATE INDEX IF NOT EXISTS temple_games_a_idx ON temple_games (a_user, status, updated_at DESC);

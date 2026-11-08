@@ -1,14 +1,16 @@
-// Tỷ thí giữa hai người chơi: xúc xắc và oẳn tù tì.
+// Tỷ thí giữa hai người chơi: xúc xắc, oẳn tù tì và cờ caro.
 //
 // Vì sao trận nằm trong database chứ không trong bộ nhớ phòng: một cú mời có thể tới lúc
 // người kia đang để tab nền, và một nước đi có thể tới trước khi nước kia kịp ghi. Hàng
 // `temple_games` là nơi duy nhất trả lời "đến lượt ai, vòng mấy, tỉ số bao nhiêu" cho cả
 // hai máy khách, còn socket chỉ làm nhiệm vụ báo cho họ nhìn vào đó.
 //
-// Vì sao máy chủ gieo xúc xắc và quyết vòng hòa: hai con số này là toàn bộ trò chơi. Nếu
-// máy khách tự khai thì một gói tin là thắng mọi trận, và "Độ May" trở thành chữ trang trí.
+// Vì sao máy chủ gieo xúc xắc, quyết vòng hòa và tính hàng thắng: ba thứ đó là toàn bộ trò
+// chơi. Nếu máy khách tự khai thì một gói tin là thắng mọi trận, và "Độ May" trở thành
+// chữ trang trí. Riêng caro, luật nằm ở caro.ts — đây chỉ là giao dịch quanh nó.
 import { Router } from 'express';
 import { pool } from '../db.ts';
+import { CELLS, EMPTY_BOARD, isEmpty, isFull, place, turnOf, winLine, type CaroSide } from './caro.ts';
 import { ensureTempleProfile, levelFromExp } from './identity.ts';
 import { ApiError, cooldown, num, playerId, withAccount, withUser } from './http.ts';
 import { addMerit, practiceToday, type LevelUp, type Queryable as Db } from './merit.ts';
@@ -18,16 +20,21 @@ import { notifyPlayer } from './ws.ts';
 
 export const gamesRouter = Router();
 
-export type GameKind = 'dice' | 'rps';
+export type GameKind = 'dice' | 'rps' | 'caro';
 
 type Rule = { name: string; wins: number; maxRounds: number; dice: number };
 
 // Xúc xắc một ván ăn ngay (ai tổng lớn hơn thắng), oẳn tù tì đánh ba thắng hai. Trần vòng
 // tồn tại vì vòng hòa không tính điểm: không có nó thì hai người hòa liên tiếp là trận
 // không bao giờ kết thúc.
+//
+// Caro không có "vòng" theo nghĩa của hai môn kia: một vòng của nó là hai nước (bên mời
+// rồi bên nhận), nên 81 ô chia hết thành 40 vòng + nước cuối của bên a. maxRounds 41 là
+// chỗ bàn cờ đầy, và bàn đầy thì luật đã xử ở caro.ts chứ không nhờ trần vòng.
 const RULES: Record<GameKind, Rule> = {
   dice: { name: 'Xúc Xắc', wins: 1, maxRounds: 3, dice: 3 },
   rps: { name: 'Oẳn Tù Tì', wins: 2, maxRounds: 7, dice: 0 },
+  caro: { name: 'Cờ Caro', wins: 1, maxRounds: 41, dice: 0 },
 };
 
 // Búa ăn Kéo, Kéo ăn Bao, Bao ăn Búa.
@@ -104,8 +111,10 @@ async function luckRows(userIds: string[], db: Db = pool): Promise<Map<string, G
 
 // ---- Kiểu dữ liệu trên dây ------------------------------------------------------
 
-type Move = { dice?: number[]; pick?: string; bonus: number; total?: number };
-type RoundResult = { round: number; a: Move; b: Move; winner: 'a' | 'b' | ''; luck: [number, number] };
+type Move = { dice?: number[]; pick?: string; cell?: number; bonus: number; total?: number };
+// `line` chỉ có ở caro: năm ô thắng cuộc. Máy khách tô sáng đúng các ô này thay vì tự
+// tính lại luật — luật mà nằm ở hai nơi thì sớm muộn cũng lệch nhau.
+type RoundResult = { round: number; a: Move; b: Move; winner: 'a' | 'b' | ''; luck: [number, number]; line?: number[] };
 export type GameSide = { player: GamePlayer; score: number; moved: boolean; move: Move | null };
 
 export type GameMatch = {
@@ -120,6 +129,9 @@ export type GameMatch = {
   b: GameSide;
   winner: number | null;
   result: RoundResult | null;
+  // Bàn caro dưới dạng chuỗi 81 ký tự ('.', 'a', 'b'); môn khác rỗng. Đây là sự thật duy
+  // nhất về mặt trận, nên nó đi theo trận chứ không suy ra từ lịch sử nước đi ở máy khách.
+  board: string;
   at: string;
 };
 
@@ -144,6 +156,7 @@ type GameRow = {
   a_move: Move | null;
   b_score: number;
   result: RoundResult | null;
+  board: string;
   updated_at: Date;
 };
 
@@ -175,6 +188,7 @@ function matchOf(row: GameRow, players: Map<string, GamePlayer>, viewer = ''): G
     b: side(row.b_user, row.b_score, row.b_move),
     winner: row.winner ? (players.get(row.winner)?.id ?? null) : null,
     result: row.result && Object.keys(row.result).length ? row.result : null,
+    board: row.board ?? '',
     at: row.updated_at.toISOString(),
   };
 }
@@ -312,7 +326,7 @@ export async function inviteMatch(kindRaw: string, fromUserId: string, toPlayerI
   await ensureTempleTables();
   await ensureTempleProfile(fromUserId);
   const kind = String(kindRaw ?? '');
-  if (!Object.hasOwn(RULES, kind)) throw new ApiError(400, 'invalid_game', 'the temple only runs dice and rock-paper-scissors');
+  if (!Object.hasOwn(RULES, kind)) throw new ApiError(400, 'invalid_game', 'the temple runs dice, rock-paper-scissors and caro');
   const other = await userIdOf(toPlayerId);
   if (other === fromUserId) throw new ApiError(400, 'self_game', 'nobody duels themselves');
   const existing = await openBetween(kind as GameKind, fromUserId, other);
@@ -322,8 +336,10 @@ export async function inviteMatch(kindRaw: string, fromUserId: string, toPlayerI
   cooldown(`${fromUserId}:game`, 5_000);
 
   const created = await pool.query<GameRow>(
-    "INSERT INTO temple_games (kind, a_user, b_user) VALUES ($1, $2, $3) RETURNING *",
-    [kind, fromUserId, other],
+    'INSERT INTO temple_games (kind, a_user, b_user, board) VALUES ($1, $2, $3, $4) RETURNING *',
+    // Bàn caro sinh ra đã là 81 ô trống thay vì chuỗi rỗng: một hàng đọc được bằng mắt
+    // thì sửa được bằng tay, còn DEFAULT '' chỉ tồn tại cho hai môn không có bàn.
+    [kind, fromUserId, other, kind === 'caro' ? EMPTY_BOARD : ''],
   );
   const players = await luckRows([fromUserId, other]);
   tellPeer(players, created.rows[0], fromUserId, 'invite');
@@ -353,12 +369,14 @@ export async function acceptMatch(gid: number, userId: string): Promise<GameMatc
   return matchOf(row, players, userId);
 }
 
-// Một nước đi: phần thân cũ của route /move, nay đứng riêng để bot gieo xúc xắc và ra đòn
-// oẳn tù tì bằng đúng đường của người thật — kể cả phần thưởng và trần điểm trong ngày.
+// Một nước đi: phần thân cũ của route /move, nay đứng riêng để bot gieo xúc xắc, ra đòn
+// oẳn tù tì và đặt ô caro bằng đúng đường của người thật — kể cả phần thưởng và trần điểm
+// trong ngày.
 //
 // Các key vắng mặt có ý nghĩa: máy khách đọc `result` như bằng chứng "vòng vừa phân
 // định", nên nhịp mới là bên ra trước phải trả về *không có* hai key ấy, đúng như body
-// mà route từng gửi.
+// mà route từng gửi. Với caro thì gần như mọi nước đều thuộc nhịp này: caro chỉ có
+// `result` khi trận ngã ngũ, còn bàn cờ đã đi theo `match.board`.
 export type GameMoveResult = {
   match: GameMatch;
   result?: RoundResult;
@@ -366,10 +384,10 @@ export type GameMoveResult = {
   waiting?: boolean;
 } & Partial<GameReward>;
 
-export async function moveMatch(gid: number, userId: string, rawPick: unknown): Promise<GameMoveResult> {
+export async function moveMatch(gid: number, userId: string, rawMove: unknown): Promise<GameMoveResult> {
   await ensureTempleTables();
   await ensureTempleProfile(userId);
-  const turn = await playTurn(gid, userId, rawPick);
+  const turn = await playTurn(gid, userId, rawMove);
   const { row, result, players } = turn;
   const match = matchOf(row, players, userId);
 
@@ -482,7 +500,7 @@ gamesRouter.post('/games/:id/cancel', withAccount(async (req, res, user) => {
 // (addMerit) là cửa cho deadlock.
 type Turn = { row: GameRow; result: RoundResult | null; players: Map<string, GamePlayer> };
 
-async function playTurn(gid: number, userId: string, rawPick: unknown): Promise<Turn> {
+async function playTurn(gid: number, userId: string, rawMove: unknown): Promise<Turn> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -499,10 +517,13 @@ async function playTurn(gid: number, userId: string, rawPick: unknown): Promise<
     const rule = RULES[row.kind];
     const mine = players.get(userId);
     if (!mine) throw new ApiError(500, 'profile_missing', 'no temple profile for this player');
+    // Caro đi luân phiên nên không chung nhịp "cả hai nước rồi mới phân định" ở dưới; nó
+    // có nhánh riêng trong cùng transaction, giữ nguyên lock và hai cột nước đi.
+    if (row.kind === 'caro') return await caroTurn(client, gid, row, side, players, rawMove);
     const move: Move = row.kind === 'dice' ? (() => {
       const dice = roll(rule.dice);
       return { dice, bonus: mine.bonus, total: dice.reduce((a, b) => a + b, 0) + mine.bonus };
-    })() : { pick: signOf(rawPick), bonus: mine.bonus };
+    })() : { pick: signOf(rawMove), bonus: mine.bonus };
 
     await client.query(`UPDATE temple_games SET ${side}_move = $2, updated_at = now() WHERE id = $1`, [gid, move]);
     const other: 'a' | 'b' = side === 'a' ? 'b' : 'a';
@@ -546,6 +567,82 @@ async function playTurn(gid: number, userId: string, rawPick: unknown): Promise<
   }
 }
 
+// Caro: một nước là một ô, và "ô này có hợp lệ không, hàng thắng thành chưa, tới lượt ai"
+// đều do caro.ts trả lời — máy khách không có đường nào tự khai kết quả. Hai nhịp ghi khớp
+// đúng hai nhịp của playTurn: nước chưa quyết định thì về không có `result`, nước ngã ngũ thì
+// ghi `result` kèm năm ô thắng.
+//
+// Bên mời (a) mở màn và đi nước đầu của mỗi vòng, nên hai cột a_move/b_move vẫn trả lời được
+// "đến lượt ai" bằng SQL cho bot, không ai phải đếm ký tự bàn cờ trong câu hỏi.
+async function caroTurn(
+  client: Db,
+  gid: number,
+  row: GameRow,
+  side: CaroSide,
+  players: Map<string, GamePlayer>,
+  rawMove: unknown,
+): Promise<Turn> {
+  const cell = num(rawMove, 0, CELLS - 1, 'invalid_cell');
+  if (turnOf(row.board) !== side) throw new ApiError(409, 'not_your_turn', 'caro is played one square at a time, and the inviter opens');
+  if (!isEmpty(row.board, cell)) throw new ApiError(400, 'cell_taken', 'that square is already on the board');
+  const board = place(row.board, cell, side);
+  const move: Move = { cell, bonus: 0 };
+  const luckA = players.get(row.a_user)?.luck ?? 0;
+  const luckB = players.get(row.b_user)?.luck ?? 0;
+  const line = winLine(board, cell);
+
+  if (line || isFull(board)) {
+    // Kết quả vẫn là một RoundResult cho đủ bộ với hai môn kia, nhưng nước của bên không
+    // kịp đi trong vòng này là nước rỗng: máy khách caro vẽ theo `board` và `line`, còn
+    // `a`/`b` chỉ để lịch sử không thiếu mặt bên nào.
+    const blank: Move = { bonus: 0 };
+    const result: RoundResult = {
+      round: row.round,
+      a: side === 'a' ? move : blank,
+      b: side === 'b' ? move : blank,
+      winner: line ? side : '',
+      luck: [luckA, luckB],
+      ...(line ? { line } : {}),
+    };
+    // Bàn đầy mà không ai đủ 5 là hòa: winner NULL, hai bên nhận phần thưởng hòa như mọi
+    // trận hòa khác của sảnh.
+    await client.query(
+      `UPDATE temple_games
+          SET a_score = $2, b_score = $3, status = 'over', winner = $4, board = $5,
+              a_move = NULL, b_move = NULL, result = $6, updated_at = now()
+        WHERE id = $1`,
+      [
+        gid,
+        row.a_score + (line && side === 'a' ? 1 : 0),
+        row.b_score + (line && side === 'b' ? 1 : 0),
+        line ? (side === 'a' ? row.a_user : row.b_user) : null,
+        board,
+        result,
+      ],
+    );
+    const settled = await client.query<GameRow>('SELECT * FROM temple_games WHERE id = $1', [gid]);
+    await client.query('COMMIT');
+    return { row: settled.rows[0], result, players };
+  }
+
+  // Chưa ngã ngũ: bên a để vòng dở (b còn chưa đi), bên b khép vòng và vòng mới mở lại ở a
+  // — cùng nhịp reset hai cột mà playTurn vẫn dùng cho xúc xắc, chỉ khác là caro không có
+  // điểm ở giữa vòng.
+  if (side === 'b') {
+    await client.query(
+      'UPDATE temple_games SET a_move = NULL, b_move = NULL, board = $2, round = $3, updated_at = now() WHERE id = $1',
+      [gid, board, row.round + 1],
+    );
+    await client.query('COMMIT');
+    return { row: { ...row, a_move: null, b_move: null, board, round: row.round + 1, updated_at: new Date() }, result: null, players };
+  }
+  await client.query('UPDATE temple_games SET a_move = $2, board = $3, updated_at = now() WHERE id = $1', [gid, move, board]);
+  await client.query('COMMIT');
+  return { row: { ...row, a_move: move, board, updated_at: new Date() }, result: null, players };
+}
+
+// `pick` hay `cell` tùy môn, và máy khách không cần biết route thích một hay hai key:
+// caro thì `pick` vắng mặt, xúc xắc thì cả hai vắng mặt.
 gamesRouter.post('/games/:id/move', withAccount(async (req, res, user) => {
-  res.json(await moveMatch(gameId(req.params.id), user.id, req.body?.pick));
+  res.json(await moveMatch(gameId(req.params.id), user.id, req.body?.pick ?? req.body?.cell));
 }));

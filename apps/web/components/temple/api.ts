@@ -74,12 +74,22 @@ export type Gain = {
   extra?: Record<string, number | boolean>;
 };
 
-export type GameKind = 'dice' | 'rps';
+export type GameKind = 'dice' | 'rps' | 'caro';
 
 // Một nước đi trong trận. Xúc xắc thì có `dice`/`total`; oẳn tù tì chỉ có `pick`, và
 // khi vòng còn chờ bên kia thì máy chủ giấu đòn của đối thủ — bên đó chỉ còn `bonus`.
-export type GameMove = { dice?: number[]; pick?: string; bonus: number; total?: number };
-export type GameRound = { round: number; a: GameMove; b: GameMove; winner: '' | 'a' | 'b'; luck: [number, number] };
+// Caro có `cell` (0..80, đọc từ `board` ra), và vì bàn cờ là công khai nên chẳng có gì
+// phải giấu: nước đi chỉ để HUD nói bên đó vừa đặt ô nào.
+export type GameMove = { dice?: number[]; pick?: string; cell?: number; bonus: number; total?: number };
+export type GameRound = {
+  round: number;
+  a: GameMove;
+  b: GameMove;
+  winner: '' | 'a' | 'b';
+  luck: [number, number];
+  // Chỉ có khi caro ngã ngũ: năm ô thắng cuộc, để HUD tô sáng đúng hàng đó.
+  line?: number[];
+};
 export type GamePlayer = PublicPlayer & { luck: number; bonus: number };
 export type GameSide = { player: GamePlayer; score: number; moved: boolean; move: GameMove | null };
 export type GameMatch = {
@@ -95,6 +105,9 @@ export type GameMatch = {
   // player_id của người thắng, null là hòa — và chỉ có khi trận đã ngã ngũ.
   winner: number | null;
   result: GameRound | null;
+  // Bàn caro: 81 ký tự '.', 'a', 'b'. Máy chủ giữ bàn vì nó là sự thật của mặt trận; hai
+  // môn khác trả chuỗi rỗng.
+  board: string;
   at: string;
 };
 
@@ -161,9 +174,12 @@ const MESSAGES: Record<string, string> = {
   unknown_offering: 'Sảnh không nhận vật phẩm này',
   guest_account_required: 'Chức năng này cần tài khoản — đăng ký để giữ lại điểm đang có nhé',
   no_such_game: 'Ván này không còn trong sảnh',
-  invalid_game: 'Sảnh chỉ mở hai môn: xúc xắc và oẳn tù tì',
+  invalid_game: 'Sảnh chỉ mở ba môn: xúc xắc, oẳn tù tì và cờ caro',
   invalid_game_id: 'Không tìm thấy ván này',
   invalid_sign: 'Chọn Búa, Bao hoặc Kéo thôi',
+  invalid_cell: 'Ô đó không có trên bàn',
+  cell_taken: 'Ô đó đã có quân rồi',
+  not_your_turn: 'Chưa tới lượt bạn',
   self_game: 'Không ai tỷ thí với chính mình',
   already_open: 'Hai bạn còn một ván chưa ngã ngũ',
   match_not_live: 'Lời mời này không còn chờ nữa',

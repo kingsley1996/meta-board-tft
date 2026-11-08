@@ -1,9 +1,10 @@
-// Tỷ thí giữa hai người chơi thật: xúc xắc và oẳn tù tì.
+// Tỷ thí giữa hai người chơi thật: xúc xắc, oẳn tù tì và cờ caro.
 //
 // Trận nằm trong database nên bảng này chỉ đọc lại những gì máy chủ đã quyết — nước đi
-// nào thắng, vòng mấy, ai được cộng bao nhiêu. Độ May hiện ra cạnh tên mỗi bên vì nó là
-// một phần của luật: vòng hòa oẳn tù tì nghiêng về phía lộc nặng hơn, và người chơi
-// cần thấy vì sao mình thua một vòng mà hai đòn giống hệt nhau.
+// nào thắng, vòng mấy, ai được cộng bao nhiêu, bàn caro ra sao. Độ May hiện ra cạnh tên
+// mỗi bên vì nó là một phần của luật xúc xắc và oẳn tù tì: vòng hòa oẳn tù tì nghiêng về
+// phía lộc nặng hơn, và người chơi cần thấy vì sao mình thua một vòng mà hai đòn giống
+// hệt nhau. Caro không có chỗ nào cho lộc, nên nó là môn duy nhất không in dòng đó.
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -25,12 +26,24 @@ const TABS = [
   { id: "hist", label: "Từng đấu" },
 ];
 
-// Tên hai môn tỷ thí — HUD cũng dùng để viết thẻ thông báo, nên để một chỗ.
+// Tên ba môn tỷ thí — HUD cũng dùng để viết thẻ thông báo, nên để một chỗ.
 export const KIND_NAME: Record<GameKind, string> = {
   dice: "Xúc Xắc",
   rps: "Oẳn Tù Tì",
+  caro: "Cờ Caro",
 };
-const KIND_ICON: Record<GameKind, string> = { dice: "dice", rps: "scissors" };
+const KIND_ICON: Record<GameKind, string> = { dice: "dice", rps: "scissors", caro: "grid" };
+
+// Bàn caro máy chủ gửi về là một chuỗi ký tự, một ký tự một ô, nên cạnh bàn suy ra từ
+// độ dài chuỗi thay vì hard-code con số 9 của phía API.
+const caroSize = (board: string) => Math.round(Math.sqrt(board.length));
+const caroName = (board: string, cell: number) =>
+  `${"ABCDEFGHI"[cell % caroSize(board)] ?? "?"}${Math.floor(cell / caroSize(board)) + 1}`;
+const caroFilled = (board: string) => [...board].filter((c) => c !== ".").length;
+// Bên mời cầm 'a' và đi nước đầu, nên hai bên quân đều nhau là tới lượt a. Luật thật nằm
+// ở máy chủ; chỗ này chỉ quyết định ô nào bấm được.
+const caroOpensA = (board: string) =>
+  [...board].filter((c) => c === "a").length === [...board].filter((c) => c === "b").length;
 
 // Mã đòn đúng như máy chủ giữ: bua ăn keo, keo ăn bao, bao ăn bua.
 const SIGN_NAME: Record<string, string> = {
@@ -104,8 +117,45 @@ function Die({ n }: { n: number }) {
 const sideOf = (m: GameMatch, me: number): GameSide | null =>
   m.a.player.id === me ? m.a : m.b.player.id === me ? m.b : null;
 
+// Bàn caro. Ô trống chỉ bấm được khi tới lượt mình, còn mọi ô đều có tên (C5) trong
+// tooltip để người chơi đọc được nước của đối thủ mà không phải đếm ô bằng mắt.
+function CaroBoard({
+  board,
+  line,
+  mine,
+  canPlay,
+  onPlay,
+}: {
+  board: string;
+  line?: number[];
+  mine: "a" | "b";
+  canPlay: boolean;
+  onPlay: (cell: number) => void;
+}) {
+  const size = caroSize(board);
+  const win = new Set(line ?? []);
+  return (
+    <div className="caro" style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}>
+      {[...board].map((c, i) => (
+        <button
+          key={i}
+          type="button"
+          className={[c === "a" || c === "b" ? c : "", win.has(i) ? "win" : ""].filter(Boolean).join(" ")}
+          disabled={!canPlay || c !== "."}
+          title={c === "." ? `Đặt tại ${caroName(board, i)}` : `${caroName(board, i)} · ${c === mine ? "quân của bạn" : "quân đối thủ"}`}
+          onClick={() => onPlay(i)}
+        >
+          {c === "." ? null : <i />}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // Nước đi của một bên. Khi vòng oẳn tù tì còn chờ đối thủ, máy chủ giấu đòn của họ và
 // chỉ trả `{bonus}` — có mặt ở đó để biết họ đã oẳn, không có mặt để đọc được ra gì.
+// Caro không có gì để hiện ở đây: bàn cờ bên dưới đã nói ô nào vừa đặt, đặt thêm một
+// dòng chữ vào hàng tên chỉ để lặp lại đúng điều đó.
 function MoveBox({
   kind,
   side,
@@ -116,6 +166,7 @@ function MoveBox({
   live: boolean;
 }) {
   const mv = side.move;
+  if (kind === "caro") return null;
   if (!side.moved)
     return live ? <span className="duel-idle">chưa ra</span> : null;
   if (!mv) return null;
@@ -159,10 +210,13 @@ function DuelRow({
       <Ava name={side.player.name} sect={side.player.sect} />
       <div className="duel-who">
         <b>{side.player.name}</b>
-        <small>
-          Độ May {side.player.luck} · +{side.player.bonus} lộc
-          {side.player.id === me ? " (bạn)" : ""}
-        </small>
+        {/* Caro không có lộc để mà in: bàn cờ và chú thích bên dưới đã nói hết. */}
+        {kind === "caro" ? null : (
+          <small>
+            Độ May {side.player.luck} · +{side.player.bonus} lộc
+            {side.player.id === me ? " (bạn)" : ""}
+          </small>
+        )}
       </div>
       <MoveBox kind={kind} side={side} live={live} />
       <span className="duel-sc">{side.score}</span>
@@ -194,30 +248,44 @@ function RoundSide({ kind, mv }: { kind: GameKind; mv: GameMove }) {
 function LastRound({ m, me }: { m: GameMatch; me: number }) {
   const r = m.result;
   if (!r) return null;
+  // Caro không có "vòng" nghĩa là một cặp nước: result của nó chỉ xuất hiện khi ván ngã
+  // ngũ, và thứ đáng đọc là năm ô nào thành hàng, không phải hai nước so với nhau.
+  const caro = m.kind === "caro";
+  const noun = caro ? "ván" : "vòng";
   const same = m.kind === "rps" && !!r.a.pick && r.a.pick === r.b.pick;
   const mine = r.winner && r.winner === (me === m.a.player.id ? "a" : "b");
   const who = !r.winner
-    ? "hòa vòng này"
+    ? `hòa ${noun} này`
     : mine
-      ? "bạn thắng vòng này"
-      : `${r.winner === "a" ? m.a.player.name : m.b.player.name} thắng vòng này`;
+      ? `bạn thắng ${noun} này`
+      : `${r.winner === "a" ? m.a.player.name : m.b.player.name} thắng ${noun} này`;
   return (
     <div className="duel-last">
       <div className="duel-last-head">
-        <Icon name={r.winner ? "check" : "spark"} /> Vòng {r.round} ·{" "}
+        <Icon name={r.winner ? "check" : "spark"} /> {caro ? "Chốt" : `Vòng ${r.round}`} ·{" "}
         <b>{who}</b>
       </div>
-      <div className="duel-vs">
-        <RoundSide kind={m.kind} mv={r.a} />
-        <em>so với</em>
-        <RoundSide kind={m.kind} mv={r.b} />
-      </div>
-      {same ? (
+      {caro ? (
         <p className="duel-luck">
-          Hai đòn bằng nhau, Độ May {r.luck[0]} so với {r.luck[1]} quyết vòng
-          này.
+          {r.line && r.line.length
+            ? `Hàng thắng: ${r.line.map((i) => caroName(m.board, i)).join(" · ")}`
+            : "Bàn đã đầy mà không bên nào đủ năm ô liền."}
         </p>
-      ) : null}
+      ) : (
+        <>
+          <div className="duel-vs">
+            <RoundSide kind={m.kind} mv={r.a} />
+            <em>so với</em>
+            <RoundSide kind={m.kind} mv={r.b} />
+          </div>
+          {same ? (
+            <p className="duel-luck">
+              Hai đòn bằng nhau, Độ May {r.luck[0]} so với {r.luck[1]} quyết vòng
+              này.
+            </p>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }
@@ -268,13 +336,19 @@ function Duel({
     reload();
   };
 
+  // Caro đi luân phiên nên "đến lượt ai" là câu hỏi đầu tiên trên màn hình, và bàn cờ là
+  // câu trả lời. Quyền quyết vẫn ở máy chủ — đây chỉ là thứ bật/tắt các ô trống.
+  const caroTurn = m.kind === "caro" ? (caroOpensA(m.board) ? m.a : m.b) : null;
+
   const head =
     m.status === "invite"
       ? me === m.b
         ? `${rival.player.name} mời bạn tỷ thí`
         : `Đang chờ ${rival.player.name}…`
       : m.status === "live"
-        ? `Vòng ${m.round}/${m.max_rounds} · ăn ${m.wins_needed}`
+        ? caroTurn
+          ? `${caroTurn.player.id === s.me ? "Đến lượt bạn" : "Đến lượt đối thủ"} · ${caroFilled(m.board)}/${m.board.length} ô`
+          : `Vòng ${m.round}/${m.max_rounds} · ăn ${m.wins_needed}`
         : m.status === "over"
           ? m.winner
             ? m.winner === s.me
@@ -307,6 +381,24 @@ function Duel({
         live={m.status === "live"}
         won={m.status === "over" && m.winner === m.b.player.id}
       />
+      {/* Bàn caro nằm giữa hai hàng tên và khối kết quả: nó là mặt trận, còn hai thứ kia
+          là chú thích. Chuỗi rỗng (xúc xắc, oẳn tù tì) thì không vẽ gì. */}
+      {m.kind === "caro" && m.board ? (
+        <>
+          <CaroBoard
+            board={m.board}
+            line={m.result?.line}
+            mine={me === m.a ? "a" : "b"}
+            canPlay={!!caroTurn && m.status === "live" && !s.guest && caroTurn.player.id === s.me}
+            onPlay={(cell) => void run(`/games/${m.id}/move`, { cell })}
+          />
+          <p className="caro-note">
+            <i className="a" /> {m.a.player.name}
+            <i className="b" /> {m.b.player.name}
+            <em>đủ 5 ô liền ngang, dọc hoặc chéo là thắng</em>
+          </p>
+        </>
+      ) : null}
       <LastRound m={m} me={s.me} />
       {m.status === "over" || m.status === "dead" ? (
         <small className="duel-at">{ago(m.at)}</small>
@@ -338,7 +430,9 @@ function Duel({
         </div>
       ) : m.status === "live" && me ? (
         me.moved ? (
-          <p className="muted">Đã ra nước đi · chờ đối thủ vòng này.</p>
+          <p className="muted">
+            Đã ra nước đi · chờ đối thủ{m.kind === "caro" ? "." : " vòng này."}
+          </p>
         ) : m.kind === "dice" ? (
           <div className="duel-acts">
             <button
@@ -354,6 +448,24 @@ function Duel({
               Bỏ ván
             </button>
           </div>
+        ) : m.kind === "caro" ? (
+          <>
+            {/* Nước đi của caro là một ô trên bàn, nên khối này chỉ còn hàng nhắc và nút
+                bỏ ván — bấm ô nào thì bàn cờ ở trên đã nói rồi. */}
+            <p className="muted">
+              {caroTurn && caroTurn.player.id === s.me
+                ? "Chạm một ô trống để đặt quân."
+                : "Đang chờ đối thủ đặt ô."}
+            </p>
+            <div className="duel-acts">
+              <button
+                className="btn"
+                onClick={() => void run(`/games/${m.id}/cancel`)}
+              >
+                Bỏ ván
+              </button>
+            </div>
+          </>
         ) : (
           <>
             <div className="region">Ra đòn</div>
@@ -459,7 +571,12 @@ export function GameSheet({
       <p className="muted">
         Oẳn tù tì: Đấu ba ván, ai thắng hai ván trước sẽ giành chiến thắng.
       </p>
-      <p className="muted">Nếu hòa, kết quả sẽ do Độ May Mắn quyết định.</p>
+      <p className="muted">
+        Cờ caro: Bàn 9×9, bên mời đi trước, đủ 5 ô liền ngang, dọc hoặc chéo là thắng.
+      </p>
+      <p className="muted">
+        Xúc xắc và oẳn tù tì mà hòa thì Độ May Mắn quyết; caro hòa khi bàn đã đầy.
+      </p>
       <p className="muted">
         Thắng nhận 40 Điểm May Mắn, thua vẫn nhận được 12 Điểm May Mắn.
       </p>

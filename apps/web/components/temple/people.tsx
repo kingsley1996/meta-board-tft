@@ -72,7 +72,7 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
   const challenge = async (kind: GameKind) => {
     try {
       await post('/games', { kind, id });
-      s.toast(`<svg class="i"><use href="#i-${kind === 'dice' ? 'dice' : 'scissors'}"/></svg> Đã mời <b>${esc(p.name)}</b> tỷ thí`);
+      s.toast(`<svg class="i"><use href="#i-${kind === 'dice' ? 'dice' : kind === 'rps' ? 'scissors' : 'grid'}"/></svg> Đã mời <b>${esc(p.name)}</b> tỷ thí`);
       onClose();
     } catch (e) {
       s.toast((e as Error).message);
@@ -172,6 +172,9 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
             </button>
             <button className="btn" onClick={() => void challenge('rps')}>
               <Icon name="scissors" /> Oẳn Tù Tì
+            </button>
+            <button className="btn" onClick={() => void challenge('caro')}>
+              <Icon name="grid" /> Cờ Caro
             </button>
           </div>
         </>

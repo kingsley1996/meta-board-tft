@@ -1467,6 +1467,23 @@
 #temple-root .rps button:active { transform: scale(.95); }
 #temple-root .rps .i { width: 22px; height: 22px; color: #a5650f; }
 #temple-root .rps em { font-style: normal; font-size: 11.5px; font-weight: 600; }
+/* Bàn caro: 9 cột đều nhau, mỗi ô vuông theo aspect-ratio nên bàn tự co theo bề rộng
+   sheet — desktop hay 390px cũng chỉ một khai báo. Quân là vòng tròn nét, không phải ảnh:
+   81 ô mà mỗi ô mang texture thì bàn cờ biến thành rác mắt. */
+#temple-root .caro { display: grid; gap: 3px; margin-top: 10px; padding: 5px; border-radius: 14px; background: #f4e7c6; box-shadow: 0 0 0 1px #e2c27a inset; }
+#temple-root .caro button { aspect-ratio: 1; display: grid; place-items: center; padding: 0; border: 1px solid #e8d6ae; border-radius: 5px; background: #fffaf0; transition: transform .1s, background .2s, border-color .2s; }
+#temple-root .caro button:not(:disabled):hover { background: #fff; border-color: #d8a94a; }
+#temple-root .caro button:not(:disabled):active { transform: scale(.88); }
+#temple-root .caro button:disabled { cursor: default; }
+#temple-root .caro button.win { border-color: #2f8a3a; background: #eef7ea; box-shadow: 0 0 0 2px #b9dcae inset; }
+#temple-root .caro i { width: 74%; aspect-ratio: 1; border-radius: 50%; box-shadow: 0 1px 2px rgba(74, 48, 16, .35); }
+#temple-root .caro .a i { background: radial-gradient(circle at 34% 30%, #7a5330, #2c1a09); }
+#temple-root .caro .b i { background: radial-gradient(circle at 34% 30%, #ffe3a1, #c8892a); }
+#temple-root .caro-note { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 7px; font-size: 11.5px; color: var(--muted); }
+#temple-root .caro-note i { width: 12px; height: 12px; border-radius: 50%; }
+#temple-root .caro-note .a { background: radial-gradient(circle at 34% 30%, #7a5330, #2c1a09); }
+#temple-root .caro-note .b { margin-left: 6px; background: radial-gradient(circle at 34% 30%, #ffe3a1, #c8892a); }
+#temple-root .caro-note em { font-style: normal; margin-left: auto; }
 @media (max-width: 440px) {
   /* Một hàng chỉ còn ba cột: tên + điểm trên dòng đầu, nước đi rơi xuống dòng hai.
      Để nguyên bốn cột thì điểm bị đẩy xuống thành một số lẻ loi sát lề trái. */

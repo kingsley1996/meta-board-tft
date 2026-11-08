@@ -22,6 +22,7 @@
 // process này.
 import { pool } from '../db.ts';
 import { createUser } from '../accounts.ts';
+import { bestMove, type CaroSide } from './caro.ts';
 import { STALE_MS, acceptMatch, expireStaleGames, inviteMatch, moveMatch } from './games.ts';
 import { TEMPLE_ID } from './hall.ts';
 import { ApiError } from './http.ts';
@@ -529,17 +530,29 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
       await acceptMatch(Number(invited.rows[0].id), bot.entry.userId);
       return;
     }
-    const turn = await pool.query<{ id: string }>(
-      `SELECT id FROM temple_games
+    const turn = await pool.query<{ id: string; kind: string; board: string; a_user: string }>(
+      `SELECT id, kind, board, a_user FROM temple_games
         WHERE (a_user = $1 OR b_user = $1) AND status = 'live'
-          AND (CASE WHEN a_user = $1 THEN a_move ELSE b_move END) IS NULL
+          AND (CASE WHEN kind = 'caro'
+                    THEN (CASE WHEN a_user = $1 THEN a_move IS NULL
+                                                      ELSE a_move IS NOT NULL AND b_move IS NULL END)
+                    ELSE (CASE WHEN a_user = $1 THEN a_move ELSE b_move END) IS NULL END)
           AND NOT ((CASE WHEN a_user = $1 THEN b_user ELSE a_user END) = ANY($2::uuid[]))
           AND updated_at > now() - ($3::int * INTERVAL '1 millisecond')
         ORDER BY updated_at ASC LIMIT 2`,
       [bot.entry.userId, [...botUsers], STALE_MS],
     );
     if (turn.rows.length) {
-      for (const row of turn.rows) await moveMatch(Number(row.id), bot.entry.userId, pick(SIGNS));
+      for (const row of turn.rows) {
+        // Caro đi luân phiên, nên điều kiện ở trên mới là phần khó: hỏi sai là bot ngồi
+        // nhìn một ván của người thật tới tận STALE_MS. Phần dễ là nước đi — caro.ts chọn
+        // ô (hoàn thành hàng, chặn hàng, còn thì xây gần đám đông), hai môn kia vẫn ra
+        // đòn cũ. Cả hai đường đều qua moveMatch, tức bot không có luật riêng.
+        const me: CaroSide = row.a_user === bot.entry.userId ? 'a' : 'b';
+        const move = row.kind === 'caro' ? bestMove(row.board, me) : pick(SIGNS);
+        if (move === null) continue;
+        await moveMatch(Number(row.id), bot.entry.userId, move);
+      }
       await refresh(bot);
       return;
     }
@@ -567,7 +580,7 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
       [rival.profile.id, DUEL_QUIET_MS],
     );
     if (rows[0]?.busy || rows[0]?.quiet) return;
-    await inviteMatch(Math.random() < 0.5 ? 'dice' : 'rps', bot.entry.userId, rival.profile.id);
+    await inviteMatch(pick(['dice', 'rps', 'caro'] as const), bot.entry.userId, rival.profile.id);
   }
 
   // ---- vào/ra ----

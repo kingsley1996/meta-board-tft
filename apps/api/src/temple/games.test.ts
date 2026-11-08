@@ -80,11 +80,12 @@ test(
     }
 
     // Mời qua HTTP thì vướng nhịp 5 giây chống spam, còn kịch bản bên dưới cần nhiều trận
-    // trong một nhịp: mọc hàng qua SQL đúng bằng cái POST /games vẫn ghi.
-    async function seedMatch(kind: 'dice' | 'rps', a: Side, b: Side, status: 'invite' | 'live' = 'invite'): Promise<number> {
+    // trong một nhịp: mọc hàng qua SQL đúng bằng cái POST /games vẫn ghi. Caro cần thêm
+    // `board` vì luật đọc bàn cờ, và bàn phải sinh ra đã là 81 ô trống đúng như inviteMatch.
+    async function seedMatch(kind: 'dice' | 'rps' | 'caro', a: Side, b: Side, status: 'invite' | 'live' = 'invite'): Promise<number> {
       const { rows } = await pool.query<{ id: string }>(
-        'INSERT INTO temple_games (kind, a_user, b_user, status) VALUES ($1, $2, $3, $4) RETURNING id',
-        [kind, a.user, b.user, status],
+        'INSERT INTO temple_games (kind, a_user, b_user, status, board) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+        [kind, a.user, b.user, status, kind === 'caro' ? (await import('./caro.ts')).EMPTY_BOARD : ''],
       );
       return Number(rows[0].id);
     }
@@ -308,6 +309,90 @@ test(
       assert.equal(drawn.gained, 20, 'both walk away with the draw purse');
       assert.equal(await expOf(A), expA4 + 20);
       assert.equal(await expOf(B), expB4 + 20, 'the peer gets the same purse without asking for it');
+
+      // ---- Cờ Caro -------------------------------------------------------------------
+      // Luật đi và luật thắng đều ở server (caro.ts); ở đây chỉ cần chứng minh giao dịch
+      // quanh nó: bên mời đi nước lẻ, một vòng là hai nước, và nước thứ năm quyết định cả trận.
+      const caro = await import('./caro.ts');
+
+      // playToOver bắn {pick} nên không dùng được: mỗi request của caro là đúng một ô.
+      async function ply(id: number, side: Side, cell: number | undefined): Promise<Json> {
+        const r = await post(`/api/temple/games/${id}/move`, cell === undefined ? {} : { cell }, side.cookie);
+        assert.equal(r.status, 200, `a legal square is not rejected (${r.code})`);
+        return r.json;
+      }
+
+      // Qua cửa HTTP thật để hàng sinh ra đúng như ván người ta chơi: D mời A, nên D là a.
+      const askCaro = await post('/api/temple/games', { kind: 'caro', id: A.me.id }, D.cookie);
+      assert.equal(askCaro.status, 201);
+      const m7: Json = askCaro.json.match;
+      assert.equal(m7.board, caro.EMPTY_BOARD, 'a caro match is born with an empty 9x9 board, not an empty string');
+      assert.equal(m7.board.length, caro.CELLS);
+      assert.equal(m7.a.player.id, D.me.id, 'the inviter is side a, and side a opens');
+      assert.equal(m7.max_rounds, 41, 'eighty-one squares are forty paired rounds plus the inviter last ply');
+      assert.equal(m7.wins_needed, 1, 'one line decides the whole match');
+      assert.equal((await post(`/api/temple/games/${m7.id}/move`, { cell: 40 }, D.cookie)).code, 'match_not_live');
+      assert.equal((await post(`/api/temple/games/${m7.id}/accept`, {}, D.cookie)).code, 'not_your_game');
+      assert.equal((await post(`/api/temple/games/${m7.id}/accept`, {}, A.cookie)).json.match.status, 'live');
+
+      assert.equal((await post(`/api/temple/games/${m7.id}/move`, { cell: 30 }, A.cookie)).status, 409);
+      assert.equal((await post(`/api/temple/games/${m7.id}/move`, { cell: 30 }, A.cookie)).code, 'not_your_turn', 'the invited side waits for the first stone');
+      assert.equal((await post(`/api/temple/games/${m7.id}/move`, {}, D.cookie)).code, 'invalid_cell', 'no square is not square zero');
+      assert.equal((await post(`/api/temple/games/${m7.id}/move`, { cell: 81 }, D.cookie)).code, 'invalid_cell', 'and a square off the board is not a square');
+
+      const open7 = await ply(m7.id, D, 40);
+      assert.equal(open7.waiting, true, 'a ply that does not end the match carries no round result');
+      assert.equal(open7.result, undefined, 'and there is nothing to print — caro reports only when it is over');
+      assert.equal(open7.match.board[40], 'a', 'the server owns the board');
+      assert.equal(open7.match.a.move.cell, 40, 'the move a client reads is the square the server wrote');
+      assert.equal(open7.match.b.moved, false);
+      assert.equal((await post(`/api/temple/games/${m7.id}/move`, { cell: 41 }, D.cookie)).code, 'already_moved', 'one ply per side per round');
+      // Bàn caro là tin công khai, khác đòn oẳn tù tì phải giấu tới khi hai bên cùng ra đòn.
+      assert.equal((await openOf(A, m7.id)).board[40], 'a', 'the rival reads the stone without waiting for the round');
+
+      const back7 = await ply(m7.id, A, 30);
+      assert.equal(back7.match.round, 2, 'two plies make one round');
+      assert.equal(back7.match.board[30], 'b');
+      assert.equal((await post(`/api/temple/games/${m7.id}/move`, { cell: 31 }, A.cookie)).code, 'not_your_turn', 'the board decides who may place next');
+      assert.equal((await post(`/api/temple/games/${m7.id}/move`, { cell: 30 }, D.cookie)).code, 'cell_taken', 'a square already on the board is refused');
+
+      await fortune([A, D], { exp: 20 });
+      const expD7 = await expOf(D);
+      const expA7 = await expOf(A);
+      const line = [0, 1, 2, 3, 4];
+      let won: Json = {};
+      for (const [i, cell] of line.entries()) {
+        won = await ply(m7.id, D, cell);
+        // b câu sang hàng đáy, cách nhau hai ô để không vô tình thành dãy năm của riêng b.
+        if (i < line.length - 1) await ply(m7.id, A, [80, 78, 76, 74][i]);
+      }
+      assert.equal(won.over, true, 'the fifth stone settles the match in the request that placed it');
+      assert.equal(won.result.winner, 'a');
+      assert.deepEqual(won.result.line, line, 'the match keeps the five squares so the HUD can ring them');
+      assert.equal(won.match.status, 'over');
+      assert.equal(won.match.board.slice(0, 5), 'aaaaa', 'and keeps the board the line was read from');
+      assert.equal(won.match.winner, D.me.id);
+      assert.equal((await post(`/api/temple/games/${m7.id}/move`, { cell: 50 }, A.cookie)).code, 'match_finished', 'a closed board takes no more stones');
+      assert.equal(await expOf(D), expD7 + 40, 'the winner takes the win purse');
+      assert.equal(await expOf(A), expA7 + 12, 'the loser takes the lose purse without asking');
+
+      // ---- Caro hòa vì đầy bàn ---------------------------------------------------------
+      // Hai hàng mẫu bổ khuyết nhau: mỗi cột lật dấu từng ô nên không có dãy năm dọc, và
+      // chéo cũng lật dấu vì bước cột rơi đúng nhịp aabb của hàng mẫu. 40-40 nên là lượt a.
+      const even = 'aabbaabba';
+      const odd = 'bbaabbaab';
+      const drawBoard = [...Array.from({ length: caro.SIZE }, (_, r) => (r % 2 ? odd : even)).join('')].map((c, i) => (i === 0 ? '.' : c)).join('');
+      for (let i = 0; i < caro.CELLS; i += 1) assert.equal(caro.winLine(drawBoard, i), null, 'no five sits on the board yet');
+      assert.equal(caro.winLine(drawBoard.replace('.', 'a'), 0), null, 'and the last square completes none');
+      const m8 = await seedMatch('caro', A, B, 'live');
+      await pool.query('UPDATE temple_games SET board = $2, round = 41, a_move = NULL, b_move = NULL WHERE id = $1', [m8, drawBoard]);
+      assert.equal(caro.stonesOf(drawBoard), 80, 'one square short of a full board');
+      assert.equal(caro.turnOf(drawBoard), 'a');
+      const lastDraw = await post(`/api/temple/games/${m8}/move`, { cell: 0 }, A.cookie);
+      assert.equal(lastDraw.json.over, true, 'filling the last square ends the match');
+      assert.equal(lastDraw.json.match.winner, null, 'nobody reached five, so the draw is the result');
+      assert.equal(lastDraw.json.outcome, 'draw');
+      assert.equal(lastDraw.json.match.board[0], 'a', 'the closing stone is still on the board');
 
       // ---- Từ chối, rút lui, quá hạn ---------------------------------------------------
       const asked = await seedMatch('dice', A, B);
