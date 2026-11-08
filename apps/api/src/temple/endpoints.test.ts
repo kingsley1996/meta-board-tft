@@ -296,6 +296,19 @@ test(
       for (const it of WEARABLE_POOL) assert.ok(bag.includes(it.id), `${it.id} is still missing from the admin bag`);
       assert.ok(WEARABLE_POOL.some((it) => it.rank === 'quy'), 'and the Quý pieces are part of what got handed over');
 
+      // Số bot là cấu hình dùng chung: tuyến này ghi temple_settings chứ không phải
+      // RAM của riêng process, và chỉ admin chạm được.
+      assert.equal((await get('/api/temple/admin/bots', me.cookie)).status, 403, 'a normal account cannot read the hall config');
+      assert.equal((await post('/api/temple/admin/bots', { bots: 21 }, boss.cookie)).status, 400, 'the hall holds at most twenty bots');
+      assert.equal((await post('/api/temple/admin/bots', { bots: -1 }, boss.cookie)).status, 400, 'and never a negative crowd');
+      const botBefore = (await get('/api/temple/admin/bots', boss.cookie)).json as { bots: number; max: number };
+      assert.equal(botBefore.max, 20);
+      const setBots = await post('/api/temple/admin/bots', { bots: 20 }, boss.cookie);
+      assert.equal(setBots.status, 200);
+      assert.equal(setBots.json.bots, 20);
+      assert.equal((await get('/api/temple/admin/bots', boss.cookie)).json.bots, 20, 'the value is read back from the shared row');
+      await post('/api/temple/admin/bots', { bots: botBefore.bots }, boss.cookie);
+
       // Admin thử tạo hình cũng là việc vận hành: /hero trả giá 0 cho đúng tài khoản đó
       // và không cú bấm nào trừ ví, kể cả cú mà người thường phải trả 100.
       const { HERO_IDS } = await import('./heroes.ts');

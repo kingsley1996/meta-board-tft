@@ -1,5 +1,5 @@
-// Hai tuyến admin, chỉ tác động lên chính tài khoản đang đăng nhập: đặt bậc và cấp
-// toàn bộ trang bị.
+// Tuyến admin của đền: đặt bậc và cấp toàn bộ trang bị cho chính tài khoản đang
+// đăng nhập, cộng thêm cấu hình dùng chung của sảnh (số bot đứng trong đền).
 //
 // Vì sao phải nằm ở server thay vì để HUD tự viết hồ sơ: `level` không phải một cột,
 // nó suy ra từ exp (identity.ts:levelFromExp), và mọi cổng giá trong shop.ts đọc đúng
@@ -8,6 +8,7 @@
 // chơi thật phải leo — không có con số nào mới.
 import { Router } from 'express';
 import { pool } from '../db.ts';
+import { BOT_MAX, readBotCount, saveBotCount } from './bots.ts';
 import { WEARABLE_POOL } from './catalog.ts';
 import { LADDER_SIZE, ensureTempleProfile, expForLevel } from './identity.ts';
 import { num, withAdmin } from './http.ts';
@@ -44,4 +45,18 @@ adminRouter.post('/admin/gear', withAdmin(async (req, res, user) => {
     [user.id, grant],
   );
   res.json({ state: await templeState(user.id), items: Object.keys(rows[0]?.inventory ?? {}).length });
+}));
+
+// Số bot đứng trong sảnh: hàng temple_settings là nguồn sự thật, nên người thật
+// đang ngồi trong đền thấy đổi ngay ở nhịp presence kế tiếp (bots.ts).
+adminRouter.get('/admin/bots', withAdmin(async (_req, res) => {
+  await ensureTempleTables();
+  res.json({ bots: await readBotCount(), max: BOT_MAX });
+}));
+
+adminRouter.post('/admin/bots', withAdmin(async (req, res) => {
+  await ensureTempleTables();
+  const bots = num(req.body?.bots, 0, BOT_MAX, 'invalid_bot_count');
+  await saveBotCount(bots);
+  res.json({ bots, max: BOT_MAX });
 }));

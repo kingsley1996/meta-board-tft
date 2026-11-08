@@ -1,9 +1,11 @@
-// Bot của chánh điện: những "người" thế chỗ khi đền vắng.
+// Bot của chánh điện: những "người" đứng cùng người thật trong sảnh.
 //
-// Bốn quyết định đã chốt (2026-11-06):
-//  - Số bot cố định và chỉ vào lúc hall gần trống; người thật tới đủ đông thì bot ra.
+// Bốn quyết định đã chốt (2026-11-08):
+//  - Số bot do admin chọn (0..20), luôn có mặt kể cả khi đền vắng hay đông.
+//  - Chỉ chào/đấu với người thật, không bao giờ với bot khác; lời mời và trận bỏ dở
+//    tự chuyển 'dead' sau STALE_MS nhờ nhịp quét trong work().
 //  - Điểm, BXH, sổ ngày như người thật: bot có hàng temple_practice và tự kiếm thêm.
-//  - Kinh tế thường: mọi phần thưởng đi qua đúng hàm mà HUD gọi, nên trần ngày (tỷ thí
+//    Kinh tế thường: mọi phần thưởng đi qua đúng hàm mà HUD gọi, nên trần ngày (tỷ thí
 //    120 điểm, thiền 60 phút một nhịp và 240 phút một ngày) tự áp dụng cho bot.
 //  - Không có nhãn "bot" ở bất kỳ đâu: chúng là hàng users + temple_profiles như mọi
 //    hàng khác, chỉ khác chỗ không có phiên và không có mật khẩu.
@@ -20,7 +22,7 @@
 // process này.
 import { pool } from '../db.ts';
 import { createUser } from '../accounts.ts';
-import { STALE_MS, acceptMatch, inviteMatch, moveMatch } from './games.ts';
+import { STALE_MS, acceptMatch, expireStaleGames, inviteMatch, moveMatch } from './games.ts';
 import { TEMPLE_ID } from './hall.ts';
 import { ApiError } from './http.ts';
 import { ensureTempleProfile, templeProfile, toPlayerProfile, updateTempleProfile } from './identity.ts';
@@ -56,9 +58,38 @@ const BOW_MS = 2600;
 // Người thật gom 4 cú một gói rồi mới gửi (temple-app.tsx:277); bot cũng gom từng ấy.
 const BOW_BATCH = 4;
 const PRESENCE_BEATS = 8;
-const BOT_COUNT = 6;
-// Từ số người thật này thì hall không còn "vắng" nữa và bot nhường chỗ.
-const HUMANS_FULL = 4;
+export const BOT_MAX = 20;
+const BOT_DEFAULT = 6;
+// Số bot là một hàng trong temple_settings chứ không phải biến RAM: admin đổi một
+// lần là cả sảnh (và lần restart sau) thấy cùng một con số. Bản trong process chỉ
+// được đọc lại theo nhịp này để một instance khác sửa thì cũng dần khớp.
+const BOT_REFRESH_MS = 60_000;
+// Nhịp quét trận quá hạn. STALE_MS là 10 phút; quét mỗi phút để hàng chết không nằm
+// lại lâu hơn một nhịp thở của người đang chờ.
+const GAME_SWEEP_MS = 60_000;
+// Khoảng lặng chào giữa hai lần tới một người thật, tính chung mọi bot. Không có nó
+// thì sáu bot, mỗi bot 45–120 giây, biến hộp thư của người đứng lâu thành một dòng thác.
+const GREET_QUIET_MS = 5 * 60_000;
+let botCount = BOT_DEFAULT;
+let botCountAt = 0;
+let gameSweepAt = 0;
+let botUsers = new Set<string>();
+
+export async function readBotCount(): Promise<number> {
+  const { rows } = await pool.query<{ value: string }>("SELECT value FROM temple_settings WHERE key = 'bot_count'");
+  const n = Number(rows[0]?.value);
+  return Number.isInteger(n) ? Math.min(Math.max(n, 0), BOT_MAX) : BOT_DEFAULT;
+}
+
+export async function saveBotCount(n: number): Promise<void> {
+  await pool.query(
+    `INSERT INTO temple_settings (key, value) VALUES ('bot_count', $1)
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+    [String(n)],
+  );
+  botCount = n;
+  botCountAt = Date.now();
+}
 
 // ---- lưới bệ ngồi ---------------------------------------------------------------
 //
@@ -97,67 +128,108 @@ type BotDef = {
   kit: { robe: string; beads: string; cushion: string; hat: string | null; staff: string | null; cloud: string | null; pet: string | null };
 };
 
-// Mười hai nhân vật trong avatar.js:HERO_LIST, mỗi bot một người, để cả mười hai đều
-// có mặt trong chánh điện. Trang phục bậc thấp đứng trước, bậc cao đứng sau: một người
-// vận Như Ý mà mặc áo tặng ngày đầu thì ngược nhau.
+// Hai mươi nhân vật cho chánh điện: 12 hình của avatar.js:HERO_LIST được dùng lại
+// với tóc/skin/đồ khác nhau, vì giới hạn bot của admin là 20 (BOT_MAX). Trang phục
+// bậc thấp đứng trước, bậc cao đứng sau: một người vận Như Ý mà mặc áo tặng ngày
+// đầu thì ngược nhau.
 const ROSTER: BotDef[] = [
   {
-    slug: 'minh_anh', name: 'Lữ Khách Minh Anh', sect: 'reroll', exp: 260, days: 6,
+    slug: 'minh_anh', name: 'Thích Tiêu Tiền', sect: 'reroll', exp: 260, days: 6,
     look: { hero: 'luffy_g5', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
     kit: { robe: 'ao_lam', beads: 'chuoi_go', cushion: 'bd_nau', hat: null, staff: null, cloud: null, pet: 'lt_huou' },
   },
   {
-    slug: 'dieu_lien', name: 'Người Thắp Đèn Diệu Liên', sect: 'tempo', exp: 420, days: 8,
+    slug: 'an_nhien', name: 'bé bơ', sect: 'flex', exp: 360, days: 5,
+    look: { hero: 'naruto_sage', gender: 'nu', hair: 'ngan', skin: '#f7d9b8' },
+    kit: { robe: 'ao_vang', beads: 'chuoi_go', cushion: 'bd_sen', hat: null, staff: null, cloud: null, pet: 'lt_tho_ngoc' },
+  },
+  {
+    slug: 'dieu_lien', name: 'giang đẫm', sect: 'tempo', exp: 420, days: 8,
     look: { hero: 'naruto_sage', gender: 'nu', hair: 'dai', skin: '#efd6bb' },
     kit: { robe: 'ao_xam', beads: 'chuoi_bode', cushion: 'bd_xam', hat: null, staff: null, cloud: null, pet: 'lt_tho_ngoc' },
   },
   {
-    slug: 'hai_dang', name: 'Lữ Khách Hải Đăng', sect: 'flex', exp: 620, days: 7,
+    slug: 'tinh_yen', name: 'Cà Khịa Chúa', sect: 'tempo', exp: 540, days: 7,
+    look: { hero: 'sanji', gender: 'nu', hair: 'dai', skin: '#f3c6a5' },
+    kit: { robe: 'ao_cam_lan', beads: 'chuoi_tudan', cushion: 'bd_xam', hat: null, staff: null, cloud: null, pet: 'lt_su_tu_xanh' },
+  },
+  {
+    slug: 'hai_dang', name: 'Top 4 Là Đủ', sect: 'flex', exp: 620, days: 7,
     look: { hero: 'zoro', gender: 'nam', hair: 'trau', skin: '#e8b48c' },
     kit: { robe: 'ao_nau', beads: 'chuoi_go', cushion: 'bd_vang', hat: 'mu_kim_co', staff: null, cloud: null, pet: null },
   },
   {
-    slug: 'thanh_tung', name: 'Lữ Khách Thanh Tùng', sect: 'fast8', exp: 900, days: 10,
+    slug: 'bao_long', name: 'Thích chơi game', sect: 'fast8', exp: 780, days: 8,
+    look: { hero: 'zoro', gender: 'nam', hair: 'trau', skin: '#dcb088' },
+    kit: { robe: 'ao_vulan', beads: 'chuoi_hophach', cushion: 'bd_vang', hat: 'mu_kim_co', staff: 'tr_tre_nga', cloud: null, pet: null },
+  },
+  {
+    slug: 'thanh_tung', name: 'roll không ra 3 sao', sect: 'fast8', exp: 900, days: 10,
     look: { hero: 'sasuke', gender: 'nam', hair: 'ngan', skin: '#f0c9a8' },
     kit: { robe: 'ao_trang', beads: 'chuoi_tram', cushion: 'bd_nau', hat: null, staff: 'tr_thien_truong', cloud: null, pet: 'lt_nghe' },
   },
   {
-    slug: 'ngoc_diep', name: 'Ngọc Diệp', sect: 'tempo', exp: 1250, days: 9,
+    slug: 'cam_tu', name: 'Chị Đại Số Nhọ', sect: 'reroll', exp: 1100, days: 9,
+    look: { hero: 'shanks', gender: 'nu', hair: 'dai', skin: '#efd6bb' },
+    kit: { robe: 'ao_hoa_sala', beads: 'chuoi_ngoc', cushion: 'bd_mai_rua', hat: null, staff: null, cloud: null, pet: 'lt_trau_vang' },
+  },
+  {
+    slug: 'ngoc_diep', name: 'Mèo Lười Đánh TFT', sect: 'tempo', exp: 1250, days: 9,
     look: { hero: 'sanji', gender: 'nam', hair: 'dai', skin: '#f7d9b8' },
     kit: { robe: 'ao_sen', beads: 'chuoi_go', cushion: 'bd_sen', hat: null, staff: null, cloud: null, pet: 'lt_su_tu_xanh' },
   },
   {
-    slug: 'hue_tam', name: 'Người Thắp Đèn Tuệ Tâm', sect: 'reroll', exp: 1750, days: 12,
+    slug: 'dong_phong', name: 'Dân Chơi Không Ngại Mưa', sect: 'flex', exp: 1550, days: 10,
+    look: { hero: 'itachi', gender: 'nam', hair: 'ngan', skin: '#e6bd94' },
+    kit: { robe: 'ao_truc', beads: 'chuoi_thach_anh', cushion: 'bd_tuyet', hat: null, staff: 'tr_kim_co_bong', cloud: 'may_can_dau', pet: null },
+  },
+  {
+    slug: 'hue_tam', name: 'Ông Hoàng Về Nhì', sect: 'reroll', exp: 1750, days: 12,
     look: { hero: 'kakashi', gender: 'nam', hair: 'trau', skin: '#e6bd94' },
     kit: { robe: 'ao_vulan', beads: 'chuoi_bode', cushion: 'bd_may', hat: 'mu_tu_kim', staff: null, cloud: null, pet: null },
   },
   {
-    slug: 'quoc_bao', name: 'Lữ Khách Quốc Bảo', sect: 'flex', exp: 2400, days: 11,
+    slug: 'ngoc_han', name: 'Tấm Chiếu Mới', sect: 'tempo', exp: 2100, days: 11,
+    look: { hero: 'kakashi', gender: 'nu', hair: 'dai', skin: '#f5d0b5' },
+    kit: { robe: 'ao_sen', beads: 'chuoi_luu_ly', cushion: 'bd_ngoc', hat: 'mu_ty_lu', staff: null, cloud: null, pet: 'lt_huyen_vu' },
+  },
+  {
+    slug: 'quoc_bao', name: 'Độc Lạ Bình Dương', sect: 'flex', exp: 2400, days: 11,
     look: { hero: 'law', gender: 'nam', hair: 'ngan', skin: '#f1c9a0' },
     kit: { robe: 'ao_truc', beads: 'chuoi_thach_anh', cushion: 'bd_tuyet', hat: null, staff: 'tr_dinh_ba', cloud: null, pet: 'lt_chu_tuoc' },
   },
   {
-    slug: 'phuong_nam', name: 'Lữ Khách Phương Nam', sect: 'fast8', exp: 3300, days: 13,
+    slug: 'van_du', name: 'Không Có Gì Ngoài Đam Mê', sect: 'fast8', exp: 2900, days: 12,
+    look: { hero: 'law', gender: 'nam', hair: 'trau', skin: '#f1c9a0' },
+    kit: { robe: 'ao_nguyet', beads: 'chuoi_dua_do', cushion: 'bd_tram_sen', hat: null, staff: 'tr_nguyet_nha', cloud: 'may_song_bac', pet: 'lt_bach_tuong' },
+  },
+  {
+    slug: 'phuong_nam', name: 'anh ba khía', sect: 'fast8', exp: 3300, days: 13,
     look: { hero: 'itachi', gender: 'nam', hair: 'dai', skin: '#dcb088' },
     kit: { robe: 'ao_nguyet', beads: 'chuoi_tram', cushion: 'bd_ngoc', hat: null, staff: null, cloud: 'may_can_dau', pet: 'lt_huyen_vu' },
   },
   {
-    slug: 'chan_nhu', name: 'Chân Kim', sect: 'tempo', exp: 4600, days: 14,
+    slug: 'truong_an', name: 'Bỉm Sữa Đánh TFT', sect: 'reroll', exp: 3900, days: 13,
+    look: { hero: 'minato', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
+    kit: { robe: 'ao_hoang_kim', beads: 'chuoi_kim', cushion: 'bd_kim_lien', hat: 'mu_non_than', staff: 'tr_gay_than', cloud: null, pet: 'lt_thanh_long' },
+  },
+  {
+    slug: 'chan_nhu', name: 'Linh Hồn Của Gió', sect: 'tempo', exp: 4600, days: 14,
     look: { hero: 'ace', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
     kit: { robe: 'ao_may_bac', beads: 'chuoi_luu_ly', cushion: 'bd_tram_sen', hat: 'mu_ty_lu', staff: 'tr_nguyet_nha', cloud: null, pet: 'lt_bach_tuong' },
   },
   {
-    slug: 'bich_dao', name: 'Lữ Khách Bích Đào', sect: 'reroll', exp: 6200, days: 16,
+    slug: 'bich_dao', name: 'Pha Cà Rốt', sect: 'reroll', exp: 6200, days: 16,
     look: { hero: 'shanks', gender: 'nu', hair: 'dai', skin: '#efd6bb' },
     kit: { robe: 'ao_lien_hoa', beads: 'chuoi_ngoc', cushion: 'bd_mai_rua', hat: null, staff: null, cloud: null, pet: 'lt_trau_vang' },
   },
   {
-    slug: 'quang_dung', name: 'Quang Dũng', sect: 'flex', exp: 8200, days: 15,
+    slug: 'quang_dung', name: 'chơi cho vui', sect: 'flex', exp: 8200, days: 15,
     look: { hero: 'minato', gender: 'nam', hair: 'ngan', skin: '#e8b48c' },
     kit: { robe: 'ao_thien_thanh', beads: 'chuoi_kim', cushion: 'bd_kim_lien', hat: 'mu_non_than', staff: 'tr_gay_than', cloud: null, pet: 'lt_thanh_long' },
   },
   {
-    slug: 'ha_son', name: 'Lữ Khách Hà Sơn', sect: 'tempo', exp: 11500, days: 18,
+    slug: 'ha_son', name: 'spam roll', sect: 'tempo', exp: 11500, days: 18,
     look: { hero: 'kaido', gender: 'nam', hair: 'trau', skin: '#d9a97c' },
     kit: { robe: 'tang_bao', beads: 'chuoi_dau', cushion: 'bd_vang', hat: null, staff: 'tr_tram_dot', cloud: 'may_song_bac', pet: 'lt_bach_tuong' },
   },
@@ -400,14 +472,25 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
   }
 
   async function greet(bot: Bot): Promise<void> {
-    const peers = others(bot);
+    // Chỉ người thật: bot chào bot là một vòng quà không ai đọc, và mỗi lời chúc còn
+    // cộng điểm cho cả hai bên.
+    const peers = others(bot).filter((m) => !botIds.has(m.profile.id));
     if (!peers.length) return;
-    const peer = pick(peers);
-    // Gửi cho người thật thì luôn kèm một câu chúc; gửi cho nhau thì có khi chỉ là
-    // nắm bùa đặt lên bàn, không lời.
-    const toHuman = !botIds.has(peer.profile.id);
-    const kind = toHuman ? 'chuc' : Math.random() < 0.5 ? 'huong' : 'chuc';
-    await sendGreeting(bot.entry.userId, peer.profile.id, kind, kind === 'huong' && !toHuman ? '' : pick(WISHES), 0);
+    // Mỗi người chỉ nhận một lời chào mỗi 5 phút, tính chung mọi bot: sáu bot hẹn giờ
+    // riêng sẽ dội hàng loạt thông báo lên cùng một người. Lọc theo người nhận thay vì
+    // theo cặp bot-người để người đứng lâu không bị đổi bot liên tục chào.
+    const { rows } = await pool.query<{ player_id: string }>(
+      `SELECT pr.player_id FROM temple_profiles pr
+        WHERE pr.player_id = ANY($1::bigint[])
+          AND NOT EXISTS (
+            SELECT 1 FROM temple_greetings g
+             WHERE g.to_user = pr.user_id
+               AND g.created_at > now() - ($2::int * INTERVAL '1 millisecond')
+          )`,
+      [peers.map((m) => m.profile.id), GREET_QUIET_MS],
+    );
+    if (!rows.length) return;
+    await sendGreeting(bot.entry.userId, Number(pick(rows).player_id), 'chuc', pick(WISHES), 0);
   }
 
   // Hộp thư của bot chỉ còn việc phải làm: quà tới tay là đã ghi sổ và đã cộng thưởng
@@ -418,17 +501,25 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
         WHERE f.friend_id = $1 AND f.status = 'pending' ORDER BY f.created_at ASC LIMIT 3`,
       [bot.entry.userId],
     );
-    for (const row of asked.rows) await acceptFriend(bot.entry.userId, Number(row.player_id));
+    for (const row of asked.rows) {
+      const id = Number(row.player_id);
+      // Lời mời kết bạn còn sót từ bot khác (trước luật chỉ tương tác với người thật)
+      // không được tự nhận: nó sẽ mở một quan hệ không ai yêu cầu.
+      if (!botIds.has(id)) await acceptFriend(bot.entry.userId, id);
+    }
   }
 
-  // Bot không tự mời một người thật: một lời mời từ người lạ mở toang bảng Tỷ Thí trên
-  // máy họ giữa lúc đang làm việc khác.Bot đánh với nhau, và đánh với ai chịu mời trước.
+  // Chỉ mời người thật đang đứng trong sảnh. Bot đánh với nhau là vòng lặp không ai
+  // xem; còn lời mời từ bot tới người thật thì mở đúng bảng Tỷ Thí của họ, và hàng
+  // quá STALE_MS sẽ bị work() quét sang 'dead'.
   async function duel(bot: Bot): Promise<void> {
     const invited = await pool.query<{ id: string }>(
       `SELECT id FROM temple_games
-        WHERE b_user = $1 AND status = 'invite' AND updated_at > now() - ($2::int * INTERVAL '1 millisecond')
+        WHERE b_user = $1 AND status = 'invite'
+          AND NOT (a_user = ANY($2::uuid[]))
+          AND updated_at > now() - ($3::int * INTERVAL '1 millisecond')
         ORDER BY updated_at DESC LIMIT 1`,
-      [bot.entry.userId, STALE_MS],
+      [bot.entry.userId, [...botUsers], STALE_MS],
     );
     if (invited.rows[0]) {
       await acceptMatch(Number(invited.rows[0].id), bot.entry.userId);
@@ -438,27 +529,43 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
       `SELECT id FROM temple_games
         WHERE (a_user = $1 OR b_user = $1) AND status = 'live'
           AND (CASE WHEN a_user = $1 THEN a_move ELSE b_move END) IS NULL
+          AND NOT ((CASE WHEN a_user = $1 THEN b_user ELSE a_user END) = ANY($2::uuid[]))
+          AND updated_at > now() - ($3::int * INTERVAL '1 millisecond')
         ORDER BY updated_at ASC LIMIT 2`,
-      [bot.entry.userId],
+      [bot.entry.userId, [...botUsers], STALE_MS],
     );
     if (turn.rows.length) {
       for (const row of turn.rows) await moveMatch(Number(row.id), bot.entry.userId, pick(SIGNS));
       await refresh(bot);
       return;
     }
-    const rivals = [...present.values()].filter((b) => b !== bot);
-    if (rivals.length && Math.random() < 0.3) await inviteMatch(Math.random() < 0.5 ? 'dice' : 'rps', bot.entry.userId, pick(rivals).profile.id);
+    const rivals = others(bot).filter((m) => !botIds.has(m.profile.id));
+    if (!rivals.length || Math.random() >= 0.3) return;
+    const rival = pick(rivals);
+    // Một người chỉ nhận một lời mời tại một thời điểm: sáu bot cùng hẹn giờ sẽ dội
+    // sáu popup lên cùng một người nếu mỗi bot tự mời.
+    const { rows } = await pool.query<{ busy: boolean }>(
+      `SELECT EXISTS (
+         SELECT 1 FROM temple_games
+          WHERE status IN ('invite', 'live')
+            AND (a_user = (SELECT user_id FROM temple_profiles WHERE player_id = $1)
+              OR b_user = (SELECT user_id FROM temple_profiles WHERE player_id = $1))
+       ) AS busy`,
+      [rival.profile.id],
+    );
+    if (rows[0]?.busy) return;
+    await inviteMatch(Math.random() < 0.5 ? 'dice' : 'rps', bot.entry.userId, rival.profile.id);
   }
 
   // ---- vào/ra ----
 
-  // Lát cắt của hôm nay: BOT_COUNT người, xoay theo ngày để hall không bao giờ chỉ có
+  // Lát cắt của hôm nay: botCount người, xoay theo ngày để hall không bao giờ chỉ có
   // một bộ mặt. Số bot không đổi theo số người (chỉ đổi *tính có mặt*), nên phép cộng
   // trừ người trên màn hình luôn đúng.
   function todaysSlice(): Seeded[] {
     const day = Number(vnDay().replace(/-/g, ''));
     const off = day % seeded.length;
-    return Array.from({ length: Math.min(BOT_COUNT, seeded.length) }, (_, i) => seeded[(off + i) % seeded.length] as Seeded);
+    return Array.from({ length: Math.min(botCount, seeded.length) }, (_, i) => seeded[(off + i) % seeded.length] as Seeded);
   }
 
   function humans(): number {
@@ -526,11 +633,9 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
   }
 
   async function presence(now: number): Promise<void> {
-    const quiet = humans() > 0 && humans() < HUMANS_FULL;
     const keep = new Set(todaysSlice().map((e) => e.def.slug));
-    for (const bot of [...present.values()]) if (!keep.has(bot.entry.def.slug) || !quiet) release(bot);
-    // Một bot mỗi nhịp: hall đông dần thay vì bật lên sáu người cùng một khung hình.
-    if (!quiet) return;
+    for (const bot of [...present.values()]) if (!keep.has(bot.entry.def.slug)) release(bot);
+    // Một bot mỗi nhịp: hall đông dần thay vì bật lên hai mươi người cùng một khung hình.
     const entry = todaysSlice().find((e) => !present.has(e.def.slug));
     if (entry) await admit(entry);
   }
@@ -539,6 +644,8 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
 
   async function seed(): Promise<void> {
     await ensureTempleTables();
+    botCount = await readBotCount();
+    botCountAt = Date.now();
     const out: Seeded[] = [];
     for (const def of ROSTER) {
       // '.invalid' là tên miền dành riêng (RFC 2606): không host nào nhận thư, không
@@ -553,6 +660,7 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
     }
     seeded = out;
     botIds = new Set(out.map((e) => e.playerId));
+    botUsers = new Set(out.map((e) => e.userId));
   }
 
   // Ngày cũ của bot ghi đúng đường mà một người tu thật để lại: một hàng
@@ -584,7 +692,21 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
       await seed();
       return;
     }
-    if (beat % PRESENCE_BEATS === 0) await presence(now);
+    if (now - gameSweepAt >= GAME_SWEEP_MS) {
+      gameSweepAt = now;
+      await expireStaleGames();
+    }
+    if (beat % PRESENCE_BEATS === 0) {
+      if (now - botCountAt >= BOT_REFRESH_MS) {
+        botCount = await readBotCount();
+        botCountAt = now;
+      }
+      await presence(now);
+    }
+    // Bot vẫn đứng trong sảnh khi vắng người, nhưng chỉ chào/đấu khi có người thật:
+    // hai việc đó mới là thứ mở giao dịch xã hội, để 20 bot không tự chơi với nhau
+    // cả ngày trên DB. Hẹn giờ vẫn chạy để lúc người vào không dội một loạt cùng lúc.
+    const hasHumans = humans() > 0;
     for (const bot of [...present.values()]) {
       step(bot, now);
       await bowTick(bot, now);
@@ -594,11 +716,11 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
       }
       if (now >= bot.next.duel) {
         bot.next.duel = now + rnd(6_000, 14_000);
-        await duel(bot);
+        if (hasHumans) await duel(bot);
       }
       if (now >= bot.next.greet) {
         bot.next.greet = now + rnd(45_000, 120_000);
-        await greet(bot);
+        if (hasHumans) await greet(bot);
       }
       if (now >= bot.next.inbox) {
         bot.next.inbox = now + rnd(40_000, 90_000);

@@ -48,10 +48,9 @@ const SEN_CAP_DAY = 120;
 const RESULT_MS = 3 * 60_000;
 
 // Lời mời bỏ ngỏ và trận bỏ dang phải tự hết hạn: người kia có thể đã tắt máy và không
-// ai bấm "Hủy" hộ ai. Cắt theo nhịp đọc của chính hai người chơi nên không cần đồng hồ
-// chạy nền — hết 10 phút là hàng chuyển sang 'dead' ngay lần mở bảng kế tiếp.
-// Bot (bots.ts) đọc đúng con số này để lọc lời mời còn sống thay vì gọi expire(): hàng
-// chỉ chuyển 'dead' khi *có người mở bảng*, nên một lời mời chưa ai ngó vẫn còn đó.
+// ai bấm "Hủy" hộ ai. expire() cắt ngay khi một người mở bảng; expireStaleGames() quét
+// nền mỗi phút (bots.ts) để hàng chết kể cả khi không ai đọc. Bot cũng đọc đúng
+// STALE_MS để bỏ qua lời mời/trận đã quá hạn thay vì nhặt chúng sống lại.
 export const STALE_MS = 10 * 60_000;
 
 // ---- Độ May -------------------------------------------------------------------
@@ -232,6 +231,19 @@ async function expire(userId: string): Promise<void> {
         AND updated_at < now() - ($2::int * INTERVAL '1 millisecond')`,
     [userId, STALE_MS],
   );
+}
+
+// Cùng luật quá hạn nhưng không chờ ai mở bảng: lời mời/trận bỏ dở phải tự chết kể cả
+// khi cả hai bên đã tắt máy. Nhịp quét nằm trong vòng lặp bot (bots.ts) để không thêm
+// một đồng hồ nền thứ hai phải dọn lúc shutdown.
+export async function expireStaleGames(): Promise<number> {
+  const { rowCount } = await pool.query(
+    `UPDATE temple_games SET status = 'dead', reason = 'expired', updated_at = now()
+      WHERE status IN ('invite', 'live')
+        AND updated_at < now() - ($1::int * INTERVAL '1 millisecond')`,
+    [STALE_MS],
+  );
+  return rowCount ?? 0;
 }
 
 // Trận đang mở giữa hai người cụ thể — một cặp không nên có hai ván cùng lúc, vì máy khách

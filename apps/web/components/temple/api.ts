@@ -133,6 +133,7 @@ const MESSAGES: Record<string, string> = {
   unauthenticated: 'Phiên đã hết hạn, vào lại sảnh nhé',
   too_fast: 'Chậm một nhịp nhé, sảnh vừa ghi nhận bạn rồi',
   invalid_count: 'Số lần không hợp lệ',
+  invalid_bot_count: 'Số bot không hợp lệ',
   invalid_player_id: 'Không tìm thấy người này',
   no_such_player: 'Người này không còn trong sảnh',
   already_friends: 'Hai bạn đã là đồng đội rồi',

@@ -288,3 +288,11 @@ CREATE TABLE IF NOT EXISTS temple_announcements (
   effect text NOT NULL DEFAULT '',
   created_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Cấu hình vận hành dùng chung của đền, sửa từ HUD admin. Hiện chỉ có bot_count:
+-- số bot đứng trong sảnh (bots.ts).
+CREATE TABLE IF NOT EXISTS temple_settings (
+  key text PRIMARY KEY,
+  value text NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);

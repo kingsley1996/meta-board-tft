@@ -330,6 +330,16 @@ test(
       const dead = board.history.find((m: Json) => m.id === stale);
       assert.equal(dead.reason, 'expired', 'and it is filed as expired, not silently dropped');
 
+      // Quét nền: hàng quá hạn phải chết kể cả khi không ai mở bảng, vì người kia có
+      // thể đã tắt máy và bot thì không tự mở tab Tỷ Thí.
+      const abandoned = await seedMatch('dice', C, A, 'live');
+      await pool.query("UPDATE temple_games SET updated_at = now() - (11 * INTERVAL '1 minute') WHERE id = $1", [abandoned]);
+      const { expireStaleGames } = await import('./games.ts');
+      await expireStaleGames();
+      const swept = await pool.query<{ status: string; reason: string }>('SELECT status, reason FROM temple_games WHERE id = $1', [abandoned]);
+      assert.equal(swept.rows[0]?.status, 'dead', 'the sweeper cancels an abandoned match without a reader');
+      assert.equal(swept.rows[0]?.reason, 'expired');
+
       // ---- Trần Điểm May Mắn tỷ thí trong ngày ---------------------------------------------
       // Ghi sổ như thể hai người đã ăn gần hết trần: 110/120. Ván đáng ra 40 (thắng) hoặc
       // 12 (thua) nhưng phần còn lại của ngày chỉ 10, nên cả hai bên đều chỉ nhận 10.

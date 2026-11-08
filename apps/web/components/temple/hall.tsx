@@ -378,7 +378,25 @@ const rungName = (level: number) => `${REALMS[rungOf(level).realm - 1]} · Bậc
 function AdminBlock({ s }: { s: Store }) {
   const st = s.state;
   const [level, setLevel] = useState(st?.level ?? 1);
+  const [bots, setBots] = useState<number | null>(null);
+  const [botPick, setBotPick] = useState(6);
+  const [botMax, setBotMax] = useState(8);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let live = true;
+    void get<{ bots: number; max: number }>('/admin/bots')
+      .then((r) => {
+        if (!live) return;
+        setBots(r.bots);
+        setBotPick(r.bots);
+        setBotMax(r.max);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, []);
 
   const run = async (path: string, body: Record<string, unknown>, ok: string) => {
     setBusy(true);
@@ -389,6 +407,19 @@ function AdminBlock({ s }: { s: Store }) {
       // một nhịp — nếu không thì chính admin vẫn thấy bậc cũ cho tới khi tải lại.
       s.room?.send({ t: 'look' });
       s.toast(ok);
+    } catch (e) {
+      s.toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveBots = async () => {
+    setBusy(true);
+    try {
+      const r = await post<{ bots: number; max: number }>('/admin/bots', { bots: botPick });
+      setBots(r.bots);
+      s.toast(r.bots === 0 ? 'Đã tắt bot trong sảnh' : `Đã đặt ${r.bots} bot cho sảnh`);
     } catch (e) {
       s.toast((e as Error).message);
     } finally {
@@ -417,10 +448,29 @@ function AdminBlock({ s }: { s: Store }) {
           Đặt bậc
         </button>
       </form>
+      <form
+        className="sg-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (bots !== null && botPick !== bots) void saveBots();
+        }}
+      >
+        <select value={botPick} onChange={(e) => setBotPick(Number(e.target.value))} aria-label="Số bot trong sảnh" disabled={bots === null}>
+          {Array.from({ length: botMax + 1 }, (_, n) => (
+            <option key={n} value={n}>
+              {n === 0 ? 'Không có bot' : `${n} bot`}
+            </option>
+          ))}
+        </select>
+        <button className="btn small gold" disabled={busy || bots === null || botPick === bots}>
+          Đặt số bot
+        </button>
+      </form>
       <button className="btn small ghost" disabled={busy} onClick={() => void run('gear', {}, 'Đã cấp toàn bộ trang bị vào túi')}>
         Cấp toàn bộ trang bị
       </button>
       <p className="muted">Chỉ áp lên nhân vật của chính tài khoản này. Trang bị lại từng món ở Túi đồ.</p>
+      <p className="muted">Bot luôn đứng trong sảnh, kể cả khi đông người thật. Đổi xong sảnh tự thêm hoặc bớt dần.</p>
     </div>
   );
 }

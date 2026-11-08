@@ -483,7 +483,7 @@ app.get('/api/temple/rooms', (_req, res) => {
 });
 app.use('/api/temple', templeRouter);
 
-// Bot đứng trong chánh điện lúc đền vắng (temple/bots.ts). Nó mượn đúng sổ phòng của
+// Bot đứng trong chánh điện (temple/bots.ts). Nó mượn đúng sổ phòng của
 // attachTempleWs nên người thật thấy bot y hệt thấy một RoomMember khác, và một cú tắt
 // máy phải gỡ chúng ra khỏi phòng trước khi đóng socket — không thì nhịp tick cuối gửi
 // một frame cho những kết nối đã chết.
