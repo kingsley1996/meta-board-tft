@@ -2,6 +2,7 @@
 // Tư thế hỗ trợ: đứng, đi, ngồi thiền, lạy Phật và tung tuyệt chiêu (fight / ultimate).
 import * as THREE from 'three';
 import { addGear } from './gear.js';
+import { auraOf } from './ladder.js';
 
 export const HERO_LIST = [
   {
@@ -773,7 +774,11 @@ function buildHeroProps3D(upper, hands, legR, hero) {
 }
 
 // Vầng sáng dưới chân nhân vật
-const auraGeo = new THREE.CircleGeometry(1.15, 40);
+// Bán kính 0,86 (từng là 1,15): dải sáng của auraTex nằm ở 0,7..0,88 mặt đĩa, nên vòng
+// nhìn thấy có bán kính 0,8 × r × AV_SCALE. Với r cũ là 0,75m trong khi thân rộng nhất
+// 0,42 (ROBE_PROFILE) × 0,82 = 0,34m, tức vòng cách thân gấp 2,2 lần — floor trống giữa
+// chân và vòng. 0,86 cho 0,57m, gấp 1,64 lần thân: vẫn là quầng, không còn là thảm.
+const auraGeo = new THREE.CircleGeometry(0.86, 40);
 let auraTexCache = null;
 function auraDisc(color) {
   if (!auraTexCache && typeof document !== 'undefined') {
@@ -795,6 +800,21 @@ function auraDisc(color) {
   disc.position.y = 0.03;
   disc.renderOrder = 1;
   return disc;
+}
+
+// Vầng sáng dưới chân người CHƠI THẬT thì theo vận/bậc (auraOf trong ladder.js), không
+// theo tướng hay áo nữa: màu = hue của khung vận, độ toả = bậc 1/2/3 trong vận đó. NPC vẫn
+// dùng màu của tướng vì họ không có bậc. world.js gọi hàm này cùng nhịp với hào quang sau
+// gáy, tức là đổi bậc thì cả hai thứ đổi một lần, không phải dựng lại avatar.
+export function setAuraRung(av, level) {
+  const a = auraOf(level);
+  if (av.aura) {
+    av.aura.material.color.set(a.color);
+    av.aura.scale.setScalar(a.scale);
+  }
+  av.auraBase = a.base;
+  av.auraAmp = a.amp;
+  return a;
 }
 
 let autoHeroIdx = 0;
@@ -968,6 +988,8 @@ export function makeAvatar(opts = {}) {
     ultTimer: 0,
     onBow: null, phase: Math.random() * 10,
   };
+  // Màu này chỉ còn là mặc định cho NPC; với người chơi, setAuraRung đã phủ lại theo vận
+  // ngay lúc world.js dựng avatar.
   av.aura = auraDisc(opts.robe?.aura || outfit?.swatch || hero.aura);
   root.add(av.aura);
 
@@ -1038,7 +1060,10 @@ function fightBody(av, f) {
 export function animateAvatar(av, dt, time, moving = false) {
   av.gearTick?.(time, moving);
   if (av.aura) {
-    av.aura.material.opacity = av.ultTimer > 0 ? 0.78 : (0.38 + 0.16 * Math.sin(time * 1.8 + av.phase));
+    // Dải chớp do bậc quyết (setAuraRung); mặc định là dải cũ để NPC không đổi hình ảnh.
+    const lo = av.auraBase ?? 0.38;
+    const amp = av.auraAmp ?? 0.16;
+    av.aura.material.opacity = av.ultTimer > 0 ? 0.78 : (lo + amp * Math.sin(time * 1.8 + av.phase));
     av.aura.rotation.z = time * 0.25;
   }
   if (av.vfxGroup?.userData.chidori) {

@@ -42,3 +42,29 @@ export function realmLevels(realm) {
   const from = (realm - 1) * 3 + 1;
   return [from, Math.min(LADDER_TOP, from + 2)];
 }
+
+// Hue đo từ chính ảnh khung: cụm hue đông nhất trong vùng no màu của
+// danh-hieu-frame-N.png. Nhãn danh hiệu (textures.js) và vòng sáng dưới chân (auraOf)
+// dùng chung bảng này, để "màu của vận" là một sự thật duy nhất trong sảnh.
+export const REALM_HUE = [15, 105, 195, 270, 30, 0, 210];
+
+// Vòng sáng dưới chân: MÀU theo vận, ĐỘ TOẢ theo bậc trong vận.
+// scale = 1 + 0,14*(bậc-1), độ mờ chớp quanh base = 0,34 + 0,06*(bậc-1) với biên
+// amp = 0,14 + 0,05*(bậc-1), tức bậc 1 = 1.00 / 0.20..0.48, bậc 2 = 1.14 / 0.21..0.59,
+// bậc 3 = 1.28 / 0.22..0.70. Bán kính đĩa gốc 0,86 (avatar.js) nên vòng thấy được
+// 0,57 / 0,65 / 0,73m. Cơ chế cũ là 0,75m và dải 0.22..0.54 cho mọi bậc.
+// Đỉnh Như Ý chỉ có một bậc nên rungOf trả stage = 1; ở đây nó được tính là bậc 3, nếu
+// không người cao nhất sảnh sẽ có vòng chân bé nhất.
+// 92% màu / 52% sáng: hai núm này là chỗ duy nhất chỉnh tay, hue thì đã đo từ ảnh khung.
+// Đĩa vẽ additive nên nó tự cộng sáng lên nền đá; để sáng cỡ 62% là màu vận bị rửa gần
+// thành trắng. 52% giữ cho cam / lục / tím / đỏ phân biệt được giữa các vận.
+export function auraOf(level) {
+  const { realm, stage } = rungOf(level);
+  const k = (realm === REALMS.length ? 3 : stage) - 1;
+  return {
+    color: `hsl(${REALM_HUE[realm - 1]}, 92%, 52%)`,
+    scale: 1 + 0.14 * k,
+    base: 0.34 + 0.06 * k,
+    amp: 0.14 + 0.05 * k,
+  };
+}

@@ -1,6 +1,6 @@
 // Họa tiết vẽ bằng canvas (không cần file ảnh)
 import * as THREE from 'three';
-import { rungOf, titleOfLevel, rungLabel } from './ladder.js';
+import { rungOf, titleOfLevel, rungLabel, REALM_HUE } from './ladder.js';
 
 export const rand = (a, b) => a + Math.random() * (b - a);
 const cache = new Map();
@@ -305,10 +305,9 @@ export function fxReady() {
   return FX_NAMES.every((n) => fxImgs[n].complete && !!fxImgs[n].naturalWidth);
 }
 
-// Hue đo từ chính ảnh khung: cụm hue đông nhất trong vùng no màu của
-// danh-hieu-frame-N.png. Sét giữ đúng hue ấy nhưng đẩy sáng lên 78% để nó đọc là tia
-// sét chứ không phải vệt sơn cùng màu khung.
-const REALM_HUE = [15, 105, 195, 270, 30, 0, 210];
+// Hue của từng vận giờ nằm trong ladder.js (REALM_HUE) vì vòng sáng dưới chân phải dùng
+// đúng màu ấy. Sét giữ hue khung nhưng đẩy sáng lên 78% để nó đọc là tia sét chứ không
+// phải vệt sơn cùng màu khung.
 const hsl = (h, s, l) => `hsl(${h}, ${s}%, ${l}%)`;
 const hsla = (h, s, l, a) => `hsla(${h}, ${s}%, ${l}%, ${a})`;
 

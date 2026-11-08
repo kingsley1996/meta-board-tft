@@ -4,7 +4,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GROUND_R, buildGrounds } from './grounds.js';
 import { makePet, beastTag } from './pets.js';
 import { buildTemple } from './temple.js';
-import { makeAvatar, animateAvatar, setSeated, disposeAvatar, setGhost, HERO_LIST, HERO_MAP } from './avatar.js';
+import { makeAvatar, animateAvatar, setSeated, disposeAvatar, setGhost, setAuraRung, HERO_LIST, HERO_MAP } from './avatar.js';
 
 // Cỡ nhân vật trong chùa: nhỏ lại cho chánh điện đỡ chật khi đông người; tên giữ nguyên cỡ để vẫn dễ đọc
 const AV_SCALE = 0.82;
@@ -400,7 +400,7 @@ export class World {
     const av = makeAvatar(lk);
     av.root.scale.setScalar(AV_SCALE);
     av.look = lk;
-    this.setHalo(av, user.level);
+    this.applyRung(av, user.level);
     const marker = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.24, 4), new THREE.MeshStandardMaterial({ color: 0xffd36b, emissive: 0xffa21a, emissiveIntensity: 0.8 }));
     marker.rotation.x = Math.PI; marker.position.y = 1.62;
     av.upper.add(marker); av.marker = marker;
@@ -476,7 +476,7 @@ export class World {
     }
     fitLabel(av.label);
     av.label.visible = this.showNames;
-    if (!p.q) this.setHalo(av, p.level);
+    if (!p.q) this.applyRung(av, p.level);
   }
 
   /* ---------------- người chơi khác ---------------- */
@@ -498,7 +498,7 @@ export class World {
         r.label.material.needsUpdate = true;
         fitLabel(r.label);
         r.tag = tag;
-        if (!p.q) this.setHalo(r.av, p.level);
+        if (!p.q) this.applyRung(r.av, p.level);
       }
       if (!r || r.sig !== sig) {
         const prev = r;
@@ -512,7 +512,7 @@ export class World {
         const av = makeAvatar(lk);
         av.root.scale.setScalar(AV_SCALE);
         av.look = lk;
-        if (p.q) setGhost(av, true); else this.setHalo(av, p.level);
+        if (p.q) setGhost(av, true); else this.applyRung(av, p.level);
         const label = new THREE.Sprite(new THREE.SpriteMaterial({ map: playerLabel(p), depthWrite: false, transparent: true }));
         fitLabel(label); label.visible = this.showNames;
         av.root.add(label);
@@ -1212,8 +1212,10 @@ export class World {
     requestAnimationFrame(step);
   }
 
-  // Hào quang sau đầu theo cấp: cấp 1 chưa có, càng lên cấp càng sáng và rộng. Sprite đặt ngang đầu nên phần đầu tự che phía trước.
-  setHalo(av, level) {
+  // Hai thứ bám đúng một mốc trên thang 19 bậc: hào quang sau gáy và vầng sáng dưới chân.
+  // Vòng chân lấy màu theo VẬN (hue đo từ ảnh khung) và độ toả theo BẬC 1/2/3 trong vận.
+  applyRung(av, level) {
+    setAuraRung(av, level);
     if (!av?.upper) return;
     const r = rungOf(level).realm;
     // Ngưỡng 2/20/50 của bản gốc lấy thang 60 bậc; với 19 mốc thì hai bậc cao nhất
