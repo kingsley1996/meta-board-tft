@@ -16,6 +16,7 @@ import { TRACKS } from '@/vendor/temple/js/playlist.js';
 import { injectIcons } from '@/vendor/temple/js/icons.js';
 import { local } from '@/vendor/temple/js/prefs.js';
 import { World } from '@/vendor/temple/js/world.js';
+import { WEATHERS, createWeather } from '@/vendor/temple/js/weather.js';
 import type { RemotePlayer } from './room';
 import { ABBOT, tellersOf } from './stories';
 
@@ -69,6 +70,18 @@ export const AMBIENCES = [
   { id: 'dawn', label: '🌅 Bình minh', bg: '#382a3e', fog: '#4c3850', exp: 1.08 },
 ];
 
+export { WEATHERS };
+
+// weather.js là JS; ép qua đúng bốn lời gọi HUD cần, giống cách WorldSlice làm với
+// world.js — engine.ts không với tay vào object không kiểu.
+type WeatherController = {
+  setTime(a: { bg: string | null; fog: string | null; exp: number }, fog: string): void;
+  set(id: string): { label: string };
+  start(): void;
+  stop(): void;
+  dispose(): void;
+};
+
 export type EnginePerson = {
   id: number;
   name: string;
@@ -98,9 +111,10 @@ export type EngineHandlers = {
 // khắp các component React.
 type WorldSlice = {
   scene: THREE.Scene;
+  quality: string;
   renderer: { toneMappingExposure: number };
   player: { root: { position: THREE.Vector3 }; bowT: number; meditating: boolean } | null;
-  od: { hw: number; hd: number } | null;
+  od: { hw: number; hd: number; H?: number; groundY?: number } | null;
   outside: boolean;
   seated: boolean;
   moving: boolean;
@@ -165,6 +179,8 @@ export function hasWebGL(): boolean {
 export class TempleEngine {
   world: WorldSlice | null = null;
   private ambience = 0;
+  private weather = 0;
+  private wx: WeatherController | null = null;
 
   constructor(private readonly h: EngineHandlers) {}
 
@@ -207,7 +223,23 @@ export class TempleEngine {
     await nextFrames(3);
     Sound.init();
     Sound.setActive(true);
+    // Thời tiết dựng sau world.start(): nó đi tìm vòm sky và hai đèn mà buildTemple vừa
+    // gắn vào scene — dựng sớm hơn là đọc phải cảnh của lần vào trước.
+    this.wx?.dispose();
+    this.wx = (createWeather(world.scene, {
+      od: world.od,
+      quality: world.quality,
+      renderer: world.renderer,
+      where: () => {
+        const p = this.world?.player?.root.position;
+        return p ? { x: p.x, z: p.z } : null;
+      },
+      onBolt: (delay: number) => Sound.thunder(delay),
+    }) ?? null) as WeatherController | null;
+    this.wx?.start();
     this.setAmbience(0);
+    const saved = WEATHERS.findIndex((w) => w.id === local.get('weather'));
+    this.setWeather(saved < 0 ? 0 : saved);
     this.h.onReady();
   }
 
@@ -318,12 +350,28 @@ export class TempleEngine {
     world.scene.background = new THREE.Color(a.bg ?? fallback);
     if (world.scene.fog) world.scene.fog.color.set(a.fog ?? fallback);
     world.renderer.toneMappingExposure = a.exp;
+    // weather.js nhân tiếp lên đúng preset giờ này (trời + nắng + sương + exposure), nên
+    // hai trục không đè nhau.
+    this.wx?.setTime(a, a.fog ?? fallback);
   }
 
   nextAmbience(): string {
     this.setAmbience(this.ambience + 1);
     Sound.tap();
     return AMBIENCES[this.ambience].label;
+  }
+
+  setWeather(index: number): void {
+    this.weather = ((index % WEATHERS.length) + WEATHERS.length) % WEATHERS.length;
+    const w = WEATHERS[this.weather];
+    this.wx?.set(w.id);
+    Sound.setWeather(w.id);
+  }
+
+  nextWeather(): string {
+    this.setWeather(this.weather + 1);
+    Sound.tap();
+    return WEATHERS[this.weather].label;
   }
 
   // Dâng bùa: hiệu ứng nằm trong cảnh 3D (temple.js:915-917), còn điểm thì máy chủ tính.
@@ -353,11 +401,14 @@ export class TempleEngine {
 
   pause(): void {
     this.world?.stop();
+    this.wx?.stop();
     Sound.setActive(false);
   }
 
   dispose(): void {
     this.world?.stop();
+    this.wx?.dispose();
+    this.wx = null;
     Sound.setActive(false);
   }
 }

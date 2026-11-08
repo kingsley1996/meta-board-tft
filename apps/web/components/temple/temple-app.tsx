@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Gain, GameMatch, GuestReply, TempleState } from './api';
 import { TempleApiError, get, post } from './api';
-import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, hasWebGL, local, sectOf, type EngineCtx, type EnginePerson } from './engine';
+import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, WEATHERS, hasWebGL, local, sectOf, type EngineCtx, type EnginePerson } from './engine';
 import { luckyShower, floater } from './effects';
 import { QUOTES, tellersOf } from './stories';
 import { TempleRoom, type RemotePlayer } from './room';
@@ -113,6 +113,8 @@ export function TempleApp({ lang }: { lang: string }) {
   const ctxRef = useRef<EngineCtx | null>(null);
   const playersRef = useRef<RemotePlayer[]>([]);
   const ambienceRef = useRef(AMBIENCES[0].label);
+  // Khởi động theo đúng lựa chọn đã lưu, không theo hàng đầu của bảng.
+  const weatherRef = useRef((WEATHERS.find((w) => w.id === local.get('weather')) ?? WEATHERS[0]).label);
   const viewRef = useRef<ViewKind>('hall');
   const fxRef = useRef<HTMLDivElement | null>(null);
   const sceneRef = useRef<HTMLCanvasElement | null>(null);
@@ -336,6 +338,11 @@ export function TempleApp({ lang }: { lang: string }) {
 
   const setAmbienceBoth = (label: string) => {
     ambienceRef.current = label;
+    render();
+  };
+
+  const setWeatherBoth = (label: string) => {
+    weatherRef.current = label;
     render();
   };
 
@@ -845,6 +852,16 @@ export function TempleApp({ lang }: { lang: string }) {
               }}
             >
               {ambienceRef.current}
+            </button>
+            <button
+              className="cb-pill"
+              title="Đổi thời tiết · có tiếng trời"
+              onClick={() => {
+                const label = engRef.current?.nextWeather();
+                if (label) setWeatherBoth(label);
+              }}
+            >
+              {weatherRef.current}
             </button>
           </div>
           <nav className="side-menu">
