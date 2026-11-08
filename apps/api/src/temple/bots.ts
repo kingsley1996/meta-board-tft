@@ -70,6 +70,10 @@ const GAME_SWEEP_MS = 60_000;
 // Khoảng lặng chào giữa hai lần tới một người thật, tính chung mọi bot. Không có nó
 // thì sáu bot, mỗi bot 45–120 giây, biến hộp thư của người đứng lâu thành một dòng thác.
 const GREET_QUIET_MS = 5 * 60_000;
+// Khoảng lặng tỷ thí, cùng nghĩa với chào nhưng cho lời mời đánh: nhịp duel 6–14 giây
+// và cửa 30% là để bot *đáp ứng* nước đi của ván đang live kịp thời, không phải để mời.
+// Một người vì thế nhận tối đa một lời mời bot trong chặng này, tính chung mọi bot.
+const DUEL_QUIET_MS = 5 * 60_000;
 let botCount = BOT_DEFAULT;
 let botCountAt = 0;
 let gameSweepAt = 0;
@@ -543,17 +547,26 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
     if (!rivals.length || Math.random() >= 0.3) return;
     const rival = pick(rivals);
     // Một người chỉ nhận một lời mời tại một thời điểm: sáu bot cùng hẹn giờ sẽ dội
-    // sáu popup lên cùng một người nếu mỗi bot tự mời.
-    const { rows } = await pool.query<{ busy: boolean }>(
+    // sáu popup lên cùng một người nếu mỗi bot tự mời. `quiet` là nửa còn lại — ván vừa
+    // tắt là `busy` hết chặn, và nhịp duel 6–14 giây cho bot kế tiếp mời liền ngay sau đó.
+    // Khoảng lặng tính theo mọi bot và theo cả hai chiều (người tự mời cũng được nghỉ),
+    // nên một người chỉ gặp lại lời mời sau DUEL_QUIET_MS kể từ hoạt động tỷ thí cuối.
+    const { rows } = await pool.query<{ busy: boolean; quiet: boolean }>(
       `SELECT EXISTS (
          SELECT 1 FROM temple_games
           WHERE status IN ('invite', 'live')
             AND (a_user = (SELECT user_id FROM temple_profiles WHERE player_id = $1)
               OR b_user = (SELECT user_id FROM temple_profiles WHERE player_id = $1))
-       ) AS busy`,
-      [rival.profile.id],
+       ) AS busy,
+       EXISTS (
+         SELECT 1 FROM temple_games
+          WHERE (a_user = (SELECT user_id FROM temple_profiles WHERE player_id = $1)
+                 OR b_user = (SELECT user_id FROM temple_profiles WHERE player_id = $1))
+            AND updated_at > now() - ($2::int * INTERVAL '1 millisecond')
+       ) AS quiet`,
+      [rival.profile.id, DUEL_QUIET_MS],
     );
-    if (rows[0]?.busy) return;
+    if (rows[0]?.busy || rows[0]?.quiet) return;
     await inviteMatch(Math.random() < 0.5 ? 'dice' : 'rps', bot.entry.userId, rival.profile.id);
   }
 
