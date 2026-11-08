@@ -16,7 +16,6 @@ import type {
   GamesPayload,
 } from "./api";
 import { get, post } from "./api";
-import { Sound } from "./engine";
 import { luckyShower } from "./effects";
 import { Icon, Sheet, ago, fmt, GuestGate, type Store } from "./ui";
 import { Ava } from "./people";
@@ -237,11 +236,9 @@ function Duel({
 
   const run = async (path: string, body?: Record<string, unknown>) => {
     try {
-      Sound.tap();
       const r = await post<GameReply>(path, body);
       if (r.over && r.outcome) {
         s.apply(r);
-        Sound.spark();
         if (r.outcome === "win") luckyShower(18);
         // Ván vẫn chơi và vẫn phân thắng thua, chỉ cái ví là đứng lại: nói rõ là trần
         // hôm nay chứ không để "+0 Điểm May Mắn" tự nó thành một câu đố.

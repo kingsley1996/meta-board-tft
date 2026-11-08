@@ -49,7 +49,6 @@ export function MeditateView({ s }: { s: Store }) {
     if (stopping.current) return;
     stopping.current = true;
     const en = s.engine;
-    Sound.spark();
     en?.setMeditating(false);
     const r = await s.practice({ type: 'meditate_end' }, { silent: true });
     const minutes = Number(r?.extra?.minutes ?? 0);
@@ -77,7 +76,6 @@ export function MeditateView({ s }: { s: Store }) {
       setStart(Date.parse(iso));
       s.engine?.setMeditating(true);
       Sound.setActive(false);
-      Sound.tap();
     } catch {
       // practice() đã báo lỗi bằng toast
     }
@@ -296,13 +294,11 @@ export function QueModal({ s, onClose }: { s: Store; onClose: () => void }) {
 
   const cast = async () => {
     setShaking(true);
-    Sound.tap();
     await new Promise((r) => window.setTimeout(r, 1200));
     try {
       const r = await post<QueDraw>('/draws/que');
       setQue(r.que);
       s.apply({ state: r.state, gained: r.already ? 0 : r.gained, level_ups: r.level_ups });
-      Sound.spark();
       luckyShower(14);
     } catch (e) {
       s.toast((e as Error).message);

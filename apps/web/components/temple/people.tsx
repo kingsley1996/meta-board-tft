@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Gain, GameKind, PublicPlayer } from './api';
 import { get, post } from './api';
-import { ITEMS, Sound, TEMPLE, sectOf } from './engine';
+import { ITEMS, TEMPLE, sectOf } from './engine';
 import { ItemIcon, RANK_LABEL } from './hall';
 import { ABBOT, HERMIT_LESSONS, WISHES, guideOf, storyOf, tellersOf } from './stories';
 import { rungLabel } from '@/vendor/temple/js/ladder.js';
@@ -72,7 +72,6 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
   const challenge = async (kind: GameKind) => {
     try {
       await post('/games', { kind, id });
-      Sound.tap();
       s.toast(`<svg class="i"><use href="#i-${kind === 'dice' ? 'dice' : 'scissors'}"/></svg> Đã mời <b>${esc(p.name)}</b> tỷ thí`);
       onClose();
     } catch (e) {
@@ -83,7 +82,6 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
   const befriend = async () => {
     try {
       const r = await post<{ accepted?: boolean }>('/friends', { id, action: 'add' });
-      Sound.tap();
       s.toast(r.accepted ? `<svg class="i"><use href="#i-users"/></svg> Hai bạn đã thành đồng đội` : `<svg class="i"><use href="#i-users"/></svg> Đã gửi lời mời kết bạn tới <b>${esc(p.name)}</b>`);
       onClose();
     } catch (e) {
@@ -95,7 +93,6 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
     try {
       const res = await post<Gain>('/greetings', { id, kind, text });
       s.apply(res);
-      Sound.tap();
       // Emote là của chính mình: bản gốc không múa hộ người khác.
       s.engine?.emote(s.me, kind === 'huong' ? 'hex' : 'pray');
       s.toast(kind === 'huong' ? `<svg class="i"><use href="#i-incense"/></svg> Đã tặng Bùa May Mắn cho <b>${esc(p.name)}</b>` : `<svg class="i"><use href="#i-pray"/></svg> Đã gửi lời chúc tới <b>${esc(p.name)}</b>`);
@@ -233,8 +230,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
     </button>
   );
 
-  const tap = () => Sound.tap();
-
   if (kind === 'hermit') {
     // Ba trạng thái của chiếu — hết phần hôm nay, hết hàng vì con đã gom sạch, và còn
     // duyên. Lời văn theo talkHermit() của bản gốc (main.js:1050-1075).
@@ -244,7 +239,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
       try {
         const r = await post<Gain & { item: string }>('/hermit/exchange', { item: id });
         s.apply(r);
-        Sound.spark();
         s.toast(`Lão Hành Khất đưa con ${ITEMS[id]?.name ?? id}`);
         setMat(await get<Mat>('/hermit'));
       } catch (e) {
@@ -297,7 +291,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
             label={t.title}
             icon="scroll"
             onClick={() => {
-              tap();
               setTale(i);
             }}
           />
@@ -318,7 +311,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
               icon="scroll"
               gold
               onClick={() => {
-                tap();
                 setTale(null);
               }}
             />,
@@ -335,7 +327,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
         label="Kể chuyện đền"
         icon="story"
         onClick={() => {
-          tap();
           setPage(0);
         }}
       />
@@ -343,7 +334,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
         label="Đền có gì hay?"
         icon="temple"
         onClick={() => {
-          tap();
           setPage(-2);
         }}
       />
@@ -351,7 +341,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
         label="Về lối chơi của tôi"
         icon="book"
         onClick={() => {
-          tap();
           setPage(-3);
         }}
       />
@@ -370,7 +359,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
           icon="pray"
           gold
           onClick={() => {
-            tap();
             setPage(-1);
           }}
         />
@@ -381,7 +369,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
             icon="scroll"
             gold
             onClick={() => {
-              tap();
               setPage(page + 1);
             }}
           />
@@ -389,7 +376,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
             label="Hỏi chuyện khác"
             icon="pray"
             onClick={() => {
-              tap();
               setPage(-1);
             }}
           />
@@ -404,7 +390,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
         icon="pray"
         gold
         onClick={() => {
-          tap();
           setPage(-1);
         }}
       />,
@@ -420,7 +405,6 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
         icon="pray"
         gold
         onClick={() => {
-          tap();
           setPage(-1);
         }}
       />,
@@ -480,7 +464,6 @@ export function FriendsSheet({ s, notice, tab0, onClose }: { s: Store; notice: N
   const act = async (id: number, action: string) => {
     try {
       await post('/friends', { id, action });
-      Sound.tap();
       await load();
     } catch (e) {
       s.toast((e as Error).message);
@@ -635,7 +618,6 @@ export function GroupSheet({ s, onClose }: { s: Store; onClose: () => void }) {
     try {
       const r = await post<{ group?: Group | null }>(path, body);
       if (r.group !== undefined) setGroup(r.group ?? null);
-      Sound.spark();
       await load();
     } catch (e) {
       s.toast((e as Error).message);

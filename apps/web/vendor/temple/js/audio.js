@@ -1,11 +1,12 @@
-// Âm thanh của sảnh: tiếng chạm tự tổng hợp bằng Web Audio + băng lofi phát từ tệp mp3.
+// Âm thanh của sảnh: băng lofi phát từ tệp mp3, còn tiếng trời thì tự tổng hợp bằng
+// Web Audio.
 //
 // Nhạc hiệu không còn lấy một tiếng chuông chùa — trước đây mỗi lần cầu may, ngồi thiền
 // hay mở túi đồ đều đóng bằng một hồi bell tổng hợp từ các hoạ tần bất hoà của chuông đồng.
+// Cùng đường đó, họ phím "tưng tưng" (tap/spark) đã bỏ hẳn: HUD im lặng khi thao tác, nên
+// slider "Hiệu ứng" từ đây chỉ còn điều khiển tiếng trời.
 import { local } from './prefs.js';
 import { LofiPlayer, TRACKS } from './playlist.js';
-
-const rand = (a, b) => a + Math.random() * (b - a);
 
 // Mỗi kiểu thời tiết là vài lớp nhiễu lọc băng, dựng khi bấm và bỏ khi tắt — không có
 // tệp âm thanh nào mới, nên không phải xin thêm chỗ chứa trên bucket.
@@ -57,14 +58,11 @@ export const Sound = {
     this.master = this.ctx.createGain();
     this.master.gain.value = this.enabled ? this.vol.master : 0;
     this.master.connect(this.ctx.destination);
-    this.bus = {};
-    for (const k of ['sfx', 'music']) { this.bus[k] = this.ctx.createGain(); this.bus[k].gain.value = this.vol[k]; }
-    this.bus.sfx.connect(this.master); this.bus.music.connect(this.master);
-    this.noise = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.3, this.ctx.sampleRate);
-    const d = this.noise.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    this.bus = { music: this.ctx.createGain() };
+    this.bus.music.gain.value = this.vol.music;
+    this.bus.music.connect(this.master);
     this.ambBus = this.ctx.createGain();
-    this.ambBus.gain.value = this.vol.sfx; // một slider "Hiệu ứng" lo cả tiếng trời
+    this.ambBus.gain.value = this.vol.sfx; // đây chính là slider "Hiệu ứng": từ giờ nó lo tiếng trời
     this.ambBus.connect(this.master);
     this.pink = this.pinkBuffer();
     this.wx.gain = this.ctx.createGain();
@@ -87,9 +85,8 @@ export const Sound = {
   setVolume(kind, v) {
     this.vol[kind] = v; local.set('vol', this.vol);
     if (!this.ctx) return;
-    const node = kind === 'master' ? (this.enabled ? this.master : null) : this.bus[kind];
+    const node = kind === 'master' ? (this.enabled ? this.master : null) : kind === 'music' ? this.bus.music : this.ambBus;
     node?.gain.setTargetAtTime(v, this.ctx.currentTime, 0.03);
-    if (kind === 'sfx' && this.ambBus) this.ambBus.gain.setTargetAtTime(v, this.ctx.currentTime, 0.03);
   },
   setActive(on) { this.active = on; this.duckMusic(); },
   // Đổi bài là việc của người chơi, không phải của chùa: chọn xong là phát ngay, nhớ lại
@@ -180,39 +177,4 @@ export const Sound = {
     o.start(t);
     o.stop(t + 2.3);
   },
-  env(g, t, peak, decay) {
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(peak, t + 0.004);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
-  },
-  // Phím mềm: ba hoạ tần hoà âm (quint, bát độ) qua lowpass, tắt nhanh — thứ tiếng chạm
-  // hợp với băng lofi, không kéo đuôi như chuông.
-  key(t = this.now, freq = 523, peak = 0.12, len = 0.4) {
-    if (!this.ctx) return;
-    const c = this.ctx;
-    const lp = c.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 2400; lp.Q.value = 0.5;
-    lp.connect(this.bus.sfx);
-    [[1, 1], [1.5, 0.34], [2, 0.18]].forEach(([r, a]) => {
-      const o = c.createOscillator(), g = c.createGain();
-      o.type = 'triangle';
-      o.frequency.value = freq * r * (1 + rand(-0.002, 0.002));
-      this.env(g, t, peak * a, len);
-      o.connect(g).connect(lp); o.start(t); o.stop(t + len + 0.05);
-    });
-  },
-  click(t = this.now) {
-    if (!this.ctx) return;
-    const c = this.ctx;
-    const n = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain();
-    n.buffer = this.noise; bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 6;
-    this.env(g, t, 0.6, 0.04);
-    n.connect(bp).connect(g).connect(this.bus.sfx); n.start(t); n.stop(t + 0.05);
-    const o = c.createOscillator(), go = c.createGain();
-    o.frequency.value = 1500;
-    this.env(go, t, 0.15, 0.05);
-    o.connect(go).connect(this.bus.sfx); o.start(t); o.stop(t + 0.06);
-  },
-  tap() { this.key(this.now, 523, 0.1, 0.3); },
-  spark() { [0, 0.09, 0.18].forEach((d, i) => this.key(this.now + d, [523, 659, 784][i], 0.1, 0.34)); },
 };

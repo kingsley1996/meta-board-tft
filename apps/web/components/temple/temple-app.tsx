@@ -172,7 +172,6 @@ export function TempleApp({ lang }: { lang: string }) {
     setState(g.state ?? stateRef.current);
     if (g.gained) {
       floater(fxRef.current, `<svg class="i"><use href="#i-incense"/></svg> +${fmt(g.gained)}`);
-      Sound.tap();
     }
     if (g.level_ups?.length) {
       setLevelQueue((q) => [...q, ...g.level_ups!]);
@@ -203,11 +202,9 @@ export function TempleApp({ lang }: { lang: string }) {
     // Đối thủ nhận lời thì bảng thi đấu tự mở ở máy người mời: khoảnh khắc trận bắt đầu là
     // khoảnh khắc hai người đang chờ nhau, không ai phải đi bấm lại menu giữa chừng.
     if (kind === 'accept') {
-      Sound.tap();
       setSheet('games');
       return;
     }
-    Sound.tap();
     if (kind === 'invite') setDuelWait((n) => n + 1);
     pushNotice({ t: 'game', kind, by, text: gameLine(kind, match, meRef.current), gift_sen: 0, at: new Date().toISOString() });
   };
@@ -277,7 +274,6 @@ export function TempleApp({ lang }: { lang: string }) {
   };
 
   const onBowDone = () => {
-    Sound.tap();
     if (bowRef.current === 'stopping' && (engRef.current?.world?.player?.bowT ?? 0) === 0) {
       bowRef.current = 'idle';
       render();
@@ -330,7 +326,6 @@ export function TempleApp({ lang }: { lang: string }) {
       const r = await post<Gain & { left: number }>('/use', { item: kind });
       apply(r);
       engRef.current?.offer(kind as 'huong_tram' | 'nen_sap' | 'hoa_dang');
-      Sound.tap();
     } catch (e) {
       toast((e as Error).message);
     }
@@ -374,7 +369,6 @@ export function TempleApp({ lang }: { lang: string }) {
           if (msg.t !== 'friend' && msg.t !== 'gift') return;
           const by = msg.by as Notice['by'] | undefined;
           if (!by?.id) return;
-          Sound.tap();
           pushNotice({
             t: msg.t === 'gift' ? 'gift' : 'friend',
             kind: String(msg.kind ?? ''),

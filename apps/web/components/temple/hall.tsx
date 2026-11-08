@@ -144,7 +144,6 @@ export function SteleSheet({ s, onClose }: { s: Store; onClose: () => void }) {
       const r = await post<Gain>('/donations', { amount, note: note.trim() });
       s.apply(r);
       setNote('');
-      Sound.spark();
       luckyShower(24);
       await load();
     } catch (e) {
@@ -540,7 +539,6 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
         equipped: { ...equipped, [slot]: id },
       });
       s.refreshLook(r.profile);
-      Sound.tap();
       await s.refresh();
       s.toast(id ? 'Đã thay đổi' : 'Đã tháo');
     } catch (e) {
@@ -553,7 +551,6 @@ export function BagSheet({ s, onClose }: { s: Store; onClose: () => void }) {
       const r = await post<Gain & { left: number }>('/use', { item: id });
       s.apply(r);
       if (id === 'huong_tram' || id === 'nen_sap' || id === 'hoa_dang') s.engine?.offer(id);
-      Sound.tap();
     } catch (e) {
       s.toast((e as Error).message);
     }
@@ -617,7 +614,6 @@ export function ShopSheet({ s, onClose }: { s: Store; onClose: () => void }) {
     try {
       const r = await post<Gain & { item: string }>('/shop/buy', { item: id, currency });
       s.apply(r);
-      Sound.spark();
       s.toast(`Đã mua ${ITEMS[id]?.name ?? id}`);
     } catch (e) {
       s.toast((e as Error).message);
@@ -857,7 +853,6 @@ export function SettingsSheet({ s, onClose }: { s: Store; onClose: () => void })
               onChange={(e) => {
                 Sound.init();
                 Sound.setVolume(key, Number(e.target.value) / 100);
-                Sound.tap();
               }}
             />
           </label>

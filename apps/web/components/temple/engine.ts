@@ -280,11 +280,7 @@ export class TempleEngine {
     const world = this.world;
     if (!world) return false;
     if (world.seated) return true;
-    if (world.sit()) {
-      Sound.tap();
-      return true;
-    }
-    return false;
+    return !!world.sit();
   }
 
   // Ngồi xuống rồi mới hành trì được; chưa ngồi thì tự đi tới bồ đoàn trống gần nhất và
@@ -357,7 +353,6 @@ export class TempleEngine {
 
   nextAmbience(): string {
     this.setAmbience(this.ambience + 1);
-    Sound.tap();
     return AMBIENCES[this.ambience].label;
   }
 
@@ -370,7 +365,6 @@ export class TempleEngine {
 
   nextWeather(): string {
     this.setWeather(this.weather + 1);
-    Sound.tap();
     return WEATHERS[this.weather].label;
   }
 
