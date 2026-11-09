@@ -137,6 +137,18 @@ export const HERO_LIST = [
     skin: '#c68b65',
     aura: '#c084fc',
   },
+  {
+    // Hình thứ 13, lấy ý tưởng từ linh thú tí nị đội nạ trong TFT (ảnh yone-ti-ni.jpg).
+    id: 'yone_chibi',
+    name: 'Mặt Nạ Sừng',
+    title: 'Song Kiếm Dẫn Hồn',
+    skillColor: '#a2c1dd',
+    robeColor: '#329fb7',
+    pantsColor: '#282c41',
+    sashColor: '#b1255e',
+    skin: '#f3c6a5',
+    aura: '#4dbdec',
+  },
 ];
 
 export const HERO_MAP = Object.fromEntries(HERO_LIST.map((h) => [h.id, h]));
@@ -215,6 +227,15 @@ const G = {
   // Tỷ lệ Chibi 2.5 đầu chuẩn theo ảnh tham khảo characters-naruto-onpine.jpg: đầu to biểu cảm, thân gọn khỏe
   head: new THREE.SphereGeometry(0.46, 36, 28),
   facePatch: new THREE.SphereGeometry(0.463, 32, 24, -Math.PI * 0.82, Math.PI * 0.64, Math.PI * 0.24, Math.PI * 0.54),
+  // Phiến nạ Yone: MỘT tấm sơn liền QUẤN KÍN 360° quanh đầu, mang cả tóc, nạ lẫn da trần,
+  // bán kính đúng bằng facePatch nên không có mép nào đứng cạnh mép nào. Ba bản trước đều
+  // bị chê lộ rãnh nối vì mỗi bản để hai KHỐI gặp nhau trên mặt tiền: vành + má đính ở
+  // 0.484/0.487 (lồi hơn phiến sơn 0,024 -> gờ sáng), mũ tóc 0.494 lệch sau 0,14 (chôn
+  // kín trán), rồi vỏ tóc 0.470 cung sau - mép trước của nó ở phương 79,2° nằm TRONG phiến
+  // sơn (tới 84,6°) và to hơn phiến 0,007 nên vẫn cắt một đường cong xuống tận gáy. Giờ
+  // gáy và hai bên thái dương là SƠN trên cùng tấm: đường chân tóc chỉ còn là nét biên
+  // TRONG ẢNH. Rộng 2π, cao theta 0..0,805π = đỉnh đầu xuống dưới hàm.
+  yoneMask: new THREE.SphereGeometry(0.463, 72, 40, -Math.PI * 1.5, Math.PI * 2, 0, Math.PI * 0.805),
   torso: new THREE.LatheGeometry(ROBE_PROFILE, 32),
   arm: new THREE.CapsuleGeometry(0.105, 0.28, 6, 12),
   hand: new THREE.SphereGeometry(0.095, 14, 12),
@@ -246,12 +267,22 @@ function makeHeroFaceTex(heroId) {
   if (FACE_TEX_CACHE.has(heroId)) return FACE_TEX_CACHE.get(heroId);
   if (typeof document === 'undefined') return null;
   const c = document.createElement('canvas');
-  c.width = 512; c.height = 512;
+  // Yone vẽ trên tấm to hơn vì phiến nạ của nó quấn kín đầu và cao tới đỉnh đầu. Giữ
+  // nguyên độ lớn góc của mỗi px như bản 512 (0,225°/px ngang, 0,19°/px dọc) thì tấm
+  // 2π x 0,805π là 1600 x 763, và gốc (0,0) của canvas cũ rơi ở (544, 227,6) của canvas
+  // mới - nên chỉ cần translate một lần, mọi tọa độ vẽ giữ nguyên như đã canh chỉnh.
+  // Kinh tuyến trước (phương 0°) ở đúng giữa canvas x=800, tức local x=256 như cũ; hai
+  // mép canvas x=0 và x=1600 gặp nhau ở sau gáy, cả hai đều là tóc đen nên không để lại
+  // khe nào tại đường nối ảnh.
+  const isYone = heroId === 'yone_chibi';
+  const CW = isYone ? 1600 : 512, CH = isYone ? 763 : 512;
+  c.width = CW; c.height = CH;
   const g = c.getContext('2d');
   const hero = HERO_MAP[heroId] || HERO_LIST[0];
 
   // Nền da mặt mịn màng
-  g.clearRect(0, 0, 512, 512);
+  g.clearRect(0, 0, CW, CH);
+  if (isYone) g.translate(544, 227.6);
 
   // Vẽ lông mày, mắt, sẹo, râu và biểu cảm từng nhân vật đúng theo ảnh characters-naruto-onpine.jpg
   const drawAnimeEye = (cx, cy, irisColor, type = 'normal', isLeft = true) => {
@@ -475,6 +506,174 @@ function makeHeroFaceTex(heroId) {
     g.strokeStyle = '#09090b'; g.lineWidth = 10; g.lineCap = 'round';
     g.beginPath(); g.moveTo(190, 330); g.quadraticCurveTo(120, 350, 95, 425); g.stroke();
     g.beginPath(); g.moveTo(322, 330); g.quadraticCurveTo(392, 350, 417, 425); g.stroke();
+  } else if (hero.id === 'yone_chibi') {
+    // Nạ lấy từ ảnh gốc yone-ti-ni.jpg: MỘT phiến liền, không ghép nhiều mảnh. Ba màu
+    // đo bằng median vùng no màu - nền nạ #b52353, chỗ bắt sáng #dd3b82, khe rãnh
+    // #970d48; lửa xanh #5dd5f5 non -> đáy hốc #143255.
+    // Hình thù nạ (chóp V giữa hai mắt, cầu mày ôm mắt hồng, tab má ngoài, hốc mắt lửa,
+    // gợn sóng cyan) và CẢ ĐƯỜNG CHÂN TÓC nữa đều vẽ bằng 2D trên cùng một tấm. Hai bản
+    // trước để tóc là khối 3D: vành + má đính ở 0.484/0.487 thì mỗi chỗ giáp lồi hơn phiến
+    // sơn 0,024 thành một gờ sáng, mũ tóc đồng tâm 0.470 cắt xuống trán ở theta 38,4° thì
+    // để lại một cái gờ ngang trán - cả hai đều bị chê là lộ rãnh nối. Giờ trên mặt tiền
+    // không còn chỗ nào hai khối gặp nhau: đỏ sơn kín tới đỉnh đầu, tóc phủ lại lên trên,
+    // biên tóc là một nét trong ảnh.
+    const maskRed = '#b52353', maskDeep = '#970d48';
+    // Đỏ chạy vượt mép trên của tấm (y cũ -227,6 = theta 0°): vẽ thừa ra ngoài để chắc
+    // chắn không hở một dải nào, canvas tự cắt.
+    g.fillStyle = maskRed;
+    g.beginPath();
+    g.moveTo(-120, 330);                                // mép trái ngoài, sát tai
+    g.lineTo(-120, -240);
+    g.lineTo(632, -240);
+    g.lineTo(632, 330);                                 // mép phải ngoài, đối xứng
+    g.quadraticCurveTo(548, 352, 462, 348);             // vòng vào chóp tab trên má
+    g.quadraticCurveTo(438, 274, 402, 208);             // rồi vòng lên hốc ngoài mắt hồng
+    g.quadraticCurveTo(344, 186, 286, 214);             // cầu mày chạy sát mí trên
+    g.lineTo(256, 268);                                 // ...xuống chóp V giữa hai mắt
+    g.quadraticCurveTo(206, 306, 140, 332);             // cạnh trái V sa xuống gò má,
+    g.quadraticCurveTo(66, 360, 0, 402);                // hốc mắt lửa nằm TRONG phiến
+    g.quadraticCurveTo(-58, 384, -120, 330);            // kéo tiếp ra sát tai trái
+    g.closePath();
+    g.fill();
+    // Viền thẫm theo đúng đường vừa tô: nạ trong ảnh có bóng đậm ở mép nên chỉ cần nét
+    // này là phiến tách khỏi da, không phải vẽ thêm rãnh nọ.
+    g.strokeStyle = maskDeep; g.lineWidth = 6; g.lineJoin = 'round';
+    g.beginPath();
+    g.moveTo(632, 330);
+    g.quadraticCurveTo(548, 352, 462, 348);
+    g.quadraticCurveTo(438, 274, 402, 208);
+    g.quadraticCurveTo(344, 186, 286, 214);
+    g.lineTo(256, 268);
+    g.quadraticCurveTo(206, 306, 140, 332);
+    g.quadraticCurveTo(66, 360, 0, 402);
+    g.quadraticCurveTo(-58, 384, -120, 330);
+    g.stroke();
+    // Sống giữa trán: một rãnh duy nhất, dọc theo đúng tim phiến (x 256..258) từ chóp
+    // V lên tới sát đỉnh crest. Vẽ xéo ra là nó tràn ra khỏi mép nạ và thành nét đen trên da.
+    g.beginPath(); g.moveTo(256, 262); g.lineTo(258, -138); g.stroke();
+    // Óng sơn mài: hai dải dọc mép trên + một vệt má trái. Trước đây mép trên của phiến
+    // là y=0 nên dải óng nằm ở y 92; nay trán cao thêm 227 px nữa nên nhấc lên theo, nếu
+    // không thì nửa trên trán chết màu. Vẽ TRƯỚC khi tô tóc, phần tóc phủ lên sẽ cắt gọn.
+    g.fillStyle = 'rgba(221,59,130,0.45)';
+    g.beginPath(); g.ellipse(150, 6, 108, 26, -0.14, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(392, 10, 96, 24, 0.14, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(78, 316, 24, 34, 0.22, 0, Math.PI * 2); g.fill();
+    // Tóc trên nóc đầu, đúng màu hairM #2b3047 nên khối này liền với hai cột tóc bên và
+    // gáy thành MỘT vùng sơn, không phải một mảnh áp vào mảnh khác.
+    // Biên dưới là đường RĂNG CƯA ba chóp, lấy theo chính nạ trong ảnh: chóp giữa ở tim
+    // đầu (x 256, y -160 => theta 12,8°) và HAI CHÓP CẠNH ở x 43/469 = phương vị ±48°,
+    // cũng theta 12,8° - đúng chỗ gốc sừng mọc. Giữa các chóp là khe tóc sa xuống theta
+    // 48,8° (x 149/363, y 30). Hai bản trước chỉ có một cung trơn nên chỗ sừng lại rơi
+    // vào tóc: user gọi là "khoảng đen ở giữa, 2 phần phải khớp với nhau".
+    g.fillStyle = '#2b3047';
+    g.beginPath();
+    g.moveTo(-120, -240);
+    g.lineTo(632, -240);
+    g.lineTo(632, -70);
+    g.lineTo(556, -150);
+    g.lineTo(469, -165);
+    g.lineTo(410, -40);
+    g.lineTo(363, 30);
+    g.lineTo(300, -110);
+    g.lineTo(256, -160);
+    g.lineTo(212, -110);
+    g.lineTo(149, 30);
+    g.lineTo(102, -40);
+    g.lineTo(43, -165);
+    g.lineTo(-44, -150);
+    g.lineTo(-120, -70);
+    g.closePath();
+    g.fill();
+    // Óng tóc: hai dải sáng nằm TRONG vùng tóc, mỗi dải một bên chóp cạnh, để nóc đầu
+    // không thành vệt đen phẳng.
+    g.fillStyle = 'rgba(126,140,178,0.30)';
+    g.beginPath(); g.ellipse(96, -196, 74, 20, -0.10, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(420, -196, 74, 20, 0.10, 0, Math.PI * 2); g.fill();
+    // Tóc hai bên thái dương + sau gáy, cũng SƠN trên tấm này. Vẽ sau lớp đỏ nên mép
+    // trong lượn vào tới local x -96 (phương 81°) ở ngang thái dương rồi vòng ra -150
+    // dưới gò má: đường tóc - nạ không thành một kinh tuyến thẳng như kẻ, và vì tấm giờ
+    // quấn tới phương 180° nên không còn khối 3D nào phải giáp mép với nó nữa.
+    for (const s of [-1, 1]) {
+      g.save(); g.translate(256, 0); g.scale(s, 1);
+      g.fillStyle = '#2b3047';
+      g.beginPath();
+      g.moveTo(-800, -240);
+      g.lineTo(-376, -240);
+      g.quadraticCurveTo(-352, 60, -406, 330);
+      g.lineTo(-376, 540);
+      g.lineTo(-800, 540);
+      g.closePath();
+      g.fill();
+      g.restore();
+    }
+    // Gợn sóng cyan trên phiến trái, đúng nét MẢNH trong ảnh. Bản tube 3D đội lên vỏ
+    // nạ làm nó nổi khối và cắt ngang các phiến khác, ở đây nó chỉ là một nét sơn.
+    g.strokeStyle = '#7fe3f7'; g.lineWidth = 6; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(104, 148); g.quadraticCurveTo(142, 166, 120, 184);
+    g.quadraticCurveTo(104, 198, 132, 208); g.stroke();
+    // Con mắt lửa: hốc mắt CẮT MỞ trong nạ, cả con mắt là lửa xanh, không lòng trắng
+    // và không con ngươi (đúng ảnh). Vẽ thẳng lên facePatch nên không còn patch nào
+    // đính ngoài vỏ nạ nữa.
+    const drawFlameEye = (cx, cy) => {
+      g.save();
+      g.translate(cx, cy);
+      g.rotate(0.22); // khóe ngoài (phía x nhỏ = phía tai) chếch LÊN, đúng mắt nạ trong ảnh
+      // Hốc: trũng xanh đêm để lửa cháy lên từ trong hố, không dán trên mặt nạ
+      g.fillStyle = '#0d2b4c';
+      g.beginPath(); g.ellipse(0, 0, 66, 42, 0, 0, Math.PI * 2); g.fill();
+      // Lưỡi lửa vẽ TRƯỚC thân mắt: gốc chìm trong thân, chỉ ngọn liếm lên trên là thấy.
+      // Ảnh gốc có lửa tạt lên - ra ngoài, nên dx âm và ngọn cao 44..64 px.
+      const lick = (x, w, dx, h) => {
+        const y0 = -14;
+        const gr = g.createLinearGradient(x, y0, x + dx, y0 - h);
+        gr.addColorStop(0, 'rgba(232,250,255,0.95)');
+        gr.addColorStop(0.45, 'rgba(120,208,246,0.75)');
+        gr.addColorStop(1, 'rgba(39,83,178,0)');
+        g.fillStyle = gr;
+        g.beginPath();
+        g.moveTo(x - w, y0);
+        g.quadraticCurveTo(x - w * 0.4 + dx * 0.25, y0 - h * 0.5, x + dx, y0 - h);
+        g.quadraticCurveTo(x + w * 0.5 + dx * 0.15, y0 - h * 0.45, x + w, y0);
+        g.closePath();
+        g.fill();
+      };
+      lick(-46, 13, -20, 44);
+      lick(-16, 18, -14, 62);
+      lick(14, 17, 4, 50);
+      lick(42, 11, 16, 30);
+      // Thân mắt: hạnh nhân ĐẦY lửa, không lòng trắng, không con ngươi (đúng ảnh).
+      // Lõi sáng đặt lệch xuống khóe trong vì ảnh cháy mạnh nhất ở đáy hốc.
+      const body = g.createRadialGradient(-10, 10, 5, 0, 0, 62);
+      body.addColorStop(0, '#f6feff');
+      body.addColorStop(0.28, '#b8ecfd');
+      body.addColorStop(0.55, '#4fb2e8');
+      body.addColorStop(0.8, '#2a6fc0');
+      body.addColorStop(1, '#1b3f8f');
+      g.fillStyle = body;
+      g.beginPath(); g.ellipse(0, 0, 58, 36, 0, 0, Math.PI * 2); g.fill();
+      // Vảy lửa trong thân: lưỡi cong sáng hơn vẽ chồng, cắt theo hình mắt nên không
+      // tràn ra nạ. Đủ để thân mắt không thành một vệt tô phẳng.
+      g.save();
+      g.beginPath(); g.ellipse(0, 0, 58, 36, 0, 0, Math.PI * 2); g.clip();
+      g.lineCap = 'round';
+      for (const [sx, sy, ex, ey, lw] of [[-40, 24, -14, -22, 12], [-2, 28, 22, -16, 10], [26, 24, 44, -6, 7]]) {
+        g.strokeStyle = 'rgba(236,252,255,0.55)'; g.lineWidth = lw;
+        g.beginPath(); g.moveTo(sx, sy); g.quadraticCurveTo(sx + (ex - sx) * 0.2, (sy + ey) / 2, ex, ey); g.stroke();
+      }
+      g.restore();
+      // Mí trên: cung hạnh nhân như drawAnimeEye nhưng bằng xanh thẫm của hốc nạ, nét
+      // MỎNG (4px) thôi - bản 6px viền đậm quanh hốc làm mắt bầm như một vết thương.
+      g.strokeStyle = '#0d2b4c'; g.lineWidth = 4; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(-60, -4); g.quadraticCurveTo(0, -40, 60, -4); g.stroke();
+      g.restore();
+    };
+    drawFlameEye(L_X, EYE_Y);
+    drawAnimeEye(R_X, EYE_Y, '#de3d91', 'normal');
+    drawBrow(R_X, 178, '#2b3047', -0.2);
+    // Miệng nằm trên da trần (262..332): mép nạ bên trái dừng ở x 92 nên vẽ lệch trái
+    // là đầu mút chìm trong đỏ son, mất luôn nét mếu của ảnh.
+    g.strokeStyle = '#5b2a3a'; g.lineWidth = 6;
+    g.beginPath(); g.moveTo(262, 352); g.quadraticCurveTo(298, 342, 332, 352); g.stroke();
   }
 
   // Mũi 3D shading nhẹ ở giữa
@@ -657,6 +856,57 @@ function buildHeroHead3D(head, hero) {
       head.add(m(new THREE.TubeGeometry(curve, 20, 0.095, 12, false), hornM));
       head.add(m(new THREE.ConeGeometry(0.095, 0.22, 12), hornM, s * 0.70, 0.82, 0.03, { rot: [0, 0, s * 0.25] }));
     }
+  } else if (id === 'yone_chibi') {
+    // Mặt nạ sừng: màu đo từ ảnh tham khảo yone-ti-ni.jpg bằng median vùng no màu (nạ
+    // #b52353, sừng #93204c) rồi nhấc nhẹ vì sảnh tối hơn ánh chính của ảnh; bản nhấc
+    // +14 độ sáng render ra hồng kẹo cao su, lạc hẳn đỏ son của ảnh.
+    // Hình thù nạ nằm ở makeHeroFaceTex: MỘT phiến sơn liền QUẤN KÍN đầu trên G.yoneMask,
+    // bán kính đúng bằng facePatch nên không có mép nào đứng cạnh mép nào. 3D ở đây chỉ
+    // còn bờm, hai lọn tóc và sừng - tất cả đều ở ngoài khối đầu.
+    const hairM = mat('#2b3047', { roughness: 0.5 });
+    const hornM = mat('#93204c', { roughness: 0.3, metalness: 0.18 });
+    // Vỏ tóc 3D đã GỠ HẾT. Bản 0.470 cung sau (mép trước ở phương 79,2°) trông như một
+    // khối liền nhưng vẫn để lại một đường cong chạy xuống gáy: nó LỒI hơn phiến sơn
+    // 0,007 và mép trước nằm TRONG phiến (phiến tới 84,6°), nên nhìn xiên là thấy ngay
+    // cái rãnh. Gáy giờ là sơn đen trên đúng tấm yoneMask, không còn surface nào áp vào
+    // surface nào. Mũ tóc 0.494 lệch sau 0,14 trước đó còn tệ hơn: mặt trước tụt vào
+    // trong khối đầu tới theta 25,7° giữa trán nên đỏ lòi kín nóc thành mũ bảo hiểm.
+    // Mái vuốt sang một bên + bờm sau gáy. Bờm phải nằm phía SAU đầu (z dương) và
+    // ngả ra sau: đặt ở z -0.10 là mũi spike (dài 0.42, bán kính đầu 0.46) vọt ra
+    // ngoài vỏ nạ và cắt ngang trán thành những răng cưa đen.
+    for (let i = 0; i < 5; i++) {
+      head.add(m(G.spike, hairM, -0.30 + i * 0.16, 0.34 - i * 0.02, 0.12 + (i % 2) * 0.14, { rot: [0.5, 0, 0.62 - i * 0.1], scale: [0.8, 1.15, 0.8] }));
+    }
+    // Hai lọn tóc dài rủ xuống hai bên vai, đúng chỗ ảnh để tóc: sát thái dương, hơi
+    // nghiêng ra ngoài. Bắt đầu dưới y 0,06 để gốc chìm trong khối đầu, không lơ lửng.
+    for (const s of [-1, 1]) {
+      head.add(m(new THREE.CapsuleGeometry(0.072, 0.52, 6, 10), hairM, s * 0.34, -0.20, 0.02, { rot: [0.06, 0, s * 0.16] }));
+    }
+    // Ngọn tóc hồng: chấm magenta ở đuôi hai lọn, không phải một que rời nổi lên giữa lưng
+    const tipM = mat('#de3d91', { roughness: 0.45, emissive: '#92235d', emissiveIntensity: 0.35 });
+    for (const s of [-1, 1]) {
+      head.add(m(new THREE.ConeGeometry(0.072, 0.20, 8), tipM, s * 0.38, -0.60, 0.04, { rot: [Math.PI + 0.06, 0, s * 0.16] }));
+    }
+    // Vành trán + hai má che 3D đã GỠ. Đó là ba mảnh vỏ cầu đính ở 0.487/0.484, tức
+    // LỒI hơn phiến sơn 0.463 tới 0,024: mỗi chỗ giáp để lại một gờ sáng nhìn rõ như
+    // mặt nạ ghép từ nhiều tấm, và khi hai mảnh cùng bán kính áp biên vào nhau thì vỏ
+    // cầu không có độ dày nên nhìn xiên qua khe thấy thẳng khối da 0.46 - cái rãnh mà
+    // user gọi là "không liền mạch". Nạ giờ là một tấm sơn duy nhất (G.yoneMask), còn
+    // 3D chỉ việc đội tóc và cắm sừng.
+    // Sừng: ảnh có HAI chiếc to mọc từ thái dương vút LÊN, chỉ chếch ra ngoài ~32° chứ
+    // không xoè ngang (bản rot z -s*0.84 = 48° bị chê là đưa ra hai bên quá nhiều), kèm
+    // hai chóp phụ ngắn trong khe tóc giữa trán. Cone mũi +y; với rot [-0.30, 0, -s*0.55]
+    // thì trục sừng = (±0.523, 0.814, -0.252) - đã quay vector thật bằng three để kiểm.
+    // GỐC bám đúng vào phần nạ ĐỎ, không vào tóc: gốc ở theta 25°, phương vị 48° - tức
+    // ngay chóp cánh nạ (biên tóc ở đó là theta 11,9°) - |p| = 0,450 nên lẹm vào trong
+    // khối đầu 0,46. Bản trước gốc ở theta 35,6° nhưng phương vị 61,3°, rơi trọn vào vùng
+    // tóc nên sừng bị một dải đen chia cắt khỏi nạ. Chóp phụ ở theta 36°/phương 38°, biên tóc
+    // chỗ đó theta 29,6° nên cũng nằm trên đỏ. To đã giảm 0,15x0,80 -> 0,125x0,66 theo
+    // yêu cầu "nhỏ lại một tí"; scale z ép thành lưỡi dẹt để chính diện thấy bề ngang như ảnh.
+    for (const s of [-1, 1]) {
+      head.add(m(new THREE.ConeGeometry(0.125, 0.66, 5), hornM, s * 0.3139, 0.6765, -0.2104, { rot: [-0.30, 0, -s * 0.55], scale: [1, 1, 0.45] }));
+      head.add(m(new THREE.ConeGeometry(0.08, 0.30, 5), hornM, s * 0.2072, 0.5033, -0.2425, { rot: [-0.24, 0, -s * 0.30], scale: [1, 1, 0.42] }));
+    }
   }
 }
 
@@ -768,6 +1018,36 @@ function buildHeroProps3D(upper, hands, legR, hero) {
       club.add(m(new THREE.ConeGeometry(0.035, 0.11, 6), ironM, Math.cos(a) * 0.11, 0.32 + (k % 2) * 0.12, -0.32 + Math.sin(a) * 0.11, { rot: [0, 0, -a] }));
     }
     hands[0].add(club);
+  } else if (id === 'yone_chibi') {
+    // Song kiếm chéo sau lưng: một lưỡi đỏ son, một lưỡi thép bọc hồn lam.
+    const blade = (steel, flame) => {
+      const g = new THREE.Group();
+      const edgeM = mat(steel, { metalness: 0.7, roughness: 0.28 });
+      g.add(m(new THREE.BoxGeometry(0.055, 0.78, 0.016), edgeM, 0, 0.42, 0));
+      g.add(m(new THREE.ConeGeometry(0.039, 0.13, 4), edgeM, 0, 0.87, 0));
+      g.add(m(new THREE.TorusGeometry(0.072, 0.019, 8, 16), mat('#facc15', { metalness: 0.8, roughness: 0.25 }), 0, 0.02, 0, { rot: [Math.PI / 2, 0, 0] }));
+      g.add(m(new THREE.CylinderGeometry(0.026, 0.026, 0.26, 8), mat('#1e1b18', { roughness: 0.6 }), 0, -0.14, 0));
+      if (flame) {
+        g.add(m(new THREE.BoxGeometry(0.15, 0.86, 0.07), new THREE.MeshBasicMaterial({ color: flame, transparent: true, opacity: 0.4, depthWrite: false }), 0, 0.44, 0, { cast: false }));
+      }
+      return g;
+    };
+    // Lưỡi đỏ son đứng về phía +x — cùng phía với con mắt bị nạ che, đúng như ảnh
+    // (kiếm đỏ và mắt tinh thể là một cặp). Lưỡi thép hồn lam ở phía -x.
+    const dao = blade('#b31f52', null);
+    dao.position.set(0.16, 0.34, 0.32); dao.rotation.set(-0.2, 0, -0.55);
+    const hon = blade('#cbd5e1', '#a2c1dd');
+    hon.position.set(-0.16, 0.34, 0.32); hon.rotation.set(-0.2, 0, 0.55);
+    upper.add(dao, hon);
+    // Vai lông trắng: ảnh đo ra #6a7e92 vì đèn của ảnh thiên lam, sảnh này sáng ấm
+    // nên albedo nâng lên #cbd5e1 mới ra đúng chất lông trắng như trong ảnh.
+    const featherM = mat('#cbd5e1', { roughness: 0.85 });
+    for (const s of [-1, 1]) {
+      for (let i = 0; i < 5; i++) {
+        const a = -0.5 + i * 0.25;
+        upper.add(m(new THREE.ConeGeometry(0.045, 0.20, 6), featherM, s * (0.30 + Math.cos(a) * 0.04), 0.54 - Math.abs(i - 2) * 0.02, -0.06 + Math.sin(a) * 0.10, { rot: [0.2, 0, s * (1.1 - i * 0.2)] }));
+      }
+    }
   }
 
   return vfxGroup;
@@ -868,8 +1148,8 @@ export function makeAvatar(opts = {}) {
   const upper = new THREE.Group();
   root.add(upper);
 
-  // Thân áo 3D Chibi (riêng Mũ Cam và Sừng Trâu lộ cơ ngực khỏe khoắn)
-  const bareChest = !outfit?.sansaRobe && (hero.id === 'ace' || hero.id === 'kaido');
+  // Thân áo 3D Chibi (riêng Mũ Cam, Sừng Trâu và Mặt Nạ Sừng lộ cơ ngực)
+  const bareChest = !outfit?.sansaRobe && (hero.id === 'ace' || hero.id === 'kaido' || hero.id === 'yone_chibi');
   const torsoMat = bareChest ? skinM : robeM;
   upper.add(m(G.torso, torsoMat, 0, -0.05, 0, { scale: [1, 1, 0.88] }));
   // Đai thắt lưng / Sash đặc trưng
@@ -936,7 +1216,10 @@ export function makeAvatar(opts = {}) {
   head.add(m(G.head, skinM));
   const faceTex = makeHeroFaceTex(hero.id);
   if (faceTex) {
-    const faceMesh = m(G.facePatch, new THREE.MeshStandardMaterial({ map: faceTex, transparent: true, roughness: 0.45, depthWrite: false }), 0, 0, 0, { cast: false });
+    // Yone dùng tấm rộng hơn (G.yoneMask) vì sơn cả phiến nạ liền; các hình khác giữ
+    // facePatch - canvas của makeHeroFaceTex sinh ra đúng theo kích thước tấm ấy.
+    const faceGeo = hero.id === 'yone_chibi' ? G.yoneMask : G.facePatch;
+    const faceMesh = m(faceGeo, new THREE.MeshStandardMaterial({ map: faceTex, transparent: true, roughness: 0.45, depthWrite: false }), 0, 0, 0, { cast: false });
     head.add(faceMesh);
   }
   for (const s of [-1, 1]) {
@@ -960,7 +1243,7 @@ export function makeAvatar(opts = {}) {
   }
   legs.add(legL, legR);
   const skirt = m(G.skirt, robeM, 0, 0, 0, { scale: outfit?.sansaRobe ? [1.02, 0.96, 0.96] : [0.95, 0.85, 0.85] });
-  skirt.visible = !!outfit?.sansaRobe || ['itachi', 'zoro', 'naruto_sage', 'minato'].includes(hero.id);
+  skirt.visible = !!outfit?.sansaRobe || ['itachi', 'zoro', 'naruto_sage', 'minato', 'yone_chibi'].includes(hero.id);
   legs.add(skirt);
   root.add(lap, legs);
 

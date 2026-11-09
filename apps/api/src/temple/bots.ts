@@ -133,7 +133,7 @@ type BotDef = {
   kit: { robe: string; beads: string; cushion: string; hat: string | null; staff: string | null; cloud: string | null; pet: string | null };
 };
 
-// Hai mươi nhân vật cho chánh điện: 12 hình của avatar.js:HERO_LIST được dùng lại
+// Hai mươi nhân vật cho chánh điện: các hình của avatar.js:HERO_LIST được dùng lại
 // với tóc/skin/đồ khác nhau, vì giới hạn bot của admin là 20 (BOT_MAX). Trang phục
 // bậc thấp đứng trước, bậc cao đứng sau: một người vận Như Ý mà mặc áo tặng ngày
 // đầu thì ngược nhau.

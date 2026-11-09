@@ -67,7 +67,22 @@ function petScene(scene, cam, it) {
   if (pet.fly) { cam.position.set(1.2, 1.5, 3.7); cam.lookAt(-0.3, 0.1, -0.2); } else { cam.position.set(0.6, 1.0, 2.3); cam.lookAt(0, 0.68, 0); }
   return () => pet.dispose();
 }
-const SCENES = { pet: petScene, robe: robeScene, beads: beadsScene, cushion: cushionScene, hat: gearScene, staff: gearScene, cloud: gearScene };
+// Ô chọn nhân vật: mười hai hình đầu đã có ô sẵn trong tấm sprite 4x3 của HUD gốc, hình
+// thứ 13 trở đi không có ô nào trong tấm đó. Thay vì cắt ghép ảnh khác, vẽ thẳng khối mà
+// chánh điện đang dựng, nên ảnh nhỏ và nhân vật thật không bao giờ lệch nhau.
+function heroScene(scene, cam, it, appearance) {
+  const av = makeAvatar({ appearance: { ...(appearance || {}), hero: it.data.hero }, robe: { color: '#8f6a3e', sash: '#6b2416' } });
+  av.meditating = true;
+  animateAvatar(av, 0.05, 0, false);
+  av.root.rotation.y = 0.45;
+  scene.add(av.root);
+  // Khung lấy đúng robeScene: mười hai ô trong tấm sprite gốc đều là cả thân hình ngồi
+  // thiền, chụp riêng cái đầu thì ô mới lệch hẳn họ.
+  cam.position.set(0, 1.05, -3.1);
+  cam.lookAt(0, 0.62, 0);
+  return () => disposeAvatar(av);
+}
+const SCENES = { pet: petScene, robe: robeScene, beads: beadsScene, cushion: cushionScene, hat: gearScene, staff: gearScene, cloud: gearScene, hero: heroScene };
 
 let queue = [], running = false;
 async function drain(appearance) {
@@ -118,4 +133,10 @@ export function itemThumb(it, appearance) {
     queue.push({ it, res });
     if (!running) drain(appearance);
   });
+}
+
+// Cùng hàng đợi nói trên, chỉ khác chỗ khoá cache là "hero:<id>" để ảnh nhân vật không
+// bao giờ đụng vào ô của một món đồ cùng tên.
+export function heroThumb(heroId, appearance) {
+  return itemThumb({ id: `hero:${heroId}`, type: 'hero', data: { hero: heroId } }, appearance);
 }

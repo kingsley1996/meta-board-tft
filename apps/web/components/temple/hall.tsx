@@ -8,11 +8,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Gain, TempleState } from './api';
 import { get, post, put } from './api';
-import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, TRACKS, local, sectOf } from './engine';
+import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, TRACKS, local, sectOf, type Hero } from './engine';
 import { luckyShower } from './effects';
 import { guideOf, storyOf } from './stories';
 import { LADDER_TOP, REALMS, REALM_ABOUT, ROMAN, realmLevels, rungOf } from '@/vendor/temple/js/ladder.js';
-import { itemThumb } from '@/vendor/temple/js/thumbs.js';
+import { heroThumb, itemThumb } from '@/vendor/temple/js/thumbs.js';
 import { GuestGate, Icon, Sheet, TitleBadge, ago, fmt, type Look, type Store } from './ui';
 
 type RankRow = { rank: number; id: number; name: string; sect: string; title: string; honor: string; score: number; you: boolean };
@@ -331,10 +331,10 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
       )}
       <p className="muted hero-note">
         {openAll
-          ? `${owned.length}/12 nhân vật đã mở · tài khoản quản trị đổi được mọi hình, không trừ Kim Cương.`
+          ? `${owned.length}/${HEROES.length} nhân vật đã mở · tài khoản quản trị đổi được mọi hình, không trừ Kim Cương.`
           : untouched
             ? `Chọn một nhân vật, lần đầu miễn phí.${price ? ` Mỗi hình mới sau đó trả ${fmt(price)} Kim Cương.` : ''}`
-            : `${owned.length}/12 nhân vật đã mở · đã mở thì dùng lại miễn phí${price ? `, hình mới ${fmt(price)} Kim Cương` : ''}.`}
+            : `${owned.length}/${HEROES.length} nhân vật đã mở · đã mở thì dùng lại miễn phí${price ? `, hình mới ${fmt(price)} Kim Cương` : ''}.`}
       </p>
       <div className="hero-grid modal-hero-grid">
         {HEROES.map((h) => {
@@ -346,7 +346,7 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
           const locked = !current && !has && !untouched && !openAll;
           return (
             <button key={h.id} type="button" className={`hero-card${current ? ' on' : ''}${locked ? ' locked' : ''}`} disabled={busy} onClick={() => void pick(h.id, h.name)}>
-              <span className="hc-thumb" style={{ backgroundPosition: HERO_SPRITE[h.id] ?? '0% 0%' }} />
+              <HeroThumb h={h} />
               <span className="hc-meta">
                 <b>{h.name}</b>
                 <small>{h.title}</small>
@@ -364,6 +364,34 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
       {s.isAdmin ? <AdminBlock s={s} /> : null}
     </Sheet>
   );
+}
+
+// Ô hình nhân vật. Mười hai hình đầu lấy nguyên ô trong tấm sprite 4x3 của HUD gốc
+// (app.css:1190 ghim nền, HERO_SPRITE ở engine.ts cho toạ độ). Hình thứ 13 trở đi không
+// có ô trong tấm đó nên lấy ảnh 3D do thumbs.js dựng từ đúng khối đang đứng trong chánh
+// điện; máy không có WebGL thì rơi về ô nhuộm màu ba sắc của tướng như cũ.
+function HeroThumb({ h }: { h: Hero }) {
+  const sprite = HERO_SPRITE[h.id];
+  const [src, setSrc] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    if (sprite) return;
+    void heroThumb(h.id).then((t: string | null) => {
+      if (live) setSrc(t);
+    });
+    return () => {
+      live = false;
+    };
+  }, [h.id, sprite]);
+  if (sprite) return <span className="hc-thumb" style={{ backgroundPosition: sprite }} />;
+  if (src) {
+    return (
+      <span className="hc-thumb hc-thumb-3d">
+        <img src={src} alt="" width={40} height={40} />
+      </span>
+    );
+  }
+  return <span className="hc-thumb" style={{ backgroundImage: `linear-gradient(135deg, ${h.sashColor} 0%, ${h.robeColor} 55%, ${h.aura} 100%)`, backgroundSize: '100% 100%' }} />;
 }
 
 // Khối Quản trị: chỉ hiện với tài khoản admin (users.role = 'admin'), và hai tuyến

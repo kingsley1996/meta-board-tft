@@ -1,4 +1,4 @@
-// Bộ sưu tập nhân vật: 12 hình nặn sẵn trong engine, mở một lần miễn phí rồi mỗi lần
+// Bộ sưu tập nhân vật: mọi hình nặn sẵn trong engine, mở một lần miễn phí rồi mỗi lần
 // đổi thêm là một lần trả Kim Cương.
 //
 // Vì sao không đi qua PUT /profile: tuyến đó máy khách tự khai appearance và không có
@@ -16,7 +16,7 @@
 // Khách dùng được tuyến này, giống hai cửa hàng (shop.ts): nó chỉ đụng ví và avatar của
 // chính người bấm, không để lại hàng nào nhân danh một email giả ngoài sảnh.
 //
-// Tài khoản admin (`users.role`) đổi được cả 12 hình mà không trừ đồng nào, cùng hướng
+// Tài khoản admin (`users.role`) đổi được mọi hình mà không trừ đồng nào, cùng hướng
 // với /admin/gear (đổ cả 63 món mặc được vào túi để thử đồ Quý/Hiếm ngay): thử tạo hình
 // là việc vận hành, không phải việc phải trả Kim Cương. `role` đọc từ hàng users chứ
 // không từ máy khách, nên không ai tự phong được bằng một cú PUT.
@@ -30,7 +30,7 @@ import { templeState } from './state.ts';
 
 export const heroRouter = Router();
 
-// Đúng 12 id mà avatar.js:HERO_LIST nặn được. Id là khoá của hình (buildHeroHead3D
+// Toàn bộ id mà avatar.js:HERO_LIST nặn được. Id là khoá của hình (buildHeroHead3D
 // nhảy theo id) nên danh sách này là phía máy chủ của ô 'hero' trong hồ sơ: một id lạ
 // không rơi về hình nào cả, engine chỉ quay vòng ngẫu nhiên (avatar.js:resolveHero).
 export const HERO_IDS = [
@@ -46,6 +46,7 @@ export const HERO_IDS = [
   'shanks',
   'minato',
   'kaido',
+  'yone_chibi',
 ];
 
 // Giá một lần đổi — con số 100 là của đề bài. Nó nằm gọn trong dải giá Kim Cương mà
@@ -72,12 +73,12 @@ heroRouter.post('/hero', withUser(async (req, res, user) => {
   await ensureTempleTables();
   await ensureTempleProfile(user.id);
   const hero = idName(req.body?.hero, 'invalid_hero');
-  if (!HERO_IDS.includes(hero)) throw new ApiError(404, 'no_such_hero', `"${hero}" is not one of the 12 forms`);
+  if (!HERO_IDS.includes(hero)) throw new ApiError(404, 'no_such_hero', `"${hero}" is not one of the ${HERO_IDS.length} forms`);
   // Không có cooldown ở đây, dù hai cửa hàng đều có một nhịp 1 giây: FOR UPDATE dưới
   // đã khiến một cú bấm đúp vô hại (cú thứ hai thấy hình đã sở hữu nên không trừ tiền
-  // lần hai), và vòng lặp nhanh nhất có thể viết ra là duyệt 12 ô — tốn nhiều nhất
-  // 11 × 100 Kim Cương rồi từ đó về sau miễn phí hết. Chặn nhịp chỉ tổ khiến một người
-  // bấm qua bấm lại giữa hai hình bị chậm.
+  // lần hai), và vòng lặp nhanh nhất có thể viết ra là duyệt hết danh sách — tốn nhiều
+  // nhất là một lần giá cho mỗi hình rồi từ đó về sau miễn phí hết. Chặn nhịp chỉ tổ
+  // khiến một người bấm qua bấm lại giữa hai hình bị chậm.
   const cost = priceFor(user);
   const { spent } = await pickHero(user.id, hero, cost);
   res.json({ state: await templeState(user.id), hero, spent, cost });

@@ -34,10 +34,12 @@ export const SECTS = meta.sects as Record<string, Sect>;
 // HUD vẽ <Icon name={`sect-${id}`}/> chứ không in ra field icon của meta.
 export const sectOf = (id: string): Sect => SECTS[id] ?? Object.values(SECTS)[0];
 
-export type Hero = { id: string; name: string; title: string };
+export type Hero = { id: string; name: string; title: string; robeColor: string; sashColor: string; aura: string };
 
-// 12 nhận vật engine nặn được, theo đúng thứ tự tấm ảnh tham khảo 4 cột × 3 hàng mà
+// Danh sách hình engine nặn được, theo đúng thứ tự tấm ảnh tham khảo 4 cột × 3 hàng mà
 // .hc-thumb cắt (app.css:1170). Toạ độ lấy từ renderHeroGrid của HUD gốc (main.js:468).
+// Hình nào không có ô trong ảnh sprite (nhân vật tự dựng, không có tranh gốc) thì thẻ
+// của nó rơi về ô màu gradient lấy từ đúng bảng màu của hình trong avatar.js.
 export const HEROES = HERO_LIST as Hero[];
 export const HERO_SPRITE: Record<string, string> = {
   luffy_g5: '0% 0%',

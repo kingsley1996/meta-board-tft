@@ -1230,6 +1230,9 @@
   color: #6b7065;
 }
 #temple-root .hero-card.locked .hc-thumb { filter: saturate(0.45); }
+/* Ảnh 3D nhân vật (thumbs.js trả PNG nền suốt): bỏ nền tấm sprite, cho ảnh đầy ô bo góc. */
+#temple-root .hc-thumb-3d { background-image: none; overflow: hidden; }
+#temple-root .hc-thumb-3d img { display: block; width: 100%; height: 100%; object-fit: cover; }
 #temple-root .hc-cost,
 #temple-root .hc-flag {
   position: absolute;
