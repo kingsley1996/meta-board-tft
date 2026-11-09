@@ -149,6 +149,25 @@ export const HERO_LIST = [
     skin: '#f3c6a5',
     aura: '#4dbdec',
   },
+  {
+    // Lấy ý tưởng từ linh thú tí nị Lee Sin (ảnh leesin-long-cuoc-ti-ni.jpg, 980x980).
+    // Moi hex duoi day la median cua vung no mau trong anh do, khong phai doan:
+    //   skillColor #349ee2 = giap tay phat sang (0.34,0.52,0.50,0.70 hue 190-215 sat 90 -> hue 203 sat 174)
+    //   robeColor  #342b5e = ao cham            (0.40,0.62,0.60,0.72 hue 230-270 sat 30 -> hue 251 sat 51)
+    //   pantsColor #34345d = quan                (0.58,0.62,0.76,0.74 hue 230-280 sat 30 -> hue 240 sat 41)
+    //   sashColor  #aa855f = vien vang dong     (0.40,0.38,0.72,0.56 hue 25-55 sat 50 -> hue 30 sat 75)
+    //   skin       #d5a49e = da (cằm + má)      (0.51,0.51,0.65,0.58 hue 5-40 sat 25 -> hue 7 sat 55)
+    //   aura       #75a2ec = quang xanh linh luc (0.15,0.05,0.85,0.28 hue 200-230 sat 90 -> hue 217 sat 119)
+    id: 'leesin_chibi',
+    name: 'Võ Sư Mù',
+    title: 'Nhất Quyền Dẫn Long',
+    skillColor: '#349ee2',
+    robeColor: '#342b5e',
+    pantsColor: '#34345d',
+    sashColor: '#aa855f',
+    skin: '#d5a49e',
+    aura: '#75a2ec',
+  },
 ];
 
 export const HERO_MAP = Object.fromEntries(HERO_LIST.map((h) => [h.id, h]));
@@ -235,7 +254,7 @@ const G = {
   // sơn (tới 84,6°) và to hơn phiến 0,007 nên vẫn cắt một đường cong xuống tận gáy. Giờ
   // gáy và hai bên thái dương là SƠN trên cùng tấm: đường chân tóc chỉ còn là nét biên
   // TRONG ẢNH. Rộng 2π, cao theta 0..0,805π = đỉnh đầu xuống dưới hàm.
-  yoneMask: new THREE.SphereGeometry(0.463, 72, 40, -Math.PI * 1.5, Math.PI * 2, 0, Math.PI * 0.805),
+  wrapMask: new THREE.SphereGeometry(0.463, 72, 40, -Math.PI * 1.5, Math.PI * 2, 0, Math.PI * 0.805),
   torso: new THREE.LatheGeometry(ROBE_PROFILE, 32),
   arm: new THREE.CapsuleGeometry(0.105, 0.28, 6, 12),
   hand: new THREE.SphereGeometry(0.095, 14, 12),
@@ -263,26 +282,32 @@ export function beadMaterial(b) {
 }
 
 const FACE_TEX_CACHE = new Map();
+// Những hình mà MỘT phiến sơn phủ trọn vòng đầu (nạ kín như yone_chibi, tóc bạc phủ kín
+// mặt như leesin_chibi) phải vẽ trên tấm quấn 2π. Hình khác chỉ cần facePatch ±57,6°.
+// Danh sách này là nguồn duy nhất: makeHeroFaceTex chọn kích thước canvas theo nó và
+// buildHeroAvatar chọn geometry (G.wrapMask hay G.facePatch) theo nó.
+const WRAP_FACE_IDS = new Set(['yone_chibi', 'leesin_chibi']);
 function makeHeroFaceTex(heroId) {
   if (FACE_TEX_CACHE.has(heroId)) return FACE_TEX_CACHE.get(heroId);
   if (typeof document === 'undefined') return null;
   const c = document.createElement('canvas');
-  // Yone vẽ trên tấm to hơn vì phiến nạ của nó quấn kín đầu và cao tới đỉnh đầu. Giữ
-  // nguyên độ lớn góc của mỗi px như bản 512 (0,225°/px ngang, 0,19°/px dọc) thì tấm
+  // Các hình trong WRAP_FACE_IDS vẽ trên tấm to hơn vì phiến sơn của chúng quấn kín
+  // đầu và cao tới đỉnh đầu. Giữ nguyên độ lớn góc của mỗi px như bản 512
+  // (0,225°/px ngang, 0,19°/px dọc) thì tấm
   // 2π x 0,805π là 1600 x 763, và gốc (0,0) của canvas cũ rơi ở (544, 227,6) của canvas
   // mới - nên chỉ cần translate một lần, mọi tọa độ vẽ giữ nguyên như đã canh chỉnh.
   // Kinh tuyến trước (phương 0°) ở đúng giữa canvas x=800, tức local x=256 như cũ; hai
-  // mép canvas x=0 và x=1600 gặp nhau ở sau gáy, cả hai đều là tóc đen nên không để lại
+  // mép canvas x=0 và x=1600 gặp nhau ở sau gáy, cả hai đều là tóc nên không để lại
   // khe nào tại đường nối ảnh.
-  const isYone = heroId === 'yone_chibi';
-  const CW = isYone ? 1600 : 512, CH = isYone ? 763 : 512;
+  const isWrap = WRAP_FACE_IDS.has(heroId);
+  const CW = isWrap ? 1600 : 512, CH = isWrap ? 763 : 512;
   c.width = CW; c.height = CH;
   const g = c.getContext('2d');
   const hero = HERO_MAP[heroId] || HERO_LIST[0];
 
   // Nền da mặt mịn màng
   g.clearRect(0, 0, CW, CH);
-  if (isYone) g.translate(544, 227.6);
+  if (isWrap) g.translate(544, 227.6);
 
   // Vẽ lông mày, mắt, sẹo, râu và biểu cảm từng nhân vật đúng theo ảnh characters-naruto-onpine.jpg
   const drawAnimeEye = (cx, cy, irisColor, type = 'normal', isLeft = true) => {
@@ -674,6 +699,149 @@ function makeHeroFaceTex(heroId) {
     // là đầu mút chìm trong đỏ son, mất luôn nét mếu của ảnh.
     g.strokeStyle = '#5b2a3a'; g.lineWidth = 6;
     g.beginPath(); g.moveTo(262, 352); g.quadraticCurveTo(298, 342, 332, 352); g.stroke();
+  } else if (hero.id === 'leesin_chibi') {
+    // Lấy từ leesin-long-cuoc-ti-ni.jpg (980x980). Kiến trúc NHƯ yone_chibi: MỘT phiến
+    // sơn lo lớn, không ghép mảnh. Đầu hình này chỉ có ba thứ - tóc bạc - dải bịt mắt tía
+    // - viền vàng - nên vẽ hết bằng 2D trên tấm quấn 2π; 3D chỉ cho phần NHÔ RA ngoài vỏ:
+    // giáp tay và cụm gai tóc. Mọi tọa độ dưới đây đã đổi qua `fit.mjs px` ra theta/phương vị,
+    // không đoán:
+    //   y 140 -> theta 69,9°    y 260 -> 93,0°     y 300 -> 100,6°
+    //   y 350 -> 110,1°         y 470 -> 132,9°    y -260 -> -2,3° (vượt ngon đầu, vẽ thừa)
+    //   x 0/512 -> phương vị -57,6°/+57,6°   x -144/656 -> -90°/+90° (mặt bên)
+    //   x -544/1056 -> hai mép canvas, gặp nhau ở sau gáy; cả hai bên đều là tóc nên
+    //   đường nối ảnh không để lại khe nào.
+    // Màu: MỌI hex là median vùng no màu đo bằng measure.mjs --sat 0 (mặc định lọc sat 70
+    // trả về xanh của hậu quang, vì tóc bạc gần như achromatic):
+    //   #4a4069 MẶT TRƯỚC dải bịt   (0.47,0.45,0.57,0.50 hue 255 sat 41) - chỗ người xem thấy
+    //   #2c1756 median TRỌN dải     (0.45,0.42,0.69,0.50) - tính cả đỉnh khuất dưới tóc
+    //   #2d1941 bóng thái dương      (0.60,0.41,0.66,0.45)
+    //   #463357 dải ngả tím nóng     (0.52,0.45,0.58,0.49 hue 272 sat 36)
+    //   #aa855f viền vàng   (0.40,0.38,0.72,0.56 hue 25-55)
+    //   #987556 vàng bóng   (0.40,0.38,0.72,0.56 cửa sổ rộng)  #b28562 vàng được chiếu
+    //   #ccdae9 tóc sáng    (0.52,0.27,0.58,0.31 hue 211 sat 29) - phần ăn sáng
+    //   #959ec3 tóc thân    (0.54,0.20,0.60,0.24)
+    //   #8290b5 tóc tối     (0.47,0.23,0.53,0.27) - rim dưới
+    //   #8f95c1 gốc tóc     (0.63,0.33,0.69,0.37) - bên phải ảnh
+    //   #9eb5e3 đầu lọn     (0.44,0.35,0.50,0.39) - lọn tóc đè lên mặt nạ
+    //   #eabab7 má sáng / #885f53 nét cười (0.49,0.475,0.57,0.51)
+
+    // (1) MẶT NẠ. Biên trên nằm giấu dưới chân tóc; biên dưới là hai lobe cong quanh
+    // mắt và chém xuống điểm giữa ở sống mũi (y 260) để tam mũi chung (y 268..296, vẽ
+    // SAU nhánh này) vẫn rơi trên da trần.
+    const band = '#2c1756', bandLit = '#4a4069', bandShade = '#2d1941', bandWarm = '#463357';
+    const gold = '#aa855f', goldDeep = '#987556', goldLit = '#b28562';
+    const bandPath = () => {
+      g.beginPath();
+      g.moveTo(256, 138);
+      g.quadraticCurveTo(152, 150, 62, 172);
+      g.quadraticCurveTo(20, 192, 4, 224);
+      g.quadraticCurveTo(38, 314, 118, 332);
+      g.quadraticCurveTo(198, 330, 256, 260);
+      g.quadraticCurveTo(314, 330, 394, 332);
+      g.quadraticCurveTo(474, 314, 508, 224);
+      g.quadraticCurveTo(492, 192, 450, 172);
+      g.quadraticCurveTo(360, 150, 256, 138);
+      g.closePath();
+    };
+    g.fillStyle = band;
+    bandPath(); g.fill();
+    // Dải bịt trong ảnh KHÔNG một màu: median trọn dải #2c1756 (sat 61) là màu thật nhưng
+    // nó tính cả phần đỉnh khuất dưới tóc, nên sơn phẳng một mình thì dưới đèn ấm của chánh
+    // điện nó đọc ra ĐEN. Ảnh tự tách hai giá trị: #2c1756 ở ngọn/hai thái dương và
+    // #4a4069 ở mặt trước - chỗ người xem thực sự nhìn thấy. Vì vậy nền là một gradient DỌC
+    // giữa đúng hai số đo đó (không tự nâng palette), cắt trong band nên không tràn ra da.
+    g.save();
+    bandPath(); g.clip();
+    const bandGrad = g.createLinearGradient(0, 138, 0, 332);
+    bandGrad.addColorStop(0, band);
+    bandGrad.addColorStop(0.55, bandLit);
+    bandGrad.addColorStop(1, bandLit);
+    g.fillStyle = bandGrad;
+    g.fillRect(-544, -260, 1600, 796);
+    // Hai thái dương tối dần ra sau gáy: #2d1941 đo ở góc trên phải của dải trong ảnh.
+    g.fillStyle = bandShade;
+    g.beginPath(); g.ellipse(24, 232, 44, 66, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(490, 232, 44, 66, 0, 0, Math.PI * 2); g.fill();
+    // #463357 hue 272 - cùng dải nhưng ngả tím nóng phía phải mũi; giữ nguyên chỗ nó được đo
+    // (canvas x 185..292, y 207..262) để hai hue của ảnh cùng xuất hiện trên hình.
+    g.fillStyle = bandWarm;
+    g.beginPath(); g.ellipse(238, 234, 55, 28, 0.05, 0, Math.PI * 2); g.fill();
+    // #373e8a (0.485,0.462,0.512,0.488 hue 235 sat 83) là điểm SÁNG NHẤT của dải trong ảnh -
+    // chỗ vải phồng lên đón đèn. Gradient một mình dừng ở #4a4069 (median mặt trước, sat 41)
+    // vẫn thấp hơn nó hai bậc, và sat 41 là median nên nó đã bị hai thái dương tối kéo xuống.
+    // Ảnh = canvas x 121..170, y 238..280 theo phép đổi ở trên -> êlip bán trục 34x26.
+    g.fillStyle = '#373e8a';
+    g.beginPath(); g.ellipse(146, 259, 34, 26, -0.1, 0, Math.PI * 2); g.fill();
+    g.restore();
+    // Viền vàng: MỘT nét dọc theo trọn viền mặt nạ, không phải đè thêm mảnh rời nào.
+    // Bề ngang đổi từ 16 sang 24 vì phép đo cũ lấy sai một số: nó so 9px viền với 274px
+    // BỀ NGANG band, nhưng nét viền đo ở biên dưới là một bề dọc, hai trục của tấm quấn
+    // không đẳng hướng (4,44 px/độ ngang, 5,27 px/độ cực). Đo lại trọn: viền dày ~13px ảnh
+    // (các hàng dọc 12-15px ở y 0.48..0.51, vùng không bị lửa của kiếm che), band rộng
+    // 240px ảnh -> 2R*sin(az) với az 56,7° -> R ~145px ảnh -> 13px = 5,1° cực ->
+    // 5,1 * 5,27 = 27px canvas. Tỉ số checks: 13/240 = 5,4% và 27/504 = 5,4%. Ban 24.
+    g.strokeStyle = gold; g.lineWidth = 24; g.lineJoin = 'round';
+    bandPath(); g.stroke();
+    // Bóng trong của viền, le theo lòng dưới - đo vùng hẹp hơn của cùng viền đó.
+    g.strokeStyle = goldDeep; g.lineWidth = 8;
+    g.beginPath();
+    g.moveTo(20, 224); g.quadraticCurveTo(48, 296, 122, 338);
+    g.moveTo(492, 224); g.quadraticCurveTo(464, 296, 390, 338);
+    g.stroke();
+    // Chém xuống giữa mặt: điểm vàng ở sống mũi + hai nét mảnh chụm lên. Trong ảnh đó là
+    // một chữ V nhỏ nằm trên da, viền mặt nạ từ nó tỏa ra hai bên. Nét chính 18 để cùng
+    // tỉ số dày/rộng với viền 24 vừa đo ở trên.
+    g.strokeStyle = gold; g.lineWidth = 18; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(230, 222); g.lineTo(256, 252); g.lineTo(282, 222); g.stroke();
+    // Nét ăn sáng của chữ V: #b28562 là vàng cùng chi tiết nhưng ở chỗ được chiếu sáng.
+    g.strokeStyle = goldLit; g.lineWidth = 8;
+    g.beginPath(); g.moveTo(232, 218); g.lineTo(256, 246); g.lineTo(280, 218); g.stroke();
+    g.lineWidth = 12; g.strokeStyle = gold;
+    g.beginPath();
+    g.moveTo(196, 214); g.quadraticCurveTo(214, 240, 230, 218);
+    g.moveTo(316, 214); g.quadraticCurveTo(298, 240, 282, 218);
+    g.stroke();
+    // Mặt nạ trong ảnh KHÔNG có mắt: dải bịt kín nên không vẽ drawAnimeEye ở đây.
+
+    // (2) TÓC. MỘT khối liền mạch từ gáy bên này sang gáy bên kia, phủ trọn nóc đầu và
+    // hai bên; biên dưới của nó là đường chân tóc - một nét BIÊN TRONG ẢNH, không phải
+    // vỏ cầu 3D (bài học của yone: mỗi vỏ 3D chồng lên vùng sơn để lại một cái gờ ngang
+    // trán). Biên đi từ mặt bên phải (x 656 = phương +90°) lên, sa xuống thành lọn tóc đè
+    // lên mặt nạ ở (398, 302), rồi vòng qua trán và xuống mặt bên trái.
+    const hairPath = () => {
+      g.beginPath();
+      g.moveTo(-544, 536);
+      g.lineTo(-544, -260);
+      g.lineTo(1056, -260);
+      g.lineTo(1056, 536);
+      g.lineTo(656, 536);
+      g.quadraticCurveTo(600, 470, 552, 384);
+      g.quadraticCurveTo(512, 302, 470, 248);
+      g.lineTo(444, 202);
+      g.quadraticCurveTo(420, 268, 398, 302);
+      g.quadraticCurveTo(374, 250, 350, 194);
+      g.quadraticCurveTo(302, 156, 256, 148);
+      g.quadraticCurveTo(196, 120, 140, 134);
+      g.quadraticCurveTo(92, 148, 44, 186);
+      g.quadraticCurveTo(16, 214, -4, 250);
+      g.quadraticCurveTo(-58, 330, -144, 536);
+      g.closePath();
+    };
+    // MỘT MÀU BẠC DUY NHẤT. Ảnh đo được năm giá trị bạc (#ccdae9 đỉnh ăn sáng, #959ec3
+    // thân, #8290b5 rim, #8f95c1 ngọn, #9eb5e3 đầu lọn) và bản trước sơn cả năm, rồi 3D lại
+    // dùng #e2e8f0 của Sương Bạc: thành RA HAI MÀU TÓC - phiến thì xám lavender, khối thì
+    // bạch kim. User bác, nên toàn bộ tóc - sơn lẫn 3D - chạy trên đúng #e2e8f0. Bỏ luôn
+    // lớp shading và nét ngọn: ở 144px chúng chỉ là hai tầng xám đè lên nhau, còn lọn tóc
+    // thật thì đã có 17 gai + 6 dải lụa 3D gánh.
+    g.fillStyle = '#e2e8f0';
+    hairPath(); g.fill();
+
+    // (3) MÁNG SÁNG + MIỆNG CƯỜI. #eabab7 đo ở vùng dưới mặt nạ bên phải; miệng là nét
+    // mờ ngắn nằm dưới tam mũi chung, lệch về bên phải như trong ảnh.
+    g.fillStyle = 'rgba(234,186,183,0.5)';
+    g.beginPath(); g.ellipse(322, 330, 54, 26, 0.1, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#885f53'; g.lineWidth = 9; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(266, 356); g.quadraticCurveTo(300, 372, 334, 354); g.stroke();
   }
 
   // Mũi 3D shading nhẹ ở giữa
@@ -693,6 +861,33 @@ function m(geo, material, x = 0, y = 0, z = 0, o = {}) {
   if (o.rot) mesh.rotation.set(...o.rot);
   mesh.castShadow = o.cast ?? true;
   return mesh;
+}
+
+// Dải lụa thuôn dần theo một đường cong: lọn tóc rũ, tua năng lượng. Port từ `lock()`
+// trong pets.js (thanh_long đã ship) - ở đây nó là primitive DUY NHẤT dựng nét
+// cong có bề dày, vì TubeGeometry bán kính không đổi luôn ra một cái ống: đúng thứ bị
+// bác cho lọn tóc. flat < 1 ép tiết diện thành dải, r0 -> r1 cho phép ngọn nhọn hoắt.
+function ribbon(points, r0, r1, { seg = 12, rad = 6, flat = 1 } = {}) {
+  const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
+  const fr = curve.computeFrenetFrames(seg, false);
+  const pos = [], nor = [], idx = [], p = new THREE.Vector3(), n = new THREE.Vector3();
+  for (let i = 0; i <= seg; i++) {
+    const t = i / seg, r = r0 + (r1 - r0) * t;
+    curve.getPointAt(t, p);
+    for (let j = 0; j < rad; j++) {
+      const q = (j / rad) * Math.PI * 2;
+      n.copy(fr.normals[i]).multiplyScalar(Math.cos(q) * flat).addScaledVector(fr.binormals[i], Math.sin(q));
+      pos.push(p.x + n.x * r, p.y + n.y * r, p.z + n.z * r);
+      n.normalize(); nor.push(n.x, n.y, n.z);
+      const k = j === rad - 1 ? 1 - rad : 1;
+      if (i < seg) { const v = i * rad + j; idx.push(v, v + k, v + rad, v + k, v + rad + k, v + rad); }
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  g.setIndex(idx);
+  return g.toNonIndexed();
 }
 
 // Vẽ tóc, mũ, băng trán, sừng 3D đặc trưng cho từng nhân vật
@@ -860,7 +1055,7 @@ function buildHeroHead3D(head, hero) {
     // Mặt nạ sừng: màu đo từ ảnh tham khảo yone-ti-ni.jpg bằng median vùng no màu (nạ
     // #b52353, sừng #93204c) rồi nhấc nhẹ vì sảnh tối hơn ánh chính của ảnh; bản nhấc
     // +14 độ sáng render ra hồng kẹo cao su, lạc hẳn đỏ son của ảnh.
-    // Hình thù nạ nằm ở makeHeroFaceTex: MỘT phiến sơn liền QUẤN KÍN đầu trên G.yoneMask,
+    // Hình thù nạ nằm ở makeHeroFaceTex: MỘT phiến sơn liền QUẤN KÍN đầu trên G.wrapMask,
     // bán kính đúng bằng facePatch nên không có mép nào đứng cạnh mép nào. 3D ở đây chỉ
     // còn bờm, hai lọn tóc và sừng - tất cả đều ở ngoài khối đầu.
     const hairM = mat('#2b3047', { roughness: 0.5 });
@@ -868,7 +1063,7 @@ function buildHeroHead3D(head, hero) {
     // Vỏ tóc 3D đã GỠ HẾT. Bản 0.470 cung sau (mép trước ở phương 79,2°) trông như một
     // khối liền nhưng vẫn để lại một đường cong chạy xuống gáy: nó LỒI hơn phiến sơn
     // 0,007 và mép trước nằm TRONG phiến (phiến tới 84,6°), nên nhìn xiên là thấy ngay
-    // cái rãnh. Gáy giờ là sơn đen trên đúng tấm yoneMask, không còn surface nào áp vào
+    // cái rãnh. Gáy giờ là sơn đen trên đúng tấm wrapMask, không còn surface nào áp vào
     // surface nào. Mũ tóc 0.494 lệch sau 0,14 trước đó còn tệ hơn: mặt trước tụt vào
     // trong khối đầu tới theta 25,7° giữa trán nên đỏ lòi kín nóc thành mũ bảo hiểm.
     // Mái vuốt sang một bên + bờm sau gáy. Bờm phải nằm phía SAU đầu (z dương) và
@@ -891,7 +1086,7 @@ function buildHeroHead3D(head, hero) {
     // LỒI hơn phiến sơn 0.463 tới 0,024: mỗi chỗ giáp để lại một gờ sáng nhìn rõ như
     // mặt nạ ghép từ nhiều tấm, và khi hai mảnh cùng bán kính áp biên vào nhau thì vỏ
     // cầu không có độ dày nên nhìn xiên qua khe thấy thẳng khối da 0.46 - cái rãnh mà
-    // user gọi là "không liền mạch". Nạ giờ là một tấm sơn duy nhất (G.yoneMask), còn
+    // user gọi là "không liền mạch". Nạ giờ là một tấm sơn duy nhất (G.wrapMask), còn
     // 3D chỉ việc đội tóc và cắm sừng.
     // Sừng: ảnh có HAI chiếc to mọc từ thái dương vút LÊN, chỉ chếch ra ngoài ~32° chứ
     // không xoè ngang (bản rot z -s*0.84 = 48° bị chê là đưa ra hai bên quá nhiều), kèm
@@ -907,11 +1102,84 @@ function buildHeroHead3D(head, hero) {
       head.add(m(new THREE.ConeGeometry(0.125, 0.66, 5), hornM, s * 0.3139, 0.6765, -0.2104, { rot: [-0.30, 0, -s * 0.55], scale: [1, 1, 0.45] }));
       head.add(m(new THREE.ConeGeometry(0.08, 0.30, 5), hornM, s * 0.2072, 0.5033, -0.2425, { rot: [-0.24, 0, -s * 0.30], scale: [1, 1, 0.42] }));
     }
+  } else if (id === 'leesin_chibi') {
+    // TÓC BẠC 3D - vay CÁCH LÀM của Sương Bạc (nhánh `kakashi` trong chính hàm này): một vỏ cầu đội
+    // trên đầu rồi găm G.spike lên nó. Mấu chốt của cách ấy là vỏ bị LÙI về sau (z dương):
+    // ở cao độ ngang mặt nó nằm SAU phiến sơn 0,463 nên không che dải bịt, còn trên đỉnh
+    // và hai bên thì nó nhô ra ngoài thành khối.
+    //
+    // Bản trước đội vỏ R 0,520 và ảnh ra một cái MŨ BẢO HIỂM trơn: bán kính to hơn đầu
+    // 13% nên chính diện thấy đúng một vòm liền, 16 gai găm trên đó bị chìm thành một cái
+    // lược nhỏ. Bài học: ở kích thước 144px, THỨ tạo silhouette phải là GAI, không phải vỏ.
+    // Vì vậy vỏ rút về 0,480 (chỉ hơn đầu 0,020 - đủ để không lộ da trần giữa các gốc gai,
+    // và lùi tâm 0,055 về sau để mặt trước của nó ở cao độ dải bịt vẫn sau phiến sơn:
+    // tại y 0,163 vỏ cho z = -sqrt(0,480² - 0,163²) + 0,055 = -0,405, phiến ở -0,433, sơn
+    // thắng 0,028). Silhouette giờ do 17 gai + 6 lọn dải lụa quyết định.
+    //
+    // "To lên" = DÀY chứ không phải DÀI: G.spike có đáy 0,15, nhân lên 1,1..1,65 thành
+    // 0,165..0,248 - mỗi chiếc rộng gần bằng một phần tư bề ngang đầu nên đọc thành từng
+    // KHỐI tóc, không phải từng que. Chiều dài giữ 0,28..0,46 để ngọn ra tới bán kính
+    // 0,74..0,87, tức cụm tóc gấp ~1,8 lần khối đầu - đúng tỉ lệ bờm trong ảnh.
+    // MỘT MÀU BẠC DUY NHẤT: bản cũ chia hai - thân gai #e2e8f0 và gốc/lọn #959ec3 - nên ở
+    // 144px mái tóc ra hai tầng sáng, phần gốc đọc như một chiếc mũ len xám phủ lên. #959ec3
+    // là median vùng gốc đo được, nhưng nó là tóc TRONG BÓNG (phần phiến sơn lo tối), còn
+    // khối 3D thì đèn chánh điện chiếu thẳng. Vì vậy 3D chỉ dùng #e2e8f0 = đúng chất liệu bờm
+    // Sương Bạc, và để phần đậm nhạt do đèn tự làm.
+    const hairM = mat('#e2e8f0', { roughness: 0.45 });
+    head.add(m(new THREE.SphereGeometry(0.480, 28, 20, 0, Math.PI * 2, 0, Math.PI * 0.52), hairM, 0, 0.03, 0.055));
+    // 17 gai, mỗi chiếc đặt bằng số chứ không đoán: gốc nằm trên vỏ 0,46 theo (theta,
+    // phương vị), trục = pháp tuyến tại đó TRỘN với hướng −x (phải khung nhìn) theo hệ số
+    // sweep - đó chính là nét vuốt của bờm. rot = [rx, 0, rz] giải từ trục ấy bằng
+    // dx = -sin rz, dy = cos rz cos rx, dz = cos rz sin rx (Euler XYZ của three là
+    // Rx(Ry(Rz(v)))). Script sinh + bộ kiểm "gai nào rơi vào cửa sổ dải bịt (theta 68..112,
+    // |az| < 56) mà lồi hơn phiến 0,463" chạy trước khi render; kết quả: 0 vi phạm.
+    // (a) TÁN ĐỈNH 7 chiếc quét trái->phải, (b) MÁ PHẢI khung nhìn 3, (c) MÁ TRÁI 3,
+    // (d) GÁY 4. Nhóm (b)(c) ở |az| 78..104 - ngoài phiến sơn nên xuống thấp cũng không che.
+    const SPIKES = [
+      // x, y, z,      rx,     rz,     sx,   sy,   sz
+      [-0.094, 0.636, -0.088, -0.138, 0.425, 1.55, 0.952, 1.40],
+      [-0.212, 0.606, -0.135, -0.219, 0.721, 1.65, 1.048, 1.49],
+      [-0.322, 0.563, -0.121, -0.211, 0.936, 1.55, 1.095, 1.40],
+      [-0.387, 0.509, -0.063, -0.123, 1.076, 1.40, 1.000, 1.26],
+      [-0.012, 0.629, -0.140, -0.218, 0.217, 1.45, 0.905, 1.31],
+      [0.057, 0.605, -0.160, -0.258, 0.221, 1.35, 0.857, 1.22],
+      [0.138, 0.574, -0.132, -0.225, 0.240, 1.30, 0.810, 1.17],
+      [-0.495, 0.417, -0.070, -0.166, 1.119, 1.40, 0.952, 1.26],
+      [-0.560, 0.303, 0.017, 0.056, 1.234, 1.25, 0.857, 1.13],
+      [-0.583, 0.175, 0.112, 0.569, 1.326, 1.15, 0.762, 1.04],
+      [0.421, 0.468, -0.101, -0.212, -0.568, 1.30, 0.857, 1.17],
+      [0.536, 0.330, 0.020, 0.060, -0.942, 1.20, 0.810, 1.08],
+      [0.566, 0.174, 0.147, 0.701, -1.146, 1.10, 0.714, 0.99],
+      [-0.432, 0.262, 0.373, 0.959, 0.909, 1.25, 0.810, 1.13],
+      [-0.270, 0.123, 0.530, 1.342, 0.615, 1.15, 0.714, 1.04],
+      [0.384, 0.272, 0.388, 0.959, -0.612, 1.15, 0.714, 1.04],
+      [0.228, 0.126, 0.540, 1.342, -0.327, 1.05, 0.667, 0.95],
+    ];
+    SPIKES.forEach((s) => {
+      head.add(m(G.spike, hairM, s[0], s[1], s[2], { rot: [s[3], 0, s[4]], scale: [s[5], s[6], s[7]] }));
+    });
+    // LỌN RŨ HAI BÊN: bản cũ dùng TubeGeometry nên nó là một cái ống tròn thò ra từ thái
+    // dương - user bác. tóc rủ là DẢI: ribbon() ép tiết diện dẹt (flat 0,34) và thuôn
+    // nhọn về ngọn (0,062 -> 0,008), đúng cách pets.js vẽ bờm thanh_long. Mỗi lọn là một
+    // CUNG trên mặt cầu (theta 34->104, bán kính 0,470->0,600) rồi treo tự do: ngọn nằm
+    // trọn trong silhouette ở |x| 0,58, phía SAU biên phương vị 57,6° của phiến sơn, nên
+    // không lồi lên lớp sơn nào và không để lại gờ bán kính.
+    const lockM = mat('#e2e8f0', { roughness: 0.45, side: THREE.DoubleSide });
+    for (const pts of [
+      [[-0.240, 0.390, -0.107], [-0.320, 0.328, -0.127], [-0.396, 0.254, -0.138], [-0.468, 0.167, -0.141], [-0.532, 0.062, -0.137], [-0.584, -0.063, -0.124]],
+      [[-0.314, 0.338, -0.090], [-0.383, 0.265, -0.090], [-0.445, 0.183, -0.082], [-0.497, 0.088, -0.066], [-0.538, -0.019, -0.045], [-0.562, -0.140, -0.020]],
+      [[0.240, 0.390, -0.107], [0.320, 0.328, -0.127], [0.396, 0.254, -0.138], [0.468, 0.167, -0.141], [0.532, 0.062, -0.137], [0.584, -0.063, -0.124]],
+      [[0.314, 0.338, -0.090], [0.383, 0.265, -0.090], [0.445, 0.183, -0.082], [0.497, 0.088, -0.066], [0.538, -0.019, -0.045], [0.562, -0.140, -0.020]],
+      [[-0.205, 0.422, 0.022], [-0.293, 0.370, 0.060], [-0.371, 0.303, 0.113], [-0.436, 0.220, 0.181], [-0.484, 0.116, 0.257]],
+      [[0.205, 0.422, 0.022], [0.293, 0.370, 0.060], [0.371, 0.303, 0.113], [0.436, 0.220, 0.181], [0.484, 0.116, 0.257]],
+    ]) {
+      head.add(m(ribbon(pts, 0.062, 0.008, { seg: 14, rad: 5, flat: 0.34 }), lockM, 0, 0, 0, { cast: false }));
+    }
   }
 }
 
 // Trang bị vũ khí, áo choàng và hiệu ứng nguyên tố 3D trên cơ thể nhân vật
-function buildHeroProps3D(upper, hands, legR, hero) {
+function buildHeroProps3D(upper, hands, arms, legR, hero) {
   const id = hero.id;
   const vfxGroup = new THREE.Group();
   upper.add(vfxGroup);
@@ -1048,6 +1316,96 @@ function buildHeroProps3D(upper, hands, legR, hero) {
         upper.add(m(new THREE.ConeGeometry(0.045, 0.20, 6), featherM, s * (0.30 + Math.cos(a) * 0.04), 0.54 - Math.abs(i - 2) * 0.02, -0.06 + Math.sin(a) * 0.10, { rot: [0.2, 0, s * (1.1 - i * 0.2)] }));
       }
     }
+  } else if (id === 'leesin_chibi') {
+    // GIÁP TAY PHÁT SÁNG - chi tiết 3D DUY NHẤT của hình này mà sơn với tới không được: nó
+    // nhô ra ngoài vỏ đầu 0,463. Mọi hex do measure.mjs --sat 0 trên
+    // leesin-long-cuoc-ti-ni.jpg:
+    //   #3398e6 khối tinh thể  (0.40,0.56,0.46,0.63 hue 206 sat 179) ~ skillColor #349ee2
+    //   #41a6f0 lẻ sáng        (0.47,0.66,0.50,0.72 hue 205 sat 175)
+    //   #2c79d6 gốc thẫm       (0.41,0.53,0.44,0.57 hue 213 sat 170)
+    //   #68f8ff lõi nóng       (dọc qua x 0.46, y 0.515 - điểm no nhất của khối xanh)
+    //   #aa855f đai vàng cổ tay (0.40,0.38,0.72,0.56) - cùng vàng với viền mặt nạ
+    //   #75a2ec = aura: quầng xanh quanh khối giáp trong ảnh (0.15,0.05,0.85,0.28 hue 217 sat 119)
+    //
+    // (Rồng xoắn ốc quanh người đã gỡ hẳn theo yêu cầu. Hai hex #9abaea và #83a1e8 ở lại
+    // DUY NHẤT trong comment này, không mesh nào dùng nữa.)
+    //
+    // ĐÓ KHÔNG PHẢI VŨ KHÍ. Bản đầu vẽ một thanh kiếm linh vì khối xanh trong ảnh loe ra
+    // như một lưỡi gươm; user sửa: đó là CÁNH TAY của nhân vật, bọc giáp năng lượng kết
+    // tinh. Bản thứ hai vẫn đặt ở bàn tay nên nó trôi tự do và cái loe bị đọc thành một
+    // chiếc mũ chóp. Vì vậy giờ giáp bám vào CÁNH TAY: arms[i] có trục −y quay từ khuỷu về
+    // nắm đấm (animateAvatar: a.quaternion.setFromUnitVectors(_down=(0,-1,0), hand-shoulder)
+    // và a.position đặt ở trung điểm), nên mọi chi tiết đặt theo local y là tự dọc theo
+    // cẳng tay, tự theo cả nhịp ngồi thiền lẫn nhịp đấm. Nắm đấm nằm ở local y -0,22:
+    // |shoulder->hand|/2 chia cho đúng hệ số co giãn len/0,44 của nhóm -> 0,22 không đổi.
+    const crysM = mat('#3398e6', { emissive: '#2c79d6', emissiveIntensity: 1.7, roughness: 0.2, transparent: true, opacity: 0.6 });
+    const litM = new THREE.MeshBasicMaterial({ color: '#41a6f0', transparent: true, opacity: 1, depthWrite: false });
+    const coreM = new THREE.MeshBasicMaterial({ color: '#68f8ff', transparent: true, opacity: 1, depthWrite: false, blending: THREE.AdditiveBlending });
+    const hazeM = new THREE.MeshBasicMaterial({ color: '#75a2ec', transparent: true, opacity: 0.45, depthWrite: false, blending: THREE.AdditiveBlending });
+    const guard = new THREE.Group();
+    // Bản thứ ba ra một CỤC XANH giữa ngực. Hai lý do, cả hai đều là số: (a) vỏ bọc
+    // 0,175 và quầng 0,24 so với cánh tay 0,105 - gấp 1,7 và 2,3 lần, nên nó nuốt trọn
+    // cẳng tay và không còn gì để đọc là tay; (b) cụm chi tiết chạy từ local y +0,11 tới
+    // -0,61 trong khi nắm đấm ở -0,22, tức quá nửa nằm NGOÀI bàn tay, lơ lửng trước ngực.
+    // Từ đây mọi mảnh nằm trong dải [-0,40 .. +0,10] và bề ngang lớn nhất là 0,15.
+    // (1) Bọc cẳng tay: loe dần về phía nắm đấm đúng như ảnh (khuỷu gọn, cổ tay nở),
+    // bán kính 0,115 -> 0,150 = 1,1..1,43 lần cánh tay - vẫn là tay có giáp, không phải
+    // một khối lạ đính trên tay. CylinderGeometry mặc định rộng ở +y nên phải lật X 180°.
+    guard.add(m(new THREE.CylinderGeometry(0.115, 0.150, 0.26, 8, 1, true), crysM, 0, -0.04, 0, { rot: [Math.PI, 0, 0], cast: false }));
+    // (1b) LÕI NĂNG LƯỢNG BÊN TRONG CẲNG TAY. Ảnh không cho một khối xanh đặc: điểm no
+    // nhất #68f8ff nằm GIỮA khối (x 0,46 y 0,515) và thẫm dần ra biên #2c79d6. Bản trước
+    // úp vỏ 0,95 nên lõi 0,070 gần như không lộ ra - giáp trông như nhựa màu. Giờ vỏ 0,6 để
+    // light xuyên qua được, và lõi trụ 0,080..0,100 chạy trong bọc 0,115..0,150: vẫn chừa
+    // một viền lam 0,030..0,050 quanh nó, nên đọc là tinh thể PHÁT SÁNG chứ không phải một
+    // cái ống trắng thay thế giáp.
+    guard.add(m(new THREE.CylinderGeometry(0.080, 0.100, 0.24, 10, 1, true), coreM, 0, -0.04, 0, { rot: [Math.PI, 0, 0], cast: false }));
+    // (2) Hai đai: một ở khuỷu một ở cổ tay. Torus mặc định nằm trong mặt phẳng xy nên
+    // phải lật X 90° để nó nằm ngang, vuông góc với trục cánh tay.
+    for (const [ry, rr, tr] of [[0.08, 0.120, 0.026], [-0.16, 0.158, 0.030]]) {
+      guard.add(m(new THREE.TorusGeometry(rr, tr, 10, 20), crysM, 0, ry, 0, { rot: [Math.PI / 2, 0, 0] }));
+    }
+    // (3) Bọc nắm đấm + lõi nóng bên trong: vỏ 0,130 lớn hơn bàn tay 0,095 nên vẫn thấy
+    // các mặt phẳng của icosahedron bắt sáng thành từng lẻ. Lõi 0,098 (từ 0,070) để gần nửa
+    // mặt vỏ trong suốt là vùng sáng.
+    guard.add(m(new THREE.IcosahedronGeometry(0.130, 0), crysM, 0, -0.23, 0, { cast: false }));
+    guard.add(m(new THREE.SphereGeometry(0.098, 12, 10), coreM, 0, -0.23, 0, { cast: false }));
+    // (4) Vảy: bốn mảnh chẻ RA từ bọc, không mọc DỌC theo nó - ảnh cho giáp kết tinh
+    // thành phiến quanh cẳng tay. Rz(-1.35) đưa +y tới (0,976; 0,219; 0) = ra +x (bên
+    // trái khung nhìn); Rz(+1.35) đối xứng; Rx(±1.35) ra trước/sau. Dài 0,15, gốc nằm
+    // ngay trên mặt vỏ (0,150) nên nó trông như mọc ra từ giáp chứ không bay cạnh giáp.
+    for (const [px, py, pz, rot, sc] of [
+      [0.14, 0.00, 0.0, [0.2, 0, -1.35], [0.55, 0.90, 0.40]],
+      [-0.14, -0.05, 0.0, [-0.2, 0, 1.35], [0.55, 1.00, 0.40]],
+      [0.0, -0.02, -0.14, [1.35, 0, 0.2], [0.55, 0.85, 0.40]],
+      [0.0, -0.10, 0.14, [-1.35, 0, -0.2], [0.55, 0.95, 0.40]],
+    ]) {
+      guard.add(m(new THREE.ConeGeometry(0.055, 0.15, 5), litM, px, py, pz, { rot, scale: sc, cast: false }));
+      // Mỗi vảy có một lõi #68f8ff riêng (0,55 lần mảnh vảy, cùng trục): litM không bắt
+      // đèn nên tự nó đã là màu no, nhưng muốn RA PHÁT S sáng thì phải có cộng sáng ở
+      // giữa phiến, không chỉ ở khối vỏ.
+      guard.add(m(new THREE.ConeGeometry(0.055, 0.15, 5), coreM, px, py, pz, { rot, scale: sc.map((k) => k * 0.55), cast: false }));
+    }
+    // (5) Ba mấu khớp ngón: chĩa DỌC theo -y (về phía nắm đấm) bằng Rx(pi), đặt quanh mặt
+    // trước của bọc nắm đấm - đó là thứ khiến nó đọc là giáp chứ không đọc là dụng cụ.
+    for (const [ox, oz] of [[-0.075, 0.045], [0, 0.08], [0.075, 0.045]]) {
+      guard.add(m(new THREE.ConeGeometry(0.030, 0.10, 5), crysM, ox, -0.31, oz, { rot: [Math.PI, 0, 0], cast: false }));
+    }
+    // (6) Ngọn linh lực vọt QUÁ nắm đấm: trong ảnh đây chính là thứ làm bản đầu nhầm thành
+    // kiếm. Nó là phần giáp vọt ra, không chuôi, không chắn, và NẰM DỌC theo cánh tay
+    // (chĩa -y) chứ không vểnh ra ngoài. Chóp 6 cạnh dẹt (scale z 0,4) để chính diện thấy
+    // bản hẹp như ảnh; dài 0,18 để ngọn dừng ở local y -0,40, vẫn trong tầm cẳng tay.
+    // Lõi trong 0,062x0,16 (từ 0,045x0,12) - ngọn là điểm sáng nhất của cả cụm trong ảnh.
+    guard.add(m(new THREE.ConeGeometry(0.095, 0.18, 6), crysM, 0, -0.38, -0.02, { rot: [Math.PI, 0, 0], scale: [1, 1, 0.4], cast: false }));
+    guard.add(m(new THREE.ConeGeometry(0.062, 0.16, 6), coreM, 0, -0.385, -0.02, { rot: [Math.PI, 0, 0], scale: [1, 1, 0.4], cast: false }));
+    // (7) Quầng: chỉ bao NẮM ĐẤM và cẳng tay, không nuốt cả hai - vỏ 0,17 quanh một điểm là
+    // đủ cảm giác tự phát sáng mà không xoá mất đường nét của tay. Quầng cẳng tay 0,145
+    // ngang vẫn dưới 0,150 của vỏ bọc, nên nó thêm sáng chứ không thêm bề ngang.
+    guard.add(m(new THREE.SphereGeometry(0.17, 14, 12), hazeM, 0, -0.23, 0, { cast: false }));
+    guard.add(m(new THREE.SphereGeometry(0.10, 14, 12), hazeM, 0, -0.04, 0, { scale: [1.45, 1.5, 1.45], cast: false }));
+    arms[1].add(guard);
+    // Tay kia không phát sáng: trong ảnh nó chỉ có một đai vàng trần ở cổ tay, cùng
+    // #aa855f với viền mặt nạ để hai chi tiết vàng của hình này là MỘT màu, không phải hai.
+    arms[0].add(m(new THREE.TorusGeometry(0.125, 0.030, 10, 20), mat('#aa855f', { metalness: 0.8, roughness: 0.3 }), 0, -0.17, 0, { rot: [Math.PI / 2, 0, 0] }));
   }
 
   return vfxGroup;
@@ -1102,7 +1460,7 @@ function resolveHero(opts = {}) {
   const ap = opts.appearance || {};
   if (ap.hero && HERO_MAP[ap.hero]) return HERO_MAP[ap.hero];
   if (opts.hero && HERO_MAP[opts.hero]) return HERO_MAP[opts.hero];
-  // Gán tự động đa dạng cả 12 tướng cho NPC / đạo hữu trong chùa
+  // Gán tự động đa dạng cả bộ sưu tập tướng cho NPC / đạo hữu trong chùa
   const seedStr = `${ap.hair || ''}:${ap.skin || ''}:${opts.robe?.color || ''}`;
   if (seedStr !== '::') {
     let h = 0;
@@ -1148,8 +1506,10 @@ export function makeAvatar(opts = {}) {
   const upper = new THREE.Group();
   root.add(upper);
 
-  // Thân áo 3D Chibi (riêng Mũ Cam, Sừng Trâu và Mặt Nạ Sừng lộ cơ ngực)
-  const bareChest = !outfit?.sansaRobe && (hero.id === 'ace' || hero.id === 'kaido' || hero.id === 'yone_chibi');
+  // Thân áo 3D Chibi (riêng Mũ Cam, Sừng Trâu, Mặt Nạ Sừng và Võ Sư Mù không có áo)
+  // Võ Sư Mù: trong ảnh Lee Sin ở trần, chỉ có đai lưng — nên thân là da, không phải
+  // robeColor. Mặc pháp phục Sansa vào thì thân lại là áo (điều kiện !sansaRobe).
+  const bareChest = !outfit?.sansaRobe && (hero.id === 'ace' || hero.id === 'kaido' || hero.id === 'yone_chibi' || hero.id === 'leesin_chibi');
   const torsoMat = bareChest ? skinM : robeM;
   upper.add(m(G.torso, torsoMat, 0, -0.05, 0, { scale: [1, 1, 0.88] }));
   // Đai thắt lưng / Sash đặc trưng
@@ -1216,9 +1576,10 @@ export function makeAvatar(opts = {}) {
   head.add(m(G.head, skinM));
   const faceTex = makeHeroFaceTex(hero.id);
   if (faceTex) {
-    // Yone dùng tấm rộng hơn (G.yoneMask) vì sơn cả phiến nạ liền; các hình khác giữ
-    // facePatch - canvas của makeHeroFaceTex sinh ra đúng theo kích thước tấm ấy.
-    const faceGeo = hero.id === 'yone_chibi' ? G.yoneMask : G.facePatch;
+    // Những hình trong WRAP_FACE_IDS (yone_chibi, leesin_chibi) dùng tấm rộng hơn vì một
+    // phiến sơn của chúng quấn kín đầu; các hình khác giữ facePatch - canvas của
+    // makeHeroFaceTex sinh ra đúng theo kích thước tấm ấy, nên hai bên không lệch nhau được.
+    const faceGeo = WRAP_FACE_IDS.has(hero.id) ? G.wrapMask : G.facePatch;
     const faceMesh = m(faceGeo, new THREE.MeshStandardMaterial({ map: faceTex, transparent: true, roughness: 0.45, depthWrite: false }), 0, 0, 0, { cast: false });
     head.add(faceMesh);
   }
@@ -1248,7 +1609,7 @@ export function makeAvatar(opts = {}) {
   root.add(lap, legs);
 
   // Đạo cụ 3D & Hiệu ứng nguyên tố
-  const vfxGroup = buildHeroProps3D(upper, hands, legR, hero);
+  const vfxGroup = buildHeroProps3D(upper, hands, arms, legR, hero);
 
   // Quả cầu Tuyệt Chiêu 3D (hiện lên khi tung tuyệt chiêu)
   const ultSphere = m(

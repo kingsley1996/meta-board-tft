@@ -86,6 +86,13 @@ function heroScene(scene, cam, it, appearance) {
   // Đỉnh sừng gần ống kính nhất sau nhịp xoay 0.45 của thân là z = -0.501, cần 1.126,
   // khung cho 1.233 (lệ 0.11); mép vành gần nhất z = -0.86 cần 1.06, khung cho 1.128.
   // Thân hình chiếm 82% chiều cao ô, ngang các ô sprite gốc.
+  // CÙNG máy ảnh này cũng vừa leesin_chibi (không sừng nên thấp hơn, và từ vòng này hình
+  // đó không còn rồng quanh người - vật rộng nhất của nó lại là mái tóc): ngọn gai cao nhất
+  // ở y 2.266, z -0.025 sau nhịp xoay 0.45 của thân, cần 1.006, khung cho 1.369; điểm tóc
+  // sát biên nhất vẫn còn lề 0.336. Bề ngang lớn nhất |x| 0.738 so với 1.344 được phép.
+  // Giáp tay nằm quanh ngực/bụng ở |x| < 0.5 nên không phải tính. Không có gì bị cắt nên
+  // khung không phải tính lại cho từng hình - nó tính theo điểm cao nhất và thấp nhất của
+  // hình CAO NHẤT, mọi hình khác tự lọt.
   cam.position.set(0, 1.26, -4.8);
   cam.lookAt(0, 1.26, 0);
   return () => disposeAvatar(av);

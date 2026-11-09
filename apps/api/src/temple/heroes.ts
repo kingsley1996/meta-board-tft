@@ -47,6 +47,7 @@ export const HERO_IDS = [
   'minato',
   'kaido',
   'yone_chibi',
+  'leesin_chibi',
 ];
 
 // Giá một lần đổi — con số 100 là của đề bài. Nó nằm gọn trong dải giá Kim Cương mà
