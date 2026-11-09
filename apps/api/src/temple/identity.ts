@@ -277,7 +277,7 @@ const ID_PATTERN = /^[0-9a-z_]{1,24}$/;
 // POST /hero (heroes.ts) nơi có ví và bộ sưu tập. PUT /profile mà còn nhận hero thì một
 // cú tự khai đổi được hình đang mặc mà không trả Kim Cương nào.
 const APPEARANCE_KEYS = ['hair'];
-const EQUIPPED_KEYS = ['robe', 'beads', 'cushion', 'hat', 'staff', 'cloud', 'pet'];
+const EQUIPPED_KEYS = ['robe', 'cape', 'beads', 'cushion', 'hat', 'staff', 'cloud', 'pet'];
 
 function cleanId(value: unknown): string | null | undefined {
   if (value === null) return null;

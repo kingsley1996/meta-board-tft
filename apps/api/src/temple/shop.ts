@@ -6,7 +6,7 @@
 // tra ở catalog.ts. Không có nẹp này thì một cú sửa body là mua được Áo Choàng Như Ý
 // với giá 1 Sen.
 //
-// Vì sao hai cửa chứ không phải một: 47 món có giá thì bán đúng giá đã soạn là xong.
+// Vì sao hai cửa chứ không phải một: 50 món có giá thì bán đúng giá đã soạn là xong.
 // 19 món còn lại không có giá nào trong asset — bản gốc giấu chúng sau "Duyên truyền
 // thuyết" và một ông lão bán bí kiếp, ba phần một ngày. Cửa thứ hai giữ nguyên nhịp đó;
 // giá thì dẫn xuất từ chính asset thay vì để flat (catalog.ts:duyenPrice), vì 15/19 món

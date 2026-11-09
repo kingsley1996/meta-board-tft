@@ -59,7 +59,7 @@ export const CATALOG: CatalogItem[] = items
 export const itemById = new Map(CATALOG.map((i) => [i.id, i]));
 
 // Hai cửa, và thế là đủ để một người thật lấy được mọi món trong asset:
-//  - cửa hàng: món có price_sen hoặc price_ngoc, bán đúng giá đã soạn (47 món);
+//  - cửa hàng: món có price_sen hoặc price_ngoc, bán đúng giá đã soạn (50 món);
 //  - đổi duyên: món không có giá nào (19 món) — Lão Hành Khất giữ, xem shop.ts.
 //
 // Cửa thứ hai cố ý rộng hơn mấy món "huyền thoại": áo lam và vòng gỗ mà hồ sơ ngày đầu
@@ -99,7 +99,7 @@ export const DUYEN_POOL: CatalogItem[] = CATALOG.filter(isDuyen);
 // đeo đuổi chứ không phải thứ mua được bằng hai cú quay.
 const SEN_PER_NGOC = 2.5;
 
-const WEARABLE = new Set(['robe', 'beads', 'cushion', 'hat', 'staff', 'pet', 'cloud', 'bikiep']);
+const WEARABLE = new Set(['robe', 'cape', 'beads', 'cushion', 'hat', 'staff', 'pet', 'cloud', 'bikiep']);
 
 // Mọi món mặc/đeo được, không kể nó nằm ở cửa hàng hay trên chiếu lão. Tuyến admin
 // (admin.ts) cấp nguyên một lần để thử hết các khung hình avatar mà không phải đi

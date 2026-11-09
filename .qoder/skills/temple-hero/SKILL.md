@@ -1,6 +1,6 @@
 ---
 name: temple-hero
-description: Dựng một nhân vật mới trong chánh điện Đền Cầu May (apps/web/vendor/temple/js/avatar.js) từ một ý tưởng hoặc một ảnh tham khảo — đo màu từ ảnh, sơn một phiến mặt liền, thêm 3D chỉ phần sơn với tới không được, nối sang server (HERO_IDS), ô chọn nhân vật trong Hồ sơ và ảnh thumbnail 3D. Dùng khi người dùng xin "thêm nhân vật mới", "nhân vật thứ 13", "một tướng cho Đền", "làm mặt nạ kiểu này theo ảnh", vẽ lại một hình đã có, hoặc hỏi vì sao ô chọn nhân vật bị cắt đầu. Add a new procedural temple hero from an idea or reference image.
+description: Dựng một nhân vật mới trong chánh điện Đền Cầu May (apps/web/vendor/temple/js/avatar.js) từ một ý tưởng hoặc một ảnh tham khảo — đo màu từ ảnh, sơn một phiến mặt liền, thêm 3D chỉ phần sơn với tới không được, nối sang server (HERO_IDS), ô chọn nhân vật trong Hồ sơ và ảnh thumbnail 3D. Dùng khi người dùng xin "thêm nhân vật mới", "nhân vật thứ 13", "một tướng cho Đền", "một tướng theo hình này", "làm mặt nạ kiểu này theo ảnh", "tách hình này thành trang bị bán trong cửa hàng", vẽ lại một hình đã có, hoặc hỏi vì sao ô chọn nhân vật bị cắt đầu. Add a new procedural temple hero from an idea or reference image, or split an existing hero into equippable gear.
 ---
 
 # Nhân vật mới cho Đền Cầu May
@@ -9,6 +9,28 @@ Một nhân vật ở đây **không phải file model và không phải ảnh a
 procedural trong `avatar.js` (đầu + props) cộng một tấm canvas sơn mặt. Skill này rút gọn
 từ ca làm hình thứ 13 (`yone_chibi`), nơi mỗi bước sai đều đã phải trả bằng một lượt
 render 90 giây.
+
+## Bức chuẩn: `batman_chibi` (hình 15)
+
+Cần biết "xong" trông như thế nào thì mở hình này ra đọc, nó đi qua cả bốn bước của skill:
+
+1. **Không có ảnh đo vẫn không đoán màu.** Hai URL ảnh tham khảo trả về HTML (chặn client
+   không phải trình duyệt) nên không có pixel nào để median; toàn bộ palette VAY từ các hình
+   đã ship và mỗi hex ghi kèm nó đang mặc ai (`avatar.js:172-183`). Vay có dẫn xuất khác
+   đoán — user đã bác "đoán mã màu mới" nhiều lần.
+2. **Một cái nạ kín = MỘT phiến sơn quấn 2π**, không phải vài vỏ cầu áp vào nhau
+   (`WRAP_FACE_IDS` `avatar.js:314`, nét sơn ở nhánh `makeHeroFaceTex` `avatar.js:870`).
+   Lỗ mặt khoét bằng `globalCompositeOperation = 'destination-out'` nên da thật của khối đầu
+   hiện xuống tới tận biên vải: không có chỗ nào hai mảnh áp biên vào nhau, tức là không có
+   cái "rãnh nối" mà user đã ba lần gọi tên.
+3. **3D đúng một nét**: hai tai nạ (`avatar.js:1280`), vì chúng NHÔ ra ngoài vỏ 0,463 chứ
+   không nằm TRÊN vỏ. Cái gì nằm trên vỏ thì sơn lo.
+4. **Hai thứ phiến sơn với tới không được thì dựng khối, và dựng ở `gear.js`**
+   (`avatar.js:1528` gọi `batCape()`/`batEmblem()`) — xem §"Tách một hình thành trang bị".
+5. **Mỗi con số đi kèm phép đo, không có số nào "thử thấy đẹp"**. Comment trong từng nhánh
+   là một bài toán có ràng buộc (rim bao nhiêu, cao hơn đáy khối đầu bao nhiêu, vì sao chỗ
+   đó không z-fighting); viết hình mới thì giữ đúng cái đuôi đó, nếu không thì lượt sau
+   không biết con số nào được phép đổi.
 
 ## Chọn đường nào
 
@@ -37,6 +59,35 @@ Sửa thiếu một chỗ là id rơi về hình ngẫu nhiên (`resolveHero`), 
 **Thứ tự làm**: (1) đăng ký id cho thông server + HUD trước, để nhân vật sống và xem được
 ngay từ phút đầu; (2) sơn phiến mặt; (3) 3D chỉ cho phần sơn với không tới; (4) ô thumbnail
 cuối cùng. Làm ngược là trả tiền render cho một hình chưa vào được sảnh.
+
+## Tách một hình thành trang bị bán được
+
+User nói "cho tướng khác mặc được bộ đồ của hình này" nghĩa là mỗi phần phải có **MỘT hàm
+dựng duy nhất** trong `gear.js`, và `avatar.js` gọi đúng hàm đó khi vẽ chủ nhân. Hai bản sao
+lệch nhau một li là hai mặt cùng transform → z-fighting chớp cả lúc ngồi thiền; hai bản trùng
+khít thì `ALREADY_WORN` (`gear.js:314`) phải ẩn bản mua, không tướng chủ mặc trùng đôi. Số học
+và giá đã chốt ghi ở `docs/SHRINE-CONTENT-MAP.md` §4.7.
+
+| Tệp | Sửa gì |
+|---|---|
+| `gear.js` | hàm dựng (`batCape` `:277`, `batEmblem` `:300`, `HATS.na_doi` `:125`) → đăng ký vào `CAPES`/`EMBLEMS` → thêm `kind:model` vào `ALREADY_WORN` của tướng chủ → `addGear()` nhận thêm loại mới |
+| `vendor/temple/data/meta.json` | mục hàng hoá (`id`/`type`/`price_*`/`sort`); `data` là thông số render nên ấn ngực phải có chỗ ngồi riêng — nó là `data.emblem` của một món robe vì nó dán lên thân áo, không lên choàng |
+| `apps/web/scripts/rename-meta.mjs` | thêm dòng copy cho từng id mới; thiếu là script chết ở `no copy map entry` |
+| `catalog.ts` + `identity.ts` | loại mới thì thêm vào `WEARABLE` và `EQUIPPED_KEYS` |
+| `world.js` `look()` | truyền `this.items[eq.<loại>]?.data` xuống `makeAvatar` — thiếu thì mua xong không mặc được |
+| `hall.tsx` | `BAG_TABS` (tab trong túi) + `UNEQUIPPABLE` (tháo được thì thêm) |
+| `thumbs.js` | `SCENES` + khung máy ảnh `gearScene` |
+
+Ba bẫy đã trả giá:
+
+1. `addGear()` nhân **mọi** chiếc mũ 1,15 quanh tâm đầu (dải 0,405 phải ló khỏi đầu 0,46), nên
+   mẫu `HATS.*` viết theo số thế giới **chia 1,15**, không phải số nguyên trong `avatar.js`.
+2. Giá một món Quý mới không phải số tuỳ hứng: `catalog.test.ts:84-86` chốt thang đổi duyên =
+   median hàng Quý cùng type × 2,5, robe đang ở median 270 → 680 Sen. Thêm món robe Quý giá
+   khác là kéo cả chiếu lão lệch theo và làm đỏ test — `ao_duc_anh` 270 là để bất biến đó đứng.
+3. Món nằm SAU lưng thì ô thumbnail phải quay máy ảnh ra phía `+z`, và bắt buộc vẽ trên một
+   hình KHÔNG mặc món đó sẵn: để đúng `appearance` của người đang chơi thì chủ nhân Hiệp Sĩ
+   Dơi thấy một ô trống (`ALREADY_WORN` đã ẩn nó) — `gearScene` ép `hero: 'luffy_g5'`.
 
 ## Hình học: ba bất biến
 
@@ -76,6 +127,8 @@ là 40×40 và ảnh render 144×144 nên `object-fit: cover` không cắt thêm
 node .qoder/skills/temple-hero/scripts/check-ids.mjs <id-moi>   # ~0s: id đã thông cả 4 chỗ chưa
 node --check apps/web/vendor/temple/js/avatar.js   # MỖI LẦN CHỈ MỘT TỆP:
 node --check apps/web/vendor/temple/js/thumbs.js   # node --check nhận đối số thứ hai rồi exit 0 mà không soi nó
+node apps/web/scripts/rename-meta.mjs              # thêm món vào meta.json: chạy hai lần, lần hai phải in "0 mục"
+node --test apps/api/src/temple/catalog.test.ts    # ~0s: cửa nào bán gì + thang giá đổi duyên còn thẳng hàng
 cd apps/web && npm run typecheck          # + apps/api nếu đụng heroes.ts/bots.ts
 node scripts/hero-thumb.mjs /tmp/out      # ~60s: ảnh 144px + thẻ thật trên nền tối
 node scripts/hall-shot.mjs /tmp/hall.png  # ~90s: CHỈ khi user bấm

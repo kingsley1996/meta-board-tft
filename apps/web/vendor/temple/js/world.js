@@ -390,7 +390,7 @@ export class World {
     const robe = this.items[eq.robe]?.data || this.items.ao_lam?.data;
     const beads = this.items[eq.beads]?.data;
     const cushion = this.items[eq.cushion]?.data;
-    return { appearance: user.appearance, robe, beads, cushion, hat: this.items[eq.hat]?.data, staff: this.items[eq.staff]?.data, cloud: this.items[eq.cloud]?.data, pet: this.items[eq.pet]?.data };
+    return { appearance: user.appearance, robe, beads, cushion, cape: this.items[eq.cape]?.data, hat: this.items[eq.hat]?.data, staff: this.items[eq.staff]?.data, cloud: this.items[eq.cloud]?.data, pet: this.items[eq.pet]?.data };
   }
 
   setPlayerLook(user) {

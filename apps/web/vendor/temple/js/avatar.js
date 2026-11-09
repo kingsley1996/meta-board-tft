@@ -1,7 +1,7 @@
 // Hệ thống Nhân vật 3D Chibi Anime (12 Nhân vật từ ảnh tham khảo characters-naruto-onpine.jpg)
 // Tư thế hỗ trợ: đứng, đi, ngồi thiền, lạy Phật và tung tuyệt chiêu (fight / ultimate).
 import * as THREE from 'three';
-import { addGear } from './gear.js';
+import { addGear, batCape, batEmblem } from './gear.js';
 import { auraOf } from './ladder.js';
 
 export const HERO_LIST = [
@@ -168,6 +168,31 @@ export const HERO_LIST = [
     skin: '#d5a49e',
     aura: '#75a2ec',
   },
+  {
+    // Hình thứ 15: Batman. ĐÂY LÀ HÌNH ĐẦU TIÊN KHÔNG CÓ ẢNH ĐO. Hai URL ảnh tham khảo
+    // tìm được trả về HTML (chặn client không phải trình duyệt) nên không có pixel nào để
+    // median - thay vì đoán mã màu mới, toàn bộ palette VAY từ 14 hình đã ship ở trên, mỗi
+    // hex dưới đây đã sống thật trong chánh điện:
+    //   robeColor  #18181b = đen của Mái Che/Tóc Dài   (bộ vest + vải nạ)
+    //   pantsColor #09090b = đen sâu nhất của Mái Che   (quần + áo choàng)
+    //   sashColor  #facc15 = vàng của Gai Vàng          (đai lưng + phù hiệu, tự vào vì sashM)
+    //   skin       #e8b892 = da của Ba Kiếm             (hàm + cằm lộ ra ngoài nạ)
+    //   skillColor #e2e8f0 = bạc của Sừng Trâu         (chỉ quả cầu chiêu; hình này
+    //     không có nét bạc nào trên người - tròng mắt sơn là #f8fafc, một hex khác)
+    //   aura       #60a5fa = lam của Én Đêm            (quầng đêm)
+    // Nạ = MỘT phiến sơn quấn 2π (WRAP_FACE_IDS) như hai hình 13-14: nửa trên đầu là vải,
+    // lỗ mặt khoét bằng destination-out nên da thật hiện ra đúng chỗ mũi-miệng-cằm.
+    id: 'batman_chibi',
+    name: 'Hiệp Sĩ Dơi',
+    title: 'Dực Ảnh Nhập Đêm',
+    costumeLocked: true,
+    skillColor: '#e2e8f0',
+    robeColor: '#18181b',
+    pantsColor: '#09090b',
+    sashColor: '#facc15',
+    skin: '#e8b892',
+    aura: '#60a5fa',
+  },
 ];
 
 export const HERO_MAP = Object.fromEntries(HERO_LIST.map((h) => [h.id, h]));
@@ -283,10 +308,11 @@ export function beadMaterial(b) {
 
 const FACE_TEX_CACHE = new Map();
 // Những hình mà MỘT phiến sơn phủ trọn vòng đầu (nạ kín như yone_chibi, tóc bạc phủ kín
-// mặt như leesin_chibi) phải vẽ trên tấm quấn 2π. Hình khác chỉ cần facePatch ±57,6°.
+// mặt như leesin_chibi, vải nạ phủ nửa trên đầu như batman_chibi) phải vẽ trên tấm quấn
+// 2π. Hình khác chỉ cần facePatch ±57,6°.
 // Danh sách này là nguồn duy nhất: makeHeroFaceTex chọn kích thước canvas theo nó và
 // buildHeroAvatar chọn geometry (G.wrapMask hay G.facePatch) theo nó.
-const WRAP_FACE_IDS = new Set(['yone_chibi', 'leesin_chibi']);
+const WRAP_FACE_IDS = new Set(['yone_chibi', 'leesin_chibi', 'batman_chibi']);
 function makeHeroFaceTex(heroId) {
   if (FACE_TEX_CACHE.has(heroId)) return FACE_TEX_CACHE.get(heroId);
   if (typeof document === 'undefined') return null;
@@ -842,6 +868,83 @@ function makeHeroFaceTex(heroId) {
     g.beginPath(); g.ellipse(322, 330, 54, 26, 0.1, 0, Math.PI * 2); g.fill();
     g.strokeStyle = '#885f53'; g.lineWidth = 9; g.lineCap = 'round';
     g.beginPath(); g.moveTo(266, 356); g.quadraticCurveTo(300, 372, 334, 354); g.stroke();
+  } else if (hero.id === 'batman_chibi') {
+    // NẠ DƠI = MỘT phiến sơn liền trên G.wrapMask (quấn 2π, tới theta 144,9°), đúng kiến
+    // trúc nạ sừng và dải bịt: vải phủ hết tấm, còn lỗ mặt thì KHOÉT bằng
+    // globalCompositeOperation 'destination-out' - da thật của khối đầu 0,46 hiện xuống
+    // tới tận biên vải, không có mảnh vỏ nào áp biên vào mảnh nào nên không sinh cái rãnh
+    // mà user đã ba lần gọi tên.
+    // Lưới toạ độ vẫn là 512 cũ (canvas đã translate 544, 227,6). Đổi ra góc bằng
+    //   theta = (y + 227,6) / 763 * 144,9°      phương vị = (x / 256 − 1) * 57,6°
+    //   y 218..274 -> 85,0..95,6° (hai lỗ mắt, nằm TRÊN vải)
+    //   y 268 -> 94,5° (mỏm vải giữa hai lông mày)  y 292 -> 99,0° (nách vải dưới mắt)
+    //   y 356 -> 111,1° (hai góc lỗ mặt)  y 476 -> 133,6° (chân cằm, da còn lại 11°)
+    //   x 122/390 -> phương vị ∓30,2° (biên lỗ mặt, vẫn trong phiến sơn ±57,6°)
+    // Sáu hex dưới đây đều VAY từ HERO_LIST - xem entry batman_chibi: ảnh tham khảo không
+    // tải được nên không có pixel để median, và tự đoán mã mới là bypass.
+    const cowl = '#18181b', cowlDeep = '#09090b', cowlLit = '#334155';
+    const lens = '#f8fafc', lensShade = '#64748b';
+    const facePath = () => {
+      g.beginPath();
+      g.moveTo(122, 356);
+      g.quadraticCurveTo(150, 296, 202, 292);
+      g.quadraticCurveTo(240, 288, 256, 268);
+      g.quadraticCurveTo(272, 288, 310, 292);
+      g.quadraticCurveTo(362, 296, 390, 356);
+      g.quadraticCurveTo(366, 450, 256, 476);
+      g.quadraticCurveTo(146, 450, 122, 356);
+      g.closePath();
+    };
+
+    // (1) VẢI phủ trọn tấm, kể cả sau gáy: một surface duy nhất không có biên nào khớp
+    // với biên nào.
+    g.fillStyle = cowl;
+    g.fillRect(-544, -260, 1600, 800);
+    // (2) KHỐI. Hai ellipse '#09090b' ở phương vị ∓119° (x = 256*(1 ± 119/57,6) =
+    // -273 / 785, bán trục ngang 214px = 48°) tối dần ra sau gáy vì ở đó vải không đón
+    // đèn; hai nét '#334155' là gờ trán (theta 76,7°) và crown (theta 54,4°) bắt sáng.
+    g.fillStyle = cowlDeep;
+    g.beginPath(); g.ellipse(-273, 190, 214, 330, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(785, 190, 214, 330, 0, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = cowlLit; g.lineCap = 'round'; g.lineWidth = 14;
+    g.beginPath(); g.moveTo(30, 176); g.quadraticCurveTo(256, 96, 482, 176); g.stroke();
+    g.lineWidth = 10;
+    g.beginPath(); g.moveTo(120, 60); g.quadraticCurveTo(256, 8, 392, 60); g.stroke();
+
+    // (3) KHOÉT LỖ MẶT rồi viền lại bằng chính nét sáng của vải: nửa nét 6px (1,1° cực)
+    // chồng lên da, đọc là mép vải đè lên má chứ không phải đường viền vẽ thêm.
+    g.save();
+    g.globalCompositeOperation = 'destination-out';
+    facePath(); g.fill();
+    g.restore();
+    g.strokeStyle = cowlLit; g.lineWidth = 6; g.lineJoin = 'round';
+    facePath(); g.stroke();
+
+    // (4) HAI LỖ MẮT TRẮNG trên vải, không con ngươi - đây là tròng của hoá phục chứ
+    // không phải mắt người. Bao đúng vùng drawAnimeEye vẫn vẽ cho các hình khác (ellipse
+    // 42x34 quanh (166,235) và (346,235)) nên hình này không lệch hệ mắt của cả bộ.
+    // Khóe TRONG ở thấp hơn khóe NGOÀI (218 -> 252) = nét chúc xuống đặc trưng của nạ.
+    for (const s of [-1, 1]) {
+      const cx = 256 + s * 90;   // 166 / 346 = đúng L_X và R_X
+      g.beginPath();
+      g.moveTo(cx + s * 44, 218);
+      g.quadraticCurveTo(cx + s * 6, 234, cx - s * 40, 252);
+      g.lineTo(cx - s * 36, 274);
+      g.quadraticCurveTo(cx + s * 2, 258, cx + s * 42, 244);
+      g.closePath();
+      g.fillStyle = lens; g.fill();
+      g.strokeStyle = cowlDeep; g.lineWidth = 7; g.stroke();
+      g.strokeStyle = lensShade; g.lineWidth = 4;
+      g.beginPath(); g.moveTo(cx + s * 40, 246); g.quadraticCurveTo(cx + s * 2, 262, cx - s * 34, 268); g.stroke();
+    }
+
+    // (5) MIỆNG + CẰM. Nét ngang 7px chúc nhẹ hai đầu ('#3b2314' là nét miệng cả bộ đã
+    // dùng, giữ nguyên để không phải màu môi mới); bóng cằm cùng họ rgba(120,53,15) với
+    // tam giác mũi chung vẽ sau nhánh này.
+    g.strokeStyle = '#3b2314'; g.lineWidth = 7; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(216, 344); g.quadraticCurveTo(256, 352, 296, 344); g.stroke();
+    g.fillStyle = 'rgba(120,53,15,0.16)';
+    g.beginPath(); g.ellipse(256, 404, 60, 24, 0, 0, Math.PI * 2); g.fill();
   }
 
   // Mũi 3D shading nhẹ ở giữa
@@ -1175,6 +1278,23 @@ function buildHeroHead3D(head, hero) {
     ]) {
       head.add(m(ribbon(pts, 0.062, 0.008, { seg: 14, rad: 5, flat: 0.34 }), lockM, 0, 0, 0, { cast: false }));
     }
+  } else if (id === 'batman_chibi') {
+    // TAI NẠ - phần 3D DUY NHẤT trên đầu hình này, vì nó NHÔ ra ngoài vỏ 0,463 chứ không
+    // nằm trên vỏ (sơn đã lo hết vải, thêm một vỏ cầu nào ở đây là lại ra cái gờ).
+    // Gốc ghim ở |p| = 0,4500 (lẹm vào trong khối đầu 0,46 nên không hở cổ trục):
+    //   (0,191; 0,403; -0,060) -> sqrt(0,0365 + 0,1624 + 0,0036) = 0,4500
+    //   tức theta 27,1° và lệch trục 24,9° - đúng chỗ cặp tai nhọn trong hoá phục.
+    // Trục muốn (±0,26; 0,96; -0,10) (đứng, vểnh ra ngoài 15°, ngả ra sau 6°) giải từ
+    // dx = -sin(rz), dy = cos(rz)cos(rx), dz = cos(rz)sin(rx) (Euler XYZ của three là
+    // Rx(Ry(Rz(v)))) -> rz = 0,2635, rx = -0,1081.
+    // MỘT MÀU VẢI DUY NHẤT: cowlM là đúng '#18181b' mà phiến sơn đang dùng - chia hai
+    // mã như bài học tóc bạc của Võ Sư Mù thì ở 144px tai ra một cái mũ khác đầu.
+    // Chóp ở local y 0,403 + 0,96*0,20 = 0,595 -> thế giới 2,045, vẫn DƯỚI đỉnh tóc của
+    // Võ Sư Mù (2,266) nên khung heroScene cũ lọt nguyên, không phải tính lại.
+    const cowlM = mat('#18181b', { roughness: 0.55, metalness: 0.15 });
+    for (const s of [-1, 1]) {
+      head.add(m(new THREE.ConeGeometry(0.115, 0.40, 5), cowlM, s * 0.191, 0.403, -0.060, { rot: [-0.1081, 0, -s * 0.2635], scale: [1, 1, 0.5] }));
+    }
   }
 }
 
@@ -1406,6 +1526,21 @@ function buildHeroProps3D(upper, hands, arms, legR, hero) {
     // Tay kia không phát sáng: trong ảnh nó chỉ có một đai vàng trần ở cổ tay, cùng
     // #aa855f với viền mặt nạ để hai chi tiết vàng của hình này là MỘT màu, không phải hai.
     arms[0].add(m(new THREE.TorusGeometry(0.125, 0.030, 10, 20), mat('#aa855f', { metalness: 0.8, roughness: 0.3 }), 0, -0.17, 0, { rot: [Math.PI / 2, 0, 0] }));
+  } else if (id === 'batman_chibi') {
+    // ÁO CHOÀNG + ẤN NGỰC DƠI: hai thứ phiến sơn đầu với tới không được, cái nhất vì nó
+    // là khối sau LƯNG, cái nhì vì nó dính trên thân áo LatheGeometry.
+    //
+    // Cả hai giờ dựng ở gear.js (batCape/batEmblem) vì cửa hàng bán chúng thành món rời
+    // cho tướng khác mặc: MỘT hàm dựng duy nhất là "bộ đồ của tướng" và "đồ mua" không
+    // bao giờ lệch nhau, mà lệch nhau một li thôi là hai mặt cùng vị trí thành z-fighting.
+    // Số học và bốn ràng buộc khung hình (rim tới cổ, gấu trên vành sáng chân, mép vải
+    // sau ngực, |x| dưới 0,738) ghi ngay cạnh từng hàm đó.
+    //
+    // Hai mảnh còn lại của hoá phục không cần gọi hàm: tai nạ dựng ở buildHeroHead3D
+    // (nó là phần lồi của khối đầu), còn đai vàng tự vào vì sashColor '#facc15' chạy qua
+    // sashM trong makeAvatar.
+    upper.add(batCape());
+    upper.add(batEmblem());
   }
 
   return vfxGroup;
@@ -1489,9 +1624,15 @@ export function makeAvatar(opts = {}) {
   // Món áo trong túi có màu riêng (data.color / data.sash trong meta.json). Hai dòng
   // dưới chỉ nhìn tướng và pháp phục nên mặc áo nào cũng ra màu của tướng: 19 món áo
   // mua xong không đổi gì trên nhân vật.
-  const rColor = opts.robe?.color || (useOutfitColors && outfit.robeColor ? outfit.robeColor : hero.robeColor);
-  const pColor = useOutfitColors && outfit.pantsColor ? outfit.pantsColor : hero.pantsColor;
-  const sColor = opts.robe?.sash || (useOutfitColors && outfit.sashColor ? outfit.sashColor : hero.sashColor);
+  // costumeLocked: bộ đồ là HOÁ PHỤC, không phải áo khoác - màu do tướng quyết, kể cả khi
+  // lời gọi truyền vào một tấm áo màu khác. Hai chỗ truyền màu đỏ: heroScene trong
+  // thumbs.js trung hoà mọi ô chọn nhân vật bằng robe {color '#8f6a3e', sash '#6b2416'}
+  // (đai nên ra ĐỎ chứ không vàng), và một món áo đã mua trong túi cũng đi qua đúng cửa
+  // opts.robe đó. Hình này chỉ được phép là ĐEN-VÀNG, nên ba dòng dưới ưu tiên hero.
+  const suitLocked = !!hero.costumeLocked;
+  const rColor = (suitLocked && hero.robeColor) || opts.robe?.color || (useOutfitColors && outfit.robeColor ? outfit.robeColor : hero.robeColor);
+  const pColor = (suitLocked && hero.pantsColor) || (useOutfitColors && outfit.pantsColor ? outfit.pantsColor : hero.pantsColor);
+  const sColor = (suitLocked && hero.sashColor) || opts.robe?.sash || (useOutfitColors && outfit.sashColor ? outfit.sashColor : hero.sashColor);
 
   const skinM = mat(hero.skin, { roughness: 0.52 });
   const robeM = mat(rColor, {

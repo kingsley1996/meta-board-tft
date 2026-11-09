@@ -109,6 +109,28 @@ const HATS = {
     for (const s of [-1, 1]) add(g, new THREE.BoxGeometry(0.07, 0.62, 0.012), RED, s * 0.36, -0.15, 0.2, [0.25, 0, -s * 0.12]);
     return g;
   },
+  // NẠ DƠI: vòm vải đen khoét hở mặt, hai tai nhọn — cái nạ của hình thứ 15 dựng thành
+  // khối để tướng khác đeo. addGear nhân 1,15 MỌI chiếc mũ (band 0,405 -> 0,466 cho lọt
+  // đầu 0,46), nên số dưới đây là số thế giới của tai nạ trong avatar.js chia 1,15:
+  //   vòm 0,415 đặt ở y 0,1 z 0,01 — cùng cỡ, cùng cao độ vòm của tử kim quan đã ship ->
+  //     rendered 0,4773, lệch mặt đầu 0,46 đúng 0,017 nên không z-fighting với phiến sơn;
+  //   thetaLength 0,46π như tử kim quan: rim ở 0,115 + 0,4773*cos(82,8°) = 0,175 với bán
+  //     kính ngang 0,473; mép vải cuối cung mở (55° so với trục mặt) cách trục đầu 0,473
+  //     trong khi lát đầu ở cao độ đó rộng 0,426 -> vải bay ngoài thái dương 0,047, không
+  //     cắt vào mặt, không che mắt (mắt sơn nằm dưới 0,1);
+  //   cung mở 110° quanh phi -π/2 — hệ sphere của three để phi π/2 là SAU gáy, -π/2 là
+  //     ĐÚNG TRƯỚC mặt -> phiStart -0,6108, phiLength 4,3632;
+  //   tai: cone 5 cạnh 0,100 x 0,348 (thế giới 0,115 x 0,400, đúng hai tai đã sơn), ép
+  //     z 0,5 thành bản dẹt; `add` đặt TÂM cone ở pos nên gốc thật là pos - axis*0,174 =
+  //     (0,121; 0,183; -0,034) -> |p| 0,222, tức 0,256 thế giới, lẹm vào trong vòm 0,477
+  //     nên tai mọc RA TỪ vòm chứ không nổi trên da.
+  na_doi() {
+    const g = new THREE.Group();
+    const cowl = std('#18181b', { roughness: 0.55, metalness: 0.15, side: THREE.DoubleSide });
+    add(g, new THREE.SphereGeometry(0.415, 28, 12, -0.6108, 4.3632, 0, Math.PI * 0.46), cowl, 0, 0.1, 0.01);
+    for (const s of [-1, 1]) add(g, new THREE.ConeGeometry(0.1, 0.348, 5), cowl, s * 0.166, 0.3504, -0.0522, [-0.1081, 0, -s * 0.2635]).scale.set(1, 1, 0.5);
+    return g;
+  },
 };
 
 const IVORY = std('#e8d286', { roughness: 0.38, emissive: '#4a380c', emissiveIntensity: 0.25 });
@@ -197,6 +219,102 @@ const STAFFS = {
   },
 };
 
+// ---- HOÁ PHỤC DƠI ---------------------------------------------------------------
+// Tách hình thứ 15 (batman_chibi) ra TỪNG PHẦN để các tướng khác mặc được: choàng sau
+// lưng, nạ có tai trên đầu, ấn trước ngực. Mỗi phần là MỘT hàm dựng duy nhất và
+// avatar.js gọi đúng hàm đó khi vẽ Hiệp Sĩ Dơi, nên "đồ của tướng" và "đồ mua ở cửa
+// hàng" không thể lệch nhau — hai khối cùng transform là z-fighting chớp cả lúc ngồi.
+// Màu không có ảnh đo: ba hex vay nguyên bộ đã sơn trong HERO_LIST của batman_chibi
+// ('#09090b' vải choàng = quần, '#18181b' da nạ = thân áo — nó nằm trong HATS.na_doi ở
+// trên vì đó là chất liệu của một chiếc mũ như mọi chiếc mũ, '#facc15' vàng đai + ấn).
+const BAT_CLOTH = std('#09090b', { roughness: 0.85, side: THREE.DoubleSide });
+const BAT_GOLD = std('#facc15', { roughness: 0.35, metalness: 0.25 });
+
+// m() trong avatar.js đội lốt ở đây: đặt + xoay + tỉ lệ và KHÔNG đổ bóng, vì vải mỏng
+// của choàng mà đổ bóng thì nền sảnh ra một tảng đen.
+function nb(g, geo, mat, x = 0, y = 0, z = 0, rot, scale) {
+  const o = add(g, geo, mat, x, y, z, rot);
+  o.castShadow = false;
+  if (scale) o.scale.set(...scale);
+  return o;
+}
+
+// Con dơi MỘT nét liền (không ghép Box): ở ô 144px, ghép khối ra một con bọ, còn một
+// path thì giữ được hai tai và đuôi nhọn.
+function batPath() {
+  const s = new THREE.Shape();
+  s.moveTo(-1.00, 0.05);
+  s.quadraticCurveTo(-0.62, -0.02, -0.55, 0.22);
+  s.lineTo(-0.30, 0.10);
+  s.lineTo(-0.16, 0.30);
+  s.lineTo(-0.06, 0.12);
+  s.lineTo(0.06, 0.12);
+  s.lineTo(0.16, 0.30);
+  s.lineTo(0.30, 0.10);
+  s.lineTo(0.55, 0.22);
+  s.quadraticCurveTo(0.62, -0.02, 1.00, 0.05);
+  s.quadraticCurveTo(0.55, -0.05, 0.34, -0.28);
+  s.quadraticCurveTo(0.12, -0.12, 0.00, -0.42);
+  s.quadraticCurveTo(-0.12, -0.12, -0.34, -0.28);
+  s.quadraticCurveTo(-0.55, -0.05, -1.00, 0.05);
+  return s;
+}
+
+// ÁO CHOÀNG. Group trả về mốc tại UPPER và không tự dời, nên cảnh graph dựng bằng hàm
+// này đúng từng node như bản đang ship trong avatar.js.
+// Vải là một chóp cụt 245° quanh lưng (thetaStart -0,68π, thetaLength 1,36π) trong hệ
+// CylinderGeometry của three (x = r*sin(theta), z = r*cos(theta) => theta 0 là CHÍNH
+// SAU LƯNG). Bốn ràng buộc:
+//   - mép cuối cung theta ±0,68π -> x 0,422 (qua bờ vai 0,30, nhìn trước lẫn sau đều
+//     thấy vải), z -0,198 (vẫn SAU ngực -0,33, không mảnh nào chui ra trước);
+//   - rim trên local +0,37 -> upper 0,56, cao hơn đáy khối đầu 0,52 nên bám tới cổ;
+//   - gấu local -0,37 -> upper -0,18 -> thế giới 0,29, cao hơn đáy vạt 0,12 và vành
+//     sáng chân 0,20: ngồi thiền không xuyên ghế;
+//   - lưng lồi nhất z 0,57 so với lưng áo 0,37 -> dày 0,20, là choàng chứ không phải
+//     cái dù ôm sát người. Bề ngang |x| lớn nhất 0,51 < 0,738 mà khung heroScene cho.
+// Miệng chóp cụt là vỏ MỞ nên đóng bằng đĩa ngang 0,27 ở local +0,37; nửa trước của đĩa
+// ở z -0,20 lọt trong ngực (mặt áo -0,31) nên nó không thành khiên che ấn - chỉ phần
+// sau gáy lộ ra, đúng chỗ cần bịt. Gấu chấm cưa: bảy mũi cone 4 cạnh lật ngược cao
+// 0,12, ngọn dừng ở thế giới 0,19 — nét khiến một cái váy đen đọc là dơi.
+export function batCape() {
+  const g = new THREE.Group();
+  const cloth = new THREE.Group();
+  cloth.position.set(0, 0.19, 0.07);
+  cloth.rotation.x = 0.10;   // chúc gấu ra sau một chút để nó rủ, không đứng như cái loa
+  nb(cloth, new THREE.CylinderGeometry(0.27, 0.50, 0.74, 14, 1, true, -Math.PI * 0.68, Math.PI * 1.36), BAT_CLOTH);
+  nb(cloth, new THREE.CircleGeometry(0.27, 20), BAT_CLOTH, 0, 0.37, 0, [-Math.PI / 2, 0, 0]);
+  for (const th of [-0.62, -0.41, -0.21, 0, 0.21, 0.41, 0.62]) {
+    const a = th * Math.PI;
+    nb(cloth, new THREE.ConeGeometry(0.085, 0.12, 4), BAT_CLOTH, 0.50 * Math.sin(a), -0.41, 0.50 * Math.cos(a), [Math.PI, 0, 0]);
+  }
+  g.add(cloth);
+  // Hai chóp cổ áo phía sau gáy - apex local y 0,52 + 0,929*0,11 = 0,62, z 0,20-0,032:
+  // nằm SAU khối đầu 0,46 nên chỉ lộ ra hai bên cổ, đúng chiếc cổ áo đứng.
+  for (const s of [-1, 1]) add(g, new THREE.ConeGeometry(0.09, 0.22, 4), BAT_CLOTH, s * 0.15, 0.52, 0.20, [-0.30, 0, 0]);
+  return g;
+}
+
+// ẤN NGỰC: oval vàng + bóng dơi đen, hai mặt phẳng quay về -z dán trước ngực. Số do
+// LatheGeometry của thân áo: ở cao độ y 0,36 biên ngang lát cắt là r = 0,40 -
+// (0,11/0,20)*0,05 = 0,3725 và z ép 0,88 -> mặt áo ở z -0,328, nên oval đặt -0,340
+// (lề 0,012) và dơi -0,348 (nổi trên oval 0,008, đủ để hai mặt không cùng bán kính
+// triệt tiêu thành z-fighting). Oval rộng 0,34 = 46% bề ngang ngực 0,745.
+export function batEmblem() {
+  const g = new THREE.Group();
+  nb(g, new THREE.CircleGeometry(1, 32), BAT_GOLD, 0, 0.36, -0.340, [0, Math.PI, 0], [0.17, 0.10, 1]);
+  nb(g, new THREE.ShapeGeometry(batPath()), std('#09090b', { roughness: 0.6, side: THREE.DoubleSide }), 0, 0.372, -0.348, [0, Math.PI, 0], [0.155, 0.092, 1]);
+  return g;
+}
+
+const CAPES = { doi: batCape };
+const EMBLEMS = { doi: batEmblem };
+
+// Hiệp Sĩ Dơi đã mặc sẵn ba món này bằng CHÍNH mấy hàm trên: choàng và ấn thì avatar.js
+// gọi batCape/batEmblem, còn tai nạ thì dựng trong buildHeroHead3D với toạ độ trùng
+// khớp (chia 1,15) cho mẫu na_doi dưới kia. Đeo thêm bản mua là hai khối cùng transform
+// — z-fighting chớp cả lúc ngồi thiền — nên món nào tướng đó đã có thì không mount nữa.
+const ALREADY_WORN = { batman_chibi: ['cape:doi', 'emblem:doi', 'hat:na_doi'] };
+
 // Cân Đẩu Vân: vầng mây vàng trắng dưới chân, khi ngồi thì ẩn
 function cloudModel(kind) {
   const g = new THREE.Group(), m = kind === 'song_bac' ? std('#9fd6f2', { roughness: 0.4, metalness: 0.15, emissive: '#1f7fc4', emissiveIntensity: 0.55 }) : std('#fffaf0', { roughness: 0.9, emissive: '#ffd98a', emissiveIntensity: 0.35 });
@@ -207,9 +325,11 @@ function cloudModel(kind) {
 const cache = new Map();
 const model = (key, fn) => { if (!cache.has(key)) cache.set(key, fn()); return cache.get(key).clone(true); };
 
-export function addGear(av, { hat, staff, cloud }) {
+export function addGear(av, { hat, staff, cloud, cape, robe }) {
   const parts = { sways: [], rings: [] };
-  if (HATS[hat?.model]) {
+  const worn = new Set(ALREADY_WORN[av.hero?.id] || []);
+  const want = (kind, id) => id && !worn.has(`${kind}:${id}`);
+  if (want('hat', hat?.model) && HATS[hat.model]) {
     const h = model('h' + hat.model, HATS[hat.model]);
     // Dải mũ của cả bốn mẫu viết cho đầu bán kính ~0.40, còn đầu chibi trong avatar.js
     // là hình cầu 0.46 (G.head), nên vòng trôn ốc 0.405 nằm trọn bên trong khối đầu và
@@ -219,12 +339,14 @@ export function addGear(av, { hat, staff, cloud }) {
     av.head.add(h);
     h.traverse((o) => { if (o.userData.sway) parts.sways.push(o); });
   }
-  if (STAFFS[staff?.model]) {
+  if (want('staff', staff?.model) && STAFFS[staff.model]) {
     const s = model('s' + staff.model, STAFFS[staff.model]);
     s.position.set(0.68, 0, -0.08); s.rotation.z = -0.05;
     av.root.add(s);
     s.traverse((o) => { if (o.userData.jingle) parts.rings.push(o); });
   }
+  if (want('cape', cape?.model) && CAPES[cape.model]) av.upper.add(model('cp' + cape.model, CAPES[cape.model]));
+  if (want('emblem', robe?.emblem) && EMBLEMS[robe.emblem]) av.upper.add(model('em' + robe.emblem, EMBLEMS[robe.emblem]));
   if (cloud) { av.cloud = model('cloud' + (cloud.model || ''), () => cloudModel(cloud.model)); av.root.add(av.cloud); }
   if (!parts.sways.length && !parts.rings.length && !av.cloud) return;
   av.gearTick = (time, moving) => {

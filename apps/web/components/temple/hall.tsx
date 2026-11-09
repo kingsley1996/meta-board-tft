@@ -507,6 +507,7 @@ function AdminBlock({ s }: { s: Store }) {
 const BAG_TABS = [
   { id: 'consumable', label: 'Đồ Dâng' },
   { id: 'robe', label: 'Áo Choàng' },
+  { id: 'cape', label: 'Áo Khoác' },
   { id: 'beads', label: 'Dây Chuyền' },
   { id: 'cushion', label: 'Bệ Ngồi' },
   { id: 'hat', label: 'Mũ' },
@@ -515,7 +516,7 @@ const BAG_TABS = [
   { id: 'pet', label: 'Linh Thú' },
 ];
 
-const UNEQUIPPABLE = ['hat', 'staff', 'cloud', 'pet'];
+const UNEQUIPPABLE = ['hat', 'staff', 'cloud', 'pet', 'cape'];
 
 // Hình minh hoạ cho món đồ: đúng lối của bản gốc — thumbs.js dựng từng món bằng một
 // WebGLRenderer tạm 144px, lưu dataURL theo id rồi giải phóng context. Món không có

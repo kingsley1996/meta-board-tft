@@ -66,13 +66,13 @@ câu `UPDATE ... WHERE sect IN (...)` idempotent trong `schema.sql`, cạnh DEFA
 theo màu (`#4f8a4a`/`#c4688a`/`#c0602e` giữ nguyên) nên avatar không đổi sắc, chỉ đổi nhãn.
 **Xoá** `bonus`, `bonusText`, `titles` khỏi `meta.sects` — không nơi nào đọc (chỉ `.name`, `.color`).
 
-## 4. Trang bị (70 mục trong `meta.json.items`)
+## 4. Trang bị (70 mục vendored + 3 mục Dơi = 69 trong `meta.json.items`)
 
 Chỉ hai chuỗi hiển thị: `name` và `description` (`hall.tsx:505`). `data.color/sash/model/...` giữ
-nguyên — đó là thông số render, không phải copy. **3 mục `type: plant` và 1 `type: fruit` bị xoá** theo vườn → còn **66**. Quy tắc: bỏ hết từ vựng Phật/kinh, giữ đúng 1 dòng, không giải thích cơ chế.
+nguyên — đó là thông số render, không phải copy. **3 mục `type: plant` và 1 `type: fruit` bị xoá** theo vườn → còn **66**; ba mục Dơi ở §4.7 là hàng repo này soạn, nâng lên **69**. Quy tắc: bỏ hết từ vựng Phật/kinh, giữ đúng 1 dòng, không giải thích cơ chế.
 
-63/66 mục thuộc nhóm mặc được (`WEARABLE` trong `catalog.ts`). Tài khoản admin có nút **Cấp toàn bộ
-trang bị** (`POST /api/temple/admin/gear`, khối Quản trị trong Hồ sơ) đổ cả 63 món vào túi để thử đồ
+66/69 mục thuộc nhóm mặc được (`WEARABLE` trong `catalog.ts`). Tài khoản admin có nút **Cấp toàn bộ
+trang bị** (`POST /api/temple/admin/gear`, khối Quản trị trong Hồ sơ) đổ cả 66 món vào túi để thử đồ
 ngay — người thường vẫn phải mua qua Cửa hàng hoặc đổi duyên ở cửa Lão Hành Khất.
 
 ### 4.1. Dâng lễ (`consumable`, 3) — thành bộ đồ cầu may
@@ -83,7 +83,7 @@ ngay — người thường vẫn phải mua qua Cửa hàng hoặc đổi duyê
 | `nen_sap` | Nến sáp ong | **Nến Hex** 🕯️ |
 | `hoa_dang` | Hoa dâng Phật | **Đóa Sao** ✨ |
 
-### 4.2. Áo choàng (`robe`, 19) — `ao_*` + 2 item legend
+### 4.2. Áo choàng (`robe`, 20) — `ao_*` + 2 item legend
 
 `ao_lam/ao_xam/ao_nau/ao_trang/ao_vang` (miễn phí/mua bằng Tinh Hoa) → **Áo Choàng Lam / Xám / Nâu /
 Trắng / Vàng Cam** (đổi tên, mô tả thành "màu áo mặc khi vào sảnh", bỏ chữ "Phật tử", "chú tiểu").
@@ -95,6 +95,8 @@ hoa → **Áo Gấm Hồng Gai**. `ao_thien_thanh` Áo gấm thiên thanh → **
 **Áo Choàng Quà Sảnh** (bỏ "tăng bào/trụ trì"). `ao_cam_lan` Cẩm lan cà sa → **Áo Gấm Cẩm Lan** (bỏ
 "cà sa"). Legend: `ao_chien_bao` Chiến Bào Sắt (giữ), `ao_non_tan` Áo Non Tản (giữ), `ao_vay_rong`
 Áo Vảy Rồng (giữ), `ao_hoa_sala` Áo Hoa Sala → **Áo Choàng Hoa Vàng** (bỏ hình ảnh cây sala).
+Mới: `ao_duc_anh` **Chiến Bào Dực Ảnh** — bộ đồ của Hiệp Sĩ Dơi (§4.7), và nó là món duy nhất
+mang `data.emblem`, vì ấn ngực dán lên thân áo chứ không phải lên choàng.
 
 ### 4.3. Vòng năng lượng (`beads`, 11) — `chuoi_*`
 
@@ -114,7 +116,7 @@ Bỏ hẳn chữ **bồ đoàn**: `bd_xam` → **Bệ Xám**, `bd_nau` → **B�
 **Bệ Tuyết**, `bd_ngoc` → **Bệ Ngọc**, `bd_kim_lien` → **Bệ Hoàng Kim**, legend `bd_tram_sen` Bồ Đoàn
 Trăm Sen → **Bệ Trăm Hoa**, `bd_mai_rua` Bồ Đoàn Mai Rùa → **Bệ Mai Rùa**.
 
-### 4.5. Gậy (`staff`, 7), Mũ (`hat`, 4), Item legend (`bikiep`, 1)
+### 4.5. Gậy (`staff`, 7), Mũ (`hat`, 5), Item legend (`bikiep`, 1)
 
 `tr_thien_truong` Thiền trượng cửu hoàn → **Gậy Chín Khoen**; `tr_kim_co_bong` Kim Cô Bổng (giữ);
 `tr_dinh_ba` Cửu xỉ đinh ba (giữ); `tr_nguyet_nha` Nguyệt nha sản (giữ); legend `tr_tre_nga` Trượng
@@ -130,6 +132,23 @@ Giữ 7 (`lt_nghe`, `lt_su_tu_xanh`, `lt_thanh_long`, `lt_chu_tuoc`, `lt_huyen_v
 Đổi 3: `lt_huou` Hươu Lộc Uyển (Lộc Uyển = vườn nai nơi Phật thuyết pháp đầu) → **Hươu Non**;
 `lt_tho_ngoc` Thỏ Ngọc (mặt trăng Phật giáo) → **Thỏ Bông**; `may_can_dau` Cân Đẩu Vân → **Mây Chở
 Đi** (mây của Tôn Ngộ Không trong Tây Du Ký).
+
+### 4.7. Bộ Dơi (`cape`, 1) — ba món tách từ nhân vật hình 15 (2026-11-09)
+
+Hiệp Sĩ Dơi (`batman_chibi`) là một hình, không phải một bộ trang bị, nên không ai khác mặc được
+bộ đồ của anh ta. Ba hình khối của anh ta — **nạ**, **choàng**, **ấn ngực** — được cắt ra thành ba
+món để mọi tướng khác đeo: `na_doi` (hat, Hiếm, 180 Kim Cương), `ao_doi` (**cape** — loại mới, Quý,
+260) và `ao_duc_anh` (robe, Quý, 270, mang `data.emblem:'doi'`).
+
+Vì sao 270: thang giá đổi duyên ở §4 dẫn xuất từ median hàng Quý cùng type, và robe đang chốt ở
+median 270 → 680 Sen (`catalog.test.ts`). Một món robe Quý mới giá khác sẽ kéo cả chiếu lão lệch
+theo; 270 giữ nguyên median, không gõ lại bảng giá.
+
+Hình học không có bản sao: `batCape()`/`batEmblem()` trong `gear.js` là hai hàm duy nhất sơn ba món
+đó, `avatar.js` gọi thẳng khi dựng `batman_chibi` còn `addGear()` mount bản người chơi mua. Vì hai
+đường đó gặp nhau trên cùng một nhân vật, `ALREADY_WORN` trong `gear.js` bỏ món trùng — hai khối
+cùng transform là z-fighting chớp cả lúc ngồi thiền. Tai nạ thì viết theo số thế giới chia 1,15 vì
+`addGear()` nhân mọi chiếc mũ 1,15 cho lọt đầu 0,46.
 
 ## 5. Glossary + từ cấm
 

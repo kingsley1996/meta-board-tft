@@ -9,6 +9,10 @@
 // §6 key chết). Quy tắc: một dòng mô tả, không từ vựng nghi lễ, không giải thích cơ
 // chế, và không đổi `id`/`price_*`/`unlock_level`/`data` vì đó là identifier và thông
 // số render.
+//
+// Ba món Dơi (na_doi, ao_doi, ao_duc_anh) KHÔNG có trong tài sản vendored: id, giá và
+// `data` của chúng soạn ở meta.json, chỉ chữ nghĩa là đi qua tệp này. Vì vậy bảng map
+// bắt buộc phải có dòng cho chúng — thiếu một dòng là script chết ở vòng lặp cuối.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,6 +46,12 @@ const ITEMS = {
   ao_chien_bao: ['Chiến Bào Sắt', 'Áo sắt sẫm dệt trám vàng, gợi nhớ tráng sĩ cưỡi ngựa sắt.'],
   ao_non_tan: ['Áo Non Tản', 'Xanh núi Ba Vì, thêu mây quấn đỉnh non.'],
   ao_vay_rong: ['Áo Vảy Rồng', 'Gấm đỏ dệt vảy rồng vàng của dòng dõi Lạc Long.'],
+  ao_duc_anh: ['Chiến Bào Dực Ảnh', 'Đen tuyền đai vàng, trước ngực đóng ấn bóng dơi.'],
+
+  // Áo khoác — loại mới do repo này soạn (SHRINE-CONTENT-MAP §4 chưa có), tách từ Hiệp Sĩ
+  // Dơi. Ấn ngực không có id riêng: nó là `data.emblem` của Chiến Bào Dực Ảnh ở trên, vì
+  // nó dán lên thân áo chứ không phải lên choàng.
+  ao_doi: ['Áo Choàng Dơi', 'Vải đen hai chóp cổ, gấu chấm cưa như đôi cánh xoè.'],
 
   // Vòng năng lượng (§4.3) — một vòng là 30 hạt, xem BEAD_ROUND trong apps/api.
   chuoi_go: ['Vòng Gỗ', 'Vòng 30 hạt gỗ mộc.'],
@@ -82,6 +92,7 @@ const ITEMS = {
   mu_tu_kim: ['Mũ Lông Trĩ', 'Mũ vàng hai lông trĩ dài như Tề Thiên Đại Thánh, rung theo bước chân.'],
   mu_ty_lu: ['Mũ Chóp Vàng', 'Mũ chóp vàng năm tầng của Đường Tam Tạng.'],
   mu_non_than: ['Nón Thần', 'Chiếc nón phép đi cùng cây gậy thần, viền vàng mộc mạc.'],
+  na_doi: ['Nạ Dơi', 'Vải đen khoét hở mặt, hai tai nhọn dựng trên đầu.'],
 
   // Item legend (§4.5).
   bi_kiep_van_phat: ['Bùa Vô Cực', 'Cuốn sách sờn gáy của Lão Hành Khất, chỉ đổi cho người hữu duyên.'],

@@ -48,13 +48,32 @@ function cushionScene(scene, cam, it) {
 }
 // mũ, pháp khí, mây: nhân vật mang món đồ, khung hình bám theo món đó
 function gearScene(scene, cam, it, appearance) {
-  const av = makeAvatar({ appearance, robe: { color: '#8f6a3e', sash: '#6b2416' }, [it.type]: it.data });
+  // Áo khoác thì bắt buộc vẽ trên một hình KHÔNG có choàng sẵn: gear.js bỏ món trùng
+  // phần tướng đã mặc (hai khối cùng transform là z-fighting), nên lấy đúng appearance
+  // của người đang chơi là chủ nhân Hiệp Sĩ Dơi sẽ thấy một ô trống. luffy_g5 là hình
+  // nền của hồ sơ ngày đầu và không có mảnh lưng nào.
+  const ap = it.type === 'cape' ? { ...(appearance || {}), hero: 'luffy_g5' } : appearance;
+  const av = makeAvatar({ appearance: ap, robe: { color: '#8f6a3e', sash: '#6b2416' }, [it.type]: it.data });
   setSeated(av, it.type !== 'cloud');
   animateAvatar(av, 0.05, 0, false);
+  // Choàng là khối SAU lưng (mặt trước của mọi hình nằm ở -z, xem phù hiệu dơi), nên
+  // riêng món này máy ảnh sang +z để quay lưng về phía người xem; nhịp xoay 0,45 giữ
+  // nguyên, vì nó chỉ nghiêng hình ra một bên chứ không lật mặt.
   av.root.rotation.y = it.type === 'staff' ? -0.25 : 0.45;
   scene.add(av.root);
   if (it.type === 'hat') { cam.position.set(0, 2.1, -3.6); cam.lookAt(0, 1.42, 0); }
   else if (it.type === 'staff') { cam.position.set(-0.3, 1.5, -5.6); cam.lookAt(0.3, 1.2, 0); }
+  // Khung áo khoác: ống kính trục Z ở +3,9, tâm 1,00. Một điểm lọt khung khi
+  // |y - 1,00| <= (3,9 - z') * tan(16°) = (3,9 - z') * 0,28675, z' là độ sâu sau nhịp
+  // xoay 0,45 (x' = x cos + z sin, z' = -x sin + z cos):
+  //   - tai nạ cao nhất 2,045: bản xa máy hơn rơi xuống z' +0,029, sâu 3,871, khung cho
+  //     1,110, cần 1,045 (lề 0,065) -> cả người không bị cắt ngang cằm như khung bám sát
+  //     tấm vải, mà vẫn là hình MỘT nhân vật, không phải một mảnh vải lạ trong ô;
+  //   - vành sáng chân 0,20 ở z' +0,86 (gần máy nhất): sâu 3,04, khung cho 0,872, cần
+  //     0,80 (lề 0,072) -> gấu choàng và ngọn chấm cưa 0,19 nằm trọn trong ô;
+  //   - bề ngang lớn nhất của vải 0,51 + mũi 0,085 so với 0,872 được phép.
+  // Hình chiếm 1,925/2,22 = 87% chiều cao ô, ngang heroScene (82%).
+  else if (it.type === 'cape') { cam.position.set(0, 1.0, 3.9); cam.lookAt(0, 1.0, 0); }
   else { cam.position.set(0, 1.2, -3.8); cam.lookAt(0, 0.55, 0); }
   return () => disposeAvatar(av);
 }
@@ -93,11 +112,15 @@ function heroScene(scene, cam, it, appearance) {
   // Giáp tay nằm quanh ngực/bụng ở |x| < 0.5 nên không phải tính. Không có gì bị cắt nên
   // khung không phải tính lại cho từng hình - nó tính theo điểm cao nhất và thấp nhất của
   // hình CAO NHẤT, mọi hình khác tự lọt.
+  // batman_chibi nằm trong bất biến đó mà không cần thêm nhánh nào: chóp tai nạ ở thế giới
+  // y 2,045 (< 2,266 của Võ Sư Mù), gấu áo choàng ở y 0,30 (> 0,12 đáy vạt), rộng nhất là
+  // thân choàng |x| 0,53 (< 0,738). Vải choàng ở SAU lưng nên z dương, tức rơi vào cửa sổ
+  // CHIẾU RỘNG nhất của phép phối cảnh chứ không phải cửa hẹp gần ống kính.
   cam.position.set(0, 1.26, -4.8);
   cam.lookAt(0, 1.26, 0);
   return () => disposeAvatar(av);
 }
-const SCENES = { pet: petScene, robe: robeScene, beads: beadsScene, cushion: cushionScene, hat: gearScene, staff: gearScene, cloud: gearScene, hero: heroScene };
+const SCENES = { pet: petScene, robe: robeScene, beads: beadsScene, cushion: cushionScene, hat: gearScene, staff: gearScene, cloud: gearScene, cape: gearScene, hero: heroScene };
 
 let queue = [], running = false;
 async function drain(appearance) {
