@@ -76,10 +76,18 @@ function heroScene(scene, cam, it, appearance) {
   animateAvatar(av, 0.05, 0, false);
   av.root.rotation.y = 0.45;
   scene.add(av.root);
-  // Khung lấy đúng robeScene: mười hai ô trong tấm sprite gốc đều là cả thân hình ngồi
-  // thiền, chụp riêng cái đầu thì ô mới lệch hẳn họ.
-  cam.position.set(0, 1.05, -3.1);
-  cam.lookAt(0, 0.62, 0);
+  // Khung tự tính, KHÔNG mượn robeScene: robeScene cắt từ y 1.05 xuống dưới vì nó lo thân
+  // áo, còn nhân vật thì đỉnh sừng ở y 2.386 = 0.17(root ngồi) + 0.30(upper) + 0.98(đầu)
+  // + 0.936(chóp cone: tâm 0.6765 + 0.33*sin trục 0.814, trừ nhịp chúc đầu -0.03 của thiền)
+  // - nên bản cũ cắt mất nửa trên đầu. Ng thấp nhất là đáy vạt ở y 0.12, vành sáng chân
+  // 0.20 (disc 0.03 + root 0.17, bán kính 0.86).
+  // Máy ảnh ngang tầm tâm khung (không chúc xuống) ở (0, 1.26, -4.8): một điểm ở độ sâu
+  // (4.8 + z) chỉ còn lọt khi |y - 1.26| <= (4.8 + z) * tan(16°) = (4.8 + z) * 0.28675.
+  // Đỉnh sừng gần ống kính nhất sau nhịp xoay 0.45 của thân là z = -0.501, cần 1.126,
+  // khung cho 1.233 (lệ 0.11); mép vành gần nhất z = -0.86 cần 1.06, khung cho 1.128.
+  // Thân hình chiếm 82% chiều cao ô, ngang các ô sprite gốc.
+  cam.position.set(0, 1.26, -4.8);
+  cam.lookAt(0, 1.26, 0);
   return () => disposeAvatar(av);
 }
 const SCENES = { pet: petScene, robe: robeScene, beads: beadsScene, cushion: cushionScene, hat: gearScene, staff: gearScene, cloud: gearScene, hero: heroScene };
