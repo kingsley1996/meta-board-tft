@@ -218,7 +218,7 @@ export class TempleEngine {
     // hiệu ứng chờ kịp khởi động chuyển động trước khi cảnh bị dựng đè lên.
     await nextFrames(3);
     world.enterTemple(TEMPLE, me);
-    this.h.onProgress(72, 'Dọn sân đền');
+    this.h.onProgress(72, 'Dọn dẹp đền');
     await nextFrames(1);
     await world.warmUp();
     world.start();

@@ -39,35 +39,36 @@ export const guideOf = (sectId: string): Guide | null => GUIDES[sectId] ?? null;
 
 export const ABBOT = 'HLV Tomo';
 
-// Lão Hành Khất: tám chiêu bán cho người ghé sảnh — vai thương nhân, không phải nhà phân tích.
+// Lão Hành Khất: những lời khuyên ngắn gọn cho người chơi ghé sảnh.
+// Phong cách: ông chú mê TFT, nói chuyện thẳng thắn và có chút hài hước.
 export const HERMIT_LESSONS = [
-  'Chiêu thứ nhất: Tiền. Giữ 50 vàng trước để lấy lãi, tiêu sau. Nghèo cuối trận là nghèo từ giữa trận.',
-  'Chiêu thứ hai: Ngó bảng. Bốn người cùng giữ một tướng thì không ai lên 3 sao được đâu.',
-  'Chiêu thứ ba: Nhịn. Thấy hàng ngon không có nghĩa là phải mua. Mua sai một vòng là mất cả nhịp.',
-  'Chiêu thứ tư: Đọc bản vá. Meta đổi từng tuần, đội hình mạnh hôm nay chưa chắc còn ngày mai.',
-  'Chiêu thứ năm: Xếp chỗ. Chủ lực đứng sai ô thua nhanh hơn đứng sai tướng.',
-  'Chiêu thứ sáu: Ghép đồ theo món, không theo sở thích. Thiếu một mảnh là cả món nằm không.',
-  'Chiêu thứ bảy: Chọn ấn theo bài đang có, không theo ấn mạnh nhất trên giấy.',
-  'Chiêu cuối: Top 4 là một chiến thắng. Tám người vào queue, chỉ một người nhất, còn lại tính bằng hạng.',
+  'Bài đầu tiên phải học là giữ tiền. Có 50 vàng thì mới có lãi tối đa. Đừng thấy shop đẹp là roll sạch túi.',
+  'Nhớ ngó nhà đối thủ nhé. Cả lobby cùng tranh một bài thì người khóc cuối cùng thường là người hết vàng trước.',
+  'Đừng thấy tướng nào cũng mua. Đội hình cần gì thì giữ cái đó, ham đủ thứ chỉ tổ kẹt hàng trên bench.',
+  'Meta thay đổi sau mỗi bản cập nhật. Bài mạnh hôm qua chưa chắc còn mạnh hôm nay, nhớ xem lại bảng xếp hạng trước khi vào trận.',
+  'Xếp đội hình cũng quan trọng như chọn tướng. Chủ lực đứng sai chỗ có khi chưa kịp gây sát thương đã lên bảng đếm số.',
+  'Đừng ghép đồ chỉ vì thấy món nào cũng có vẻ ngon. Hãy ưu tiên trang bị phù hợp với chủ lực và đội hình mình đang chơi.',
+  'Có ấn mạnh chưa chắc đã dùng được. Chọn ấn hợp với đội hình hiện tại thường tốt hơn cố nhét vào một bài không liên quan.',
+  'Không phải trận nào cũng cần về nhất. Giữ được top 4 đã là một trận đấu thành công, nhất là khi đầu game không thuận lợi.',
 ];
 
 // Lời chúc gửi kèm quà tặng (main.js: pcard.greets).
 export const WISHES = [
-  'Chúc bạn một ngày toàn top 4',
-  'Chúc bạn về đúng bài mình cần',
-  'Chúc bạn lên 3 sao đúng chủ lực',
-  'Chúc bạn queue sạch, không gặp người bỏ trận',
+  'Chúc bạn vào trận nhặt toàn đồ đẹp, tướng ngon!',
+  'Chúc bạn roll đâu trúng đó, chủ lực lên 3 sao!',
+  'Chúc bạn ghép đồ chuẩn bài, chọn lõi hợp ý!',
+  'Chúc bạn không bị tranh bài, không gặp lobby quá điên!',
 ];
 
-// Câu chữ cho màn chờ (help.js:8-16 của bản gốc). help.js bị xoá cùng main.js vì màn
-// chờ giờ là React, nhưng mấy dòng này là nội dung chứ không phải code.
+// Câu nói ngắn hiển thị trong lúc chờ.
+// Chủ đề xoay quanh TFT: nhân phẩm, kinh tế, chiến thuật và tinh thần leo rank.
 export const QUOTES = [
-  '“Chuẩn bị kỹ thì vận may đến gần hơn một chút.”',
-  '“Thở một hơi trước khi mở hàng. Tay vững thì chọn đúng.”',
-  '“Thua một round không phải thua cả trận.”',
-  '“Đọc bảng xếp hạng trước khi đọc ý mình.”',
-  '“Bình tĩnh là một loại trang bị.”',
-  '“Không có đội hình vạn năng, chỉ có người đọc được tình huống.”',
-  '“Chơi đủ lâu thì số liệu sẽ đứng về phía bạn.”',
-  '“Vào queue cho vui, thắng thua tính sau.”',
+  '“Nhân phẩm rất quan trọng, nhưng biết giữ tiền còn quan trọng hơn.”',
+  '“Đừng vội roll khi chưa biết mình đang tìm gì.”',
+  '“Thua vài round chưa đáng sợ, mất bình tĩnh mới đáng sợ.”',
+  '“Trước khi chốt bài, nhớ ngó xem có bao nhiêu nhà đang tranh.”',
+  '“Đội hình mạnh đến đâu cũng cần xếp đúng vị trí.”',
+  '“Không có bài nào mạnh trong mọi trận. Quan trọng là biết xoay bài đúng lúc.”',
+  '“Một round thắng không quyết định trận đấu, nhưng một quyết định đúng có thể cứu cả trận.”',
+  '“Top 4 cũng là điểm. Đừng trận nào cũng cố sống chết để lấy top 1.”',
 ];
