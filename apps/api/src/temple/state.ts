@@ -58,7 +58,7 @@ export function toState(profile: TempleProfile, today: PracticeDelta & { day: st
     honor: profile.honor,
     level: profile.level,
     exp: profile.exp,
-    // Đỉnh thang vẫn có mốc của chính nó (bậc 19 = 33000) nên thanh tiến độ không cần
+    // Đỉnh thang vẫn có mốc của chính nó (bậc 19 = 72.000 → 88.000) nên thanh tiến độ không cần
     // một nhánh riêng cho "đã hết thang".
     exp_prev: expForLevel(ladder.level) ?? 0,
     exp_next: ladder.expNext,

@@ -89,6 +89,9 @@
 #temple-root .me-info small { font-size: 11px; color: #f7dfae; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #temple-root .xp { display: block; height: 4px; border-radius: 4px; background: rgba(255,255,255,.15); margin-top: 3px; overflow: hidden; width: 110px; }
 #temple-root .xp i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #f6d27e, #ffb84a); transition: width .4s; }
+/* Số điểm ngay dưới vạch: vạch đo đoạn đã đi của bậc hiện tại, hai con số đo bậc đó
+   dài bao nhiêu. tabular-nums để vạch khỏi giật khi số đổi độ rộng chữ. */
+#temple-root .me-info .xp-num { font-size: 10px; line-height: 1.25; margin-top: 1px; color: #f2cf94; opacity: .85; font-variant-numeric: tabular-nums; }
 #temple-root .me-lv { font-size: 12px; font-weight: 800; color: #3a2205; background: var(--gold); border-radius: 999px; min-width: 24px; height: 24px; display: grid; place-items: center; padding: 0 6px; }
 #temple-root .wallet { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; pointer-events: auto; }
 #temple-root .wallet span { padding: 5px 12px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); font-size: 13px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }

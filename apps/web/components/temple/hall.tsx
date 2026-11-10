@@ -280,8 +280,9 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
     }
   };
 
-  // exp_prev/exp_next là hai mốc của riêng bậc này (state.ts), nên thanh dưới đây đo
-  // đoạn đường *trong* bậc chứ không phải tỉ lệ trên cả thang như chip ở HUD.
+  // exp_prev/exp_next là hai mốc của riêng bậc này (state.ts). Cả thanh trong Hồ sơ lẫn
+  // chip HUD đều đo đoạn đường *trong* bậc — hai quy ước khác nhau từng làm người chơi
+  // thấy hai vạch tiến độ cho cùng một số điểm.
   const span = st ? st.exp_next - st.exp_prev : 0;
   const pct = st && span > 0 ? Math.max(0, Math.min(100, ((st.exp - st.exp_prev) / span) * 100)) : 0;
   const toNext = st ? Math.max(0, st.exp_next - st.exp) : 0;

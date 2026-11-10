@@ -17,7 +17,7 @@ import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, ShopSheet
 import { GameSheet, KIND_NAME } from './games';
 import { FriendsSheet, GroupSheet, NpcModal, PlayerCard, type NpcKind } from './people';
 import { MeditateView, QueModal, WheelView } from './practice';
-import { REALM_ABOUT, rungLabel, rungOf } from '@/vendor/temple/js/ladder.js';
+import { LADDER_TOP, REALM_ABOUT, rungLabel, rungOf } from '@/vendor/temple/js/ladder.js';
 import { Icon, Modal, Notices, Sheet, TitleBadge, Toast, fmt, loginUrls, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
 
 type LevelUp = NonNullable<Gain['level_ups']>[number];
@@ -661,7 +661,12 @@ export function TempleApp({ lang }: { lang: string }) {
   void tick;
 
   const meAva = (st?.name?.trim().split(/\s+/).pop() ?? DEFAULT_GUEST)[0]?.toUpperCase() ?? '?';
-  const xpPct = st && st.exp_next > 0 ? Math.min(100, (st.exp / st.exp_next) * 100) : 0;
+  // Vạch trong chip đo đoạn đã đi CỦA BẬC ĐANG ĐỨNG (exp_prev → exp_next), đúng như
+  // bảng Hồ sơ: chia exp cho cả thang thì người bậc 16 thấy thanh gần đầy còn người mới
+  // toan lên bậc 2 thấy một vạch chưa nhô khỏi mép.
+  const xpSpan = st ? st.exp_next - st.exp_prev : 0;
+  const xpPct = st && xpSpan > 0 ? Math.max(0, Math.min(100, ((st.exp - st.exp_prev) / xpSpan) * 100)) : 0;
+  const atTop = (st?.level ?? 1) >= LADDER_TOP;
   const buffLeft = st?.buff_until ? Math.max(0, Date.parse(st.buff_until) - Date.now()) : 0;
   const inv = st?.inventory ?? {};
   const ticker = anns[annIdx];
@@ -758,6 +763,7 @@ export function TempleApp({ lang }: { lang: string }) {
                 <i className="xp">
                   <i style={{ width: `${xpPct}%` }} />
                 </i>
+                <small className="xp-num">{st ? (atTop ? fmt(st.exp) : `${fmt(st.exp)} / ${fmt(st.exp_next)}`) : ''}</small>
               </span>
               <TitleBadge title={st?.title} level={st?.level} size={26} />
               <span className="me-lv">{st?.level ?? 1}</span>

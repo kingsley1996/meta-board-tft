@@ -29,7 +29,7 @@ test(
     const t0 = Date.now();
     const pool: Pool = (await import('../db.ts')).pool;
     const identity = await import('./identity.ts');
-    const { vnDay } = await import('./merit.ts');
+    const { MAX_BOWS_DAY, vnDay } = await import('./merit.ts');
     const { templeRouter } = await import('./routes.ts');
 
     const app = express();
@@ -188,12 +188,22 @@ test(
       assert.equal(ended.extra.minutes, 40, 'forty minutes of server clock, not whatever the client claimed');
       assert.equal(ended.state.meditate_start, null, 'the sit is cleared once it is paid out');
       assert.equal(ended.gained, 480, 'twelve merit a minute, capped by a clock nobody edits');
-      // Một sit ba tiếng phải bị cắt về một tiếng, nếu để nguyên thì đứng nhất BXH.
+      // Hai trần chặn nhau: 60 phút cho một nhịp (MAX_MEDITATE_MIN) và 90 phút cho một
+      // ngày (MAX_MEDITATE_MIN_DAY). Ngày đã tiêu 40 nên sit ba tiếng chỉ còn được phần
+      // chưa tiêu — chính trần ngày mới là thứ chặn người để tab mở qua đêm.
       assert.equal((await post('/api/temple/practice', { type: 'meditate_start' }, me.cookie)).status, 200);
       const clamped = await rewindSit(me.cookie, me.user, 180);
-      assert.equal(clamped.extra.minutes, 60, 'the longest single sit the temple counts');
+      assert.equal(clamped.extra.minutes, 50, 'a three-hour sit stops where the day runs out');
+      assert.equal(clamped.gained, 600, 'still twelve merit a minute, just not past the ceiling');
+      // Trần ngày là trần cứng: ngồi thêm ba tiếng nữa cũng không cộng được dòng nào.
+      assert.equal((await post('/api/temple/practice', { type: 'meditate_start' }, me.cookie)).status, 200);
+      const drained = await rewindSit(me.cookie, me.user, 180);
+      assert.equal(drained.extra.minutes, 0, 'the day is already fully counted');
+      assert.equal(drained.gained, 0, 'and a closed ceiling pays nothing');
       // Lần này hai cú xả chạy song song khi thời thiền vẫn còn: một cú chiếm được
-      // hàng, cú kia không còn gì để cộng.
+      // hàng, cú kia không còn gì để cộng. Dọn lại trần ngày trước để con số cộng được
+      // là số phút ngồi thật, không phải 0 vì hết phòng.
+      await pool.query("UPDATE temple_practice SET meditate_min = 0 WHERE user_id = $1 AND day = (now() + INTERVAL '7 hours')::date", [me.user]);
       await post('/api/temple/practice', { type: 'meditate_start' }, me.cookie);
       await pool.query("UPDATE temple_profiles SET meditate_start = now() - (7 * INTERVAL '1 minute') WHERE user_id = $1", [me.user]);
       const paid = await Promise.all([post('/api/temple/practice', { type: 'meditate_end' }, me.cookie), post('/api/temple/practice', { type: 'meditate_end' }, me.cookie)]);
@@ -216,6 +226,26 @@ test(
       assert.equal((await post('/api/temple/use', { item: 'guong_su' }, me.cookie)).status, 400);
       // Tắt buff: mọi con số bên dưới là mức nền, không phải mức nhân.
       await pool.query('UPDATE temple_profiles SET buff_until = NULL WHERE user_id = $1', [me.user]);
+
+      // --- Trần số lần lạy của MỘT NGÀY (SHRINE-LADDER.md §2) --------------------
+      // MAX_COUNT chỉ chặn một gói, COOLDOWN_MS chỉ chặn tần suất gói, nên hai trần cộng lại
+      // vẫn cho ai đó ngồi bấm liên tục ~30.000 điểm mỗi giờ — nhanh hơn bất kỳ ngưỡng nào
+      // trong bảng. Ghi sổ ngày sát trần bằng SQL rồi lạy tiếp: phần vượt vẫn được lạy,
+      // chỉ là không thành điểm.
+      await new Promise((r) => setTimeout(r, 3200));
+      await pool.query(
+        "UPDATE temple_practice SET bows = $2 WHERE user_id = $1 AND day = (now() + INTERVAL '7 hours')::date",
+        [me.user, MAX_BOWS_DAY - 2],
+      );
+      const lastTwo = (await post('/api/temple/practice', { type: 'bow', count: 5 }, me.cookie)).json;
+      assert.equal(lastTwo.gained, 10, 'only the two bows still under the ceiling are paid');
+      assert.equal(lastTwo.state.today.bows, MAX_BOWS_DAY, 'and the ledger stops exactly at the cap');
+      await new Promise((r) => setTimeout(r, 3200));
+      const full = await post('/api/temple/practice', { type: 'bow', count: 5 }, me.cookie);
+      assert.equal(full.status, 200, 'the temple never refuses a bow, it just stops paying');
+      assert.equal(full.json.extra.capped, true);
+      assert.equal(full.json.gained, 0, 'a finished day of bows earns nothing more');
+      assert.equal(full.json.state.today.bows, MAX_BOWS_DAY, 'and the counter does not move');
 
       const nothing = await newUser('Không Bùa');
       await pool.query("UPDATE temple_profiles SET inventory = '{\"lt_huou\": 1}'::jsonb WHERE user_id = (SELECT user_id FROM temple_profiles WHERE player_id = $1)", [
@@ -267,17 +297,17 @@ test(
       assert.equal((await get('/api/temple/draws/que', me.cookie)).json.que.rank, que.que.rank);
 
       // --- Lên bậc: Tinh Hoa và Kim Cương cùng rơi xuống ví ---------------------
-      // Ngưỡng bậc 2 là 180 Điểm May Mắn (identity.ts:71) nên dịch exp bằng SQL rồi trả
+      // Ngưỡng bậc 4 là 650 Điểm May Mắn (identity.ts:74) nên dịch exp bằng SQL rồi trả
       // một nhịp cầu may thật: phần thưởng phải ra từ addMerit, không từ máy khách.
       const climber = await newUser('Bậc Thang');
-      await pool.query('UPDATE temple_profiles SET exp = 170 WHERE user_id = $1', [climber.user]);
+      await pool.query('UPDATE temple_profiles SET exp = 640 WHERE user_id = $1', [climber.user]);
       const up = (await post('/api/temple/practice', { type: 'bow', count: 3 }, climber.cookie)).json;
       assert.equal(up.level_ups.length, 1, 'one rung crossed');
-      assert.equal(up.level_ups[0].level, 2);
-      assert.equal(up.level_ups[0].sen, 100, 'level × 50 Tinh Hoa');
-      assert.equal(up.level_ups[0].ngoc, 40, 'level × 20 Kim Cương = the same bonus at the 2.5 ratio');
-      assert.equal(up.state.sen, 500 + 6 + 100, 'the wallet gain is the ratio plus the rung bonus');
-      assert.equal(up.state.ngoc, 200 + 40, 'and Kim Cương only ever arrives as a grant');
+      assert.equal(up.level_ups[0].level, 4);
+      assert.equal(up.level_ups[0].sen, 200, 'level × 50 Tinh Hoa');
+      assert.equal(up.level_ups[0].ngoc, 80, 'level × 20 Kim Cương = the same bonus at the 2.5 ratio');
+      assert.equal(up.state.sen, 500 + 6 + 200, 'the wallet gain is the ratio plus the rung bonus');
+      assert.equal(up.state.ngoc, 200 + 80, 'and Kim Cương only ever arrives as a grant');
 
       // --- Admin: hai tuyến chỉ sửa được chính mình ----------------------------
       const { WEARABLE_POOL } = await import('./catalog.ts');
@@ -289,7 +319,7 @@ test(
       assert.equal((await post('/api/temple/admin/level', { level: 20 }, boss.cookie)).status, 400, 'the ladder has 19 rungs');
       const promoted = (await post('/api/temple/admin/level', { level: 19 }, boss.cookie)).json;
       assert.equal(promoted.state.level, 19);
-      assert.equal(promoted.state.exp, 33_000, 'a rung is written as its own milestone, never a raw number');
+      assert.equal(promoted.state.exp, 72_000, 'a rung is written as its own milestone, never a raw number');
       const kit = await post('/api/temple/admin/gear', {}, boss.cookie);
       assert.equal(kit.status, 200);
       const bag = Object.keys(kit.json.state.inventory as Record<string, number>);

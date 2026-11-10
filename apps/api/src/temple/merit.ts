@@ -29,10 +29,20 @@ export const NGOC_PER_LEVEL = 20;
 // Ngưỡng chống "một gói tin làm giàu". Máy khách gửi số lần, không gửi điểm, nên chỉ
 // cần chặn ở phía số lần; gói to hơn con số này chỉ có thể là vòng lặp POST.
 export const MAX_COUNT = 30;
-// Một nhịp thiền tối đa được ghi nhận: 60 phút, và 240 phút mỗi ngày. Không có
+// Một nhịp thiền tối đa được ghi nhận: 60 phút, và 90 phút mỗi ngày. Không có
 // mốc này thì một người để máy treo cả đêm sẽ đứng đầu BXH.
+//
+// 90 chứ không phải 240 (SHRINE-LADDER.md §2, chốt 2026-11-06 nhưng tới nay mới
+// chạy): bốn tiếng thiền mỗi ngày là ngưỡng của máy để mở, không phải của người đi
+// lễ, và nó là lý do chính khiến cả thang 19 bậc nằm gọn trong hai ngày.
 export const MAX_MEDITATE_MIN = 60;
-export const MAX_MEDITATE_MIN_DAY = 240;
+export const MAX_MEDITATE_MIN_DAY = 90;
+// Trần cầu may của MỘT NGÀY, tính bằng số lần lạy chứ không bằng điểm: MAX_COUNT ở
+// trên chỉ chặn một *gói* tin, còn cooldown 3s (practice.ts) chặn số gói, nên hai
+// ngưỡng cộng lại vẫn cho 150 điểm mỗi 3 giây — 1.800 mỗi phút, nhanh hơn bất kỳ
+// ngưỡng nào ở docs. Số lạy đã ghi trong ngày lấy từ temple_practice.bows, cột đã
+// tồn tại và đã được ghi, không cần schema mới.
+export const MAX_BOWS_DAY = 60;
 
 const MERIT_PER: Record<string, number> = {
   visit_first: 20,

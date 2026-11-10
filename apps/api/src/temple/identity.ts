@@ -66,14 +66,20 @@ type TempleProfileRow = {
   meditate_start: Date | null;
 };
 
-// Thang 19 mốc ở docs/SHRINE-LADDER.md §3 (chốt 2026-11-06): sáu "vận" ba bậc cộng một
-// đỉnh Như Ý. `level` là vị trí 1..19 trên thang, `realm` 1..7 là vận — vận cũng chính là
+// Thang 19 mốc ở docs/SHRINE-LADDER.md §3: sáu "vận" ba bậc cộng một đỉnh Như Ý.
+// `level` là vị trí 1..19 trên thang, `realm` 1..7 là vận — vận cũng chính là
 // bộ khung/ấn cắt từ sheet (7 cột), còn bậc chỉ hiện bằng chữ. Tên cố ý không mượn rank
 // TFT (Sắt → Thách Đấu) hay tên tu tiên/tăng lữ; xem §3.2 để biết vì sao.
+//
+// Ngưỡng đổi lần nữa 2026-11-10 vì thang cũ hết khoảng cách từ nửa trên: 18 bước nhảy
+// gần như đều nhau (2.000–6.000) nên sau mấy ngày đầu người chơi không còn cái gì để
+// nhắm. Bảng này có bước nhảy TĂNG ĐƠN ĐIỆU — ba bậc đầu trong tầm một buổi, hai bậc
+// cuối tính bằng tháng — và cố ý để 33.000 vẫn còn trên thang, ở Đại Cát · bậc 1: ai
+// đã chạm đỉnh cũ giờ đứng bậc 16/19 chứ không rớt về giữa sảnh.
 const REALMS = ['Khai Vận', 'Hanh Thông', 'Cát Khánh', 'Cát Tường', 'Hồng Phước', 'Đại Cát', 'Như Ý'];
 const MILESTONES = [
-  0, 180, 350, 500, 750, 1100, 1600, 2200, 3000, 4200, 5600, 7500, 9500, 12000, 15000, 18000, 22000,
-  27000, 33000,
+  0, 150, 350, 650, 1100, 1700, 2500, 3500, 4800, 6500, 8600, 11500, 15000, 19500, 25500, 33000, 43000,
+  56000, 72000,
 ];
 
 export type LadderRung = {
@@ -93,8 +99,9 @@ export function levelFromExp(exp: number): LadderRung {
   const realm = Math.min(REALMS.length, Math.ceil(level / 3));
   const stage = realm === REALMS.length ? 1 : ((level - 1) % 3) + 1;
   // Đỉnh thang vẫn phải trả một mốc kế tiếp để thanh tiến độ vẽ được, nhưng không gợi ý
-  // còn gì để lên (§3.3).
-  const expNext = i + 1 < MILESTONES.length ? MILESTONES[i + 1] : MILESTONES[i] + 5000;
+  // còn gì để lên (§3.3). Mốc đó là bước nhảy cuối của chính thang, không phải một số
+  // tròn tự bịa: người đứng đỉnh thấy khoảng còn lại dài đúng bằng bậc vừa lên.
+  const expNext = i + 1 < MILESTONES.length ? MILESTONES[i + 1] : MILESTONES[i]! + MILESTONES[i]! - MILESTONES[i - 1]!;
   return { level, title: REALMS[realm - 1], expNext, realm, realmName: REALMS[realm - 1], stage };
 }
 
@@ -175,7 +182,8 @@ export async function ensureTempleProfile(userId: string): Promise<TempleProfile
     sect: 'flex',
     honor: 'Lữ khách cầu may',
     // Người mới đã có sẵn 20 Điểm May Mắn và chuỗi 1 ngày (api.js:306-311): vào sảnh
-    // lần đầu mà thanh tiến độ trống trơn thì HUD hiện "0/50" thay vì một nhịp đã làm.
+    // lần đầu mà thanh tiến độ trống trơn thì chip HUD hiện "0 / 150" thay vì một nhịp
+    // đã làm.
     exp: 20,
     streak: 1,
     best_streak: 1,

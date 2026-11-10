@@ -9,6 +9,7 @@ import { pool } from '../db.ts';
 import { ensureTempleProfile, levelFromExp } from './identity.ts';
 import { ApiError, cooldown, num, withUser } from './http.ts';
 import {
+  MAX_BOWS_DAY,
   MAX_COUNT,
   MAX_MEDITATE_MIN,
   MAX_MEDITATE_MIN_DAY,
@@ -63,8 +64,22 @@ practiceRouter.post('/practice', withUser(async (req, res, user) => {
     exp = MERIT_PER.visit_first;
     practice.visits = 1;
   } else if (type === 'bow') {
-    exp = count * MERIT_PER.bow;
-    practice.bows = count;
+    // Trần ngày của số lần lạy (SHRINE-LADDER.md §2). cooldown 3s và MAX_COUNT chỉ
+    // chặn từng gói, nên người ngồi bấm liên tục vẫn tích được ~30.000 điểm mỗi giờ;
+    // quá trần thì vẫn lạy được, chỉ là không cộng thêm điểm.
+    const today = await practiceRow(user.id);
+    const credited = Math.min(count, Math.max(0, MAX_BOWS_DAY - today.bows));
+    if (!credited) {
+      res.json({
+        state: await templeState(user.id),
+        gained: 0,
+        extra: { capped: true, bows: today.bows, max_bows: MAX_BOWS_DAY },
+        level_ups: [],
+      });
+      return;
+    }
+    exp = credited * MERIT_PER.bow;
+    practice.bows = credited;
   } else if (type === 'meditate_start') {
     const started = await startMeditation(user.id);
     res.json({ state: await templeState(user.id), meditate_start: started });
@@ -174,12 +189,12 @@ practiceRouter.get('/merit', withUser(async (req, res, user) => {
   res.json({ state: await templeState(user.id, { journal: true }) });
 }));
 
-async function practiceRow(userId: string): Promise<{ visits: number; meditate_min: number }> {
-  const { rows } = await pool.query<{ visits: number; meditate_min: number }>(
-    'SELECT visits, meditate_min FROM temple_practice WHERE user_id = $1 AND day = $2',
+async function practiceRow(userId: string): Promise<{ visits: number; meditate_min: number; bows: number }> {
+  const { rows } = await pool.query<{ visits: number; meditate_min: number; bows: number }>(
+    'SELECT visits, meditate_min, bows FROM temple_practice WHERE user_id = $1 AND day = $2',
     [userId, vnDay()],
   );
-  return rows[0] ?? { visits: 0, meditate_min: 0 };
+  return rows[0] ?? { visits: 0, meditate_min: 0, bows: 0 };
 }
 
 // Đồng hồ thiền là đồng hồ server. Máy khách chỉ báo "bắt đầu" và "xong";

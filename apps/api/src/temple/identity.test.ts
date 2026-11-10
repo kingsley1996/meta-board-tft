@@ -7,15 +7,36 @@ import { randomUUID } from 'node:crypto';
 // bên dưới kịp đặt DATABASE_URL — cùng lý do với accounts.test.ts.
 test('levelFromExp follows the 19-rung ladder of docs/SHRINE-LADDER.md', async () => {
   const { levelFromExp } = await import('./identity.ts');
-  assert.deepEqual(levelFromExp(0), { level: 1, title: 'Khai Vận', expNext: 180, realm: 1, realmName: 'Khai Vận', stage: 1 });
-  assert.deepEqual(levelFromExp(179), { level: 1, title: 'Khai Vận', expNext: 180, realm: 1, realmName: 'Khai Vận', stage: 1 });
-  assert.deepEqual(levelFromExp(180), { level: 2, title: 'Khai Vận', expNext: 350, realm: 1, realmName: 'Khai Vận', stage: 2 });
+  assert.deepEqual(levelFromExp(0), { level: 1, title: 'Khai Vận', expNext: 150, realm: 1, realmName: 'Khai Vận', stage: 1 });
+  assert.deepEqual(levelFromExp(149), { level: 1, title: 'Khai Vận', expNext: 150, realm: 1, realmName: 'Khai Vận', stage: 1 });
+  assert.deepEqual(levelFromExp(150), { level: 2, title: 'Khai Vận', expNext: 350, realm: 1, realmName: 'Khai Vận', stage: 2 });
   // Bậc đầu của vận mới phải là bậc 1: đổi vận phải thấy đổi số, không chỉ đổi tên.
-  assert.deepEqual(levelFromExp(500), { level: 4, title: 'Hanh Thông', expNext: 750, realm: 2, realmName: 'Hanh Thông', stage: 1 });
-  assert.deepEqual(levelFromExp(2200), { level: 8, title: 'Cát Khánh', expNext: 3000, realm: 3, realmName: 'Cát Khánh', stage: 2 });
-  // Trên đỉnh thang thì exp vẫn tăng nhưng vị trí không đổi; mốc kế tiếp chỉ là chỗ
-  // trống để thanh tiến độ còn vẽ được.
-  assert.deepEqual(levelFromExp(99_999), { level: 19, title: 'Như Ý', expNext: 38000, realm: 7, realmName: 'Như Ý', stage: 1 });
+  assert.deepEqual(levelFromExp(650), { level: 4, title: 'Hanh Thông', expNext: 1100, realm: 2, realmName: 'Hanh Thông', stage: 1 });
+  assert.deepEqual(levelFromExp(3300), { level: 7, title: 'Cát Khánh', expNext: 3500, realm: 3, realmName: 'Cát Khánh', stage: 1 });
+  // 33.000 là đỉnh của thang cũ, cố ý để nó vẫn nằm trên thang mới ở bậc 16: người đã
+  // chạm đỉnh cũ còn ba bậc phía trên chứ không rớt về giữa sảnh.
+  assert.deepEqual(levelFromExp(33_000), { level: 16, title: 'Đại Cát', expNext: 43_000, realm: 6, realmName: 'Đại Cát', stage: 1 });
+  // Trên đỉnh thang thì exp vẫn tăng nhưng vị trí không đổi; mốc kế tiếp là bước nhảy
+  // cuối của chính thang (72.000 → 88.000) để thanh tiến độ còn vẽ được.
+  assert.deepEqual(levelFromExp(99_999), { level: 19, title: 'Như Ý', expNext: 88_000, realm: 7, realmName: 'Như Ý', stage: 1 });
+});
+
+test('rung gaps grow monotonically and every rung round-trips through expForLevel', async () => {
+  const { LADDER_SIZE, expForLevel, levelFromExp } = await import('./identity.ts');
+  const gaps: number[] = [];
+  for (let level = 2; level <= LADDER_SIZE; level += 1) gaps.push(expForLevel(level)! - expForLevel(level - 1)!);
+  assert.equal(gaps.length, 18);
+  // "Lên bậc nhanh lúc đầu, bậc sau lâu hơn" dịch ra đúng một bất đẳng thức: khoảng
+  // cách giữa hai bậc phải lớn hơn khoảng cách trước nó ở mọi bậc. Bảng cũ vi phạm chỗ
+  // này (18 bước nhảy gần như đều nhau), nên thang mới không còn gì để nhắm sau tuần đầu.
+  assert.ok(gaps.every((g, i) => i === 0 || g > gaps[i - 1]!), `bước nhảy không tăng dần: ${gaps.join(', ')}`);
+  // Ba bậc một vận, đỉnh đứng một mình, và mốc của bậc nào đọc lại phải ra đúng bậc đó.
+  for (let level = 1; level <= LADDER_SIZE; level += 1) {
+    const rung = levelFromExp(expForLevel(level)!);
+    assert.equal(rung.level, level, `mốc của bậc ${level} đọc lại ra bậc ${rung.level}`);
+    assert.equal(rung.realm, Math.min(7, Math.ceil(level / 3)));
+    assert.equal(rung.stage, level === LADDER_SIZE ? 1 : ((level - 1) % 3) + 1);
+  }
 });
 
 test('toPlayerProfile carries only what the room frame can draw', async () => {

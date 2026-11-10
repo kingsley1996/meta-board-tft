@@ -1,6 +1,10 @@
 # SHRINE-LADDER — Thang Cát Vận: cấp độ may mắn & danh hiệu
 
-Docs trước, **chưa code**. Mốc code: `16d4246` (2026-11-06). Người chốt: chủ project.
+Doc thiết kế, viết trước khi code ở mốc `16d4246` (2026-11-06). Người chốt: chủ project.
+
+> **Đã code, và đổi mốc lần hai 2026-11-10.** §2 (siết trần) và §3.1 (bảng thang) đang chạy trong
+> `identity.ts` / `merit.ts` / `practice.ts`; §3.1 là **bản đang chạy**, lý do cắt lại so với bản
+> 2026-11-06 ở **§3.4**. Hai thứ chưa làm: cửa duyên (§4) và danh hiệu (§5).
 
 ## 0. Phạm vi, và hai quyết định cũ bị đề nghị ghi đè
 
@@ -22,6 +26,9 @@ hưởng trận đấu**; không tiền thật; không phải rank TFT — BXH v
 
 ## 1. Hiện trạng (đo từ code, không từ trí nhớ)
 
+> Ảnh chụp lúc viết doc (2026-11-06, thang 7 bậc cũ). thang đang chạy là 19 mốc ở §3.1; §1.3 chỉ còn
+> giá trị giải thích *vì sao* phải đổi, không mô tả code hiện tại.
+
 ### 1.1 Thang đang chạy
 
 `apps/api/src/temple/identity.ts:68-76` — `LEVELS`, 7 bậc, exp `0/50/150/320/600/1000/1600`,
@@ -38,8 +45,8 @@ phá quyết định đó.
 | Hành động | exp | chỗ ghi | trần/chống farm |
 |---|---|---|---|
 | Ghé sảnh lần đầu trong ngày | 20 | `merit.ts:33`, `practice.ts:54-64` | `temple_practice.visits`; lần sau trả 0 |
-| Cầu may (bow) | 5/lần | `merit.ts:35`, `practice.ts:65-67` | cooldown 3s/gói (`practice.ts:39`), `MAX_COUNT=30`/gói (`merit.ts:26`), client gom 4-5 (`temple-app.tsx:176,195`) |
-| Thiền | 12/phút | `merit.ts:36`, `practice.ts:72-76,200-220` | 60 phút/nhịp, **240 phút/ngày** (`merit.ts:29-30`) |
+| Cầu may (bow) | 5/lần | `merit.ts:50`, `practice.ts:66-82` | cooldown 3s/gói (`practice.ts:40`), `MAX_COUNT=30`/gói (`merit.ts:31`), **`MAX_BOWS_DAY=60`/ngày** (`merit.ts:45`), client gom 4-5 (`temple-app.tsx:176,195`) |
+| Thiền | 12/phút | `merit.ts:51`, `practice.ts:83-85,200-240` | 60 phút/nhịp, **90 phút/ngày** (`merit.ts:38-39`) |
 | Dâng bùa / nến / đóa sao | 10 / 5 / 8 | `practice.ts:30-34,88-107` | trừ đồ trong cùng UPDATE (`merit.ts:218-229`); bùa mở buff ×1.2 / 10 phút |
 | Quẻ đội hình | 15 | `merit.ts:40`, `hall.ts:130-148` | 1 lần/ngày (PK `temple_draws`) |
 | Tùy hỷ | `ceil(amount/10)` | `hall.ts:86` | theo số donate |
@@ -63,17 +70,20 @@ Vòng quay Hex **không** cộng exp (`hall.ts:98-122`) — chỉ sen/ngoc/đồ
 
 ## 2. Bước 0 — siết nguồn điểm trước khi dựng thang
 
-**Đã chốt 2026-11-06** ("siết trần như đề xuất"). Không làm bước này thì mọi ngưỡng ở §3 chỉ là
-chữ. Hai chỉnh sửa, mỗi cái một hằng số:
+**Đã chốt 2026-11-06** ("siết trần như đề xuất"), **đã code 2026-11-10**. Không làm bước này thì mọi
+ngưỡng ở §3 chỉ là chữ — và thực tế nó là lý do chính của phàn nàn "2 ngày tới đỉnh": trần cũ chưa
+chạy nên thang nào cũng bị cày bay. Hai chỉnh sửa, mỗi cái một hằng số:
 
-- `MAX_MEDITATE_MIN_DAY` 240 → **90** phút (`merit.ts:30`). Lý do: 4 tiếng thiền/ngày biến BXH
+- `MAX_MEDITATE_MIN_DAY` 240 → **90** phút (`merit.ts:39`). Lý do: 4 tiếng thiền/ngày biến BXH
   "chuyên cần" thành bảng xếp hạng máy để mở; người thật không theo nổi và sẽ nghỉ.
-- Thêm hằng **`MAX_BOWS_DAY = 60`** (= 300 exp) cạnh `MAX_COUNT` (`merit.ts:26` — hằng đó chặn một
-  *gói*, không chặn một *ngày*), chặn bằng `temple_practice.bows` — cột đã có và đã được ghi
-  (`merit.ts:113-134`), không cần schema mới.
+- Thêm hằng **`MAX_BOWS_DAY = 60`** (= 300 exp) cạnh `MAX_COUNT` (`merit.ts:45` — hằng đó chặn một
+  *gói*, không chặn một *ngày*), chặn bằng `temple_practice.bows` — cột đã có và đã được ghi, không
+  cần schema mới. Chặn ở `practice.ts:66-82` (người thật) và `bots.ts:creditBows()` (máy): hết trần
+  thì request vẫn trả 200 và vẫn trả `state` — chỉ `gained = 0`, `extra.capped = true`, và sổ ngày
+  đứng nguyên ở 60 (cú lạy thừa không bị ghi, cũng không bị từ chối).
 
-Sau siết: casual ~100 exp/ngày, người chuyên ~340 exp/ngày, người cày nặng ~1.500 exp/ngày
-(mức trần), và các mốc ngày ở §3 mới có nghĩa.
+Sau siết: casual ~150 exp/ngày, người chuyên ~500, người cày trần ~1.600 (300 lạy + 1.080 thiền
++ 20 ghé + 15 quẻ, chưa tính vật dâng), và các mốc ngày ở §3.3 mới có nghĩa.
 
 ## 3. Thang CÁT VẬN — 6 vận × 3 bậc + đỉnh, tên Hán Việt tự đặt
 
@@ -98,24 +108,29 @@ vẫn đọc đúng một cột `exp`, trả thêm `{ realm, realmName, stage }`
 | exp cộng dồn | Vị trí | Tên hiển thị | nghĩa nôm (tooltip + bản en) | feedback |
 |---|---|---|---|---|
 | 0 | Vận I · 1 | **KHAI VẬN 開運** | mở vận, bước qua cửa | |
-| 180 | I · 2 | Khai Vận | | toast |
+| 150 | I · 2 | Khai Vận | | toast |
 | 350 | I · 3 | Khai Vận | | toast |
-| **500** | Vận II · 1 | **HANH THÔNG 亨通** | trôi, không vướng | THĂNG VẬN |
-| 750 | II · 2 | Hanh Thông | | toast |
-| 1100 | II · 3 | Hanh Thông | | toast |
-| **1600** | Vận III · 1 | **CÁT KHÁNH 吉慶** | việc lành đáng mừng | THĂNG VẬN |
-| 2200 | III · 2 | Cát Khánh | | toast |
-| 3000 | III · 3 | Cát Khánh | | toast |
-| **4200** | Vận IV · 1 | **CÁT TƯỜNG 吉祥** | điềm lành đã thấy | THĂNG VẬN |
-| 5600 | IV · 2 | Cát Tường | | toast |
-| 7500 | IV · 3 | Cát Tường | | toast |
-| **9500** | Vận V · 1 | **HỒNG PHƯỚC 洪福** | phúc lớn | THĂNG VẬN |
-| 12000 | V · 2 | Hồng Phước | | toast |
-| 15000 | V · 3 | Hồng Phước | | toast |
-| **18000** | Vận VI · 1 | **Đại CÁT 大吉** | may lớn | THĂNG VẬN |
-| 22000 | VI · 2 | Đại Cát | | toast |
-| 27000 | VI · 3 | Đại Cát | | toast |
-| **33000** | ĐỈNH | **NHƯ Ý 如意** | cầu gì được nấy | THĂNG VẬN |
+| **650** | Vận II · 1 | **HANH THÔNG 亨通** | trôi, không vướng | THĂNG VẬN |
+| 1.100 | II · 2 | Hanh Thông | | toast |
+| 1.700 | II · 3 | Hanh Thông | | toast |
+| **2.500** | Vận III · 1 | **CÁT KHÁNH 吉慶** | việc lành đáng mừng | THĂNG VẬN |
+| 3.500 | III · 2 | Cát Khánh | | toast |
+| 4.800 | III · 3 | Cát Khánh | | toast |
+| **6.500** | Vận IV · 1 | **CÁT TƯỜNG 吉祥** | điềm lành đã thấy | THĂNG VẬN |
+| 8.600 | IV · 2 | Cát Tường | | toast |
+| 11.500 | IV · 3 | Cát Tường | | toast |
+| **15.000** | Vận V · 1 | **HỒNG PHƯỚC 洪福** | phúc lớn | THĂNG VẬN |
+| 19.500 | V · 2 | Hồng Phước | | toast |
+| 25.500 | V · 3 | Hồng Phước | | toast |
+| **33.000** | Vận VI · 1 | **Đại CÁT 大吉** | may lớn | THĂNG VẬN |
+| 43.000 | VI · 2 | Đại Cát | | toast |
+| 56.000 | VI · 3 | Đại Cát | | toast |
+| **72.000** | ĐỈNH | **NHƯ Ý 如意** | cầu gì được nấy | THĂNG VẬN |
+
+Mười tám bước nhảy của bảng này **tăng đơn điệu**: 150 → 200 → 300 → 450 → 600 → 800 → 1.000 →
+1.300 → 1.700 → 2.100 → 2.900 → 3.500 → 4.500 → 6.000 → 7.500 → 10.000 → 13.000 → 16.000. Gate
+`identity.test.ts` khoá tính chất đó ("bước nhảy không tăng dần" thì đỏ) nên lần sửa mốc sau không
+thể vô tình làm phẳng lại nửa trên thang.
 
 Bộ tên đã chốt 2026-11-06 (phương án "Khai Vận → Như Ý"); các phương án khác đã loại: giữ Thuỵ
 Quang (瑞 đọc dễ nhầm 諡 thụy hiệu), nhánh Dịch Kinh 元亨利貞, nhánh thiên tượng 甘露/青雲.
@@ -143,22 +158,49 @@ không cần tooltip; tooltip chỉ còn để giải thích chữ Hán cho ai t
   `SHRINE-CONTENT-MAP.md:36-42`, không quay lại.
 - *Rank TFT*: Sắt → Thách Đấu — đã bị từ chối có lý do ghi trong `identity.ts:65-67`.
 
-### 3.3 Đường lên (sau khi siết ở §2)
+### 3.3 Đường lên (với trần đã siết ở §2 và thang ở §3.1)
 
-| Mốc | casual ~100/ngày | chuyên ~340/ngày | cày nặng ~1500/ngày |
+| Mốc | casual ~150/ngày | chuyên ~500/ngày | cày trần ~1600/ngày |
 |---|---|---|---|
-| II Hanh Thông (500) | 5 ngày | 1,5 ngày | 8 giờ |
-| III Cát Khánh (1600) | 16 ngày | 5 ngày | 1,1 ngày |
-| IV Cát Tường (4200) | 42 ngày | 12 ngày | 2,8 ngày |
-| V Hồng Phước (9500) | 95 ngày | 28 ngày | 6,3 ngày |
-| VI Đại Cát (18000) | 180 ngày | 53 ngày | 12 ngày |
-| Đỉnh Như Ý (33000) | ~11 tháng | 97 ngày | 22 ngày |
+| II Hanh Thông (650) | 4 ngày | 1,3 ngày | 10 giờ |
+| III Cát Khánh (2.500) | 17 ngày | 5 ngày | 1,6 ngày |
+| IV Cát Tường (6.500) | 43 ngày | 13 ngày | 4 ngày |
+| V Hồng Phước (15.000) | 100 ngày | 30 ngày | 9,4 ngày |
+| VI Đại Cát (33.000) | 220 ngày | 66 ngày | 21 ngày |
+| Đỉnh Như Ý (72.000) | ~16 tháng | 144 ngày | 45 ngày |
 
-Như Ý là mốc cuối ⇒ `expNext = exp + 5000` (thay `+1000` cũ, `identity.ts:89`) để thanh tiến
-độ vẫn vẽ được mà không gợi ý còn gì để lên.
+Ba bậc đầu (0 → 650) nằm trong tầm một buổi tới bốn ngày casual — đó là phần "lên bậc nhanh lúc
+đầu" người chơi cần để forming thói quen. Hai bậc cuối (56.000 → 72.000) một mình nó dài hơn cả
+thang cũ cộng lại.
+
+Đỉnh Như Ý **không** còn là mốc 33.000; `expNext` của bậc 19 dẫn xuất từ chính bước nhảy cuối của
+thang (`72.000 + (72.000 − 56.000) = 88.000`, `identity.ts:104`) thay vì hằng `+5000` cũ, để thanh
+tiến độ vẫn vẽ được mà không gợi ý còn gì để lên.
 
 Cấu trúc tham chiếu (chỉ mượn *khung*, không mượn tên):
 https://vanphongcac614.wordpress.com/2019-09-19/mot-so-thong-tin-chung-trong-truyen-tien-hiep-huyen-huyen/
+
+### 3.4 Vì sao cắt lại lần hai (2026-11-10)
+
+Bản 2026-11-06 có hình cong nhưng **khoảng cách giữa các bậc thì gần như phẳng**: tám bước cuối của
+thang dài 2.500 → 6.000 điểm, tức sau khi lên tới khoảng giữa thang thì bậc nào cũng cách bậc kế
+chừng ba nghìn — mà người cày trần chỉ kiếm ~1.000–1.600 điểm/ngày, nên nhịp lên bậc đều tăm tắp tới
+tận đỉnh và không còn bậc nào "khó" hơn bậc nào. Nửa đầu thậm chí ngược: 180 → 170 → 150, bước sau
+*ngắn hơn* bước trước. Cộng với §2 chưa chạy, hệ quả đo được là **~2 ngày online liên tục là chạm
+đỉnh Như Ý**, và đỉnh đó không có gì phía sau ⇒ mất động lực.
+
+Ba việc đã làm, theo đúng thứ tự ưu tiên của lý do trên:
+
+1. **§2 chạy thật** (90 phút thiền/ngày + 60 lạy/ngày, cả bot lẫn người) — không có cái này thì mọi
+   đường cong đều vô nghĩa, vì nguồn điểm vẫn mở.
+2. **Bước nhảy tăng đơn điệu** (150 → 16.000, xem §3.1) — ba bậc đầu trong tầm một buổi, hai bậc
+   cuối tính bằng tháng.
+3. **Giữ 33.000 trên thang** (Đại Cát · bậc 1, bậc 16/19) thay vì kéo đỉnh xuống dưới nó: ai đã
+   chạm đỉnh cũ không rớt về giữa sảnh. Xem hệ quả nhãn ở §7.2.
+
+Không đổi: số mốc (19), số vận (7), tên, khung thưởng (`level × 50` Tinh Hoa + `level × 20` Kim
+Cương), và `LUCK.level` trong trò chơi xúc xắc vẫn khoá ở bậc 10 (`games.ts:luckOf` dùng
+`min(30, level×3)`) nên Độ May không đổi hành vi.
 
 ## 4. Cửa "duyên" — vì sao lên *bậc* khác lên *vận*
 
@@ -169,12 +211,17 @@ https://vanphongcac614.wordpress.com/2019-09-19/mot-so-thong-tin-chung-trong-tru
 
 | Qua vận | exp (§3.1) **và** số ngày hành trì khác nhau |
 |---|---|
-| II Hanh Thông | 500 và ≥ 3 ngày |
-| III Cát Khánh | 1600 và ≥ 7 ngày |
-| IV Cát Tường | 4200 và ≥ 14 ngày |
-| V Hồng Phước | 9500 và ≥ 25 ngày |
-| VI Đại Cát | 18000 và ≥ 40 ngày |
-| Đỉnh Như Ý | 33000 và ≥ 70 ngày |
+| II Hanh Thông | 650 và ≥ 3 ngày |
+| III Cát Khánh | 2.500 và ≥ 7 ngày |
+| IV Cát Tường | 6.500 và ≥ 14 ngày |
+| V Hồng Phước | 15.000 và ≥ 25 ngày |
+| VI Đại Cát | 33.000 và ≥ 40 ngày |
+| Đỉnh Như Ý | 72.000 và ≥ 70 ngày |
+
+Cột exp đổi theo §3.1 (2026-11-10), cột ngày **giữ nguyên** và chính nó mới là thứ làm việc: so với
+§3.3, người casual bị điểm chặn ở mọi vận (cày chậm hơn mốc ngày), còn người cày trần bị ngày chặn
+từ vận II trở đi (45 ngày cày hết thang nhưng vận cuối cần 70 ngày có mặt). Chưa code — hiện `exp`
+một mình quyết định bậc.
 
 "Số ngày hành trì khác nhau" = `COUNT(*) FROM temple_practice WHERE user_id = $1` (bảng đã có PK
 `(user_id, day)`, mỗi người một hàng một ngày ⇒ đếm hàng là đếm ngày, không cần cột mới).
@@ -239,7 +286,11 @@ của hồ sơ" thì phải tách thành quyết định riêng (hiện chỉ se
   Đường đó không đi qua `merit.ts` nên **không** sinh thưởng lên bậc — nó là công cụ để người vận
   hành thử khung/ấn từng vận, không phải cửa sau cho người chơi cày hộ.
 - Thanh tiến độ HUD vẽ theo *bậc hiện tại → bậc kế* (không phải → vận kế) để luôn có nhịp phản hồi
-  ≤ 2 ngày với người chuyên.
+  ≤ 2 ngày với người chuyên. **Đã đúng cả hai chỗ từ 2026-11-10**: chip góc trên trái trước đây chia
+  `exp` cho cả thang nên người bậc 16 thấy thanh gần đầy còn người mới toan lên bậc 2 thấy vạch chưa
+  nhô khỏi mép; giờ nó đo `exp_prev → exp_next` (`state.ts` đã trả sẵn hai cột này) và **in số bên
+  dưới vạch**: `12.730 / 15.000`, còn ở bậc 19 thì chỉ in tổng điểm vì không còn bậc kế
+  (`temple-app.tsx:755-767`, `.xp-num` ở `app.css:94`).
 - Chip cấp trong HUD chỉ in **nhãn ngắn** (`Cát Tường · bậc 2`) — không in chữ Hán trong chip 60px;
   chữ Hán + nghĩa nôm chỉ xuất hiện ở modal Thăng Vận và tooltip.
 - Không đổi màu avatar/không đổi tượng theo vận ở pha đầu; phần thưởng hiển thị duy nhất là
@@ -264,6 +315,29 @@ theo kiểu `rename-meta.mjs` đã dùng, không phải gameplay).
 
 Prod hiện có bao nhiêu hồ sơ `exp ≥ 1600`: **chưa đo** — phải `SELECT count(*)` trước khi quyết
 danh hiệu đó có đáng tồn tại không (§12 câu hỏi 6).
+
+### 7.2 Lần đổi mốc 2026-11-10 — nhãn *có* tụt, và đó là lựa chọn có chủ ý
+
+Thang 19 mốc bản 2026-11-06 đã lên prod (`d073942`); bản mới chỉ đổi cột exp, `exp` vẫn không reset,
+không nhân, không chia. Nhưng lần này "không ai bị tụt" không còn đúng tuyệt đối:
+
+| exp | nhãn 2026-11-06 | nhãn 2026-11-10 |
+|---|---|---|
+| 6.500 | Cát Tường · bậc 2 (bậc 11) | Cát Tường · bậc 1 (bậc 10) |
+| 15.000 | Hồng Phước · bậc 3 (bậc 15) | Hồng Phước · bậc 1 (bậc 13) |
+| 27.000 | Đại Cát · bậc 3 (bậc 18) | Hồng Phước · bậc 3 (bậc 15) |
+| 33.000 | **Như Ý** (bậc 19, đỉnh) | **Đại Cát · bậc 1** (bậc 16) |
+
+Nói thẳng: **ai đã chạm Như Ý giờ tụt 3 bậc nhãn**, và ai đang ở khoảng 22.000–33.000 rớt một vận.
+Đổi lại họ còn 72.000 phía trước để nhắm thay vì một thanh tiến độ vô nghĩa — đó chính là cái giá của
+việc kéo dài thang. Đây cũng là lý do 33.000 được giữ *trên* thang (đúng một nhịp) thay vì đặt đỉnh
+mới ở 60.000 và đẩy mọi người đã cày xong về giữa sảnh.
+
+Nếu muốn không ai tụt nhãn, cách duy nhất là migrate `temple_profiles.exp` theo tỉ lệ
+(`exp_new = exp_old × 72.000/33.000 ≈ 2,18`) — **đây là một lượt ghi prod DB, cần duyệt riêng kèm
+backup**, và nó phá luôn lời hứa "`exp` là tổng công quả, không bao giờ đổi" ở §1.3. Mặc định:
+**không migrate**, nhận phần tụt nhãn. Số hồ sơ thật bị ảnh hưởng chưa đo (`SELECT count(*) FROM
+temple_profiles WHERE exp >= 22000`).
 
 ## 8. Chuỗi mới phải viết ở đâu (6 bề mặt)
 
@@ -291,7 +365,7 @@ mới phải chạy lại gate đó.
 
 | Pha | File | Nội dung |
 |---|---|---|
-| A0 | `merit.ts:26,30` | siết trần thiền + trần cầu may/ngày (§2) |
+| A0 | `merit.ts:38-45`, `practice.ts:66-82`, `bots.ts:444` | siết trần thiền + trần cầu may/ngày (§2) — **xong 2026-11-10** |
 | A1 | `identity.ts:68-90` | `FATES` + `levelFromExp()` trả `{realm, stage, han, gloss, title, expNext, affinityDays}` |
 | A2 | `merit.ts:65-105` | `levelUps` phân biệt lên-bậc / lên-vận; thưởng sen theo vận |
 | A3 | `state.ts:51,91`, `practice.ts:159` | hồ sơ đọc ra mang nhãn mới; cửa duyên chặn ở server, không phải client |
@@ -305,17 +379,21 @@ mới phải chạy lại gate đó.
 
 ## 10. Gate phải cập nhật (không được "sửa test" theo nghĩa nới lỏng)
 
-- `identity.test.ts:8-16` **khoá cứng** ngưỡng `LEVELS` (đoan 4 assertion `deepEqual` chuỗi
-  `'Tân Binh'/'Lữ Khách'/'Huyền Thoại'`) ⇒ đây là test duy nhất bị vỡ có chủ đích; viết lại thành
-  bảng `FATES` 19 mốc + test "exp 499 chưa lên vận II; exp 500 mà mới 2 ngày thì chưa qua, đủ
-  3 ngày thì qua" — cửa duyên **phải có test**, không chỉ có chữ trong doc.
-- `endpoints.test.ts:196` ("số của `/stele` là title theo bậc chứ không phải honor") vẫn đúng nghĩa
-  nhưng phải đổi chuỗi dự đoán theo nhãn mới.
+- `identity.test.ts`: đoan 4 `deepEqual` cũ khoá `LEVELS` 7 bậc ⇒ **đã viết lại** theo `MILESTONES`
+  19 mốc của §3.1. Từ 2026-11-10 nó còn khoá thêm *hình dạng* thang, không chỉ số: một test
+  "18 bước nhảy tăng đơn điệu + mọi mốc đọc lại ra đúng bậc của nó" (`levelFromExp(expForLevel(i))`)
+  ⇒ sửa mốc mà vô tình làm phẳng nửa trên là test đỏ, không phải người chơi nhận ra sau.
+- `endpoints.test.ts`: hai block mới cho §2 — **trần lạy/ngày** (ghi sổ sát trần bằng SQL, lạy tiếp
+  thì `gained = 0` + `extra.capped`, request vẫn 200) và **trần thiền/ngày** (40 phút rồi sit 3 tiếng
+  chỉ còn được 50 phút, sit thứ ba được 0). Block "lên bậc" và block admin đổi mốc theo §3.1
+  (bậc 4 = 650, đỉnh = 72.000).
+- Cửa duyên (§4) **vẫn chưa có test vì chưa có code** — khi làm thì phải có cả hai vế: exp 650 mà mới
+  2 ngày thì chưa qua, đủ 3 ngày thì qua.
 - `rooms.test.ts`, `tickets.test.ts`: không đụng (hệ WS độc lập).
 - `apps/web/tests/temple.spec.ts`: không thêm case — Playwright **không chạy trong CI**, và case
-  HUD mới chỉ đáng thêm nếu đổi layout thật; nghiệm bằng screenshot headless như mọi khi.
-- Lệnh gate: `cd apps/api && node --env-file-if-exists=.env --test src/temple/*.test.ts`,
-  `npx playwright test temple.spec.ts` (root), typecheck web + `next build`.
+  HUD mới chỉ đáng thêm nếu đổi layout thật; chip `exp / exp_next` nghiệm bằng screenshot.
+- Lệnh gate đã chạy: `node --test apps/api/src/temple/{identity,merit,games,endpoints}.test.ts`
+  (root), typecheck `@tftiq/api` + `@tftiq/web`.
 
 ## 11. Tiên lượng & thứ tự
 
@@ -333,13 +411,24 @@ mới phải chạy lại gate đó.
 - (2) Ghi đè `SHRINE-CONTENT-MAP.md §2` và siết trần — thiền 90 phút/ngày, cầu may 60 lần/ngày (§2).
 - (5a) **Bản en hoãn lại** — chưa làm chuỗi tiếng Anh cho thang này (§8).
 
+**Đã chốt 2026-11-10** (chỉ thị: "mốc kinh nghiệm tăng dần, lên bậc nhanh lúc đầu, các bậc sau lâu
+hơn" + "thanh exp góc trên bên trái hiển thị cả exp hiện tại và exp cần để lên bậc"):
+- (1) Giữ **19 mốc / 7 vận**, không đổi tên, không đổi khung thưởng — chỉ cắt lại ngưỡng theo §3.1,
+  đỉnh 33.000 → **72.000**.
+- (2) **Không migrate exp** (`exp` là sổ công quả, không nhân chia) ⇒ chấp nhận tụt nhãn ở §7.2. Muốn
+  đổi ý là một lượt ghi prod DB riêng, cần duyệt + backup.
+- (3) Siết §2 chạy **cả hai đường**: người thật (`practice.ts`) và bot (`bots.ts:creditBows()`), vì
+  trần chỉ có nghĩa nếu máy không cày hộ.
+
 **Còn mở:**
 
-1. 19 mốc (đỉnh ~3,5 tháng cho người chuyên) hay rút xuống 5 vận / 16 mốc cho người chơi thật tới
-   được đỉnh?
-2. Cửa "duyên" (§4): giữ, hay để lên vận chỉ cần exp?
+1. Cửa "duyên" (§4): giữ, hay để lên vận chỉ cần exp? — với trần mới, cột ngày là thứ chặn người cày
+   từ vận II, nên nếu không làm thì §3.3 chỉ còn là dự báo.
+2. Thưởng lên bậc: §6 đề nghị `sen` theo *vận* (100/200/400/800/1500/3000) thay cho `level × 50`;
+   hiện vẫn là `level × 50` + `level × 20` Kim Cương, nên bậc 19 thưởng 950 Tinh Hoa — gần gấp 20 lần
+   bậc 1. Có giữ cách tăng tuyến tính này khi thang dài ra không?
 3. `honor` để ngỏ hay thành ghi chú tự do của hồ sơ?
-4. `exp ≥ 1600` trên prod (tôi đo trước khi code — cần bạn duyệt cho đọc prod DB): cấp `tien_phong`
-   cho từng đó người có ổn không?
+4. `tien_phong` (§5, `exp ≥ 1600`) giờ rơi vào giữa vận II, không còn là "đỉnh cũ" nữa — điều kiện phải
+   đổi thành `exp ≥ 33.000` hay thành "đã từng chạm Như Ý" (không đo được vì không lưu lịch)?
 
 Khung hình cho các nhãn này không nằm ở doc này — xem [SHRINE-BADGE-FRAMES.md](SHRINE-BADGE-FRAMES.md).

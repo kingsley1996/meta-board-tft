@@ -6,7 +6,10 @@
 //    tự chuyển 'dead' sau STALE_MS nhờ nhịp quét trong work().
 //  - Điểm, BXH, sổ ngày như người thật: bot có hàng temple_practice và tự kiếm thêm.
 //    Kinh tế thường: mọi phần thưởng đi qua đúng hàm mà HUD gọi, nên trần ngày (tỷ thí
-//    120 điểm, thiền 60 phút một nhịp và 240 phút một ngày) tự áp dụng cho bot.
+//    120 điểm, thiền 60 phút một nhịp và 90 phút một ngày) tự áp dụng cho bot. Trần số
+//    lần lạy thì creditBows() áp tay vì bot ghi sổ thẳng qua addMerit, không qua
+//    /practice — coi kỹ nếu bỏ nó đi: máy không mệt, nên không có nó thì bot cày cầu may
+//    nhanh hơn bất kỳ người thật nào.
 //  - Không có nhãn "bot" ở bất kỳ đâu: chúng là hàng users + temple_profiles như mọi
 //    hàng khác, chỉ khác chỗ không có phiên và không có mật khẩu.
 //
@@ -28,6 +31,7 @@ import { TEMPLE_ID } from './hall.ts';
 import { ApiError } from './http.ts';
 import { ensureTempleProfile, templeProfile, toPlayerProfile, updateTempleProfile } from './identity.ts';
 import {
+  MAX_BOWS_DAY,
   MAX_MEDITATE_MIN,
   MAX_MEDITATE_MIN_DAY,
   MERIT_PER,
@@ -139,102 +143,102 @@ type BotDef = {
 // đầu thì ngược nhau.
 const ROSTER: BotDef[] = [
   {
-    slug: 'minh_anh', name: 'Thích Tiêu Tiền', sect: 'reroll', exp: 260, days: 6,
+    slug: 'minh_anh', name: 'Thích Tiêu Tiền', sect: 'reroll', exp: 240, days: 6,
     look: { hero: 'luffy_g5', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
     kit: { robe: 'ao_lam', beads: 'chuoi_go', cushion: 'bd_nau', hat: null, staff: null, cloud: null, pet: 'lt_huou' },
   },
   {
-    slug: 'an_nhien', name: 'bé bơ', sect: 'flex', exp: 360, days: 5,
+    slug: 'an_nhien', name: 'bé bơ', sect: 'flex', exp: 370, days: 5,
     look: { hero: 'naruto_sage', gender: 'nu', hair: 'ngan', skin: '#f7d9b8' },
     kit: { robe: 'ao_vang', beads: 'chuoi_go', cushion: 'bd_sen', hat: null, staff: null, cloud: null, pet: 'lt_tho_ngoc' },
   },
   {
-    slug: 'dieu_lien', name: 'giang đẫm', sect: 'tempo', exp: 420, days: 8,
+    slug: 'dieu_lien', name: 'giang đẫm', sect: 'tempo', exp: 490, days: 8,
     look: { hero: 'naruto_sage', gender: 'nu', hair: 'dai', skin: '#efd6bb' },
     kit: { robe: 'ao_xam', beads: 'chuoi_bode', cushion: 'bd_xam', hat: null, staff: null, cloud: null, pet: 'lt_tho_ngoc' },
   },
   {
-    slug: 'tinh_yen', name: 'Cà Khịa Chúa', sect: 'tempo', exp: 540, days: 7,
+    slug: 'tinh_yen', name: 'Cà Khịa Chúa', sect: 'tempo', exp: 720, days: 7,
     look: { hero: 'sanji', gender: 'nu', hair: 'dai', skin: '#f3c6a5' },
     kit: { robe: 'ao_cam_lan', beads: 'chuoi_tudan', cushion: 'bd_xam', hat: null, staff: null, cloud: null, pet: 'lt_su_tu_xanh' },
   },
   {
-    slug: 'hai_dang', name: 'Top 4 Là Đủ', sect: 'flex', exp: 620, days: 7,
+    slug: 'hai_dang', name: 'Top 4 Là Đủ', sect: 'flex', exp: 870, days: 7,
     look: { hero: 'zoro', gender: 'nam', hair: 'trau', skin: '#e8b48c' },
     kit: { robe: 'ao_nau', beads: 'chuoi_go', cushion: 'bd_vang', hat: 'mu_kim_co', staff: null, cloud: null, pet: null },
   },
   {
-    slug: 'bao_long', name: 'Thích chơi game', sect: 'fast8', exp: 780, days: 8,
+    slug: 'bao_long', name: 'Thích chơi game', sect: 'fast8', exp: 1150, days: 8,
     look: { hero: 'zoro', gender: 'nam', hair: 'trau', skin: '#dcb088' },
     kit: { robe: 'ao_vulan', beads: 'chuoi_hophach', cushion: 'bd_vang', hat: 'mu_kim_co', staff: 'tr_tre_nga', cloud: null, pet: null },
   },
   {
-    slug: 'thanh_tung', name: 'roll không ra 3 sao', sect: 'fast8', exp: 900, days: 10,
+    slug: 'thanh_tung', name: 'roll không ra 3 sao', sect: 'fast8', exp: 1360, days: 10,
     look: { hero: 'sasuke', gender: 'nam', hair: 'ngan', skin: '#f0c9a8' },
     kit: { robe: 'ao_trang', beads: 'chuoi_tram', cushion: 'bd_nau', hat: null, staff: 'tr_thien_truong', cloud: null, pet: 'lt_nghe' },
   },
   {
-    slug: 'cam_tu', name: 'Chị Đại Số Nhọ', sect: 'reroll', exp: 1100, days: 9,
+    slug: 'cam_tu', name: 'Chị Đại Số Nhọ', sect: 'reroll', exp: 1700, days: 9,
     look: { hero: 'shanks', gender: 'nu', hair: 'dai', skin: '#efd6bb' },
     kit: { robe: 'ao_hoa_sala', beads: 'chuoi_ngoc', cushion: 'bd_mai_rua', hat: null, staff: null, cloud: null, pet: 'lt_trau_vang' },
   },
   {
-    slug: 'ngoc_diep', name: 'Mèo Lười Đánh TFT', sect: 'tempo', exp: 1250, days: 9,
+    slug: 'ngoc_diep', name: 'Mèo Lười Đánh TFT', sect: 'tempo', exp: 1940, days: 9,
     look: { hero: 'sanji', gender: 'nam', hair: 'dai', skin: '#f7d9b8' },
     kit: { robe: 'ao_sen', beads: 'chuoi_go', cushion: 'bd_sen', hat: null, staff: null, cloud: null, pet: 'lt_su_tu_xanh' },
   },
   {
-    slug: 'dong_phong', name: 'Dân Chơi Không Ngại Mưa', sect: 'flex', exp: 1550, days: 10,
+    slug: 'dong_phong', name: 'Dân Chơi Không Ngại Mưa', sect: 'flex', exp: 2420, days: 10,
     look: { hero: 'itachi', gender: 'nam', hair: 'ngan', skin: '#e6bd94' },
     kit: { robe: 'ao_truc', beads: 'chuoi_thach_anh', cushion: 'bd_tuyet', hat: null, staff: 'tr_kim_co_bong', cloud: 'may_can_dau', pet: null },
   },
   {
-    slug: 'hue_tam', name: 'Ông Hoàng Về Nhì', sect: 'reroll', exp: 1750, days: 12,
+    slug: 'hue_tam', name: 'Ông Hoàng Về Nhì', sect: 'reroll', exp: 2750, days: 12,
     look: { hero: 'kakashi', gender: 'nam', hair: 'trau', skin: '#e6bd94' },
     kit: { robe: 'ao_vulan', beads: 'chuoi_bode', cushion: 'bd_may', hat: 'mu_tu_kim', staff: null, cloud: null, pet: null },
   },
   {
-    slug: 'ngoc_han', name: 'Tấm Chiếu Mới', sect: 'tempo', exp: 2100, days: 11,
+    slug: 'ngoc_han', name: 'Tấm Chiếu Mới', sect: 'tempo', exp: 3330, days: 11,
     look: { hero: 'kakashi', gender: 'nu', hair: 'dai', skin: '#f5d0b5' },
     kit: { robe: 'ao_sen', beads: 'chuoi_luu_ly', cushion: 'bd_ngoc', hat: 'mu_ty_lu', staff: null, cloud: null, pet: 'lt_huyen_vu' },
   },
   {
-    slug: 'quoc_bao', name: 'Độc Lạ Bình Dương', sect: 'flex', exp: 2400, days: 11,
+    slug: 'quoc_bao', name: 'Độc Lạ Bình Dương', sect: 'flex', exp: 3830, days: 11,
     look: { hero: 'law', gender: 'nam', hair: 'ngan', skin: '#f1c9a0' },
     kit: { robe: 'ao_truc', beads: 'chuoi_thach_anh', cushion: 'bd_tuyet', hat: null, staff: 'tr_dinh_ba', cloud: null, pet: 'lt_chu_tuoc' },
   },
   {
-    slug: 'van_du', name: 'Không Có Gì Ngoài Đam Mê', sect: 'fast8', exp: 2900, days: 12,
+    slug: 'van_du', name: 'Không Có Gì Ngoài Đam Mê', sect: 'fast8', exp: 4640, days: 12,
     look: { hero: 'law', gender: 'nam', hair: 'trau', skin: '#f1c9a0' },
     kit: { robe: 'ao_nguyet', beads: 'chuoi_dua_do', cushion: 'bd_tram_sen', hat: null, staff: 'tr_nguyet_nha', cloud: 'may_song_bac', pet: 'lt_bach_tuong' },
   },
   {
-    slug: 'phuong_nam', name: 'anh ba khía', sect: 'fast8', exp: 3300, days: 13,
+    slug: 'phuong_nam', name: 'anh ba khía', sect: 'fast8', exp: 5230, days: 13,
     look: { hero: 'itachi', gender: 'nam', hair: 'dai', skin: '#dcb088' },
     kit: { robe: 'ao_nguyet', beads: 'chuoi_tram', cushion: 'bd_ngoc', hat: null, staff: null, cloud: 'may_can_dau', pet: 'lt_huyen_vu' },
   },
   {
-    slug: 'truong_an', name: 'Bỉm Sữa Đánh TFT', sect: 'reroll', exp: 3900, days: 13,
+    slug: 'truong_an', name: 'Bỉm Sữa Đánh TFT', sect: 'reroll', exp: 6080, days: 13,
     look: { hero: 'minato', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
     kit: { robe: 'ao_hoang_kim', beads: 'chuoi_kim', cushion: 'bd_kim_lien', hat: 'mu_non_than', staff: 'tr_gay_than', cloud: null, pet: 'lt_thanh_long' },
   },
   {
-    slug: 'chan_nhu', name: 'Linh Hồn Của Gió', sect: 'tempo', exp: 4600, days: 14,
+    slug: 'chan_nhu', name: 'Linh Hồn Của Gió', sect: 'tempo', exp: 7100, days: 14,
     look: { hero: 'ace', gender: 'nam', hair: 'ngan', skin: '#f5cba7' },
     kit: { robe: 'ao_may_bac', beads: 'chuoi_luu_ly', cushion: 'bd_tram_sen', hat: 'mu_ty_lu', staff: 'tr_nguyet_nha', cloud: null, pet: 'lt_bach_tuong' },
   },
   {
-    slug: 'bich_dao', name: 'Pha Cà Rốt', sect: 'reroll', exp: 6200, days: 16,
+    slug: 'bich_dao', name: 'Pha Cà Rốt', sect: 'reroll', exp: 9520, days: 16,
     look: { hero: 'shanks', gender: 'nu', hair: 'dai', skin: '#efd6bb' },
     kit: { robe: 'ao_lien_hoa', beads: 'chuoi_ngoc', cushion: 'bd_mai_rua', hat: null, staff: null, cloud: null, pet: 'lt_trau_vang' },
   },
   {
-    slug: 'quang_dung', name: 'chơi cho vui', sect: 'flex', exp: 8200, days: 15,
+    slug: 'quang_dung', name: 'chơi cho vui', sect: 'flex', exp: 12730, days: 15,
     look: { hero: 'minato', gender: 'nam', hair: 'ngan', skin: '#e8b48c' },
     kit: { robe: 'ao_thien_thanh', beads: 'chuoi_kim', cushion: 'bd_kim_lien', hat: 'mu_non_than', staff: 'tr_gay_than', cloud: null, pet: 'lt_thanh_long' },
   },
   {
-    slug: 'ha_son', name: 'spam roll', sect: 'tempo', exp: 11500, days: 18,
+    slug: 'ha_son', name: 'spam roll', sect: 'tempo', exp: 18600, days: 18,
     look: { hero: 'kaido', gender: 'nam', hair: 'trau', skin: '#d9a97c' },
     kit: { robe: 'tang_bao', beads: 'chuoi_dau', cushion: 'bd_vang', hat: null, staff: 'tr_tram_dot', cloud: 'may_song_bac', pet: 'lt_bach_tuong' },
   },
@@ -430,8 +434,17 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
       push(bot);
     }
     if (bot.bowsQueued < BOW_BATCH) return;
-    await credit(bot, { exp: bot.bowsQueued * MERIT_PER.bow, practice: { bows: bot.bowsQueued } });
+    await creditBows(bot, bot.bowsQueued);
     bot.bowsQueued = 0;
+  }
+
+  // Số lạy của ngày, chặn bằng đúng trần mà tuyến /practice áp dụng cho người thật
+  // (practice.ts). Bot vẫn lạy đủ từng nhịp trên sân, chỉ là phần vượt trần không
+  // thành điểm — nếu không thì trần mới của người chơi vô nghĩa vì máy vẫn cày 24/7.
+  async function creditBows(bot: Bot, count: number): Promise<void> {
+    const today = await practiceToday(bot.entry.userId);
+    const credited = Math.min(count, Math.max(0, MAX_BOWS_DAY - (today.bows ?? 0)));
+    if (credited > 0) await credit(bot, { exp: credited * MERIT_PER.bow, practice: { bows: credited } });
   }
 
   async function settle(bot: Bot, now: number): Promise<void> {
@@ -439,7 +452,7 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
     const held = Math.max(0, now - bot.begun);
     if (bot.mood === 'pray') {
       // Phần lẻ chưa thành gói: cùng một cách flush mà máy khách làm trước khi đứng dậy.
-      if (bot.bowsQueued) await credit(bot, { exp: bot.bowsQueued * MERIT_PER.bow, practice: { bows: bot.bowsQueued } });
+      if (bot.bowsQueued) await creditBows(bot, bot.bowsQueued);
       bot.bowsQueued = 0;
     } else if (bot.mood === 'sit' && bot.meditate) {
       const today = await practiceToday(bot.entry.userId);

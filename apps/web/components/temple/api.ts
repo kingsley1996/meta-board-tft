@@ -18,8 +18,8 @@ export type TempleState = {
   honor: string;
   level: number;
   exp: number;
-  // Mốc Điểm May Mắn của bậc hiện tại và của bậc kế: thanh tiến độ trong Hồ sơ đo đoạn đã
-  // đi *trong* bậc, khác với chip dưới HUD (chip chia cho cả thang).
+  // Mốc Điểm May Mắn của bậc hiện tại và của bậc kế. Cả hai vạch tiến độ (chip HUD và
+  // bảng Hồ sơ) đều đo đoạn đã đi *trong* bậc, không chia cho cả thang.
   exp_prev: number;
   exp_next: number;
   sen: number;

@@ -190,13 +190,13 @@ test(
 
       // ---- Độ May: bốn cột đó, và nó đi vào tổng xúc xắc ---------------------------
       const m0 = await seedMatch('dice', A, D, 'live');
-      await fortune([A], { exp: 33000, streak: 12, today: 600 });
+      await fortune([A], { exp: 72000, streak: 12, today: 600 });
       const rich = await openOf(A, m0);
       assert.equal(rich.a.player.luck, 90, 'vận đỉnh + chuỗi dài + một ngày bận');
       assert.equal(rich.a.player.bonus, 4, 'bốn lộc trên tổng 3..18 — phần nhiều vẫn do xúc xắc quyết');
       await fortune([A], { exp: 20, charm: true });
       assert.equal((await openOf(A, m0)).a.player.luck, 33, 'the charm is one of the four columns');
-      await fortune([A], { exp: 33000, streak: 12, today: 600, charm: true });
+      await fortune([A], { exp: 72000, streak: 12, today: 600, charm: true });
       assert.equal((await openOf(A, m0)).a.player.luck, 100, 'and all of them at once is the ceiling');
       await fortune([D], { exp: 20 });
       const heavy = (await post(`/api/temple/games/${m0}/move`, {}, A.cookie)).json.match;
@@ -283,7 +283,7 @@ test(
       const m3 = await seedMatch('rps', A, D, 'live');
       assert.equal((await post(`/api/temple/games/${m3}/move`, { pick: 'bao' }, B.cookie)).code, 'not_your_game', 'a stranger cannot throw into a match that is not theirs');
       await fortune([A], { exp: 20 });
-      await fortune([D], { exp: 33000, streak: 12, today: 600 });
+      await fortune([D], { exp: 72000, streak: 12, today: 600 });
       assert.equal((await openOf(D, m3)).b.player.luck, 90);
       await post(`/api/temple/games/${m3}/move`, { pick: 'bao' }, A.cookie);
       const tie = (await post(`/api/temple/games/${m3}/move`, { pick: 'bao' }, D.cookie)).json;
