@@ -38,18 +38,26 @@ test('parseRiotId matches the game-name#tagline shape and refuses to guess', asy
   assert.deepEqual(parseRiotId('TámSao#TFT'), { gameName: 'TámSao', tagline: 'TFT' });
   // Khoảng trắng *hai đầu* là chữ gõ thừa, không phải một phần của danh tính.
   assert.deepEqual(parseRiotId('  Leesin # 123  '), { gameName: 'Leesin', tagline: '123' });
+  // Riot cho phép tên hai từ, nên đây là dạng hay gặp nhất của một Riot ID thật.
+  assert.deepEqual(parseRiotId('TFTIQ Samuel#1234'), { gameName: 'TFTIQ Samuel', tagline: '1234' });
   // Tên không được chứa '#' nên hai dấu là chuỗi sai, không phải lời mời đoán xem phần
   // nào thuộc về ai.
   assert.equal(parseRiotId('Leesin#1#234'), null);
   assert.equal(parseRiotId('Leesin'), null);
   assert.equal(parseRiotId('Leesin#'), null);
   assert.equal(parseRiotId('#123'), null);
-  // 3–16 cho tên, 3–5 cho tag, chỉ chữ và số: mọi nhánh ngoài khoảng đều bị từ chối.
+  // 3–16 cho tên (chữ, số, dấu cách đơn), 3–5 cho tag (chữ, số): mọi nhánh ngoài
+  // khoảng đều bị từ chối.
   assert.equal(parseRiotId('Le#123'), null);
   assert.equal(parseRiotId('abcdefghijklmnopq#123'), null);
   assert.equal(parseRiotId('Leesin#12'), null);
   assert.equal(parseRiotId('Leesin#123456'), null);
-  assert.equal(parseRiotId('Le esin#123'), null);
+  // Dấu cách chỉ hợp lệ khi nằm GIỮA hai chữ, đúng một lần, và 3–16 tính cả dấu cách.
+  // Riot không nhận hai dấu liền nhau hay một tên ba từ vượt khung, nên để lọt thì người
+  // khác gõ lại y nguyên cũng không tìm ra bộ đôi đó.
+  assert.equal(parseRiotId('TFTIQ  Samuel#1234'), null);
+  assert.equal(parseRiotId('TFTIQ Samuel Samuel Samuel#123'), null);
+  assert.equal(parseRiotId('Le-esin#123'), null);
   assert.equal(parseRiotId('Leesin#12!'), null);
   for (const junk of [undefined, null, 42, {}, '']) assert.equal(parseRiotId(junk), null);
 

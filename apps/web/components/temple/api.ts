@@ -194,7 +194,7 @@ const MESSAGES: Record<string, string> = {
   no_such_hero: 'Sảnh không vẽ được nhân vật này',
   invalid_hero: 'Không hiểu nhân vật này',
   hero_needs_purchase: 'Nhân vật phải đổi ở ô chọn hình, nơi trừ Kim Cương',
-  invalid_riot_id: 'Riot ID phải theo khuôn Tên#Tag — tên 3–16 chữ, tag 3–5',
+  invalid_riot_id: 'Riot ID phải theo khuôn Tên#Tag — tên 3–16 (chữ, số, dấu cách đơn), tag 3–5',
   riot_id_taken: 'Riot ID này đã có người nhận rồi',
 };
 

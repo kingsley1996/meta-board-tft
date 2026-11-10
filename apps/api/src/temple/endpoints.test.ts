@@ -431,7 +431,12 @@ test(
         (((await get('/api/temple/friends', cookie)).json.friends as Json[]).find((p) => p.id === id) ?? {}) as Json;
 
       assert.equal((await riotPut({ riot_id: 'Leesin#12' }, me.cookie)).code, 'invalid_riot_id', 'tag is 3-5 characters');
-      assert.equal((await riotPut({ riot_id: 'Le esin#123' }, me.cookie)).code, 'invalid_riot_id', 'no space inside the name');
+      assert.equal((await riotPut({ riot_id: 'TFTIQ  Samuel#123' }, me.cookie)).code, 'invalid_riot_id', 'one space, not two');
+      // Tên hai từ là dạng hay gặp của Riot ID thật, nên phải qua được cả route lẫn cột
+      // stores; làm trên `stranger` để không đổi số phận của `me` ở các dòng dưới.
+      const spaced = await riotPut({ riot_id: 'TFTIQ Samuel#1234', riot_public: true }, stranger.cookie);
+      assert.equal(spaced.status, 200, 'a two-word game name is a real riot id');
+      assert.equal(spaced.json.user.riotId, 'TFTIQ Samuel#1234');
       assert.equal((await riotPut({ riot_id: 'Leesin#123' }, 'mb_session=nonsense')).status, 401, 'no session, no identity');
 
       const lit = await riotPut({ riot_id: 'Leesin#123', riot_public: true }, me.cookie);

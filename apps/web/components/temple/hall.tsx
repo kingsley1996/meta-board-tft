@@ -385,7 +385,7 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
               value={riotId}
               maxLength={22}
               onChange={(e) => setRiotId(e.target.value)}
-              placeholder="Leesin#123"
+              placeholder="TFTIQ Samuel#1234"
               aria-label="Riot ID"
             />
             <button className="btn small gold" disabled={!riotDirty || busy}>
@@ -397,8 +397,8 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
             <input type="checkbox" checked={riotPublic} disabled={!riotTrimmed} onChange={(e) => setRiotPublic(e.target.checked)} />
           </label>
           <p className="muted">
-            Không bắt buộc. Khuôn là Tên#Tag — tên 3–16 chữ, tag 3–5, chỉ bộ đôi mới là duy nhất. Bật &quot;Hiện Riot ID&quot; để thẻ
-            người chơi và danh sách đồng đội hiển thị nó.
+            Không bắt buộc. Khuôn là Tên#Tag — tên 3–16 (chữ, số, có thể ngăn cách bằng một dấu cách), tag 3–5, chỉ bộ đôi mới là duy
+            nhất. Bật &quot;Hiện Riot ID&quot; để thẻ người chơi và danh sách đồng đội hiển thị nó.
           </p>
         </>
       )}

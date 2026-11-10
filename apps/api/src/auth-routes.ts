@@ -266,7 +266,7 @@ authRouter.put('/me', async (req, res) => {
   }
   const id = parseRiotId(trimmed);
   if (!id) {
-    return res.status(400).json({ error: 'riot id must be GameName#TAG (name 3-16, tag 3-5 letters or digits)', code: 'invalid_riot_id' });
+    return res.status(400).json({ error: 'riot id must be GameName#TAG (name 3-16 letters, digits or single spaces, tag 3-5 letters or digits)', code: 'invalid_riot_id' });
   }
   const riotPublic = req.body?.riot_public === true;
   try {

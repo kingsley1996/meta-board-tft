@@ -166,7 +166,11 @@ export function toAuthUser(row: UserRow): AuthUser {
 // 3–5 ký tự chữ+số. Bộ ĐÔI mới là thứ duy nhất (trên toàn Riot, không phải trên site),
 // còn tên thì trùng được; nên site chỉ khoá được bộ đôi (users_riot_id_key), không
 // khoá riêng tên. Cờ `riot_public` quyết định một người *khác* có thấy nó không.
-const RIOT_NAME = /^[\p{L}\p{N}]{3,16}$/u;
+// Tên trò chơi của Riot CHO PHÉP dấu cách ("TFTIQ Samuel" là một Riot ID thật), nên luật
+// cũ "chỉ chữ và số" chặn oan người có hai từ. 3–16 vẫn là độ dài tính CẢ dấu cách, và
+// dấu cách chỉ đứng giữa hai chữ, một lần: đầu/cuôi thừa dấu hay hai dấu liền nhau thì
+// Riot từ chối, lưu vào thì người khác gõ lại cũng không tìm ra đúng bộ đôi đó.
+const RIOT_NAME = /^(?=[\p{L}\p{N} ]{3,16}$)[\p{L}\p{N}](?: ?[\p{L}\p{N}])+$/u;
 const RIOT_TAG = /^[\p{L}\p{N}]{3,5}$/u;
 
 export type RiotId = { gameName: string; tagline: string };
