@@ -498,6 +498,18 @@
 #temple-root .abbot-head b { display: block; font-size: 16px; } #temple-root .abbot-head small { color: var(--muted); font-size: 12px; }
 #temple-root .abbot-say { text-align: left; background: #fff; border-radius: 16px; padding: 12px 14px; font-size: 14.5px; line-height: 1.6; color: #4a3520; position: relative; max-height: 46vh; overflow: auto; }
 #temple-root .abbot-say p { margin: 0 0 8px; } #temple-root .abbot-say p:last-child { margin: 0; } #temple-root .abbot-say ul { margin: 0 0 0 18px; }
+/* Lời dặn của lão Hành Khất: một câu mỗi lần ghé, viền trái để phân biệt với phần
+   cơ chế mà không cần thêm màu hay thêm khối. */
+#temple-root .abbot-say .hermit-tip { border-left: 3px solid #d9c9a8; padding-left: 10px; font-style: italic; color: #6b5540; }
+/* Chiếu duyên: modal rộng hẳn ra để ba món trải ngang thay vì xếp chồng, mỗi hàng
+   thấp xuống (hình 44px, mô tả kẹp ba dòng, chữ canh trái thay vì giữa). */
+#temple-root .modal-card:has(.mat-grid) { width: min(640px, 94vw); }
+#temple-root .mat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+#temple-root .mat-grid .card { margin: 0; padding: 8px; gap: 8px; align-items: flex-start; }
+#temple-root .mat-grid .card .body { text-align: left; }
+#temple-root .mat-grid .card .ic.thumb { width: 44px; height: 44px; border-radius: 10px; }
+#temple-root .mat-grid .card b { font-size: 13.5px; }
+#temple-root .mat-grid .card p { font-size: 12px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 #temple-root .abbot-opts { display: flex; flex-direction: column; gap: 6px; }
 #temple-root .abbot-opts .btn { height: 42px; font-size: 14px; justify-content: flex-start; text-align: left; }
 #temple-root .abbot-opts .btn.gold { justify-content: center; }
@@ -906,6 +918,9 @@
 #temple-root .card.rank-hiem { box-shadow: 0 0 0 1.5px #d9b25a inset; }
 #temple-root .card.rank-quy { background: linear-gradient(120deg, #fff8e2, #fff 60%); box-shadow: 0 0 0 2px #e0a93a inset, 0 4px 16px rgba(200,144,47,.28); }
 #temple-root .tag.rank { background: #fbe9b8; color: #7a5210; }
+/* Nhãn hạng đứng ngay sau tên món (JSX nối hai element không có khoảng trắng), nên
+   dãn ra bằng CSS thay vì thêm chữ thừa vào chuỗi. */
+#temple-root .card .body b + .tag.rank { margin-left: 6px; }
 #temple-root .rank-quy .tag.rank { background: linear-gradient(90deg, #c8902f, #f2c46d); color: #2a1a0c; }
 #temple-root .card .side:has(.btn[data-try]) { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
 #temple-root canvas.tryon { display: block; width: 100%; height: min(46vh, 340px); border-radius: 16px; margin: 8px 0; background: radial-gradient(circle at 50% 40%, #6a4526, #241710); }

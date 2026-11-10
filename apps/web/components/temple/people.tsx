@@ -200,12 +200,14 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
   const [page, setPage] = useState(-1);
   const [tale, setTale] = useState<number | null>(null);
   const [mat, setMat] = useState<Mat | null>(null);
+  const [tip, setTip] = useState(0);
 
   // Chiếu duyên chỉ hỏi khi cụ già được chạm phải, và hỏi lại sau mỗi lần đổi để
   // người chơi thấy đúng số phần lão còn lại hôm nay.
   useEffect(() => {
     if (kind !== 'hermit') return;
     setMat(null);
+    setTip(0);
     void get<Mat>('/hermit')
       .then(setMat)
       .catch((e: Error) => s.toast(e.message));
@@ -248,37 +250,54 @@ export function NpcModal({ s, kind, index = 0, onClose }: { s: Store; kind: NpcK
         s.toast((e as Error).message);
       }
     };
+    // Lão chỉ dặn một câu mỗi lần ghé: 8 lời chia theo ngày (giờ Hà Nội, cùng nhịp với
+    // chiếu duyên) nên ai cũng đọc đủ sau một tuần, còn "Lão dặn thêm" là đường tắt cho
+    // người muốn nghe hết trong một lượt.
+    const lesson = `<p class="hermit-tip">Lão dặn: “${HERMIT_LESSONS[(Math.floor((Date.now() + 7 * 3_600_000) / 86_400_000) + tip) % HERMIT_LESSONS.length]}”</p>`;
+    const more = <Btn label="Lão dặn thêm" icon="scroll" onClick={() => setTip((n) => n + 1)} />;
     const body = !mat
       ? say('<p>Lão đang trải chiếu… để lão xem hôm nay duyên con tới đâu.</p>', bye)
       : mat.left <= 0
-        ? say(`${GREET}<p>Khổ nỗi hôm nay lão bán hết hàng rồi. Ngày mai con ghé lại xem duyên còn không nhé.</p>`, bye)
+        ? say(
+            `${GREET}<p>Khổ nỗi hôm nay lão bán hết hàng rồi. Ngày mai con ghé lại xem duyên còn không nhé.</p>${lesson}`,
+            <>
+              {more}
+              {bye}
+            </>,
+          )
         : !mat.offers.length
           ? say(
-              `<p>Lại là con à? Chiếu lão bày hết trơn rồi, mà món nào con cũng đã cầm — hôm nay lão không còn gì để cho con nữa.</p>${HERMIT_LESSONS.map((l) => `<p>${l}</p>`).join('')}`,
-              bye,
+              `<p>Lại là con à? Chiếu lão bày hết trơn rồi, mà món nào con cũng đã cầm — hôm nay lão không còn gì để cho con nữa.</p>${lesson}`,
+              <>
+                {more}
+                {bye}
+              </>,
             )
           : say(
-              `${GREET}<p>Lão có ${mat.total} món đồ không bày ở cửa hàng, hôm nay trải ${mat.offers.length} món, còn ${mat.left} phần. Giá mỗi món một khác, hàng Quý thì nặng tay, không mặc cả. Ngày mai chiếu đổi mặt — dồn hết thì một tuần là xem hết mặt chiếu, còn sạch gia tài của lão thì tính bằng mùa.</p>`,
+              `${GREET}<p>Hôm nay lão bày ${mat.offers.length} món, còn ${mat.left} phần. Hàng Quý nặng tay, không mặc cả.</p>${lesson}`,
               <>
-                {mat.offers.map(({ id, price }) => {
-                  const it = ITEMS[id];
-                  const rank = String(it?.data?.rank ?? '');
-                  return (
-                    <div className={`card${rank ? ` rank-${rank}` : ''}`} key={id}>
-                      <ItemIcon id={id} />
-                      <div className="body">
-                        <b>{it?.name ?? id}</b>
-                        {rank ? <span className="tag rank">{RANK_LABEL[rank] ?? 'Hiếm'}</span> : null}
-                        <p>{it?.description ?? ''}</p>
+                <div className="mat-grid">
+                  {mat.offers.map(({ id, price }) => {
+                    const it = ITEMS[id];
+                    const rank = String(it?.data?.rank ?? '');
+                    return (
+                      <div className={`card${rank ? ` rank-${rank}` : ''}`} key={id}>
+                        <ItemIcon id={id} />
+                        <div className="body">
+                          <b>{it?.name ?? id}</b>
+                          {rank ? <span className="tag rank">{RANK_LABEL[rank] ?? 'Hiếm'}</span> : null}
+                          <p>{it?.description ?? ''}</p>
+                        </div>
+                        <div className="side">
+                          <button className="btn small gold" onClick={() => void trade(id)}>
+                            <Icon name="sen" /> {fmt(price)}
+                          </button>
+                        </div>
                       </div>
-                      <div className="side">
-                        <button className="btn small gold" onClick={() => void trade(id)}>
-                          <Icon name="sen" /> {fmt(price)}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+                {more}
                 {bye}
               </>,
             );
