@@ -19,10 +19,30 @@ export const TEMPLE_ID = 'nhattru';
 // Quẻ hiện tại: bốn thẻ tĩnh, dùng lại đúng khuôn `que` của bản gốc (api.js:99-102).
 // Phase 2 thay bằng comp thật lấy từ DB — xem SHRINE-PLAN.md §6.2.
 const QUE_CARDS = [
-  { rank: 'Thượng Cát · Khởi Sắc', name: 'Lõi Vào Tay', text: 'Vòng đầu đã mở hàng: tiền vào đều, lõi ra đúng thứ bạn cần.', advice: 'Đừng reroll sớm. Gom interest trước, comp sẽ tự lộ ra ở cấp 7.' },
-  { rank: 'Đại Cát · Vào Form', name: 'Bệ Nóng', text: 'Nhịp của bạn đang lên, ba round gần nhất thắng nhiều hơn thua.', advice: 'Chơi comp theo đúng lối bạn đã chọn thay vì đuổi theo bảng meta.' },
-  { rank: 'Trung Cát · Thử Thách', name: 'Ép Sân Muộn', text: 'Sân hôm nay đông người cùng bài, chỗ của bạn ở cuối bảng điểm.', advice: 'Đổi mục tiêu sang top 4: lấy lõi phòng thủ và giữ tiền đến cấp 8.' },
-  { rank: 'An Lành · Bình Tâm', name: 'Giữ Bình Tĩnh', text: 'Không có biến lớn, mọi thứ đi ngang — dễ khiến người chơi vội.', advice: 'Hai round đầu kém thì vẫn một kế hoạch. Reroll chỉ khi đã có 50 vàng nhàn rỗi.' },
+  {
+    rank: 'Thượng Cát · Khai Vận',
+    name: 'Nhân Phẩm Đỉnh Cao',
+    text: 'Mở màn quá đẹp! Tướng ra đúng ý, đồ rơi đúng bài, khởi đầu không thể thuận lợi hơn.',
+    advice: 'Đang có lợi thế thì cứ giữ chuỗi thắng. Lên cấp đúng nhịp, đừng roll quá tay khi chưa cần thiết.'
+  },
+  {
+    rank: 'Đại Cát · Vượng Vận',
+    name: 'Vào Form Thần Tốc',
+    text: 'Cờ thủ đang vào form! Đội hình dần hoàn thiện, thắng liên tiếp và máu vẫn còn rất đẹp.',
+    advice: 'Đừng ham roll sớm. Giữ vàng, lên cấp 8 và tìm những quân cờ chủ lực để chốt bài.'
+  },
+  {
+    rank: 'Trung Cát · Tranh Bài',
+    name: 'Đụng Hàng Không Lối Thoát',
+    text: 'Có vẻ nhiều nhà đang nhắm cùng một đội hình. Muốn chơi bài này thì phải xem nhân phẩm đến đâu!',
+    advice: 'Soi bài đối thủ thường xuyên. Nếu bị tranh quá nhiều, mạnh dạn xoay bài thay vì cố chấp roll đến cạn tiền.'
+  },
+  {
+    rank: 'An Lành · Bình Vận',
+    name: 'Tích Tiền Chờ Thời',
+    text: 'Vận may hôm nay khá bình thường. Chưa có gì nổi bật nhưng vẫn còn cơ hội lật kèo.',
+    advice: 'Đừng hoảng khi thua vài round đầu. Giữ kinh tế, giữ máu và chỉ roll khi đã đến đúng ngưỡng sức mạnh.'
+  },
 ];
 
 // Vòng quay Hex: sáu cung và trọng số đúng như api.js:701-709. Phần thưởng chỉ có
