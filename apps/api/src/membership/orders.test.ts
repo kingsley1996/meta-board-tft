@@ -605,6 +605,178 @@ test('orders, webhooks and refunds', { skip: !hasDb }, async (t) => {
     await pool.query(`DELETE FROM payment_events WHERE provider_transaction_id = $1 AND provider = 'sepay'`, [String(payload.id)]);
   });
 
+  /** Inject a write failure for exactly one row: a trigger that raises only when the
+   *  new row belongs to this order. The rest of the shared dev database sees the plain
+   *  table, so the suites running in parallel are untouched. */
+  async function breakInserts(table: 'memberships' | 'payment_events', value: string): Promise<void> {
+    assert.match(value, /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'the fault predicate is one literal uuid');
+    await pool.query(`DROP TRIGGER IF EXISTS rel01_fault ON ${table}`);
+    await pool.query(
+      `CREATE OR REPLACE FUNCTION rel01_fault() RETURNS trigger AS $sql$
+         BEGIN
+           RAISE EXCEPTION 'rel01 injected write failure';
+         END
+       $sql$ LANGUAGE plpgsql`,
+    );
+    await pool.query(
+      `CREATE TRIGGER rel01_fault BEFORE INSERT ON ${table} FOR EACH ROW WHEN (NEW.order_id = '${value}'::uuid) EXECUTE FUNCTION rel01_fault()`,
+    );
+  }
+
+  async function healInserts(table: 'memberships' | 'payment_events'): Promise<void> {
+    await pool.query(`DROP TRIGGER IF EXISTS rel01_fault ON ${table}`);
+  }
+  t.after(async () => {
+    await Promise.all([healInserts('memberships'), healInserts('payment_events')]);
+    await pool.query('DROP FUNCTION IF EXISTS rel01_fault() CASCADE').catch(() => {});
+  });
+
+  await t.test('a receipt the database refused is a retryable answer, and the redelivery pays once', async () => {
+    const kase = await makeAccount();
+    const plus = await insertPlan();
+    try {
+      const created = await createOrder(kase.token, plus);
+      const order = created.body.order as Record<string, unknown>;
+      const signed = signedWebhook(transferFor({ reference: String(order.reference), amountVnd: 99_000 }));
+
+      await breakInserts('payment_events', String(order.id));
+      const failed = await call('POST', '/api/payments/webhook/sepay', { body: signed.body, headers: signed.headers });
+      await healInserts('payment_events');
+
+      // A 200 here is the gateway deleting the only copy of a transfer that was
+      // never written down; a retryable status is what brings it back.
+      assert.equal(failed.status, 503);
+      assert.equal(failed.body.code, 'payment_record_failed');
+      assert.equal(await countRows('SELECT 1 FROM payment_events WHERE order_id = $1', [order.id]), 0, 'the failed write rolled back');
+      const untouched = await pool.query(`SELECT status, paid_vnd, fulfilled_at FROM payment_orders WHERE id = $1`, [order.id]);
+      assert.equal(untouched.rows[0].status, 'pending');
+      assert.equal(untouched.rows[0].paid_vnd, null);
+      assert.equal(await countRows('SELECT 1 FROM memberships WHERE user_id = $1', [kase.userId]), 0);
+
+      // The same bank transaction, delivered again.
+      const retried = await call('POST', '/api/payments/webhook/sepay', { body: signed.body, headers: signed.headers });
+      assert.equal(retried.status, 200);
+      const paid = await pool.query(`SELECT status, fulfilled_at FROM payment_orders WHERE id = $1`, [order.id]);
+      assert.equal(paid.rows[0].status, 'paid');
+      assert.ok(paid.rows[0].fulfilled_at);
+      assert.equal(await countRows('SELECT 1 FROM memberships WHERE order_id = $1', [order.id]), 1);
+      assert.equal(await countRows(`SELECT 1 FROM payment_events WHERE order_id = $1 AND result = 'granted'`, [order.id]), 1);
+    } finally {
+      await healInserts('payment_events').catch(() => {});
+      await kase.cleanup();
+      await dropPlans([plus]);
+    }
+  });
+
+  await t.test('a payment recorded but not granted is retryable, and granting twice is impossible', async () => {
+    const kase = await makeAccount();
+    const plus = await insertPlan();
+    try {
+      const created = await createOrder(kase.token, plus);
+      const order = created.body.order as Record<string, unknown>;
+      const signed = signedWebhook(transferFor({ reference: String(order.reference), amountVnd: 99_000 }));
+
+      await breakInserts('memberships', String(order.id));
+      const failed = await call('POST', '/api/payments/webhook/sepay', { body: signed.body, headers: signed.headers });
+      await healInserts('memberships');
+
+      assert.equal(failed.status, 503);
+      // The money itself is on the books and stays committed: only the coverage is
+      // missing, so the retry must finish the grant rather than settle the order again.
+      const paid = await pool.query(`SELECT status, paid_vnd, fulfilled_at FROM payment_orders WHERE id = $1`, [order.id]);
+      assert.equal(paid.rows[0].status, 'paid');
+      assert.equal(Number(paid.rows[0].paid_vnd), 99_000);
+      assert.equal(paid.rows[0].fulfilled_at, null);
+      assert.equal(await countRows('SELECT 1 FROM memberships WHERE order_id = $1', [order.id]), 0);
+      const stuck = await pool.query(`SELECT result, result_detail FROM payment_events WHERE order_id = $1`, [order.id]);
+      assert.equal(stuck.rows.length, 1);
+      assert.equal(stuck.rows[0].result, 'review');
+      assert.equal(stuck.rows[0].result_detail, 'grant_unavailable');
+
+      const retried = await call('POST', '/api/payments/webhook/sepay', { body: signed.body, headers: signed.headers });
+      assert.equal(retried.status, 200);
+      assert.equal(await countRows('SELECT 1 FROM memberships WHERE order_id = $1', [order.id]), 1, 'one transfer buys one period');
+      const fulfilled = await pool.query(`SELECT fulfilled_at FROM payment_orders WHERE id = $1`, [order.id]);
+      assert.ok(fulfilled.rows[0].fulfilled_at);
+      const healed = await pool.query(`SELECT result, result_detail FROM payment_events WHERE order_id = $1`, [order.id]);
+      assert.equal(healed.rows.length, 1, 'the replay is the same bank transaction, not a second receipt');
+      assert.equal(healed.rows[0].result, 'granted', 'the ledger must stop reporting a grant that finished');
+
+      // A third delivery of the same transaction changes nothing.
+      assert.equal((await call('POST', '/api/payments/webhook/sepay', { body: signed.body, headers: signed.headers })).status, 200);
+      assert.equal(await countRows('SELECT 1 FROM memberships WHERE order_id = $1', [order.id]), 1);
+      assert.equal(await countRows('SELECT 1 FROM payment_events WHERE order_id = $1', [order.id]), 1);
+    } finally {
+      await healInserts('memberships').catch(() => {});
+      await kase.cleanup();
+      await dropPlans([plus]);
+    }
+  });
+
+  await t.test('the buyer’s refresh finishes a paid order the provider stopped resending', async () => {
+    const kase = await makeAccount();
+    const plus = await insertPlan();
+    try {
+      const created = await createOrder(kase.token, plus);
+      const order = created.body.order as Record<string, unknown>;
+      const signed = signedWebhook(transferFor({ reference: String(order.reference), amountVnd: 99_000 }));
+      await breakInserts('memberships', String(order.id));
+      assert.equal((await call('POST', '/api/payments/webhook/sepay', { body: signed.body, headers: signed.headers })).status, 503);
+      await healInserts('memberships');
+      // The gateway's retries are spent. Nothing arrives on its own any more.
+      assert.equal(await countRows('SELECT 1 FROM memberships WHERE order_id = $1', [order.id]), 0);
+      await pool.query(`UPDATE payment_orders SET updated_at = now() - interval '5 seconds' WHERE id = $1`, [order.id]);
+
+      const before = lookupCalls;
+      const refreshed = await call('POST', `/api/me/orders/${order.id}/refresh`, { token: kase.token });
+      assert.equal(refreshed.status, 200);
+      assert.equal(lookupCalls, before, 'an order the gateway already settled is not asked about again');
+      const view = refreshed.body.order as Record<string, unknown>;
+      assert.equal(view.status, 'paid');
+      assert.ok(view.fulfilledAt);
+      assert.equal(await countRows('SELECT 1 FROM memberships WHERE order_id = $1', [order.id]), 1);
+      assert.equal(
+        await countRows(`SELECT 1 FROM payment_events WHERE order_id = $1 AND result = 'granted'`, [order.id]),
+        1,
+        'the receipt the poll finished is marked as the granting one',
+      );
+
+      await pool.query(`UPDATE payment_orders SET updated_at = now() - interval '5 seconds' WHERE id = $1`, [order.id]);
+      const again = await call('POST', `/api/me/orders/${order.id}/refresh`, { token: kase.token });
+      assert.equal(lookupCalls, before);
+      assert.ok((again.body.order as Record<string, unknown>).fulfilledAt);
+      assert.equal(await countRows('SELECT 1 FROM memberships WHERE order_id = $1', [order.id]), 1);
+    } finally {
+      await healInserts('memberships').catch(() => {});
+      await kase.cleanup();
+      await dropPlans([plus]);
+    }
+  });
+
+  await t.test('a paid status with no receipt behind it is not coverage', async () => {
+    const kase = await makeAccount();
+    const plus = await insertPlan();
+    try {
+      const created = await createOrder(kase.token, plus);
+      const order = created.body.order as Record<string, unknown>;
+      // The shape an operator leaves behind by editing the row by hand: settled, no
+      // bank transaction recorded. A browser poll must not mint from that.
+      await pool.query(
+        `UPDATE payment_orders SET status = 'paid', paid_vnd = amount_vnd, settled_at = now(), updated_at = now() - interval '5 seconds' WHERE id = $1`,
+        [order.id],
+      );
+      const before = lookupCalls;
+      const refreshed = await call('POST', `/api/me/orders/${order.id}/refresh`, { token: kase.token });
+      assert.equal((refreshed.body.order as Record<string, unknown>).status, 'paid');
+      assert.equal(lookupCalls, before);
+      assert.equal(await countRows('SELECT 1 FROM memberships WHERE order_id = $1', [order.id]), 0);
+      assert.equal(await countRows('SELECT 1 FROM payment_events WHERE order_id = $1', [order.id]), 0);
+    } finally {
+      await kase.cleanup();
+      await dropPlans([plus]);
+    }
+  });
+
   await t.test('refresh asks the gateway once, is throttled, and cannot double-grant with a webhook', async () => {
     const kase = await makeAccount();
     const plus = await insertPlan();

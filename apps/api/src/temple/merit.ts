@@ -102,12 +102,18 @@ export async function addMerit(
       [userId, expGain, sen, ngoc],
     );
     await bumpPractice(client, userId, { ...gain.practice, exp: (gain.practice?.exp ?? 0) + expGain });
-    await client.query('COMMIT');
-    const profile = await templeProfile(userId);
+    // Đọc bằng client đang giữ, trước COMMIT. Pool có trần và timeout 10s cho mỗi
+    // lượt xin connection: một request đã giữ một slot mà còn đi xin slot thứ hai
+    // thì những request khác phải xếp hàng sau nó, và lỗi của bước đọc này rơi vào
+    // nhánh rollback của một transaction thật ra đã commit xong.
+    const profile = await templeProfile(userId, client);
     if (!profile) throw new Error(`no temple profile for ${userId}`);
+    await client.query('COMMIT');
     return { profile, gained: expGain, levelUps };
   } catch (error) {
-    await client.query('ROLLBACK');
+    // Nối chết là lý do phổ biến nhất của lỗi phía trên; rollback thất bại không
+    // được phép đè mất lỗi thật.
+    await client.query('ROLLBACK').catch(() => {});
     throw error;
   } finally {
     client.release();

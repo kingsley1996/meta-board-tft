@@ -2,7 +2,7 @@
 
 - **Ngày review:** 2026-11-10.
 - **Phạm vi:** mã hiện tại trong working tree, bao gồm các thay đổi set-rotation chưa commit; không chỉ riêng Đền Cầu May.
-- **Trạng thái:** SEC-01 đã sửa và kiểm chứng local; chưa deploy. Các phát hiện khác chưa sửa.
+- **Trạng thái:** SEC-01, SEC-02, REL-01 và PERF-01 đã sửa và kiểm chứng local; chưa deploy. Các phát hiện khác chưa sửa.
 - **Phương pháp:** đọc đường thực thi và đối chiếu các lớp bảo vệ; kiểm chứng một số lỗi bằng tiến trình, database và provider giả lập.
 - **Không thực hiện:** thay đổi production, gọi provider thật, load-test, build production mới, đo GPU trong browser hoặc đối chiếu CVE dependency.
 
@@ -13,9 +13,9 @@
 | ID | Mức | Phát hiện | Kiểm chứng |
 | --- | --- | --- | --- |
 | SEC-01 | P1 | Thông điệp WebSocket sai kiểu có thể làm dừng API — đã sửa local | Regression qua socket thật với DB giả lập |
-| SEC-02 | P1 | Ghép Google login giữ thông tin đăng nhập chưa xác minh | Handler thật với DB/provider giả lập |
-| REL-01 | P1 | Webhook báo thành công khi transaction thanh toán thất bại | Hàm thật với transaction lỗi giả lập |
-| PERF-01 | P1 | Cộng điểm giữ connection trong khi xin thêm connection | Hàm thật với pool giả lập |
+| SEC-02 | P1 | Ghép Google login giữ thông tin đăng nhập chưa xác minh — đã sửa local | Handler thật với DB/provider giả lập |
+| REL-01 | P1 | Webhook báo thành công khi transaction thanh toán thất bại — đã sửa local | Hàm thật với transaction lỗi giả lập |
+| PERF-01 | P1 | Cộng điểm giữ connection trong khi xin thêm connection — đã sửa local | Hàm thật với pool giả lập |
 | SEC-03 | P2 | Cập nhật hồ sơ cho phép mặc trang bị chưa sở hữu | Đối chiếu route, validator, SQL và render |
 | SEC-04 | P2 | Thiền rất ngắn vẫn được thưởng một phút | Đối chiếu phép tính và đường cộng thưởng |
 | SEC-05 | P2 | Lỗi đọc hội thoại có thể bỏ qua kiểm tra quyền ghi | Đối chiếu fallback và SQL ghi tin nhắn |
@@ -94,6 +94,15 @@ Người đăng ký trước có thể tiếp tục truy cập tài khoản sau 
 - Chỉ thêm kiểm tra `email_verified` là chưa đủ để xử lý trường hợp mật khẩu local được đăng ký trước.
 - Regression test phải bao phủ cả Google email chưa xác minh và tài khoản local chưa xác minh có mật khẩu cũ.
 
+### Đã sửa local — 2026-11-10
+
+- [auth-routes.ts](../apps/api/src/auth-routes.ts): callback dừng trước mọi thao tác tài khoản khi `email_verified !== true`, redirect kèm `reason=email_not_verified` và không cấp session.
+- [accounts.ts](../apps/api/src/accounts.ts) `linkGoogleAccount`: đọc `email_verified_at` trước khi ghép; hàng local chưa từng chứng minh quyền sở hữu mailbox bị xoá `password_hash` và thu hồi toàn bộ session cũ trong cùng statement/luồng ghép. Hàng đã xác minh giữ nguyên mật khẩu và session.
+- Ghép qua Google luôn đánh dấu email đã xác minh và ký session cho chủ Google ngay trong callback.
+- [auth-google.test.ts](../apps/api/src/auth-google.test.ts): ba ca chạy router HTTP thật với Postgres dev và Google giả lập (từ chối email chưa xác minh và không đổi số dòng `users`; cắt credential + thu hồi session của hàng chưa xác minh; giữ nguyên mật khẩu/session của hàng đã xác minh).
+- `node --test apps/api/src/auth-google.test.ts`: 4/4 pass. `npm run typecheck --workspace @tftiq/api`: pass.
+- Chưa commit, push hoặc deploy; chưa đụng dữ liệu tài khoản thật.
+
 ## 3. REL-01 — Webhook báo thành công dù ghi nhận thanh toán thất bại
 
 **Mức:** P1 — độ tin cậy thanh toán.
@@ -123,6 +132,18 @@ Không phát hiện từ lỗi này rằng chữ ký webhook có thể bị gi�
 - Bổ sung đường retry idempotent cho đơn `paid` nhưng chưa `fulfilled`.
 - Test lỗi trước commit, sau commit và trong bước grant; retry phải cấp đúng một lần, không cấp trùng.
 
+### Đã sửa local — 2026-11-10
+
+- `PaymentOutcome` thêm giá trị `retry`, chỉ dùng ở tầng vận chuyển: không bao giờ ghi vào `payment_events.result` (bảng vẫn chỉ nhận bốn giá trị cũ).
+- [orders.ts](../apps/api/src/membership/orders.ts) `recordReceipt`: lỗi transaction trước commit trả `retry` thay vì `review/unavailable`; `grantFor` trả kèm `retryable`, trong đó `grant_unavailable` là tạm thời còn `grant_invalid`/`grant_not_sellable` vẫn là `review` bền vững cho người vận hành đọc.
+- `handleWebhook` bọc từng receipt: lỗi ném ra ngoài cũng hoá thành outcome `retry` thay vì 500 không xác định.
+- [routes.ts](../apps/api/src/payments/routes.ts): webhook trả 503 `payment_record_failed` khi có outcome `retry`, vẫn trả 200 cho granted/duplicate/review nghiệp vụ đã ghi bền vững.
+- Đường hồi phục cho đơn `paid` chưa `fulfilled`: replay webhook (đã có) nay được bồi thêm bởi `reconcileOrder`, vốn trước đây bỏ qua đơn `paid`. Chỉ hồi phục khi đơn có receipt `grant%` đang chờ; đơn bị đánh `paid` thủ công không có bằng chứng ngân hàng nên poll không tự sinh hội viên.
+- `grantFor` tự tìm lại event `review` của đơn khi replay không mang theo id cũ, để sổ không còn ghi `grant_pending` cho một quyền lợi đã cấp.
+- [orders.test.ts](../apps/api/src/membership/orders.test.ts): bốn ca mới dùng trigger giả lập lỗi ghi theo đúng một đơn (không ảnh hưởng các suite chạy song song trên cùng Postgres) — lỗi trước commit, lỗi trong bước grant, refresh hồi phục khi provider hết retry, và từ chối cấp khi không có receipt. Mỗi ca khẳng định đúng một hội viên và đúng một event sau khi thử lại.
+- `node --test apps/api/src/membership/orders.test.ts`: 24/24 pass. `npm run typecheck --workspace @tftiq/api`: pass.
+- Chưa commit, push hoặc deploy; không gọi SePay/PayOS thật.
+
 ## 4. PERF-01 — Cộng điểm có thể làm nghẽn connection pool
 
 **Mức:** P1 — hiệu năng/availability và tính nhất quán phản hồi.
@@ -149,6 +170,15 @@ Kiểm chứng bằng pool giả lập xác nhận việc đọc hồ sơ yêu c
 - Đọc hồ sơ bằng client đang giữ, hoặc release client trước khi thực hiện pool-level read.
 - Không đưa lỗi dựng phản hồi sau commit vào cùng nhánh rollback của transaction đã hoàn tất.
 - Test với pool nhỏ và các lượt cộng điểm đồng thời; mỗi request phải hoàn tất mà không cần giữ hai slot cùng lúc.
+
+### Đã sửa local — 2026-11-10
+
+- [identity.ts](../apps/api/src/temple/identity.ts) `templeProfile(userId, db = pool)`: cho phép đọc bằng chính connection đang giữ; mọi lời gọi hiện có giữ nguyên chữ ký.
+- [merit.ts](../apps/api/src/temple/merit.ts) `addMerit`: hồ sơ được đọc bằng `client` trong transaction, trước COMMIT. Không còn lượt xin connection thứ hai, và lỗi dựng phản hồi không còn rơi vào nhánh rollback của một transaction đã commit.
+- Nhánh rollback nuốt lỗi của chính nó (`ROLLBACK` trên nối đã chết không còn đè mất lỗi thật).
+- [merit.test.ts](../apps/api/src/temple/merit.test.ts) chạy với `PG_POOL_MAX=1` — pool đúng một connection — nên "xin thêm slot thứ hai" trở thành treo đo được thay vì hàng chờ vô hình: ba lượt cộng điểm đồng thời rồi hai lượt chồng lên cùng một người phải hoàn tất trong 3s, phản hồi khớp hàng vừa commit, và tổng điểm không mất đi.
+- Bằng chứng gate: trên mã cũ test đỏ (`addMerit is still waiting for a connection...`, 10.1s), trên mã mới xanh (0.1s). `node --test merit.test.ts identity.test.ts endpoints.test.ts`: 6/6 pass. `npm run typecheck --workspace @tftiq/api`: pass.
+- Chưa commit, push hoặc deploy; chưa load-test để đo ngưỡng concurrency thực tế.
 
 ## 5. SEC-03 — Cập nhật hồ sơ cho phép mặc trang bị chưa sở hữu
 
@@ -302,7 +332,7 @@ Navigation chỉ cần một bảng slug → tên, nhưng lấy bảng đó từ
 4. **Pool:** `addMerit` cần đọc qua pool khi client cũ chưa release, sau khi điểm đã commit.
 5. **Cache:** khóa hết TTL vẫn được giữ khi truy cập khóa mới.
 
-Các phép kiểm chứng trên không thay thế integration test với hệ thống thật và chưa được thêm thành regression test trong repository.
+Các phép kiểm chứng 1–4 nay là regression test trong repo (`temple/ws.test.ts`, `auth-google.test.ts`, `membership/orders.test.ts`, `temple/merit.test.ts`). Mục 5 mới chỉ có bằng chứng cô lập trong lượt review, chưa có test.
 
 ### Các giới hạn khác
 
@@ -316,10 +346,10 @@ Các phép kiểm chứng trên không thay thế integration test với hệ th
 
 ## Thứ tự xử lý đề xuất
 
-1. SEC-01: chặn lỗi đầu vào WebSocket làm dừng API.
-2. SEC-02: sửa chính sách liên kết tài khoản Google.
-3. REL-01: bảo đảm ghi nhận và cấp quyền lợi thanh toán có retry đúng.
-4. PERF-01: loại bỏ việc giữ connection trong khi chờ connection thứ hai.
+1. SEC-01: chặn lỗi đầu vào WebSocket làm dừng API. — xong local.
+2. SEC-02: sửa chính sách liên kết tài khoản Google. — xong local.
+3. REL-01: bảo đảm ghi nhận và cấp quyền lợi thanh toán có retry đúng. — xong local.
+4. PERF-01: loại bỏ việc giữ connection trong khi chờ connection thứ hai. — xong local.
 5. SEC-03, SEC-04, SEC-05: siết quyền trang bị, thời gian thưởng và quyền ghi hội thoại.
 6. PERF-02 đến PERF-05: giới hạn tài nguyên và sửa vòng đời/concurrency.
 7. OBS-01: đo bundle rồi tối ưu dependency của navigation.

@@ -224,8 +224,10 @@ export async function ensureTempleProfile(userId: string): Promise<TempleProfile
   return profile;
 }
 
-export async function templeProfile(userId: string): Promise<TempleProfile | null> {
-  const { rows } = await pool.query<TempleProfileRow>('SELECT * FROM temple_profiles WHERE user_id = $1', [userId]);
+/** `db` cho phép một transaction đang giữ connection đọc hồ sơ bằng chính
+ *  connection đó thay vì xin thêm slot thứ hai từ pool. */
+export async function templeProfile(userId: string, db: Pick<typeof pool, 'query'> = pool): Promise<TempleProfile | null> {
+  const { rows } = await db.query<TempleProfileRow>('SELECT * FROM temple_profiles WHERE user_id = $1', [userId]);
   return rows[0] ? toProfile(rows[0]) : null;
 }
 

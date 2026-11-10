@@ -202,11 +202,30 @@ export async function promoteGuest(
 }
 
 export async function linkGoogleAccount(userId: string, googleId: string, avatarUrl: string | null): Promise<UserRow> {
-  const { rows } = await pool.query<UserRow>(
-    `UPDATE users SET google_id = $2, avatar_url = COALESCE($3, avatar_url), email_verified_at = COALESCE(email_verified_at, now())
-     WHERE id = $1 RETURNING *`,
-    [userId, googleId, avatarUrl],
+  // Một hàng users chưa từng xác minh email qua hộp thư của chính người đăng ký
+  // (email_verified_at rỗng) nghĩa là mật khẩu trên đó chưa ai chứng minh là chủ
+  // inbox — thường nhất là kẻ đăng ký trước email. Google vừa trả email_verified,
+  // quyền sở hữu thuộc về người dùng Google: cắt credential cũ (mật khẩu + mọi
+  // phiên đã cấp). Hàng đã xác minh email từ trước thì chủ nhân đã chứng minh sở
+  // hữu hai lần, nên mật khẩu và session ở lại.
+  const { rows: before } = await pool.query<Pick<UserRow, 'email_verified_at' | 'password_hash'>>(
+    'SELECT email_verified_at, password_hash FROM users WHERE id = $1',
+    [userId],
   );
+  const wasUnclaimed = before[0] && before[0].email_verified_at === null;
+  const { rows } = await pool.query<UserRow>(
+    `UPDATE users
+        SET google_id = $2,
+            avatar_url = COALESCE($3, avatar_url),
+            email_verified_at = COALESCE(email_verified_at, now()),
+            password_hash = CASE WHEN $4::boolean THEN NULL ELSE password_hash END
+      WHERE id = $1
+      RETURNING *`,
+    [userId, googleId, avatarUrl, wasUnclaimed === true],
+  );
+  if (wasUnclaimed) {
+    await pool.query('DELETE FROM user_sessions WHERE user_id = $1', [userId]);
+  }
   return rows[0];
 }
 

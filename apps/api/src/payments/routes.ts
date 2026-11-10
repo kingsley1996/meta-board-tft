@@ -63,8 +63,13 @@ paymentWebhookRouter.post('/:provider', async (req, res) => {
     if (result.reason === 'unavailable') return unavailable(res);
     return res.status(401).json({ error: 'invalid webhook signature', code: 'invalid_webhook' });
   }
-  // Verified and recorded (granted, duplicate or review): ack so the gateway does
-  // not retry a transaction that is already in the ledger.
+  // Verified and durably handled (granted, duplicate or a review a human has to
+  // read): ack so the gateway does not retry a transaction already in the ledger.
+  // A receipt that was never written is the opposite - acking it is what leaves a
+  // paid order with no coverage and no event, so this asks for a redelivery.
+  if (result.outcomes.some((outcome) => outcome.result === 'retry')) {
+    return unavailable(res, 'payment_record_failed');
+  }
   res.json({ ok: true });
 });
 

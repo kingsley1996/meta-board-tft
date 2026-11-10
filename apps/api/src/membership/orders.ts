@@ -109,10 +109,17 @@ export type CreateOrderResult =
     };
 
 export type PaymentOutcome = {
-  result: 'granted' | 'duplicate' | 'ignored' | 'review';
+  /** `retry` is a transport answer, not a ledger value: nothing durable was
+   *  recorded, or the grant itself failed on an error a redelivery can get past. It
+   *  is never written to `payment_events.result`, which has no such value - the row
+   *  is either absent or still reads `review`. */
+  result: 'granted' | 'duplicate' | 'ignored' | 'review' | 'retry';
   orderId: string | null;
   detail: string | null;
 };
+
+/** What the grant step of a verified payment reported. */
+type GrantOutcome = { ok: boolean; detail: string; retryable: boolean };
 
 export type RefundResult =
   | { ok: true; membershipId: string; duplicate: boolean }
@@ -436,14 +443,35 @@ export async function reconcileOrder(input: {
   const now = input.now ?? Date.now();
   const order = await getOrder(input.userId, input.orderId, input.registry);
   if (!order) return null;
-  if (!input.registry || !['pending', 'processing'].includes(order.status)) return order;
 
   try {
     const { rows } = await pool.query(`SELECT * FROM payment_orders WHERE id = $1 AND user_id = $2`, [input.orderId, input.userId]);
     const row = rows[0] as OrderRecord | undefined;
     if (!row) return null;
     const lastTouch = millis(row.updated_at);
-    if (lastTouch !== null && now - lastTouch < RECONCILE_INTERVAL_MS) return orderView(row, input.registry);
+    const throttled = lastTouch !== null && now - lastTouch < RECONCILE_INTERVAL_MS;
+
+    // Money the gateway confirmed and the ledger holds a receipt for, but that bought
+    // no coverage: the webhook that should have granted it answered before the grant
+    // failed, so the provider will not send it again and a lookup cannot help an
+    // order already settled. The buyer's own refresh is the path left. It is keyed by
+    // the order id, so any number of calls mints at most one period.
+    if (row.status === 'paid' && !row.fulfilled_at) {
+      if (throttled) return orderView(row, input.registry);
+      // Only a recorded receipt authorises this; an order marked paid by hand has no
+      // bank evidence behind it and a browser poll must not mint coverage from a
+      // status string.
+      const eventId = await pendingGrantEventId(row.id);
+      if (eventId) {
+        // Touch first: a grant that keeps failing must not be retried on every poll.
+        await pool.query(`UPDATE payment_orders SET updated_at = now() WHERE id = $1`, [row.id]);
+        await grantFor(row, eventId);
+      }
+      return (await getOrder(input.userId, input.orderId, input.registry)) ?? order;
+    }
+
+    if (!input.registry || !['pending', 'processing'].includes(row.status)) return orderView(row, input.registry);
+    if (throttled) return orderView(row, input.registry);
 
     // A closed checkout is not asked about: a late transfer reaches us as a webhook
     // and goes to review, so polling the gateway cannot change the answer.
@@ -551,7 +579,7 @@ async function insertEvent(
   return rows[0] ? String(rows[0].id) : null;
 }
 
-async function grantFor(order: OrderRecord, eventId: string | null): Promise<{ ok: boolean; detail: string }> {
+async function grantFor(order: OrderRecord, eventId: string | null): Promise<GrantOutcome> {
   const grant = await grantPeriod({
     userId: order.user_id,
     planVersionId: order.plan_version_id,
@@ -561,25 +589,43 @@ async function grantFor(order: OrderRecord, eventId: string | null): Promise<{ o
     idempotencyKey: `order:${order.id}`,
   });
   if (!grant.ok) {
-    if (eventId) {
+    // An offer that cannot be sold or an order that is not payable is a human's
+    // call - repeating the webhook returns the same answer. A failed write is not.
+    const retryable = grant.reason === 'unavailable';
+    const id = eventId ?? (await pendingGrantEventId(order.id));
+    if (id) {
       await pool.query(`UPDATE payment_events SET result = 'review', result_detail = $2 WHERE id = $1 AND result = 'review'`, [
-        eventId,
+        id,
         `grant_${grant.reason}`,
       ]).catch(() => {});
     }
-    return { ok: false, detail: `grant_${grant.reason}` };
+    return { ok: false, detail: `grant_${grant.reason}`, retryable };
   }
   await pool.query(`UPDATE payment_orders SET fulfilled_at = coalesce(fulfilled_at, now()), updated_at = now() WHERE id = $1`, [order.id]);
-  if (eventId) {
+  const id = eventId ?? (await pendingGrantEventId(order.id));
+  if (id) {
     // A crash between recording the event and granting leaves the event in review;
     // replaying the same provider transaction finishes the job here. An event that
     // was already a duplicate never becomes the granting event.
     await pool.query(`UPDATE payment_events SET result = 'granted', result_detail = $2 WHERE id = $1 AND result = 'review'`, [
-      eventId,
+      id,
       grant.action,
     ]).catch(() => {});
   }
-  return { ok: true, detail: grant.action };
+  return { ok: true, detail: grant.action, retryable: false };
+}
+
+/**
+ * The event row one order's unfinished grant left behind, if any. A replay of the
+ * provider transaction cannot bring the original id with it - that insert is a
+ * duplicate by then - so the ledger is found again through the order it belongs to.
+ */
+async function pendingGrantEventId(orderId: string): Promise<string | null> {
+  const { rows } = await pool.query(
+    `SELECT id FROM payment_events WHERE order_id = $1 AND result = 'review' AND result_detail LIKE 'grant%' ORDER BY created_at LIMIT 1`,
+    [orderId],
+  );
+  return rows[0] ? String(rows[0].id) : null;
 }
 
 /**
@@ -680,12 +726,14 @@ export async function recordReceipt(input: {
       const fresh = paid.rows[0] as OrderRecord | undefined;
       if (!fresh) return { result: 'review', orderId: current.id, detail: 'order_missing' };
       const granted = await grantFor(fresh, eventId);
-      return { result: granted.ok ? 'granted' : 'review', orderId: fresh.id, detail: granted.detail };
+      return { result: outcomeOf(granted), orderId: fresh.id, detail: granted.detail };
     }
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});
     logFailure('record payment', error);
-    return { result: 'review', orderId: order.id, detail: 'unavailable' };
+    // The receipt was never written and the order never moved: the gateway has to
+    // send it again, because nothing else will.
+    return { result: 'retry', orderId: order.id, detail: 'unavailable' };
   } finally {
     client.release();
   }
@@ -694,19 +742,28 @@ export async function recordReceipt(input: {
   // unfinished, then report the payment as a duplicate.
   const fresh = await pool.query(`SELECT * FROM payment_orders WHERE id = $1`, [order.id]);
   const paidOrder = fresh.rows[0] as OrderRecord | undefined;
-  if (!paidOrder || paidOrder.status !== 'paid') {
-    return { result: 'review', orderId: order.id, detail: 'unavailable' };
+  if (!paidOrder) return { result: 'review', orderId: order.id, detail: 'order_missing' };
+  if (paidOrder.status !== 'paid') {
+    // A committed receipt whose order has since been refunded or sent to review is
+    // settled fact; a redelivery would only record the same duplicate again.
+    return { result: 'review', orderId: paidOrder.id, detail: `order_${paidOrder.status}` };
   }
   if (!paidOrder.fulfilled_at) {
     const granted = await grantFor(paidOrder, eventId);
-    return { result: granted.ok ? 'granted' : 'review', orderId: paidOrder.id, detail: granted.detail };
+    return { result: outcomeOf(granted), orderId: paidOrder.id, detail: granted.detail };
   }
   return { result: 'duplicate', orderId: paidOrder.id, detail: eventId ? 'already_paid' : 'duplicate_event' };
 }
 
+function outcomeOf(grant: GrantOutcome): PaymentOutcome['result'] {
+  if (grant.ok) return 'granted';
+  return grant.retryable ? 'retry' : 'review';
+}
+
 /** Verifies a raw webhook against every configured account of that vendor, then
  *  records each receipt. An invalid signature is the caller's 401; a verified
- *  event with nothing payable is a 200 so the gateway stops retrying. */
+ *  event that durably bought nothing or needs a human is a 200 so the gateway stops
+ *  retrying. A receipt that was never written is not: see `PaymentOutcome.result`. */
 export async function handleWebhook(input: {
   provider: string;
   body: Buffer;
@@ -729,15 +786,22 @@ export async function handleWebhook(input: {
   const payloadSha256 = createHash('sha256').update(input.body).digest('hex');
   const outcomes: PaymentOutcome[] = [];
   for (const receipt of webhook.receipts) {
-    outcomes.push(
-      await recordReceipt({
-        binding: webhook.binding,
-        eventType: 'webhook',
-        eventId: webhook.eventId,
-        payloadSha256,
-        receipt,
-      }),
-    );
+    try {
+      outcomes.push(
+        await recordReceipt({
+          binding: webhook.binding,
+          eventType: 'webhook',
+          eventId: webhook.eventId,
+          payloadSha256,
+          receipt,
+        }),
+      );
+    } catch (error) {
+      // Nothing was recorded and no period was minted. Letting this throw would
+      // answer with a stack-trace 500 the gateway may not retry the same way.
+      logFailure('record webhook receipt', error);
+      outcomes.push({ result: 'retry', orderId: null, detail: 'unavailable' });
+    }
   }
   return { ok: true, outcomes };
 }

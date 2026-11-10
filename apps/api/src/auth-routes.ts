@@ -315,12 +315,16 @@ authRouter.get('/google/callback', async (req, res) => {
   const googleId = userInfo.sub;
   const email = userInfo.email?.trim().toLowerCase();
   if (!googleId || !email) return fail('profile_missing_fields');
+  // Ghép hay tạo tài khoản theo email chỉ an toàn khi Google xác nhận đã kiểm soát
+  // hộp thư đó: email_verified là cách duy nhất phân biệt "chủ inbox" với kẻ tự đặt
+  // email trong IdP giả.
+  if (userInfo.email_verified !== true) return fail('email_not_verified');
 
   let user = await findUserByGoogleId(googleId);
   if (!user) {
     const existing = await findUserByEmail(email);
     if (existing) {
-      // Same verified Google email as a password account: link the identities.
+      // Google đã chứng minh quyền sở hữu email — ghép danh tính.
       user = await linkGoogleAccount(existing.id, googleId, userInfo.picture ?? null);
     } else {
       user = await createUser({
