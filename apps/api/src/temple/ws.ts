@@ -102,61 +102,65 @@ export function attachTempleWs(server: Server): TempleRealtime {
       // nhịp độ có thể trả lời ping trễ hơn một nhịp heartbeat, và đá socket của một
       // người đang đứng giữa chánh điện thì cả phòng thấy avatar họ nhấp nháy.
       ws.alive = true;
-      let msg: Record<string, unknown>;
+      let parsed: unknown;
       try {
-        msg = JSON.parse(raw.toString('utf8')) as Record<string, unknown>;
+        parsed = JSON.parse(raw.toString('utf8'));
       } catch {
         return;
       }
-      if (msg.t !== 'join') {
-        if (ws.member) await onMemberMessage(ws.member, msg, holder.userId);
-        return;
-      }
+      if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return;
+      const msg = parsed as Record<string, unknown>;
+      if (typeof msg.t !== 'string') return;
 
-      let profile: PlayerProfile | null;
+      // EventEmitter không bắt rejection của listener async; lỗi dispatch phải dừng ở socket này.
       try {
-        profile = await profileForJoin(holder);
+        if (msg.t !== 'join') {
+          if (ws.member) await onMemberMessage(ws.member, msg, holder.userId);
+          return;
+        }
+
+        const profile = await profileForJoin(holder);
+        if (!profile) {
+          console.warn(`temple ws: no profile row for ${holder.userId}`);
+          ws.close(1011, 'profile unavailable');
+          return;
+        }
+        const state = readState(profile, msg);
+
+        const previous = byId.get(profile.id);
+        if (previous && previous !== ws) {
+          // Phải xoá khỏi phòng ngay tại đây: close(4000) chỉ gửi lệnh đóng, sự kiện
+          // 'close' của tab cũ đến muộn và nếu member bị gán undefined trước thì
+          // forget() bỏ qua, để lại một avatar ma đứng mãi trong chánh điện.
+          if (previous.member) rooms.remove(previous.member);
+          previous.member = undefined;
+          previous.close(4000, 'opened elsewhere');
+        }
+        byId.set(profile.id, ws);
+
+        const member: RoomMember = {
+          profile,
+          state,
+          dirty: true,
+          temple,
+          room,
+          send: (payload) => send(ws, payload),
+        };
+        const peers = rooms.add(member);
+        ws.member = member;
+
+        // id gửi lại vì từ giờ máy chủ mới là người biết số của mình: máy khách dùng nó
+        // để phân biệt mình với người khác khi dựng avatar từ frame (room.ts:197 →
+        // engine.applyRoom). Hồ sơ của chính mình cũng gửi kèm: nhãn danh hiệu trên đầu
+        // cần name/title/level của mình mà máy khách thì không được tự khai số liệu.
+        send(ws, JSON.stringify({ t: 'joined', id: profile.id }));
+        send(ws, JSON.stringify({ t: 'prof', p: [profile, ...peers] }));
+        rooms.publish(temple, room, JSON.stringify({ t: 'prof', p: [profile] }), profile.id);
+        send(ws, rooms.snapshotOf(member));
       } catch (error) {
-        console.error('temple ws: profile read failed', error instanceof Error ? error.message : error);
-        ws.close(1011, 'profile unavailable');
-        return;
+        console.error('temple ws: message failed', error instanceof Error ? error.message : error);
+        ws.close(1011, 'message failed');
       }
-      if (!profile) {
-        console.warn(`temple ws: no profile row for ${holder.userId}`);
-        ws.close(1011, 'profile unavailable');
-        return;
-      }
-
-      const previous = byId.get(profile.id);
-      if (previous && previous !== ws) {
-        // Phải xoá khỏi phòng ngay tại đây: close(4000) chỉ gửi lệnh đóng, sự kiện
-        // 'close' của tab cũ đến muộn và nếu member bị gán undefined trước thì
-        // forget() bỏ qua, để lại một avatar ma đứng mãi trong chánh điện.
-        if (previous.member) rooms.remove(previous.member);
-        previous.member = undefined;
-        previous.close(4000, 'opened elsewhere');
-      }
-      byId.set(profile.id, ws);
-
-      const member: RoomMember = {
-        profile,
-        state: readState(profile, msg),
-        dirty: true,
-        temple,
-        room,
-        send: (payload) => send(ws, payload),
-      };
-      const peers = rooms.add(member);
-      ws.member = member;
-
-      // id gửi lại vì từ giờ máy chủ mới là người biết số của mình: máy khách dùng nó
-      // để phân biệt mình với người khác khi dựng avatar từ frame (room.ts:197 →
-      // engine.applyRoom). Hồ sơ của chính mình cũng gửi kèm: nhãn danh hiệu trên đầu
-      // cần name/title/level của mình mà máy khách thì không được tự khai số liệu.
-      send(ws, JSON.stringify({ t: 'joined', id: profile.id }));
-      send(ws, JSON.stringify({ t: 'prof', p: [profile, ...peers] }));
-      rooms.publish(temple, room, JSON.stringify({ t: 'prof', p: [profile] }), profile.id);
-      send(ws, rooms.snapshotOf(member));
     });
 
     const forget = () => {
