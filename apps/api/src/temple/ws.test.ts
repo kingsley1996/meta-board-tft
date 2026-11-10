@@ -28,10 +28,23 @@ async function join(ws: WebSocket): Promise<Record<string, any>> {
 test('temple WebSocket isolates invalid input and dispatch failures', { timeout: 15_000 }, async (t) => {
   const rows = new Map<string, Record<string, unknown>>();
   const failedReads = new Set<string>();
-  t.mock.method(pool, 'query', async (sql: string, values: string[]) => {
+  // Riot ID công khai của từng người, đúng như bảng users: chỉ hàng có mặt ở đây mới
+  // rời database. Một lượt vào sảnh bây giờ hỏi hai câu — hồ sơ đền rồi tới Riot ID —
+  // nên mock phải phân nhánh theo SQL, nếu không câu thứ hai chết vì assert.equal bên
+  // dưới và mọi ca nối đều bị đóng socket.
+  const riots = new Map<string, [string, string]>();
+  t.mock.method(pool, 'query', async (sql: string, values: unknown[]) => {
+    if (sql.startsWith('SELECT id, riot_game_name')) {
+      const ids = values[0] as string[];
+      return {
+        rows: ids
+          .filter((id) => riots.has(id))
+          .map((id) => ({ id, riot_game_name: riots.get(id)![0], riot_tagline: riots.get(id)![1] })),
+      };
+    }
     assert.equal(sql, 'SELECT * FROM temple_profiles WHERE user_id = $1');
-    if (failedReads.has(values[0])) throw new Error('private database failure');
-    const row = rows.get(values[0]);
+    if (failedReads.has(values[0] as string)) throw new Error('private database failure');
+    const row = rows.get(values[0] as string);
     return { rows: row ? [row] : [] };
   });
   const errors = t.mock.method(console, 'error', (_message: string, _detail: unknown) => {});
@@ -94,6 +107,35 @@ test('temple WebSocket isolates invalid input and dispatch failures', { timeout:
     assert.equal(realtime.rooms.members('nhattru', 'chung').find((m) => m.profile.id === actor.playerId)?.state.x, 4);
     assert.equal(actor.ws.readyState, WebSocket.OPEN);
     assert.equal(errors.mock.callCount(), 0);
+    await assertServing();
+  });
+
+  await t.test('a shared riot id rides the profile frame, and unsharing erases it', async () => {
+    const owner = await connect();
+    const peer = await connect();
+    await join(owner.ws);
+    await join(peer.ws);
+
+    // Một nhịp 'look' là đúng tuyến máy khách đi sau khi PUT /profile: hồ sơ đọc lại
+    // từ database rồi phát cho cả phòng, nên đây là chỗ cờ "Hiện Riot ID" có tác dụng.
+    const ownerFrameSeenByPeer = async () => {
+      const frame = nextJson(peer.ws, 'prof');
+      owner.ws.send(JSON.stringify({ t: 'look' }));
+      const prof = (await frame).p[0];
+      assert.equal(prof.id, owner.playerId, 'the peer sees the owner');
+      return prof;
+    };
+
+    assert.equal('riot' in (await ownerFrameSeenByPeer()), false, 'nothing shared, nothing on the wire');
+
+    riots.set(owner.userId, ['Leesin', '123']);
+    assert.equal((await ownerFrameSeenByPeer()).riot, 'Leesin#123');
+
+    // Tắt cờ xoá HẴN key khỏi hồ sơ phát lại. Để lại chuỗi rỗng thì thẻ người chơi
+    // vẫn vẽ một danh tính, và hồ sơ cũ nằm trong bộ nhớ phòng cho tới nhịp này.
+    riots.delete(owner.userId);
+    assert.equal('riot' in (await ownerFrameSeenByPeer()), false, 'the revoked id stops travelling');
+    assert.equal(errors.mock.callCount(), 0, 'none of these reads failed');
     await assertServing();
   });
 

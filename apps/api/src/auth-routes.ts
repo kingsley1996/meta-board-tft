@@ -14,6 +14,9 @@ import {
   linkGoogleAccount,
   markEmailVerified,
   promoteGuest,
+  parseRiotId,
+  RiotIdTakenError,
+  setRiotId,
   sessionUser,
   toAuthUser,
   verifyPassword,
@@ -245,6 +248,36 @@ authRouter.get('/me', async (req, res) => {
   const user = await currentAccountUser(req);
   if (!user) return res.status(401).json({ error: 'not signed in', code: 'unauthenticated' });
   res.json({ user });
+});
+
+// Riot ID là danh tính tài khoản chứ không phải thuộc tính nhân vật, nên nó đi qua đây
+// chứ không qua PUT /api/temple/profile: trang /profile của site và tra cứu match của
+// Coach sau này đọc đúng một bản. Chuỗi rỗng là XOÁ (khác với "tắt cờ hiện"), vì một
+// Riot ID trống mà còn treo cờ public thì không có nghĩa gì.
+authRouter.put('/me', async (req, res) => {
+  const user = await currentAccountUser(req);
+  if (!user) return res.status(401).json({ error: 'not signed in', code: 'unauthenticated' });
+
+  const raw = req.body?.riot_id;
+  const trimmed = typeof raw === 'string' ? raw.trim() : raw;
+  if (trimmed === null || trimmed === undefined || trimmed === '') {
+    await setRiotId(user.id, null);
+    return res.json({ user: { ...user, riotId: null, riotPublic: false } });
+  }
+  const id = parseRiotId(trimmed);
+  if (!id) {
+    return res.status(400).json({ error: 'riot id must be GameName#TAG (name 3-16, tag 3-5 letters or digits)', code: 'invalid_riot_id' });
+  }
+  const riotPublic = req.body?.riot_public === true;
+  try {
+    await setRiotId(user.id, id, riotPublic);
+  } catch (error) {
+    if (error instanceof RiotIdTakenError) {
+      return res.status(409).json({ error: 'that riot id is already claimed', code: 'riot_id_taken' });
+    }
+    throw error;
+  }
+  res.json({ user: { ...user, riotId: `${id.gameName}#${id.tagline}`, riotPublic } });
 });
 
 // --- Google OAuth 2.0 (authorization code) ---

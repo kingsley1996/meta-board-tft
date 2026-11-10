@@ -22,11 +22,18 @@ async function userIdOf(id: number, code = 'no_such_player'): Promise<string> {
   return row.user_id;
 }
 
+// Những người tôi quen: danh sách đồng đội, hộp thư, thành viên tổ đội. JOIN sang users
+// ngay đây vì Riot ID là danh tính tài khoản, không nằm trong hồ sơ đền — và cờ
+// `riot_public` nằm trong mệnh đề ON nên một ID đang ẩn thậm chí không thành cột trong
+// kết quả, khỏi có nhánh nào quên lọc.
 async function publicMap(userIds: string[]): Promise<Map<string, PublicPlayer>> {
   const unique = [...new Set(userIds)];
   if (!unique.length) return new Map();
   const { rows } = await pool.query<PublicRow>(
-    'SELECT user_id, player_id, name, sect, title, honor, exp FROM temple_profiles WHERE user_id = ANY($1::uuid[])',
+    `SELECT p.user_id, p.player_id, p.name, p.sect, p.title, p.honor, p.exp, u.riot_game_name, u.riot_tagline
+     FROM temple_profiles p
+     LEFT JOIN users u ON u.id = p.user_id AND u.riot_public
+     WHERE p.user_id = ANY($1::uuid[])`,
     [unique],
   );
   return new Map(rows.map((r) => [r.user_id, toPublic(r)]));
@@ -334,8 +341,11 @@ socialRouter.post('/greetings', withAccount(async (req, res, user) => {
 // ---- helpers ------------------------------------------------------------------
 
 async function publicOne(userId: string): Promise<PublicPlayer> {
-  const { rows } = await pool.query(
-    'SELECT user_id, player_id, name, sect, title, honor, exp FROM temple_profiles WHERE user_id = $1',
+  const { rows } = await pool.query<PublicRow>(
+    `SELECT p.user_id, p.player_id, p.name, p.sect, p.title, p.honor, p.exp, u.riot_game_name, u.riot_tagline
+     FROM temple_profiles p
+     LEFT JOIN users u ON u.id = p.user_id AND u.riot_public
+     WHERE p.user_id = $1`,
     [userId],
   );
   if (!rows.length) throw new ApiError(404, 'no_such_player', 'nobody in the temple carries that id');

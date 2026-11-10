@@ -72,6 +72,12 @@ test('toPlayerProfile carries only what the room frame can draw', async () => {
   assert.equal(wire.level, 3);
   // sen/ngoc/duc là số liệu riêng tư: chúng không được đi theo avatar.
   assert.equal(Object.keys(wire).sort().join(','), 'appearance,equipped,honor,id,level,name,sect,title');
+  // riot là key duy nhất được gắn thêm *sau* bước lọc quyền riêng tư, nên khi không có
+  // Riot ID công khai thì nó phải biến mất hẳn chứ không được nằm trên dây với giá trị
+  // null/rỗng — một chuỗi rỗng sẽ hiện thành hàng trống trong thẻ người chơi.
+  assert.equal(toPlayerProfile(profile, null).riot, undefined);
+  assert.equal(Object.keys(toPlayerProfile(profile, null)).length, Object.keys(wire).length);
+  assert.equal(toPlayerProfile(profile, 'Leesin#123').riot, 'Leesin#123');
 });
 
 // --- DB-backed ---

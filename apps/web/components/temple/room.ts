@@ -18,6 +18,9 @@ export type RemotePlayer = {
   level: number;
   appearance: Record<string, unknown>;
   equipped: Record<string, unknown>;
+  // Chỉ có mặt khi người đó treo Riot ID công khai — máy chủ gắn key này đúng lúc phát
+  // hồ sơ, nên thẻ người chơi không cần biết cờ riêng tư là gì.
+  riot?: string;
   x: number;
   z: number;
   y: number;

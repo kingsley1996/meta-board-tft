@@ -35,6 +35,9 @@ test(
     const app = express();
     app.use(express.json());
     app.use('/api/temple', templeRouter);
+    // Riot ID ghi qua tuyến tài khoản (bảng users), nên bài test quyền riêng tư dưới đây
+    // cần cả hai router trong cùng một app.
+    app.use('/api/auth', (await import('../auth-routes.ts')).authRouter);
     const server: Server = app.listen(0);
     await new Promise((res) => server.once('listening', res));
     const base = `http://127.0.0.1:${(server.address() as { port: number }).port}`;
@@ -417,6 +420,42 @@ test(
       assert.equal((board2.messages as Json[]).length, 1);
       const stranger = await newUser('Người Ngoài');
       assert.equal((await post('/api/temple/group/join', { code: 'ZZZZZZ' }, stranger.cookie)).status, 404);
+
+      // --- Riot ID: một ô nhập, hai số phận theo một cờ ----------------------------
+      // Ghi ở tuyến tài khoản (PUT /api/auth/me) vì nó là danh tính người chơi chứ không
+      // phải thứ mặc trên avatar; đọc ở tuyến đền (GET /friends) vì đó là chỗ duy nhất
+      // *người khác* được thấy. Một request đi qua nẹp phiên thật mới chứng minh được cờ
+      // ấy chặn được gì.
+      const riotPut = (body: Json, cookie: string) => send('/api/auth/me', { cookie, method: 'PUT', body });
+      const peerRow = async (cookie: string, id: number) =>
+        (((await get('/api/temple/friends', cookie)).json.friends as Json[]).find((p) => p.id === id) ?? {}) as Json;
+
+      assert.equal((await riotPut({ riot_id: 'Leesin#12' }, me.cookie)).code, 'invalid_riot_id', 'tag is 3-5 characters');
+      assert.equal((await riotPut({ riot_id: 'Le esin#123' }, me.cookie)).code, 'invalid_riot_id', 'no space inside the name');
+      assert.equal((await riotPut({ riot_id: 'Leesin#123' }, 'mb_session=nonsense')).status, 401, 'no session, no identity');
+
+      const lit = await riotPut({ riot_id: 'Leesin#123', riot_public: true }, me.cookie);
+      assert.equal(lit.status, 200);
+      assert.equal(lit.json.user.riotId, 'Leesin#123');
+      assert.equal(lit.json.user.riotPublic, true);
+      assert.equal((await peerRow(me.cookie, nothing.me.id)).riot, undefined, 'the peer has not entered one yet');
+      assert.equal((await peerRow(nothing.cookie, me.me.id)).riot, 'Leesin#123', 'a public id reaches the friend list');
+
+      // Tắt cờ là biến mất ở lần đọc kế tiếp, không cần chờ ai xoá gì.
+      assert.equal((await riotPut({ riot_id: 'Leesin#123', riot_public: false }, me.cookie)).json.user.riotPublic, false);
+      assert.equal((await peerRow(nothing.cookie, me.me.id)).riot, undefined, 'private again, immediately');
+
+      // Bộ đôi mới là thứ duy nhất; trùng *tên* thì Riot còn cho phép, và viết hoa khác
+      // nhau không phải đường lọt qua chỉ mục.
+      assert.equal((await riotPut({ riot_id: 'Leesin#999', riot_public: true }, nothing.cookie)).status, 200);
+      const clash = await riotPut({ riot_id: 'leESIN#999', riot_public: true }, stranger.cookie);
+      assert.equal(clash.status, 409, 'the pair is already claimed');
+      assert.equal(clash.code, 'riot_id_taken');
+      // Chuỗi trống là XOÁ (khác 'tắt cờ'): một Riot ID rỗng mà còn treo public thì vô nghĩa.
+      const wiped = await riotPut({ riot_id: '', riot_public: true }, nothing.cookie);
+      assert.equal(wiped.json.user.riotId, null);
+      assert.equal(wiped.json.user.riotPublic, false);
+      assert.equal((await peerRow(me.cookie, nothing.me.id)).riot, undefined, 'the wipe took the peer view too');
 
       // --- Quà cầu may ----------------------------------------------------------
       // Thưởng mở quà nay cộng ngay lúc quà tới tay (social.ts:sendGreeting), nên phép

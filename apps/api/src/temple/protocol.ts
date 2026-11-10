@@ -26,6 +26,9 @@ export type PlayerProfile = {
   avatar?: string | null;
   appearance?: Record<string, unknown>;
   equipped?: Record<string, string>;
+  // Riot ID mà người này *tự treo cờ công khai*. Không phải lúc nào cũng có mặt: máy
+  // chủ chỉ gắn khi hàng users có riot_public, nên phía đọc không cần biết cờ là gì.
+  riot?: string;
   q?: boolean;
 };
 

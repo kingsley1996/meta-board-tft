@@ -31,6 +31,35 @@ test('requireEmailVerification follows AUTH_REQUIRE_EMAIL_VERIFICATION', async (
   }
 });
 
+test('parseRiotId matches the game-name#tagline shape and refuses to guess', async () => {
+  const { formatRiotId, parseRiotId } = await import('./accounts.ts');
+  assert.deepEqual(parseRiotId('Leesin#123'), { gameName: 'Leesin', tagline: '123' });
+  // Chữ có dấu vẫn là "chữ": người chơi Việt Nam gõ tên tiếng Việt là chuyện thường.
+  assert.deepEqual(parseRiotId('TámSao#TFT'), { gameName: 'TámSao', tagline: 'TFT' });
+  // Khoảng trắng *hai đầu* là chữ gõ thừa, không phải một phần của danh tính.
+  assert.deepEqual(parseRiotId('  Leesin # 123  '), { gameName: 'Leesin', tagline: '123' });
+  // Tên không được chứa '#' nên hai dấu là chuỗi sai, không phải lời mời đoán xem phần
+  // nào thuộc về ai.
+  assert.equal(parseRiotId('Leesin#1#234'), null);
+  assert.equal(parseRiotId('Leesin'), null);
+  assert.equal(parseRiotId('Leesin#'), null);
+  assert.equal(parseRiotId('#123'), null);
+  // 3–16 cho tên, 3–5 cho tag, chỉ chữ và số: mọi nhánh ngoài khoảng đều bị từ chối.
+  assert.equal(parseRiotId('Le#123'), null);
+  assert.equal(parseRiotId('abcdefghijklmnopq#123'), null);
+  assert.equal(parseRiotId('Leesin#12'), null);
+  assert.equal(parseRiotId('Leesin#123456'), null);
+  assert.equal(parseRiotId('Le esin#123'), null);
+  assert.equal(parseRiotId('Leesin#12!'), null);
+  for (const junk of [undefined, null, 42, {}, '']) assert.equal(parseRiotId(junk), null);
+
+  assert.equal(formatRiotId({ riot_game_name: 'Leesin', riot_tagline: '123' }), 'Leesin#123');
+  // Thiếu một trong hai cột là "chưa nhập", không phải một Riot ID cụt.
+  assert.equal(formatRiotId({ riot_game_name: 'Leesin', riot_tagline: null }), null);
+  assert.equal(formatRiotId({ riot_game_name: null, riot_tagline: '123' }), null);
+  assert.equal(formatRiotId({}), null);
+});
+
 // DB-backed tests: skip when no Postgres is configured (same guard as
 // conversation-store.test.ts — load the workspace .env before deciding).
 if (!process.env.DATABASE_URL) {
@@ -269,3 +298,64 @@ test(
     }
   }
 );
+
+test(
+  'riot id: the pair is what is unique, and a private one never leaves the users table',
+  { skip: !hasDb },
+  async () => {
+    const { pool } = await import('./db.ts');
+    const {
+      createUser,
+      ensureAccountTables,
+      findUserByEmail,
+      publicRiotId,
+      publicRiotIds,
+      RiotIdTakenError,
+      setRiotId,
+      toAuthUser,
+    } = await import('./accounts.ts');
+
+    await ensureAccountTables();
+    const hidden = await createUser({ email: `riot-a-${randomUUID()}@example.com`, emailVerified: true });
+    const shown = await createUser({ email: `riot-b-${randomUUID()}@example.com`, emailVerified: true });
+    try {
+      await setRiotId(hidden.id, { gameName: 'Leesin', tagline: '123' }, false);
+      await setRiotId(shown.id, { gameName: 'Leesin', tagline: '999' }, true);
+
+      // Trùng *tên* là chuyện bình thường — Riot không khoá riêng tên. Chỉ bộ đôi mới bị
+      // chỉ mục users_riot_id_key chặn, và chặn cả khi viết hoa khác nhau.
+      await assert.rejects(() => setRiotId(shown.id, { gameName: 'leESIN', tagline: '123' }, false), RiotIdTakenError);
+      // Cú đụng độ làm hỏng nguyên statement, nên hàng đang public không bị ghi dở: vẫn
+      // bộ đôi cũ, vẫn hiện — chứ không phải xoá xong mới chết ở bước đặt cờ.
+      assert.equal(await publicRiotId(shown.id), 'Leesin#999');
+      // và hàng đang bị giành cũng không vì thế mà lộ ra.
+      assert.equal(await publicRiotId(hidden.id), null);
+
+      // Chính tài khoản thì luôn đọc được Riot ID của mình, kể cả khi đang ẩn.
+      const ownRow = await findUserByEmail(hidden.email);
+      assert.equal(ownRow?.riot_game_name, 'Leesin');
+      assert.equal(ownRow?.riot_tagline, '123');
+      const own = toAuthUser(ownRow!);
+      assert.equal(own.riotId, 'Leesin#123');
+      assert.equal(own.riotPublic, false);
+
+      // Đường đọc công khai lọc ngay trong SQL: hàng tắt cờ không rời bảng users.
+      assert.equal(await publicRiotId(shown.id), 'Leesin#999');
+      assert.deepEqual([...(await publicRiotIds([hidden.id, shown.id]))], [[shown.id, 'Leesin#999']]);
+
+      await setRiotId(hidden.id, { gameName: 'Leesin', tagline: '123' }, true);
+      assert.equal((await publicRiotIds([hidden.id, shown.id])).size, 2);
+
+      // Tắt cờ là ẩn ngay lập tức; xoá thì sạch cả hai cột lẫn cờ.
+      await setRiotId(shown.id, { gameName: 'Leesin', tagline: '999' }, false);
+      assert.equal(await publicRiotId(shown.id), null);
+      await setRiotId(shown.id, null);
+      const wiped = toAuthUser((await findUserByEmail(shown.email))!);
+      assert.equal(wiped.riotId, null);
+      assert.equal(wiped.riotPublic, false);
+    } finally {
+      await pool.query('DELETE FROM users WHERE id = ANY($1::uuid[])', [[hidden.id, shown.id]]);
+    }
+  }
+);
+

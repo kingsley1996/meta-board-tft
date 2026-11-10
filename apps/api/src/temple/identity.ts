@@ -242,7 +242,11 @@ export async function templeProfile(userId: string, db: Pick<typeof pool, 'query
 // Hồ sơ mà máy khách cần để vẽ avatar một người. Máy khách không còn tự khai các
 // trường này: số liệu trên dây phải đến từ database, nếu không ai cũng đổi được
 // level/tên của mình bằng một gói tin.
-export function toPlayerProfile(profile: TempleProfile): PlayerProfile {
+//
+// `riot` là thứ duy nhất không nằm trong hồ sơ đền: nó ở bảng users (accounts.ts), và
+// người gọi phải tự đi hỏi bản *công khai* (publicRiotId) rồi đưa vào đây. Vì vậy tham số
+// để trống nghĩa là "người này không cho ai thấy", chứ không phải "quên chưa lọc".
+export function toPlayerProfile(profile: TempleProfile, riot?: string | null): PlayerProfile {
   return {
     id: profile.playerId,
     name: profile.name,
@@ -254,6 +258,9 @@ export function toPlayerProfile(profile: TempleProfile): PlayerProfile {
     appearance: profile.appearance,
     // world.js đọc equipped theo từng ô; giữ null là "không mặc", đúng như source.
     equipped: profile.equipped as Record<string, string>,
+    // Key phải biến mất chứ không được mang giá trị null: máy khách đọc `p.riot` và một
+    // chuỗi rỗng trên dây sẽ hiện thành hàng trống trong thẻ người chơi.
+    ...(riot ? { riot } : {}),
   };
 }
 

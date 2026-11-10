@@ -265,12 +265,23 @@ CREATE TABLE IF NOT EXISTS users (
   email_verified_at timestamptz,
   role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
   is_guest boolean NOT NULL DEFAULT false, -- entered the temple before registering
+  -- Riot ID, split in two so the display string is never parsed back. The temple
+  -- shows `riot_game_name#riot_tagline` to other players only when riot_public.
+  riot_game_name text,
+  riot_tagline text,
+  riot_public boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 -- Databases created before the admin flow moved onto accounts. The clause is a
 -- no-op once the column exists, so the CHECK from CREATE TABLE is not doubled.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin'));
 ALTER TABLE users ADD COLUMN IF NOT EXISTS is_guest boolean NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS riot_game_name text;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS riot_tagline text;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS riot_public boolean NOT NULL DEFAULT false;
+-- Riot chỉ khoá BỘ ĐÔI tên+tag, và khoá trên toàn Riot chứ không phải trên site. Hàng
+-- NULL (chưa nhập) phải ở ngoài chỉ mục nên mới là partial index.
+CREATE UNIQUE INDEX IF NOT EXISTS users_riot_id_key ON users (lower(riot_game_name), lower(riot_tagline)) WHERE riot_game_name IS NOT NULL AND riot_tagline IS NOT NULL;
 CREATE TABLE IF NOT EXISTS user_sessions (
   token_hash text PRIMARY KEY,          -- sha256 of the opaque cookie token
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,

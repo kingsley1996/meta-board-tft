@@ -18,6 +18,11 @@ export type AuthUser = {
   hasPassword: boolean;
   role: UserRole;
   isGuest: boolean;
+  // Riot ID của chính tài khoản này, dạng 'GameName#TAG'. null = chưa nhập.
+  riotId: string | null;
+  // Cờ "Hiện Riot ID": chỉ quyết định người *khác* có thấy riotId không, còn bản thân
+  // tài khoản thì luôn đọc được giá trị của mình.
+  riotPublic: boolean;
 };
 
 export type UserRow = {
@@ -30,6 +35,9 @@ export type UserRow = {
   email_verified_at: Date | null;
   role: string;
   is_guest: boolean;
+  riot_game_name: string | null;
+  riot_tagline: string | null;
+  riot_public: boolean;
   created_at: Date;
 };
 
@@ -62,6 +70,16 @@ export function ensureAccountTables(): Promise<void> {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin'))
     `);
     await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS is_guest boolean NOT NULL DEFAULT false');
+    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS riot_game_name text');
+    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS riot_tagline text');
+    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS riot_public boolean NOT NULL DEFAULT false');
+    // Chỉ bộ đôi tên+tag là duy nhất (và duy nhất trên toàn Riot, không phải trên site),
+    // nên chỉ mục khoá cặp đó; hàng chưa nhập Riot ID phải nằm ngoài.
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS users_riot_id_key
+      ON users (lower(riot_game_name), lower(riot_tagline))
+      WHERE riot_game_name IS NOT NULL AND riot_tagline IS NOT NULL
+    `);
     await pool.query(`
       CREATE TABLE IF NOT EXISTS user_sessions (
         token_hash text PRIMARY KEY,
@@ -138,7 +156,78 @@ export function toAuthUser(row: UserRow): AuthUser {
     hasPassword: row.password_hash !== null,
     role: row.role === 'admin' ? 'admin' : 'user',
     isGuest: row.is_guest === true,
+    riotId: formatRiotId(row),
+    riotPublic: row.riot_public === true,
   };
+}
+
+// --- Riot ID -----------------------------------------------------------------------
+// Khuôn Riot công bố: [Tên Trò Chơi]#[Khẩu hiệu] — tên 3–16 ký tự chữ+số, khẩu hiệu
+// 3–5 ký tự chữ+số. Bộ ĐÔI mới là thứ duy nhất (trên toàn Riot, không phải trên site),
+// còn tên thì trùng được; nên site chỉ khoá được bộ đôi (users_riot_id_key), không
+// khoá riêng tên. Cờ `riot_public` quyết định một người *khác* có thấy nó không.
+const RIOT_NAME = /^[\p{L}\p{N}]{3,16}$/u;
+const RIOT_TAG = /^[\p{L}\p{N}]{3,5}$/u;
+
+export type RiotId = { gameName: string; tagline: string };
+
+// Dấu '#' cuối chia hai phần: tên không được chứa '#' nên một chuỗi có nhiều dấu là
+// chuỗi sai, không phải lời mời đoán. Trả null cho cả hai nhánh "bịa" và "thiếu".
+export function parseRiotId(value: unknown): RiotId | null {
+  if (typeof value !== 'string') return null;
+  const at = value.lastIndexOf('#');
+  if (at < 0) return null;
+  const gameName = value.slice(0, at).trim();
+  const tagline = value.slice(at + 1).trim();
+  return RIOT_NAME.test(gameName) && RIOT_TAG.test(tagline) ? { gameName, tagline } : null;
+}
+
+// Dạng hiển thị duy nhất được phép đi trên dây. Hai cột để rời thì mới có thể làm
+// trống cả bộ; thiếu một trong hai là chưa nhập, không phải "nửa cái Riot ID".
+export function formatRiotId(row: { riot_game_name?: string | null; riot_tagline?: string | null }): string | null {
+  return row.riot_game_name && row.riot_tagline ? `${row.riot_game_name}#${row.riot_tagline}` : null;
+}
+
+// Chỉ những tuyến *cho người khác xem* mới được hỏi hàm này, và bộ lọc nằm trong SQL:
+// hàng riot_public = false không bao giờ rời database, nên không có nhánh đọc nào vô
+// tình phát tán một Riot ID riêng tư rồi mới nhớ ra phải xoá.
+export async function publicRiotIds(userIds: string[]): Promise<Map<string, string>> {
+  const unique = [...new Set(userIds)];
+  if (!unique.length) return new Map();
+  const { rows } = await pool.query<{ id: string; riot_game_name: string | null; riot_tagline: string | null }>(
+    'SELECT id, riot_game_name, riot_tagline FROM users WHERE riot_public AND id = ANY($1::uuid[])',
+    [unique],
+  );
+  return new Map(
+    rows
+      .map((r): [string, string | null] => [r.id, formatRiotId(r)])
+      .filter((e): e is [string, string] => e[1] !== null),
+  );
+}
+
+export async function publicRiotId(userId: string): Promise<string | null> {
+  return (await publicRiotIds([userId])).get(userId) ?? null;
+}
+
+export class RiotIdTakenError extends Error {}
+
+// null là XOÁ chứ không phải "giấu": một Riot ID rỗng mà còn treo cờ public thì để làm gì.
+export async function setRiotId(userId: string, id: RiotId | null, isPublic = false): Promise<void> {
+  if (!id) {
+    await pool.query('UPDATE users SET riot_game_name = NULL, riot_tagline = NULL, riot_public = false WHERE id = $1', [userId]);
+    return;
+  }
+  try {
+    await pool.query('UPDATE users SET riot_game_name = $2, riot_tagline = $3, riot_public = $4 WHERE id = $1', [
+      userId,
+      id.gameName,
+      id.tagline,
+      isPublic,
+    ]);
+  } catch (error) {
+    // 23505 = unique_violation trên users_riot_id_key: bộ đôi đó đã có người nhận trước.
+    throw (error as { code?: string }).code === '23505' ? new RiotIdTakenError('riot id already claimed') : error;
+  }
 }
 
 export async function findUserByEmail(email: string): Promise<UserRow | null> {

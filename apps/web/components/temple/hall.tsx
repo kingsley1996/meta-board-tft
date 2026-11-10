@@ -6,14 +6,14 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Gain, TempleState } from './api';
-import { get, post, put } from './api';
+import type { Gain, Riot, TempleState } from './api';
+import { get, getRiot, post, put, saveRiot } from './api';
 import { HERO_SPRITE, HEROES, ITEMS, Sound, TEMPLE, TRACKS, local, sectOf, type Hero } from './engine';
 import { luckyShower } from './effects';
 import { guideOf, storyOf } from './stories';
 import { LADDER_TOP, REALMS, REALM_ABOUT, ROMAN, realmLevels, rungOf } from '@/vendor/temple/js/ladder.js';
 import { heroThumb, itemThumb } from '@/vendor/temple/js/thumbs.js';
-import { GuestGate, Icon, Sheet, TitleBadge, ago, fmt, type Look, type Store } from './ui';
+import { GuestGate, Icon, Sheet, TitleBadge, ago, esc, fmt, type Look, type Store } from './ui';
 
 type RankRow = { rank: number; id: number; name: string; sect: string; title: string; honor: string; score: number; you: boolean };
 type Board = { scope: string; rows: RankRow[]; sects: { sect: string; score: number }[]; me: { rank: number | null; score: number } };
@@ -232,6 +232,12 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
   // thường là 100, admin là 0 — HUD không tự suy ra quy tắc từ cờ admin, và cũng không
   // giữ bản sao nào của con số 100. null = chưa đọc được giá, khác với 0 = được miễn.
   const [price, setPrice] = useState<number | null>(null);
+  // Riot ID nằm ở bảng users chứ không ở hồ sơ đền, nên nó đi qua /api/auth/me thay vì
+  // PUT /profile: cùng một ô nhập mà hai chỗ lưu thì trang /profile của site và tra cứu
+  // match của Coach sau này không còn đọc chung được nữa.
+  const [riot, setRiot] = useState<Riot | null>(null);
+  const [riotId, setRiotId] = useState('');
+  const [riotPublic, setRiotPublic] = useState(false);
   const hero = st?.appearance?.hero ?? '';
   const owned = st?.heroes ?? [];
   // Bộ sưu tập còn trống = người này chưa chọn lần nào, nên cả 12 ô đang cùng một giá:
@@ -242,6 +248,9 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
   const trimmed = name.trim();
   const dirty = trimmed !== '' && trimmed !== (st?.name ?? '');
 
+  const riotTrimmed = riotId.trim();
+  const riotDirty = riotTrimmed !== (riot?.riotId ?? '') || riotPublic !== (riot?.riotPublic ?? false);
+
   useEffect(() => {
     void get<{ cost: number }>('/hero')
       .then((r) => setPrice(r.cost))
@@ -250,6 +259,19 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
       .catch(() => setPrice(null));
   }, []);
 
+  // Khách không có tài khoản thật để gắn danh tính (tuyến /api/auth/me trả 401), nên
+  // hỏi han gì cũng phải chờ người đăng ký đã.
+  useEffect(() => {
+    if (s.guest) return;
+    void getRiot()
+      .then((r) => {
+        setRiot(r);
+        setRiotId(r.riotId ?? '');
+        setRiotPublic(r.riotPublic);
+      })
+      .catch(() => setRiot({ riotId: null, riotPublic: false }));
+  }, [s.guest]);
+
   const patch = async (body: Record<string, unknown>, ok: string) => {
     setBusy(true);
     try {
@@ -257,6 +279,29 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
       s.refreshLook(r.profile);
       await s.refresh();
       s.toast(ok);
+    } catch (e) {
+      s.toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Xong một Riot ID phải đẩy thêm một nhịp {t:'look'}: hồ sơ phát cho cả phòng đọc lại
+  // từ database, nên đó là lúc một ID vừa tắt biến mất khỏi thẻ người chơi của người
+  // khác — nếu không nó vẫn nằm đó tới lần nối lại kế tiếp.
+  const saveRiotId = async () => {
+    setBusy(true);
+    try {
+      const r = await saveRiot(riotTrimmed, riotPublic);
+      setRiot(r);
+      setRiotId(r.riotId ?? '');
+      setRiotPublic(r.riotPublic);
+      s.room?.send({ t: 'look' });
+      s.toast(
+        r.riotId
+          ? `Đã lưu ${esc(r.riotId)}${r.riotPublic ? ' · người khác thấy' : ' · chỉ bạn thấy'}`
+          : 'Đã xoá Riot ID',
+      );
     } catch (e) {
       s.toast((e as Error).message);
     } finally {
@@ -328,6 +373,33 @@ export function ProfileSheet({ s, onClose }: { s: Store; onClose: () => void }) 
             </button>
           </form>
           <p className="muted">Tối đa 28 chữ, mọi người trong sảnh thấy tên này.</p>
+          <div className="region">Riot ID</div>
+          <form
+            className="sg-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (riotDirty) void saveRiotId();
+            }}
+          >
+            <input
+              value={riotId}
+              maxLength={22}
+              onChange={(e) => setRiotId(e.target.value)}
+              placeholder="Leesin#123"
+              aria-label="Riot ID"
+            />
+            <button className="btn small gold" disabled={!riotDirty || busy}>
+              Lưu
+            </button>
+          </form>
+          <label className="setting">
+            <Icon name="users" /> Hiện Riot ID{' '}
+            <input type="checkbox" checked={riotPublic} disabled={!riotTrimmed} onChange={(e) => setRiotPublic(e.target.checked)} />
+          </label>
+          <p className="muted">
+            Không bắt buộc. Khuôn là Tên#Tag — tên 3–16 chữ, tag 3–5, chỉ bộ đôi mới là duy nhất. Bật &quot;Hiện Riot ID&quot; để thẻ
+            người chơi và danh sách đồng đội hiển thị nó.
+          </p>
         </>
       )}
       <p className="muted hero-note">

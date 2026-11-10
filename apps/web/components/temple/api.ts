@@ -46,6 +46,9 @@ export type PublicPlayer = {
   title: string;
   honor: string;
   level: number;
+  // Riot ID mà người này treo cờ công khai. Vắng mặt = họ không cho ai thấy (hoặc chưa
+  // nhập), nên đừng phân biệt hai trường hợp đó trên UI.
+  riot?: string;
 };
 
 // Trả lời của POST /guest — hồ sơ danh tính máy chủ vừa cấp. Phần này đủ để dựng avatar
@@ -191,11 +194,15 @@ const MESSAGES: Record<string, string> = {
   no_such_hero: 'Sảnh không vẽ được nhân vật này',
   invalid_hero: 'Không hiểu nhân vật này',
   hero_needs_purchase: 'Nhân vật phải đổi ở ô chọn hình, nơi trừ Kim Cương',
+  invalid_riot_id: 'Riot ID phải theo khuôn Tên#Tag — tên 3–16 chữ, tag 3–5',
+  riot_id_taken: 'Riot ID này đã có người nhận rồi',
 };
 
-export async function templeApi<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
+// Lời gọi HTTP thật: một chỗ duy nhất dịch { error, code } sang tiếng Việt để không
+// tuyến nào tự đoán mã lỗi. `url` là đường dẫn tuyệt đối tới backend qua Next rewrite.
+async function request<T>(url: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
   const sending = init.body !== undefined;
-  const res = await fetch(`/api/temple${path}`, {
+  const res = await fetch(url, {
     method: sending ? (init.method ?? 'POST') : 'GET',
     cache: 'no-store',
     credentials: 'same-origin',
@@ -213,6 +220,26 @@ export async function templeApi<T>(path: string, init: { method?: string; body?:
     throw new TempleApiError(res.status, code, MESSAGES[code] ?? 'Việc này sảnh chưa làm được, thử lại sau nhé');
   }
   return body as T;
+}
+
+export async function templeApi<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
+  return request<T>(`/api/temple${path}`, init);
+}
+
+// --- Riot ID (bảng users, không phải hồ sơ đền) -------------------------------------
+// Hình thức là 'Tên#Tag' nhưng server tách sẵn hai cột, nên HUD không bao giờ phải cắt
+// chuỗi để lưu. Cờ `riotPublic` chỉ quyết định *người khác* có thấy không.
+export type Riot = { riotId: string | null; riotPublic: boolean };
+
+export async function getRiot(): Promise<Riot> {
+  const { user } = await request<{ user: Riot }>('/api/auth/me');
+  return { riotId: user.riotId, riotPublic: !!user.riotPublic };
+}
+
+// Chuỗi trống nghĩa là xoá hẳn (server cũng trả riotPublic = false khi đó).
+export async function saveRiot(riotId: string, riotPublic: boolean): Promise<Riot> {
+  const { user } = await request<{ user: Riot }>('/api/auth/me', { method: 'PUT', body: { riot_id: riotId, riot_public: riotPublic } });
+  return { riotId: user.riotId, riotPublic: !!user.riotPublic };
 }
 
 export const get = <T>(path: string) => templeApi<T>(path);

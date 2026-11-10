@@ -645,6 +645,11 @@
 #temple-root .pcard-head b { font-size: 18px; }
 #temple-root .pcard-head p { font-size: 13px; color: #6b5640; margin: 2px 0; }
 #temple-root .pcard-head small { font-size: 12px; color: #9a8268; }
+/* Riot ID là danh tính trong game chứ không phải tên hiển thị, nên nó mượn đúng khuôn
+   chữ mã của .sg-code (monospace, letter-spacing) thay vì thêm màu hay thêm khối mới. */
+#temple-root .riot-id { font-family: ui-monospace, Menlo, monospace; letter-spacing: .04em; color: #6b5640; }
+#temple-root .pcard-head .riot-id { margin: 3px 0 0; font-size: 12.5px; }
+#temple-root .fr-body small.riot-id { color: #6b5640; }
 #temple-root .on { color: #2f8a3a; font-weight: 700; }
 #temple-root .pcard-gear { display: grid; grid-template-columns: 150px 1fr; gap: 10px; margin-bottom: 10px; align-items: start; }
 #temple-root .pcard-gear canvas.tryon { height: 210px; margin: 0; }

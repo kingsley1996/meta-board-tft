@@ -114,6 +114,8 @@ export function PlayerCard({ s, id, onClose }: { s: Store; id: number; onClose: 
           <p>
             <Icon name={`sect-${p.sect}`} /> {sect.name} · {rungLabel(p.level)}
           </p>
+          {/* Danh tính trong game, chỉ có khi người đó tự treo cờ công khai (ws.ts). */}
+          {p.riot ? <p className="riot-id">{p.riot}</p> : null}
           <small>
             <TitleBadge title={p.title} level={p.level} size={22} /> {p.title}
           </small>
@@ -500,6 +502,7 @@ export function FriendsSheet({ s, notice, tab0, onClose }: { s: Store; notice: N
         <small>
           <TitleBadge title={p.title} level={p.level} size={18} /> {rungLabel(p.level)} · {p.title}
         </small>
+        {p.riot ? <small className="riot-id">{p.riot}</small> : null}
       </div>
       <div className="fr-side" onClick={(e) => e.stopPropagation()}>
         {side}

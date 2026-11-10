@@ -9,6 +9,7 @@
 import type { Server } from 'node:http';
 import type { Duplex } from 'node:stream';
 import { WebSocketServer, type WebSocket } from 'ws';
+import { publicRiotId } from '../accounts.ts';
 import { readState, type PlayerProfile } from './protocol.ts';
 import { ROOM_TICK_MS, TempleRooms, type RoomMember } from './rooms.ts';
 import { ensureTempleProfile, templeProfile, toPlayerProfile } from './identity.ts';
@@ -52,7 +53,7 @@ function send(ws: WebSocket, payload: Buffer | string): void {
 async function profileForJoin(holder: TicketHolder): Promise<PlayerProfile | null> {
   const profile = (await templeProfile(holder.userId)) ?? (await ensureTempleProfile(holder.userId));
   if (!profile || profile.playerId !== holder.playerId) return null;
-  return toPlayerProfile(profile);
+  return toPlayerProfile(profile, await publicRiotId(holder.userId));
 }
 
 export function attachTempleWs(server: Server): TempleRealtime {
@@ -186,7 +187,10 @@ export function attachTempleWs(server: Server): TempleRealtime {
         // một người nghĩa là một avatar đứng hai chỗ.
         const fresh = await templeProfile(userId);
         if (!fresh || fresh.playerId !== member.profile.id) break;
-        member.profile = toPlayerProfile(fresh);
+        // Riot ID đọc lại cùng lúc: người chơi vừa tắt cờ "Hiện Riot ID" thì phòng phải
+        // nhận đúng một hồ sơ *không còn* key đó, nếu không cái tên đã ẩn vẫn bay đi
+        // khắp sảnh cho tới lần nối lại kế tiếp.
+        member.profile = toPlayerProfile(fresh, await publicRiotId(userId));
         // Không loại tác nhân: chính người vừa lên bậc/đổi tên cũng phải nhận lại hồ sơ
         // của mình thì nhãn trên đầu họ mới đổi theo.
         rooms.publish(member.temple, member.room, JSON.stringify({ t: 'prof', p: [member.profile] }));

@@ -1,5 +1,6 @@
 // Mô-đun đọc của chùa: mọi response của HUD đều đi qua đây, để HUD chỉ phải biết
 // đúng một kiểu dữ liệu thay vì hai mươi hình dạng khác nhau theo từng tuyến.
+import { formatRiotId } from '../accounts.ts';
 import { pool } from '../db.ts';
 import { expForLevel, levelFromExp, templeProfile, type TempleProfile } from './identity.ts';
 import { practiceJournal, practiceLifetime, practiceToday, type PracticeDelta } from './merit.ts';
@@ -44,6 +45,9 @@ export type PublicPlayer = {
   title: string;
   honor: string;
   level: number;
+  // Vắng mặt = người này chưa treo Riot ID công khai. Không bao giờ là chuỗi rỗng,
+  // nên phía đọc chỉ cần `p.riot ? … : …` mà không phải đoán hai trạng thái "không có".
+  riot?: string;
 };
 
 export function toState(profile: TempleProfile, today: PracticeDelta & { day: string }, lifetime: PracticeDelta): TempleState {
@@ -91,9 +95,22 @@ export async function templeState(userId: string, opts: { journal?: boolean } = 
   return state;
 }
 
-export type PublicRow = { user_id: string; player_id: string; name: string; sect: string; title: string; honor: string; exp: number };
+export type PublicRow = {
+  user_id: string;
+  player_id: string;
+  name: string;
+  sect: string;
+  title: string;
+  honor: string;
+  exp: number;
+  // Hai cột này chỉ có khi hàng SELECT JOIN sang users *và* SQL đã lọc riot_public.
+  // Hàng không JOIN (bia xếp hạng, danh sách tỷ thí) thì chúng vắng mặt, chứ không null.
+  riot_game_name?: string | null;
+  riot_tagline?: string | null;
+};
 
 export function toPublic(row: PublicRow): PublicPlayer {
+  const riot = formatRiotId(row);
   return {
     id: Number(row.player_id),
     name: row.name,
@@ -101,6 +118,7 @@ export function toPublic(row: PublicRow): PublicPlayer {
     title: levelFromExp(row.exp).title,
     honor: row.honor,
     level: levelFromExp(row.exp).level,
+    ...(riot ? { riot } : {}),
   };
 }
 
