@@ -356,6 +356,16 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
     }
     // Tới nơi: ngồi xuống ghế của mình, cúi lạy, hoặc đứng chơi.
     bot.begun = now;
+    if ((bot.mood === 'sit' || bot.mood === 'pray') && seatTakenByOther(bot)) {
+      // Một người thật đã lấy chiếc bồ đoàn này trong lúc bot còn đi. Ngồi đè là hai
+      // avatar trùng một chỗ, nên đổi ghế và đứng đợi: choose() chạy ngay sau bước này
+      // (until=0) sẽ tính lại cả quãng đi lẫn thời gian của phần việc mới.
+      bot.cushion = freeSeat(bot.cushion + 1);
+      bot.begun = 0;
+      bot.until = 0;
+      push(bot);
+      return;
+    }
     if (bot.mood === 'sit') {
       bot.seat = bot.cushion;
       bot.yaw = 0;
@@ -612,12 +622,28 @@ export function startTempleBots(rooms: TempleRooms): TempleBots {
   }
 
   function freeSeat(from: number): number {
-    const taken = new Set(rooms.members(HALL, ROOM).map((m) => m.state.seat).filter((s) => s >= 0));
+    const taken = seatsTaken();
     for (let k = 0; k < SEATS; k++) {
       const i = (from + k) % SEATS;
       if (!taken.has(i)) return i;
     }
     return -1;
+  }
+
+  // Những chiếc ghế đang có chủ. `state.seat` trên dây chỉ nói lên người *đã ngồi xuống*,
+  // mà một bot thì báo -1 suốt quãng đường đi (walkTo) — nhìn mỗi dây thì bot kế tiếp
+  // thừa hưởng chiếc bồ đoàn của một bot đang tới, và cả hai ngồi lên cùng một chỗ.
+  // Cộng nên cushion mà từng bot đang có mặt đang giữ, kể cả lúc đang đi.
+  function seatsTaken(): Set<number> {
+    const taken = new Set(rooms.members(HALL, ROOM).map((m) => m.state.seat).filter((s) => s >= 0));
+    for (const other of present.values()) if (other.cushion >= 0) taken.add(other.cushion);
+    return taken;
+  }
+
+  // Còn ai thật sự ngồi trên ghế của bot không — người thật bấm ngồi cạnh cửa là trường
+  // hợp lệ duy nhất, vì ghế của bot đã được giữ ở seatsTaken() rồi.
+  function seatTakenByOther(bot: Bot): boolean {
+    return rooms.members(HALL, ROOM).some((m) => m.profile.id !== bot.profile.id && m.state.seat === bot.cushion);
   }
 
   async function admit(entry: Seeded): Promise<void> {
