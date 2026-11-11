@@ -193,6 +193,48 @@ export const HERO_LIST = [
     skin: '#e8b892',
     aura: '#60a5fa',
   },
+  {
+    // Hình thứ 16: Zed tí nị (ảnh zed-ti-ni.jpg, 980x980). Mỗi hex dưới đây là median của
+    // một vùng đo thẳng trong ảnh (script quét dải hue), không phải màu đoán:
+    //   robeColor  #6b6a6c = giáp xám (BỎ XANH)        (0.33,0.50,0.67,0.88, sat<=30 v>=90 —
+    //     median 901 px sat 18 v 119. Ảnh Zed là XÁM + ĐỎ pha nhau: bản #4f5893 hue 232 là
+    //     màu NỀN lavender-đen sau lưng tướng, không phải màu áo, nên bỏ hẳn xanh tím.
+    //     Hex đo #666577 vẫn còn hue 250 sat 12 (ambient tím ngấm vào cả bóng lẫn sáng);
+    //     giữ nguyên v 107 và ép sat về 1 -> #6b6a6c, đúng "áo pha đỏ-xám, bỏ xanh".)
+    //   pantsColor #4b4a4d = ống chân xám tối          (0.33,0.78,0.67,0.98 sat<=30 — median
+    //     2.159 px sat 20 v 87, tối hơn áo một bậc đúng vì chân ở dưới vạt áo; cùng phép ép
+    //     sat->1 ở v 76 từ hex đo #434557)
+    //   sashColor  #721a26 = vải đỏ + đai              (0.30,0.40,0.70,0.62 dải hue 340-360
+    //     sat>=60 — median 724 px; dải hue 0-18 chỉ 256 px và lệch sang cam #861a14)
+    //   skin       #2e2d30 = giáp tay; hình này KHÔNG lộ da, nạ sắt phủ kín đầu, nên skin
+    //     chỉ còn là màu khối đầu dưới phiến sơn + hai bàn tay (median xám tối toàn ảnh:
+    //     sat 19 v 57, 1.616 px; hex đo #2a2639 hue 250 nên cũng ép sat về 2 ở v 48)
+    //   skillColor #cd222d = đỏ mắt phát sáng         (dải hue 345-12, sat>=130, v>=120, 2.995 px)
+    //   aura       #4b376b = tím của bóng             (bucket palette sat 94 quanh hue 285,
+    //     đúng sắc vùng bóng đen ở góc trên trái ảnh)
+    // Hoá phục là NẠ + GIÁP nên costumeLocked như Hiệp Sĩ Dơi: ô chọn nhân vật truyền vào
+    // một tấm áo trung hoà '#8f6a3e', không khoá thì hình này ra màu áo đó chứ không ra sắt.
+    // Hai ảnh sculpt mới (images 7/8) là ZBrush ĐƠN SẮC xám nên không đo được màu nào từ
+    // chúng — chúng chỉ trả lời hình khối: mũ sắt + vải đỏ phủ xuống, lưỡi dọc cánh tay.
+    id: 'zed_chibi',
+    name: 'Người Đeo Bóng',
+    title: 'Một Kiếm Ngàn Bóng',
+    costumeLocked: true,
+    skillColor: '#cd222d',
+    robeColor: '#6b6a6c',
+    pantsColor: '#4b4a4d',
+    sashColor: '#721a26',
+    skin: '#2e2d30',
+    aura: '#4b376b',
+    // faceMetal: phiến sơn KHÔNG phải vải. Sảnh có scene.environment (world.js:77,
+    // RoomEnvironment PMREM intensity 0,35; thumbnail 0,55 ở thumbs.js:140) nên metalness
+    // có phản xạ để nhân — 0,55/0,26 là bạc đánh bóng; hai hình kia giữ mặc định 0/0,45.
+    faceMetal: { metalness: 0.45, roughness: 0.24 },
+    // armPose 'down': hai tay BUÔNG DỌC THÂN khi đứng, không chắp trước ngực như mọi hình
+    // khác, vì hai lưỡi kiếm đi dọc cẳng tay — chắp thì hai mũi chĩa vào nhau trước bụng.
+    // Khi ngồi vào bệ và cầu may (k = meditate -> 1) tay vẫn về lòng như mọi người.
+    armPose: 'down',
+  },
 ];
 
 export const HERO_MAP = Object.fromEntries(HERO_LIST.map((h) => [h.id, h]));
@@ -312,7 +354,7 @@ const FACE_TEX_CACHE = new Map();
 // 2π. Hình khác chỉ cần facePatch ±57,6°.
 // Danh sách này là nguồn duy nhất: makeHeroFaceTex chọn kích thước canvas theo nó và
 // buildHeroAvatar chọn geometry (G.wrapMask hay G.facePatch) theo nó.
-const WRAP_FACE_IDS = new Set(['yone_chibi', 'leesin_chibi', 'batman_chibi']);
+const WRAP_FACE_IDS = new Set(['yone_chibi', 'leesin_chibi', 'batman_chibi', 'zed_chibi']);
 function makeHeroFaceTex(heroId) {
   if (FACE_TEX_CACHE.has(heroId)) return FACE_TEX_CACHE.get(heroId);
   if (typeof document === 'undefined') return null;
@@ -945,11 +987,176 @@ function makeHeroFaceTex(heroId) {
     g.beginPath(); g.moveTo(216, 344); g.quadraticCurveTo(256, 352, 296, 344); g.stroke();
     g.fillStyle = 'rgba(120,53,15,0.16)';
     g.beginPath(); g.ellipse(256, 404, 60, 24, 0, 0, Math.PI * 2); g.fill();
+  } else if (hero.id === 'zed_chibi') {
+    // NẠ SẮT ZED = MỘT phiến sơn liền trên G.wrapMask (quấn 2π, tới theta 144,9°): SẮT
+    // phủ trọn mặt (vòm + hai má + quai hàm), khăn đỏ chỉ còn ở hai bên và sau gáy, mũ
+    // vàng là dải khép quanh trán chứ không sa xuống cằm.
+    // ẢNH THAM KHẢO NGHIÊNG 3/4 nên không đổi ảnh -> mặt cầu bằng phép chia tuyến tính
+    // (bản trước lấy theta = (y + 227,6) / 763 * 144,9° nên mọi lớp bị kéo tụt xuống
+    // cằm và mặt nạ tưởng như chỉ che nửa mặt). Ảnh là phép chiếu vuông góc của khối
+    // cầu đã xoay, nên toạ độ ảnh là sin/cos của góc, không phải tỉ lệ dài cung:
+    //   screen_x = CX - R * x_local,   screen_y = CY - R * cos(theta)
+    // với đĩa đầu đo trong ảnh 980px: CX 0,556 / CY 0,449 / R 0,168 (đỉnh vòm ở ảnh-y
+    // 0,281) và tư thế yaw psi = -6,75°, roll rho = +8° (rho giải từ yêu cầu hai mắt đối
+    // xứng: đường mắt nghiêng 8,1° trong ảnh). Quay ngược hai góc đó rồi đọc chuỗi màu
+    // dọc từng kinh tuyến cho ra mọi biên dưới đây, không có số nào mắt ước.
+    // P(phương vị, theta) -> px trên lưới 512 cũ (canvas đã translate 544, 227,6):
+    //   1° phương vị = 800/180 = 4,4444 px,  1° cực = 763/144,9 = 5,2657 px
+    // hai trục KHÔNG đẳng hướng nên một vòng tròn vẽ bằng px ở đây sẽ dẹt dọc 0,844x.
+    // SẮT có hai bậc và cả hai phải LÀM XÁM, không làm xanh. VÒNG NÀY NÂNG SÁNG cả hệ vì
+    // user: "mũ đang có màu xám hơi tối, chuyển qua màu bạc sáng hơn". Số mới không phải
+    // nhấc cảm tính: median vùng vòm sắt thật trong ảnh (0,45,0,28 -> 0,65,0,36 = đúng nửa
+    // trên khối đầu, 1.440 px no màu) ra #6377a4, v 164; hai ô kiểm chứng kề nhau cho mean
+    // #697c99 (v 153) và #687eb0 (v 176). Bậc cũ #737175 lấy v 117 từ vùng má ĐÃ quay khỏi
+    // đèn nên cả nạ tối hơn ảnh một bậc rõ. Hue 222 vẫn là ambient xanh-tím của CẢNH chứ
+    // không phải màu nạ (user đã bác "xanh hay đen" hai lần) nên giữ nguyên CẤU TRÚC kênh
+    // của bậc cũ và chỉ nhân giá trị: r 115->161, g 113->158, b 117->164.
+    // steelDeep = steel x 0,846 (giữ đúng tỉ số 99/117 đã đo), steelLit = steel x 1,33.
+    const steel = '#a19ea4', steelDeep = '#88868b', steelLit = '#d6d2da';
+    const gold = '#cf9561', goldShade = '#6a5247', cloth = '#5e1319';
+    // slit = lòng khe tối (hố thì vẫn đen thật, chỉ không được NGÃ XANH): #2b2a30 sat 5.
+    const slit = '#2b2a30', eye = '#cd222d', eyeCore = '#f03050';
+    const D2PX = 4.4444, T2PX = 5.2657;
+    const P = (az, th) => [256 + az * D2PX, th * T2PX - 227.6];
+    const poly = (pts) => {
+      g.beginPath();
+      pts.forEach(([a, t], i) => { const [x, y] = P(a, t); if (i) g.lineTo(x, y); else g.moveTo(x, y); });
+      g.closePath();
+    };
+
+    // (1) SẮT phủ trọn tấm, kể cả sau gáy: một surface duy nhất, không biên nào khớp
+    // biên nào. Hai khoảng tối đầu/cuối gradient là từ kinh tuyến |az| = 88° trở ra
+    // (canvas x 0..448 và 1152..1600) - đúng chỗ khối đầu quay khỏi đèn.
+    const body = g.createLinearGradient(0, 0, 1600, 0);
+    body.addColorStop(0, steelDeep); body.addColorStop(0.28, steel);
+    body.addColorStop(0.72, steel); body.addColorStop(1, steelDeep);
+    g.fillStyle = body; g.fillRect(-544, -260, 1600, 800);
+
+    // (2) QUAI HÀM tối dần, tối VỪA PHẢI: bản alpha 0,9 đổ steelDeep kín từ theta 96 xuống
+    // đáy nên nửa dưới mặt nạ thành một mảng ĐEN (user: "vẫn còn một nửa mũ chưa tô màu
+    // xám"). 0,35: phiến giờ là kim loại (faceMetal, metalness 0,45) nên diffuse đã mất
+    // sẵn 45%, một gradient 0,55 chồng lên nữa là nửa dưới thành than không đọc ra xám.
+    const jaw = g.createLinearGradient(0, P(0, 96)[1], 0, P(0, 145)[1]);
+    jaw.addColorStop(0, 'rgba(136,134,139,0)'); jaw.addColorStop(1, 'rgba(136,134,139,0.35)');
+    g.fillStyle = jaw; g.fillRect(-544, P(0, 96)[1], 1600, P(0, 145)[1] - P(0, 96)[1]);
+
+    // (3) KHĂN ĐỎ chỉ ở hai bên + sau gáy. Mép trên đọc từ chuỗi DO: theta 100 ở phương
+    // vị 50° -> 87 ở 60 -> 80 ở 70 -> 76 ở 80 -> 73 ở 90 rồi vòng ra sau; mép dưới là
+    // 128/126/118/120 - dưới nó ảnh trả lại SẮT, tức gờ sau của chính chiếc nạ.
+    const hoodTop = [[50, 100], [60, 87], [70, 80], [80, 76], [90, 73], [120, 70], [180, 68]];
+    const hoodBot = [[180, 150], [120, 150], [90, 120], [80, 118], [70, 126], [60, 128], [50, 126]];
+    g.fillStyle = cloth;
+    for (const s of [1, -1]) { poly(s > 0 ? hoodTop.concat(hoodBot) : mir(hoodTop).concat(mir(hoodBot))); g.fill(); }
+
+    // (4) MŨ VÀNG: MỘT miền khép, không chạm đáy phiến. Vách dưới là chuỗi VANG đo được:
+    // chóp sa xuống thấp nhất rơi đúng theta 123 ở phương vị 0 (phần giữa hai mắt), eo ở
+    // 12°, rồi cánh lượn ra tới ngọn ngoài cùng ở 42°. Vách trên cất từ 89° giữa trán lên
+    // 57° ở 16° (đỉnh cánh) rồi hạ 61/67/74/76 ra phía thái dương.
+    // NGỌN CẠNH DỪNG Ở ±68°, không còn quét ra 92°: ảnh cho thấy sau ngọn cánh là KHĂN ĐỎ
+    // (bước 3), còn bản cũ kéo một dải vàng vòng qua thái dương ra tận gáy nên nhìn từ
+    // sau/sau-bên là cả nửa đầu vàng khè thay vì sắt xám.
+    // Biên nằm ở ZED_CROWN module scope vì phiến NÔ 3D của đúng dải này vẽ từ toạ độ đó.
+    const crown = ZED_CROWN;
+    g.fillStyle = gold; poly(crown.concat(mir(crown))); g.fill();
+    g.strokeStyle = goldShade; g.lineWidth = 8; g.lineJoin = 'round'; poly(crown.concat(mir(crown))); g.stroke();
+    // Điểm sáng nhất của cả khối đo ở (phương vị -58°, theta 52°) ra #d5ffff — ở THÉP chứ
+    // không ở vàng (bản trước ghi nhầm "trên dải vàng" rồi vẽ một ellipse đặc 26x12: trên
+    // cầu nó thành một vết xước trắng nổi giữa vòm). Highlight trên mặt cầu là MỘT VÙNG
+    // TAN DẦN, nên vẽ bằng radialGradient bo nét, dẹt dọc 2:1 theo hướng cong của vòm.
+    {
+      const [sx, sy] = P(-58, 52);
+      g.save(); g.translate(sx, sy); g.scale(1, 0.5);
+      const glint = g.createRadialGradient(0, 0, 3, 0, 0, 54);
+      glint.addColorStop(0, 'rgba(213,255,255,0.55)');
+      glint.addColorStop(0.55, 'rgba(213,255,255,0.22)');
+      glint.addColorStop(1, 'rgba(213,255,255,0)');
+      g.fillStyle = glint; g.beginPath(); g.arc(0, 0, 54, 0, Math.PI * 2); g.fill();
+      g.restore();
+    }
+
+    // (5) CHỮ V TRÁN: hai dải, hai vai trò khác nhau. Dải DƯỚI (vB, theta 46..84) là VÀNG
+    // — đó là càng mày liền mạch với phiến mặt bước 4, đúng nét user chốt "đổi màu V thành
+    // màu gold". Dải TRÊN (vA, theta 14..59) nằm trên VÒM SỌ, và vòm trong ảnh là sắt xám
+    // với một phù hiệu KHẮC TỐI ở giữa (đo #3f4363, hue do ambient tím của cảnh nên đã bỏ
+    // bão hoà, xem bước 2). Bản cũ tô vàng cả hai dải nên nửa trên đầu thành vàng, không
+    // còn là "mũ sắt xám bạc".
+    const vA = [[0, 38], [16, 24], [32, 14], [34, 26], [18, 40], [0, 59]];
+    const vB = ZED_VB;
+    g.fillStyle = steelDeep; poly(vA.concat(mir(vA))); g.fill();
+    g.strokeStyle = slit; g.lineWidth = 6; g.lineJoin = 'round'; poly(vA.concat(mir(vA))); g.stroke();
+    g.fillStyle = gold; poly(vB.concat(mir(vB))); g.fill();
+    g.strokeStyle = goldShade; g.lineWidth = 7; poly(vB.concat(mir(vB))); g.stroke();
+
+    // (5b) ĐƯỜNG KHẮC ĐỈNH VÒM: rãnh hẹp phương vị 0 chạy theta 2..36, rộng 8px (=1,8°),
+    // chính hex sắt tối. Trong ảnh chibi nó là nét chia hai nửa mũ, và nó cắt qua phù hiệu
+    // khắc ở vòm (bước 5, dải vA) nên phải là HEX RÃNH (slit) chứ không phải steelDeep —
+    // steelDeep giờ gần bằng steel nên vẽ lên vA thành một đường vô hình.
+    g.fillStyle = slit;
+    g.fillRect(256 - 4, P(0, 2)[1], 8, 34 * T2PX);
+
+    // (5c) LƯỚI MIỆNG = PHIẾN SẮC BẠC SÁNG HƠN MẶT NẠ, không phải một chóp tam giác. Trong
+    // ảnh, từ dưới mũi xuống cằm là một phiến SÁNG hơn mặt nạ xung quanh (đo #58494e ở grill
+    // trái, v 88, trong khi quai hàm bóng v 53) và nó mang các khe thở. Bản trước chỉ vẽ tam
+    // giác cằm alpha 0,55 nên vùng miệng tối bằng đúng nền -> bước 6 tô khe lên đó thành
+    // "không thấy rãnh miệng đâu".
+    // steelLit = steel x 1,33 (v 164 -> 218), giữ nguyên cấu trúc kênh đã ép bão hoà.
+    // Lý do phải nhấc hex chứ không nhấc đèn: phiến giờ là kim loại (faceMetal 0,45) và nó
+    // ở theta 116..144, tức pháp tuyến chúi xuống dưới - cao hơn đèn key (2,4,-3) nên diffuse
+    // gần bằng 0; đo lại thumb.png thì cả vùng này ra #1a1a1c dù đã sơn steel. Không có đèn
+    // nào trong sảnh rọi từ dưới lên, nên độ sáng phải nằm trong SƠN.
+    // Cạnh trên ở theta 116: hốc mắt vẽ sau (bước 7) có đáy ở 106,7 + 52px = 116,5, nên phiến
+    // bắt đầu ngay dưới mắt chứ không chui vào mắt. Đáy 144 là trần: phiến quấn dừng ở
+    // 144,9° (0,805π), bản vẽ tới 148 bị cắt mất chóp ngay mép.
+    const grill = [[0, 116], [20, 118], [36, 122], [44, 128], [34, 140], [14, 144], [0, 144]];
+    g.fillStyle = steelLit; poly(grill.concat(mir(grill))); g.fill();
+    g.strokeStyle = steel; g.lineWidth = 7; g.lineJoin = 'round';
+    poly(grill.concat(mir(grill))); g.stroke();
+    // Sống mũi bằng vàng có khe tối chính giữa (ảnh: DO ở theta 105..110, phương vị 0).
+    g.fillStyle = 'rgba(43,42,48,0.5)';
+    g.fillRect(250, P(0, 104)[1], 12, 10 * T2PX);
+
+    // (6) LƯỚI THỞ: BA khe mỗi bên, nằm TRONG phiến bước 5c (không được vượt biên nó).
+    // Rộng 24px = 5,4° phương vị; bản 20px trên nền tối bằng nhau nên thumbnail 144px
+    // không còn thấy rãnh nào. Khe vẫn là đường constant-az (thẳng đứng trên canvas) vì
+    // trên mặt cầu nó TỰ nghiêng theo má — nghiêng trong ảnh là phối cảnh, không phải nét vẽ.
+    g.fillStyle = slit;
+    for (const s of [-1, 1]) {
+      for (const [az, t0, t1] of [[12, 122, 141], [24, 124, 139], [36, 127, 134]]) {
+        const [x, y] = P(az * s, t0);
+        g.beginPath(); g.roundRect(x - 12, y, 24, (t1 - t0) * T2PX, 11); g.fill();
+      }
+    }
+
+    // (7) HAI MẮT ĐỎ trong hốc. Tâm phương vị ±24°, theta 106,7° (centroid vùng đỏ đo
+    // riêng từng bên: +25,3/106,8 và -23,9/106,7). Trục dài nghiêng 37° để khóe NGOÀI
+    // cao hơn khóe TRONG - góc trục hiệp phương sai của vùng đỏ phía gần. Lõi 46x24 nằm
+    // trong bbox lõi đo được (91x60 px), hốc tối 78x52 bao quanh.
+    for (const s of [-1, 1]) {
+      const [ex, ey] = P(24 * s, 106.7);
+      // Quầng: ảnh loè thật (vùng đỏ v>=120 gấp 1,7 vùng lõi v>=190) nên vẽ rộng hơn
+      // bằng chính hex đó ở alpha thấp, không phải một màu thứ hai.
+      g.save(); g.translate(ex, ey); g.rotate(s * -0.65);
+      g.globalAlpha = 0.3; g.fillStyle = eye;
+      g.beginPath(); g.ellipse(0, 0, 88, 58, 0, 0, Math.PI * 2); g.fill();
+      g.globalAlpha = 1;
+      // Hốc mắt phải TỐI: steelDeep giờ là xám bạc (bậc shadow của sắt) nên để nó ở đây
+      // thì quầng quanh mắt tan vào mặt nạ; lòng khe (slit) mới là hex rãnh thật.
+      g.fillStyle = slit;
+      g.beginPath(); g.ellipse(0, 0, 78, 52, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = eye;
+      g.beginPath(); g.ellipse(0, 0, 68, 40, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = eyeCore;
+      g.beginPath(); g.ellipse(0, 0, 46, 24, 0, 0, Math.PI * 2); g.fill();
+      g.restore();
+    }
   }
 
-  // Mũi 3D shading nhẹ ở giữa
-  g.fillStyle = 'rgba(120,53,15,0.22)';
-  g.beginPath(); g.moveTo(256, 268); g.lineTo(246, 296); g.lineTo(264, 296); g.closePath(); g.fill();
+  // Mũi 3D shading nhẹ ở giữa. Riêng Zed bỏ: tam giác này rơi đúng theta 94..99, phương
+  // vị -2..+2 tức ngay sống mũi VÀNG của nạ, nên nó thành một vệt nâu trên kim loại.
+  if (hero.id !== 'zed_chibi') {
+    g.fillStyle = 'rgba(120,53,15,0.22)';
+    g.beginPath(); g.moveTo(256, 268); g.lineTo(246, 296); g.lineTo(264, 296); g.closePath(); g.fill();
+  }
 
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -970,12 +1177,16 @@ function m(geo, material, x = 0, y = 0, z = 0, o = {}) {
 // trong pets.js (thanh_long đã ship) - ở đây nó là primitive DUY NHẤT dựng nét
 // cong có bề dày, vì TubeGeometry bán kính không đổi luôn ra một cái ống: đúng thứ bị
 // bác cho lọn tóc. flat < 1 ép tiết diện thành dải, r0 -> r1 cho phép ngọn nhọn hoắt.
-function ribbon(points, r0, r1, { seg = 12, rad = 6, flat = 1 } = {}) {
+// `rs` là bảng bán kính THEO TỪNG ĐỐT (độ dài seg+1) thay vì nội suy r0->r1: một lưỡi
+// gươm thật thì SONG SONG suốt thân và chỉ thuôn ở đoạn cuối, còn nội suy tuyến tính
+// luôn ra tam giác = cái móng vuốt.
+function ribbon(points, r0, r1, { seg = 12, rad = 6, flat = 1, rs = null } = {}) {
   const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
   const fr = curve.computeFrenetFrames(seg, false);
+  const prof = rs ?? Array.from({ length: seg + 1 }, (_, i) => r0 + (r1 - r0) * (i / seg));
   const pos = [], nor = [], idx = [], p = new THREE.Vector3(), n = new THREE.Vector3();
   for (let i = 0; i <= seg; i++) {
-    const t = i / seg, r = r0 + (r1 - r0) * t;
+    const t = i / seg, r = prof[i];
     curve.getPointAt(t, p);
     for (let j = 0; j < rad; j++) {
       const q = (j / rad) * Math.PI * 2;
@@ -991,6 +1202,100 @@ function ribbon(points, r0, r1, { seg = 12, rad = 6, flat = 1 } = {}) {
   g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
   g.setIndex(idx);
   return g.toNonIndexed();
+}
+
+// PHÙ HIỆU NÔ TRÊN MẶT CẦU: sơn chỉ tô được ĐÚNG vỏ, còn "nổi khối" thì phải có bán kính
+// riêng. Cách làm: một lưới (phương vị, theta) phủ vùng bbox của các đa giác, mỗi đỉnh đặt
+// trên bán kính r + h*mask, mask = 1 ở sâu trong đa giác và trườn 0->1 trong vành bevel
+// NGAY BÊN TRONG biên của hợp. Vì mọi đỉnh sinh ra từ cùng một tham số hoá với G.wrapMask,
+// phiến NÔ nằm ĐÚNG chỗ nét sơn và biên của nó khớp nét sơn tới từng độ — không phải một
+// khối dán áp lên vỏ (hai surface đồng tâm thì z-fight) mà là chính vỏ được thổi lên.
+// Khoảng cách đo trong toạ độ "độ-theta" đã nhân sin(theta) cho phương vị, tức một đơn vị
+// xấp xỉ một cung dài bằng nhau trên hai trục; bevel vì thế là một bề rộng thật, không
+// phải một số độ bị méo theo vĩ độ.
+const reliefCache = new Map();
+// BIÊN VÀNG CỦA NẠ ZED, MỘT NGUỒN DUY NHẤT: nét sơn ở makeHeroFaceTex và phiến NÔ ở
+// buildHeroHead3D phải là cùng một bảng toạ độ. Hai bản chép tay là hai biên lệch nhau
+// ngay vòng chỉnh đầu tiên, mà lệch thì render ra một gờ vàng đứng cạnh một vệt sơn.
+// mir: ảnh tham khảo đối xứng qua mặt phẳng giữa, nên nửa kia chỉ là đổi dấu phương vị.
+const mir = (pts) => pts.map(([a, t]) => [-a, t]).reverse();
+// MŨ VÀNG (bước 4): vách dưới là chuỗi VANG đo được, chóp sa tới theta 123 ở phương vị 0,
+// cánh dừng ở ±68° vì sau ngọn cánh là khăn đỏ.
+const ZED_CROWN = [
+  [0, 123], [8, 119], [12, 101], [16, 92], [22, 89], [30, 86], [38, 83], [46, 72],
+  [54, 66], [68, 58], [62, 52], [54, 53], [46, 55], [38, 76], [30, 68], [22, 61],
+  [16, 57], [12, 60], [11, 84], [8, 88], [0, 89],
+];
+// CHỮ V TRÁN (bước 5, dải dưới) = càng mày vàng liền mạch với mũ.
+const ZED_VB = [[0, 70], [16, 56], [30, 46], [32, 58], [18, 68], [0, 84]];
+function reliefShell(polys, { r = 0.463, h = 0.03, bevel = 4, step = 1.6 } = {}) {
+  const key = JSON.stringify([polys, r, h, bevel, step]);
+  const done = reliefCache.get(key);
+  if (done) return done;
+  const D2R = Math.PI / 180;
+  const flat = polys.map((p) => p.map(([a, t]) => [a * Math.sin(t * D2R), t]));
+  const near = (px, py, poly) => {
+    let d = Infinity;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [ax, ay] = poly[j], [bx, by] = poly[i];
+      const vx = bx - ax, vy = by - ay, L = vx * vx + vy * vy;
+      const k = L ? Math.max(0, Math.min(1, ((px - ax) * vx + (py - ay) * vy) / L)) : 0;
+      d = Math.min(d, Math.hypot(ax + k * vx - px, ay + k * vy - py));
+    }
+    return d;
+  };
+  const inPoly = (px, py, poly) => {
+    let v = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [ax, ay] = poly[j], [bx, by] = poly[i];
+      if (ay > py !== by > py && px < ((bx - ax) * (py - ay)) / (by - ay) + ax) v = !v;
+    }
+    return v;
+  };
+  const maskAt = (a, t) => {
+    const px = a * Math.sin(t * D2R);
+    let best = 0;
+    for (const poly of flat) {
+      // Khoảng cách CÓ DẤU: âm ở ngoài đa giác. Vành bevel vì thế nằm TOÀN BỘ bên trong
+      // biên - ngay trên nét sơn mask vẫn 0, và vỏ vàng chỉ cao dần khi đi sâu vào trong.
+      // Bevel đối xứng (0 ở ngoài bevel, 1 ở trong bevel) thì phiến vàng LOE ra ngoài nét
+      // sơn đúng bevel độ và vì lưới dày đặc nên không có gì bị cắt bỏ: kết quả là một
+      // nửa đầu vàng nguyên khối, render ra quả bóng vàng úp lên mặt nạ (đã thấy).
+      const s = (inPoly(px, t, poly) ? 1 : -1) * near(px, t, poly);
+      const m = Math.max(0, Math.min(1, s / bevel));
+      best = Math.max(best, m * m * (3 - 2 * m));
+    }
+    return best;
+  };
+  let a0 = Infinity, a1 = -Infinity, t0 = Infinity, t1 = -Infinity;
+  for (const p of polys) for (const [a, t] of p) {
+    a0 = Math.min(a0, a); a1 = Math.max(a1, a); t0 = Math.min(t0, t); t1 = Math.max(t1, t);
+  }
+  const na = Math.round((a1 - a0) / step) + 1, nt = Math.round((t1 - t0) / step) + 1;
+  const pos = [], ms = [], idx = [];
+  for (let i = 0; i < na; i++) {
+    const a = a0 + ((a1 - a0) * i) / (na - 1);
+    for (let j = 0; j < nt; j++) {
+      const t = t0 + ((t1 - t0) * j) / (nt - 1), k = maskAt(a, t);
+      const rr = r + h * k;
+      ms.push(k);
+      pos.push(-rr * Math.sin(a * D2R) * Math.sin(t * D2R), rr * Math.cos(t * D2R), -rr * Math.cos(a * D2R) * Math.sin(t * D2R));
+    }
+  }
+  // Ô nào cả bốn góc đều mask = 0 thì KHÔNG được dựng thành tam giác: để lại thì nó là
+  // một mảnh vỏ vàng phẳng ngay trên nét sơn thép và che mất nét. Culling này là lý do
+  // bevel nằm trong biên - không có mảnh thừa nào để phải cắt.
+  for (let i = 0; i < na - 1; i++) for (let j = 0; j < nt - 1; j++) {
+    const v = i * nt + j;
+    if (ms[v] + ms[v + 1] + ms[v + nt] + ms[v + nt + 1] === 0) continue;
+    idx.push(v, v + 1, v + nt, v + 1, v + nt + 1, v + nt);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  reliefCache.set(key, g);
+  return g;
 }
 
 // Vẽ tóc, mũ, băng trán, sừng 3D đặc trưng cho từng nhân vật
@@ -1295,11 +1600,67 @@ function buildHeroHead3D(head, hero) {
     for (const s of [-1, 1]) {
       head.add(m(new THREE.ConeGeometry(0.115, 0.40, 5), cowlM, s * 0.191, 0.403, -0.060, { rot: [-0.1081, 0, -s * 0.2635], scale: [1, 1, 0.5] }));
     }
+  } else if (id === 'zed_chibi') {
+    // KHĂN ĐỎ RỦ XUỐNG = MỘT LAYER 3D RIÊNG (user: "phần vải đỏ rủ xuống ở mũ không phải
+    // flat mà là 1 layer riêng"). Sơn chỉ làm được phần NẰM TRÊN vỏ cầu; thứ RỦ xuống dưới
+    // biên khối đầu thì phải là mesh.
+    // HÌNH DÁNG: một chóp cụt mở 189° quanh LƯNG (CylinderGeometry: theta 0 là +z = sau gáy,
+    // x = r sin, z = r cos) — chừa 171° phía mặt nên mép vải dừng sát hai bên tai; nhìn
+    // thẳng ra trước chỉ thấy một viền đỏ mảnh ló khỏi silhouette đầu, không thấy bản vải.
+    // VÌ SAO KHÔNG CÓ ĐƯỜNG RÃNH NỐI: miệng trên bán kính 0,42 ở head-local y +0,10 nằm
+    // TRONG khối đầu 0,46 (bán kính lát cắt ở cao độ đó là sqrt(0,46² - 0,10²) = 0,449),
+    // nên viền trên bị chính khối đầu che kín — không có mép nào áp vào vỏ 0,463 của phiến
+    // sơn. Vải chỉ LỘ ra khi nó vượt vỏ: giải 0,4314 - 0,11429y = sqrt(0,2116 - y²) ra
+    // y = -0,12, tức đúng chỗ khăn rời khỏi gáy - cũng là nơi phiến sơn bắt đầu đỏ.
+    // VÌ SAO KHÔNG PHẢI CÁI CHỤP ĐÈN: bản 0,44->0,56 cao 0,80 (rủ tới head-local -0,70,
+    // |x| 0,56) render từ sau ra một cái loè rộng hơn cả vai và cao hơn cả đầu, còn năm chóp
+    // cone dán trên rim thì thành gai lơ lửng, vì cone 4 cạnh nằm NGANG rim chứ không rủ
+    // DỌC theo vải. Gấu lượn phải là chính rim đó dao động, không phải vật thứ hai gắn lên
+    // rim: mỗi đỉnh ring dưới dịch y theo 0,07*cos(5a), a là góc tính từ sau gáy, chu kỳ 72°
+    // nên dải 189° có năm thùy. Đỉnh thấp nhất -0,67, cao nhất -0,53 head-local, đáy khối
+    // đầu -0,46: chỗ khum lên vẫn được cằm che nên không có miếng vải lửng lơ.
+    // computeVertexNormals sau khi dịch là bắt buộc: rim lượn mà pháp tuyến cũ chỉ ngang thì
+    // dải vải nhận sáng đều khắp và render ra một khối nhựa đỏ, không còn nếp.
+    // CÙNG MỘT HEX VẢI với phiến sơn (#5e1319 = median khăn đo trong ảnh, sat 75 hue 355,
+    // 180 px; bước 3 makeHeroFaceTex) và với giáp cầu vai: chia hai mã là ở 144px khăn ra
+    // một màu khác áo. DoubleSide vì chóp cụt mở — nhìn từ sau xuống sẽ thấy
+    // mặt trong của khăn, một vỏ cụt phía trong thì thành hai surface sát nhau.
+    const clothM = mat('#5e1319', { roughness: 0.85, side: THREE.DoubleSide });
+    const skirt = new THREE.CylinderGeometry(0.42, 0.50, 0.70, 24, 1, true,
+      -Math.PI * 0.525, Math.PI * 1.05);
+    const rim = skirt.attributes.position;
+    for (let i = 0; i < rim.count; i++) {
+      if (rim.getY(i) > 0) continue;                     // chỉ ring dưới; ring trên bị đầu ẩn
+      rim.setY(i, rim.getY(i) + 0.07 * Math.cos(5 * Math.atan2(rim.getX(i), rim.getZ(i))));
+    }
+    rim.needsUpdate = true;
+    skirt.computeVertexNormals();
+    head.add(m(skirt, clothM, 0, -0.25, 0, { cast: false }));
+    // GIÁP VÀNG NỔI KHỐI (user: "phần giáp V (gold) trên mũ cho nổi khối lên thay vì flat").
+    // Đây KHÔNG phải cái gai giữa trán mà vòng này đã bác: bác là đúng, vì nó nói về một
+    // KHỐI RỜI (cone/box) dán áp lên vỏ ở đỉnh cánh theta 57. Ở đây không có khối nào cả -
+    // chính vỏ cầu được thổi lên 0,032 theo đúng biên ZED_CROWN + ZED_VB, nên đỉnh cánh nằm
+    // trọn trong khối đầu vẫn chỉ là một chỗ phồng của cái mũ, không có mặt nào áp mặt nào.
+    // r 0,4645 chứ không 0,463: vành bevel giờ nằm trong biên, nên hàng ĐỈNH NGOÀI CÙNG của
+    // lưới có mask = 0 và đặt đúng ngay trên nét sơn. Hai surface đồng tâm thì z-fight thành
+    // vân rắn. 0,0015 trên bán kính 0,463 = 0,3% lớp vỏ, mắt không đọc được bậc, nhưng đủ để
+    // phiến vàng LUÔN ở trên nét sơn.
+    // step 1,0 độ (10.686 đỉnh, 33 ms MỘT LẦN vì reliefCache giữ theo toạ độ, mọi avatar
+    // trong sảnh dùng chung lưới): biên của phiến là thứ duy nhất người xem thấy, và lưới
+    // 1,5 độ dựng nó thành bậc cấp ngay trên nét sơn mượt.
+    // Cùng hex/cùng thông số với cuffM của lưỡi kiếm (mat cache theo color+opts nên thật ra
+    // là MỘT instance): vàng của hình này chỉ có một bậc kim loại.
+    const goldM = mat('#cf9561', { metalness: 0.85, roughness: 0.3 });
+    const plate = reliefShell([ZED_CROWN.concat(mir(ZED_CROWN)), ZED_VB.concat(mir(ZED_VB))],
+      { r: 0.4645, h: 0.032, bevel: 3.5, step: 1.0 });
+    head.add(m(plate, goldM, 0, 0, 0, { cast: false }));
   }
 }
 
 // Trang bị vũ khí, áo choàng và hiệu ứng nguyên tố 3D trên cơ thể nhân vật
-function buildHeroProps3D(upper, hands, arms, legR, hero) {
+// `head` và `root` chỉ hình nào cần MỘT BẢN SAO của khối đầu thật (zed_chibi): sao tại chỗ
+// thì phiến sơn đã đo vào bóng miễn phí, vẽ lại lần hai là hai cái nạ lệch nhau.
+function buildHeroProps3D(upper, hands, arms, legR, hero, head, root) {
   const id = hero.id;
   const vfxGroup = new THREE.Group();
   upper.add(vfxGroup);
@@ -1541,6 +1902,228 @@ function buildHeroProps3D(upper, hands, arms, legR, hero) {
     // sashM trong makeAvatar.
     upper.add(batCape());
     upper.add(batEmblem());
+  } else if (id === 'zed_chibi') {
+    // CÁI BÓNG ĐI SAU LƯNG ("rất giống nó"). Đây là BẢN SAO của khối đầu thật, không phải
+    // một cái đầu thứ hai vẽ lại: head.clone(true) ăn nguyên phiến sơn đã đo, nên bóng và
+    // chủ lệch nhau là KHÔNG THỂ xảy ra — và makeHeroFaceTex có FACE_TEX_CACHE nên tấm
+    // canvas không bị sơn lần hai. Chỉ đổi MATERIAL:
+    //  - phiến: MeshBasicMaterial + color. Basic không ăn đèn của sảnh và color NHÂN vào
+    //    từng pixel của map trong không gian LINEAR (three giải mã cả map lẫn color trước
+    //    khi nhân), nên cả mask tối đi đúng một hệ số và vẫn phẳng như một cái bóng.
+    //    color của phiến là XÁM TRUNG TÍNH chứ không phải tím-lơ: nạ đã đổi sang bạc thì
+    //    nhân một màu xanh tím vào nó là bóng thành xanh tím. Hệ số hiện tại #4f4f51 =
+    //    #6f6f72 x 0,713, vì vòng này nâng steel từ v 117 lên v 164 (tỉ 0,713 = 117/164):
+    //    map sáng gấp đôi theo linear nên phải giảm color đi một nửa linear, nếu không thì
+    //    chính cái bóng cũng sáng lên theo chủ và mất hết tương phản với nạ thật.
+    //  - còn lại (đầu, tai, mắt ẩn): một vật liệu xám-black chung, roughness 0,95.
+    const shadow = new THREE.Group();
+    const darkM = mat('#2e2d30', { roughness: 0.95 });
+    const plateM = new THREE.MeshBasicMaterial({ map: makeHeroFaceTex(hero.id), color: '#4f4f51', transparent: true, depthWrite: false });
+    const hd = head.clone(true);
+    hd.position.set(0, 0, 0); // 0,98 của head đã nằm trong vị trí của shadow, cộng hai lần là tụt
+    hd.traverse((o) => {
+      if (!o.isMesh) return;
+      o.castShadow = false;
+      o.material = o.material.map ? plateM : darkM;
+    });
+    // Hai con mắt phát sáng là KHỐI, không phải nét sơn: phiến đã tối đi vì color nhân, và
+    // quy tắc của hình này là cái gì nằm TRÊN vỏ thì sơn, cái gì TỰ PHÁT SÁNG thì khối.
+    // Đặt ở bán kính 0,475 > vỏ 0,463 (batman_chibi: nhô ra ngoài chứ không áp lên) để
+    // không có hai surface đồng tâm. Tâm mắt đo từ ảnh: theta 106,7°, phương vị ±24° ->
+    // x = -0,475*sin(±24°)*sin(106,7°) = ∓0,185, y = 0,475*cos(106,7°) = -0,135,
+    // z = -0,475*cos(24°)*sin(106,7°) = -0,416. Nghiêng ±0,6 rad đúng độ nghiêng mắt vẽ.
+    // CÙNG MỘT vật liệu Basic #f03050 cho cả chủ lẫn bóng, và gắn cho `head` SAU khi đã
+    // clone: gắn trước thì traverse biến lens của bản sao thành darkM rồi lens sáng chồng
+    // lên đúng cùng chỗ, hai surface đồng tâm. Basic chứ không Standard+emissive: mắt là
+    // nguồn sáng, nó không được tối đi khi quay lưng vào đèn key của sảnh.
+    // Sơn mắt (bước 7) KHÔNG bị xoá, nó lùi làm QUẦNG: lens dài 2*0,0775 = 18,7° phương vị
+    // còn quầng sơn 88px = 19,8°, nên viền loè vẫn còn thấy quanh khối; lòng hốc slit thì
+    // lens che đúng phần lõi, phần còn lại thành mí tối.
+    const eyeM = new THREE.MeshBasicMaterial({ color: '#f03050' });
+    const zedEyes = (g) => {
+      for (const s of [-1, 1]) {
+        g.add(m(new THREE.SphereGeometry(0.05, 12, 10), eyeM, s * 0.185, -0.135, -0.416, { scale: [1.55, 0.62, 0.5], rot: [0, 0, s * 0.6], cast: false }));
+      }
+    };
+    zedEyes(hd);
+    zedEyes(head);
+    // HAI LƯỠI CHẠY DỌC CÁNH TAY (không phải "treo xuống từ cổ tay"): lưỡi là mesh con của
+    // ARM và đi theo trục -y của arm. animateAvatar đặt a.quaternion = setFromUnitVectors
+    // ((0,-1,0), hand - shoulder) MỖI FRAME nên -y của arm luôn luôn là hướng cẳng tay —
+    // đổi dáng tay là lưỡi đổi theo. Bản gắn vào hand với một hướng hardest-code chỉ đúng
+    // cho dáng chắp tay trước ngực mà mọi hình đang dùng; các hình sau này có dáng khác.
+    // arm.scale.y = len/0,44 có ép lưới, nhưng chỉ DỌC theo chính nó: bề ngang và bề dày
+    // nằm trong mặt x/z không bị scale, nên thứ duy nhất thay đổi là chiều dài lưỡi.
+    // Trong frame đó +x là RA NGOÀI: từ (0,-1,0) xuống d̂ = (0,330, -0,932, -0,117) (dáng
+    // BUÔNG TAY, vai x 0,27 -> tay x 0,44) là phép quay tối thiểu 0,371 rad quanh
+    // (0,334, 0, 0,943), đưa x̂ về (0,940, 0,341, 0,021) — 94% vẫn là x, phần y là xoè LÊN
+    // nên loe lưỡi không tự đổ xuống sàn. Hai cánh tay mirror nhau nên +x luôn là phía
+    // xoè ra, BỘ ĐIỂM DÙNG CHUNG cho hai bên không cần nhân dấu s.
+    // Loe +x chỉ 0,10 -> 0,20 đơn vị L (bản 0,36 vẽ cho dáng chắp tay): cẳng tay đã tự
+    // nghiêng ra ngoài 0,17 trên 0,48, loe thêm 0,36 nữa là hai lưỡi xoè như hai cái sừng.
+    // Con số hiện trường là probe.mjs (bbox world sau nhịp xoay 0,45 của thân, dáng đứng):
+    // lưỡi ngoài nhất |x| 0,606 và THẤP NHẤT y 0,162 - sàn/aura ở 0,12, nên ngọn cách
+    // mặt sàn 0,042 chứ không đâm xuyên sàn như bản 0,36.
+    // Ở tư thế lạy sâu nhất (k=1, d̂ = (-0,335,-0,787,-0,590)) ngọn vẫn ở x +0,063 — mỗi
+    // lưỡi nằm bên của nó, không bắt chéo nhau trước bụng.
+    // THEO ẢNH GỐC user vừa gửi (một cặp lưỡi bạc trên chắn tay vàng): lưỡi là MỘT TẤM
+    // DẸT có đường biên gồm ba đoạn — thân bản rộng, một VAI BẬT cấp, rồi ngọn bản hẹp kéo
+    // dài tới mũi. Không phải cái móng vuốt thuôn đều, và cũng không phải một cái bản dẹt
+    // nằm NGANG: hai sai đó đều nằm trong vòng này.
+    // (a) TRỤC. Tiết diện ribbon là ellipse có bán-trục r theo B (binormal) và r*flat theo
+    //     N (normal). Với bộ điểm này N ≈ ±x (sai 94%) và B ≈ ±z, nên flat < 1 đặt bản lưỡi
+    //     vào z = mặt SONG SONG với máy quay sảnh: nhìn thẳng chỉ thấy bề dày 0,10, còn
+    //     0,304 bề ngang thì dồn hết vào chiều sâu, vô hình. flat 2,9 LẬT lại: bản nằm
+    //     trong mặt x/y, pháp tuyến mặt lưỡi hướng ±z tức hướng về người xem, và toàn bộ
+    //     ĐƯỜNG BIÊN (thân - vai - ngọn) đọc được từ trước. Đây là lý do vòng trước "to hơn"
+    //     mà vẫn không ra hình lưỡi kiếm.
+    // (b) BIÊN. rs là bảng bán-trục theo B, tức nửa bề dày; bề ngang = rs x 2,9:
+    //     đốt 0-2   0,016 -> 0,034  cán chui qua chắn tay, bản 0,09
+    //     đốt 3-11  0,038           THÂN: 9/20 chiều dài, bản 0,220
+    //     đốt 11->12 0,038 -> 0,024 VAI: bật cấp trong MỘT đốt ở 55% lưỡi, không phải một
+    //                              đường chéo. ribbon lấy rs theo từng đốt nguyên giá trị
+    //                              nên bước nhảy sống nguyên - đó là toàn bộ cái "step"
+    //                              trong ảnh gốc, và nó là thứ duy nhất phân biệt lưỡi này
+    //                              với một cái dùi.
+    //     đốt 12-17 0,024           NGỌN: bản 0,139 = 63% thân, song song suốt 30% lưỡi
+    //     đốt 18-20 0,018 -> 0,003  mũi
+    // Hai bậc đã thử và đã loại, cả hai đều sai vì LƯỠI NÀY DÀI 0,588 chứ không dài như
+    // lưỡi trong ảnh: bản 0,260 cho thân thì 2,3:1 thành cái GAI, bản 0,180 thì 3,3:1 thành
+    // cái KIM (đốt 12 ngọn 0,099 gần bằng cán, không còn bật cấp ra mắt). 0,220 là bậc mà
+    // thân vẫn rộng hơn cán rõ và ngọn vẫn đọc ra một lưỡi, ở đúng chiều dài hiện trường.
+    const ZED_BLADE_RS = [0.016, 0.026, 0.034,
+      0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038,
+      0.024, 0.024, 0.024, 0.024, 0.024, 0.024,
+      0.018, 0.011, 0.003];
+    const ZED_BLADE_FLAT = 2.9;   // bề ngang / bề dày của tấm lưỡi
+    const zedBlade = (L, material, o = {}) => {
+      const g = new THREE.Group();
+      if (o.dir) g.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), new THREE.Vector3(...o.dir).normalize());
+      if (o.at) g.position.set(...o.at);
+      // Gốc ở +x 0,10L = 0,055: mép ngoài cẳng tay là 0,105 nên lưỡi MỌC RA TỪ THÀNH NGOÀI
+      // của cánh tay chứ không chìm trong ống tay, và ngọn hất nhẹ về +z (ngược hướng tới)
+      // — nét võng của lưỡi trong ảnh.
+      // Rễ +0,08 / ngọn -0,90 (thay vì +0,04/-1,00): lưỡi dài 0,98L. Hai đốt cuối mang
+      // bán kính gấp đôi và pháp tuyến Frenet ở ngọn nghiêng nên tiết diện góp một phần theo
+      // trục y; probe đo ngọn thật của bản này ở 0,162, còn 0,042 trên sàn/aura 0,12. Để
+      // -1,00 thì hết số dư đó, cà đất.
+      const pts = [[0.10, 0.08, 0], [0.13, -0.24, -0.02], [0.16, -0.52, -0.03], [0.18, -0.76, -0.01], [0.20, -0.90, 0.03]]
+        .map(([x, y, z]) => new THREE.Vector3(x * L, y * L, z * L));
+      g.add(m(ribbon(pts, o.r0 ?? 0.115, o.r1 ?? 0.018,
+        { seg: 20, rad: 12, flat: o.flat ?? ZED_BLADE_FLAT, rs: o.rs ?? null }), material, 0, 0, 0, { cast: false }));
+      // CHI TIẾT = GỜ NỔI GIỮA MẶT LƯỠI (fuller), không phải một dải nằm TRONG khối: nó
+      // phải nằm TRÊN mặt đang quay về người xem, tức lệch theo z. Bán trục bề dày của thân
+      // là 0,038 nên tâm gờ ở -0,034, bản thân gờ dày 0,026 -> nhô khỏi mặt lưỡi 0,009, tức
+      // 12% bề dày lưỡi: đủ để bắt sáng thành một nét, không đủ để thành một sống dao.
+      // Cùng hex với lưỡi nhưng roughness 0,06 thay vì 0,22: trên một vật kim loại, chi tiết
+      // đọc được là chỗ PHẢN XẠ NHỌN hơn, không phải chỗ sáng hơn, nên đổi độ nhám chứ không
+      // đổi albedo (mọi hex sắt của hình này đều phải về một bảng màu). Bảng rs nhân 0,34
+      // theo tỉ bề ngang gờ / bề ngang lưỡi trong ảnh gốc (rãnh chiếm ~1/3 bản), và vì nó là
+      // CÙNG một bảng nên gờ bật cấp ở đúng đốt 11->12: vai lưỡi có hai bậc thì gờ cũng hai
+      // bậc, không lệch nhau lấy một đốt.
+      if (o.edge) {
+        const sp = pts.map((p) => p.clone().add(new THREE.Vector3(0, 0, -0.034)));
+        g.add(m(ribbon(sp, 0.045, 0.010, {
+          seg: 20, rad: 6, flat: 2.2,
+          rs: (o.rs ?? ZED_BLADE_RS).map((r) => r * 0.34),
+        }), o.edge, 0, 0, 0, { cast: false }));
+      }
+      // CHẮN TAY = MỘT PHIẾN VÀNG DẸT nằm trong CÙNG mặt phẳng với lưỡi (x là bề ngang, z là
+      // bề dày), rộng 0,318 = 1,45 lần bản lưỡi 0,220 - đúng tỉ lá chắn so với lưỡi trong ảnh
+      // gốc - và dày 0,108 > 0,076 của lưỡi để nó đọc là một món ĐÚNG chứ không phải cái khung
+      // bao quanh. Bản cũ 0,30 x 0,055 x 0,11 là một thanh DỌC theo z: nhìn thẳng từ sảnh nó
+      // chỉ còn một gờ và nằm gọn TRONG bề ngang lưỡi, nên chắn tay biến mất.
+      // Tâm theo x ở đúng 0,10L = gốc lưỡi, không phải 0,04L: lệch vào trong thì mép ngoài của
+      // phiến nằm TRONG mép ngoài của thân lưỡi, lá chắn bị lưỡi che mất một bên và mất luôn
+      // nét "xoè ra hai phía" của ảnh gốc.
+      // Local y +0,03L phủ đoạn cán (đốt 0-2) và chân thân; mép dưới ở -0,060 vẫn trên cổ tay
+      // -0,22 (wrist là -len/2 chia cho scale len/0,44, MỘT SỐ KHÔNG ĐỔI) nên đai vàng riêng
+      // không bị che.
+      if (o.guard) g.add(m(new THREE.BoxGeometry(0.53 * L, 0.26 * L, 0.18 * L), o.guard, 0.10 * L, 0.03 * L, 0, { cast: false }));
+      // Đai cổ tay ở local y -0,20: wrist là (-len/2) chia cho scale len/0,44 = -0,22, MỘT
+      // SỐ KHÔNG ĐỔI bất kể dáng tay hay độ dài tay.
+      if (o.ring) g.add(m(new THREE.TorusGeometry(0.118, 0.020, 8, 20), o.ring, 0, -0.20, 0, { rot: [Math.PI / 2, 0, 0], cast: false }));
+      return g;
+    };
+    // NỬA DƯỚI LÀ KHÓI, KHÔNG PHẢI KHỐI: bóng không có chân, phần dưới thuôn tới không —
+    // và "như một làn khói đen chứ không rõ khối". Không còn một sphere nào: một khối cầu
+    // dù tối vẫn có biên nét cứng, đọc là cái bụng. Bản BA dải mảnh (flat 0,7) vừa render
+    // đã bị vì nó ra một cái cổ áo rách: ribbon mảnh + flat nhỏ thì biên sắc như gai.
+    // Khói là MỘT CỘT TRÒN TO (flat 0,9 gần tiết diện tròn, r0 0,28 = 61% đầu 0,46) thổi
+    // xuống và hơi ngả ra sau, ngọn thuôn về 0,02. Ba cột từng đè nhau chỉ thành một búi
+    // gai khi render: một cột + hai lưỡi khói là đủ đọc ra làn khói mà không tranh nét.
+    // Trục là local của khối đầu (chưa scale 0,6).
+    // Khói trôi về HƯỚNG RA XA CHỦ: hướng từ bóng về thân trong root-local là
+    // (-0,71, 0, -0,71), quay ngược lại -0,35 rad của shadow thì thành (-0,42, 0, -0,91),
+    // nên đuôi phải trôi theo (+0,42, 0, +0,91) — nếu trôi ngược là nó vắt ngang lưng
+    // chủ thành một cái vòi đen (đã render và bị).
+    // Basic + cùng hex #2e2d30 với darkM (median xám tối của ảnh sat 19 v 57, đã ép sat
+    // về 2 vì hue 250 là ambient tím của cảnh chứ không phải màu khói), chỉ thêm alpha:
+    // không ăn đèn của sảnh nên mỗi dải LÀM TỐI nền sau nó, đúng cách khói hiện ra.
+    // depthWrite false để các dải không che lẫn theo z-buffer — khói thì cộng mờ.
+    const smokeM = new THREE.MeshBasicMaterial({ color: '#2e2d30', transparent: true, opacity: 0.5, depthWrite: false, side: THREE.DoubleSide });
+    const wisp = (pts, r0) =>
+      m(ribbon(pts.map((p) => new THREE.Vector3(...p)), r0, 0.02, { seg: 16, rad: 8, flat: 0.9 }), smokeM, 0, 0, 0, { cast: false });
+    hd.add(wisp([[0, -0.28, 0.0], [0.04, -0.52, 0.10], [0.12, -0.74, 0.22], [0.20, -0.94, 0.40]], 0.28));
+    // Hai lưỡi khói của bóng: cùng builder với lưỡi sắt của chủ, chỉ đổi material và
+    // tiết diện. Bản r0 0,10 / r1 0,015 / flat 0,6 render ra hai CÁI GAI kim loại — trái
+    // ràng buộc "nửa dưới của bóng là làn khói chứ không rõ khối". Khói thì đầu-cuối gần
+    // bằng nhau và tiết diện gần tròn: r0 0,16 -> r1 0,10, flat 0,9.
+    // Bóng không có tay nên lưỡi mọc từ hai bên cột khói (x ±0,30, y -0,44) và tự xoè ra
+    // theo dir, không có frame cẳng tay để bám.
+    for (const s of [-1, 1]) {
+      hd.add(zedBlade(0.46, smokeM, { at: [s * 0.30, -0.44, 0], dir: [s * 0.55, -0.75, -0.38], r0: 0.16, r1: 0.10, flat: 0.9 }));
+    }
+    shadow.add(hd);
+    // 0,6 lần chủ: đủ để đọc ra cùng chiếc nạ, đủ nhỏ để không tranh cái nhìn với mặt thật.
+    // Gắn vào ROOT chứ không vào upper/vfxGroup: upper quay -1,15 rad khi lạy và cả cái bóng
+    // sẽ lộn nhào xuống sàn, còn một cái bóng đứng sau lưng thì phải ở lại sau lưng.
+    // Trung tâm bóng ở root-local y 1,34 = đúng trục khối đầu chủ (upper 0,3 + head 0,98 =
+    // 1,28) nên nó NGANG ĐẦU chủ, nhô ra lề chứ không bay trên cao như quả bóng bay.
+    // Đỉnh bóng thế giới = 0,17 + 1,34 + 0,276 = 1,786 < 2,266 (ngọn tóc Võ Sư Mù, điểm cao
+    // nhất khung heroScene đã chốt) -> ô thumbnail không phải tính lại.
+    // Rộng nhất sau nhịp xoay 0,45 của thân: x' = 0,60cos + 0,52sin = 0,766, +0,276 = 1,042 <
+    // 1,436 được phép ở độ sâu 4,8 + z' (-0,60sin + 0,52cos = 0,207).
+    shadow.scale.setScalar(0.6);
+    shadow.position.set(0.6, 1.34, 0.52);
+    shadow.rotation.set(0.08, 0.35, -0.12);
+    root.add(shadow);
+    // HAI LƯỠI SẮC DỌC THEO HAI CÁNH TAY, VÀ LÀ KIM LOẠI THẬT. Kết luận "sảnh không có
+    // env map nên metalness 0,8 ra que đen" là SAI và đến từ harness /tmp/zed3d thiếu
+    // scene.environment: world.js:77 dựng RoomEnvironment PMREM (intensity 0,35) và
+    // thumbs.js:140 dựng lại với 0,55, nên vật liệu kim loại CÓ phản xạ để nhân. Harness
+    // đã được vá đúng ánh sáng heroScene trước vòng này.
+    // Hex: với metalness ~1, color là MÀU PHẢN XẠ chứ không phải albedo. Lưỡi lấy đúng
+    // steelLit của phiến mặt (#d6d2da = median vòm sắt #6377a4 x 1,33 sau khi ép bão hoà)
+    // để cả hình CHỈ CÓ MỘT BẢNG KIM LOẠI: bản #d4d4d8 đo từ điểm sáng nhất #d5ffff vẫn
+    // đúng về hue nhưng lệch một bậc giá trị so với hệ sắt vừa nâng sáng, thành hai cái
+    // bạc khác nhau dưới cùng một đèn. Sóng lưỡi cùng hex, chỉ roughness 0,22 -> 0,06.
+    const bladeM = mat('#d6d2da', { metalness: 0.95, roughness: 0.22 });
+    const edgeM = mat('#d6d2da', { metalness: 0.98, roughness: 0.06 });
+    const cuffM = mat('#cf9561', { metalness: 0.85, roughness: 0.3 });
+    for (const a of arms) a.add(zedBlade(0.60, bladeM, { rs: ZED_BLADE_RS, ring: cuffM, edge: edgeM, guard: cuffM }));
+    // GIÁP CẦU VAI ĐỎ (user: "trang phục áo thêm phần giáp cầu vai màu đỏ"). Gắn vào
+    // vfxGroup (con của upper) chứ không vào arm: arm quay quaternion mỗi frame và
+    // scale.y = len/0,44, nên giáp dính arm sẽ bị kéo dài theo dáng tay.
+    // Vì SAO KHÔNG ĐẶT ĐÚNG VAI (±0,27, 0,58): khối đầu 0,46 tâm upper-local 0,98 nên đáy
+    // đầu ở 0,52 và lát cắt ở cao độ vai 0,58 có bán kính 0,456 - vai 0,27 nằm TRONG bóng
+    // đầu, giáp đặt đó bị đầu chibi nuốt. Lùi xuống (±0,34, 0,46, -0,05): 0,46 < 0,52 nên
+    // hết đầu che, và 0,34 ± 0,19 = 0,15..0,53 phủ khít cẳng tay (trục vai->tay đi qua
+    // x 0,31 ở y 0,46, bán kính 0,105).
+    // MŨ CHE = SphereGeometry bán kính 0,19 cắt theta 0..0,55π (99° từ đỉnh) dẹt [1,0,0,86,1]:
+    // vòm giáp chứ không phải quả bóng, đáy mở úp lên vai. Viền = torus đặt đúng vòng chân
+    // mũ: rim ở theta 99° có r = 0,19*sin 99° = 0,188 và y = 0,19*cos 99° * 0,86 = -0,026,
+    // nên hai surface chỉ gặp nhau trên một đường tròn chung, không có vỏ nào áp vỏ.
+    // Đỏ lấy hex đo của khăn trong ảnh (median #5e1319, sat 75 hue 355, 180 px) - cùng hex
+    // với clothM của khăn và phiến sơn, chia mã mới là hai màu đỏ dưới một đèn.
+    const pauldM = mat('#5e1319', { roughness: 0.42, metalness: 0.25, side: THREE.DoubleSide });
+    for (const s of [-1, 1]) {
+      vfxGroup.add(m(new THREE.SphereGeometry(0.19, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.55),
+        pauldM, s * 0.34, 0.46, -0.05, { scale: [1, 0.86, 1], cast: false }));
+      vfxGroup.add(m(new THREE.TorusGeometry(0.188, 0.020, 8, 22), cuffM, s * 0.34, 0.434, -0.05,
+        { rot: [Math.PI / 2, 0, 0], cast: false }));
+    }
+    vfxGroup.userData.zedShadow = shadow;
   }
 
   return vfxGroup;
@@ -1721,10 +2304,18 @@ export function makeAvatar(opts = {}) {
     // phiến sơn của chúng quấn kín đầu; các hình khác giữ facePatch - canvas của
     // makeHeroFaceTex sinh ra đúng theo kích thước tấm ấy, nên hai bên không lệch nhau được.
     const faceGeo = WRAP_FACE_IDS.has(hero.id) ? G.wrapMask : G.facePatch;
-    const faceMesh = m(faceGeo, new THREE.MeshStandardMaterial({ map: faceTex, transparent: true, roughness: 0.45, depthWrite: false }), 0, 0, 0, { cast: false });
+    // faceMetal (chỉ Zed khai): phiến SẮT phải là sắt, không phải vải sơn xám. Sảnh có
+    // scene.environment (world.js:77) nên metalness nhân được phản xạ của phòng; hai hình
+    // nạ kia không khai field này nên vẫn roughness 0,45 kim loại-vừa như đã chốt.
+    const fm = hero.faceMetal || {};
+    const faceMesh = m(faceGeo, new THREE.MeshStandardMaterial({ map: faceTex, transparent: true, roughness: fm.roughness ?? 0.45, metalness: fm.metalness ?? 0, depthWrite: false }), 0, 0, 0, { cast: false });
     head.add(faceMesh);
   }
+  // Tai ẩn với hình có MŨ 3D trùm đầu: vành ngoài tai ở |x| 0,44 + 0,085*0,6 = 0,491 trong
+  // khi khăn Zed ở cao độ đó chỉ r 0,434, nên để tai thì nó xiên ra ngoài đúng lớp vải mà
+  // user vừa yêu cầu "là 1 layer riêng" - back.png vòng trước có một cục xám giữa khăn.
   for (const s of [-1, 1]) {
+    if (hero.id === 'zed_chibi') continue;
     head.add(m(G.ear, skinM, s * 0.44, -0.02, 0.02, { scale: [0.6, 1, 0.8] }));
   }
   // Hai node mắt ẩn để giữ tương thích hoàn toàn với code nhắm mắt khi thiền
@@ -1750,7 +2341,7 @@ export function makeAvatar(opts = {}) {
   root.add(lap, legs);
 
   // Đạo cụ 3D & Hiệu ứng nguyên tố
-  const vfxGroup = buildHeroProps3D(upper, hands, arms, legR, hero);
+  const vfxGroup = buildHeroProps3D(upper, hands, arms, legR, hero, head, root);
 
   // Quả cầu Tuyệt Chiêu 3D (hiện lên khi tung tuyệt chiêu)
   const ultSphere = m(
@@ -1770,6 +2361,7 @@ export function makeAvatar(opts = {}) {
     vfxGroup, ultSphere, hero, outfit,
     groundY: opts.groundY || 0,
     pose: 'sit', bowing: false, bowT: 0, walk: 0, meditate: 0,
+    armDown: hero.armPose === 'down',
     ultTimer: 0,
     onBow: null, phase: Math.random() * 10,
   };
@@ -1854,6 +2446,16 @@ export function animateAvatar(av, dt, time, moving = false) {
   if (av.vfxGroup?.userData.chidori) {
     av.vfxGroup.userData.chidori.rotation.set(time * 16, time * 12, time * 9);
   }
+  const zs = av.vfxGroup?.userData.zedShadow;
+  if (zs) {
+    // Bóng lượn quanh vai chủ theo phase RIÊNG của từng avatar (av.phase) để hai người
+    // mặc Zed trong sảnh không chớp cùng một nhịp. Biên 0,07/0,06 giữ đỉnh bóng trong khung
+    // thumbnail ở MỌI pha: cao nhất 1,34+0,07+0,276 = 1,686 root-local, thế giới 1,856 <
+    // 2,266; rộng nhất 0,766+0,05+0,276 = 1,092 < 1,436 được phép ở độ sâu 5,007.
+    const t = time * 1.4 + av.phase;
+    zs.position.set(0.6 + Math.sin(t) * 0.05, 1.34 + Math.sin(t * 0.9) * 0.07, 0.52 + Math.cos(t * 0.7) * 0.06);
+    zs.rotation.set(0.08 + Math.sin(t * 1.3) * 0.05, 0.35 + Math.sin(t * 0.55) * 0.22, -0.12 + Math.cos(t * 0.8) * 0.05);
+  }
   if (av.ultTimer > 0) {
     av.ultTimer = Math.max(0, av.ultTimer - dt);
     const k = av.ultTimer / 0.85;
@@ -1883,7 +2485,22 @@ export function animateAvatar(av, dt, time, moving = false) {
   const k = av.meditate;
   av.hands.forEach((h, i) => {
     const s = i ? 1 : -1;
-    h.position.set(s * (0.05 + k * 0.05), 0.5 - k * 0.32, -0.36 + k * 0.02);
+    // Dáng tay là per-hero. Mặc định: chắp trước ngực (mọi hình đang ship). Riêng Zed
+    // BUÔNG DỌC THÂN khi đứng (user: "phần tay không chắp trước ngực, mà hai buông
+    // xuống") vì hai lưỡi kiếm đi dọc cẳng tay — chắp thì hai mũi chĩa vào nhau trước
+    // bụng. k (ngồi vào bệ + cầu may) kéo cả hai tư thế về cùng một điểm kiết tường
+    // trên lòng, nên hình buông tay vẫn chắp đúng lúc lạy.
+    // x 0,44 chứ không phải 0,33: áo là LatheGeometry rộng nhất 0,42 ở y 0,08 và 0,375 ở
+    // y 0,10, nên bản 0,33 khiến CẢ hai cánh tay lẫn hai lưỡi nằm TRONG thân - thumb.png
+    // vòng trước ra một cái chuông trơn không có tay. Nghiêng 18,8° ra ngoài (0,44-0,27 =
+    // 0,17 trên 0,48 rơi) thì khủy và cổ tay vượt áo 0,065. Ba trục của d ở k=1 là
+    // (0,44-0,34, 0,10+0,08, -0,10-0,24) = (0,10, 0,18, -0,34) = đúng số nhánh chắp.
+    const d = av.armDown;
+    h.position.set(
+      d ? s * (0.44 - k * 0.34) : s * (0.05 + k * 0.05),
+      d ? 0.10 + k * 0.08 : 0.5 - k * 0.32,
+      d ? -0.10 - k * 0.24 : -0.36 + k * 0.02,
+    );
   });
 
   av.arms.forEach((a, i) => {
