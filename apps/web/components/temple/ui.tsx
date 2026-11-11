@@ -12,7 +12,7 @@ import type { TempleEngine } from './engine';
 import type { RemotePlayer, TempleRoom } from './room';
 
 export type ViewKind = 'hall' | 'meditate' | 'wheel' | 'que';
-export type SheetKind = 'rank' | 'community' | 'friends' | 'stele' | 'shop' | 'bag' | 'guide' | 'settings' | 'profile' | 'games';
+export type SheetKind = 'rank' | 'community' | 'friends' | 'lobby' | 'stele' | 'shop' | 'bag' | 'guide' | 'settings' | 'profile' | 'games';
 
 export type Look = { name?: string; sect?: string; appearance?: Record<string, string>; equipped?: Record<string, string | null> };
 
@@ -172,6 +172,7 @@ export function Modal({ children, onClose }: { children?: ReactNode; onClose?: (
 
 export function Sheet({
   title,
+  aside,
   tabs,
   tab,
   onTab,
@@ -179,6 +180,8 @@ export function Sheet({
   children,
 }: {
   title: string;
+  // Chữ nhỏ sát nút đóng — sảnh chờ dùng nó để đếm người thay vì một hàng tab.
+  aside?: ReactNode;
   tabs?: { id: string; label: string }[];
   tab?: string;
   onTab?: (id: string) => void;
@@ -190,6 +193,7 @@ export function Sheet({
       <div className="sheet-card">
         <div className="sheet-head">
           <h3>{title}</h3>
+          {aside ? <span className="n">{aside}</span> : null}
           <button className="x" onClick={onClose} aria-label="Đóng">
             <Icon name="close" />
           </button>

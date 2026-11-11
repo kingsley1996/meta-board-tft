@@ -134,6 +134,30 @@ export class TempleRooms {
     return [...set].filter((member) => !member.leftAt);
   }
 
+  // id của mọi người đang đứng trong chánh điện, không hỏi phòng nào. Tuyến REST không
+  // biết ai nối vào temple:room nào (và cũng không cần biết), còn sảnh chờ thì cần đúng
+  // câu hỏi này: một hàng lobby chỉ có nghĩa khi người đằng sau nó còn ở trong chùa.
+  onlineIds(): number[] {
+    const out: number[] = [];
+    for (const set of this.rooms.values()) {
+      for (const member of set) if (!member.leftAt) out.push(member.profile.id);
+    }
+    return out;
+  }
+
+  // Thay hồ sơ đang giữ của một người và phát cho mọi phòng. Cả hai nửa đều cần thiết:
+  // frame gửi ngay mới xoá badge trên mắt người đang xem, còn member.profile phải đổi
+  // thì người *vừa vào sau* mới nhận đúng hồ sơ trong danh sách peers của cú join.
+  broadcastProfile(profile: PlayerProfile): void {
+    const payload = JSON.stringify({ t: 'prof', p: [profile] });
+    for (const set of this.rooms.values()) {
+      for (const member of set) {
+        if (member.profile.id === profile.id) member.profile = profile;
+        if (!member.leftAt) member.send(payload);
+      }
+    }
+  }
+
   summary(): Record<string, number> {
     const out: Record<string, number> = {};
     for (const [key, set] of this.rooms) out[key] = set.size;

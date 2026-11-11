@@ -26,7 +26,7 @@ function haloTexture(tier) {
   return (HALO_TEX[tier] = t);
 }
 
-import { labelTex, danhHieuLabelTex, frameReady, fxReady, rand, canvasTex } from './textures.js';
+import { labelTex, danhHieuLabelTex, lobbyBadgeTex, frameReady, fxReady, rand, canvasTex } from './textures.js';
 import { rungOf } from './ladder.js';
 import { drawIcon, emoteColor, EMOTES } from './icons.js';
 
@@ -48,6 +48,13 @@ const playerLabel = (p) => danhHieuLabelTex(p.name, p.title, p.level);
 // một tệp là 6 frame chỉ còn nét viền, và nhãn sẽ không bao giờ được dựng lại nữa.
 const labelTag = (p) => [p.name, p.level, p.title || '', frameReady(p.level) ? 1 : 0, fxReady() ? 1 : 0].join('|');
 const fitLabel = (label) => { label.scale.set(1.6 / AV_SCALE, 0.7 / AV_SCALE, 1); label.position.y = 2.5; };
+// Badge sảnh chờ: cỡ 0.3 đơn vị thế giới, treo ngay mép trên của nhãn danh hiệu
+// (nhãn cao 0.7, tâm 2.5 nên đỉnh nằm ở 2.85 theo đơn vị thế giới; chia AV_SCALE vì
+// sprite là con của root đã bị co lại).
+const LOBBY_BADGE = 0.3 / AV_SCALE;
+// Đáy badge gần như chạm mép trên nhãn (2.85) — hở một quãng rộng thì hai hình rời
+// nhau thành hai vật, còn sát nhau thì đọc là một cái bảng của người đó.
+const LOBBY_BADGE_Y = (2.85 + 0.04 + 0.15) / AV_SCALE;
 
 export class World {
   constructor(canvas, joyEl, itemsById) {
@@ -455,7 +462,65 @@ export class World {
   }
   setShowNpc(on) { this.showNpc = on; this.applyNpcVisible(); }
   applyNpcVisible() { const on = this.showNpc !== false && this.perfLevel < 3; this.npcs.forEach((n) => (n.root.visible = on)); }
-  setShowNames(on) { this.showNames = on; this.perfT = 0; if (this.player?.label) this.player.label.visible = on; this.remotes.forEach((r) => (r.label.visible = on)); this.npcs.forEach((n) => n.label && (n.label.visible = on)); }
+  // Tắt nhãn thì cả badge sảnh chờ cũng tắt theo: nó là phần trang trí của cái tên.
+  setShowNames(on) {
+    this.showNames = on;
+    this.perfT = 0;
+    if (this.player?.label) this.player.label.visible = on;
+    if (this.player) this.applyLobbyBadge(this.player, this.player.lobbySrc);
+    this.remotes.forEach((r) => {
+      r.label.visible = on;
+      this.applyLobbyBadge(r.av, r.av.lobbySrc);
+    });
+    this.npcs.forEach((n) => n.label && (n.label.visible = on));
+  }
+
+  // Badge "đang tìm bạn" trên đầu avatar. Nó đứng NGOÀI `labelTag` vì hai lẽ: chất liệu
+  // là một hình tròn vẽ bằng nét (không có asset nào phải chờ nên chẳng có gì để đánh
+  // dấu đã nạp), và một hồ sơ phát lại chỉ đổi cờ `lobby` thì tag vẫn nguyên — nếu để
+  // nó vào tag thì nhịp bật/tắt bị `return` mất và badge treo lại tới lần đổi áo.
+  applyLobbyBadge(av, on) {
+    av.lobbySrc = !!on;
+    const want = av.lobbySrc && this.showNames !== false;
+    if (av.lobbyOn === want) return;
+    av.lobbyOn = want;
+    if (!want) {
+      if (av.lobbyBadge) av.lobbyBadge.visible = false;
+      return;
+    }
+    // Texture tạo mới mỗi lần thay vì cache: disposeAvatar dọn mọi sprite nó gặp, và
+    // một bản dùng chung thì avatar đầu tiên rời phòng sẽ lấy mất ảnh của những avatar
+    // còn lại.
+    const sp = (av.lobbyBadge ||= new THREE.Sprite(new THREE.SpriteMaterial({ map: lobbyBadgeTex(av === this.player), depthWrite: false, transparent: true })));
+    sp.scale.set(LOBBY_BADGE, LOBBY_BADGE, 1);
+    sp.position.y = LOBBY_BADGE_Y;
+    sp.visible = true;
+    // Mốc nở: badge to lên trong phần tư giây rồi dập dờn theo nhịp — một hình bật
+    // tức thì trên đầu người lạ rất dễ bị nhìn nhầm là nhãn bị vẽ lại.
+    av.lobbyT = 0;
+    av.lobbyPhase ||= rand(0, Math.PI * 2);
+    av.root.add(sp);
+  }
+
+  // Nhịp của badge sảnh chờ, đi cùng chiều dài vòng vẽ (tickBolt) vì nó cũng chỉ là
+  // chuyện dời một cái sprite, không liên quan tới dữ liệu phòng.
+  tickLobby(time, dt) {
+    const each = (av, label) => {
+      if (!av?.lobbyOn || !av.lobbyBadge) return;
+      // Nhãn bị ẩn (tắt tên, hoặc đám đông bị tỉa theo khoảng cách) thì badge ẩn theo.
+      av.lobbyBadge.visible = label?.visible !== false;
+      if (!av.lobbyBadge.visible) return;
+      av.lobbyT = Math.min(1, (av.lobbyT ?? 0) + dt * 4);
+      const grow = 0.6 + 0.4 * av.lobbyT;
+      const wave = Math.sin(time * 1.6 + av.lobbyPhase);
+      const s = LOBBY_BADGE * grow * (1 + wave * 0.06);
+      av.lobbyBadge.scale.set(s, s, 1);
+      av.lobbyBadge.position.y = LOBBY_BADGE_Y + (wave * 0.02) / AV_SCALE;
+      av.lobbyBadge.material.opacity = av.lobbyT;
+    };
+    each(this.player, this.player?.label);
+    for (const r of this.remotes.values()) each(r.av, r.label);
+  }
 
   // Danh hiệu trên đầu chính mình: hồ sơ của mình cũng đi qua wire phòng, nên vẽ từ
   // đúng nguồn đó thay vì bỏ qua — người chơi thấy khung của mình và thấy nó đổi khi
@@ -463,6 +528,7 @@ export class World {
   applyMeLabel(p) {
     const av = this.player;
     if (!av) return;
+    this.applyLobbyBadge(av, p.lobby);
     const tag = labelTag(p);
     if (av.labelTag === tag) return;
     av.labelTag = tag;
@@ -522,6 +588,7 @@ export class World {
         this.remotes.set(p.id, r);
       }
       r.x = p.x; r.z = p.z; r.r = p.r; r.a = p.a; r.y = p.y || 0;
+      this.applyLobbyBadge(r.av, p.lobby);
       const cu = p.seat >= 0 ? this.temple.cushions[p.seat] : null;
       if (cu !== r.cushion) {
         if (r.cushion?.occupant === r.av) { r.cushion.occupant = null; this.temple.setCushionLook(r.cushion, null); }
@@ -1185,6 +1252,7 @@ export class World {
     if (this._ctxT > 0.2) { this._ctxT = 0; this.emitContext(); }
 
     this.tickBolt(time);
+    this.tickLobby(time, dt);
     this.renderer.render(this.scene, this.camera);
   }
 

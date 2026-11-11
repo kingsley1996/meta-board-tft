@@ -40,6 +40,9 @@ export type TempleProfile = {
   // Hai mốc chỉ server viết: hết hạn buff nhân đôi điểm, và giờ mở một nhịp thiền.
   buffUntil: string | null;
   meditateStart: string | null;
+  // Giờ treo Riot ID lên bảng "Tìm Bạn Chơi"; null = không đứng ở sảnh chờ. Cũ hơn
+  // LOBBY_TTL_MS thì coi như đã rời đi, xem lobbyLive().
+  lobbyAt: string | null;
 };
 
 type TempleProfileRow = {
@@ -64,6 +67,7 @@ type TempleProfileRow = {
   no_chan: boolean;
   buff_until: Date | null;
   meditate_start: Date | null;
+  lobby_at: Date | null;
 };
 
 // Thang 19 mốc ở docs/SHRINE-LADDER.md §3: sáu "vận" ba bậc cộng một đỉnh Như Ý.
@@ -169,6 +173,7 @@ function toProfile(row: TempleProfileRow): TempleProfile {
     expNext,
     buffUntil: row.buff_until ? row.buff_until.toISOString() : null,
     meditateStart: row.meditate_start ? row.meditate_start.toISOString() : null,
+    lobbyAt: row.lobby_at ? row.lobby_at.toISOString() : null,
   };
 }
 
@@ -246,6 +251,20 @@ export async function templeProfile(userId: string, db: Pick<typeof pool, 'query
 // `riot` là thứ duy nhất không nằm trong hồ sơ đền: nó ở bảng users (accounts.ts), và
 // người gọi phải tự đi hỏi bản *công khai* (publicRiotId) rồi đưa vào đây. Vì vậy tham số
 // để trống nghĩa là "người này không cho ai thấy", chứ không phải "quên chưa lọc".
+//
+// Trần thời gian của sảnh chờ: một hàng lobby hết hiệu lực sau 30 phút, chứ không chờ
+// tới khi người đó rớt mạng. Con số này đi theo hai ngả — JS ở dưới và một khoảng
+// interval trong SQL của lobby.ts — nên nó chỉ được khai báo một lần, ở đây.
+export const LOBBY_TTL_MS = 30 * 60_000;
+
+// Cột lobby_at là giờ do server ghi, nên đồng hồ của tiến trình này là đồng hồ chuẩn.
+// `at` có thể là null (chưa vào) hoặc một chuỗi ISO.
+export function lobbyLive(at: string | null | undefined, now = Date.now()): boolean {
+  if (!at) return false;
+  const t = Date.parse(at);
+  return Number.isFinite(t) && now - t < LOBBY_TTL_MS;
+}
+
 export function toPlayerProfile(profile: TempleProfile, riot?: string | null): PlayerProfile {
   return {
     id: profile.playerId,
@@ -261,6 +280,11 @@ export function toPlayerProfile(profile: TempleProfile, riot?: string | null): P
     // Key phải biến mất chứ không được mang giá trị null: máy khách đọc `p.riot` và một
     // chuỗi rỗng trên dây sẽ hiện thành hàng trống trong thẻ người chơi.
     ...(riot ? { riot } : {}),
+    // Badge sảnh chờ trên đầu avatar. Cũng vắng mặt khi tắt, cùng phép với `riot`. Một
+    // hồ sơ dựng lại sau mốc 30 phút (người đó look/up bậc/reconnect) tự nhiên mất badge;
+    // không có cron nào quét để gỡ, và đó là chủ ý: thứ cần biến mất là *danh sách*,
+    // còn badge chỉ là hình của danh sách đó trong chánh điện.
+    ...(lobbyLive(profile.lobbyAt) ? { lobby: true } : {}),
   };
 }
 

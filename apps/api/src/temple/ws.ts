@@ -37,6 +37,24 @@ export function notifyPlayer(playerId: number, payload: Record<string, unknown>)
   activeRooms?.notify(playerId, JSON.stringify(payload));
 }
 
+// Ai đang thật sự đứng trong chánh điện, theo player_id. Sảnh chờ dùng nó để cắt những
+// hàng của người đã rớt mạng mà chưa kịp bị xoá khỏi database.
+export function onlinePlayerIds(): number[] {
+  return activeRooms?.onlineIds() ?? [];
+}
+
+// "Người này vừa đổi một thứ mà máy khách không tự khai được" — tuyến REST gọi hàm này
+// sau khi ghi database, phòng đọc lại hồ sơ và phát cho mọi người. hồ sơ build lại từ
+// database nên mọi trường dẫn xuất (badge sảnh chờ, Riot ID công khai, danh hiệu) đều
+// đúng theo đúng một đường, không có chỗ nào để máy khách tự tô thêm.
+export async function announceProfile(userId: string): Promise<void> {
+  const rooms = activeRooms;
+  if (!rooms) return;
+  const profile = await templeProfile(userId);
+  if (!profile) return;
+  rooms.broadcastProfile(toPlayerProfile(profile, await publicRiotId(userId)));
+}
+
 function send(ws: WebSocket, payload: Buffer | string): void {
   if (ws.readyState !== ws.OPEN) return;
   try {

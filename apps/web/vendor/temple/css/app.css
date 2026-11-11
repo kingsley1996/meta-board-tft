@@ -1520,3 +1520,25 @@
   #temple-root .die { width: 22px; height: 22px; }
   #temple-root .die i { width: 4px; height: 4px; }
 }
+
+/* ---- Sảnh chờ "Tìm Bạn Chơi" ------------------------------------------------
+   Hàng của sảnh chờ giống .friend-row ở khung nhưng không bấm được vào đâu cả: hai
+   hành động của nó (chép + phiếu) nằm gọn trong .side, nên nó là class riêng chứ không
+   phải .friend-row cộng cursor:default. */
+#temple-root .sheet-head .n { margin-left: auto; margin-right: 10px; font-size: 12.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+#temple-root .comm.lobby > .btn.wide { margin: 2px 0 12px; }
+#temple-root .lobby-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; margin-bottom: 6px; border-radius: 14px; background: #fff; border: 1px solid #f1e5cf; }
+#temple-root .lobby-row.me { border-color: var(--gold); background: #fffaf0; }
+#temple-root .lobby-row .lv { flex: none; width: 34px; height: 34px; border-radius: 999px; background: #efe5d3; color: #7a5210; font-weight: 800; font-size: 13px; display: grid; place-items: center; }
+#temple-root .lobby-row.me .lv { background: linear-gradient(#f6d27e, var(--gold2)); color: #3a2205; }
+#temple-root .lobby-row .fr-body .riot-id { display: block; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#temple-root .lobby-row .side { flex: none; display: flex; align-items: center; gap: 5px; }
+#temple-root .lb-copy { width: 32px; height: 32px; border-radius: 999px; background: #efe5d3; color: var(--ink); display: grid; place-items: center; }
+#temple-root .lb-copy .i { width: 15px; height: 15px; }
+#temple-root .lb-copy:hover { background: #e6d7bd; }
+#temple-root .lb-vote { height: 30px; min-width: 40px; padding: 0 8px; border-radius: 999px; background: #efe5d3; font-size: 12.5px; font-weight: 700; color: #5c4a34; display: inline-flex; align-items: center; gap: 4px; }
+#temple-root .lb-vote .i { width: 14px; height: 14px; }
+#temple-root .lb-vote.on { background: var(--ink); color: #fbe3ae; }
+#temple-root .lb-vote.down.on { background: #6b4a2a; }
+#temple-root .lobby-note { background: #fff; border: 1px dashed #d9c49a; border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; font-size: 13px; line-height: 1.6; color: #55432e; }
+#temple-root .lobby-cta { margin-top: 10px; }

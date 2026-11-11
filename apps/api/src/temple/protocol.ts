@@ -29,6 +29,9 @@ export type PlayerProfile = {
   // Riot ID mà người này *tự treo cờ công khai*. Không phải lúc nào cũng có mặt: máy
   // chủ chỉ gắn khi hàng users có riot_public, nên phía đọc không cần biết cờ là gì.
   riot?: string;
+  // Người này đang đứng ở sảnh chờ "Tìm Bạn Chơi" — world.js vẽ badge lên đầu avatar
+  // khi key này có mặt, và gỡ đi ở đúng nhịp hồ sơ kế tiếp khi nó biến mất.
+  lobby?: boolean;
   q?: boolean;
 };
 

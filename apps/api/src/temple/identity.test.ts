@@ -65,6 +65,7 @@ test('toPlayerProfile carries only what the room frame can draw', async () => {
     expNext: 320,
     buffUntil: null,
     meditateStart: null,
+    lobbyAt: null,
   };
   const wire = toPlayerProfile(profile);
   assert.equal(wire.id, 42);
@@ -78,6 +79,11 @@ test('toPlayerProfile carries only what the room frame can draw', async () => {
   assert.equal(toPlayerProfile(profile, null).riot, undefined);
   assert.equal(Object.keys(toPlayerProfile(profile, null)).length, Object.keys(wire).length);
   assert.equal(toPlayerProfile(profile, 'Leesin#123').riot, 'Leesin#123');
+  // Badge sảnh chờ cũng vắng mặt chứ không null, và mốc 30 phút do chính hồ sơ cắt:
+  // thế giới 3D chỉ cần nhìn key `lobby` mà không phải giữ đồng hồ riêng.
+  assert.equal(wire.lobby, undefined);
+  assert.equal(toPlayerProfile({ ...profile, lobbyAt: new Date().toISOString() }).lobby, true);
+  assert.equal(toPlayerProfile({ ...profile, lobbyAt: new Date(Date.now() - 31 * 60_000).toISOString() }).lobby, undefined);
 });
 
 // --- DB-backed ---

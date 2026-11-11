@@ -57,6 +57,12 @@ CREATE TABLE IF NOT EXISTS temple_profiles (
 -- vẫn lên được mà không cần migration tay.
 ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS buff_until timestamptz;
 ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS meditate_start timestamptz;
+-- Sảnh chờ (lobby.ts): mốc người này treo Riot ID lên bảng "Tìm Bạn Chơi". Nằm trên
+-- temple_profiles chứ không lập bảng riêng vì nó cùng họ với hai mốc trên — hàng là
+-- "người này", tuổi thọ do now() cắt, và không có gì khác ngoài một cột để lưu.
+-- Quan trọng hơn: hồ sơ vẽ avatar đã đọc từ hàng này lúc join/look, nên badge trên đầu
+-- người đó luôn đúng mà phòng không phải hỏi thêm một câu SQL nào.
+ALTER TABLE temple_profiles ADD COLUMN IF NOT EXISTS lobby_at timestamptz;
 
 -- Bộ sưu tập nhân vật đã mở (text[] id trong HERO_LIST). NULL = hàng sinh trước khi cơ
 -- chế này tồn tại, nên khởi đầu của nó là đúng nhân vật đang đứng: không ai bị đòi 100
@@ -182,6 +188,22 @@ CREATE TABLE IF NOT EXISTS temple_friends (
 -- Chiều ngược của lời mời: "ai đang chờ mình chấp thuận" lọc theo friend_id, mà khoá
 -- chính chỉ đánh chỉ mục theo user_id nên không có dòng này là quét cả bảng bạn bè.
 CREATE INDEX IF NOT EXISTS temple_friends_peer_idx ON temple_friends (friend_id, status);
+
+-- Sảnh chờ "Tìm Bạn Chơi": phiếu xác nhận đã chơi cùng một người. Một hàng cho mỗi
+-- chiều của một cặp, nên bấm lại đúng nút cũ là xoá hàng chứ không ghi value = 0 —
+-- "chưa bỏ phiếu" chỉ có một cách biểu diễn, và không ai đếm nhầm một phiếu huỷ thành
+-- phiếu trừ.
+CREATE TABLE IF NOT EXISTS temple_lobby_votes (
+  from_user uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  to_user uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  value smallint NOT NULL CHECK (value IN (-1, 1)),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (from_user, to_user),
+  CHECK (from_user <> to_user)
+);
+-- Mỗi hàng trong danh sách chờ mang theo hai số phiếu của người đó: hỏi theo to_user,
+-- mà khoá chính lại mở đầu bằng from_user.
+CREATE INDEX IF NOT EXISTS temple_lobby_votes_to_idx ON temple_lobby_votes (to_user, value);
 
 CREATE TABLE IF NOT EXISTS temple_dms (
   id bigserial PRIMARY KEY,

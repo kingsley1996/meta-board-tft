@@ -564,6 +564,30 @@ export function danhHieuLabelTex(name, title, level, frames = BOLT_FRAMES) {
   return tex;
 }
 
+export function lobbyBadgeTex(self) {
+  return canvasTex(128, 128, (g, w) => {
+    const c = w / 2, ring = self ? '#f6f0e2' : '#f0c268';
+    // Đĩa mờ phía sau để hình còn đọc được khi đứng trên nền trời sáng của chánh điện.
+    g.beginPath(); g.arc(c, c, 56, 0, Math.PI * 2);
+    g.fillStyle = 'rgba(28,18,12,.72)'; g.fill();
+    g.lineWidth = 8; g.strokeStyle = ring; g.stroke();
+    // Tay cầm: hai mu bán nguyệt nối bằng một thanh ngang, chéo trái + hai nút phải.
+    // Vẽ bằng primitives chứ không qua drawIcon(): drawIcon tải SVG bất đồng bộ còn
+    // sprite cần texture có sẵn ngay lần vẽ đầu.
+    g.strokeStyle = ring; g.lineCap = 'round'; g.lineWidth = 9;
+    g.beginPath();
+    g.arc(40, 66, 19, Math.PI / 2, Math.PI * 1.5);
+    g.lineTo(88, 47);
+    g.arc(88, 66, 19, -Math.PI / 2, Math.PI / 2);
+    g.closePath();
+    g.stroke();
+    g.beginPath(); g.moveTo(34, 66); g.lineTo(54, 66); g.moveTo(44, 56); g.lineTo(44, 76); g.stroke();
+    g.fillStyle = ring;
+    g.beginPath(); g.arc(84, 60, 5, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(93, 71, 5, 0, Math.PI * 2); g.fill();
+  });
+}
+
 export function labelTex(name, sub, color = '#fbe3ae') {
   return canvasTex(512, 128, (g, w, h) => {
     g.font = '600 44px -apple-system, Segoe UI, Roboto, sans-serif';

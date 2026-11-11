@@ -21,6 +21,10 @@ export type RemotePlayer = {
   // Chỉ có mặt khi người đó treo Riot ID công khai — máy chủ gắn key này đúng lúc phát
   // hồ sơ, nên thẻ người chơi không cần biết cờ riêng tư là gì.
   riot?: string;
+  // Người đó đang đứng ở sảnh chờ "Tìm Bạn Chơi". Cùng phép vắng mặt với `riot`: máy
+  // chủ cắt theo mốc 30 phút ngay lúc dựng hồ sơ nên world.js chỉ cần nhìn key này,
+  // không giữ đồng hồ và không cần biết vì sao nó tắt.
+  lobby?: boolean;
   x: number;
   z: number;
   y: number;

@@ -196,14 +196,20 @@ const MESSAGES: Record<string, string> = {
   hero_needs_purchase: 'Nhân vật phải đổi ở ô chọn hình, nơi trừ Kim Cương',
   invalid_riot_id: 'Riot ID phải theo khuôn Tên#Tag — tên 3–16 (chữ, số, dấu cách đơn), tag 3–5',
   riot_id_taken: 'Riot ID này đã có người nhận rồi',
+  needs_riot_id: 'Hãy lưu Riot ID trong Hồ sơ trước khi vào sảnh chờ',
+  self_vote: 'Bạn không tự xác nhận được mình đâu',
+  invalid_vote: 'Chỉ có hai phiếu: đã chơi cùng, hoặc chưa',
 };
 
 // Lời gọi HTTP thật: một chỗ duy nhất dịch { error, code } sang tiếng Việt để không
 // tuyến nào tự đoán mã lỗi. `url` là đường dẫn tuyệt đối tới backend qua Next rewrite.
 async function request<T>(url: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
   const sending = init.body !== undefined;
+  // Phương thức do nơi gọi quyết, không do có body hay không: một lệnh xoá (DELETE
+  // /lobby) thì không có gì để gửi, và ép nó thành GET là lặng lẽ biến thành đọc.
+  const method = init.method ?? (sending ? 'POST' : 'GET');
   const res = await fetch(url, {
-    method: sending ? (init.method ?? 'POST') : 'GET',
+    method,
     cache: 'no-store',
     credentials: 'same-origin',
     ...(sending ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(init.body) } : {}),
@@ -245,6 +251,7 @@ export async function saveRiot(riotId: string, riotPublic: boolean): Promise<Rio
 export const get = <T>(path: string) => templeApi<T>(path);
 export const post = <T>(path: string, body?: unknown) => templeApi<T>(path, { method: 'POST', body: body ?? {} });
 export const put = <T>(path: string, body: unknown) => templeApi<T>(path, { method: 'PUT', body });
+export const del = <T>(path: string) => templeApi<T>(path, { method: 'DELETE' });
 
 // Vé mở phòng: chỉ dùng một lần và vài giây là hết hạn, nên lần nào nối cũng xin cái mới.
 // Phiên đã được dựng một lần ở temple-app khi tải trang, nên đây không phải chỗ tạo khách.

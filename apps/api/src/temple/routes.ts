@@ -8,6 +8,7 @@ import { gamesRouter } from './games.ts';
 import { hallRouter } from './hall.ts';
 import { heroRouter, heroInBody } from './heroes.ts';
 import { createGuest, ensureTempleProfile, readProfilePatch, templeProfile, updateTempleProfile } from './identity.ts';
+import { lobbyRouter } from './lobby.ts';
 import { practiceRouter } from './practice.ts';
 import { shopRouter } from './shop.ts';
 import { ensureTempleTables } from './schema.ts';
@@ -18,12 +19,13 @@ import { withUser } from './http.ts';
 
 export const templeRouter = Router();
 
-// Danh tính ở file này; nhịp cầu may, bảng đồng hành, bạn bè, trận tỷ thí và hai cửa
-// mua đồ nằm trong từng module riêng rồi gắn vào cùng một gốc /api/temple, để HUD chỉ
-// phải biết một tiền tố.
+// Danh tính ở file này; nhịp cầu may, bảng đồng hành, bạn bè, sảnh chờ tìm bạn, trận
+// tỷ thí và hai cửa mua đồ nằm trong từng module riêng rồi gắn vào cùng một gốc
+// /api/temple, để HUD chỉ phải biết một tiền tố.
 templeRouter.use(practiceRouter);
 templeRouter.use(hallRouter);
 templeRouter.use(socialRouter);
+templeRouter.use(lobbyRouter);
 templeRouter.use(gamesRouter);
 templeRouter.use(shopRouter);
 templeRouter.use(heroRouter);

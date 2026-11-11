@@ -15,7 +15,7 @@ import { QUOTES, tellersOf } from './stories';
 import { TempleRoom, type RemotePlayer } from './room';
 import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, ShopSheet, SteleSheet } from './hall';
 import { GameSheet, KIND_NAME } from './games';
-import { FriendsSheet, GroupSheet, NpcModal, PlayerCard, type NpcKind } from './people';
+import { FriendsSheet, GroupSheet, LobbySheet, NpcModal, PlayerCard, type NpcKind } from './people';
 import { MeditateView, QueModal, WheelView } from './practice';
 import { LADDER_TOP, REALM_ABOUT, rungLabel, rungOf } from '@/vendor/temple/js/ladder.js';
 import { Icon, Modal, Notices, Sheet, TitleBadge, Toast, fmt, loginUrls, type Look, type Notice, type SheetKind, type Store, type ViewKind } from './ui';
@@ -730,7 +730,7 @@ export function TempleApp({ lang }: { lang: string }) {
               </>
             ) : (
               <>
-                <h2>Đang mở sảnh…</h2>
+                <h2>Đang vào sảnh…</h2>
                 <div className="bar">
                   <i style={{ ['--p' as string]: `${loaderPct / 100}` }} />
                 </div>
@@ -870,6 +870,7 @@ export function TempleApp({ lang }: { lang: string }) {
                 ['rank', 'trophy', 'BXH'],
                 ['community', 'users', 'Cộng đồng'],
                 ['friends', 'user', 'Đồng đội'],
+                ['lobby', 'gamepad', 'Tìm Bạn'],
                 ['games', 'dice', 'Tỷ thí'],
                 ['stele', 'medal', 'Bảng Tri Ân'],
                 ['profile', 'palette', 'Hồ sơ'],
@@ -954,6 +955,7 @@ export function TempleApp({ lang }: { lang: string }) {
           }}
         />
       ) : null}
+      {sheet === 'lobby' ? <LobbySheet s={store} onClose={() => setSheet(null)} /> : null}
 
       {/* Thẻ phải nằm trong khung .modal-card: toàn bộ CSS của nó (rộng 420px, nền phủ,
           lời chúc một hàng) gắn với selector .modal-card:has(.pcard), mount trần là vỡ. */}

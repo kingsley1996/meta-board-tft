@@ -7,7 +7,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Gain, GameKind, PublicPlayer } from './api';
-import { get, post } from './api';
+import { del, get, post } from './api';
 import { ITEMS, TEMPLE, sectOf } from './engine';
 import { ItemIcon, RANK_LABEL } from './hall';
 import { ABBOT, HERMIT_LESSONS, WISHES, guideOf, storyOf, tellersOf } from './stories';
@@ -611,6 +611,167 @@ export function FriendsSheet({ s, notice, tab0, onClose }: { s: Store; notice: N
           ) : null}
         </div>
       ) : null}
+    </Sheet>
+  );
+}
+
+// ---- Sảnh chờ "Tìm Bạn Chơi" -------------------------------------------------
+//
+// Danh sách những người đang treo Riot ID của mình lên bảng. Không có nút Mời: đền
+// không nói chuyện được với máy chủ Liên Minh, nên thứ duy nhất một hàng trao cho người
+// khác là một dòng chữ để chép lấy. Vì vậy hàng nào cũng chỉ có hai hành động — copy,
+// và một phiếu "đã chơi cùng".
+type LobbyEntry = {
+  id: number;
+  name: string;
+  level: number;
+  riot: string;
+  at: string;
+  up: number;
+  down: number;
+  vote: number;
+};
+type Lobby = { riot: string | null; in: boolean; rows: LobbyEntry[] };
+type LobbyWrite = { in: boolean; rows: LobbyEntry[] };
+
+// Bảng này đọc trong lúc người ta còn đứng giữa chánh điện, nên nó tươi theo nhịp của
+// một cái nhìn chứ không của một lần mở: 15 giây là một request mỗi phần tư phút cho
+// mỗi người đang xem, đổi lấy việc không phải đóng–mở lại sheet chỉ để biết ai vừa ngồi
+// xuống.
+const LOBBY_POLL_MS = 15_000;
+
+export function LobbySheet({ s, onClose }: { s: Store; onClose: () => void }) {
+  const [data, setData] = useState<Lobby | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      setData(await get<Lobby>('/lobby'));
+    } catch {
+      // sheet vẫn mở được với danh sách rỗng
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  useEffect(() => {
+    const t = window.setInterval(() => void load(), LOBBY_POLL_MS);
+    return () => window.clearInterval(t);
+  }, [load]);
+
+  const rows = data?.rows ?? [];
+  const mine = rows.find((r) => r.id === s.me) ?? null;
+  const others = rows.filter((r) => r.id !== s.me);
+  // `riot` ở đây là Riot ID của *chính người đang xem*, do server đọc từ hàng users của
+  // họ. Không có thì nút vào sảnh tắt và lời dẫn bước sang Hồ sơ — đừng để người chơi
+  // bấm một cái nút chắc chắn trả 400.
+  const canJoin = Boolean(data?.riot);
+
+  const patch = (inNow: boolean, next: LobbyEntry[]) => setData((d) => ({ riot: d?.riot ?? null, in: inNow, rows: next }));
+
+  const toggle = async () => {
+    setBusy(true);
+    try {
+      const r = data?.in ? await del<LobbyWrite>('/lobby') : await post<LobbyWrite>('/lobby');
+      patch(r.in, r.rows);
+      s.toast(
+        r.in
+          ? `<svg class="i"><use href="#i-gamepad"/></svg> Mọi người đã thấy Riot ID của bạn ở sảnh chờ`
+          : `<svg class="i"><use href="#i-close"/></svg> Đã rời sảnh chờ`,
+      );
+    } catch (e) {
+      s.toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const vote = async (id: number, value: 1 | -1) => {
+    try {
+      const r = await post<{ rows: LobbyEntry[] }>('/lobby/vote', { id, value });
+      patch(data?.in ?? false, r.rows);
+    } catch (e) {
+      s.toast((e as Error).message);
+    }
+  };
+
+  // Clipboard bị trình duyệt từ chối ngoài HTTPS/localhost. Không có nhánh nào im
+  // lặng: báo "đã chép" rồi không có gì trong bảng nhớ là thứ người chơi phát hiện ra
+  // muộn nhất.
+  const copy = async (riot: string) => {
+    try {
+      await navigator.clipboard.writeText(riot);
+      s.toast(`<svg class="i"><use href="#i-check"/></svg> Đã chép <b>${esc(riot)}</b> — dán vào ô kết bạn của Liên Minh`);
+    } catch {
+      s.toast(`Chép tay giúp nhé: <b>${esc(riot)}</b>`);
+    }
+  };
+
+  const row = (r: LobbyEntry, self: boolean) => (
+    <div className={`lobby-row${self ? ' me' : ''}`} key={r.id}>
+      <span className="lv">{r.level}</span>
+      <div className="fr-body">
+        <b>{r.name}</b>
+        <span className="riot-id">{r.riot}</span>
+        <small>{ago(r.at)}</small>
+      </div>
+      <div className="side">
+        {self ? (
+          <span className="tag gold">Bạn</span>
+        ) : (
+          <>
+            <button className="lb-copy" title="Chép Riot ID" onClick={() => void copy(r.riot)}>
+              <Icon name="tag" />
+            </button>
+            <button className={`lb-vote${r.vote === 1 ? ' on' : ''}`} title="Đã chơi cùng" onClick={() => void vote(r.id, 1)}>
+              <Icon name="up" /> {r.up}
+            </button>
+            <button className={`lb-vote down${r.vote === -1 ? ' on' : ''}`} title="Chưa chơi cùng" onClick={() => void vote(r.id, -1)}>
+              <Icon name="down" /> {r.down}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <Sheet title="Tìm Bạn Chơi" aside={`${rows.length} người đang chờ`} onClose={onClose}>
+      <div className="comm lobby">
+        {s.guest ? (
+          <GuestGate s={s} what="Sảnh chờ" />
+        ) : !canJoin ? (
+          <div className="lobby-note">
+            Sảnh chờ trao <b>Riot ID</b> cho nhau, nên cần nhập một cái trước khi vào.
+            <div className="lobby-cta">
+              <button className="btn small gold" onClick={() => s.setSheet('profile')}>
+                <Icon name="tag" /> Nhập Riot ID
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        <button
+          className={`btn wide ${data?.in ? 'ghost' : 'gold'}`}
+          disabled={busy || s.guest || (!data?.in && !canJoin)}
+          onClick={() => void toggle()}
+        >
+          {data?.in ? 'Rời Sảnh Chờ' : 'Vào Sảnh Chờ'}
+        </button>
+
+        {mine ? (
+          <>
+            <div className="region">Bạn · đang chờ</div>
+            {row(mine, true)}
+          </>
+        ) : null}
+        <div className="region">{others.length} người đang chờ chơi cùng</div>
+        {others.map((r) => row(r, false))}
+        {!others.length ? <div className="empty">Chưa có ai khác ở đây. Vào sảnh chờ để là người đầu tiên.</div> : null}
+        <p className="muted">Một phiếu mỗi người — bấm lại để huỷ hoặc đổi chiều. Rời đền là rời sảnh.</p>
+      </div>
     </Sheet>
   );
 }

@@ -26,6 +26,8 @@ const P = {
   bag: '<path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/>',
   shop: '<path d="M4 9l1.5-5h13L20 9"/><path d="M4 9h16v2a2.7 2.7 0 01-5.3 0 2.7 2.7 0 01-5.4 0A2.7 2.7 0 014 11V9z"/><path d="M5.5 13v7h13v-7M10 20v-4h4v4"/>',
   users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.4 3-5 6-5s5.4 1.6 6 5"/><path d="M16 5.5a3 3 0 010 5.5M18 14c1.7.6 2.7 2.4 3 5"/>',
+  // sảnh chờ "Tìm Bạn Chơi" — cùng hình với badge trên đầu nhân vật (textures.js:lobbyBadgeTex)
+  gamepad: '<rect x="2.5" y="8" width="19" height="8" rx="4"/><path d="M7 10.2v3.6M5.2 12h3.6"/><circle cx="16" cy="11" r="1"/><circle cx="18.4" cy="13.4" r="1"/>',
   trophy: '<path d="M8 4h8v5a4 4 0 01-8 0V4z"/><path d="M8 6H5a3 3 0 003 4M16 6h3a3 3 0 01-3 4"/><path d="M12 13v3M9 20h6M10 16h4l1 4H9l1-4z"/>',
   map: '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
   book: '<path d="M4 5a2 2 0 012-2h5v17H6a2 2 0 00-2 2V5z"/><path d="M20 5a2 2 0 00-2-2h-5v17h5a2 2 0 012 2V5z"/>',
@@ -37,6 +39,10 @@ const P = {
   share: '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/>',
   camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  // hai chiều của phiếu "đã chơi cùng" trong sảnh chờ. Xuống = cùng một nét quay
+  // ngược trục, nên hai nút luôn cân nhau mà không phải vẽ hai bàn tay khác ý.
+  up: '<path d="M7 10.5v9H4.6a1.1 1.1 0 01-1.1-1.1v-6.8A1.1 1.1 0 014.6 10.5H7z"/><path d="M7 10.5l3.9-7a2 2 0 012.1 2.6L12.2 9.6h6.4a2.1 2.1 0 012 2.6l-1.4 5.6a2.4 2.4 0 01-2.3 1.8H7"/>',
+  down: '<g transform="translate(0 24) scale(1 -1)"><path d="M7 10.5v9H4.6a1.1 1.1 0 01-1.1-1.1v-6.8A1.1 1.1 0 014.6 10.5H7z"/><path d="M7 10.5l3.9-7a2 2 0 012.1 2.6L12.2 9.6h6.4a2.1 2.1 0 012 2.6l-1.4 5.6a2.4 2.4 0 01-2.3 1.8H7"/></g>',
   lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
   pin: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
   sound: '<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 010 6M18.5 6.5a7.5 7.5 0 010 11"/>',
