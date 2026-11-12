@@ -454,6 +454,9 @@
 #temple-root .loader h2 { font-size: 20px; margin-top: 6px; }
 #temple-root .loader small { display: block; margin-top: 8px; font-size: 12px; color: #c8b08a; min-height: 16px; }
 #temple-root .loader .quote { margin-top: 22px; font-size: 14px; font-style: italic; color: #e6d3b3; line-height: 1.6; opacity: 0; animation: fadein 1s .4s forwards; }
+/* Dòng "đền không thu phí": trầm hơn <small> và không italic để nó đọc như một điều khoản
+   chứ không phải một trạng thái hay một câu nói. Có trên cả bốn nhánh của màn chờ. */
+#temple-root .loader .free-note { margin: 16px 0 0; font-size: 11px; line-height: 1.55; color: #9b8568; }
 /* Khối chọn lối vào: nền màn chờ tối nên nút ghost phải sáng hơn nền, không tối hơn. */
 #temple-root .loader-acts { display: grid; gap: 8px; margin-top: 18px; }
 #temple-root .loader .btn.ghost { background: rgba(251,227,174,.12); color: #fbe3ae; border: 1px solid rgba(251,227,174,.28); }

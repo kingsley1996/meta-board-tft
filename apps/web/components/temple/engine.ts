@@ -213,12 +213,14 @@ export class TempleEngine {
   async enter(me: EnginePerson): Promise<void> {
     const world = this.world;
     if (!world) return;
-    this.h.onProgress(10, 'Dựng sảnh đền');
+    // onProgress phát KHOÁ, không phát câu chữ: màn chờ dịch khoá đó theo lang của route
+    // (LOADER.steps trong stories.ts), nên engine không phải biết người chơi nói tiếng gì.
+    this.h.onProgress(10, 'build');
     // buildTemple là một nhịp blocking dài của main thread; nhả ba khung hình ở đây để
     // hiệu ứng chờ kịp khởi động chuyển động trước khi cảnh bị dựng đè lên.
     await nextFrames(3);
     world.enterTemple(TEMPLE, me);
-    this.h.onProgress(72, 'Dọn dẹp đền');
+    this.h.onProgress(72, 'sweep');
     await nextFrames(1);
     await world.warmUp();
     world.start();

@@ -72,3 +72,78 @@ export const QUOTES = [
   '“Một round thắng không quyết định trận đấu, nhưng một quyết định đúng có thể cứu cả trận.”',
   '“Top 4 cũng là điểm. Đừng trận nào cũng cố sống chết để lấy top 1.”',
 ];
+
+// Toàn bộ chữ trên MÀN CHỜ, một cặp en/vi cho mỗi dòng. Route /en/temple có thật
+// (app/(temple)/[lang]/temple/page.tsx) nên màn chờ là chỗ duy nhất của đền nói được
+// tiếng Anh; HUD và các sheet vẫn một thứ tiếng.
+// `name` không lấy từ TEMPLE.name: meta.json chỉ có "Đền Cầu May", còn "Lucky Temple"
+// là nhãn đã dùng ở <title> của chính route này và trong messages.ts.
+// `steps` tra theo KHOÁ mà engine.ts phát ở onProgress ('build' | 'sweep'), không tra
+// theo chuỗi tiếng Việt — sửa câu chữ trong engine sẽ không làm màn chờ mất nhãn.
+// `noGlA` + `noGlB` là MỘT câu cắt làm hai, chỉ để nhét <code>chrome://settings/system</code>
+// vào giữa: một chuỗi liền thì mất phông monospace của đường dẫn.
+// `free` là dòng phân trần, đứng riêng một hàng vì nó phủ lên CẢ bốn trạng thái của
+// màn chờ: khách vào đền lần đầu hay người boot fail bấm lại đều phải đọc được nó.
+export type LoaderCopy = {
+  name: string;
+  noGlTitle: string;
+  noGlA: string;
+  noGlB: string;
+  retry: string;
+  errTitle: string;
+  errBody: string;
+  guestNote: string;
+  guestBtn: string;
+  signupBtn: string;
+  loginBtn: string;
+  entering: string;
+  free: string;
+  steps: Record<string, string>;
+  quotes: string[];
+};
+
+export const LOADER: Record<'en' | 'vi', LoaderCopy> = {
+  vi: {
+    name: 'Đền Cầu May',
+    noGlTitle: 'Không dựng được sảnh 3D',
+    noGlA: 'Máy tính này chưa bật tăng tốc đồ hoạ, nên trình duyệt không cấp ngữ cảnh WebGL. Bật ở',
+    noGlB: 'rồi mở lại trang.',
+    retry: 'Thử lại',
+    errTitle: 'Chưa vào được sảnh',
+    errBody: 'Sảnh đang bận, thử lại sau nhé',
+    guestNote: 'Cầu may trước trận, không cần tài khoản. Điểm đang có vẫn ở nguyên khi đăng ký.',
+    guestBtn: 'Vào với tư cách khách',
+    signupBtn: 'Tạo tài khoản',
+    loginBtn: 'Đã có tài khoản',
+    entering: 'Đang vào sảnh…',
+    free: 'Mọi vật phẩm và hoạt động trong đền đều miễn phí, chỉ để giải trí và cầu may trước giờ vào trận.',
+    steps: { gate: 'Mở cổng đền', build: 'Dựng sảnh đền', sweep: 'Dọn dẹp đền' },
+    quotes: QUOTES,
+  },
+  en: {
+    name: 'Lucky Temple',
+    noGlTitle: 'The 3D hall won’t render',
+    noGlA: 'Graphics acceleration isn’t on for this computer, so the browser won’t hand us a WebGL context. Turn it on at',
+    noGlB: 'and reload.',
+    retry: 'Try again',
+    errTitle: 'Couldn’t get into the hall',
+    errBody: 'The hall is busy — give it a moment and try again.',
+    guestNote: 'Luck-check before your game, no account needed. Your points are still here if you sign up.',
+    guestBtn: 'Enter as a guest',
+    signupBtn: 'Create an account',
+    loginBtn: 'I already have an account',
+    entering: 'Entering the hall…',
+    free: 'Every item and activity in the temple is free — it’s for fun and a little luck before you queue.',
+    steps: { gate: 'Opening the gates', build: 'Raising the hall', sweep: 'Sweeping the floors' },
+    quotes: [
+      '“Luck matters a lot. Knowing when to hold your gold matters more.”',
+      '“Don’t roll before you know what you’re rolling for.”',
+      '“Losing a few rounds isn’t scary. Losing your head is.”',
+      '“Before you lock your board, check how many others are fighting for it.”',
+      '“Even the strongest comp needs the right placement.”',
+      '“No comp wins every game. The good ones know when to pivot.”',
+      '“One won round doesn’t decide the game, but one right call can save it.”',
+      '“Top 4 is still points. Don’t die for top 1 every single game.”',
+    ],
+  },
+};

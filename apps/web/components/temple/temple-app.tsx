@@ -11,7 +11,7 @@ import type { Gain, GameMatch, GuestReply, TempleState } from './api';
 import { TempleApiError, get, post } from './api';
 import { AMBIENCES, ITEMS, Sound, TEMPLE, TempleEngine, WEATHERS, hasWebGL, local, sectOf, type EngineCtx, type EnginePerson } from './engine';
 import { luckyShower, floater } from './effects';
-import { QUOTES, tellersOf } from './stories';
+import { LOADER, tellersOf } from './stories';
 import { TempleRoom, type RemotePlayer } from './room';
 import { BagSheet, GuideSheet, ProfileSheet, RankSheet, SettingsSheet, ShopSheet, SteleSheet } from './hall';
 import { GameSheet, KIND_NAME } from './games';
@@ -68,11 +68,14 @@ function ctxLabel(ctx: EngineCtx, act: CtxAct): string {
 }
 
 export function TempleApp({ lang }: { lang: string }) {
+  // Chữ của màn chờ, chọn theo route. /en/temple thật sự tồn tại nên đây là chỗ duy nhất
+  // của đền dịch được; mọi copy khác vẫn một thứ tiếng.
+  const L = lang === 'en' ? LOADER.en : LOADER.vi;
   const [tick, setTick] = useState(0);
   const [screen, setScreen] = useState<'loader' | 'hud'>('loader');
   const [loaderPct, setLoaderPct] = useState(4);
   const [loaderOut, setLoaderOut] = useState(false);
-  const [loaderStep, setLoaderStep] = useState('Mở cổng đền');
+  const [loaderStep, setLoaderStep] = useState(L.steps.gate);
   const [noGl, setNoGl] = useState(false);
   const [view, setView] = useState<ViewKind>('hall');
   const [sheet, setSheet] = useState<SheetKind | null>(null);
@@ -427,7 +430,7 @@ export function TempleApp({ lang }: { lang: string }) {
     try {
       setBootError('');
       const g = await session;
-      if (!g) throw new Error('Sảnh đang bận, thử lại sau nhé');
+      if (!g) throw new Error(L.errBody);
       guestRef.current = g.guest;
       meRef.current = g.profile.playerId;
       setLoaderPct(4);
@@ -460,7 +463,7 @@ export function TempleApp({ lang }: { lang: string }) {
       reveal();
     } catch (e) {
       setLoaderPct(0);
-      setBootError((e as Error).message || 'Sảnh đang bận, thử lại sau nhé');
+      setBootError((e as Error).message || L.errBody);
     }
   };
 
@@ -476,7 +479,7 @@ export function TempleApp({ lang }: { lang: string }) {
         if ((e as TempleApiError).status === 401) setChoice(true);
         else {
           setLoaderPct(0);
-          setBootError((e as Error).message || 'Sảnh đang bận, thử lại sau nhé');
+          setBootError((e as Error).message || L.errBody);
         }
       });
   };
@@ -498,7 +501,7 @@ export function TempleApp({ lang }: { lang: string }) {
     const engine = new TempleEngine({
       onProgress: (pct, step) => {
         setLoaderPct(pct);
-        setLoaderStep(step);
+        setLoaderStep(L.steps[step] ?? step);
       },
       onReady: () => {
         readyRef.current = true;
@@ -606,7 +609,7 @@ export function TempleApp({ lang }: { lang: string }) {
   }, [sheet, offerOpen]);
 
   useEffect(() => {
-    setQuote(QUOTES[Math.floor(Math.random() * QUOTES.length)] ?? '');
+    setQuote(L.quotes[Math.floor(Math.random() * L.quotes.length)] ?? '');
   }, []);
 
   useEffect(() => {
@@ -695,48 +698,50 @@ export function TempleApp({ lang }: { lang: string }) {
             </div>
             {noGl ? (
               <>
-                <h2>Không dựng được sảnh 3D</h2>
+                <h2>{L.noGlTitle}</h2>
                 <small>
-                  Máy tính này chưa bật tăng tốc đồ hoạ, nên trình duyệt không cấp ngữ cảnh WebGL. Bật ở{' '}
-                  <code>chrome://settings/system</code> rồi mở lại trang.
+                  {L.noGlA} <code>chrome://settings/system</code> {L.noGlB}
                 </small>
                 <button type="button" className="btn gold" onClick={() => location.reload()}>
-                  Thử lại
+                  {L.retry}
                 </button>
               </>
             ) : bootError ? (
               <>
-                <h2>Chưa vào được sảnh</h2>
+                <h2>{L.errTitle}</h2>
                 <small>{bootError}</small>
                 <button type="button" className="btn gold" onClick={probeSession}>
-                  Thử lại
+                  {L.retry}
                 </button>
               </>
             ) : choice ? (
               <>
-                <h2>{TEMPLE.name}</h2>
-                <small>Cầu may trước trận, không cần tài khoản. Điểm đang có vẫn ở nguyên khi đăng ký.</small>
+                <h2>{L.name}</h2>
+                <small>{L.guestNote}</small>
                 <div className="loader-acts">
                   <button type="button" className="btn gold wide" onClick={enterAsGuest}>
-                    <Icon name="pray" /> Vào với tư cách khách
+                    <Icon name="pray" /> {L.guestBtn}
                   </button>
                   <a className="btn ghost wide" href={loginUrls(lang).signup}>
-                    Tạo tài khoản
+                    {L.signupBtn}
                   </a>
                   <a className="btn ghost wide" href={loginUrls(lang).login}>
-                    Đã có tài khoản
+                    {L.loginBtn}
                   </a>
                 </div>
               </>
             ) : (
               <>
-                <h2>Đang vào sảnh…</h2>
+                <h2>{L.entering}</h2>
                 <div className="bar">
                   <i style={{ ['--p' as string]: `${loaderPct / 100}` }} />
                 </div>
                 <small>{loaderStep}</small>
               </>
             )}
+            {/* Dòng phân trần đứng NGOÀN bốn nhánh trên: nó là điều khoản của cả căn đền,
+                không phải trạng thái của màn chờ, nên boot fail cũng vẫn phải thấy. */}
+            <p className="free-note">{L.free}</p>
             <p className="quote">{quote}</p>
           </div>
         </section>
