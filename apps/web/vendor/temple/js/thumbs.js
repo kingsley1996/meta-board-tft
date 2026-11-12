@@ -116,6 +116,18 @@ function heroScene(scene, cam, it, appearance) {
   // y 2,045 (< 2,266 của Võ Sư Mù), gấu áo choàng ở y 0,30 (> 0,12 đáy vạt), rộng nhất là
   // thân choàng |x| 0,53 (< 0,738). Vải choàng ở SAU lưng nên z dương, tức rơi vào cửa sổ
   // CHIẾU RỘNG nhất của phép phối cảnh chứ không phải cửa hẹp gần ống kính.
+  // irelia_chibi cũng vậy, đo từ khung hình thật (mesh trong cây của root sau khi thân xoay
+  // 0,45, đúng như heroScene dựng): điểm cao nhất là hai cánh quạt bạc trên đầu, giờ BẰNG NHAU
+  // theo yêu cầu của user - 2,257 (cánh phải, z -0,193, cần 0,997, khung cho 1,321, lề 0,324)
+  // và 2,262 (cánh trái, z -0,439 là biên GẦN ống kính nhất của nó, cần 1,002, khung cho
+  // 1,253, lề 0,251). Hai số chỉ lệch 0,005 vì bản thân tấm quạt nghiêng chứ không vì một
+  // cánh to hơn; cả hai đều dưới ngọn gai 2,266 của Võ Sư Mù nên khung không phải chỉnh.
+  // Vòng kiếm: chín lưỡi NHỎ (0,32 dài, 0,06 ngang) nằm NGANG thành cái chao ở giữa thân,
+  // trong dải thế giới y 0,794..0,877 và rộng nhất |x| 0,64 ở z -0,59. Biên gần ống kính
+  // nhất đó cho cửa sổ (4,8-0,59)*0,28675 = 1,20 trong khi lưỡi cần 0,64 ngang và 0,46
+  // dọc - lề 0,56. Vòng quay chung trục gốc nên mọi pha chỉ phân bố lại chín lưỡi, không
+  // nới biên; vật rắn rộng nhất vẫn là tóc |x| 0,773 ở z -0,116 (cửa sổ 1,343).
+  // Đáy vẫn là vạt áo 0,12.
   cam.position.set(0, 1.26, -4.8);
   cam.lookAt(0, 1.26, 0);
   return () => disposeAvatar(av);
