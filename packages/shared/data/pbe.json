@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-11-11T08:12:11.799Z",
+  "generatedAt": "2026-11-13T08:45:16.090Z",
   "patch": "18.7",
   "set": 18,
   "isPbe": true,
   "source": {
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-11T08:11:06.701Z"
+    "fetchedAt": "2026-11-13T08:38:16.732Z"
   },
   "baseline": {
     "patch": "18.6",
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-11T08:11:11.626Z"
+    "fetchedAt": "2026-11-13T08:38:20.200Z"
   },
   "coverage": {
     "champs": {
@@ -31,7 +31,7 @@
     }
   },
   "stats": {
-    "rows": 36,
+    "rows": 38,
     "added": 0,
     "removed": 0,
     "editorial": 2,
@@ -442,6 +442,54 @@
       "direction": "adjust",
       "note": {
         "en": "Gather Essence by killing champions, plus more by losing player combat. ; Beginning at 40 Essence, choose to convert Essence to rewards or continue gathering Essence. Each reward requires increasing amounts of Essence. ; (3) 2 Essence per kill, 22 Essence per loss ; (4) 2 per kill, 28 per loss ; (5) 3 per kill, 35 per loss ; (7) 10 per kill, 70 per loss"
+      }
+    },
+    {
+      "ref": "DA_18_Eclipse",
+      "slug": "da-18-eclipse",
+      "kind": "trait",
+      "table": "traits",
+      "name": {
+        "en": "Eclipse",
+        "vi": "Thiên Thực"
+      },
+      "icon": "/tft/traits/da-18-eclipse.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "TRAITS",
+      "field": {
+        "en": "seconds of combat"
+      },
+      "from": "8",
+      "to": "9",
+      "direction": "adjust",
+      "note": {
+        "en": "After 9 seconds of combat, the Eclipse kills the lowest Health enemy, repeating every 3 seconds."
+      }
+    },
+    {
+      "ref": "DA_18_Eclipse",
+      "slug": "da-18-eclipse",
+      "kind": "trait",
+      "table": "traits",
+      "name": {
+        "en": "Eclipse",
+        "vi": "Thiên Thực"
+      },
+      "icon": "/tft/traits/da-18-eclipse.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "TRAITS",
+      "field": {
+        "en": "seconds"
+      },
+      "from": "3.5",
+      "to": "3",
+      "direction": "adjust",
+      "note": {
+        "en": "After 9 seconds of combat, the Eclipse kills the lowest Health enemy, repeating every 3 seconds."
       }
     },
     {
@@ -904,7 +952,7 @@
   "counts": {
     "buff": 15,
     "nerf": 5,
-    "adjust": 16
+    "adjust": 18
   },
   "added": [],
   "removed": [],
