@@ -2689,6 +2689,17 @@ function buildHeroProps3D(upper, hands, arms, legR, hero, head, root) {
     const ringGeo = finPlate(IR_RING_PTS, IR_RING_W, 0.005, 0.014);
     const ring = new THREE.Group();
     ring.position.y = IR_RING_Y;
+    // THU/RA 0,075 (user 2026-11-13: "vong tron 9 luoi kiem se thu ra thu vao theo
+    // chuyen dong"). LECH MOT CHIEU 0,56 -> 0,635, khong giao phoi hai ben cua 0,075,
+    // vi 0,56 LA CAI DA DUOC DO: /tmp/ll3d/breathe.mjs chay 6 tu the voi breathe = 0
+    // (vet day cua bien do) ra khe ho nho nhat giua luoi va mui cau vai 0,0734 luc lay.
+    // An SAU hon nua la an vao 0,0734 do. Ra NGOAI thi do lai duoc bang do luong cung
+    // probe: day 1 -> ban kinh dinh 0,667 (loi ngoai 0,6028 + 0,064), |x| lon nhat cua
+    // moi dinh luoi 0,6648 van duoi vat rong nhat trong khung thumbnail 1,1484 (dia aura
+    // #f59e0b), va sweep do lai o bien do day thi khe ho cau vai con 0,072 - tuc mo het
+    // cung khong tao ra va cham moi. Hai ghe cach 2,4 (meta.json cushions) nen vong cua
+    // hai nguoi ke nhau con 2,4/2 - 0,667 = 0,53 chen giua.
+    ring.userData.breathe = 0.075;
     for (let i = 0; i < 9; i++) {
       // 20 do lech pha: khong co luoi dung giua mat truoc - hai luoi bien khung dang
       // ngoi, va khong co luoi nao dung thang sau lung (noi ma ao choang/cape nguoi
@@ -2699,6 +2710,11 @@ function buildHeroProps3D(upper, hands, arms, legR, hero, head, root) {
       const g = new THREE.Group();
       g.position.set(Math.sin(phi) * IR_RING_R, 0, -Math.cos(phi) * IR_RING_R);
       g.rotation.y = Math.PI - (phi + IR_PINWHEEL);
+      // luu goc va ban kinh goc: animateAvatar di tung luoi doc theo phuong kinh cua
+      // chinh no. Khong keo scale cua ring - no se bien dang ban luoi (moi luoi nam
+      // mot huong khac nhau nen x/z co lech) va ban luoi to ra cung voi vong to ra.
+      g.userData.phi = phi;
+      g.userData.r0 = IR_RING_R;
       g.add(m(ringGeo, ringM, 0, 0, 0, { rot: IR_ROT, cast: false }));
       ring.add(g);
     }
@@ -3155,6 +3171,32 @@ export function animateAvatar(av, dt, time, moving = false) {
     // 0,56-0,008 = 0,552 con both tay gap truc nhat 0,34, le 0,21 o moi pha.
     ir.rotation.y = time * 0.45;
     ir.position.y = 0.68 + Math.sin(time * 1.1 + av.phase) * 0.02;
+    // THU/RA theo chuyen dong. Bien do (0..1) la CUONG DO, khong phai ba nguyen tac
+    // khac nhau: di buoc 1, ngoi thien 0,55 (lay av.meditate - da duoc muot san o duoi,
+    // chi tre mot frame), nghi 0,16 de vong van tho khi khong lam gi. Bo 0,16 di thi
+    // NPC dung yen trong sảnh la mot vong kiem dong, khong phai mot cai la dong ho.
+    // Do bang /tmp/ll3d/breathe.mjs (ban kinh tam cua luoi, root-local):
+    //   NGHI 0,560..0,572   THIEN 0,560..0,601   DI BUOC 0,560..0,635.
+    // dt*3,5 = 0,29 giay de doi het bien do. Ngan hon thi vong nop bung theo tung buoc
+    // chan (nhap nhu den chap), dai hon thi muot qua, khong kip luc nguoi choi dung buoc.
+    // Gia so vao bien do chu khong vao ban kinh: khong co luc vong "thu het" ve 0.
+    const want = Math.max(moving ? 1 : 0, av.meditate * 0.55, 0.16);
+    const a0 = av.bladeAmp ?? want;
+    av.bladeAmp = a0 + (want - a0) * Math.min(1, dt * 3.5);
+    // Pha tich luy chu khong lay time * rate: rate doi theo bien do, ma time thi co
+    // dinh, nen nhan truc tiep se lam nhay goc khi nguoi choi dung buoc.
+    const ph = (av.bladePh = (av.bladePh ?? av.phase) + dt * (1.15 + av.bladeAmp * 1.6));
+    const kids = ir.children;
+    const push = ir.userData.breathe;
+    for (let i = 0; i < kids.length; i++) {
+      const c = kids[i];
+      // - i * 0,22: 9 luoi le nhau 0,22 rad cua song = 1,98 rad vong tron, tuc mot song
+      // chay theo banh xe chu khong phai 9 cai piston dong bo. Lech nay khong bien vong
+      // thanh da giac: ban kinh hai luoi ke nhau lech toi da
+      // push * 0,5 * 2*sin(0,11) = 0,008, trong khi cho trong giua hai luoi la 0,13.
+      const r = c.userData.r0 + av.bladeAmp * push * (0.5 + 0.5 * Math.sin(ph - i * 0.22));
+      c.position.set(Math.sin(c.userData.phi) * r, 0, -Math.cos(c.userData.phi) * r);
+    }
   }
   if (av.ultTimer > 0) {
     av.ultTimer = Math.max(0, av.ultTimer - dt);
