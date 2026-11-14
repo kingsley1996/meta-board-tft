@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đền · đang dựng linh thú tí nị</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #120d09; overflow: hidden;
+    font: 13px/1.4 -apple-system, "Segoe UI", sans-serif; color: #f1e6d6; }
+  #stage { position: fixed; inset: 0; }
+  canvas { display: block; }
+  .bar { position: fixed; left: 12px; top: 12px; display: flex; flex-wrap: wrap; gap: 6px;
+    max-width: calc(100vw - 24px); padding: 9px 10px; border-radius: 12px;
+    background: rgba(20, 13, 8, .72); backdrop-filter: blur(8px);
+    box-shadow: 0 6px 22px rgba(0,0,0,.45); }
+  .bar + .bar { top: auto; bottom: 12px; }
+  select, button { font: inherit; color: inherit; cursor: pointer;
+    background: #2a1d12; border: 1px solid #5a4028; border-radius: 8px; padding: 5px 9px; }
+  button.on { background: #7a4a12; border-color: #d98a2b; color: #fff5e6; }
+  select { max-width: 220px; }
+  .lab { align-self: center; opacity: .6; font-size: 11px; letter-spacing: .04em; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "/three/build/three.module.js",
+  "three/addons/": "/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="stage"></div>
+
+<div class="bar">
+  <span class="lab">LINH THÚ</span>
+  <select id="hero"></select>
+  <button id="front">Chính</button>
+  <button id="rear">Sau</button>
+  <button id="thumb">Thumbnail</button>
+</div>
+
+<div class="bar">
+  <span class="lab">DÁNG</span>
+  <button id="stand" class="on">Đứng</button>
+  <button id="sit">Ngồi thiền</button>
+  <button id="walk">Đi (đuôi/quỳ kiếm thở)</button>
+  <button id="ult">Tuyệt chiêu</button>
+  <span class="lab">KHUNG NHÌN</span>
+  <label><input type="checkbox" id="frame"> viền cắt thumbnail</label>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { HERO_LIST, makeAvatar, animateAvatar, setSeated, triggerUltimate } from '/js/avatar.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.getElementById('stage').appendChild(renderer.domElement);
+
+// Ánh sáng mô phỏng sảnh chùa: hemi ấm + khoá nắng vàng + đèn cam hai bên,
+// nên màu đọc ở đây là màu nhân vật sẽ hiện ra trong đền thật.
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#1c130c');
+scene.fog = new THREE.Fog('#1c130c', 9, 26);
+
+const hemi = new THREE.HemisphereLight('#ffe2b8', '#2a1a10', 0.72);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight('#ffe6c0', 2.1);
+sun.position.set(5.5, 9, 6.5);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -6; sun.shadow.camera.right = 6;
+sun.shadow.camera.top = 6; sun.shadow.camera.bottom = -6;
+sun.shadow.bias = -0.0006;
+scene.add(sun);
+for (const [x, z] of [[-6, -4], [6, -4], [-7, 4], [7, 4]]) {
+  const p = new THREE.PointLight('#ffa860', 26, 22, 1.7);
+  p.position.set(x, 3.2, z);
+  scene.add(p);
+}
+const rim = new THREE.DirectionalLight('#9fc0ff', 0.55);
+rim.position.set(-3, 4, -8);
+scene.add(rim);
+
+const floor = new THREE.Mesh(
+  new THREE.CircleGeometry(14, 64),
+  new THREE.MeshStandardMaterial({ color: '#6a4a30', roughness: 0.9 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+const grid = new THREE.GridHelper(14, 14, '#8a6238', '#3a2718');
+grid.position.y = 0.002;
+scene.add(grid);
+
+const cam = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.1, 100);
+// az = PI là phía mặt (xem FACE bên dưới)
+const orbit = { az: Math.PI, el: 0.32, dist: 4.8, tx: 0, ty: 1.05, tz: 0 };
+
+function place() {
+  const d = orbit.dist;
+  cam.position.set(
+    orbit.tx + d * Math.sin(orbit.az) * Math.cos(orbit.el),
+    orbit.ty + d * Math.sin(orbit.el),
+    orbit.tz + d * Math.cos(orbit.az) * Math.cos(orbit.el)
+  );
+  cam.lookAt(orbit.tx, orbit.ty, orbit.tz);
+}
+
+let av = null;
+let moving = false;
+let standing = true;
+
+function mount(id) {
+  if (av) { scene.remove(av.root); }
+  av = makeAvatar({ hero: id });
+  setSeated(av, !standing); // setSeated tự tính av.baseY và root.position.y
+  av.root.position.x = 0; av.root.position.z = 0;
+  scene.add(av.root);
+  const sel = document.getElementById('hero');
+  if (sel.value !== id) sel.value = id;
+  const q = new URLSearchParams(location.search);
+  q.set('hero', id);
+  history.replaceState(null, '', '?' + q);
+}
+
+const sel = document.getElementById('hero');
+for (const h of HERO_LIST) {
+  const o = document.createElement('option');
+  o.value = h.id;
+  o.textContent = `${h.name} · ${h.id}`;
+  sel.appendChild(o);
+}
+const initial = new URLSearchParams(location.search).get('hero');
+mount(HERO_LIST.some((h) => h.id === initial) ? initial : 'DEFAULT_HERO');
+sel.onchange = () => mount(sel.value);
+
+const btn = (id, fn, exclusive) => {
+  const b = document.getElementById(id);
+  b.onclick = () => {
+    if (exclusive) b.parentElement.querySelectorAll('button').forEach((x) => x.classList.remove('on'));
+    b.classList.toggle('on', !!exclusive);
+    fn(b);
+  };
+  return b;
+};
+// sph() trong avatar.js trả z = -r*cos(az)*sin(th) nên MẶT nhân vật nhìn về -z:
+// muốn soi mặt, máy ảnh phải đứng ở -z, tức az = PI.
+const FACE = Math.PI;
+btn('front', () => { orbit.az = FACE; orbit.el = 0.18; orbit.dist = 4.8; orbit.ty = 1.05; }, 1).classList.add('on');
+btn('rear', () => { orbit.az = 0; orbit.el = 0.24; orbit.dist = 5.2; orbit.ty = 1.05; });
+btn('thumb', () => { orbit.az = FACE - 0.55; orbit.el = 0.34; orbit.dist = 4.8; orbit.ty = 1.12; });
+// setPose PHAI la ham, khong phai "bam button thu N": shots.mjs cu click index 4 de
+// ngoi thien va do index doi theo thu tu nut trong bar nen co luc no bam nhat nhap
+// khong loi gi. Nút vẫn ở đây cho người dùng, script thì gọi hàm.
+const pose = (sit) => {
+  standing = !sit;
+  setSeated(av, standing ? false : true);
+  document.getElementById('stand').classList.toggle('on', standing);
+  document.getElementById('sit').classList.toggle('on', !standing);
+};
+btn('stand', () => pose(false), 1).classList.add('on');
+btn('sit', () => pose(true));
+btn('walk', (b) => { moving = !moving; b.classList.toggle('on', moving); });
+btn('ult', () => triggerUltimate(av));
+
+// viền cắt thumbnail: khung 1:1 đúng bằng ô chọn nhân vật trong Hồ sơ
+const frameBox = document.createElement('div');
+frameBox.style.cssText = 'position:fixed;left:50%;top:50%;width:52vh;height:52vh;' +
+  'transform:translate(-50%,-50%);border:1px dashed #d98a2b;pointer-events:none;display:none';
+document.body.appendChild(frameBox);
+document.getElementById('frame').onchange = (e) => { frameBox.style.display = e.target.checked ? 'block' : 'none'; };
+
+let dragging = false, px = 0, py = 0;
+renderer.domElement.onpointerdown = (ev) => { dragging = true; px = ev.clientX; py = ev.clientY; };
+addEventListener('pointerup', () => { dragging = false; });
+addEventListener('pointermove', (ev) => {
+  if (!dragging) return;
+  orbit.az -= (ev.clientX - px) * 0.008;
+  orbit.el = Math.max(-0.2, Math.min(1.2, orbit.el + (ev.clientY - py) * 0.006));
+  px = ev.clientX; py = ev.clientY;
+});
+renderer.domElement.onwheel = (ev) => {
+  ev.preventDefault();
+  orbit.dist = Math.max(1.6, Math.min(12, orbit.dist * (1 + Math.sign(ev.deltaY) * 0.08)));
+};
+
+addEventListener('resize', () => {
+  cam.aspect = innerWidth / innerHeight;
+  cam.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(0.05, clock.getDelta());
+  animateAvatar(av, dt, clock.elapsedTime, moving);
+  place();
+  renderer.render(scene, cam);
+});
+
+// ==================== CONG DO ====================
+// Ba ham nay do TREN SCENE THAT, khong tai lai bang cong thuc cua avatar.js. Ly do da
+// tra gia hai lan: (1) cong thuc lung ao tinh mat lung ao 0,310 trong khi mesh that nam
+// o 0,390, nen goc duoi dat sai 130 mm ma gate van bao "duoc"; (2) script do ngoai
+// /tmp copy lai RS/TAILS va de gia tri cu trong env mac dinh, nen ca môt luot quet
+// chay tren so lieu khong ton tai. Do mesh thi khong the lech.
+const D2R = Math.PI / 180;
+
+// May chieu cua chinh nut "Chinh/Sau/Thumbnail": px,py la toa do hoa -1..1 (py 0 =
+// mat dat cua khung nhin, 1 = dinh), pz = do sau doc theo truc nhin.
+function projector() {
+  cam.updateMatrixWorld();
+  const e = cam.matrixWorld.elements;
+  const B = {
+    pos: new THREE.Vector3(e[12], e[13], e[14]),
+    right: new THREE.Vector3(e[0], e[1], e[2]),
+    up: new THREE.Vector3(e[4], e[5], e[6]),
+    fwd: new THREE.Vector3(-e[8], -e[9], -e[10]),
+    tanF: Math.tan(cam.fov / 2 * D2R),
+    aspect: cam.aspect,
+  };
+  const d = new THREE.Vector3();
+  return (p) => {
+    d.copy(p).sub(B.pos);
+    const pz = d.dot(B.fwd);
+    return { px: d.dot(B.right) / pz / B.tanF / B.aspect, py: d.dot(B.up) / pz / B.tanF, pz };
+  };
+}
+
+// Tim mot nhanh trong cay avatar: theo ten cot cua `av` (head, vfxGroup, upper...)
+// hoac theo khoa userData (tailFan). GIA TRI cua khoa moi la nhanh can do: quat duoi
+// Ahri gan vao `root`, `vfxGroup` chi giu con tro, nen tra ve `o` thay vi `o.userData[key]`
+// la do vao vfxGroup va bao cao mot canh sai hoan toan.
+// Tra ve null chu khong nem loi de CLI in duoc
+// "khong thay X" thay vi crash giua luot do.
+function part(key) {
+  if (av && av[key] && av[key].isObject3D) return av[key];
+  let found = null;
+  av && av.root.traverse((o) => {
+    if (found) return;
+    const val = o.userData && o.userData[key];
+    if (val && val.isObject3D) found = val;
+    else if (val !== undefined) found = o;
+  });
+  return found || null;
+}
+
+// Moi mesh co dinh vi tri (mesh that, khong phai Point/Line), loai bo toan bo nhanh
+// `skip` de khong so sanh mot vat voi chinh no.
+function surf(o, skip, out = [], tag = '') {
+  if (!o.visible) return out;
+  if (o === skip) return out;
+  if (o.isMesh && o.geometry?.attributes?.position) {
+    let t = tag;
+    for (let p = o; p && !t; p = p.parent) {
+      // ca `wi` lan `sg`: mot dong TAILS sinh hai ngon guong nhau co cung wi, khong co
+      // sg thi bang in ra khong noi duoc nhanh nao ben phai (la nhanh can doi chieu).
+      if (p.userData?.wi !== undefined)
+        t = `wi${p.userData.wi}${p.userData.sg < 0 ? 'L' : 'R'}`;
+    }
+    out.push({ o, tag: t || o.geometry.type.replace('Geometry', '') });
+    return out;
+  }
+  for (const c of o.children) surf(c, skip, out, tag);
+  return out;
+}
+
+window.__api = {
+  THREE, scene, renderer, cam, orbit, projector, part, surf,
+  get av() { return av; },
+  mount, setMoving: (v) => { moving = !!v; }, setPose: pose,
+  setView: (az, el, dist, ty) => Object.assign(orbit, { az, el, dist, ty: ty ?? orbit.ty }),
+
+  // CONG BONG DE: dung mot map do sau cua `occ` (mac dinh = ca body, truyen 'head' de
+  // do rieng toc+mat), roi dem dinh cua `group` nam TRUOC be mat ay tren man hinh.
+  // Day la dinh nghia cua loi "duoi de len toc" / "mau trung de len vai": khong phai
+  // gan nhau trong 3D ma la CHE nhau trong hinh chieu may nhin.
+  //   grid   : phan giac map do sau (o 128 moi dinh mesh min la du tho)
+  //   near   : 1 = so 3x3 lang gieng (thatch thu, tim duoc cho de giua cac dinh);
+  //            0 = dung o cua dinh (it bao hieu hon khi luoi thua)
+  //   eps    : dung sai do sau (m) duoc tinh la "nam truoc"
+  silhouette({ group = 'vfxGroup', occ = null, grid = 128, near = 1, eps = 0.01 } = {}) {
+    const g = part(group);
+    if (!g) return { missing: 'group:' + group };
+    const occRoot = occ ? part(occ) : av.root;
+    if (occ && !occRoot) return { missing: 'occ:' + occ };
+    const P = projector();
+    const dm = new Float64Array(grid * grid).fill(Infinity);
+    let covered = 0, occVerts = 0;
+    const v = new THREE.Vector3();
+    for (const { o } of surf(occRoot, g)) {
+      const a = o.geometry.attributes.position;
+      o.updateWorldMatrix(true, false);
+      for (let i = 0; i < a.count; i++) {
+        v.fromBufferAttribute(a, i).applyMatrix4(o.matrixWorld);
+        const q = P(v); occVerts++;
+        if (q.pz <= 0.02 || Math.abs(q.px) > 1 || Math.abs(q.py) > 1) continue;
+        const k = ((1 - q.py) / 2 * grid) | 0, j = (q.px / 2 * grid + grid / 2) | 0;
+        if (k < 0 || k >= grid || j < 0 || j >= grid) continue;
+        const idx = k * grid + j;
+        if (dm[idx] === Infinity) covered++;
+        if (q.pz < dm[idx]) dm[idx] = q.pz;
+      }
+    }
+    const R = (x) => +x.toFixed(3);
+    // Diem quy trong hinh chieu = tam de do goc va ban kinh dinh ngon, tuc phep "tren
+    // mot vong tron dem duoc bao nhieu ngon". Hai ngon trung khoang goc tren vong ay
+    // thi hoa thanh mot khoi, mat khong dem duoc hai - do la loi "nhin sau khong du 9".
+    g.updateWorldMatrix(true, false);
+    const op = P(new THREE.Vector3().setFromMatrixPosition(g.matrixWorld));
+    const rows = [];
+    let totOver = 0, totBehind = 0;
+    for (const { o, tag } of surf(g, null)) {
+      const a = o.geometry.attributes.position;
+      o.updateWorldMatrix(true, false);
+      let over = 0, behind = 0, free = 0, worst = 0, hit = null;
+      let ax = 0, miny = 9, maxy = -9, maxz = -9, smin = [9, 9], smax = [-9, -9];
+      let tipR = 0, tipA = 0;
+      for (let i = 0; i < a.count; i++) {
+        v.fromBufferAttribute(a, i).applyMatrix4(o.matrixWorld);
+        ax = Math.max(ax, Math.abs(v.x)); miny = Math.min(miny, v.y); maxy = Math.max(maxy, v.y);
+        maxz = Math.max(maxz, v.z);
+        const q = P(v);
+        if (q.pz > 0.02 && Math.abs(q.px) <= 1 && Math.abs(q.py) <= 1) {
+          smin[0] = Math.min(smin[0], q.px); smax[0] = Math.max(smax[0], q.px);
+          smin[1] = Math.min(smin[1], q.py); smax[1] = Math.max(smax[1], q.py);
+          const dx = q.px - op.px, dy = q.py - op.py, rr = Math.hypot(dx, dy);
+          if (rr > tipR) { tipR = rr; tipA = Math.atan2(dy, dx) / D2R; }
+        }
+        const k = ((1 - q.py) / 2 * grid) | 0, j = (q.px / 2 * grid + grid / 2) | 0;
+        let dz = Infinity;
+        if (k >= 0 && k < grid && j >= 0 && j < grid) {
+          for (let dk = near ? -1 : 0; dk <= (near ? 1 : 0); dk++) {
+            for (let dj = near ? -1 : 0; dj <= (near ? 1 : 0); dj++) {
+              const kk = k + dk, jj = j + dj;
+              if (kk >= 0 && kk < grid && jj >= 0 && jj < grid) dz = Math.min(dz, dm[kk * grid + jj]);
+            }
+          }
+        }
+        if (dz === Infinity) { free++; continue; }
+        if (q.pz < dz - eps) {
+          over++;
+          if (dz - q.pz > worst) { worst = dz - q.pz; hit = [R(v.x), R(v.y), R(v.z), R(q.px), R(q.py)]; }
+        } else behind++;
+      }
+      totOver += over; totBehind += behind;
+      rows.push({ tag, verts: a.count, over, behind, free,
+        sau: R(worst), tai: hit, goc: R(tipA), bank: R(tipR),
+        x: R(ax), y: [R(miny), R(maxy)], z: R(maxz),
+        screen: [smin.map(R), smax.map(R)] });
+    }
+    return { group, occ: occ || 'root', grid, near, eps, occVerts, duocChe: covered,
+      over: totOver, behind: totBehind, rows };
+  },
+
+  // CONG GOC TU MOT DIEM: moi nhanh cua `group` phai moc ra tu MOT cho trong world,
+  // va cho ay phai NAM NGOAI mat than (net zBody > 0 la goc khuat trong nguoi, tuc la
+  // moi ngon chi lo ra khi xuyen qua than o mot do cao khac nhau - nhin sau ra "chin
+  // duoi moc tu chin diem" chu khong tu mot goc).
+  rootProbe({ group = 'vfxGroup', band = 0.03 } = {}) {
+    const g = part(group);
+    if (!g) return { missing: 'group:' + group };
+    g.updateWorldMatrix(true, false);
+    const O = new THREE.Vector3().setFromMatrixPosition(g.matrixWorld);
+    const P = new THREE.Vector3();
+    const v = new THREE.Vector3();
+    let spread = 0, width = 0, n = 0;
+    for (const { o } of surf(g, null)) {
+      const a = o.geometry.attributes.position;
+      o.updateWorldMatrix(true, false);
+      let dmin = 9, ring = 0;
+      for (let i = 0; i < a.count; i++) {
+        v.fromBufferAttribute(a, i).applyMatrix4(o.matrixWorld);
+        const d = v.distanceTo(O);
+        dmin = Math.min(dmin, d);
+        // Duong kinh tiet dien nhanh ngay tai goc: cac dinh trong ban kinh 0,06 quanh
+        // diem quy. Day la thu do "chin ngon co chong len mot diem hay thanh mot bui".
+        if (d < 0.06) ring = Math.max(ring, v.clone().sub(O).length());
+      }
+      spread = Math.max(spread, dmin); width = Math.max(width, ring); n++;
+    }
+    let zBody = -9;
+    for (const { o } of surf(av.root, g)) {
+      const a = o.geometry.attributes.position;
+      o.updateWorldMatrix(true, false);
+      for (let i = 0; i < a.count; i++) {
+        v.fromBufferAttribute(a, i).applyMatrix4(o.matrixWorld);
+        if (Math.abs(v.y - O.y) < band && v.z > zBody) zBody = v.z;
+      }
+    }
+    const R = (x) => +x.toFixed(3);
+    // `baseY` = av.root.position.y: day la lieu cong ma moi comment trong avatar.js dung
+    // de doi toa do BANG CONG (root-local) sang THE GIOI (world). No doi theo dang
+    // (dung ngoi) va theo nhip di, nen do lai chu dung tay.
+    return { root: [R(O.x), R(O.y), R(O.z)], baseY: R(av.root.position.y),
+      nhanh: n, khuat: R(zBody - O.z),
+      matThanZ: R(zBody), lechGoc: R(spread), beNgangGoc: R(width * 2) };
+  },
+
+  // Khung nhin THAT cua avatar: quet tung dinh, khong dung Box3. Box3 truc-song ghep
+  // x lon nhat cua mot diem voi z gan nhat cua diem KHAC nen bao 0,995 trong khi dinh
+  // that la 0,846 - quyet dinh cua thumbnail sai theo.
+  vertexFrame() {
+    const box = new THREE.Box3().setFromObject(av.root);
+    const v = new THREE.Vector3();
+    let maxSide = 0, maxY = 0;
+    av.root.traverse((o) => {
+      if (!o.isMesh || !o.visible) return;
+      const g = o.geometry?.attributes?.position;
+      if (!g) return;
+      for (let i = 0; i < g.count; i++) {
+        v.fromBufferAttribute(g, i).applyMatrix4(o.matrixWorld);
+        maxSide = Math.max(maxSide, Math.abs(v.x));
+        maxY = Math.max(maxY, v.y);
+      }
+    });
+    return { box, maxSide, maxY, count: (() => { let n = 0; av.root.traverse((o) => o.isMesh && n++); return n; })() };
+  },
+};
+</script>
+</body>
+</html>

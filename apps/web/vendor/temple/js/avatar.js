@@ -3577,8 +3577,12 @@ function buildHeroProps3D(upper, hands, arms, legR, hero, head, root) {
     //      Do day 13/11 (lenh user "moi chiec duoi dang hoi bi mong nho"): bung
     //      0,156 -> 0,184 va 6 dot lien truoc cung nhac ~18%, HAI DOT dau GIU NGUYEN
     //      min (0,013/0,023) vi tiet dien goc 26 mm la thu GIU cho chin ngon TU MOT
-    //      DIEM (xem ghi chu FZ o duoi). Bung them ma khong xoe thi hai ngon cao nhat
-    //      lech 6 do va 3 dinh nam TRUOC vom toc -> gate de len toc tang 0 -> 6.
+    //      DIEM (xem ghi chu "SO 0,42" o duoi). Bung them ma khong xoe thi hai ngon cao nhat
+    //      lech nhau 12 do va chui vao vom toc: gate do tu MESH (silhouette.mjs, 6 frame
+    //      dang di) bao 138..192 dinh nam TRUOC be mat toc, khong phai 6. Con so 6 den tu
+    //      cong thuc tai lieu chi biet khoi cau dinh dau 0,485, trong khi toc Ahri LA BON
+    //      VO 0,494..0,524 nhan doc 1,09 + u to, ban kinh hieu dung 0,607 tuc rong hon
+    //      cong thuc ~15%. See "Cong bong de" trong SKILL.md.
     //  (b) ribbon khong nap hai dau, loi cuoi rong bang 2*rs[14] = 0,048 theu = 3 px o
     //      anh 144px, an sau mui tron nen khong con duong vi den (vong 16 de 0,060 va
     //      /tmp/ahr-shot16 render ra chin cai ong rong).
@@ -3602,23 +3606,24 @@ function buildHeroProps3D(upper, hands, arms, legR, hero, head, root) {
       roughness: 0.8, emissive: '#2e2e3a', side: THREE.DoubleSide,
     });
     const fan = new THREE.Group();
-    // (0; 0,62; 0,26) root-local. LUU TOA DO TRUOC TIEN: day la goc cua `root`, ma
-    // av.root.position.y = 0,17 (do bang __api.fanProbe() trong /tmp/ll3d), nen mot
-    // diem y trong bang cong them 0,17 moi ra THE GIOI. /tmp/ahri-env.mjs da nuot
-    // BASE = 0,17 vung vao trong; moi so lieu do tru hom 13/11 thieu 0,17 va PHAI DO
-    // LAI. Diem quy cua ban cu 0,86 nam o THE GIOI 1,03 - gan ngang that cua nguoi
-    // ngoi va sau gay, tuc la NGUYEN NHAN user bao "duoi nam dính ca vao toc".
-    // 0,62 = THE GIOI 0,79: that lung hanbok 0,54..0,68 nen goc duoi THAT LUNG 1 TI
-    // 110 mm (lenh 13/11). DO LA MOT PHEP TINH TIEN: ca quat di song song 240 mm,
-    // L / psi0 / turn / back / w giu NGUYEN nen hinh dang khong doi chut nao.
-    // SO 0,42 LA DO SÂU CUA DIEM QUY va no PHAI lon hon mat lung ao. root-probe.mjs do
+    // (0; 0,62; 0,42) root-local. LUU TOA DO TRUOC TIEN: day la goc cua `root`, va
+    // `root` di theo dang: __api.rootProbe().baseY = 0 khi DUNG, 0,17 khi NGOI THIEN.
+    // Nen mot diem y trong bang cong THEM baseY moi ra THE GIOI; moi so lieu do tru
+    // hom 13/11 thieu 0,17 va PHAI DO LAI. Diem quy cua ban cu 0,86 nam o THE GIOI
+    // 1,03 khi ngoi - gan ngang that cua nguoi ngoi va sau gay, tuc la NGUYEN NHAN
+    // user bao "duoi nam dính ca vao toc".
+    // 0,62 = THE GIOI 0,79 (khi ngoi): that lung hanbok 0,54..0,68 nen goc duoi THAT
+    // LUNG 1 TI 110 mm (lenh 13/11). DO LA MOT PHEP TINH TIEN: ca quat di song song
+    // 240 mm, L / psi0 / turn / back / w giu NGUYEN nen hinh dang khong doi chut nao.
+    // SO 0,42 LA DO SÂU CUA DIEM QUY va no PHAI lon hon mat lung ao. rootProbe do
     // tren CHINH MESH trong scene (khong phai cong thuc noi suy tay): o cung do cao voi
     // goc, surface sau nhat cua THAN nam tai z 0,390, nen 0,26 cu la goc AN SAU 130 mm
     // BEN TRONG than. Hau qua khong phai "dem khong du 9" ma la "khong TU MOT GOC": moi
     // ngon chi lo ra khi xuyen qua mat than, tai MOT DO CAO KHAC NHAU, nen chin duoi
-    // moc ra tu chin diem doc than chu khong tu mot diem. 0,42 = 30 mm NGOAI MAT AO,
-    // chin tiet dien goc nam cung mot cho va doc ra la nhudong tu mot goc. Do lai bang
-    // env FZ trong tail-measure.mjs: de len toc 0, trongDia 0, zmax 0,931 (truoc 0,771).
+    // moc ra tu chin diem doc than chu khong tu mot diem. 0,42 = 30 mm NGOAI MAT AO
+    // (khuat -0,03), chin tiet dien goc cung nam tai MOT cho (lech goc 0,012 m) va doc
+    // ra la nhung dong tu mot goc. Do lai: silhouette.mjs <hero> --occ head --walk
+    // --sweep 6 -> khuat -0,03 va DE LEN toc 0 o ca ba goc rear/q3/thumb.
     // TIET DIEN GOC CUNG PHAI MIN: RS[0] 0,028 -> 0,013, hai dot ke 0,036/0,045 ->
     // 0,023/0,034, tuc be ngang goc 56 mm -> 26 mm. Chin ngon 56 mm chong len MOT diem
     // van ra mot bui tron; min thi chung la chin soi rua dong tu, va bung 0,156 o 86%
@@ -3637,31 +3642,47 @@ function buildHeroProps3D(upper, hands, arms, legR, hero, head, root) {
     // Ban cu [1,20; 30; 50] lech sang phai 38 do va la ngon DUY NHAT ve de len toc
     // (14 dinh) - no gay bat can bang va gay loi toc cung mot luc. -90 huong thang
     // xuong: do la ngon duoi rua sau lung, khong cat ngang toc chiec nao.
-    // BANG NAY NGHIEM TU goc NHIN SAU (temple-preview/tail-pair.mjs + tail-measure.mjs)
-    // voi MUC TIEU LA TACH NHAU, khong phai nam ngoai ban tron toc. Ba cot do:
+    // BANG NAY NGHIEM TU goc NHIN SAU bang .qoder/skills/temple-hero/scripts/
+    // silhouette.mjs - do tu MESH THAT trong scene, khong phai cong thuc tai lieu.
+    // Muc tieu la TACH NHAU, khong phai nam ngoai ban tron toc. Ba cot do:
     //   goc = dinh ngon trong hinh chieu may anh, tu truc +x cua diem quy (0 = ngang
-    //         ben hong, 90 = thang dinh dau). Bon doi ben phai dat -20 / 12 / 42 / 63,
-    //         khoang cach 32 / 30 / 21 do - du tach de mat dem duoc 9 ngon.
-    //   trongDia = dinh nam sau khoi toc, bi an, ngon bi cat doi: 0 tren ca 9 ngon.
-    //   DE LEN TOC = dinh nam TRUOC be mat khoi toc (loi user phan anh hai lan): 0.
+    //         ben hong, 90 = thang dinh dau), in ra theo TUNG nhanh wi<N>R/L vi muon
+    //         doi duong phai biet goc nao do ngon nao sinh ra. DANG DUNG (1 frame):
+    //         wi1R -39,1 · wi2R 6,1 · wi3R 47,3 · wi4R 61,9 (doi giua wi0R -90),
+    //         he nhat 14,5 do. DANG DI thi chin goc nay di dong ±4 do va he nhat xuong
+    //         12,3 - do la con so gate chiu tai, vi duoi 12 hai ngon trung nhau tren
+    //         vong tron va hoa thanh mot khoi = loi "nhin sau khong du 9" user da bao.
+    //   bi an = dinh nam SAU be mat toc: 0 tren ca 9 ngon o goc sau (o goc nghieng 3/4
+    //         thi ~1400 la DUNG, than che duoi, do khong phai loi).
+    //   DE LEN TOC = dinh nam TRUOC be mat khoi toc (loi user phan anh hai lan): 0,
+    //         o ca ba goc rear/q3/thumb VA phai la 0 tren FRAME XAU NHAT cua chu ky:
+    //         nghieng duoi ±0,075 rad nen mot frame may man bao 0 trong khi dinh chu
+    //         ky bao 192. Do = them --walk --sweep 6.
+    // Cac goc dinh cua bang cu (-20 / 12 / 42 / 63) do bang cong thuc tai lieu, KHONG
+    // CUNG THUOC DO voi bon con so tren, dung so sanh.
     // Bang cu co 4/9 ngon de len toc va 27 nam trong ban tron toc vi chung moc thang
     // len dung cho dung. Tu day chung xoe RONG ra hai ben roi moi moc len tron ben
     // dau - do la ly do L dai (1,10..1,58) ma van an toan.
-    // ENVELOPE: |x|max 1,080 (luoi thumbnail 1,1484 con 6%), THAP NHAT 0,227 (doi
-    // giua rua xuong, san 0), CAO NHAT 1,962 (dinh toc 1,982 - ngon cao nhat dung NGAY
-    // ben dau chu khong qua dinh), sau nhat z 0,932.
-    // DOI CAO NHAT: turn 132 -> 126 cung luc voi luc bung RS. Voi bung 0,184 thi
-    // 132 (goc dinh 66 do) dua loi trong cua ngon ngay sat vom toc va 3 dinh nam
-    // TRUOC be mat toc = loi "de len toc" lan thu ba. XOE RA 6 do (turn 126, dinh
-    // 62,7 do) da du cho gate ve 0 MA VAN GIU day toan bon - thu bang 0,84/0,82 tren
-    // cung bung thi turn 132 van con 2..6 dinh, tuc lech do la lech RONG chu khong
-    // lech MIN (nhan min la hu viec user da yeu cau).
+    // ENVELOPE = min/max qua 6 frame x 3 goc may x 2 dang, cung phep do tren (mot prop
+    // dong KHONG CO mot con so bien, nen ghi ca dai): |x|max 1,04..1,09 (luoi thumbnail
+    // 1,1484, het 95%), CAO NHAT 1,72 khi dung va 1,89 khi ngoi (dinh toc 1,982: ngon
+    // cao nhat dung NGAY ben dau chu khong qua dinh; 0,17 cua baseY khi ngoi la phan
+    // chay het), sau nhat z 0,99..1,02, THAP NHAT 0,008 - ngon doi giua rua xuong gan
+    // SAT SAN (san 0, tran 2,10). Do la ly do khong duoc dai L them ma khong do lai cot nay.
+    // DOI CAO NHAT: turn 86/126 -> 82/112 (dong 3 va 4) cung luc voi luc bung RS
+    // 0,156 -> 0,184. Voi bung 0,184 thi 126 de lai 138..192 dinh nam TRUOC vom toc
+    // theo gate do tu mesh, trong khi cong thuc tai lieu bao 0 - ly do: cong thuc chi
+    // biet khoi cau dinh dau R 0,485, con toc Ahri that la BON VO 0,494..0,524 nhan doc
+    // 1,09 cong u to, ban kinh hieu dung 0,607 tuc rong hon ~15% (xem SKILL.md).
+    // Gia turn la xoe RONG ngon ra ben hong cho no khong ngot qua vom: nut min bang
+    // 0,84/0,82 tren cung bung thi turn 82 van con 2..6 dinh, tuc lech do la lech
+    // RONG chu khong lech MIN (nhan min la hu viec user da yeu cau "day len 1 ti").
     const TAILS = [
       [0.44, -90, 0, 0.50, 0.72],
       [1.10, -58, 96, 0.45, 0.90],
       [1.14, 2, 44, 0.45, 0.90],
-      [1.36, 2, 86, 0.00, 0.90],
-      [1.58, 2, 126, 0.00, 0.90],
+      [1.36, 2, 82, 0.00, 0.90],
+      [1.58, 2, 112, 0.00, 0.90],
     ];
     TAILS.forEach(([L, psi0, turn, back, w], i) => {
       // seg 14 de du 3 dot cuoi dong kin ngon (RS (b)); rad 8 = bat giac, du tron cho
