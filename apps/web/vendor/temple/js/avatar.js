@@ -283,6 +283,87 @@ export const HERO_LIST = [
     skin: '#f6d8d5',
     aura: '#626eaf',
   },
+  {
+    // Hình thứ 18: Ahri tí nị — vẫn trong phạm vi user chốt: bản chibi của một tướng LOL.
+    // Ảnh đo là splash gốc Riot "Chibi Ahri Base Tier 1" (/tmp/llref/Chibi_Ahri.png, 720px).
+    // Toạ độ dưới đây là tỷ lệ 0..1 của CHÍNH ảnh đó (không phải ảnh crop), đo bằng
+    // /tmp/ahri-meas.mjs + /tmp/ahri-meas2.mjs: median của các pixel lọt dải hue, kèm số px
+    // và quintile no màu nhất để biết vùng nào lẫn nền.
+    //   robeColor  #8e2b40 = kimono đỏ      (0.40,0.45,0.60,0.62 hue 330-15 sat>=50 — median
+    //     5.935 px sat 99 hue 347; 20% no nhất #cf3853 là đoạn vai được nắng rọi. Đây là màu
+    //     VẢI THẬT của áo, nền phong hồng nằm ngoài vùng đo nên không nhiễm hue 320.)
+    //   pantsColor #ae495b = tất đỏ hồng     (0.42,0.59,0.48,0.65 hue 330-15 sat>=40 — median
+    //     1.641 px sat 101; sáng hơn áo một bậc đúng vì ống tất quay về phía đèn. Vùng dưới
+    //     0.44,0.68,0.50,0.74 trả #954a41 hue 6 vì lẫn nền đá, không dùng.)
+    //   sashColor  #694d92 = đai obi tím    (0.46,0.555,0.53,0.585 hue 250-300 sat>=30 — median
+    //     497 px sat 69; dải rộng 0.42,0.54,0.58,0.62 ra #8173a0 sat 45 vì ăn cả dây buộc trắng.)
+    //   skin       #f2cebc = da má          (0.44,0.355,0.50,0.41 không lọc hue — median 1.596 px
+    //     sat 54 hue 20. Trán KHÔNG đo được: 0.40,0.245,0.47,0.29 trả #3c3250 vì tóc mái rũ
+    //     ngang trán che kín, đó là tóc chứ không phải da.)
+    //   skillColor #72c9f9 = quả cầu hồ ly  (0.13,0.30,0.26,0.43 hue 175-215 sat>=90 — median
+    //     5.163 px sat 135 hue 201; 20% no nhất #4ba8f9 sat 174 là lõi cầu.)
+    //   aura       #4a4f7f = chàm của tóc   (0.30,0.12,0.52,0.28 hue 220-265 sat>=20 — median
+    //     13.140 px sat 53 hue 234, màu chiếm nhiều nhất trên tướng nên làm quầng.)
+    // Các màu KHÔNG có trong HERO_LIST, dùng thẳng trong nhánh vẽ:
+    //   tóc-sáng #444b81 (0.36,0.14,0.46,0.20 median 2.940 px) · tóc-chìm #373b69
+    //   (0.31,0.20,0.42,0.30 median 5.326 px, quartile ít màu #231c37) · mái-trước-mắt #2f2b50
+    //   (0.36,0.26,0.46,0.34 median 2.493 px) · sam-cuốn #28213d (0.595,0.32,0.635,0.48 median
+    //   2.756 px — lọn sam tết rũ xuống vai phải, TỐI hơn mái vì nó quay ra xa đèn)
+    //   trong-tai #e0e0ee (0.581,0.095,0.618,0.161 quartile ÍT no màu nhất; median vùng này là
+    //   #81789a sat 34 vì nó ăn cả viền sẫm — lấy quartile ít màu mới là ngà thật)
+    //   đuôi-trang #a79ab5 (0.62,0.45,0.80,0.62 median 14.994 px sat 27 hue 269 — đuôi KHÔNG
+    //   trắng tinh: nó là lavender bóng, cùng hue với nền trời nên phải đo chứ không đoán)
+    //   mat-vang #ebb14e (0.50,0.28,0.56,0.35 hue 25-62 sat>=90 — median 425 px sat 157 hue 38;
+    //   20% no #f3bc4a) · long-den #3a283a (0.49,0.27,0.56,0.30 median 1.029 px)
+    //   vang-vien #ccb085 (0.50,0.515,0.545,0.545 hue 20-60 sat>=60 — CHỈ 72 px: viền vàng trên
+    //   kimono mỏng thật, nên hình này không được vẽ dải vàng bản to như Zed.)
+    // PHAN QUYET 2026-11-13: "Ao la trang phuc hanbok, tong chinh la trang va hong".
+    // Anh goc mac kimono DO-TIM, nen khong the median ca bo ao theo phan quyet duoc;
+    // lay mau TU PHAN DA LA TRANG/HONG cua chinh splash do (cung ky thuat median +
+    // dai do sang, /tmp/ahri-hanbok.mjs + /tmp/ahri-hanbok2.mjs):
+    //   robeColor  #e9e3ea = VOI TRANG. Median 2.501 px sang nhat (L 195..255, sat 7,
+    //     hue 291) cua khoi vai trang bao than duoi 0.30,0.56,0.44,0.72. Dai do sang
+    //     BUOC PHAI co: median ca vung tron la #b09fb5 (sat 22) vi nep vai va bong chim
+    //     keo di, va #b09fb5 tren nen go duong ra mau xam tim, khong phai trang.
+    //     Dai L 165..195 cua cung vung do ra #b9a9bc = mau cua CHAN bong vai, dung cho
+    //     nhat hong chu khong dung cho ao.
+    //   chimaColor #d991c0 = HONG, MOT MAU DUY NHAT cho vay + dai boc + chan.
+    //     MUC TIEU do tu anh goc: median 213 px sang nhat (L 150..255, hue 320..360,
+    //     sat >=40) cua vung eo 0.34,0.46,0.66,0.72 = #dc91a3 (/tmp/ahri-pink.mjs).
+    //     Hai dai duoi cua cung vung do, #cc4966 (L 110..150, 726 px) va #8b2640
+    //     (L 60..110, 1.455 px), la CHINH MAU HONG DO bi bong che, khong phai mau vai.
+    //     vong 24 lay #cf4e6b/#b5526a (tuc dai trung) va render ra #b63d49 L 105 o
+    //     nguc - do la DO, khong phai hong (/tmp/ahr-hist.mjs do truc tren anh chieu
+    //     cua model, khong do lai albedo). Den tiep buoc: lay #dc91a3 lam albedo thi
+    //     anh chieu ra #d08c88, hue 0, B 136 < G 140 = SALMON, vi den san chua MAU
+    //     XANH cua hong di nhieu nhat (ty le R/G/B mat duoc tu hai phep do
+    //     #cf4e6b->#b63d49 va #dc91a3->#d08c88: 0,88/0,78/0,68 va 0,95/0,97/0,83).
+    //     Albedo vi the phai DU XANH hon muc tieu: #d991c0 (B 192 so voi 163 cua
+    //     #dc91a3) de sau khi chieu cho ra hong that, B > G. Gate: do lai render,
+    //     vung nguc phai hue 330..360 VA B > G va L >= 140.
+    //     Ba truong cung mot gia tri vi phan quyet noi "hong TONG CHINH", khong phai
+    //     "hong dam o eo + hong nhat o no"; va theo mot-mau-nhan, hai sac hong tren
+    //     cung mot tam ao 144 px chi ra hai mau do.
+    // Vi sao KHÓA hoá phục (costumeLocked) — dao nguoc so voi ly do da ghi o vong 18:
+    // khi bo đồ là MỘT TẤM HANBOK có thiết kế riêng (áo ngắn trắng + váy hồng + dải
+    // buộc) thì nó là HOÁ PHỤC như giáp Irelia, không phải áo khoác; mà ô chọn nhân
+    // vật trong thumbs.js:93 trung hoà mọi hình chưa khoá bằng robe #8f6a3e NÂU, nên
+    // không khoá thì người chơi thấy một cô cáo mặc áo nâu trong chính cái ô chọn cô
+    // ta. Cái giá phải trả: mua áo chùa không mặc lên Ahri được nữa — đúng như ba hình
+    // 15/16/17 đã chấp nhận.
+    id: 'ahri_chibi',
+    name: 'Cáo Đuôi Trắng',
+    title: 'Chín Đuôi Quấn Sương',
+    skillColor: '#72c9f9',
+    costumeLocked: true,
+    hanbokRobe: true,
+    robeColor: '#e9e3ea',
+    chimaColor: '#d991c0',
+    pantsColor: '#d991c0',
+    sashColor: '#d991c0',
+    skin: '#f2cebc',
+    aura: '#4a4f7f',
+  },
 ];
 
 export const HERO_MAP = Object.fromEntries(HERO_LIST.map((h) => [h.id, h]));
@@ -1340,13 +1421,198 @@ function makeHeroFaceTex(heroId) {
     g.beginPath(); g.ellipse(254, 288, 11, 7, 0, 0, Math.PI * 2); g.fill();
     // (10) KHONG son vong dau hay bang tron trang: do la hai mesh THAT (reliefShell +
     // ribbon) o buoc 3, son len phiến se de lai mot vung phang ngay duoi mép khối cầu.
+  } else if (hero.id === 'ahri_chibi') {
+    // CAO DUOI TRANG - son mat tren TAM SON 512 (facePatch, khong phai phiến quấn:
+    // WRAP_FACE_IDS :452 không có id này vì nửa trên đầu của cô là TÓC 3D, không phải vải).
+    // Nguồn: splash Riot /tmp/llref/Chibi_Ahri.png, đo bằng /tmp/ahri-eyes2.mjs (bbox) và
+    // /tmp/ahri-face.mjs + /tmp/ahri-face2.mjs (median/quartile).
+    //
+    // ANH LA GOC 3/4 NEN KHONG CHEP KHOANG CACH GIUA HAI MAT cua no: bbox mat mo
+    // (0.4900..0.5786) va mat nham (0.4100..0.4886) SAT nhau tren anh - hai tam lech
+    // 61,2px trong khi mot hong mat rong 63,8px, tuc trong anh hai mat deo chong len nhau
+    // do phoi canh. Nen giu QUY UC DA SHIP cua 17 hinh dau: tam mat az +/-20,25 do
+    // (x 166/346), EYE_Y 235 = theta 88 do. Cai lay tu anh la TI LE, khong phai vi tri.
+    //
+    // Kich thuoc do tu LONG DEN (vung duy nhat tach sach duoc bang hue: 27,8 x 26,7 px):
+    //   iris / khoang cach hai tam mat = 27,8 / 61,2 = 0,454 -> tren tam: 0,454 x 180 =
+    //   81,8 px NGANG -> IRX 41. Chieu cao: ti le anh 26,7/27,8 = 0,96 va hai truc
+    //   KHONG dang huong (4,4444 px/do phuong vi vs 5,2657 px/do cuc, ti so 1,185 - bat
+    //   bien 3 cua skill) nen IRY = 41 x 0,96 x 1,185 = 46,5 -> 46.
+    //   Hong mat (bbox mi-vang 63,8 x 56,6 px, gap 1,3 lan long den): ERX 53, ERY 60.
+    // Mieng: anh 3/4 nen khoang cach doc phong dai len (bbox mieng 0.42..0.5186 x
+    // 0.3814..0.4586 con an ca bong co). Giu y 338 nhu 12 hinh dau (340) va Irelia (332).
+    // MUC SON: tat ca ca hex duoi la median / quartile do tren anh, khong phai doan.
+    const lash = '#2f2337';   // median 1.568 px dai long mi tren (0.50,0.27,0.58,0.31)
+    const brow = '#2e2541';   // median 965 px dai long may (0.492,0.252,0.564,0.278)
+    const sclera = '#f8decd'; // quartile sang nhat vung rang tren (0.435,0.388,0.495,0.405)
+    // IRIS BA BAC DOC: duoi day duoc nang sang hon dinh (trong anh: #fde17c o 0.520,0.335
+    // ..0.552,0.348 vs #975f24 o 0.520,0.300..0.552,0.312) - do la hai do diem khac nhau,
+    // khong phai mot radial tam thoi. Median ca hong mat #e3b655 sat 142 hue 41.
+    const irisTop = '#975f24', irisMid = '#e3b655', irisLit = '#fde17c';
+    const pupil = '#391c14';  // quartile toi nhat trong bbox hong mat (0.515,0.305,0.555,0.345)
+    const mouth = '#721428';  // bucket hue340-no-sang-trung vung mieng = 217 px (ahri-bucket.mjs)
+    const mouthEdge = '#8e4f58'; // p75 cua dai mi tren (235,200,50,12) hue320-360 sat>=20;
+                                 // median cung dai la #77242e gan bang long mieng nen net
+                                 // ay phai la hong nau, khong phai do toi hon.
+    const tongue = '#cf575f'; // bucket hue340-no-sang = 72 px, nam duoi day mieng
+    const tooth = '#f5d6c3';  // bucket hue20-lo-sang = 177 px: mot cai nanh, khong phai dai rang
+    const cheek = '#e4a8b2';  // LOI net vuot, khong phai median ca vung: median #d1afb5
+                              // bi da xung quanh pha loang nen render thanh vet tham xam.
+                              // Loc hue 320..360 + sat>=25 trong hop 172..214 x 212..252
+                              // (CAT hot mieng ra khoi vung) -> ba diem sang nhat cua net
+                              // la #e6abb4 #e6abb4 #e4a6b4, median #e4a8b2.
+                              // Ben mat mo anh chi do ra #fbdbc4 gan bang da - do la ben
+                              // duoc nang, khong phai net khac mau; tam son la mat TRUC
+                              // DIEN nen hai ben cung mot hex (bat dang xe: cung kich
+                              // thuoc, chi khac huong).
+    const nose = '#d8a495';   // median 367 px hue 0..30 sat>=15 tai (245,205,25,20) = bong
+                              // duoi mui, h13 s31. Mau cung ho voi da nen alpha 0,55 du.
+    const CX = 90, CY = 235;
+    const ERX = 53, ERY = 60, IRX = 41, IRY = 46;
+
+    // (1) MAT MO - phia az + (x 346). Trong anh con mat ay nhin ve phia qua cau, nen
+    // long den dat lech 6px ve phia trong (phia mũi), khong nam giua hong mat.
+    {
+      const cx = 256 + CX;
+      g.fillStyle = sclera;
+      g.beginPath(); g.ellipse(cx, CY, ERX, ERY, 0, 0, Math.PI * 2); g.fill();
+      const ir = g.createLinearGradient(0, CY - IRY, 0, CY + IRY);
+      ir.addColorStop(0, irisTop); ir.addColorStop(0.5, irisMid); ir.addColorStop(1, irisLit);
+      g.fillStyle = ir;
+      g.beginPath(); g.ellipse(cx - 6, CY, IRX, IRY, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = pupil;
+      g.beginPath(); g.ellipse(cx - 6, CY - 2, 17, 24, 0, 0, Math.PI * 2); g.fill();
+      // HAT SANG: hat lon goc tren-ngoai (phia tai), hat nho duoi-trong - do la hai diem
+      // sang nhat trong bbox hong mat (#fff798 va #fae490, xem iris-vang/long-trang).
+      g.fillStyle = '#ffffff';
+      g.beginPath(); g.ellipse(cx + 14, CY - 26, 12, 15, 0.2, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.ellipse(cx - 20, CY + 20, 7, 9, 0, 0, Math.PI * 2); g.fill();
+      // LONG MI TREN: net day 15 DI SAT mi hong mat (khong ngoi tren tran - bai hoc cua
+      // Irelia buoc 6) va CUON LEN RA NGOAI o goc tai, do la cai "mat cau" cua ho ly.
+      g.strokeStyle = lash; g.lineWidth = 15; g.lineCap = 'round';
+      g.beginPath(); g.ellipse(cx, CY, ERX - 3, ERY - 3, 0, Math.PI * 1.03, Math.PI * 1.97); g.stroke();
+      // Ngon mi NOI LIEN voi cung tren (diem dau = diem cuoi cua cung, khong phai mot que
+      // roi): cung 1,97pi ket thuc o (cx + 0,994ERX, CY - 0,093ERY), dat ngon tu do.
+      g.lineWidth = 13;
+      g.beginPath();
+      g.moveTo(cx + (ERX - 3) * Math.cos(Math.PI * 1.97), CY + (ERY - 3) * Math.sin(Math.PI * 1.97));
+      g.quadraticCurveTo(cx + ERX + 10, CY - ERY * 0.78, cx + ERX + 26, CY - ERY - 14);
+      g.stroke();
+      // MI DUOI mong 6px, cung muc: anh co duong mi duoi ro, khong phai chi bong.
+      g.lineWidth = 6;
+      g.beginPath(); g.moveTo(cx - ERX + 14, CY + ERY - 20);
+      g.quadraticCurveTo(cx, CY + ERY + 4, cx + ERX - 12, CY + ERY - 16); g.stroke();
+    }
+
+    // (2) MAT NHAM (wink) - phia az - (x 166). Do bbox mi-wink 56,6 x 35,0 px: ca con
+    // mat CHI CAO bang 0,58 mat mo, tuc mi nham van dang RONG bang, chi xep lai.
+    // HUONG CONG DA DO LAI, KHONG PHAI DOAN: /tmp/ahri-wink.mjs di qua tung cot x cua
+    // vung (172..244, 178..222) va lay y trung binh cua pixel toi -> yTB 188 (cot 0)
+    // tang den 211 (cot 19) roi GIAM ve 195 (cot 44). Ba diem ay la mot thung LUONG:
+    // hai dau o tren, day o duoi. Do sau that = 211 - 193 = 18px tren be ngang 36px.
+    // Be ngang bi phoi canh 3/4 nen con 36 trong khi mat mo 64 (he so 0,56); chieu doc
+    // KHONG bi phoi canh, nen khi mo rong net ra bang hong mat mo (106px) van GIU 18px
+    // do sau - khong nhan theo ti le, neu nhan thi net thanh cai luoi ca sau buon.
+    {
+      const cx = 256 - CX;
+      g.strokeStyle = lash; g.lineWidth = 16; g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(cx - ERX + 8, CY - 12);
+      g.quadraticCurveTo(cx, CY + ERY * 0.30, cx + ERX - 6, CY - 10);
+      g.stroke();
+      // NGOAI LECH: do trong anh tu (178,205) len (172,178) = NGANG -6, DOC -27, tuc
+      // ngon mi di LEN gan thang chu khong xeo ngang. Net truoc cua hinh nay dat
+      // (-22,-49) nen no nam ngang nhu cai ria, khong phai mi. Ngon noi lien diem dau
+      // cung (cx-ERX+8, CY-12) va ngon thu hai ngan hon tu giua cung - anh co 2 goc toi
+      // o goc ngoai, khong phai 1.
+      g.lineWidth = 12;
+      g.beginPath();
+      g.moveTo(cx - ERX + 8, CY - 12);
+      g.quadraticCurveTo(cx - ERX + 1, CY - 30, cx - ERX - 4, CY - 46);
+      g.stroke();
+      g.lineWidth = 9;
+      g.beginPath();
+      g.moveTo(cx - ERX + 24, CY - 16);
+      g.quadraticCurveTo(cx - ERX + 16, CY - 30, cx - ERX + 12, CY - 40);
+      g.stroke();
+      // KHONG con "bong duoi mi" nua: do bbox net chi cao 18px nen duong 7px nam duoi
+      // 30px render thanh MI DUOI cua mot con mat mo dang nhin xuong, khong phai bong.
+      // Duoi mat nham trong anh la VAI VUOT hong (xem (3)), khong phai net mi.
+    }
+
+    // (3) HAI LONG MAY - do lech dinh hong mat 1,0 lan duong kinh (anh: dai may
+    // 0.492,0.252..0.564,0.278 nam tren mi 0.2900 tren tong hong mat 0.2900..0.3786).
+    // HAI BEN NHU HET NHAU ve be dai: duong may ben mat nham cung dai bang ben mat mo,
+    // chi khac do cong (may ben nham hang hon vi mi cung dang len).
+    for (const s of [-1, 1]) {
+      const cx = 256 + s * CX;
+      g.strokeStyle = brow; g.lineWidth = 9; g.lineCap = 'round'; g.globalAlpha = 0.95;
+      g.beginPath();
+      g.moveTo(cx - s * (ERX - 6), CY - ERY - 40);
+      g.quadraticCurveTo(cx, CY - ERY - 58 - (s < 0 ? 6 : 0), cx + s * (ERX + 16), CY - ERY - 44);
+      g.stroke();
+      g.globalAlpha = 1;
+      // VAI VUOT MA (thay cho vong hong oval): oval #d9a593 hue 15 render thanh vet tham
+      // xam, con anh khong co hong oval nao ca - do la ba net vuot cua ho cao. Do tu
+      // vung duoi mat nham: net dai ~22px tren be ngang hong mat 36px = 0,61 lan, day
+      // ~5px, cach nhau ~9px; mo rong theo hong mat tam (106px) -> dai 64px, cach 13px
+      // (13 chu khong 9 vi 9 gan 5 day thi hai net dinh thanh mot khoi khi render 144px).
+      // HAI BEN CUNG #d1afb5: ben mat mo do ra #fbdbc4 gan bang da, do la ben duoc nang,
+      // khong phai net khac mau - tam son la mat TRUC DIEN nen hai ben phai nhu nhau
+      // (bat dang xe: cung kich thuoc, chi khac huong).
+      for (let i = 0; i < 3; i++) {
+        const y0 = CY + ERY + 2 + i * 13;
+        g.strokeStyle = cheek; g.lineWidth = 6 - i; g.lineCap = 'round';
+        g.globalAlpha = 0.9 - i * 0.12;
+        g.beginPath();
+        g.moveTo(cx + s * (ERX * 0.30), y0);
+        g.quadraticCurveTo(cx + s * (ERX * 0.72), y0 + 4, cx + s * (ERX + 11), y0 + 12);
+        g.stroke();
+      }
+      g.globalAlpha = 1;
+    }
+
+    // (4) MIENG nu cuoi mo: bbox do duong ngang 0.42..0.5186 nhung phan do den that
+    // (sum<250 va lech do) chi 220 px, tu 0.44 den 0.48 doc - tuc mieng RONG ~0,5 lan
+    // khoang cach hai tam mat = 90px tren tam, cao 0,36 lan be = 32px. Ve bon lop:
+    // hong den, mot nanh trang tren, luoi hong duoi, viem mieng hong nau.
+    g.fillStyle = mouth;
+    g.beginPath(); g.ellipse(256, 338, 45, 26, 0, 0, Math.PI); g.fill();
+    g.beginPath(); g.ellipse(256, 338, 45, 12, 0, Math.PI, Math.PI * 2); g.fill();
+    g.strokeStyle = mouthEdge; g.lineWidth = 4; g.lineCap = 'round'; g.globalAlpha = 0.7;
+    g.beginPath(); g.moveTo(213, 336); g.quadraticCurveTo(256, 322, 299, 336); g.stroke();
+    g.globalAlpha = 1;
+    // MOT CAI NANH, khong phai dai rang: #ffeafb chi xuat hien 12 px tai (274,244) tuc
+    // MỘT goc ben phai cua khe mieng (mieng rong 50px tren anh, tam 257 -> nanh o +21%
+    // be ngang), trong khi dai 36px render thanh mot tam kem che nua tren mieng - do la
+    // cai gia nua cuoi cua ho cao, khong phai ham rang. Nanh rac tu day mi tren (326)
+    // xuong 13px, be 13px, dau duoi tron.
+    g.fillStyle = tooth;
+    g.beginPath(); g.moveTo(270, 326); g.lineTo(283, 326);
+    g.quadraticCurveTo(281, 338, 276, 340); g.quadraticCurveTo(271, 338, 270, 326); g.fill();
+    // LUOI: #cf575f (bucket hue340-no-sang, 72 px) - mau do hong thuc, khong phai #d29386
+    // hue 8 nhu truoc day (do la bong da chung quanh, khong phai luoi). Lech tam 4px ve
+    // trai theo anh, rx 20 van chim trong long mieng 211..364.
+    g.globalAlpha = 0.9; g.fillStyle = tongue;
+    g.beginPath(); g.ellipse(252, 352, 20, 9, 0, 0, Math.PI); g.fill();
+    g.globalAlpha = 1;
+
+    // (5) MUI: anh chi co mot bong nhat 15 x 8 px (bbox 0.4771,0.3400..0.4986,0.3514),
+    // quy ra 24 x 15 px tren tam. Tam giac chung (256,268)-(246,296)-(264,296) render ra
+    // mot CAI MUI TEN ro nen Ahri bo nhu Irelia/Zed. Lop truoc dung rgba(150,72,58,.22)
+    // ra vet xam vi 150-72-58 la do toi, khong phai mau do; #d8a495 la median 367 px
+    // dung cua bong mui (h13 s31) nen de 0,55 thi composite len #f2cebc van ra #e0bcae.
+    g.fillStyle = nose; g.globalAlpha = 0.55;
+    g.beginPath(); g.ellipse(256, 284, 12, 7, 0, 0, Math.PI * 2); g.fill();
+    g.globalAlpha = 1;
   }
 
   // Mũi 3D shading nhẹ ở giữa. Riêng Zed bỏ: tam giác này rơi đúng theta 94..99, phương
   // vị -2..+2 tức ngay sống mũi VÀNG của nạ, nên nó thành một vệt nâu trên kim loại.
   // Irelia cũng bỏ: net mui cua rieng no o (9) o tren, de ca tam giac chung thi hai net
-  // chong nhau thanh mot khoi nau.
-  if (hero.id !== 'zed_chibi' && hero.id !== 'irelia_chibi') {
+  // chong nhau thanh mot khoi nau. Ahri bo: mui trong anh chi la mot bong nhat 15x8 px,
+  // net cua rieng no o (5).
+  if (hero.id !== 'zed_chibi' && hero.id !== 'irelia_chibi' && hero.id !== 'ahri_chibi') {
     g.fillStyle = 'rgba(120,53,15,0.22)';
     g.beginPath(); g.moveTo(256, 268); g.lineTo(246, 296); g.lineTo(264, 296); g.closePath(); g.fill();
   }
@@ -2143,6 +2409,428 @@ function buildHeroHead3D(head, hero) {
       finM, 0, 0, 0, { cast: false }));
     head.add(m(fin([[-68, 62, 0.46], [-70, 52, 0.54], [-76, 42, 0.62], [-82, 34, 0.68]], IR_FIN_W_L),
       finM, 0, 0, 0, { cast: false }));
+  } else if (id === 'ahri_chibi') {
+    // CAO DUOI TRANG - buoc 3. 3D chi cho nhung thu lop son khong voi toi: (a) vom toc,
+    // (b) hai TAI CAO nho ra ngoai vo, (c) hai LON OM MAT roi ngon xoe ra ngoai, (d) mui
+    // lon sau lung. Chan toc / ngoi gia / loi toc sau / vuot má / mieng da o buoc son
+    // tren phiến 512 - ve lai thanh mesh la hai surface dong tam (bat bien 1).
+    //
+    // VOM TOC VONG 9 - PHAN QUYET 2026-11-13 "toc KHONG dung lai cua Irelia, lam lai
+    // theo anh tham chieu". Bỏ ba so cua Irelia (C 0;0,074;0,06 / R 0,4662 / thL 140) vi
+    // chung render thanh CAI NON BO HE (ahr29/front.png), hai loi goc:
+    //   1. vom chi le phien mat 3 mm nen be ngang toc = be ngang mat: dau tron lỳ, khong
+    //      co "toc day hon dau" nhu anh (do tren /tmp/ahr-head-crop2.png: 394/292 = 1,35).
+    //   2. duong chan toc la GIAO TUYEN HAI MAT CAU, ma giao tuyen hai mat cau nam trong
+    //      mat phang vuong goc noi tam NEN LUON DOI XUONG QUA G - bo ba so cua Irelia cat
+    //      nhau o az 0 -> theta 47 va khong the nao lech ben. Bang mai quat qua mot ben
+    //      cua Ahri la dieu BAT KHA THI voi mot vom cat sat phien.
+    // Cach: vom TO va THAP hon de giao tuyen tui xuong duoi chan toc muon ve, va luc do
+    // bien ALPHA cua lop son - khong phai vom - CHINH LA duong chan toc. Bien alpha la
+    // mot duong cong bat ky nen quat duoc qua ben trai. Vong 9 (/tmp/ahri-cap.mjs):
+    //   C = (0, 0,055, 0,055), R = 0,485, S = (1,09, 1,00, 1,05), thetaLength 163 do.
+    //   be ngang 0,529 / be mat phien 0,781 = ti le 1,35 = dung ti le do tren anh.
+    //   DINH vom theu y 1,980: bang het vom cu, nen so lieu cua quat duoi o buoc 169
+    //   van dung (ngon toc cao nhat 1,647 van cach dinh toc 335 mm).
+    //   rim 163 do: max |p| 0,457 < dau 0,460 -> AN hoan toan trong dau, khong co mép.
+    //   GIAO TUYEN vom/phien (az -> theta): 0:77,5  15:80,3  25:85,0  35:92,0  45:100,0
+    //     57,6:110,8  70:120,0  90:131,8  180:149,3. Duoi duong nay vom nam SAU phien
+    //   (lop toc az 0 th 80 = -2 mm) nen phien an no; TREN duong nay vom nam TRUOC phien
+    //   7..17 mm (th 70 -> 7 mm, th 60 -> 17 mm), tuc bang mai NAM SAT DA tran dung nhu
+    //   anh, va son quyet dinh chan toc o moi az muon.
+    const D2R = Math.PI / 180;
+    const sph = (az, th, r) => [
+      -r * Math.sin(az * D2R) * Math.sin(th * D2R),
+      r * Math.cos(th * D2R),
+      -r * Math.cos(az * D2R) * Math.sin(th * D2R),
+    ];
+    const HC = [0, 0.055, 0.055], HR = 0.485, HS = [1.09, 1.00, 1.05], HTH = 163;
+    const INV = HS.map((s) => 1 / (s * s));
+    const hairTex = (() => {
+      if (typeof document === 'undefined') return null;
+      const W = 1024, H = 512;
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const g = c.getContext('2d');
+      // (az,theta) tren mat cau DAU -> (u,v) tren vom ELLIPSOID. Vom vua lech tam vua
+      // giang theo tung truc nen khong doi thang duoc: ray tu tam dau cat vom tai rho,
+      // phai doi (rho*d - C)/S ra toa do ban kinh TRUOC khi doc goc cuc bo. Voi S = 1
+      // ba dong duoi thu ve dung cong thuc vom tron cua Irelia (kiem tra bang cach do).
+      const T = (az, th) => {
+        const a = az * D2R, t = th * D2R;
+        const dx = -Math.sin(a) * Math.sin(t), dy = Math.cos(t), dz = -Math.cos(a) * Math.sin(t);
+        const A = dx * dx * INV[0] + dy * dy * INV[1] + dz * dz * INV[2];
+        const B = HC[0] * dx * INV[0] + HC[1] * dy * INV[1] + HC[2] * dz * INV[2];
+        const Cq = HC[0] * HC[0] * INV[0] + HC[1] * HC[1] * INV[1] + HC[2] * HC[2] * INV[2] - HR * HR;
+        const rho = (B + Math.sqrt(B * B - A * Cq)) / A;
+        const qx = (rho * dx - HC[0]) / HS[0], qy = (rho * dy - HC[1]) / HS[1];
+        const qz = (rho * dz - HC[2]) / HS[2];
+        const tl = Math.acos(qy / HR) / D2R;
+        let pl = Math.atan2(qz, -qx) / D2R;
+        if (pl < 0) pl += 360;
+        return [pl / 360 * W, tl / HTH * H];
+      };
+      // MAU DO TUNg vung tren anh (/tmp/ahr-pal.mjs, median): khoi toc #2d2d52, ben mat
+      // #30446e, ngon thoe #3b4576, toc sau toi nhat #28203b / #362846, dai bong tren
+      // bang mai #676388, dinh gom #474c79. Nang them kenh xanh duoi luc son vi den
+      // sảnh lam mat xanh (bat bien mau cua skill): duoi luc #2b3a68 la khoi, #161a34 la
+      // goc, #4a5c9a la soi, #5f68a0 la bong.
+      g.fillStyle = '#2b3a68'; g.fillRect(0, 0, W, H);
+      const cap = g.createLinearGradient(0, 0, 0, 0.26 * H);
+      cap.addColorStop(0, '#161a34'); cap.addColorStop(1, 'rgba(22,26,52,0)');
+      g.fillStyle = cap; g.fillRect(0, 0, W, 0.26 * H);
+      const strand = (az0, th0, az1, th1, w, color, alpha) => {
+        g.strokeStyle = color; g.lineWidth = w; g.globalAlpha = alpha; g.lineCap = 'round';
+        g.beginPath();
+        let prev = null;
+        for (let i = 0; i <= 16; i++) {
+          const t = i / 16, e = t * t * (3 - 2 * t);
+          const p = T(az0 + (az1 - az0) * e, th0 + (th1 - th0) * t);
+          let x = p[0];
+          if (prev !== null) { while (x - prev > W / 2) x -= W; while (prev - x > W / 2) x += W; }
+          if (i === 0) g.moveTo(x, p[1]); else g.lineTo(x, p[1]);
+          prev = p[0];
+        }
+        g.stroke();
+      };
+      // DUONG CHAN TOC LECH NGANG - doc tung diem tren /tmp/ahr-face2.png (crop mat),
+      // KHONG PHAI vom cat nua. az duong = ben PHAI cua nguoi xem (may quay o -z).
+      // Ngoi gia o az +14 nen ben phai tran LO NHIEU HON: chan toc ben ay chay NGANG
+      // (68 do tu az 14 den 26 roi xuong dan 92 o az 38, 112 o az 58), con ben trai
+      // bang mai rua XUONG LIEN (68 -> 124 trong 62 do az) - do chinh la cai quat ngang
+      // qua tran ma mot vom tron cat sat phien khong bao gio co.
+      // Vong 10 THU HEP TRAN. Vong 9 de dinh chan toc o theta 58: do mat la 30 do tu
+      // chan toc den long may (th 82) = 25% chieu cao mat, trong khi do tren
+      // ahr-head-crop2.png chi 45/360 px = 12%. ahr32/front.png vi the ra mot cai tran
+      // cao loe phia sau hai tai. Kien ca duong xuong 6-10 do (dinh 68) va van o TREN
+      // giao tuyen vom/phien (az 0 -> 77,5; az 38 -> 93) nen bien alpha that su la
+      // chan toc, khong bi phien an.
+      // Vong 10 KHUC THE HOA. Vong 9 noi lien cac diem bang DUONG THANG va ket qua tren
+      // ahr31/front.png la mot mep RANG CA: moi doan doi huong tao mot dinh tam giac sac
+      // (5 do az = 14 px, du to trong 512px). Cung tap diem do, Catmull-Rom (tan tuyen
+      // lay tu hai lang ke) cho mep MOOT C0 ma dinh van con - toc trong anh cung the:
+      // hai cuc dai lien tiep noi nhau bang mot vong cong, khong phai hai cat.
+      // Cac cuc dai bay gio la: ngon rua o az -48 (th 120, ngay tren long may trai),
+      // khe -38 (96), roi ngoi gia 14 (58), va ben phai xuong dan 48 (84) -> 68 (146).
+      // DINH NHON CHI CO MOT VUNG. Cat duoc cua vom/phien la 0:77,5  15:80,3  25:85,0
+      // 35:92,0  45:100,0  57,6:110,8: duoi con so do phien an lop toc, nen mot ngon
+      // son xuong toi 124 o az -48 (vong 10 lan 1) la ngon KHONG AI NHIN THAY - no nam
+      // sau cai mat. Anh lai co dinh nhon ngay o mang cung (az 35..50), la noi duyet
+      // nhat con lai. Vong 10 lan 2: hai dinh 88 o az 34 va 96 o az 46, ca hai cach
+      // bien nhin 4 do; xen giua la khe 78 va 86. Ben trai giu duong rua tron vi o do
+      // long may trai da bi che boi lon 3D (mesh), khong phai boi son.
+      const FRINGE = [
+        [-74, 178], [-64, 156], [-54, 136], [-46, 124], [-38, 110], [-30, 98], [-20, 86],
+        [-10, 78], [0, 72], [10, 68], [18, 68], [26, 72], [34, 88], [40, 78], [46, 96],
+        [52, 86], [58, 110], [66, 146], [74, 178],
+      ];
+      const FR = (a) => {
+        const x = Math.max(-74, Math.min(74, a));
+        let i = 1;
+        while (i < FRINGE.length - 1 && x > FRINGE[i][0]) i++;
+        const [x1, y1] = FRINGE[i - 1], [x2, y2] = FRINGE[i];
+        const y0 = FRINGE[Math.max(0, i - 2)][1], y3 = FRINGE[Math.min(FRINGE.length - 1, i + 1)][1];
+        const t = (x - x1) / (x2 - x1);
+        const m0 = (y2 - y0) / (x2 - FRINGE[Math.max(0, i - 2)][0]);
+        const m1 = (y3 - y1) / (FRINGE[Math.min(FRINGE.length - 1, i + 1)][0] - x1);
+        const h = x2 - x1, t2 = t * t, t3 = t2 * t;
+        return (2 * t3 - 3 * t2 + 1) * y1 + (t3 - 2 * t2 + t) * m0 * h
+          + (-2 * t3 + 3 * t2) * y2 + (t3 - t2) * m1 * h;
+      };
+      // NGOI GIA LA MOT DUONG NGOI CHU KHONG PHAI MOT DIEM. That thu vong 9 lan 1: cho
+      // 30 soi cat nhau tu (12, theta 4..15) - gan dinh den kinh tuyen ep moi diem do
+      // ve cung MOT CHO o canvas (u 0,77..0,79, v 0,02..0,09) nen 30 net tu quy thanh
+      // CAI MAI NHEN, xem /tmp/ahr-hair-tex.png. Anh thi toc rue thanh HAI RUA tu mot
+      // vet ke doc: duong ngoi tu (14, 24) xuong (22, 56), va moi soi noi manh vao mot
+      // doan cua vet ay, cach nhau 3-4 do az.
+      const CREASE = (f) => [14 + f * 8, 24 + f * 32];
+      const bang = (a1, f, w, color, alpha) => {
+        const [a0, t0] = CREASE(f);
+        strand(a0, t0, a1, Math.min(150, FR(a1)) - 5, w, color, alpha);
+      };
+      // 17 soi rua TRAI (quat qua tran den tan ben tai, az -68) + 9 soi rua PHAI (ngan,
+      // sat dinh roi xuong duoi 68 do az de hai "tai nua" ben mat co loi toc chu khong
+      // con la hai vai tron). Thu tu color dao lien tuc de hai soi ke nhau khong cung
+      // mau - do la cai tao nen so loi toc.
+      for (let k = 0; k < 17; k++) {
+        const a1 = 12 - k * 5;
+        bang(a1, 1 - k / 16, 13 + (k % 3) * 6, ['#4a5c9a', '#3a4a80', '#20264a'][k % 3], 0.26);
+      }
+      for (let k = 0; k < 9; k++) {
+        const a1 = 18 + k * 6;
+        bang(a1, 1 - k / 8, 15 + (k % 2) * 7, ['#3a4a80', '#20264a'][k % 2], 0.24);
+      }
+      // VET NGOI: mot net toi chay doc theo CREASE, ve SAU khi cac soi rua da xep xong
+      // de no cat roi hai rua that.
+      strand(14, 22, 23, 58, 9, '#161a34', 0.6);
+      // TOC SAU - vong 10 THAY cho mesh "dai toc" (ly do o mesh block duoi). Vom
+      // ellipsoid da kin den theta 163 tuc den tan gay, nen mat sau DA co toc phu; cai
+      // con thieu chi la LOI TOC. Vong 9 de tron o day nen ahr31/rear.png ra mot qua cau
+      // bong. 9 soi moi nua chay doc theo lung, loi nhe ve phia giua (az 180) khi xuong
+      // gan gay. Vong 10 lan 1 cho chung bat dau o theta 34..50 va ket o 138..153 deu
+      // den 5 do: ahr32/rear.png ra HAI DUONG NGANG song song vi 18 dau cuoi tron
+      // (lineCap round) xep thanh hai hang thang. Do do do do PHAI roi tung 9-11 do.
+      for (const s of [-1, 1]) {
+        for (let k = 0; k < 9; k++) {
+          const a0 = s * (94 + k * 9);
+          strand(a0, 24 + (k % 4) * 11, a0 + s * (3 + (k % 3) * 5), 112 + (k % 5) * 11,
+            14 + (k % 2) * 9, ['#3a4a80', '#20264a'][k % 2], 0.16);
+        }
+      }
+      // DAI BONG theo chieu quat: anh co mot dai mau sang hon chay doc theo bang mai,
+      // tu do cao 40 o phia ngoi gia lech xuong 74 o dau ben trai (median do #676388).
+      g.globalAlpha = 0.16; g.strokeStyle = '#5f68a0'; g.lineWidth = 24; g.lineCap = 'round';
+      for (const [a0, t0, a1, t1] of [[22, 40, -50, 78], [26, 42, 46, 60]]) {
+        g.beginPath();
+        for (let i = 0; i <= 12; i++) {
+          const f = i / 12; const p = T(a0 + (a1 - a0) * f, t0 + (t1 - t0) * f);
+          if (i === 0) g.moveTo(p[0], p[1]); else g.lineTo(p[0], p[1]);
+        }
+        g.stroke();
+      }
+      // VIEM TOI SAT MEp: bien toc trong anh la mot duong SAC (toc mong dan o do, den
+      // phia sau chieu xuyen qua), khong phai bien muot. Net nay ve CUNG chieu duoi
+      // chan toc 8 do de duong cat khong an het no.
+      g.globalAlpha = 0.5; g.strokeStyle = '#161a34'; g.lineWidth = 14; g.lineJoin = 'round';
+      g.beginPath();
+      for (let az = -70; az <= 70; az += 2) { const p = T(az, FR(az) - 8); if (az === -70) g.moveTo(p[0], p[1]); else g.lineTo(p[0], p[1]); }
+      g.stroke();
+      // VIEM SANG SAT tren mép (ve TRUOC de duong cat cat gon no) - luc nay chan toc la
+      // bien alpha nen viem sang PHAI theo FR, khong theo vom nua.
+      g.globalAlpha = 0.4; g.strokeStyle = '#4a5c9a'; g.lineWidth = 9; g.lineJoin = 'round';
+      g.beginPath();
+      for (let az = -70; az <= 70; az += 2) { const p = T(az, FR(az) - 3); if (az === -70) g.moveTo(p[0], p[1]); else g.lineTo(p[0], p[1]); }
+      g.stroke();
+      g.globalAlpha = 1; g.globalCompositeOperation = 'destination-out'; g.fillStyle = '#000';
+      g.beginPath();
+      g.moveTo(T(-72, 178)[0], H);
+      for (let az = -72; az <= 72; az += 1) { const p = T(az, FR(az)); g.lineTo(p[0], p[1]); }
+      g.lineTo(T(72, 178)[0], H); g.closePath(); g.fill();
+      g.globalCompositeOperation = 'source-over';
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+    })();
+    // scale = HS: SphereGeometry(HR) la MAT CAU BANKinh, muon ra ellipsoid (1,09,1,00,
+    // 1,05) thi ep theo tung truc bang mesh.scale - m() dat scale TRUOC khi doi chieu
+    // cao, nen toa do trong dau = HC + HS * diem tren mat cau, dung dung cong thuc T()
+    // da nguoc o tren.
+    head.add(m(new THREE.SphereGeometry(HR, 48, 30, 0, Math.PI * 2, 0, HTH * D2R),
+      new THREE.MeshStandardMaterial({ map: hairTex, roughness: 0.62, transparent: true }),
+      0, HC[1], HC[2], { scale: HS }));
+
+    // TOC = BON LOp VO GON SONG, khong phai mot khoi tron. Vom tron du son 26 soi toc
+    // van ra vom tron: bien cua no la duong tron ellipsoid, nen lop phai la bien THAT
+    // trong 3D. Bon vo cung cat (SphereGeometry HR = 0,485), ban kinh 0,494 -> 0,524 -
+    // vo CAO nhat nam NGOAI CUNG vi toc that thi lop tren de LEN tren lop duoi; do vay
+    // vo duoi chi lo ra o cai MIENG cua no, va mieng lech nhau moi tao thanh lop.
+    //   rim(az) = rimBase*taper + amp/2*(1 + cos(k*(az + phase)))*swell
+    // k = 4: bon thuyeng lon deu nhau mot vong, dinh thuyeng o az 90/180/270 (hai
+    // ben mai + giua lua) voi phase 0. Vo le phase 45 dao dau cos -> thuyeng cua no
+    // nam LEO vao khe cua vo tren; do la cai xen ke khiem khac cua toc xoe, khong
+    // phai bon cai vat bang nhau chong len nhau. phase chi duoc boi so le cua 90/k vi
+    // cos(k*(az+phase)) phai chan tinh voi az -> -az (doi xung trai/phai qua mat
+    // phang ngang) va voi 180+d -> 180-d (doi xung truoc/sau).
+    // Vong 12 THAY PINH = TAPER + SWELL. Vong cu ep ca rim lan bulge bang pinch =
+    // sin(pi*s)^0,3: o az 90 (hai ben mai, NOI MA NGUOI XEM TIEN THANG nhin thay) pinch
+    // moi bang 0,61 va no NAP SAT bon thuyeng lai, nen toc van la mot khoi tron khi nhin
+    // lech 3/4 (shot-rear34.png). Nay taper chi di vao rimBase (do sau trung binh cua
+    // dai), con swell = sin(pi*s)^0,09 = 0,91 ngay tai az 90 va chi tui ve 0 o 6 do az
+    // cuoi cung cua dai - thuyeng va bung giu du do lon gan het vong, dai van dong lai
+    // thanh luoi dao sau tai de khong co tam cat thang.
+    // DAI MO RONG DEN AZ +-62 (tung +-72): 57,6 la mep cua phieng mat, nen tu 62 ra ngoai
+    // khong con gi de che. Do la hai lon OM HAI BEN MAT - thu duy nhat lam bien toc lo
+    // lech khoi duong tron khi nhin CHINH DIEN.
+    // Son vo bang CHINH hairTex (uv = (az-90)/360, 1 - theta/HTH la dung cach
+    // SphereGeometry cua vom quy chieu), nen soi toc chay LIEN qua mieng lop, khong
+    // bi cat khuc. Doi xung trai/phai la do taper/swell va cos chan tinh, khong do guong.
+    const shell = (R, rimBase, amp, phase, radial, tint) => {
+      const nA = 44, nT = 9, az0 = 62, az1 = 360 - az0;
+      const pos = [], uvs = [], col = [], idx = [];
+      const c3 = new THREE.Color(tint);
+      for (let i = 0; i <= nA; i++) {
+        const s = i / nA, az = az0 + (az1 - az0) * s;
+        const taper = Math.pow(Math.sin(Math.PI * s), 0.3);
+        const swell = Math.pow(taper, 0.3);
+        const lobe = 0.5 * (1 + Math.cos(4 * (az + phase) * D2R));
+        const rim = rimBase * taper + amp * lobe * swell;
+        for (let j = 0; j <= nT; j++) {
+          const v = j / nT, th = rim * v;
+          // PHAI TRON BAN KINH theo do sau: o dinh (v=0) moi cot az ghep ve MOT diem
+          // nen R lech nhau se nut toan khoi toc thanh cai hoa hong tran vet; chi gan
+          // mieng (v=1) duoc phong. Do la ly do radial nhan v^2 va swell.
+          const [x, y, z] = sph(az, th, R + radial * lobe * swell * v * v);
+          pos.push(x, y, z);
+          uvs.push((((az - 90) % 360) + 360) % 360 / 360, 1 - th / HTH);
+          // Mep TOI dan theo v roi BONG SAT o mieng. Mieng cua vo NAY de LEN vo KIA nen
+          // ngay duoi no phai toi (bong), con chinh no phai sang (sac to hieu ung cua
+          // toc bong). Khong co hai thu do thi tren khoi toc den #2b3a68, lech tint 23%
+          // gan 0 do anh va bon lop bi doc thanh MOT khoi tron - dung cai user ban.
+          const sh = 1 - 0.42 * v * v * v + 0.8 * Math.pow(v, 12);
+          col.push(c3.r * sh, c3.g * sh, c3.b * sh);
+        }
+      }
+      for (let i = 0; i < nA; i++)
+        for (let j = 0; j < nT; j++) {
+          const a = i * (nT + 1) + j, b = a + nT + 1;
+          idx.push(a, b, a + 1, b, b + 1, a + 1);
+        }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+      geo.setIndex(idx);
+      geo.computeVertexNormals();
+      head.add(m(geo, new THREE.MeshStandardMaterial({
+        map: hairTex, vertexColors: true, roughness: 0.55, side: THREE.DoubleSide,
+      }), 0, HC[1], HC[2], { scale: HS }));
+    };
+    // Bon tint toi dan xuong duoi (lop o duoi nam TRONG BONG cua lop tren). Tren khoi
+    // toc den thi tint khong du: #2b3a68 nhan 0,6 van la den nen phai co duong gop
+    // THAT do vertexColor ve o mieng tung lop (xem sh o tren).
+    shell(0.524, 52, 30, 0, 0.034, '#f4f6ff');
+    shell(0.514, 78, 30, 45, 0.028, '#d3dbf2');
+    shell(0.504, 104, 30, 0, 0.022, '#b4c0e4');
+    shell(0.494, 130, 32, 45, 0.016, '#98a8d2');
+
+    // DINH DAU KHONG CO "BUN". Vong 9 them mot dia toc gom o dinh (SphereGeometry 0,085
+    // ep [1,35,0,55,1,15] tai y 0,528) vi doc sai anh: trong /tmp/llref/Chibi_Ahri.png
+    // khoi toc chay tu ngoi gia ra sau roi xuong lung, giua hai tai la MOT mat cong tron
+    // va duong rieng cua hai tai. Vong 10 ahr31/front.png chung minh no hai tac: dia
+    // bun 0,115 ngang chen giua hai tai doc thanh "cai mu beret" ngay tren tran. Vom
+    // ellipsoid dinh 0,540 (theu y 1,980) + vet ngoi son az 14 da du hinh khoi; vet gom
+    // that su nam O SAU (duoi bun -> dai toc), nay son bang 9 soi toc sau o tren.
+
+    // HAI TAI CAO. Thu duy nhat ma phiến son VOI TREN MAT CAU khong the nao lam duoc:
+    // chung NHO ra ngoai vo 0,463 chu khong nam TREN vo (bat bien 1 - bai hoc tai na
+    // Bat Man :1280).
+    //
+    // KICH THUOC do bang luoi tren splash (/tmp/ahri-g2.mjs): dau 210 x 190 px, tai gan
+    // 55 x 70 px -> 0,24 x 0,31 the gioi (1 px anh = 0,92/210 = 0,00438).
+    // VI TRI: do bang luoi, day tai nam cach tam dau 72/210 = 34% be ngang, tuc
+    // 0,315/0,46 = 68% ban kinh dau. Hai vong dau dat az 44 chi dat 30% nen tai moc len
+    // NGAY TREN DINH nhu doi sua; az 70 + theta 52 moi ra x 0,74r, y 0,62r dung cho do.
+    //
+    // TAI SAO LA BAN PLAT (finPlate) CHU KHONG CONE: hai vong cone (h 0,40 roi 0,60)
+    // deu bi vom toc an het, va ly do khong phai cone qua ngan ma la cone mong dan ve
+    // phia ngon. Voi goc o sph(70, 45, 0,36) thi |goc - C| = 0,334 trong khi |ngon - C|
+    // = 0,604 nen truc chi thoat mat vom (R = 0,4662) o 51% chieu dai - ma 51% do la du
+    // theo TRUC, be ngang bi ep cung ty le do (1 - t) nen mat day chi con 0,10 thay vi
+    // 0,24 do duoc. Ban plat thi nguoc lai: be ngang la ws[] dat tai tung ga, muon chon
+    // sau bao nhieu thi keo ga duoi xuong, tai van gi nguyen be ngang.
+    // PHAN QUYET 2026-11-13: "cho nho lai va dua len phia tren dau". Vong 5..7 dat neo o
+    // sph(70, 52, 0,575) = day tai cach tam dau 0,426 THEU NGANG (93% ban kinh dau) va
+    // ngon tai o y 1,945 - tuc hai cai tai NAM NGANG BEN MAT dau, gan bang chieu cao chop
+    // toc, nen tai bi toc an va khong doc thanh tai. Vong 8 doi sang DINH: /tmp/ahri-ear3.mjs
+    // quen (az, theta, r, phi, tz) va giai |v + s.a| = R. Nghiem CHON = az 44, theta 28,
+    // r 0,50, phi 0,10, tz 0,44. Vong 9 thay vom thanh ellipsoid C=(0;0,055;0,055)
+    // R 0,485 S=(1,09,1,00,1,05) nen /tmp/ahri-ear4.mjs PHAI giai lai |((P+s.a-C)/S)| = R
+    // tren vom MOI - va no bao: khong doi mot con so nao trong mesh tai ca:
+    //   truc a = Rx(0,10)*Rz(0,44)*(0,1,0) = (-0,42594; 0,89983; 0,09032)
+    //   P = sph(44, 28, 0,50) = (-0,16308; 0,44147; -0,16886)
+    //     -> |q|/S = 0,466 < R 0,485 => neo van AN TRONG vom, sau 19 mm (vom cu an 4 mm,
+    //        vom MOI an SAU hon vi to hon - tai moc truc tiep len toc, khong noi loi).
+    //   s1 = -0,822, s2 = +0,023 => voi ga ngon 0,20 va ga day -0,12 thi phan LO ra
+    //     khoi vom la 0,177 (vom cu: 0,196), phan AN 0,143. Bang EAR/PIN/FLF khong doi
+    //     mot so nao: tai da duoc cat nho o vong 8 (LO 0,289 -> 0,196, be 0,230 -> 0,158),
+    //     vom to hon chi lam no moc sau hon chu khong lam no ngan hay hep them.
+    //   Ngon tai theu y 2,062 (|x| 0,248): ca hai ngon DEO NHO LEN TREN chop vom toc
+    //   1,980 (vom moi van 1,980 - do la thu pham tinh toan khi chon R/S) chu khong xep
+    //   ngang ben mat - do la cai "dua len phia tren dau".
+    //   Truc lech huong ban kinh 33 do = dung bang vong cu, nen do NGHIENG RA NGOAI
+    //   giu nguyen, chi doi vom xung quanh.
+    // DoubleSide BAT BUOC: finPlate khong index va thu tu quad cua mat phang (-z) sinh
+    // ra phap tuyen +z, tuc HUONG VAO KHOI tam - FrontSide an toan ca hai mat va chi
+    // de lai mot thanh tuong ben phai day 0,036. vong 5 render ra "sợi wire" chinh la
+    // cai tuong do, khong phai ban tai bi toc an.
+    const earDark = mat('#404060', { roughness: 0.55, side: THREE.DoubleSide });
+    // median cac cluster toi trong hop tai (282..340 x 26..90): #303050/#404060/#484868
+    // - nhe hon vom toc #2b3a68 nen vien tai doc duoc tren toc.
+    const earPink = mat('#946c84', { roughness: 0.7, side: THREE.DoubleSide });
+    // median 554 px #886880..#a07088 cung hop: long tai LAI ro nhat, khong phai vien.
+    const earTuft = mat('#e8e8f8', { roughness: 0.62, side: THREE.DoubleSide });
+    // ngon 0,006 -> 0,012: CatmullRom qua 5 ga ma ga cuoi bang 0 thi vuot qua 0 va
+    // tam giac hoa dao, render ra ngon ut nhu kim. 0,012 van gon (< 1/3 be ngang 0,040
+    // o ga 0,12) nen tai doc la ngon tron, khong phai cat cun.
+    // 5 ga tu -0,12 den +0,20 = ban kinh dai 0,32 (cu: 0,52). Ga dau duoi mat vom
+    // (s2 = +0,004) nen no chi de gian doan CatmullRom, khong lo ra dau.
+    const EAR = [[-0.12, 0.112], [-0.05, 0.092], [0.04, 0.070], [0.12, 0.040], [0.20, 0.012]];
+    for (const s of [-1, 1]) {
+      const grp = new THREE.Group();
+      grp.position.set(...sph(s * 44, 28, 0.50));
+      grp.rotation.set(0.10, 0, s * 0.44);
+      grp.add(m(finPlate(EAR.map(([y, w]) => [0, y, 0]), EAR.map(([, w]) => w), 0.036),
+        earDark, 0, 0, 0));
+      // MAT TRONG: ban hong 0,010 nam TRUOC ban den, DAT GIUA (x = 0). Trong anh goc
+      // (crop luoi 10 px, 256..358 x 10..123: ngon (306;38), day 55x62 px = 0,24x0,27
+      // theu gioi) vien den DAY hon o canh ngoai (318..330) va bun chay lech vao trong
+      // (285..315 x 55..95 = 55% dien tich) - nhung do la PHOI CANH cua dau nghieng 3/4,
+      // khong phai thiet ke: khung quy cua hai tai KHONG doi xung qua G - Rz(+0,44) cho
+      // s=+1 dat tai -x nen +X huong VAO trong, Rz(-0,44) cho s=-1 dat tai +x nen cung
+      // +X lai huong RA ngoai - nen moi lech ngang cung chieu se dao nguoc giua hai ben.
+      // ws hong nho hon ws den tai CA 5 ga (0,072<0,101; 0,060<0,085; 0,046<0,066;
+      // 0,026<0,044; 0,004<0,026 - so ben phai la EAR noi suy dung tai y cua ga hong)
+      // nen vieng den bao quanh deu hai ben.
+      const PIN = [[-0.08, 0.072], [-0.02, 0.060], [0.05, 0.046], [0.11, 0.026], [0.16, 0.004]];
+      grp.add(m(finPlate(PIN.map(([y, w]) => [0, y, 0]), PIN.map(([, w]) => w), 0.010),
+        earPink, 0, 0, -0.048));
+      // BUN TRANG = BAN THU TU, KHONG PHAI QUA CAU: vong 5 ba qua cau cach deu nhau ra
+      // ba noi com ran; vong 6 ba qua de trung nhau van ra ba cai bong tron vi bien cua
+      // cau la duong cong deu, khong co goc de tao thi tai doc. Trong anh goc bun la MỘT
+      // khoi lien chiem ~55% mat trong, RONG o chan tai va TEP dan len ngon - dung la
+      // dang cua mot finPlate: ws dat theo tung ga, khong phai theo ban kinh cau.
+      // FLF nho hon PIN tai CA 5 ga (so ben phai la PIN noi suy dung tai y cua ga bun:
+      // 0,032<0,068; 0,036<0,058; 0,028<0,046; 0,017<0,033; 0,004<0,017) va trung bin
+      // khoang 55% nen vieng hong lo ra deu hai ben, ban bun khong an het tai.
+      // Day 0,016 chu khong 0,020: tai da co lai theo phan quyet "nho lai" (ngon 0,20
+      // thay vi 0,18, be 0,112 thay vi 0,162) nen ba lop phai cung co lai, neu gi 0,020
+      // thi ban bun sau hon chinh no va mat ben van ra vieng nu to choang.
+      // Cach mat hong o ca hai ben (hong -0,053..-0,043, bun -0,074..-0,058, lech 0,005)
+      // nen hai mat phang khong hop nien; do lech nho nay chi du de tranh z-fighting,
+      // may quay cach tai ~2m nen 0,005 do sau doi <1% kich thuoc chieu.
+      const FLF = [[-0.06, 0.032], [-0.01, 0.036], [0.05, 0.028], [0.09, 0.017], [0.13, 0.004]];
+      grp.add(m(finPlate(FLF.map(([y, w]) => [0, y, 0]), FLF.map(([, w]) => w), 0.016),
+        earTuft, 0, 0, -0.066));
+      head.add(grp);
+    }
+
+    // HAI LON OM MA: trong anh toc con di xuong tan ham, vuong goc 96 o az 50. Lot
+    // bat dau o theta 78 - SAU duong chan toc cua vom (az 48, th 79) nen dau tren cua
+    // lot nam giua khoi toc, khong lo mot dau cat cun tron ben mat (vong 1 mo mang o
+    // th 92 = 4 do DUOI mép, render ra hai dai nhon noi loi khoi toc).
+    // RONG: ribbon() lấy w là BÁN KÍNH tiết diện và flat nhân tiếp theo truc phap tuyen,
+    // nen w=0,050 flat=1,8 ra mot thanh 0,18 x 0,10 - vong 1 dùng số đó nên hai lon
+    // ngieng len nhu cai ghe tai chat lay dau. w=0,030 con 0,108 x 0,060 = 12% be ngang
+    // dau, van doc ra la mot lọn toc o 144px. Vong 10 len 0,034 (122 x 68 mm) vi lon
+    // phai doc duoc CA khi trung voi vai cua chinh no o goc ngheng.
+    // Vong 9 PHAI DOI BAN KINH cung: vom ellipsoid o az 48 th 84 da dat 0,482 (vom cu
+    // 0,4662) nen lot 0,472 cua vong 8 BI AN HET.
+    // Vong 10 THEM NGON XOE RA NGOAI. Trong anh hai lon om mat KHONG rua theo mat: den
+    // ngang cam no LECH RA, ngon tom lai o ngoai. Duong cu ket thuc az 57 -> 53 tuc
+    // QAY NGUOC VOI trong anh, do vay vong nay di az 48-55-62-72 va ban kinh TANG dan
+    // 0,505/0,500/0,510/0,535 (vom 0,482/0,466/0,454/0,448, lech 23..87 mm). Ngon o
+    // the lo y 1,068 |x| 0,372: cat ngang vom cung do cao chi 0,251 tuc LO RA 121 mm -
+    // cai ma mot lon rua thang mat khong the co. Chan lot van nam trong khoi toc (ga 0
+    // th 84 sau duong chan toc az 48 th 79), khong lo dau cat cun.
+    const lock = (pts, w, seg = 16, flat = 1.8) => ribbon(pts.map(([a, t, r]) => sph(a, t, r)), w, 0.006,
+      { seg, rad: 7, flat });
+    const lockM = mat('#4a5c9a', { roughness: 0.46 });    // soi SANG HON khoi toc
+                                                          // #2b3a68 mot bac ro. Vong 9
+                                                          // de #3a4a80 = dung mau net
+                                                          // rua da son tren vom nen hai
+                                                          // lon TAI BIEN trong
+                                                          // ahr34/head-zoom.png: chi con
+                                                          // hai mieng xanh o duoi cai
+                                                          // toc, doc tren rear.png nhu
+                                                          // hai sticker.
+    for (const s of [-1, 1]) {
+      head.add(m(lock([[s * 48, 84, 0.505], [s * 55, 106, 0.500], [s * 62, 122, 0.510], [s * 72, 134, 0.535]], 0.034), lockM, 0, 0, 0));
+    }
+    // KHONG CO MESH TOC SAU. Vong 8 lam "doi canh" (az 74 -> 174, th 96..126, loe r
+    // 0,545) -> ahr29/rear.png ra hai cai canh chong ngang: toc thi RIA XUONG DUOI theo
+    // trong luc, khong bay ra ngang. Vong 9 gom ve mat phang G (az 180) -> ahr30/rear.png
+    // ra mot cai LUOC doc lung, vi lock() ep r1 = 0,006 nen du nao cung ton thanh ngon.
+    // Vong 10 goi thang ribbon() w1 0,085 thi luoc het that, nhung no van la mot dai
+    // 290x780 mm NAM NGAY TREN mat vom - ma vom ellipsoid da kin den theta 163, tuc den
+    // tan gay: khong co cho nao cho mot mesh toc CHUA duoc phu. Do do lop nay la trang
+    // tri thuan, va la nguyen nhan duy nhat khieng duoi (buoc 169 rung z 0,21..0,84,
+    // len toi 1,647) dinh vao toc. Toc sau chi con la 9 soi son doc lung o tren.
   }
 }
 
@@ -2826,6 +3514,229 @@ function buildHeroProps3D(upper, hands, arms, legR, hero, head, root) {
     // hong mo - khong bang noi dung da bo. Hong cua khaan van con o that lung (sashM
     // :2770 dung hero.sashColor) va tren tay ao, dung nhu anh goc: khaan cua Irelia la
     // dai vo ngang nguoi, khong phai dai bay.
+  } else if (id === 'ahri_chibi') {
+    // QUAT CHIN DUI = "linh ho cuu vi", cai choa trang sau lung trong anh goc. Gan ROOT
+    // chu khong gan upper/vfxGroup: upper quay -1,15 rad luc lay (:3660) nen quat gan
+    // upper se ngua theo nguoi va dap xuong san; chin doi moc ra TU LUNG, khong phai
+    // mang theo tung dong nguoi.
+    // MOT duong sinh + MOT phep quay cho moi cap doi: hai ban lech nhau mot li la hai mat
+    // cung transform va chung z-fight ca khi ngoi yen. Chieu doi duoc phan ban bang
+    // scale.x = -1 (guong qua mat phang doc), khong bang mot geometry dao nguoc, nen
+    // "hai ben bang nhau" la DO DUOC chu khong phai tin tuong.
+    // DUONG SINH = CUNG TRON do (L, psi0, turn) cho: psi0 la HUONG DI cua goc (do tu
+    // truc +x, nguoc chieu kim dong ho), turn la tong quay do doc theo do dai - PROFIL
+    // TUONG ONG vi do cong khong doi thi duong sinh la mot cung tron that, tuc doi chay
+    // VONG QUANH nguoi chu khong bay thang ra tam diem.
+    // Sao phai vong chu khong phai xa dan: chin doi phan khoang tu MOT diem + bien ngoai
+    // la vong tron tam diem = dinh nghia cua hoa sen, va do chinh xac la cai ma vong
+    // 13..18 ra (/tmp/ahr-shot16, /tmp/ahr-shot18). Anh goc ve khac: duoi moc o lung,
+    // di XUONG va ra ngoai mot quang, roi bun nguoc LEN - ngon nam tren vong cung ban
+    // kinh ~0,9 quanh hong va CHIEU TIEN theo tiep tuyen vong do, khong phai theo ban
+    // kinh. turn 130..150 do la do tu chinh anh; 180 do (da thu trong /tmp/ahri-fan.mjs)
+    // gập qua mat va render thanh cai tuyet/sanh donut.
+    // Doi giua (i=0) co psi0 = 90 va turn = 0: cos(90 do) = 0 chang, nen no nam NGUYEN
+    // TRONG mat phang x = 0 - doi xung cua bon ben khong bi no lech di. No van cong ra
+    // sau (+z) nen khong phai cai cot gang.
+    // Van guong duoc qua scale.x vi psi0/turn nam TRONG duong sinh, khong trong phep quay.
+    // DAI/NGAN khong deu nhau (1,00..1,15) va CACH NHAU KHONG DEU (psi0 -15/-30/-45/-55):
+    // deu nhau = thuoc do. Anh goc cho hai doi ngoai VONG LAI PHIA TRUOC hai ben hong
+    // nen do sau cung khong phai hang so: back 0,18 o doi cao nhat xuong -0,06 o doi
+    // tha nhat - quat co chieu sau thay vi mot tam quat giay cat tren cung mot mat
+    // phang (van de /tmp/ahr-shot12).
+    // PRIMITIVE: RIBBON chu khong phai FINPLATE. Ba vong tryen /tmp/ahr-shot11..14 deu
+    // dung finPlate (phieng phang, khong UV, khong nhan smooth) va ca ba vong render ra
+    // "hoa sen/canh la bang giay": bien cua no la duong thang noi lien cac ga nen moi
+    // ngon la mot tam giac co duong giua noi, va khong co khoi. ribbon() sinh tiet dien
+    // tron theo Frenet frame co san phap tuyen smooth - do la thu duy nhat doc ra la
+    // LONG, khong phai vai. tiet dien tron cung nghia la doi nhin tu moi goc deu ra khoi,
+    // khong bi mat khi nghieng nhu phieng phang.
+    const TAIL_N = 12;
+    const tailSpine = (psi0, turn, back, L) => {
+      const pts = [];
+      const n = TAIL_N, ds = L / (n - 1), D2R = Math.PI / 180;
+      let x = 0, y = 0;
+      for (let i = 0; i < n; i++) {
+        const t = i / (n - 1);
+        pts.push([x, y, back * t * t]);
+        if (i === n - 1) break;
+        // goc trung binh tren doan de Euler khong tro (dpsi/ds = turn/L = hang so).
+        const tm = (psi0 + turn * t + psi0 + turn * (t + 1 / (n - 1))) / 2 * D2R;
+        x += Math.cos(tm) * ds;
+        y += Math.sin(tm) * ds;
+      }
+      return pts;
+    };
+    // RS = ban kinh tiet dien theo 15 dot (seg 14 + 1). Day la bien THAT cua doi = 2*rs.
+    // HINH DANG = CO MIN - BONG PLUME: co van min suot nua dau, bung dan 0,106 o 50%
+    // len 0,184 o 86% roi DONG LAI trong hai dot cuoi (0,142 -> 0,024).
+    // Vi sao co phai MIN: do luong anh goc cho thay phan TO chi la 1/3 cuoi cua doi, hai
+    // 2/3 dau la mot soi min di VONG sau nguoi. RS bung do o 42..71% (vong 16) thi hai
+    // 2/3 dau cua bon doi chong len nhau thanh MOT KHOI MEM va mat bien tach - do la ly
+    // do /tmp/ahri-fan.png vong 18 ra hai dam may thay vi chin doi.
+    //  (a) Peak 0,184 o 86% chieu dai, khong phai 100%: mui plume TRON, khong phai kim.
+    //      Do day 13/11 (lenh user "moi chiec duoi dang hoi bi mong nho"): bung
+    //      0,156 -> 0,184 va 6 dot lien truoc cung nhac ~18%, HAI DOT dau GIU NGUYEN
+    //      min (0,013/0,023) vi tiet dien goc 26 mm la thu GIU cho chin ngon TU MOT
+    //      DIEM (xem ghi chu FZ o duoi). Bung them ma khong xoe thi hai ngon cao nhat
+    //      lech 6 do va 3 dinh nam TRUOC vom toc -> gate de len toc tang 0 -> 6.
+    //  (b) ribbon khong nap hai dau, loi cuoi rong bang 2*rs[14] = 0,048 theu = 3 px o
+    //      anh 144px, an sau mui tron nen khong con duong vi den (vong 16 de 0,060 va
+    //      /tmp/ahr-shot16 render ra chin cai ong rong).
+    //  (c) flat = 1: tiet dien TRON, khong ep thanh dai. Ep doc nao cung phai chon mot
+    //      trong hai truc, ma Frenet normal cua cung tron nam TRONG mat phang cong (no
+    //      chi ve tam vong), nen flat < 1 se lam doi MEP DI theo huong no vong - dung la
+    //      dieu nguoc lai voi can. Tron thi nhin tu goc nao cung ra khoi.
+    const RS = [0.013, 0.023, 0.038, 0.066, 0.078, 0.092, 0.106, 0.122, 0.137, 0.151, 0.165, 0.177, 0.184, 0.142, 0.024];
+    // MAU = bai toan hai buoc, khong phai "nhac sang cho dep":
+    //  (1) Median hai hop duoi trong anh goc: #b8b8d8 (228 px, x 348..400 y 169..220)
+    //      va #d0d0e8 (180 px, x 369..420 y 230..296); highlight #f0f0f0 (286 px).
+    //  (2) Nhung do la MAU DA RENDER trong anh goc, con scene nay doi ngoi nguoi choi
+    //      nen mat duoi HUONG NGUOC chieu sang. He so anh sang do truc tiep tren chinh
+    //      kieu vat lieu nay (albedo #d0d0e8 -> pixel #9a9398 trong rear.png,
+    //      /tmp/ahri-k.mjs): k = 0,700. Can 208/0,700 = 297 > 255, tuc kenh mau khong
+    //      con cho dat duoc median do bang albedo thuan. Emissive la lop con lai:
+    //      #e8e8f8*0,700 = (162,162,174) cong #2e2e3a = (208,208,232) = DUNG #d0d0e8.
+    // Emissive cung khong doi duoc sac thai giua cac mat (k lech nhau van con), chi nen
+    // dinh cua do sang.
+    const tailM = mat('#e8e8f8', {
+      roughness: 0.8, emissive: '#2e2e3a', side: THREE.DoubleSide,
+    });
+    const fan = new THREE.Group();
+    // (0; 0,62; 0,26) root-local. LUU TOA DO TRUOC TIEN: day la goc cua `root`, ma
+    // av.root.position.y = 0,17 (do bang __api.fanProbe() trong /tmp/ll3d), nen mot
+    // diem y trong bang cong them 0,17 moi ra THE GIOI. /tmp/ahri-env.mjs da nuot
+    // BASE = 0,17 vung vao trong; moi so lieu do tru hom 13/11 thieu 0,17 va PHAI DO
+    // LAI. Diem quy cua ban cu 0,86 nam o THE GIOI 1,03 - gan ngang that cua nguoi
+    // ngoi va sau gay, tuc la NGUYEN NHAN user bao "duoi nam dính ca vao toc".
+    // 0,62 = THE GIOI 0,79: that lung hanbok 0,54..0,68 nen goc duoi THAT LUNG 1 TI
+    // 110 mm (lenh 13/11). DO LA MOT PHEP TINH TIEN: ca quat di song song 240 mm,
+    // L / psi0 / turn / back / w giu NGUYEN nen hinh dang khong doi chut nao.
+    // SO 0,42 LA DO SÂU CUA DIEM QUY va no PHAI lon hon mat lung ao. root-probe.mjs do
+    // tren CHINH MESH trong scene (khong phai cong thuc noi suy tay): o cung do cao voi
+    // goc, surface sau nhat cua THAN nam tai z 0,390, nen 0,26 cu la goc AN SAU 130 mm
+    // BEN TRONG than. Hau qua khong phai "dem khong du 9" ma la "khong TU MOT GOC": moi
+    // ngon chi lo ra khi xuyen qua mat than, tai MOT DO CAO KHAC NHAU, nen chin duoi
+    // moc ra tu chin diem doc than chu khong tu mot diem. 0,42 = 30 mm NGOAI MAT AO,
+    // chin tiet dien goc nam cung mot cho va doc ra la nhudong tu mot goc. Do lai bang
+    // env FZ trong tail-measure.mjs: de len toc 0, trongDia 0, zmax 0,931 (truoc 0,771).
+    // TIET DIEN GOC CUNG PHAI MIN: RS[0] 0,028 -> 0,013, hai dot ke 0,036/0,045 ->
+    // 0,023/0,034, tuc be ngang goc 56 mm -> 26 mm. Chin ngon 56 mm chong len MOT diem
+    // van ra mot bui tron; min thi chung la chin soi rua dong tu, va bung 0,156 o 86%
+    // khong doi nen ngon van day nhu cu. Nghieng X
+    // 0,14 = 8 do. Ban 0,30 (17 do) la nguyen nhan that su cua ca hai loi "duoi de
+    // len toc" va "nhin sau khong du 9": no nghiem mat phang quat ve phia may anh, nen
+    // ngon cang CAO thi cang TIEN GAN may va chui vao tron vom toc (z tang them
+    // y*sin 0,30 = 0,30*y). Voi 0,14 quat gan nhu thang dung trong mat phang may anh.
+    fan.position.set(0, 0.62, 0.42);
+    fan.rotation.x = 0.14;
+    // 9 ngon = 1 doi giua + 4 doi guong qua mat phang doc. Bang [L, psi0, turn, back, w]:
+    // psi0 do tu truc +x nguoc chieu kim dong ho, turn la TONG goc bun theo ca doi
+    // (profil tuong ong = do cong khong doi = cung tron), w = nhan ban kinh rs.
+    // DOI GIUA PHAI LA psi0 = -90, turn = 0, va chi vay: mot ngon khong ban soi muon
+    // doi xung qua mat phang doc thi ca duong song cua no phai nam TRONG mat phang ay.
+    // Ban cu [1,20; 30; 50] lech sang phai 38 do va la ngon DUY NHAT ve de len toc
+    // (14 dinh) - no gay bat can bang va gay loi toc cung mot luc. -90 huong thang
+    // xuong: do la ngon duoi rua sau lung, khong cat ngang toc chiec nao.
+    // BANG NAY NGHIEM TU goc NHIN SAU (temple-preview/tail-pair.mjs + tail-measure.mjs)
+    // voi MUC TIEU LA TACH NHAU, khong phai nam ngoai ban tron toc. Ba cot do:
+    //   goc = dinh ngon trong hinh chieu may anh, tu truc +x cua diem quy (0 = ngang
+    //         ben hong, 90 = thang dinh dau). Bon doi ben phai dat -20 / 12 / 42 / 63,
+    //         khoang cach 32 / 30 / 21 do - du tach de mat dem duoc 9 ngon.
+    //   trongDia = dinh nam sau khoi toc, bi an, ngon bi cat doi: 0 tren ca 9 ngon.
+    //   DE LEN TOC = dinh nam TRUOC be mat khoi toc (loi user phan anh hai lan): 0.
+    // Bang cu co 4/9 ngon de len toc va 27 nam trong ban tron toc vi chung moc thang
+    // len dung cho dung. Tu day chung xoe RONG ra hai ben roi moi moc len tron ben
+    // dau - do la ly do L dai (1,10..1,58) ma van an toan.
+    // ENVELOPE: |x|max 1,080 (luoi thumbnail 1,1484 con 6%), THAP NHAT 0,227 (doi
+    // giua rua xuong, san 0), CAO NHAT 1,962 (dinh toc 1,982 - ngon cao nhat dung NGAY
+    // ben dau chu khong qua dinh), sau nhat z 0,932.
+    // DOI CAO NHAT: turn 132 -> 126 cung luc voi luc bung RS. Voi bung 0,184 thi
+    // 132 (goc dinh 66 do) dua loi trong cua ngon ngay sat vom toc va 3 dinh nam
+    // TRUOC be mat toc = loi "de len toc" lan thu ba. XOE RA 6 do (turn 126, dinh
+    // 62,7 do) da du cho gate ve 0 MA VAN GIU day toan bon - thu bang 0,84/0,82 tren
+    // cung bung thi turn 132 van con 2..6 dinh, tuc lech do la lech RONG chu khong
+    // lech MIN (nhan min la hu viec user da yeu cau).
+    const TAILS = [
+      [0.44, -90, 0, 0.50, 0.72],
+      [1.10, -58, 96, 0.45, 0.90],
+      [1.14, 2, 44, 0.45, 0.90],
+      [1.36, 2, 86, 0.00, 0.90],
+      [1.58, 2, 126, 0.00, 0.90],
+    ];
+    TAILS.forEach(([L, psi0, turn, back, w], i) => {
+      // seg 14 de du 3 dot cuoi dong kin ngon (RS (b)); rad 8 = bat giac, du tron cho
+      // mot ngon duoi 0,31 be va giu ca quat o 14*8*2*9 = 2016 tam giac - swiftshader
+      // trong sảnh chay ~3fps nen so luong nay la ro rang.
+      const geo = ribbon(tailSpine(psi0, turn, back, L), 0, 0,
+        { seg: 14, rad: 8, flat: 1, rs: RS.map((v) => v * w) });
+      for (const s of i ? [-1, 1] : [1]) {
+        const g = new THREE.Group();
+        g.scale.x = s;
+        g.userData.wi = i;
+        // sg = ben duoc guong (1 = phai, -1 = trai). HOAT HINH CAN sg: hai nguon lech
+        // nhau phai TRAI NGUOC DIEU mot thi bong cai quat moi doi xung qua mat phang x=0
+        // (Rz(t2)*D = D*Rz(t1) chi nghiem voi t2 = -t1), khong phai lech cung chieu -
+        // lech cung chieu thi cai quay guong nhau nhu banh xe va mat ben lech ben thang.
+        g.userData.sg = s;
+        g.add(m(geo, tailM, 0, 0, 0, { cast: false }));
+        fan.add(g);
+      }
+    });
+    root.add(fan);
+    vfxGroup.userData.tailFan = fan;
+    // NGOC = qua cau lam Ahri nam trong tay o anh goc. Day la vfxGroup = frame upper-local
+    // nen no di theo nguc, khong loi khi nguoi choi lay.
+    // VI TRI (0,36; 0,58; -0,50) upper-local = root-local (0,36; 1,03; -0,50): o anh goc
+    // ngoc nam BEN HONG MAT, khong truoc nguc (crop 0,10..0,38 x 0,28..0,54: tam ngoc o
+    // x 55/512 = 0,49 lan chieu cao than lech truc than, y 180/512 = ngang mat). Tay Ahri
+    // trong anh giua luc nhao nen khong the bay xa den the trong chieu ngang 1,078 cua chieu
+    // ngoi; 0,36 la lech ra NGOAI VA TREN vai, gan nhat ma khong chep len ao. Kiem tra
+    // chong: ao ban kinh 0,40 o cao do 1,03 nen mat truoc ao o z -0,17 tai x 0,36 - ngoc
+    // cach no 0,33; khoi cau dau o y 1,11 co ban kinh cat ngang sqrt(0,46^2-0,41^2)=0,21
+    // nen ngoc duoi hon 0,08 thi da thoat bien mat.
+    const orb = new THREE.Group();
+    orb.position.set(0.36, 0.58, -0.50);
+    // CAU TRUC NGOC = ba lop dong tam. TI LE KICH HUOC do bang mat duoc tren crop ngoc
+    // (195 px cua anh = 0,476 lan; so ra anh goc 512 px, than 410 px = 1,78 theu):
+    //  (a) LOI trang-xanh #90f8f8 duong kinh 25 px = 0,11 theu -> ban kinh 0,055.
+    //  (b) QUA CAU XANH duong kinh 80 px = 0,35 theu -> 0,155. Day la lop LAN, khong
+    //      phai vien: vong tron xanh la vat the that, loi chi chiem 1/3 no.
+    //  (c) HAO duong kinh 103 px -> 0,215 = 1,4 lan lop (b).
+    // Vong truoc dao nguoc ti le (loi 0,075 gan bang vo 0,118) nen pixel giua ngoc la
+    // 0,95 cong 0,55 cong 0,30 ba lop cong dan den trang te, khong con gi la xanh.
+    // MAU do tung hop: loi #90f8f8 (68 px, x 102..154 y 184..236); vo #4890f0..#5098f0
+    // (62 px vong vien); hao bang hero.skillColor #72c9f9 - cung ho xanh cua ngoc.
+    // Ba ban kinh 0,055 < 0,155 < 0,215 khong hai mat nao chung: khong z-fight.
+    const orbCore = new THREE.MeshBasicMaterial({ color: '#90f8f8', transparent: true, opacity: 0.95, depthWrite: false, blending: THREE.AdditiveBlending });
+    const orbRim = mat('#4890f0', { emissive: hero.skillColor, emissiveIntensity: 0.3, roughness: 0.35, transparent: true, opacity: 0.86 });
+    // QUA CAU, khong phai IcosahedronGeometry: bac 1 cua khoi hai muoi hai mat ngu giac
+    // phang, moi mat mot phap tuyen, nen du roughness 0,15 van ra vien NGOC thay vi mot
+    // qua cau mau - va do la anh 512 px, o thumbnail 40 px no thanh cai bat ky.
+    orb.add(m(new THREE.SphereGeometry(0.055, 12, 8), orbCore, 0, 0, 0, { cast: false }));
+    // SO LAI sau vong 22: ba lop cong don (loi 0,95 + mem 0,42 + hao 0,22, deu mau
+    // xanh-lac #90f8f8/#72c9f9) lam TRON CA VIEN XANH do cua vo, va do bang vong tron
+    // tam ngoc tren /tmp/ahr-shot23/front.png thi 4 dai ban kinh 0..27 px deu ra
+    // #d9fbff - tuc ngoc chi con mot dia trang, khong con cau truc loi-trang/vo-xanh.
+    // Nen: lop mem cut tu 0,09 x 0,42 xuong 0,075 x 0,28 (no nam trong loi 0,055 + 1/4
+    // vien, khong lan ra 3/4 vien con lai) va vo bo phat sang manh: emissiveIntensity
+    // 0,9 -> 0,3, roughness 0,15 -> 0,35, opacity 0,72 -> 0,86 de mau #4890f0 cua chinh
+    // no la mau cua vien, khong phai mau cua den.
+    orb.add(m(new THREE.SphereGeometry(0.075, 12, 8),
+      new THREE.MeshBasicMaterial({ color: '#90f8f8', transparent: true, opacity: 0.28, depthWrite: false, blending: THREE.AdditiveBlending }),
+      0, 0, 0, { cast: false }));
+    orb.add(m(new THREE.SphereGeometry(0.155, 16, 12), orbRim, 0, 0, 0, { cast: false }));
+    // Khong co hao quang thi ngoc la mot qua cau xanh deo, trong khi anh goc cho mot chum
+    // sang loe mu. Cung kieu hop nien voi hazeM cua leesin (:2754).
+    const halo = m(new THREE.SphereGeometry(0.215, 14, 10),
+      new THREE.MeshBasicMaterial({ color: hero.skillColor, transparent: true, opacity: 0.22, depthWrite: false, blending: THREE.AdditiveBlending }),
+      0, 0, 0, { cast: false });
+    orb.add(halo);
+    // Tham chieu TEN, khong phai children[i]: lop mem xen vao giua loi va vo da doi
+    // chi so cua hao tu 2 sang 3, va opacity cua vo la vat lieu mat() DANH THEO KHO
+    // (cache theo mau + opts) nen ai do khong dung chung khoa se bi nhap chay theo.
+    orb.userData.halo = halo;
+    vfxGroup.add(orb);
+    vfxGroup.userData.ahriOrb = orb;
   }
 
   return vfxGroup;
@@ -2919,14 +3830,28 @@ export function makeAvatar(opts = {}) {
   const pColor = (suitLocked && hero.pantsColor) || (useOutfitColors && outfit.pantsColor ? outfit.pantsColor : hero.pantsColor);
   const sColor = (suitLocked && hero.sashColor) || opts.robe?.sash || (useOutfitColors && outfit.sashColor ? outfit.sashColor : hero.sashColor);
 
+  // KIEU DANG HANBOK: truong sam rong + co giao linh + vay + no goreum von o trong
+  // OUTFIT_LIST (phap phuc Sansa), nay mot tuong cung dung duoc bang cach dat
+  // `hanbokRobe: true` trong HERO_LIST. KHONG ve them geometry moi: mot kieu dang,
+  // hai nguon (mon mua trong cua hang hoac hoa phuc cua tuong) thi hai nguon phai
+  // trung het, neu tach ra hai nhanh la hai cai ao lech nhau mot li cung transform.
+  // `sansa`/`wide`/`goreum` bang FALSE voi moi hinh cu, nen 17 hinh da ship khong
+  // doi mot pixel nao.
+  const sansa = !!outfit?.sansaRobe || !!hero.hanbokRobe;
+  const wide = !!outfit?.wideSleeves || !!hero.hanbokRobe;
+  const goreum = outfit?.hanbokRibbon || (hero.hanbokRobe ? hero.sashColor : null);
+
   const skinM = mat(hero.skin, { roughness: 0.52 });
   const robeM = mat(rColor, {
-    roughness: outfit?.sansaRobe ? 0.82 : (hero.id === 'naruto_sage' && !useOutfitColors ? 0.3 : 0.65),
+    roughness: sansa ? 0.82 : (hero.id === 'naruto_sage' && !useOutfitColors ? 0.3 : 0.65),
     emissive: hero.id === 'naruto_sage' && !useOutfitColors ? '#b45309' : '#000000',
     emissiveIntensity: hero.id === 'naruto_sage' && !useOutfitColors ? 0.35 : 0,
   });
-  const pantsM = mat(pColor, { roughness: outfit?.sansaRobe ? 0.82 : 0.7 });
+  const pantsM = mat(pColor, { roughness: sansa ? 0.82 : 0.7 });
   const sashM = mat(sColor, { roughness: 0.5, metalness: 0.08 });
+  // VAY (chima) di mot mau rieng thi chi Ahri khai; phap phuc Sansa van vay = ao nen
+  // chimaM === robeM va hai dong lap/skirt duoi day giu nguyen han vi cu.
+  const chimaM = hero.chimaColor ? mat(hero.chimaColor, { roughness: 0.82 }) : robeM;
 
   const root = new THREE.Group();
   const upper = new THREE.Group();
@@ -2947,7 +3872,7 @@ export function makeAvatar(opts = {}) {
   const sleeveMat = mat(rColor, { roughness: 0.82, side: THREE.DoubleSide });
   for (const s of [-1, 1]) {
     const a = m(G.arm, torsoMat, s * 0.30, 0.38, -0.12, { rot: [1.0, 0, s * 0.5] });
-    if (outfit?.wideSleeves) {
+    if (wide) {
       // Tay áo trường sam Hàn Quốc (One_continuous_soft_robe / dance-sleeves) rủ mềm quanh cánh tay
       a.add(m(sleeveGeo, sleeveMat, 0, -0.04, 0.04, { rot: [Math.PI, 0, 0], scale: [0.85, 1.0, 1.25] }));
     }
@@ -2957,7 +3882,7 @@ export function makeAvatar(opts = {}) {
   }
 
   // Chi tiết 3D đặc trưng của Bộ Sưu Tập Trang Phục Sansa Temple (?room=maru) & Lễ Hội
-  if (outfit?.sansaRobe) {
+  if (sansa) {
     // Cổ áo giao lĩnh chữ V Hàn Quốc (Beopbok / 승복) & Vạt xếp nếp prayerCloth
     const collarMat = mat('#f8fafc', { roughness: 0.75 });
     upper.add(m(new THREE.TorusGeometry(0.21, 0.035, 10, 24), collarMat, 0, 0.62, -0.02, { rot: [Math.PI / 2 + 0.22, 0, 0] }));
@@ -2988,9 +3913,9 @@ export function makeAvatar(opts = {}) {
     const goldRing = m(new THREE.TorusGeometry(0.065, 0.016, 10, 20), mat('#facc15', { metalness: 0.85, roughness: 0.2 }), -0.18, 0.48, -0.31);
     upper.add(kasaSash, goldRing);
   }
-  if (outfit?.hanbokRibbon) {
+  if (goreum) {
     // Nơ áo Hanbok Goreum truyền thống Hàn Quốc trước ngực
-    const ribMat = mat(outfit.hanbokRibbon, { roughness: 0.55 });
+    const ribMat = mat(goreum, { roughness: 0.55 });
     upper.add(m(new THREE.TorusGeometry(0.075, 0.022, 8, 18), ribMat, 0.08, 0.48, -0.35, { rot: [0.2, 0.3, 0.5] }));
     upper.add(m(new THREE.BoxGeometry(0.055, 0.34, 0.02), ribMat, 0.06, 0.28, -0.37, { rot: [0, 0, -0.12] }));
     upper.add(m(new THREE.BoxGeometry(0.055, 0.28, 0.02), ribMat, 0.13, 0.30, -0.36, { rot: [0, 0, -0.26] }));
@@ -3029,16 +3954,16 @@ export function makeAvatar(opts = {}) {
   upper.add(head);
 
   // Chân, Giày và Vạt áo (One_continuous_soft_robe)
-  const lap = m(G.lap, outfit?.sansaRobe ? robeM : pantsM, 0, 0.12, -0.06, { scale: [0.52, 0.17, 0.42] });
+  const lap = m(G.lap, sansa ? chimaM : pantsM, 0, 0.12, -0.06, { scale: [0.52, 0.17, 0.42] });
   const legs = new THREE.Group();
   const legL = m(G.leg, pantsM, -0.14, 0.2, 0), legR = m(G.leg, pantsM, 0.14, 0.2, 0);
-  const shoeM = mat(outfit?.sansaRobe ? '#f8fafc' : '#1e1b18', { roughness: 0.65 });
+  const shoeM = mat(sansa ? '#f8fafc' : '#1e1b18', { roughness: 0.65 });
   for (const l of [legL, legR]) {
     l.add(m(G.foot, shoeM, 0, -0.19, -0.05, { scale: [0.95, 0.65, 1.4] }));
   }
   legs.add(legL, legR);
-  const skirt = m(G.skirt, robeM, 0, 0, 0, { scale: outfit?.sansaRobe ? [1.02, 0.96, 0.96] : [0.95, 0.85, 0.85] });
-  skirt.visible = !!outfit?.sansaRobe || ['itachi', 'zoro', 'naruto_sage', 'minato', 'yone_chibi'].includes(hero.id);
+  const skirt = m(G.skirt, chimaM, 0, 0, 0, { scale: sansa ? [1.02, 0.96, 0.96] : [0.95, 0.85, 0.85] });
+  skirt.visible = sansa || ['itachi', 'zoro', 'naruto_sage', 'minato', 'yone_chibi'].includes(hero.id);
   legs.add(skirt);
   root.add(lap, legs);
 
@@ -3197,6 +4122,50 @@ export function animateAvatar(av, dt, time, moving = false) {
       const r = c.userData.r0 + av.bladeAmp * push * (0.5 + 0.5 * Math.sin(ph - i * 0.22));
       c.position.set(Math.sin(c.userData.phi) * r, 0, -Math.cos(c.userData.phi) * r);
     }
+  }
+  const tf = av.vfxGroup?.userData.tailFan;
+  if (tf) {
+    // QUAT DUI THO THEO CHUYEN DONG, cung bo dieu khien voi vong kiem Irelia o tren
+    // (muon = 1 khi di, 0,55 khi thien, 0,16 khi dung yen; dt*3,5 = 0,29 giay doi bien
+    // do). Duoi dung bien do NHAN LECH GOC chu khong nhan ban kinh nhu luoi: long duoi
+    // la vat mem nen no quay Quanh goc moc, khong tron ra. 0,075 rad = 4,3 do o ngon
+    // duoi du choi bang 0,08 theu (dai 1,05..1,15 tu moc) - du de doc ra tren bien toc,
+    // du nho de mot NPC dung yen khong bi nhu mot cai quat may quay.
+    const want = Math.max(moving ? 1 : 0, av.meditate * 0.55, 0.16);
+    const a0 = av.tailAmp ?? want;
+    av.tailAmp = a0 + (want - a0) * Math.min(1, dt * 3.5);
+    const ph = (av.tailPh = (av.tailPh ?? av.phase) + dt * (0.85 + av.tailAmp * 1.15));
+    // Song chay doc quat: doi 0 le doi 1 0,57 rad, tuc mot con song di tu giua ra hai
+    // canh 3 lan (2*4*0,57 = 4,56 rad ~ 260 do gan vong tron). Khong lech thi chin duoi
+    // dap cung mot nhip = mot tam bang phang, khong phai long.
+    const K = 0.55;
+    for (const c of tf.children) {
+      const d = av.tailAmp * 0.075 * Math.sin(ph - c.userData.wi * K);
+      if (c.userData.wi === 0) {
+        // Doi giua nam TRONG mat phang x = 0 nen khong duoc nghieng ngang: no se pha
+        // doi xung cua CA BON ben xung quanh. Cho no gập tới-lui (truc X) thi bong van
+        // doi xung, va do la chuyen dong cua doi duoi that khi nguoi nghieng nguoi.
+        c.rotation.x = d * 0.7;
+      } else {
+        // Nguoc dau theo sg vi lech cung chieu thi hai ben guong nhau nhu banh xe
+        // (xem ghi chu sg o nhanh dung).
+        c.rotation.z = d * c.userData.sg;
+      }
+    }
+    // Ca quat nghieng 0,30 luc dung + 0,035 rad (2 do) tho: mat quat hoi rung len roi
+    // sa xuong theo buoc chan, chu khong phai 9 luoi gang gan len lung.
+    tf.rotation.x = 0.3 + Math.sin(ph * 0.7) * 0.035 * av.tailAmp;
+  }
+  const ao = av.vfxGroup?.userData.ahriOrb;
+  if (ao) {
+    // Khong xoay nua: bon lop cua ngoc LA BON QUA CAU TRON dong tam, mot phep xoay
+    // khong doi duoc mot qua cau (va den thi moi mat cung tinh theo phap tuyen ban
+    // kinh nen cung khong doi). Truoc day co xoay vi lop vo la Icosahedron nhieu mat
+    // phang - doi khi no thanh khoi tron thi dong nay la vong tron chay khong toi.
+    // Ngoc o (0,36; ..; -0,50): lech sang phai, KHONG nam tren truc.
+    ao.position.set(0.36, 0.58 + Math.sin(time * 1.3 + av.phase) * 0.022, -0.50);
+    // Hao quang nhop quanh gia tri 0,22 da so sanh: 0,16..0,28, lech khoang 1,8 giay.
+    ao.userData.halo.material.opacity = 0.16 + 0.06 * (1 + Math.sin(time * 3.4 + av.phase));
   }
   if (av.ultTimer > 0) {
     av.ultTimer = Math.max(0, av.ultTimer - dt);

@@ -128,6 +128,17 @@ function heroScene(scene, cam, it, appearance) {
   // dọc - lề 0,56. Vòng quay chung trục gốc nên mọi pha chỉ phân bố lại chín lưỡi, không
   // nới biên; vật rắn rộng nhất vẫn là tóc |x| 0,773 ở z -0,116 (cửa sổ 1,343).
   // Đáy vẫn là vạt áo 0,12.
+  // ahri_chibi la hinh RONG NGANG nhat tu truoc toi va la hinh dau tien phai kiem ca
+  // yaw 0,45 cua than (quat duoi o SAU lung, quay yaw thi duoi no ra hai ben trai may
+  // anh). Do bang /tmp/ll3d/vertex-frame.mjs = QUET TUNG DINH cua moi mesh trong cay
+  // root sau yaw, khong phai Box3: hop bao truc-song ghep x lon nhat cua mot diem voi z
+  // gan nhat cua diem KHAC, va no dang bao 0,995 trong khi dinh that la 0,846.
+  //   - ngang ken nhat 0,846: dinh bung ngon ngoai cung o (1,231; 1,075; 0,275), do sau
+  //     5,075, cua so 1,455 theu, le 0,209;
+  //   - doc ken nhat 0,938 KHONG phai cua ahri: do la vanh sang chan #f59e0b o y 0,20
+  //     z -0,86, vat gan may anh nhat cua MOI hinh, van the tu luc thiet ke khung;
+  //   - dinh cao nhat 2,069 la chop TAI cao (#e8e8f8), duoi ngon gai 2,266 cua Vo Su Mu
+  //     nen khung khong phai cham lai. Bun doi giua 1,936 cung duoi.
   cam.position.set(0, 1.26, -4.8);
   cam.lookAt(0, 1.26, 0);
   return () => disposeAvatar(av);

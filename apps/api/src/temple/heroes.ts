@@ -51,6 +51,7 @@ export const HERO_IDS = [
   'batman_chibi',
   'zed_chibi',
   'irelia_chibi',
+  'ahri_chibi',
 ];
 
 // Giá một lần đổi — con số 100 là của đề bài. Nó nằm gọn trong dải giá Kim Cương mà
