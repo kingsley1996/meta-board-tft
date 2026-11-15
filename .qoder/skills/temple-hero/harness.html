@@ -259,13 +259,22 @@ function surf(o, skip, out = [], tag = '') {
   if (!o.visible) return out;
   if (o === skip) return out;
   if (o.isMesh && o.geometry?.attributes?.position) {
-    let t = tag;
-    for (let p = o; p && !t; p = p.parent) {
-      // ca `wi` lan `sg`: mot dong TAILS sinh hai ngon guong nhau co cung wi, khong co
-      // sg thi bang in ra khong noi duoc nhanh nao ben phai (la nhanh can doi chieu).
-      if (p.userData?.wi !== undefined)
-        t = `wi${p.userData.wi}${p.userData.sg < 0 ? 'L' : 'R'}`;
+    let t = tag, wi, sg, wf;
+    // `wi` (nhanh) va `sg` (ben guong) co the nam o HAI cap khac nhau: Ahri gan ca
+    // hai len mot Group, con canh Morgana gan `wi` len mesh nam ben trong Group
+    // chua `sg`. Doc tung cai doc lap va di het chain, neu dung o cai dau tien thi
+    // nhan duoc `wi` ma thieu `sg` -> ca hai canh cung bi goi la R, va bang goc
+    // in ra chi co mot nua so nhanh.
+    for (let p = o; p && !(wi !== undefined && sg !== undefined); p = p.parent) {
+      if (wi === undefined && p.userData?.wi !== undefined) wi = p.userData.wi;
+      if (sg === undefined && p.userData?.sg !== undefined) sg = p.userData.sg;
+      if (wf === undefined && p.userData?.wf !== undefined) wf = p.userData.wf;
     }
+    // `wf` = QUAT (fan) ma nhanh do thuoc ve, do prop co NHIEU quat moc tu cung
+    // mot goc khai bao (canh Morgana: quat tren + quat duoi). Co no thi tag la
+    // `wi3f0R`: ben guong van ky tu CUOI (moi phep tach theo L/R cu khong doi),
+    // quat la ky tu truoc no.
+    if (wi !== undefined) t = `wi${wi}${wf !== undefined ? 'f' + wf : ''}${sg !== undefined && sg < 0 ? 'L' : 'R'}`;
     out.push({ o, tag: t || o.geometry.type.replace('Geometry', '') });
     return out;
   }
@@ -315,12 +324,21 @@ window.__api = {
     // mot vong tron dem duoc bao nhieu ngon". Hai ngon trung khoang goc tren vong ay
     // thi hoa thanh mot khoi, mat khong dem duoc hai - do la loi "nhin sau khong du 9".
     g.updateWorldMatrix(true, false);
+    // Diem QUY cua goc. Mac dinh = vi tri GROUP: chin doi Ahri moc that tu MOT diem
+    // nen do chinh la goc ma nguoi xem dem duoc. Prop co NHIEU goc (hai canh Morgana
+    // moc hai khuyn tay doi xung) thi lay mot diem quy chung se doa het: nam ngon
+    // long cach nhau 18 do QUANH KHUYN TAY bi ep con 8,9 do quanh tam nguoi, khong
+    // phai vi chung chen nhau. Mesh tu khai bao goc cua no qua `userData.wa` (toa do
+    // LOCAL cung he voi dinh cua no) va nuoc qua matrix cua chinh mesh, nen canh
+    // guong (scale.x = -1) tu dao theo, khong can bang toa do thu hai.
     const op = P(new THREE.Vector3().setFromMatrixPosition(g.matrixWorld));
     const rows = [];
     let totOver = 0, totBehind = 0;
     for (const { o, tag } of surf(g, null)) {
       const a = o.geometry.attributes.position;
       o.updateWorldMatrix(true, false);
+      const wa = o.userData.wa;
+      const oq = wa ? P(new THREE.Vector3(wa[0], wa[1], wa[2]).applyMatrix4(o.matrixWorld)) : op;
       let over = 0, behind = 0, free = 0, worst = 0, hit = null;
       let ax = 0, miny = 9, maxy = -9, maxz = -9, smin = [9, 9], smax = [-9, -9];
       let tipR = 0, tipA = 0;
@@ -332,7 +350,7 @@ window.__api = {
         if (q.pz > 0.02 && Math.abs(q.px) <= 1 && Math.abs(q.py) <= 1) {
           smin[0] = Math.min(smin[0], q.px); smax[0] = Math.max(smax[0], q.px);
           smin[1] = Math.min(smin[1], q.py); smax[1] = Math.max(smax[1], q.py);
-          const dx = q.px - op.px, dy = q.py - op.py, rr = Math.hypot(dx, dy);
+          const dx = q.px - oq.px, dy = q.py - oq.py, rr = Math.hypot(dx, dy);
           if (rr > tipR) { tipR = rr; tipA = Math.atan2(dy, dx) / D2R; }
         }
         const k = ((1 - q.py) / 2 * grid) | 0, j = (q.px / 2 * grid + grid / 2) | 0;
@@ -370,6 +388,22 @@ window.__api = {
     if (!g) return { missing: 'group:' + group };
     g.updateWorldMatrix(true, false);
     const O = new THREE.Vector3().setFromMatrixPosition(g.matrixWorld);
+    // GOC THAT cua prop: neu nhanh tu khai bao `userData.wa` (toa do LOCAL cung he
+    // voi dinh cua no, nuoc qua matrix cua chinh mesh nen ban guong tu dao) thi do
+    // diem ay la diem ma nguoi xem thay cai canh moc vao nguoi. VI TRI GROUP khong
+    // phai no: prop doi xung kep (hai canh) luon lay x = 0 lam tam guong, nen group
+    // origin nam SAU than 0,05 bat ke cai goc that o dau - bao ep no <= 0 la bao
+    // "khuat" gia va dua den nong group ra sau cho qua gate, tuc canh NOI loi thay
+    // vi din vao lung.
+    let W = null;
+    for (const { o } of surf(g, null)) {
+      if (!o.userData?.wa) continue;
+      o.updateWorldMatrix(true, false);
+      W = new THREE.Vector3(o.userData.wa[0], o.userData.wa[1], o.userData.wa[2])
+        .applyMatrix4(o.matrixWorld);
+      break;
+    }
+    const Q = W || O;
     const P = new THREE.Vector3();
     const v = new THREE.Vector3();
     let spread = 0, width = 0, n = 0;
@@ -379,30 +413,38 @@ window.__api = {
       let dmin = 9, ring = 0;
       for (let i = 0; i < a.count; i++) {
         v.fromBufferAttribute(a, i).applyMatrix4(o.matrixWorld);
-        const d = v.distanceTo(O);
+        const d = v.distanceTo(Q);
         dmin = Math.min(dmin, d);
         // Duong kinh tiet dien nhanh ngay tai goc: cac dinh trong ban kinh 0,06 quanh
         // diem quy. Day la thu do "chin ngon co chong len mot diem hay thanh mot bui".
-        if (d < 0.06) ring = Math.max(ring, v.clone().sub(O).length());
+        if (d < 0.06) ring = Math.max(ring, v.clone().sub(Q).length());
       }
       spread = Math.max(spread, dmin); width = Math.max(width, ring); n++;
     }
     let zBody = -9;
+    // Dai do TIM theo CA x lan y: mat than la mot be mat cong, nen tai x 0,43 no
+    // nam o z ~0,05 chu khong phai 0,485 nhu o duong sinh (x = 0). Do max z ca dai
+    // x thi goc canh ben hong luon bi noi la "khuat 0,43" trong khi no chang vuot
+    // qua be mat nao.
     for (const { o } of surf(av.root, g)) {
       const a = o.geometry.attributes.position;
       o.updateWorldMatrix(true, false);
       for (let i = 0; i < a.count; i++) {
         v.fromBufferAttribute(a, i).applyMatrix4(o.matrixWorld);
-        if (Math.abs(v.y - O.y) < band && v.z > zBody) zBody = v.z;
+        if (Math.abs(v.y - Q.y) < band && Math.abs(v.x - Q.x) < band && v.z > zBody) zBody = v.z;
       }
     }
     const R = (x) => +x.toFixed(3);
     // `baseY` = av.root.position.y: day la lieu cong ma moi comment trong avatar.js dung
     // de doi toa do BANG CONG (root-local) sang THE GIOI (world). No doi theo dang
     // (dung ngoi) va theo nhip di, nen do lai chu dung tay.
-    return { root: [R(O.x), R(O.y), R(O.z)], baseY: R(av.root.position.y),
-      nhanh: n, khuat: R(zBody - O.z),
-      matThanZ: R(zBody), lechGoc: R(spread), beNgangGoc: R(width * 2) };
+    // `matThanZ = null` khi dai band khong cham dinh nao cua than: do KHONG phai "than
+    // nam sau goc 9,4 m" (sentinel -9 le vao phep tru ra cai bao nhu vay), ma la phep
+    // do chua tim dung chieu cao cua goc. Bo chay gate phai tu nong dai ra do lai.
+    return { root: [R(Q.x), R(Q.y), R(Q.z)], wa: !!W, baseY: R(av.root.position.y),
+      nhanh: n, band: R(band), khuat: zBody === -9 ? null : R(zBody - Q.z),
+      matThanZ: zBody === -9 ? null : R(zBody),
+      lechGoc: R(spread), beNgangGoc: R(width * 2) };
   },
 
   // Khung nhin THAT cua avatar: quet tung dinh, khong dung Box3. Box3 truc-song ghep

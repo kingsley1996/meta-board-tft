@@ -141,7 +141,16 @@ node .qoder/skills/temple-hero/scripts/silhouette.mjs ahri_chibi \
 | `--occ` | nhánh bị che: `head` = chỉ tóc+mặt, mặc định = cả thân |
 | `--view` | `rear` `q3` `thumb` `front`, hoặc số nguyên van `az,el,dist,ty`; lặp lại được |
 | `--walk --sweep N` | **bắt buộc với prop động** — xem dưới |
+| `--fan plume` | quạt lông vũ: siết `khe ngang` (hai ngọn kề nhau hở trên màn hình) thay vì `he nhat do` |
 | `--min-gap 12` | hai đầu ngọn sát nhau hơn 12° trên vòng tròn chiếu là mắt gộp thành một |
+
+Ba khoá `userData` mà cổng cần trên mỗi mesh của prop nhiều nhánh: `wi` = **nhánh** (nhiều mesh
+cùng một ngọn thì chung `wi`), `sg` = **bên** (do `scale.x`), `wf` = **quạt** (số quạt trong
+cùng một bên). Thiếu `wf` thì ngọn cuối quạt này và ngọn đầu quạt kia bị xếp kề nhau qua seam
+±180° và cổng báo một cái lỗ không tồn tại (`khe ngang 0,395` của Morgana he 7). Ngoài ra prop
+nên tự khai `userData.wa` = **gốc cánh của riêng nó**: `rootProbe` đo `khuat` tại đó, vì gốc
+của một Group soi gương luôn ở `x = 0` — đúng chỗ lưng áo dày nhất, nên nó báo gốc chôn +0,05
+m dù không điểm nào của prop ở đó.
 
 Bốn số in ra, mỗi số ứng với một lỗi đã bị gọi tên bằng lời:
 
@@ -316,6 +325,27 @@ node scripts/hall-shot.mjs /tmp/hall.png  # ~90s: CHỈ khi user bấm
     số phải kèm một lần `node --check` trên đúng tệp vừa bị ghi.
 22. **Bấm nút UI theo index để đổi tư thế** (`buttons[4].click()`). Thêm một nút vào harness là
     lệnh đổi sang một chế độ khác, phép đo vẫn "chạy xong". Học: API gọi theo tên (`setPose`).
+
+23. **Vùng cấm 2D không phải vùng cấm 3D.** Bảng bóng chiếu của đầu (36 quyết `RH(φ)`) rộng hơn
+    thân: đĩa tóc bán kính 0,53 quanh (0; 0,98) trong khi vai áo chỉ `halfX` 0,40, nên **giao của
+    "sát mép thân" và "ngoài đĩa đầu" là rỗng** — he 6 quét 4608 phương án và trả 0. Học: một
+    điểm trong bóng chiếu của đầu chỉ là lỗi nếu nó nằm **TRƯỚC** bề mặt (`DE LEN`); nếu nó nằm
+    **SAU** thì đó chính là cách ảnh gốc vẽ cánh mọc ra từ sau vai (`bi an`, không phải lỗi).
+    Đừng đi tìm một điểm "vừa sát thân vừa ngoài đĩa" — hãy đặt gốc ở thân và để tóc che nó.
+
+24. **Một quạt soi gương = vòng hoa; gốc ở hông = cái đuôi.** Morgana bị gọi là "vòng cổ" hai
+    lần: một quạt hướng lên, nhân bản `scale.x = -1`, thì hai viền ngoài ôm trọn đầu thành
+    360°. Thêm quạt dưới (chen ~90° với quạt trên, nối bằng xương vai) đưa cả cánh về **một
+    cung** — nhưng lượt sau vẫn fail vì gốc móc ở hông (y 0,56): hai quạt chúc xuống và render
+    ra ngọn dưới chấm gần sàn, người đọc là "đuôi". Học: tra **bảng dải thân do từ mesh**
+    (`dress.mjs`: vai áo kết thúc ở y 0,60, trên nữa chỉ còn cổ tay) rồi đặt gốc ở **vai hach**,
+    và giới hạn `dir` của quạt dưới để `ymin` cách sàn ≥ 0,3.
+
+25. **Comment quoting the ASCII model.** Mỗi con số trong comment `avatar.js` trích từ một model
+    Node tự viết (`/tmp/wing28.mjs`) là một khẳng định không chạy lại được. Học: sau lượt gate
+    đạt, **thay số model bằng số gate** và ghi nguyên lệnh gate vào đầu nhánh (nhánh
+    `morgana_chibi` giờ mở đầu bằng `silhouette.mjs … --group morgWings --occ head --fan plume`
+    kèm `DE LEN 0 · khe ngang -0,124 · khuat -0,285 · |x|max 1,100`).
 
 ## Gate và git
 
