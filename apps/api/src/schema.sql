@@ -17,11 +17,15 @@ ALTER TABLE traits ADD COLUMN IF NOT EXISTS icon text;
 
 CREATE TABLE IF NOT EXISTS champions (
   api_name text PRIMARY KEY,
-  name text UNIQUE NOT NULL,
+  name text NOT NULL,
   cost int NOT NULL,
   traits text[] NOT NULL,
   icon text
 );
+-- Set 19 ships two separate 5-cost champions both named Akali (K/DA and True
+-- Damage). api_name is already the identity; a unique name would abort the whole
+-- catalog sync and leave the database serving the previous season.
+ALTER TABLE champions DROP CONSTRAINT IF EXISTS champions_name_key;
 
 CREATE TABLE IF NOT EXISTS items (
   api_name text PRIMARY KEY,

@@ -12,7 +12,9 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: Lan
   return { title: messages[lang].meta.champions.title, description: messages[lang].meta.champions.description };
 }
 
-const costs = [1, 2, 3, 4, 5] as const;
+// The costs the catalog actually holds: the legend must grow with the set
+// (set 19 adds four 7-costs) instead of pinning a ladder.
+const costs = [...new Set(units.map((unit) => unit.cost))].sort((a, b) => a - b);
 
 export default async function ChampionsPage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
