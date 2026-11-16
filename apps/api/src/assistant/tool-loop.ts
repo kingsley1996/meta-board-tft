@@ -130,14 +130,21 @@ export async function runToolLoop(input: {
   while (rounds < config.maxRounds && calls < config.maxCalls) {
     if (input.signal.aborted) return { messages, results, failures, steps, final, calls, rounds, stopped: 'aborted' };
     rounds += 1;
-    const planned = await input.generate({
-      system: calls === 0 ? input.system : input.answerSystem,
-      messages: [...input.messages, ...messages],
-      maxOutputTokens: 300,
-      signal: input.signal,
-      tools: input.tools,
-      format: calls === 0 ? null : 'json',
-    });
+    let planned: ProviderResult;
+    try {
+      planned = await input.generate({
+        system: calls === 0 ? input.system : input.answerSystem,
+        messages: [...input.messages, ...messages],
+        maxOutputTokens: 300,
+        signal: input.signal,
+        tools: input.tools,
+        format: calls === 0 ? null : 'json',
+      });
+    } catch (error) {
+      if (!results.length || input.signal.aborted || (error instanceof ProviderFailure && ['aborted', 'timeout'].includes(error.code))) throw error;
+      failures.push(failure('planner', error instanceof ProviderFailure ? error.code : 'generation_error', 'Further tool planning failed; previously collected data is retained.'));
+      break;
+    }
     if (!planned.toolCalls.length) {
       final = planned;
       stopped = 'no_call';
@@ -189,11 +196,12 @@ export async function runToolLoop(input: {
           try {
             result = await withTimeout(execute(call.name, call.arguments, input.lang), config.toolTimeoutMs);
             results.push(result);
+            const meta = result.meta === undefined ? input.provenance : result.meta;
             content = JSON.stringify({
               status: 'ok',
               tool: result.tool,
               data: result.payload,
-              ...(input.provenance ? { meta: input.provenance } : {}),
+              ...(meta ? { meta } : {}),
             });
           } catch (caught) {
             const timedOut = caught instanceof AssistantToolError && caught.message === 'Tool timed out.';

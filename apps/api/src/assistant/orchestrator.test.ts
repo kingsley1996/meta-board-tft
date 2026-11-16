@@ -10,6 +10,7 @@ import {
   findCompMentions,
   isFollowUpQuestion,
   isPromptInjection,
+  isPatchNotesQuestion,
   isReferenceDataQuestion,
   resolveFollowUpText,
   shouldStreamAnswer,
@@ -43,7 +44,7 @@ test('tomo persona answers greetings and identity questions briefly', () => {
   assert.equal(tomoPersonaReply('chao ban, doi hinh nao manh nhat patch nay', 'vi'), null);
 });
 
-test('intent routing keeps forbidden data questions deterministic', () => {
+test('intent routing distinguishes stats, patches, mechanics and live strategy', () => {
   assert.equal(detectIntent('win rate cua ahri', [ahri], []), 'meta_query');
   assert.equal(detectIntent('patch nay buff gi', [], []), 'patch_change');
   assert.equal(detectIntent('set hien tai', [], []), 'set_patch');
@@ -119,7 +120,22 @@ test('comp aliases match known shortened titles without partial-word matches', (
   assert.deepEqual(findCompMentions([comp, other], 'Play blossom fox please', new Map([[comp.slug, ['blossom fox']]])), [comp]);
 });
 
-test('item names containing buff are lookups, not patch changes', () => {
+test('patch requests take precedence over strategy or stats without capturing item buffs', () => {
+  for (const question of [
+    'Patch này buff gì?', 'Tóm tắt bản vá 18.5c', 'What changed in patch 18.4b?',
+    'Patch 18.6 có gì?', 'What is in patch 18.6?', 'What changed?',
+    'Ahri vừa bị buff 50% sức mạnh đúng không?', 'I heard Ahri got nerfed hard',
+    'PBE có gì?', 'Ghi chú bản vá mới nhất', 'Compare patch 18.5b and patch 18.5c',
+    'Sau patch 18.6 nên roll hay lên 8 với Ahri?',
+    'Patch buff Ahri ảnh hưởng win rate thế nào?',
+    'Ahri Morgana comp bị ảnh hưởng gì sau bản vá?',
+  ]) {
+    assert.equal(isPatchNotesQuestion(question), true, question);
+    assert.equal(detectIntent(normalizeSpaced(question), [ahri], [comp]), 'patch_change', question);
+  }
+  for (const question of ['What is Blue Buff?', 'Blue Buff ghép từ gì?', 'How does Lunar buff champions?', 'Set hiện tại', 'Comp nào mạnh nhất patch này?']) {
+    assert.equal(isPatchNotesQuestion(question), false, question);
+  }
   assert.equal(detectIntent('what is blue buff', [blueBuff], []), 'entity_lookup');
 });
 
@@ -219,6 +235,7 @@ test('buffers streaming where validation rewrites answers, streams plain lookups
   assert.equal(shouldStreamAnswer('gameplay_knowledge', mechanics), false);
   assert.equal(shouldStreamAnswer('gameplay_knowledge', null), true);
   assert.equal(shouldStreamAnswer('meta_query', null), false);
+  assert.equal(shouldStreamAnswer('patch_change', null), false);
   assert.equal(shouldStreamAnswer('comp_comparison', null), false);
   assert.equal(shouldStreamAnswer('strategy_analysis', null), false);
 });

@@ -5,7 +5,7 @@ import { ASSISTANT_TOOLS, AssistantToolError, USER_USAGE_TOOL, executeAssistantT
 test('exposes only read-only assistant tools', () => {
   assert.deepEqual(
     ASSISTANT_TOOLS.map((tool) => tool.function.name),
-    ['find_comps', 'search_comps', 'get_comp', 'compare_comps', 'get_stats', 'get_game_mechanics', 'get_economy_plan']
+    ['get_patch_notes', 'find_comps', 'search_comps', 'get_comp', 'compare_comps', 'get_stats', 'get_game_mechanics', 'get_economy_plan']
   );
 });
 
@@ -66,6 +66,25 @@ test('rejects malformed tool arguments before querying data', async () => {
   await assert.rejects(executeAssistantTool('get_game_mechanics', { table: 'income', query: 'gold' }, 'en'), AssistantToolError);
   await assert.rejects(executeAssistantTool('get_economy_plan', { strategy: 'Fast 8', query: 'Ahri' }, 'en'), AssistantToolError);
   await assert.rejects(executeAssistantTool('unknown_tool', {}, 'en'), AssistantToolError);
+});
+
+test('patch tool validates its arguments and returns exact source provenance', async () => {
+  for (const args of [
+    { patch: 18.6 }, { patch: 'current' }, { patch: '' }, { patch: null },
+    { patch: '18.5 b' }, { channel: 'live' }, { kind: 'comp' },
+    { query: ['Ahri'] }, { query: 'a'.repeat(161) }, { extra: true },
+  ]) {
+    await assert.rejects(executeAssistantTool('get_patch_notes', args, 'en'), AssistantToolError);
+  }
+  const current = await executeAssistantTool('get_patch_notes', {}, 'vi');
+  assert.equal(current.patchNotes?.status, 'found');
+  assert.equal(current.patchNotes?.channel, 'released');
+  assert.equal(current.patchNotes?.source?.provider, 'Riot Games');
+  assert.equal(current.payload, current.patchNotes);
+  assert.deepEqual(current.meta, { setId: current.patchNotes?.setId, patch: current.patchNotes?.patch });
+  const missing = await executeAssistantTool('get_patch_notes', { patch: '999.999' }, 'en');
+  assert.equal(missing.patchNotes?.status, 'unavailable');
+  assert.equal(missing.meta, null);
 });
 
 test('returns exact game mechanics tables with source metadata', async () => {

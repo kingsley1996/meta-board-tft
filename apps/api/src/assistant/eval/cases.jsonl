@@ -18,8 +18,8 @@
 {"id": "stat-winrate", "message": "What is Ahri win rate?", "lang": "en", "expect": {"intent": "meta_query", "status": "answered"}}
 {"id": "stat-winrate-vi", "message": "Tỉ lệ thắng của Ahri?", "lang": "vi", "expect": {"intent": "meta_query", "status": "answered"}}
 {"id": "stat-top4", "message": "Ahri top 4 rate?", "lang": "en", "expect": {"intent": "meta_query", "status": "answered"}}
-{"id": "patch-en", "message": "What changed in patch 18.4b?", "lang": "en", "expect": {"intent": "patch_change", "status": "unsupported"}}
-{"id": "patch-vi", "message": "Patch này buff gì?", "lang": "vi", "expect": {"intent": "patch_change", "status": "unsupported"}}
+{"id": "patch-en", "message": "What changed in patch 18.4b?", "lang": "en", "expect": {"intent": "patch_change", "status": "answered"}}
+{"id": "patch-vi", "message": "Patch này buff gì?", "lang": "vi", "expect": {"intent": "patch_change", "status": "answered"}}
 {"id": "set-en", "message": "What is the current set?", "lang": "en", "expect": {"intent": "set_patch", "status": "answered"}}
 {"id": "set-vi", "message": "Set hiện tại là gì?", "lang": "vi", "expect": {"intent": "set_patch", "status": "answered"}}
 {"id": "out-of-scope", "message": "Hello", "lang": "en", "expect": {"intent": "unsupported_or_unknown", "status": "unsupported"}}

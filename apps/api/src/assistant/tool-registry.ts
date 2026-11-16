@@ -5,6 +5,7 @@ import { balances, type Balance } from '../membership/quota.ts';
 import { incomeBase, interest, mechanicsPatch, poolSizes, shopOdds, streakBonus, xpTable } from '@tftiq/shared/mechanics';
 import { economyForComp, matchEconomyComp, type EconomyPlanComp, type EconomyPlanStrategy } from '@tftiq/shared/economy-match';
 import { sharedDataPath } from '../shared-data.ts';
+import { ENTITY_KINDS, type PatchEntityKind } from '@tftiq/shared/patch-notes';
 import type {
   CatalogEntity,
   CompComparison,
@@ -22,6 +23,7 @@ import type { ProviderTool } from './provider.ts';
 import { rankComps } from './ranking.ts';
 import { translateText } from './translate.ts';
 import { compareComps, getComp, loadCatalog, searchComps } from './tools.ts';
+import { getPatchNotes, type PatchNotesEvidence, type PatchNotesQuery } from './patch-knowledge.ts';
 
 export type AmbiguousEntity = {
   name: string;
@@ -32,6 +34,8 @@ export type AmbiguousEntity = {
 export type ToolExecution = {
   tool: string;
   payload: unknown;
+  meta?: { setId: string; patch: string } | null;
+  patchNotes?: PatchNotesEvidence;
   candidates?: RankedComp[];
   comps?: CompData[];
   stats?: StatEvidence[];
@@ -85,6 +89,23 @@ const economyData = JSON.parse(readFileSync(sharedDataPath('economy.json'), 'utf
 const lootData = JSON.parse(readFileSync(sharedDataPath('loot-tables.json'), 'utf8')) as LootSnapshot;
 
 export const ASSISTANT_TOOLS: ProviderTool[] = [
+  {
+    type: 'function',
+    function: {
+      name: 'get_patch_notes',
+      description: 'Read sourced patch changes with exact before/after values. Defaults to the released live patch; historical patches are exact. PBE is a separate experimental preview, only when explicitly requested.',
+      parameters: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          patch: { type: 'string', maxLength: 16, pattern: '^\\d{1,3}\\.\\d{1,3}[a-z]?$', description: 'Exact patch, e.g. 18.5c. Omit for the live released patch.' },
+          query: { type: 'string', maxLength: 160, description: 'Entity name(s), ref, slug or field. Omit for an overview; do not pass a comp title.' },
+          kind: { type: 'string', enum: [...ENTITY_KINDS] },
+          channel: { type: 'string', enum: ['released', 'pbe'] },
+        },
+      },
+    },
+  },
   {
     type: 'function',
     function: {
@@ -836,6 +857,25 @@ function text(value: unknown, key: string, max: number): string | undefined {
   return result || undefined;
 }
 
+async function getPatchNotesTool(args: Record<string, unknown>, lang: Lang): Promise<ToolExecution> {
+  allowed(args, ['patch', 'query', 'kind', 'channel']);
+  for (const [key, value] of Object.entries(args)) {
+    if (typeof value !== 'string' || !value.trim()) throw new AssistantToolError(`${key} must be a non-empty string.`);
+  }
+  const patch = text(args.patch, 'patch', 16);
+  const query = text(args.query, 'query', 160);
+  const kind = text(args.kind, 'kind', 16);
+  const channel = text(args.channel, 'channel', 16);
+  if (patch && !/^\d{1,3}\.\d{1,3}[a-z]?$/.test(patch)) throw new AssistantToolError('patch must be an exact version, for example 18.5c.');
+  if (kind && !ENTITY_KINDS.includes(kind as PatchEntityKind)) throw new AssistantToolError('Unknown patch entity kind.');
+  if (channel !== undefined && channel !== 'released' && channel !== 'pbe') throw new AssistantToolError('channel must be released or pbe.');
+  const payload = await getPatchNotes({ patch, query, kind: kind as PatchNotesQuery['kind'], channel }, lang);
+  return {
+    tool: 'get_patch_notes', payload, patchNotes: payload,
+    meta: payload.patch && payload.setId ? { setId: payload.setId, patch: payload.patch } : null,
+  };
+}
+
 function strings(value: unknown, key: string, max: number): string[] {
   if (value === undefined || value === null) return [];
   if (!Array.isArray(value) || value.length > max) throw new AssistantToolError(`${key} must be an array of at most ${max} names.`);
@@ -1152,6 +1192,8 @@ export async function executeAssistantTool(
 ): Promise<ToolExecution> {
   const args = record(value);
   switch (name) {
+    case 'get_patch_notes':
+      return getPatchNotesTool(args, lang);
     case 'find_comps':
       return findComps(args, lang);
     case 'search_comps':

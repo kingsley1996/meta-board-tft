@@ -65,6 +65,7 @@ import { runToolLoop, type ToolFailure, type ToolLoopResult } from './tool-loop.
 import { mechanicTablePages } from './tool-registry.ts';
 import type { AmbiguousEntity } from './tool-registry.ts';
 import { COMP_ALIASES } from './entity-aliases.ts';
+import type { PatchNotesEvidence } from './patch-knowledge.ts';
 import { summarizeReasoningText, type ReasoningLogWriter } from './assistant-reasoning-store.ts';
 
 export class AssistantContextError extends Error {
@@ -528,7 +529,7 @@ export function ungroundedNumbers(answer: string, evidence: Evidence): string[] 
 // that rewrite is common (stats, mechanics, comparisons, strategy) buffer
 // instead; plain lookups and comp lists stream as usual.
 export function shouldStreamAnswer(intent: AssistantIntent, mechanics: MechanicsEvidence | null): boolean {
-  if (intent === 'meta_query' || intent === 'comp_comparison' || intent === 'strategy_analysis') return false;
+  if (intent === 'patch_change' || intent === 'meta_query' || intent === 'comp_comparison' || intent === 'strategy_analysis') return false;
   if (intent === 'gameplay_knowledge' && mechanics) return false;
   return true;
 }
@@ -682,10 +683,10 @@ function deterministicAnswer(
   }
   if (intent === 'patch_change') {
     return {
-      status: 'unsupported',
+      status: 'insufficient_data',
       answer: isVi(lang)
-        ? 'Mình chưa có patch notes hoặc lịch sử thay đổi trong database, nên không thể nói patch này buff/nerf gì. Mình chỉ trả lời từ dữ liệu Set 18 hiện tại.'
-        : 'I do not have patch notes or change history in the database, so I cannot tell what this patch buffed or nerfed. I can only answer from the current Set 18 data.',
+        ? 'Mình chưa xác minh được ghi chú bản vá cho câu hỏi này, nên chưa thể xác nhận thay đổi hoặc ảnh hưởng đến đội hình.'
+        : 'I could not verify patch notes for this question, so I cannot confirm changes or their impact on a comp.',
     };
   }
   if (intent === 'set_patch') {
@@ -858,16 +859,18 @@ export function tomoPersonaReply(text: string, lang: Lang): string | null {
   return null;
 }
 
+export function isPatchNotesQuestion(message: string): boolean {
+  const text = normalizeSpaced(message);
+  if (/\b(pbe|patch notes?|ghi chu (?:ban va|phien ban)|ban cap nhat|nerfs?|nerfed|buffed|what changed)\b/.test(text)) return true;
+  if (/\b(patch|phien ban|ban va)\b/.test(text) &&
+      /\b(change|changed|thay doi|buff|nerf|notes?|moi|new|anh huong|impact|sau|after|so sanh|compare|tom tat|summary|summarize|noi dung|co gi|chi tiet|thong tin|details|what is in)\b/.test(text)) return true;
+  return /\b(?:bi|duoc|vua)\s+buff\b|\b(?:got|was|just|heard|did)\b.*\bbuff\b/.test(text);
+}
+
 export function detectIntent(text: string, entities: CatalogEntity[], comps: CompData[], setId?: string): AssistantIntent {
   const hasCompare = /\b(so sanh|compare|versus|vs|khac nhau|khac gi|khac biet|diem khac|difference)\b/.test(text);
   const hasMeta = /\b(win ?rate|winrate|top ?4|top4|avg|average|placement|thong ke|ti le thang|ty le thang)\b/.test(text);
-  const hasPatchChange =
-    (/\b(patch|phien ban|what changed|notes?|co gi moi|whats new|what is new|nerfed|nerfs?|buffed)\b/.test(text) ||
-      // A buff/nerf claim ("vừa bị buff", "got a 50% buff") — not the game verb
-      // ("How does Lunar buff champions?"), not "trang bị" (equipment) and not
-      // the item "Blue Buff", so the Vietnamese forms must be contiguous.
-      /\b(?:bi|duoc|vua)\s+buff\b|\b(?:got|was|just|heard)\b[^.?!]*\bbuff\b/.test(text)) &&
-    /\b(change|changed|thay doi|buff|buffed|nerf|nerfed|notes?|moi|new)\b/.test(text);
+  if (isPatchNotesQuestion(text)) return 'patch_change';
   const hasCurrentPatch =
     (/\b(patch|phien ban|set|mua)\b/.test(text) && /\b(hien tai|current|now|nay)\b/.test(text)) ||
     /\b(?:set|patch|phien ban)\s*nao\b/.test(text);
@@ -884,7 +887,6 @@ export function detectIntent(text: string, entities: CatalogEntity[], comps: Com
     !comps.length;
   if (asksMetricDefinition) return 'gameplay_knowledge';
   if (hasMeta) return 'meta_query';
-  if (hasPatchChange) return 'patch_change';
   if (hasCurrentPatch && !entities.length && !comps.length) return 'set_patch';
   if (hasCompare) return 'comp_comparison';
   if (comps.length && !entities.length) return 'comp_search';
@@ -1065,6 +1067,7 @@ async function answerAssistantImpl(
 
   const text = normalizeSpaced(resolutionText);
   const wantsReferenceData = isReferenceDataQuestion(text);
+  const wantsPatchNotes = isPatchNotesQuestion(text);
   let intent = detectIntent(text, entities, mentionedComps, meta.setId);
   if (wantsReferenceData && ['strategy_analysis', 'unsupported_or_unknown'].includes(intent)) {
     intent = 'gameplay_knowledge';
@@ -1091,7 +1094,7 @@ async function answerAssistantImpl(
   // A bare cashout/milestone question names no mechanic and the reward tables
   // are per-mechanic: clarify with the available mechanics rather than
   // tool-looping into an empty search or an LLM guess.
-  if (wantsReferenceData && !entities.length && !mentionedComps.length && BARE_CASHOUT_QUESTION.test(text)) {
+  if (!wantsPatchNotes && wantsReferenceData && !entities.length && !mentionedComps.length && BARE_CASHOUT_QUESTION.test(text)) {
     const mechanics = mechanicTablePages(request.lang);
     logReasoningStep({
       step: 'intent_detection',
@@ -1455,8 +1458,9 @@ async function answerAssistantImpl(
     tool: string;
     data: unknown;
     status: 'ok' | 'error';
-    meta: { setId: string; patch: string };
+    meta?: { setId: string; patch: string };
   }[] = [];
+  const patchNotes: PatchNotesEvidence[] = [];
   let toolMessages: ProviderChatMessage[] = [];
   let toolFinal: ProviderResult | null = null;
   let toolComps: CompData[] = [];
@@ -1479,6 +1483,7 @@ async function answerAssistantImpl(
     !comparison &&
     !mechanics;
   const shouldTryTools =
+    wantsPatchNotes ||
     wantsReferenceData ||
     intent === 'unsupported_or_unknown' ||
     evidenceThin ||
@@ -1501,7 +1506,7 @@ async function answerAssistantImpl(
         lang: request.lang,
         signal,
         provenance: { setId: meta.setId, patch: meta.patch },
-        finalizeModel: false,
+        finalizeModel: wantsPatchNotes,
         generate: (request) => withInferenceSlot(() => tracedGenerate('tool_plan', request)),
         execute: (name, args, lang) => executeAssistantTool(name, args, lang, { userId: deps.userId }),
       });
@@ -1512,7 +1517,9 @@ async function answerAssistantImpl(
       toolAmbiguous = loop.results.flatMap((result) => result.ambiguous ?? []);
       const provenance = { setId: meta.setId, patch: meta.patch };
       for (const result of loop.results) {
-        toolResults.push({ tool: result.tool, data: result.payload, status: 'ok', meta: provenance });
+        const resultMeta = result.meta === undefined ? provenance : result.meta;
+        toolResults.push({ tool: result.tool, data: result.payload, status: 'ok', ...(resultMeta ? { meta: resultMeta } : {}) });
+        if (result.patchNotes) patchNotes.push(result.patchNotes);
       }
       for (const failure of loop.failures) {
         toolResults.push({
@@ -1578,6 +1585,7 @@ async function answerAssistantImpl(
       } else if (loop.results.some((result) => result.tool === 'get_stats')) {
         intent = 'meta_query';
       }
+      if (wantsPatchNotes || patchNotes.length) intent = 'patch_change';
     } catch (error) {
       if (error instanceof ProviderError && (error.code === 'aborted' || error.code === 'timeout')) throw error;
       logReasoningStep({
@@ -1600,6 +1608,7 @@ async function answerAssistantImpl(
 
   const limitations = [
     t(request.lang, 'Answers are based on TFTIQ structured data.', 'Câu trả lời dựa trên dữ liệu cấu trúc của TFTIQ.'),
+    ...unique(patchNotes.flatMap((entry) => entry.limitations)),
   ];
   if (fuzzyMatch?.matchedText) {
     limitations.push(
@@ -1650,10 +1659,10 @@ async function answerAssistantImpl(
     const item = source as { provider?: unknown; url?: unknown; set?: unknown; patch?: unknown; updatedAt?: unknown };
     if (typeof item.url !== 'string' || typeof item.provider !== 'string') return [];
     return [{
-      id: `${result.tool}:${item.url}`,
+      id: `${result.tool}:${item.url}${result.tool === 'get_patch_notes' ? `:${item.patch ?? ''}` : ''}`,
       title: item.provider,
       url: item.url,
-      sourceType: result.tool === 'get_game_mechanics' ? 'mechanics' : 'structured_data',
+      sourceType: result.tool === 'get_game_mechanics' ? 'mechanics' : result.tool === 'get_patch_notes' ? 'guide' : 'structured_data',
       version: typeof item.patch === 'string'
         ? `patch${item.patch}`
         : typeof item.set === 'string'
@@ -1663,6 +1672,7 @@ async function answerAssistantImpl(
     }];
   });
   const sources = [
+    ...toolSources.filter((source) => source.id.startsWith('get_patch_notes:')),
     ...sourceComps.map((comp) => sourceForComp(comp, request.lang, version)),
     ...relatedComps.map((comp) => sourceForComp(comp, request.lang, version)),
     ...selectedEntities.map((entity) => sourceForEntity(entity, request.lang, version)),
@@ -1688,7 +1698,13 @@ async function answerAssistantImpl(
     catalog,
     text
   );
-  const referenceAnswer = toolResults
+  const patchTurn = wantsPatchNotes || patchNotes.length > 0;
+  const hasPatchEvidence = patchNotes.some((entry) => entry.status === 'found');
+  if (patchTurn) {
+    deterministic.answer = patchNotes.map((entry) => entry.summary).join(' ') || deterministic.answer;
+    deterministic.status = hasPatchEvidence && patchNotes.every((entry) => entry.status === 'found') ? 'answered' : 'insufficient_data';
+  }
+  const referenceAnswer = patchTurn ? '' : toolResults
     .filter((result) => result.status === 'ok' && ['get_game_mechanics', 'get_economy_plan', 'get_my_usage'].includes(result.tool))
     .map((result) => (result.data as { summary?: unknown } | null)?.summary)
     .filter((summary): summary is string => typeof summary === 'string' && summary.trim().length > 0)
@@ -1713,6 +1729,7 @@ async function answerAssistantImpl(
     candidates,
     comparison,
     mechanics,
+    patchNotes,
     toolResults,
     limitations,
   };
@@ -1753,7 +1770,7 @@ async function answerAssistantImpl(
 
   const toolHasData = !referenceAnswer && toolResults.some((result) => result.status === 'ok') &&
     Boolean(candidates.length || selectedComps.length || stats.length || comparison);
-  const canUseLlm =
+  const canUseLlm = patchTurn ? hasPatchEvidence :
     (!['patch_change', 'unsupported_or_unknown', 'set_patch'].includes(intent) || Boolean(referenceAnswer)) &&
     (deterministic.status === 'answered' || Boolean(referenceAnswer)) &&
     !toolHasData &&
@@ -1763,7 +1780,7 @@ async function answerAssistantImpl(
   }
 
   try {
-    let result = toolFinal;
+    let result = patchTurn ? null : toolFinal;
     let parsed = result ? parseGeneratedAnswer(result.text) : null;
     const callAnswer = () =>
       withInferenceSlot(() =>
@@ -1834,7 +1851,7 @@ async function answerAssistantImpl(
     });
     const generatedText = [parsed.answer, ...parsed.sections.flatMap((section) => section.points)].join(' ');
     const rosterGaps = rosterGapSections(evidence.traitRosters, generatedText, catalog, request.lang);
-    const unsupportedNumbers = intent === 'gameplay_knowledge' && mechanics ? ungroundedNumbers(generatedText, evidence) : [];
+    const unsupportedNumbers = patchTurn || (intent === 'gameplay_knowledge' && mechanics) ? ungroundedNumbers(generatedText, evidence) : [];
     if (unsupportedNumbers.length) {
       logReasoningStep({
         step: 'validation',
@@ -1872,7 +1889,9 @@ async function answerAssistantImpl(
       followUpQuestions: parsed.followUpQuestions.length ? parsed.followUpQuestions : base.followUpQuestions,
     };
   } catch (error) {
-    if (error instanceof ProviderError && (error.code === 'unavailable' || !SIMPLE_INTENTS.includes(intent))) throw error;
+    if (error instanceof ProviderError && (hasPatchEvidence
+      ? error.code === 'aborted' || error.code === 'timeout'
+      : error.code === 'unavailable' || !SIMPLE_INTENTS.includes(intent))) throw error;
     logReasoningStep({
       step: 'fallback',
       intent,

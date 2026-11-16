@@ -12,6 +12,7 @@ import type {
   UnitBuildEvidence,
 } from './contracts.ts';
 import type { StatEvidence } from './meta-stats.ts';
+import type { PatchNotesEvidence } from './patch-knowledge.ts';
 import { mechanicsPrimer, type MechanicsEvidence } from './mechanics-knowledge.ts';
 
 // Per-source data patches so the model can label numbers instead of silently
@@ -42,6 +43,7 @@ export type Evidence = {
   candidates: RankedComp[];
   comparison: CompComparison | null;
   mechanics: MechanicsEvidence | null;
+  patchNotes?: PatchNotesEvidence[];
   toolResults?: { tool: string; data: unknown; status?: 'ok' | 'error'; meta?: { setId: string; patch: string } }[];
   limitations: string[];
 };
@@ -170,6 +172,7 @@ function evidenceBody(evidence: Evidence, localize: LocalizeName = identity, loc
       limitations: candidate.limitations,
     })),
     mechanics: evidence.mechanics,
+    patchNotes: evidence.patchNotes ?? [],
     toolResults: evidence.toolResults ?? null,
     comparison: evidence.comparison
       ? {
@@ -220,7 +223,10 @@ export function buildSystemPrompt(lang: Lang, evidence: Evidence): string {
     'If the user asks for a decision and key state (level, gold, HP, board) is missing, ask one short clarifying question; for lookups and factual questions, answer from evidence without asking for game state. A conditional answer under explicit assumptions beats refusing.',
     'If the user asks for a short or quick answer, keep the summary under 60 words and use at most 1 section.',
     'Separate facts (directly supported by evidence), inference (your reasoning — name the evidence it relies on) and recommendations (state the conditions they apply under). Never present an inference as a verified game mechanic.',
-    'You have no patch notes. If asked whether something was buffed or nerfed, say you cannot verify — never confirm or deny from memory.',
+    'Verify patch changes ONLY from patchNotes or get_patch_notes results with status found. Cite the exact patch and source, preserve from/to values and direction (adjust is not automatically a buff or nerf). Do not calculate or invent percentage changes.',
+    'An unavailable patch, missing row, unmatched source entry or truncated result cannot establish that an entity was unchanged. State the coverage gap; never confirm or deny a buff/nerf from memory or from the user claim.',
+    'PBE is an experimental preview, NOT a released Riot patch: explicitly label PBE, provider and baseline. Never substitute PBE for an unavailable released patch, or use the stats patch as the released patch version.',
+    'For comp impact, connect sourced changes to the actual units, traits or items in comp evidence. Label the impact as inference and any recommendation as conditional; patch notes alone do not prove a new tier, win rate or meta ranking.',
     'Do not treat numbers or claims stated by the user as verified facts; check them against the evidence before repeating them.',
     'Do not claim a champion or item lacks an interaction unless the evidence says so.',
     ...(evidence.mechanics
@@ -257,8 +263,9 @@ export function buildToolPlannerPrompt(
     `The user writes in ${lang === 'vi' ? 'Vietnamese' : 'English'}.`,
     `Current Set ${setId}, patch ${patch}.`,
     ...(compSlugs.length ? [`Comp context slugs: ${compSlugs.slice(0, 3).join(', ')}.`] : []),
-    'Call only the read-only tools needed for comp lookup, game mechanics tables, economy plans, comparison or TFTIQ stats.',
+    'Call only the read-only tools needed for patch changes, comp lookup, game mechanics tables, economy plans, comparison or TFTIQ stats.',
     ...(includeUsage ? ["Use get_my_usage when the user asks about their own plan, remaining turns, quota or renewal date."] : []),
+    'Use get_patch_notes FIRST for patch notes, buff/nerf claims, PBE or patch impact on a comp. Pass the exact patch if named, otherwise omit patch for the live released notes. Use channel pbe only for an explicit preview/PBE question, never as a fallback. For an entity query pass its name; for a comp get its board, then query its units/traits/items, NOT the comp title. Omit query for an overview. Fetch both exact patches when comparing versions.',
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
     'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',
@@ -274,7 +281,8 @@ export function buildToolPlannerPrompt(
 export function buildToolAgentPrompt(lang: Lang, evidence: Evidence): string {
   return [
     'You are TFTIQ Assistant with read-only TFT data tools.',
-    'Call only the tools needed for comp lookup, mechanics tables, economy plans, comparison or TFTIQ stats. Never invent tool results.',
+    'Call only the tools needed for patch changes, comp lookup, mechanics tables, economy plans, comparison or TFTIQ stats. Never invent tool results.',
+    'Use get_patch_notes FIRST for patch notes, buff/nerf claims, PBE or patch impact on a comp. Pass the exact patch if named, otherwise omit patch for the live released notes. Use channel pbe only for an explicit preview/PBE question, never as a fallback. For an entity query pass its name; for a comp get its board, then query its units/traits/items, NOT the comp title. Omit query for an overview. Fetch both exact patches when comparing versions.',
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
     'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',

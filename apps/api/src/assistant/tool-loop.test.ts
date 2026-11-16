@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import type { ProviderRequest, ProviderResult, ProviderTool } from './provider.ts';
+import { ProviderError, type ProviderRequest, type ProviderResult, type ProviderTool } from './provider.ts';
 import { runToolLoop } from './tool-loop.ts';
 import type { ToolExecution } from './tool-registry.ts';
 
@@ -79,6 +79,35 @@ test('returns tool results to the next model turn and stops after the answer', a
     [{ tool: 'find_comps', args: { tier: 'S' }, ok: true }],
   );
   assert.ok(loop.steps[0].durationMs >= 0);
+});
+
+test('retains verified tool data if a later planning round fails', async () => {
+  let rounds = 0;
+  const loop = await runToolLoop({
+    system: 'planner', answerSystem: 'answer', messages: [], tools, lang: 'en',
+    signal: new AbortController().signal,
+    generate: async () => {
+      if (++rounds === 1) return result([{ name: 'find_comps', arguments: {} }]);
+      throw new ProviderError('unavailable', 'offline');
+    },
+    execute, config,
+  });
+  assert.equal(loop.results.length, 1);
+  assert.equal(loop.messages.at(-1)?.role, 'tool');
+  assert.equal(loop.failures[0]?.code, 'unavailable');
+});
+
+test('does not swallow cancellation after collecting tool data', async () => {
+  let rounds = 0;
+  await assert.rejects(runToolLoop({
+    system: 'planner', answerSystem: 'answer', messages: [], tools, lang: 'en',
+    signal: new AbortController().signal,
+    generate: async () => {
+      if (++rounds === 1) return result([{ name: 'find_comps', arguments: {} }]);
+      throw new ProviderError('aborted', 'cancelled');
+    },
+    execute, config,
+  }), (error: unknown) => error instanceof ProviderError && error.code === 'aborted');
 });
 
 test('can stop after the first successful tool batch for deterministic finalization', async () => {
@@ -202,6 +231,22 @@ test('classifies tool timeouts separately from invalid arguments', async () => {
     config: { ...config, maxRounds: 1, toolTimeoutMs: 5 },
   });
   assert.equal(loop.failures[0]?.code, 'timeout');
+});
+
+test('keeps per-tool historical provenance and does not label missing patches as current', async () => {
+  for (const meta of [{ setId: '17', patch: '17.9b' }, null]) {
+    const loop = await runToolLoop({
+      system: 'planner', answerSystem: 'answer', messages: [], tools, lang: 'en',
+      signal: new AbortController().signal,
+      provenance: { setId: '18', patch: '18.6' },
+      generate: async () => result([{ name: 'find_comps', arguments: {} }]),
+      execute: async (name) => ({ tool: name, payload: {}, meta }),
+      finalizeModel: false, config,
+    });
+    const message = JSON.parse(loop.messages.at(-1)!.content);
+    if (meta) assert.deepEqual(message.meta, meta);
+    else assert.equal('meta' in message, false);
+  }
 });
 
 test('adds set provenance to tool messages', async () => {
