@@ -179,6 +179,28 @@ Bốn ràng buộc khi đọc số:
    dọc 1,09 cộng u to, bán kính hiệu dụng 0,607 — rộng hơn công thức ~15%. Từ đó: **cổng
    quyết định phải rasterise mesh thật** (depth map N×N trong `__api.silhouette`), công thức
    chỉ còn dùng để đoán *hướng* sửa.
+4. **Prop TĨNH vẫn phải lấy nhiều pha.** Cánh Morgana không có nhịp vỗ, nhưng `root` dao
+   động idle nên toàn bộ cánh lắc theo: cùng một cấu hình, `--sweep 6` báo `DE LEN 0` còn
+   `--sweep 14` báo 2 (đỉnh nhọn chiếu lọt qua viền đĩa tóc ở pha xấu nhất). Học: **8 pha để
+   tìm ngưỡng, ≥14 pha để chốt**; hai lần chạy cùng một lệnh cho hai số khác nhau là chuyện
+   bình thường nếu chưa đủ pha — đừng đổ cho renderer.
+5. **Quét tham số trong MỘT phiên browser, đừng sửa `avatar.js` tám lần.** `preview.mjs` đọc
+   tệp mỗi request nên chỉ cần một trang sống: `__api.part(name)` rồi đổi transform, lặp
+   `__api.silhouette()` lấy MAX. Hai mánh đã dùng thật:
+   - độ sâu (`GRP.z`) = `wings.position.z`, vì `P2` trả toạ độ **trong** group và `xy2uv` bỏ
+     qua z;
+   - một **dịch đối xứng** (`XIN`) thì phải gán `position.x = -delta` lên **từng mesh con
+     trong mỗi `side`** — `side.scale.x = ±1` nhân đảo phép dịch đó nên hai bên tự le vào
+     đều nhau. Đặt lên `wings.position.x` hay `side.position.x` chỉ dịch cả hai về cùng một
+     phía (lệch tâm, trông vẫn "đối xứng" trên ảnh 3/4 nên rất dễ tưởng là đúng).
+   Vẫn phải ghi lại giá trị thắng vào `avatar.js` và chạy `silhouette.mjs` thật lần cuối.
+6. **Prop gắn sau lưng là con của `upper`, không phải `root`.** Tư thế ngồi đổi
+   `upper.position.y` 0,40 → 0,30 trong khi `root.position.y` lại nhông 0 → 0,17: một prop
+   móc ở `root` vì thế **bay cao hơn đầu 0,09 m đúng lúc thiền** (đang đứng thì 0 `DE LEN`,
+   ngồi thì 2–4). Do bằng Box3 của `head` so với Box3 của prop ở cả hai tư thế — 10 giây,
+   rẻ hơn nhiều một lượt render. Khi đổi cha thì nhớ trừ `UPPER_Y` ở `position` nhưng **giữ
+   nguyên hằng số trong phép chiếu ngược** (`xy2uv`), nếu không hai phép trừ triệt tiêu nhau
+   và prop về đúng chỗ cũ.
 
 ## Khung máy ảnh của ô thumbnail
 
@@ -347,6 +369,23 @@ node scripts/hall-shot.mjs /tmp/hall.png  # ~90s: CHỈ khi user bấm
     `morgana_chibi` giờ mở đầu bằng `silhouette.mjs … --group morgWings --occ head --fan plume`
     kèm `DE LEN 0 · khe ngang -0,124 · khuat -0,285 · |x|max 1,100`).
 
+26. **Chốt ngưỡng bằng 6 pha.** Cùng một lệnh `--sweep 6` báo `DE LEN 0` cho XIN 0,03, nhưng 14
+    pha thì lo 2: prop **tĩnh** vẫn dao động theo `root` lúc nhân vật nghỉ, nên số pha ít là mẫu
+    chưa gặp pha xấu. Học: `--sweep 8` trở lên để tìm ngưỡng, **≥14 pha để chốt**, và khi gate
+    chính thức không khớp thì tin lần chạy nhiều pha hơn.
+27. **Gắn prop sau lưng vào `root`.** `root.position.y` nhon 0 → 0,17 khi ngồi trong khi
+    `upper.position.y` lại hạ 0,40 → 0,30, nên prop con của `root` bay lên 0,09 m so với đầu và
+    đè tóc 4 đỉnh ở tư thế thiền (tư thế đứng vẫn 0 — bug chỉ lộ ra khi đổi pose). Học: prop gắn
+    sau lưng là **con của `upper`**, và `position` của nó phải `GRP[1] - UPPER_Y` vì `GRP` viết
+    theo hệ root; trừ một phía thôi, trừ cả hai thì hai phép triệt tiêu nhau, sửa như không sửa.
+    Do bằng `scripts/sitcheck.mjs <hero> <port> <prop>` (Box3 head vs prop ở cả hai pose, ~10s).
+28. **Quét tham số bằng vòng lặp shell, sửa `avatar.js` mỗi vòng.** Tám lượt sửa-tệp-bằng-script
+    là tám lần có thể ghi hỏng cú pháp (xem lỗi 21) và mỗi lượt tốn một lần boot browser. Học:
+    `scripts/prop-sweep.mjs <hero> <group> <port> <z…> <d…> --ns 14` đổi **hai trục trong một
+    phiên browser** (`z` = `group.position.z`, `d` = `position.x` của từng mesh con trong `side`
+    vì `side.x = scale ±1`), lấy MAX rồi mới ghi số thắng vào `avatar.js`. Sweep là đường dẫn tới
+    ngưỡng, **không phải bằng chứng** — chốt lại bằng `silhouette.mjs` thật.
+
 ## Gate và git
 
 - Mỗi lần user cho phép là **một phạm vi**: commit + push ≠ deploy. Prod web/Render phải xin riêng.
@@ -376,3 +415,13 @@ node scripts/hall-shot.mjs /tmp/hall.png  # ~90s: CHỈ khi user bấm
   để quyết định đè/nối — việc đó của `silhouette.mjs` (lỗi 15).
 - `scripts/hero-thumb.mjs` — ảnh ô chọn nhân vật + thẻ trong DOM, qua hàng đợi thumbs.js thật.
 - `scripts/hall-shot.mjs` — dựng sảnh, kéo camera (`--yaw --pitch --zoom`), chụp. Đắt.
+- `scripts/bodywidth.mjs <hero> <skipGroup|-> [port]` — **bề ngang thật của thân** theo từng dải
+  y (max|x| và zBack, quét vertex, trừ prop đang đặt). Đây là nguồn của số "mặt lưng áo 0,271":
+  muốn biết gốc prop có nằm dưới thân hay không thì đo, đừng suy từ bán kính lathe (lỗi 15).
+- `scripts/sitcheck.mjs <hero> [port] [prop…]` — Box3 của đầu vs từng prop sau lưng ở **hai** tư
+  thế (đứng/ngồi). ~10 giây, không cần render; dùng trước khi quyết prop là con của `root` hay
+  `upper` (lỗi 27).
+- `scripts/prop-sweep.mjs <hero> <group> <port> <z…> <d…> [--base] [--ns 14] [--views]` — quét
+  hai trục của một prop trong MỘT phiên browser (z = `group.position.z`, d = `position.x` của
+  từng mesh con trong `side`), lấy MAX qua `--ns` pha. Đây là đường dẫn tới ngưỡng, chưa phải
+  bằng chứng; số thắng phải chạy lại `silhouette.mjs` (lỗi 28).
