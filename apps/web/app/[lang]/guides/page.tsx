@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { GuideBrowser, type GuideCard } from '@/components/guide-browser';
 import type { GuidesResponse } from '@/lib/api';
-import { backendJson } from '@/lib/backend';
+import { backendJson, storeFault } from '@/lib/backend';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
 
@@ -21,9 +21,11 @@ const tagOrder = ['Fundamentals', 'Economy', 'Leveling', 'Items', 'Positioning',
 export default async function GuidesPage({ params }: { params: Promise<{ lang: Lang }> }) {
   const { lang } = await params;
   const data = await backendJson<GuidesResponse>(`/api/guides?lang=${lang}`, { revalidate: 86_400 });
-  if (!data) throw new Error('backend is unreachable');
-  const guides: GuideCard[] = data.guides.map(({ slug, title, excerpt, author, date, tags, featured }) => ({ slug, title, excerpt, author, date, tags, featured }));
-  if (!guides.length) throw new Error('no guides in the store');
+  // Empty rather than fatal when no store is configured: the guides are the only
+  // thing on this page, so a preview build shows the browser with nothing in it.
+  if (!data) storeFault('backend is unreachable');
+  const guides: GuideCard[] = (data?.guides ?? []).map(({ slug, title, excerpt, author, date, tags, featured }) => ({ slug, title, excerpt, author, date, tags, featured }));
+  if (!guides.length) storeFault('no guides in the store');
   const tags = [...new Set([...tagOrder.filter((name) => guides.some((guide) => guide.tags.includes(name))), ...guides.flatMap((guide) => guide.tags)])];
   return (
     <div className="flex flex-col gap-6">

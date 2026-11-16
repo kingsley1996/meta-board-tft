@@ -6,7 +6,7 @@ import { pbeCardRows, type PbeFile } from '@tftiq/shared/patch-notes';
 import { Chip, DisplayTitle } from '@/components/ui';
 import { PatchStrip } from '@/components/patch-rows';
 import type { GuidesResponse } from '@/lib/api';
-import { backendJson } from '@/lib/backend';
+import { backendJson, storeFault } from '@/lib/backend';
 import { upcomingSeason } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
@@ -32,9 +32,12 @@ export default async function PatchesPage({ params }: { params: Promise<{ lang: 
   const { lang } = await params;
   const t = messages[lang].patches;
   const data = await backendJson<GuidesResponse>(`/api/guides?lang=${lang}&kind=patch_notes`, { revalidate: 86_400 });
-  if (!data) throw new Error('backend is unreachable');
-  const articles = data.guides;
-  if (!articles.length) throw new Error('no patch notes in the store');
+  // The released rows come from the store; with no store configured the page still
+  // renders the PBE preview and the static rows it owns. A store that answers with
+  // nothing is a fault, not an empty board.
+  if (!data) storeFault('backend is unreachable');
+  const articles = data?.guides ?? [];
+  if (!articles.length) storeFault('no patch notes in the store');
 
   // The number the preview earns its place with. A build that still measures the shipped game
   // has no patch to name, and a patch Riot has already published would promise a preview for a

@@ -45,6 +45,10 @@ export function GuideBrowser({ lang, tags, guides }: { lang: Lang; tags: string[
     setPicked(activeTag);
   };
 
+  // Nothing to draw: an empty board only happens where no store was configured,
+  // since a store that answers with zero guides is a fault the page raises.
+  if (!featured) return null;
+
   return (
     <div className="flex flex-col gap-8">
       <section data-section="guide-hero" className="grid gap-4 rounded-xl border border-line bg-panel p-5 md:grid-cols-[1.2fr_1fr]">
