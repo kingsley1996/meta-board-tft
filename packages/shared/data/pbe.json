@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-11-13T08:45:16.090Z",
+  "generatedAt": "2026-11-16T13:39:16.542Z",
   "patch": "18.7",
   "set": 18,
   "isPbe": true,
   "source": {
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-13T08:38:16.732Z"
+    "fetchedAt": "2026-11-16T13:38:19.747Z"
   },
   "baseline": {
     "patch": "18.6",
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-13T08:38:20.200Z"
+    "fetchedAt": "2026-11-16T13:38:24.699Z"
   },
   "coverage": {
     "champs": {
@@ -31,10 +31,10 @@
     }
   },
   "stats": {
-    "rows": 38,
+    "rows": 76,
     "added": 0,
     "removed": 0,
-    "editorial": 2,
+    "editorial": 8,
     "unmatched": 1,
     "skipped": 0
   },
@@ -701,11 +701,275 @@
       "field": {
         "en": "Gold"
       },
-      "from": "20",
+      "from": "33",
       "to": "22",
-      "direction": "buff",
+      "direction": "nerf",
       "note": {
         "en": "Gain 22 Gold. Your next augment is one tier lower."
+      }
+    },
+    {
+      "ref": "TFT6_Augment_BandOfThieves2Plus",
+      "slug": "tft6-augment-bandofthieves2plus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Band of Thieves II+",
+        "vi": "Băng Trộm II+"
+      },
+      "icon": "/tft/augments/tft6-augment-bandofthieves2plus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "player combats"
+      },
+      "from": "3",
+      "to": "5",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 2 Thief's Gloves. After 5 player combats, gain another."
+      }
+    },
+    {
+      "ref": "TFT6_Augment_BandOfThieves2Plus",
+      "slug": "tft6-augment-bandofthieves2plus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Band of Thieves II+",
+        "vi": "Băng Trộm II+"
+      },
+      "icon": "/tft/augments/tft6-augment-bandofthieves2plus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "player combats"
+      },
+      "from": "3",
+      "to": "5",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 2 Thief's Gloves. After 5 player combats, gain another."
+      }
+    },
+    {
+      "ref": "DA_BonusGiftPlus",
+      "slug": "da-bonusgiftplus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Bonus Gifts+",
+        "vi": "Quà Tặng Thêm+"
+      },
+      "icon": "/tft/augments/da-bonusgiftplus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gray loot orbs"
+      },
+      "from": "2",
+      "to": "1",
+      "direction": "adjust",
+      "note": {
+        "en": "Whenever you open a loot orb, you have a 25% chance to gain a gray loot orb. Gain 1 gray loot orbs."
+      }
+    },
+    {
+      "ref": "TFT_Augment_BoosterPack",
+      "slug": "tft-augment-boosterpack",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Booster Pack",
+        "vi": "Gói Tăng Cường"
+      },
+      "icon": "/tft/augments/tft-augment-boosterpack.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold of random champions"
+      },
+      "from": "26",
+      "to": "12",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 12 gold of random champions. (At least one 3-cost guaranteed!)"
+      }
+    },
+    {
+      "ref": "TFT_Augment_BoosterPack",
+      "slug": "tft-augment-boosterpack",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Booster Pack",
+        "vi": "Gói Tăng Cường"
+      },
+      "icon": "/tft/augments/tft-augment-boosterpack.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "-cost guaranteed!)"
+      },
+      "from": "5",
+      "to": "3",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 12 gold of random champions. (At least one 3-cost guaranteed!)"
+      }
+    },
+    {
+      "ref": "TFT_Augment_BoosterPack",
+      "slug": "tft-augment-boosterpack",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Booster Pack",
+        "vi": "Gói Tăng Cường"
+      },
+      "icon": "/tft/augments/tft-augment-boosterpack.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold of random champions"
+      },
+      "from": "26",
+      "to": "18",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 18 gold of random champions. (At least one 4-cost guaranteed!)"
+      }
+    },
+    {
+      "ref": "TFT_Augment_BoosterPack",
+      "slug": "tft-augment-boosterpack",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Booster Pack",
+        "vi": "Gói Tăng Cường"
+      },
+      "icon": "/tft/augments/tft-augment-boosterpack.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "-cost guaranteed!)"
+      },
+      "from": "5",
+      "to": "4",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 18 gold of random champions. (At least one 4-cost guaranteed!)"
+      }
+    },
+    {
+      "ref": "DA_ChampDeliveryPlusPlus",
+      "slug": "da-champdeliveryplusplus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Champ Delivery++",
+        "vi": "Phân Phối Tướng++"
+      },
+      "icon": "/tft/augments/da-champdeliveryplusplus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "-cost champions"
+      },
+      "from": "4",
+      "to": "2",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 3 2-cost champions. After 6 rounds, gain 3 more."
+      }
+    },
+    {
+      "ref": "DA_ChampDeliveryPlusPlus",
+      "slug": "da-champdeliveryplusplus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Champ Delivery++",
+        "vi": "Phân Phối Tướng++"
+      },
+      "icon": "/tft/augments/da-champdeliveryplusplus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "-cost champions"
+      },
+      "from": "4",
+      "to": "3",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 3 3-cost champions. After 6 rounds, gain 3 more."
+      }
+    },
+    {
+      "ref": "TFT_Augment_CognitiveTax",
+      "slug": "tft-augment-cognitivetax",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Cognitive Tax",
+        "vi": "Thuế Nhận Thức"
+      },
+      "icon": "/tft/augments/tft-augment-cognitivetax.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold and"
+      },
+      "from": "12",
+      "to": "8",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 8 gold and 1 XP."
+      }
+    },
+    {
+      "ref": "TFT_Augment_CognitiveTax",
+      "slug": "tft-augment-cognitivetax",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Cognitive Tax",
+        "vi": "Thuế Nhận Thức"
+      },
+      "icon": "/tft/augments/tft-augment-cognitivetax.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Gain 8 gold and"
+      },
+      "from": "3",
+      "to": "1",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 8 gold and 1 XP."
       }
     },
     {
@@ -805,6 +1069,54 @@
       }
     },
     {
+      "ref": "TFT11_Augment_EpochPlus",
+      "slug": "tft11-augment-epochplus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Epoch+",
+        "vi": "Kỷ Nguyên+"
+      },
+      "icon": "/tft/augments/tft11-augment-epochplus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "XP and"
+      },
+      "from": "8",
+      "to": "4",
+      "direction": "adjust",
+      "note": {
+        "en": "Now, and at the start of every stage, gain 4 XP and 2 free rerolls."
+      }
+    },
+    {
+      "ref": "TFT_Augment_ExplosiveGrowthPlus",
+      "slug": "tft-augment-explosivegrowthplus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Explosive Growth+",
+        "vi": "Tăng Trưởng Bùng Nổ+"
+      },
+      "icon": "/tft/augments/tft-augment-explosivegrowthplus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "and at the start of the next 3 rounds, gain"
+      },
+      "from": "9",
+      "to": "7",
+      "direction": "adjust",
+      "note": {
+        "en": "Now and at the start of the next 3 rounds, gain 7 XP."
+      }
+    },
+    {
       "ref": "TFT_Augment_MarksMan",
       "slug": "tft-augment-marksman",
       "kind": "augment",
@@ -850,6 +1162,150 @@
       "direction": "adjust",
       "note": {
         "en": "Gain 1 random Artifact. When you drop below 35 Health, gain 1 more random Artifact, 1 random completed item, and 3 random components. ; Remix Rumble Championship, 2023"
+      }
+    },
+    {
+      "ref": "TFT_Augment_GoldDestiny",
+      "slug": "tft-augment-golddestiny",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Gold Destiny",
+        "vi": "Vận Mệnh Vàng"
+      },
+      "icon": "/tft/augments/tft-augment-golddestiny.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "5",
+      "to": "3",
+      "direction": "nerf",
+      "note": {
+        "en": "Gain a random Gold Augment and 3 gold."
+      }
+    },
+    {
+      "ref": "TFT_Augment_GoldenGamble",
+      "slug": "tft-augment-goldengamble",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Golden Gamble",
+        "vi": "Ván Cược Hoàng Kim"
+      },
+      "icon": "/tft/augments/tft-augment-goldengamble.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold and flip a coin"
+      },
+      "from": "6",
+      "to": "2",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 2 gold and flip a coin. If heads, gain a Radiant Lucky Item Chest. If tails, gain 2 Completed Item anvils."
+      }
+    },
+    {
+      "ref": "TFT_Augment_GoldenGamble",
+      "slug": "tft-augment-goldengamble",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Golden Gamble",
+        "vi": "Ván Cược Hoàng Kim"
+      },
+      "icon": "/tft/augments/tft-augment-goldengamble.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold and flip a coin"
+      },
+      "from": "6",
+      "to": "3",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 3 gold and flip a coin. If heads, gain a Radiant Lucky Item Chest. If tails, gain 2 Completed Item anvils."
+      }
+    },
+    {
+      "ref": "TFT_Augment_HeroicGrabBagPlus",
+      "slug": "tft-augment-heroicgrabbagplus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Heroic Grab Bag+",
+        "vi": "Túi Đồ Siêu Hùng+"
+      },
+      "icon": "/tft/augments/tft-augment-heroicgrabbagplus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "14",
+      "to": "6",
+      "direction": "nerf",
+      "note": {
+        "en": "Gain 2 Lesser Champion Duplicators. Gain 6 gold."
+      }
+    },
+    {
+      "ref": "TFT_Augment_HeroicGrabBagPlus",
+      "slug": "tft-augment-heroicgrabbagplus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Heroic Grab Bag+",
+        "vi": "Túi Đồ Siêu Hùng+"
+      },
+      "icon": "/tft/augments/tft-augment-heroicgrabbagplus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "14",
+      "to": "8",
+      "direction": "nerf",
+      "note": {
+        "en": "Gain 2 Lesser Champion Duplicators. Gain 8 gold."
+      }
+    },
+    {
+      "ref": "TFT_Augment_InvestedPlusPlus",
+      "slug": "tft-augment-investedplusplus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Invested++",
+        "vi": "Đầu Tư++"
+      },
+      "icon": "/tft/augments/tft-augment-investedplusplus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "45",
+      "to": "26",
+      "direction": "nerf",
+      "note": {
+        "en": "Gain 26 gold. At the start of each round, gain 1 Shop reroll for every 10 gold above 50 (max 80 gold)."
       }
     },
     {
@@ -901,6 +1357,102 @@
       }
     },
     {
+      "ref": "TFT_Augment_MoneyHungry",
+      "slug": "tft-augment-moneyhungry",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Money Hungry",
+        "vi": "Cơn Khát Vàng"
+      },
+      "icon": "/tft/augments/tft-augment-moneyhungry.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold now"
+      },
+      "from": "13",
+      "to": "7",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 7 gold now, then 7 gold at the start of every stage. Picking up gold makes your Tactician larger."
+      }
+    },
+    {
+      "ref": "DA_NestingAnvils",
+      "slug": "da-nestinganvils",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Nesting Anvils",
+        "vi": "Gói Trang Bị Bất Ngờ"
+      },
+      "icon": "/tft/augments/da-nestinganvils.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "8",
+      "to": "6",
+      "direction": "nerf",
+      "note": {
+        "en": "Gain an Artifact Anvil. After you open it, gain a Component Anvil. After you open that, gain 6 gold."
+      }
+    },
+    {
+      "ref": "TFT9_Augment_PandorasItems2",
+      "slug": "tft9-augment-pandorasitems2",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Pandora's Items II",
+        "vi": "Hộp Pandora II"
+      },
+      "icon": "/tft/augments/tft9-augment-pandorasitems2.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "6",
+      "to": "1",
+      "direction": "nerf",
+      "note": {
+        "en": "Round start: items on your bench are randomized. ; Gain 2 random components and 1 gold."
+      }
+    },
+    {
+      "ref": "TFT9_Augment_PandorasItems2",
+      "slug": "tft9-augment-pandorasitems2",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Pandora's Items II",
+        "vi": "Hộp Pandora II"
+      },
+      "icon": "/tft/augments/tft9-augment-pandorasitems2.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "6",
+      "to": "4",
+      "direction": "nerf",
+      "note": {
+        "en": "Round start: items on your bench are randomized. ; Gain 2 random components and 4 gold."
+      }
+    },
+    {
       "ref": "TFT9_Augment_PandorasItems2",
       "slug": "tft9-augment-pandorasitems2",
       "kind": "augment",
@@ -922,6 +1474,342 @@
       "direction": "buff",
       "note": {
         "en": "Round start: items on your bench are randomized. ; Gain 2 random components and 7 gold."
+      }
+    },
+    {
+      "ref": "TFT_Augment_PrismaticDestiny",
+      "slug": "tft-augment-prismaticdestiny",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Prismatic Destiny",
+        "vi": "Vận Mệnh Kim Cương"
+      },
+      "icon": "/tft/augments/tft-augment-prismaticdestiny.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "7",
+      "to": "2",
+      "direction": "nerf",
+      "note": {
+        "en": "Gain a random Prismatic Augment and 2 gold."
+      }
+    },
+    {
+      "ref": "DA_18_ResidualMagic",
+      "slug": "da-18-residualmagic",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Residual Magic",
+        "vi": "Dư Âm Ma Thuật"
+      },
+      "icon": "/tft/augments/da-18-residualmagic.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Health"
+      },
+      "from": "90",
+      "to": "60",
+      "direction": "nerf",
+      "note": {
+        "en": "Your team gains 60 Health. Each time you purchase a Wisp, increase this by 10."
+      }
+    },
+    {
+      "ref": "DA_18_ResidualMagic",
+      "slug": "da-18-residualmagic",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Residual Magic",
+        "vi": "Dư Âm Ma Thuật"
+      },
+      "icon": "/tft/augments/da-18-residualmagic.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Health"
+      },
+      "from": "90",
+      "to": "75",
+      "direction": "nerf",
+      "note": {
+        "en": "Your team gains 75 Health. Each time you purchase a Wisp, increase this by 10."
+      }
+    },
+    {
+      "ref": "TFT6_Augment_SalvageBinHR",
+      "slug": "tft6-augment-salvagebinhr",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Salvage Bin",
+        "vi": "Nhà Máy Tái Chế"
+      },
+      "icon": "/tft/augments/tft6-augment-salvagebinhr.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "player combats"
+      },
+      "from": "4",
+      "to": "8",
+      "direction": "adjust",
+      "note": {
+        "en": "Gain 1 random completed item now, and 1 component after 8 player combats. Selling champions breaks completed items into components (excluding Tactician's items and Emblems)."
+      }
+    },
+    {
+      "ref": "TFT_Augment_SilverDestiny",
+      "slug": "tft-augment-silverdestiny",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Silver Destiny",
+        "vi": "Vận Mệnh Bạc"
+      },
+      "icon": "/tft/augments/tft-augment-silverdestiny.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "7",
+      "to": "2",
+      "direction": "nerf",
+      "note": {
+        "en": "Gain a random Silver Augment and 2 gold."
+      }
+    },
+    {
+      "ref": "TFT_Augment_SilverDestiny",
+      "slug": "tft-augment-silverdestiny",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Silver Destiny",
+        "vi": "Vận Mệnh Bạc"
+      },
+      "icon": "/tft/augments/tft-augment-silverdestiny.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "7",
+      "to": "4",
+      "direction": "nerf",
+      "note": {
+        "en": "Gain a random Silver Augment and 4 gold."
+      }
+    },
+    {
+      "ref": "TFT9_Augment_TonsOfStats",
+      "slug": "tft9-augment-tonsofstats",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Tons of Stats!",
+        "vi": "Cộng Mệt Nghỉ!"
+      },
+      "icon": "/tft/augments/tft9-augment-tonsofstats.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Health"
+      },
+      "from": "88",
+      "to": "44",
+      "direction": "nerf",
+      "note": {
+        "en": "Your team gains 44 Health, 4% Attack Damage, 4% Ability Power, 4 Armor, 4 Magic Resist, 4% Attack Speed, and 4 Mana."
+      }
+    },
+    {
+      "ref": "TFT9_Augment_TonsOfStats",
+      "slug": "tft9-augment-tonsofstats",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Tons of Stats!",
+        "vi": "Cộng Mệt Nghỉ!"
+      },
+      "icon": "/tft/augments/tft9-augment-tonsofstats.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Attack Damage"
+      },
+      "from": "8%",
+      "to": "4%",
+      "direction": "nerf",
+      "note": {
+        "en": "Your team gains 44 Health, 4% Attack Damage, 4% Ability Power, 4 Armor, 4 Magic Resist, 4% Attack Speed, and 4 Mana."
+      }
+    },
+    {
+      "ref": "TFT9_Augment_TonsOfStats",
+      "slug": "tft9-augment-tonsofstats",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Tons of Stats!",
+        "vi": "Cộng Mệt Nghỉ!"
+      },
+      "icon": "/tft/augments/tft9-augment-tonsofstats.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Ability Power"
+      },
+      "from": "8%",
+      "to": "4%",
+      "direction": "nerf",
+      "note": {
+        "en": "Your team gains 44 Health, 4% Attack Damage, 4% Ability Power, 4 Armor, 4 Magic Resist, 4% Attack Speed, and 4 Mana."
+      }
+    },
+    {
+      "ref": "TFT9_Augment_TonsOfStats",
+      "slug": "tft9-augment-tonsofstats",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Tons of Stats!",
+        "vi": "Cộng Mệt Nghỉ!"
+      },
+      "icon": "/tft/augments/tft9-augment-tonsofstats.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Armor"
+      },
+      "from": "8",
+      "to": "4",
+      "direction": "nerf",
+      "note": {
+        "en": "Your team gains 44 Health, 4% Attack Damage, 4% Ability Power, 4 Armor, 4 Magic Resist, 4% Attack Speed, and 4 Mana."
+      }
+    },
+    {
+      "ref": "TFT9_Augment_TonsOfStats",
+      "slug": "tft9-augment-tonsofstats",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Tons of Stats!",
+        "vi": "Cộng Mệt Nghỉ!"
+      },
+      "icon": "/tft/augments/tft9-augment-tonsofstats.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Magic Resist"
+      },
+      "from": "8",
+      "to": "4",
+      "direction": "nerf",
+      "note": {
+        "en": "Your team gains 44 Health, 4% Attack Damage, 4% Ability Power, 4 Armor, 4 Magic Resist, 4% Attack Speed, and 4 Mana."
+      }
+    },
+    {
+      "ref": "TFT9_Augment_TonsOfStats",
+      "slug": "tft9-augment-tonsofstats",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Tons of Stats!",
+        "vi": "Cộng Mệt Nghỉ!"
+      },
+      "icon": "/tft/augments/tft9-augment-tonsofstats.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Attack Speed"
+      },
+      "from": "8%",
+      "to": "4%",
+      "direction": "nerf",
+      "note": {
+        "en": "Your team gains 44 Health, 4% Attack Damage, 4% Ability Power, 4 Armor, 4 Magic Resist, 4% Attack Speed, and 4 Mana."
+      }
+    },
+    {
+      "ref": "TFT9_Augment_TonsOfStats",
+      "slug": "tft9-augment-tonsofstats",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Tons of Stats!",
+        "vi": "Cộng Mệt Nghỉ!"
+      },
+      "icon": "/tft/augments/tft9-augment-tonsofstats.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "Mana"
+      },
+      "from": "8",
+      "to": "4",
+      "direction": "buff",
+      "note": {
+        "en": "Your team gains 44 Health, 4% Attack Damage, 4% Ability Power, 4 Armor, 4 Magic Resist, 4% Attack Speed, and 4 Mana."
+      }
+    },
+    {
+      "ref": "TFT6_Augment_TradeSector",
+      "slug": "tft6-augment-tradesector",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Trade Sector",
+        "vi": "Khu Giao Dịch"
+      },
+      "icon": "/tft/augments/tft6-augment-tradesector.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold"
+      },
+      "from": "8",
+      "to": "2",
+      "direction": "nerf",
+      "note": {
+        "en": "Gain a Shop reroll every round. Gain 2 gold."
       }
     },
     {
@@ -947,12 +1835,36 @@
       "note": {
         "en": "Gain an Emblem of a random trait and a completed item anvil. Allies with that trait gain 25% Attack Speed. ; Into The Arcane Tactician's Crown, 2025"
       }
+    },
+    {
+      "ref": "DA_18_WispRebatePlus",
+      "slug": "da-18-wisprebateplus",
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Wisp Rebate",
+        "vi": "Tinh Linh Hoàn Tiền"
+      },
+      "icon": "/tft/augments/da-18-wisprebateplus.png",
+      "cost": null,
+      "day": null,
+      "dayDate": null,
+      "heading": "AUGMENTS",
+      "field": {
+        "en": "gold now"
+      },
+      "from": "8",
+      "to": "4",
+      "direction": "adjust",
+      "note": {
+        "en": "Each time you purchase a Wisp, gain 2 gold. Gain 4 gold now."
+      }
     }
   ],
   "counts": {
     "buff": 15,
-    "nerf": 5,
-    "adjust": 18
+    "nerf": 25,
+    "adjust": 36
   },
   "added": [],
   "removed": [],
@@ -966,12 +1878,60 @@
       "to": "Summoners empower their summons in different ways. ; Yorick: +30% Health ; Azir: +20% Damage ; Mama Beak: +45% Damage ; Zyra: +4 Plant Attacks ; Krugs: +15% Health. ; (2) Empower Summons ; (3) Improve each effect by 50%"
     },
     {
-      "name": "Pandora's Items II",
+      "name": "Beast Within",
       "kind": "augment",
       "heading": "AUGMENTS",
       "field": "desc",
-      "from": "Round start: items on your bench are randomized. ; Gain 2 random components and gold.",
-      "to": "Round start: items on your bench are randomized. ; Gain 2 random components and 1 gold."
+      "from": "Primal grants an additional Blessing. Gain a Vi and a Sivir.",
+      "to": "Primal grants an additional Blessing. Gain a Vi now and a Nidalee after 3 rounds."
+    },
+    {
+      "name": "Beast Within",
+      "kind": "augment",
+      "heading": "AUGMENTS",
+      "field": "desc",
+      "from": "Primal grants an additional Blessing. Gain a Vi and a Sivir.",
+      "to": "Primal grants an additional Blessing. Gain a Vi now and a Sivir after 3 rounds."
+    },
+    {
+      "name": "Slammin'",
+      "kind": "augment",
+      "heading": "AUGMENTS",
+      "field": "desc",
+      "from": "Gain 4 gold and 10 XP now. After each player combat, if there are no items on your bench (other than consumables), gain 2 XP.",
+      "to": "Gain 3 gold. After each player combat, if there are no items on your bench (other than consumables), gain 2 XP."
+    },
+    {
+      "name": "Spreading Roots",
+      "kind": "augment",
+      "heading": "AUGMENTS",
+      "field": "desc",
+      "from": "Gain 2 random Emblems and 2 gold.",
+      "to": "Gain a random Emblems. After 3 combats, gain another."
+    },
+    {
+      "name": "The Trait Tree",
+      "kind": "augment",
+      "heading": "AUGMENTS",
+      "field": "desc",
+      "from": "Gain 3 random Emblems, a Reforger, and 4 gold.",
+      "to": "Gain 3 random Emblems and 2 gold."
+    },
+    {
+      "name": "Alpha Mark",
+      "kind": "item",
+      "heading": "ITEMS",
+      "field": "desc",
+      "from": "Select a Riftbeast to gain its unique effect!",
+      "to": "Select a Riftbeast to gain its unique effect! ; If you already have 2 Alphas, using this selector will replace the oldest Alpha."
+    },
+    {
+      "name": "Flora Fatalis Emblem",
+      "kind": "item",
+      "heading": "ITEMS",
+      "field": "desc",
+      "from": "The holder gains the Flora Fatalis trait.",
+      "to": "The holder gains the Flora Fatalis trait. ; They gain 70% increased benefits from Flora Fatalis."
     }
   ],
   "unmatched": [

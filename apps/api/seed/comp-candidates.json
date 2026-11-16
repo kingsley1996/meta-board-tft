@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-02T06:25:55.358Z",
+  "generatedAt": "2026-11-16T13:40:36.023Z",
   "set": 18,
-  "patch": "18.5",
+  "patch": "18.6",
   "sources": [
     "tftacademy",
     "tftflow",
@@ -26,12 +26,12 @@
   "seedSimilar": 0.6,
   "measureSimilar": 0.5,
   "overlaySimilar": 0.6,
-  "total": 20,
+  "total": 27,
   "candidates": [
     {
       "title": "Blackthorn Kha'Zix Reroll",
       "titleVi": null,
-      "tier": "C",
+      "tier": "X",
       "situational": true,
       "style": "Reroll",
       "difficulty": 2,
@@ -39,9 +39,9 @@
       "playstyle": "Reroll · Kha'Zix carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.36,
-        "games": 2518,
-        "level": 8.3
+        "avg": 5.17,
+        "games": 1433,
+        "level": 8.7
       },
       "statsSource": "tftcodex",
       "units": [
@@ -173,14 +173,14 @@
           "source": "tftflow",
           "name": "Blackthorn Kha'Zix",
           "url": "https://tftflow.com/composition/set18/blackthorn-khazix",
-          "tier": "C"
+          "tier": "D"
         }
       ],
       "slug": "blackthorn-kha-zix-reroll",
       "gaps": [
         "augments"
       ],
-      "score": 0.213,
+      "score": 0.197,
       "rescued": null,
       "overlay": null,
       "reason": "thiếu: augments"
@@ -196,11 +196,11 @@
       "playstyle": "Fast 9 · Ashe carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.65,
-        "games": 16077,
-        "level": 9.1
+        "avg": null,
+        "games": 0,
+        "level": null
       },
-      "statsSource": "tftcodex",
+      "statsSource": null,
       "units": [
         {
           "name": "Taric",
@@ -328,7 +328,7 @@
       "gaps": [
         "augments"
       ],
-      "score": 0.209,
+      "score": 0.325,
       "rescued": null,
       "overlay": null,
       "reason": "thiếu: augments"
@@ -340,15 +340,15 @@
       "situational": false,
       "style": "Fast 8",
       "difficulty": 2,
-      "trend": "up",
+      "trend": null,
       "playstyle": "Fast 8 · Ezreal carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.2073,
-        "games": 269871,
-        "level": 8.77
+        "avg": 4.82,
+        "games": 602,
+        "level": 9.1
       },
-      "statsSource": "datatft",
+      "statsSource": "tftcodex",
       "units": [
         {
           "name": "Taric",
@@ -475,12 +475,12 @@
       "gaps": [
         "augments"
       ],
-      "score": 0.432,
+      "score": 0.248,
       "rescued": null,
       "overlay": {
         "slug": "ezreal-elderwood",
         "jaccard": 0.8,
-        "tier": "A"
+        "tier": "B"
       },
       "reason": "thiếu: augments"
     },
@@ -495,9 +495,9 @@
       "playstyle": "Fast 8 · Ezreal carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.04,
-        "games": 1096,
-        "level": 9
+        "avg": 5.12,
+        "games": 1876,
+        "level": 9.1
       },
       "statsSource": "tftcodex",
       "units": [
@@ -773,6 +773,170 @@
       "reason": "thiếu: early, augments"
     },
     {
+      "title": "Inferno Lux Ashe",
+      "titleVi": null,
+      "tier": "X",
+      "situational": true,
+      "style": "Fast 8",
+      "difficulty": 3,
+      "trend": null,
+      "playstyle": "Fast 8 · Lux carry",
+      "playstyleVi": null,
+      "stats": {
+        "avg": 4.42,
+        "games": 7214,
+        "level": 9.1
+      },
+      "statsSource": "tftcodex",
+      "units": [
+        {
+          "name": "Akali",
+          "row": 1,
+          "col": 0,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Shen",
+          "row": 0,
+          "col": 1,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Vi",
+          "row": 0,
+          "col": 2,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Lillia",
+          "row": 0,
+          "col": 6,
+          "items": [
+            "Protector's Vow"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Sivir",
+          "row": 3,
+          "col": 4,
+          "items": [
+            "Last Whisper",
+            "Infinity Edge"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Amumu",
+          "row": 0,
+          "col": 4,
+          "items": [
+            "Warmog's Armor",
+            "Bramble Vest",
+            "Dragon's Claw"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Ashe",
+          "row": 3,
+          "col": 6,
+          "items": [
+            "Spear of Shojin",
+            "Sunfire Cape",
+            "Inferno Emblem"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Kennen",
+          "row": 0,
+          "col": 3,
+          "items": [
+            "Edge of Night",
+            "Quicksilver",
+            "Bloodthirster"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Lux",
+          "row": 3,
+          "col": 0,
+          "items": [
+            "Spear of Shojin",
+            "Rabadon's Deathcap"
+          ],
+          "stars": null
+        }
+      ],
+      "early": [
+        "Karma",
+        "Rakan",
+        "Yorick",
+        "Yunara"
+      ],
+      "carry": "Lux",
+      "items": [
+        "Spear of Shojin",
+        "Rabadon's Deathcap"
+      ],
+      "augments": [
+        "Big Grab Bag",
+        "Cybernetic Uplink",
+        "Commerce Core",
+        "Spreading Roots",
+        "The Trait Tree+",
+        "Boxing Lessons",
+        "Late Game Scaling",
+        "Late Game Specialist"
+      ],
+      "augmentTypes": [
+        "ITEMS",
+        "ECON",
+        "COMBAT"
+      ],
+      "alt": [],
+      "tips": "Only play with Inferno emblem. Ideally needs Inferno Lux to be super strong but can top 4 without Lux / only Inferno Emblem Ashe. Can also play more frontline instead of 7 inferno or Hunter (Taric/4 Juggernaut).",
+      "tipsVi": null,
+      "stages": [
+        {
+          "stage": "Stage 2",
+          "text": "Open with a strong AD opener, preferably around Yunara. Slam generic AD items and Tank items for a win streak. You can also play around Varus/Akali 2 with AD items."
+        },
+        {
+          "stage": "Stage 3",
+          "text": "Level and add more Juggernauts and Executioners. Make sure to hold Inferno units along the way. Can also play 3 Inferno for shop high rolls."
+        },
+        {
+          "stage": "Stage 4",
+          "text": "Roll on 8 for 5 inferno Sivir + Vi + Lillia + Hunter (can play Tristana before Ashe). When you find Ashe make sure to give her inferno emblem + shojin."
+        }
+      ],
+      "sources": [
+        "tftacademy"
+      ],
+      "sourceCount": 1,
+      "variants": [],
+      "links": [
+        {
+          "source": "tftacademy",
+          "name": "Inferno Lux Ashe",
+          "url": null,
+          "tier": "X"
+        }
+      ],
+      "slug": "inferno-lux-ashe",
+      "gaps": [],
+      "score": 0.335,
+      "rescued": null,
+      "overlay": null,
+      "reason": "1 nguồn guide, số liệu chưa đủ cứu"
+    },
+    {
       "title": "Spellweaver Ahri",
       "titleVi": null,
       "tier": "B",
@@ -783,8 +947,8 @@
       "playstyle": "Fast 8 · Ahri carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.65,
-        "games": 51566,
+        "avg": 4.76,
+        "games": 50635,
         "level": 8.8
       },
       "statsSource": "tftcodex",
@@ -915,9 +1079,152 @@
       "gaps": [
         "augments"
       ],
-      "score": 0.244,
+      "score": 0.258,
       "rescued": null,
       "overlay": null,
+      "reason": "thiếu: augments"
+    },
+    {
+      "title": "Vanguard Aphelios",
+      "titleVi": "Aphelios & Nidalee Tiên Phong",
+      "tier": "B",
+      "situational": false,
+      "style": "Fast 8",
+      "difficulty": 2,
+      "trend": "down",
+      "playstyle": "Fast 8 · Aphelios carry",
+      "playstyleVi": null,
+      "stats": {
+        "avg": 4.62,
+        "games": 3269,
+        "level": null
+      },
+      "statsSource": "tftcodex",
+      "units": [
+        {
+          "name": "Sentinel",
+          "row": 0,
+          "col": 2,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Diana",
+          "row": 0,
+          "col": 3,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Taric",
+          "row": 0,
+          "col": 4,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Morgana",
+          "row": 1,
+          "col": 2,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Hecarim",
+          "row": 1,
+          "col": 3,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Brambleback",
+          "row": 2,
+          "col": 1,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Aphelios",
+          "row": 3,
+          "col": 0,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Mama Beak",
+          "row": 3,
+          "col": 1,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Zyra",
+          "row": 3,
+          "col": 6,
+          "items": [],
+          "stars": null
+        }
+      ],
+      "early": [
+        "Ornn",
+        "Rakan",
+        "Varus",
+        "Xayah",
+        "Hecarim"
+      ],
+      "carry": "Aphelios",
+      "items": [
+        "Kraken's Fury",
+        "Sunfire Cape",
+        "Infinity Edge"
+      ],
+      "augments": [],
+      "augmentTypes": [
+        "ITEMS",
+        "ECON",
+        "COMBAT"
+      ],
+      "alt": [],
+      "tips": "Play from AD opener with a Bow. Playable with AP items by using the no Brambleback variation. If you are low HP and haven't 2-starred your carry and tank, roll to 0g. If you have medium to high HP with an upgraded + itemized 4-cost unit and some other upgrades, save gold to go 9. If high HP, consider waiting until 5-5 to go level 9. If medium HP, consider going level 9 if you can roll 20g or wait until 5-5. If low HP and can afford to go 9, do so even if you have almost no gold to roll on 9. If you can't afford to go 9 this game, roll every turn for upgrades. Level to 9 if possible. From this point onward, look to level to 9. Acknowledge games where level 9 is not possible and roll every tur",
+      "tipsVi": null,
+      "stages": [
+        {
+          "stage": "Stage 2",
+          "text": "Level to 4 if you have upgrades and a good item to place on one of those upgrades."
+        },
+        {
+          "stage": "Stage 3",
+          "text": "Level to 6 if on 4+ win streak (scout to see if necessary in high elo) or can stay above 40g."
+        },
+        {
+          "stage": "Stage 4",
+          "text": "Level to 7."
+        }
+      ],
+      "sources": [
+        "tftflow"
+      ],
+      "sourceCount": 1,
+      "variants": [],
+      "links": [
+        {
+          "source": "tftflow",
+          "name": "Vanguard Aphelios",
+          "url": "https://tftflow.com/composition/set18/vanguard-aphelios",
+          "tier": "B"
+        }
+      ],
+      "slug": "vanguard-rengar-reroll",
+      "gaps": [
+        "augments"
+      ],
+      "score": 0.325,
+      "rescued": null,
+      "overlay": {
+        "slug": "aphelios-nidalee-vanguard",
+        "jaccard": 0.89,
+        "tier": "B"
+      },
       "reason": "thiếu: augments"
     },
     {
@@ -1089,11 +1396,11 @@
       "playstyle": "Fast 9 · Ashe carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.23,
-        "games": 1077,
-        "level": 9.2
+        "avg": null,
+        "games": 0,
+        "level": null
       },
-      "statsSource": "tftcodex",
+      "statsSource": null,
       "units": [
         {
           "name": "Cinderling",
@@ -1223,7 +1530,7 @@
       ],
       "slug": "ashe-dragon-fast-9",
       "gaps": [],
-      "score": 0.321,
+      "score": 0.294,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -1239,11 +1546,11 @@
       "playstyle": "Fast 8 · Ahri carry",
       "playstyleVi": null,
       "stats": {
-        "avg": null,
-        "games": 0,
-        "level": null
+        "avg": 5.17,
+        "games": 1433,
+        "level": 8.7
       },
-      "statsSource": null,
+      "statsSource": "tftcodex",
       "units": [
         {
           "name": "Rek'Sai",
@@ -1343,7 +1650,7 @@
         "early",
         "augments"
       ],
-      "score": 0.325,
+      "score": 0.143,
       "rescued": null,
       "overlay": null,
       "reason": "thiếu: early, augments"
@@ -1359,11 +1666,11 @@
       "playstyle": "Fast 8 · Zyra carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.59,
-        "games": 1562,
-        "level": 8.5
+        "avg": null,
+        "games": 0,
+        "level": null
       },
-      "statsSource": "tftcodex",
+      "statsSource": null,
       "units": [
         {
           "name": "Akali",
@@ -1466,7 +1773,7 @@
         "augments",
         "tips"
       ],
-      "score": 0.068,
+      "score": 0.263,
       "rescued": null,
       "overlay": null,
       "reason": "thiếu: early, augments, tips"
@@ -1482,8 +1789,8 @@
       "playstyle": "Flex · Caitlyn carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.23,
-        "games": 2568,
+        "avg": 5.32,
+        "games": 1587,
         "level": null
       },
       "statsSource": "tftcodex",
@@ -1591,10 +1898,164 @@
         "augments",
         "tips"
       ],
-      "score": 0.118,
+      "score": 0.106,
       "rescued": null,
       "overlay": null,
       "reason": "thiếu: early, augments, tips"
+    },
+    {
+      "title": "Cursed Crown Kayle Reroll",
+      "titleVi": "Varus & Kayle Mặt Trời",
+      "tier": "X",
+      "situational": true,
+      "style": "Reroll",
+      "difficulty": 1,
+      "trend": "up",
+      "playstyle": "Reroll · Kayle carry",
+      "playstyleVi": "Reroll · chủ lực Kayle",
+      "stats": {
+        "avg": 4.89,
+        "games": 27140,
+        "level": null
+      },
+      "statsSource": "tftcodex",
+      "units": [
+        {
+          "name": "Leona",
+          "row": 1,
+          "col": 4,
+          "items": [],
+          "stars": 3
+        },
+        {
+          "name": "Rakan",
+          "row": 2,
+          "col": 3,
+          "items": [],
+          "stars": 3
+        },
+        {
+          "name": "Ornn",
+          "row": 0,
+          "col": 4,
+          "items": [
+            "Gargoyle Stoneplate",
+            "Warmog's Armor",
+            "Spirit Visage"
+          ],
+          "stars": 3
+        },
+        {
+          "name": "Xayah",
+          "row": 3,
+          "col": 6,
+          "items": [
+            "Guinsoo's Rageblade",
+            "Kraken's Fury",
+            "Deathblade"
+          ],
+          "stars": 3
+        },
+        {
+          "name": "Elise",
+          "row": 2,
+          "col": 4,
+          "items": [],
+          "stars": 3
+        },
+        {
+          "name": "LeBlanc",
+          "row": 3,
+          "col": 4,
+          "items": [],
+          "stars": 3
+        },
+        {
+          "name": "Sejuani",
+          "row": 1,
+          "col": 3,
+          "items": [],
+          "stars": 3
+        },
+        {
+          "name": "Kayle",
+          "row": 3,
+          "col": 5,
+          "items": [
+            "Guinsoo's Rageblade",
+            "Jeweled Gauntlet",
+            "Striker's Flail"
+          ],
+          "stars": 3
+        }
+      ],
+      "early": [
+        "Kayle",
+        "Leona",
+        "Sejuani",
+        "Ornn"
+      ],
+      "carry": "Kayle",
+      "items": [
+        "Guinsoo's Rageblade",
+        "Jeweled Gauntlet",
+        "Striker's Flail"
+      ],
+      "augments": [
+        "Cursed Crown",
+        "Worth the Wait",
+        "Worth the Wait II",
+        "Speedy Double Kill",
+        "Prismatic Ticket",
+        "Missed Connections",
+        "Commerce Core",
+        "Pandora's Bench"
+      ],
+      "augmentTypes": [
+        "ITEMS",
+        "ECON",
+        "COMBAT"
+      ],
+      "alt": [],
+      "tips": "With Cursed Crown, we can go for the big 8 unit 3-star Solar bonus. Roll on 5 for 1 costs and 6 for the 2 costs. Sell LB and Elise if you need bench space.",
+      "tipsVi": null,
+      "stages": [
+        {
+          "stage": "Stage 2",
+          "text": "Play aroud early Solar, Elderwood, and Inferno. Prioritize Kayle and Ornn items. Cursed Crown is very expensive so every gold interest counts."
+        },
+        {
+          "stage": "Stage 3",
+          "text": "You will likely be poor so consider an econ augment. Slow roll above 50g for 3* units. Prioritize Solars > 1 costs > 2 costs."
+        },
+        {
+          "stage": "Stage 4",
+          "text": "You can stay on 6 to finish all your 3* because of Cursed Crown. If you natural level to 7, add in any Spellweaver or 5 cost."
+        }
+      ],
+      "sources": [
+        "tftacademy"
+      ],
+      "sourceCount": 1,
+      "variants": [],
+      "links": [
+        {
+          "source": "tftacademy",
+          "name": "Cursed Crown Kayle Reroll",
+          "url": null,
+          "tier": "X"
+        }
+      ],
+      "slug": "cursed-crown-kayle-reroll",
+      "gaps": [],
+      "score": 0.123,
+      "rescued": null,
+      "overlay": {
+        "slug": "kayle-solar",
+        "jaccard": 0.67,
+        "tier": "C"
+      },
+      "reason": "1 nguồn guide, số liệu chưa đủ cứu"
     },
     {
       "title": "Elderwood Xayah",
@@ -1607,11 +2068,11 @@
       "playstyle": "Reroll · Xayah carry",
       "playstyleVi": null,
       "stats": {
-        "avg": null,
-        "games": 0,
-        "level": null
+        "avg": 4.96,
+        "games": 512,
+        "level": 8.7
       },
-      "statsSource": null,
+      "statsSource": "tftcodex",
       "units": [
         {
           "name": "Rakan",
@@ -1760,7 +2221,7 @@
       ],
       "slug": "elderwood-xayah",
       "gaps": [],
-      "score": 0.294,
+      "score": 0.142,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -1768,7 +2229,7 @@
     {
       "title": "Fae Aphelios",
       "titleVi": null,
-      "tier": "B",
+      "tier": "C",
       "situational": false,
       "style": "Fast 8",
       "difficulty": 2,
@@ -1776,11 +2237,11 @@
       "playstyle": "Fast 8 · Aphelios carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.4364,
-        "games": 6861,
-        "level": 8.45
+        "avg": 5.14,
+        "games": 2053,
+        "level": 9
       },
-      "statsSource": "datatft",
+      "statsSource": "tftcodex",
       "units": [
         {
           "name": "Rakan",
@@ -1918,7 +2379,489 @@
       ],
       "slug": "fae-aphelios",
       "gaps": [],
-      "score": 0.328,
+      "score": 0.155,
+      "rescued": null,
+      "overlay": null,
+      "reason": "1 nguồn guide, số liệu chưa đủ cứu"
+    },
+    {
+      "title": "Fae Xayah Reroll",
+      "titleVi": null,
+      "tier": "C",
+      "situational": false,
+      "style": "Reroll",
+      "difficulty": 1,
+      "trend": null,
+      "playstyle": "Reroll · Xayah carry",
+      "playstyleVi": null,
+      "stats": {
+        "avg": 4.96,
+        "games": 512,
+        "level": 8.7
+      },
+      "statsSource": "tftcodex",
+      "units": [
+        {
+          "name": "Rakan",
+          "row": 0,
+          "col": 3,
+          "items": [],
+          "stars": 3
+        },
+        {
+          "name": "Ornn",
+          "row": 0,
+          "col": 4,
+          "items": [
+            "Warmog's Armor",
+            "Spirit Visage",
+            "Gargoyle Stoneplate"
+          ],
+          "stars": 3
+        },
+        {
+          "name": "Xayah",
+          "row": 3,
+          "col": 6,
+          "items": [
+            "Kraken's Fury",
+            "Guinsoo's Rageblade",
+            "Hextech Gunblade"
+          ],
+          "stars": 3
+        },
+        {
+          "name": "Diana",
+          "row": 1,
+          "col": 3,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Tristana",
+          "row": 3,
+          "col": 4,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Lillia",
+          "row": 1,
+          "col": 2,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Aphelios",
+          "row": 3,
+          "col": 5,
+          "items": [
+            "Last Whisper",
+            "Sunfire Cape"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Gnar",
+          "row": 2,
+          "col": 4,
+          "items": [],
+          "stars": null
+        }
+      ],
+      "early": [
+        "Ornn",
+        "Rakan",
+        "Varus",
+        "Xayah"
+      ],
+      "carry": "Xayah",
+      "items": [
+        "Kraken's Fury",
+        "Guinsoo's Rageblade",
+        "Hextech Gunblade"
+      ],
+      "augments": [
+        "Early Learnings",
+        "NO SCOUT NO PIVOT",
+        "Missed Connections",
+        "Pandora's Bench",
+        "Solo Plate",
+        "Prismatic Ticket",
+        "Nature's Shelter",
+        "Worth the Wait"
+      ],
+      "augmentTypes": [
+        "ITEMS",
+        "ECON",
+        "COMBAT"
+      ],
+      "alt": [
+        {
+          "name": "Ornn",
+          "stars": null,
+          "items": [
+            "Aegis of Dawn",
+            "Lightshield Crest",
+            "Forbidden Idol"
+          ]
+        },
+        {
+          "name": "Xayah",
+          "stars": null,
+          "items": [
+            "Flickerblades",
+            "Fishbones",
+            "Titanic Hydra"
+          ]
+        }
+      ],
+      "tips": "3* Priority: Xayah 3 / Ornn 3 > Rakan 3. Ornn stacks Artifact Forge Power much faster at 3*. S",
+      "tipsVi": null,
+      "stages": [
+        {
+          "stage": "Stage 2",
+          "text": "Only play around this opener with early upgrades or strong scaling combat augment. Begin gathering Fae stacks."
+        },
+        {
+          "stage": "Stage 3",
+          "text": "Slow roll above 50g for 3* until you hit at least Xayah 3 and Ornn 3. Take econ or item augments as necessary."
+        },
+        {
+          "stage": "Stage 4",
+          "text": "Push levels for 4 Fae. You can also play more Defenders, Inferno, or Elderwood until you find the Faes."
+        }
+      ],
+      "sources": [
+        "tftacademy"
+      ],
+      "sourceCount": 1,
+      "variants": [],
+      "links": [
+        {
+          "source": "tftacademy",
+          "name": "Fae Xayah Reroll",
+          "url": null,
+          "tier": "C"
+        }
+      ],
+      "slug": "fae-xayah-reroll",
+      "gaps": [],
+      "score": 0.142,
+      "rescued": null,
+      "overlay": null,
+      "reason": "1 nguồn guide, số liệu chưa đủ cứu"
+    },
+    {
+      "title": "Juggernaut Ashe",
+      "titleVi": null,
+      "tier": "B",
+      "situational": false,
+      "style": "Fast 8",
+      "difficulty": 3,
+      "trend": "down",
+      "playstyle": "Fast 8 · Ashe carry",
+      "playstyleVi": null,
+      "stats": {
+        "avg": 4.57,
+        "games": 18858,
+        "level": 9.1
+      },
+      "statsSource": "tftcodex",
+      "units": [
+        {
+          "name": "Rakan",
+          "row": 0,
+          "col": 2,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Vi",
+          "row": 0,
+          "col": 3,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Amumu",
+          "row": 0,
+          "col": 5,
+          "items": [
+            "Warmog's Armor",
+            "Bramble Vest",
+            "Dragon's Claw"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Sivir",
+          "row": 3,
+          "col": 4,
+          "items": [
+            "Infinity Edge",
+            "Striker's Flail",
+            "Spear of Shojin"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Ivern",
+          "row": 3,
+          "col": 0,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Maokai",
+          "row": 0,
+          "col": 4,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Taric",
+          "row": 0,
+          "col": 1,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Ashe",
+          "row": 3,
+          "col": 6,
+          "items": [
+            "Spear of Shojin",
+            "Last Whisper",
+            "Sunfire Cape"
+          ],
+          "stars": null
+        }
+      ],
+      "early": [
+        "Karma",
+        "Rakan",
+        "Yorick",
+        "Yunara"
+      ],
+      "carry": "Ashe",
+      "items": [
+        "Spear of Shojin",
+        "Last Whisper",
+        "Sunfire Cape"
+      ],
+      "augments": [
+        "Item Extraction",
+        "Big Grab Bag",
+        "Cybernetic Uplink",
+        "Commerce Core",
+        "Spreading Roots",
+        "The Trait Tree+",
+        "Carve a Path",
+        "Boxing Lessons"
+      ],
+      "augmentTypes": [
+        "ITEMS",
+        "ECON",
+        "COMBAT"
+      ],
+      "alt": [],
+      "tips": "Consider this as a flex option for a Sivir board if you were playing around Juggernauts in the midgame already. If you get Juggernaut emblem, you can play 6 Juggernauts. Can also play other 5 cost AD carries like Dragon and Draven. Take turtle primal buff.",
+      "tipsVi": null,
+      "stages": [
+        {
+          "stage": "Stage 2",
+          "text": "Open with a strong AD opener, preferably around Yunara. Slam generic AD items and Tank items for a win streak."
+        },
+        {
+          "stage": "Stage 3",
+          "text": "Level up for more juggernauts and executioners to pair with our blossom opener."
+        },
+        {
+          "stage": "Stage 4",
+          "text": "Level and roll for 6 juggernauts +Sivir. Once stable, go 9 and look for Ashe and transition your board to 5 costs."
+        }
+      ],
+      "sources": [
+        "tftacademy"
+      ],
+      "sourceCount": 1,
+      "variants": [],
+      "links": [
+        {
+          "source": "tftacademy",
+          "name": "Juggernaut Ashe",
+          "url": null,
+          "tier": "B"
+        }
+      ],
+      "slug": "juggernaut-ashe",
+      "gaps": [],
+      "score": 0.301,
+      "rescued": null,
+      "overlay": {
+        "slug": "ashe-blossom",
+        "jaccard": 0.89,
+        "tier": "B"
+      },
+      "reason": "1 nguồn guide, số liệu chưa đủ cứu"
+    },
+    {
+      "title": "Sivir Flex",
+      "titleVi": null,
+      "tier": "B",
+      "situational": false,
+      "style": "Fast 8",
+      "difficulty": 2,
+      "trend": null,
+      "playstyle": "Fast 8 · Sivir carry",
+      "playstyleVi": null,
+      "stats": {
+        "avg": 4.54,
+        "games": 11194,
+        "level": 8.9
+      },
+      "statsSource": "tftcodex",
+      "units": [
+        {
+          "name": "Shen",
+          "row": 0,
+          "col": 3,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Tristana",
+          "row": 3,
+          "col": 2,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Vi",
+          "row": 0,
+          "col": 4,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Lillia",
+          "row": 0,
+          "col": 6,
+          "items": [
+            "Protector's Vow"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Amumu",
+          "row": 0,
+          "col": 2,
+          "items": [
+            "Warmog's Armor",
+            "Gargoyle Stoneplate",
+            "Bramble Vest"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Sivir",
+          "row": 3,
+          "col": 0,
+          "items": [
+            "Infinity Edge",
+            "Striker's Flail",
+            "Spear of Shojin"
+          ],
+          "stars": null
+        },
+        {
+          "name": "Ivern",
+          "row": 3,
+          "col": 4,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Ashe",
+          "row": 3,
+          "col": 6,
+          "items": [
+            "Sunfire Cape",
+            "Last Whisper"
+          ],
+          "stars": null
+        }
+      ],
+      "early": [
+        "Camille",
+        "Leona",
+        "Akali",
+        "Shen"
+      ],
+      "carry": "Sivir",
+      "items": [
+        "Infinity Edge",
+        "Striker's Flail",
+        "Spear of Shojin"
+      ],
+      "augments": [
+        "Big Grab Bag",
+        "Beast Within",
+        "Swordsmith",
+        "Carve a Path",
+        "Deadlier Blades",
+        "The Trait Tree+",
+        "Spreading Roots"
+      ],
+      "augmentTypes": [
+        "ITEMS",
+        "ECON",
+        "COMBAT"
+      ],
+      "alt": [
+        {
+          "name": "Sivir",
+          "stars": null,
+          "items": [
+            "Fae Emblem",
+            "Infinity Edge",
+            "Spear of Shojin"
+          ]
+        }
+      ],
+      "tips": "Strong with Fae emblem on either Sivir / 5 cost. Tristana + Ashe + Ivern slots are very flexible pending on what emblems you get. Frontline can also change pending on what emblems you hit. Take Execute or Healing Primal buff. Prioritize Sivir items. Always play Ashe if you hit early.",
+      "tipsVi": null,
+      "stages": [
+        {
+          "stage": "Stage 2",
+          "text": "Play around a strong AD opener prioritizing Sivir items. This comp doesn't keep 1 costs in the final comp so you can slam aggressively."
+        },
+        {
+          "stage": "Stage 3",
+          "text": "Comp is very Sword hungry so keep taking them off augments / carousels when possible. Prioritize finishing your 3 carry / 3 tank items."
+        },
+        {
+          "stage": "Stage 4",
+          "text": "Level to 8 and roll for Sivir and upgraded frontline. To be stable, you may need to temporarily tank Vi 2 over 1* 4 costs. Once stable, go 9 for 5 costs."
+        }
+      ],
+      "sources": [
+        "tftacademy"
+      ],
+      "sourceCount": 1,
+      "variants": [],
+      "links": [
+        {
+          "source": "tftacademy",
+          "name": "Sivir Flex",
+          "url": null,
+          "tier": "B"
+        }
+      ],
+      "slug": "sivir-flex",
+      "gaps": [],
+      "score": 0.325,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -1934,9 +2877,9 @@
       "playstyle": "Fast 8 · Ahri carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.58,
-        "games": 2900,
-        "level": 9
+        "avg": 4.51,
+        "games": 2920,
+        "level": 8.9
       },
       "statsSource": "tftcodex",
       "units": [
@@ -2070,7 +3013,7 @@
       ],
       "slug": "spellweaver-ahri",
       "gaps": [],
-      "score": 0.244,
+      "score": 0.325,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -2246,9 +3189,9 @@
       "playstyle": "Fast 9 · Fiddlesticks carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.7,
-        "games": 2243,
-        "level": 9.1
+        "avg": 5.59,
+        "games": 511,
+        "level": null
       },
       "statsSource": "tftcodex",
       "units": [
@@ -2521,15 +3464,15 @@
       "situational": true,
       "style": "Reroll",
       "difficulty": 2,
-      "trend": "up",
+      "trend": "down",
       "playstyle": "Reroll · Elise carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.8717,
-        "games": 99979,
-        "level": 8.61
+        "avg": 4.8,
+        "games": 24067,
+        "level": null
       },
-      "statsSource": "datatft",
+      "statsSource": "tftcodex",
       "units": [
         {
           "name": "Elise",
@@ -2662,12 +3605,12 @@
       ],
       "slug": "dark-ritual-elise-reroll",
       "gaps": [],
-      "score": 0.11,
+      "score": 0.159,
       "rescued": null,
       "overlay": {
-        "slug": "morgana-vanguard",
-        "jaccard": 0.67,
-        "tier": "A"
+        "slug": "elise-ravager-emblem",
+        "jaccard": 0.88,
+        "tier": "X"
       },
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
     },
@@ -2678,15 +3621,15 @@
       "situational": false,
       "style": "Reroll",
       "difficulty": 2,
-      "trend": "down",
+      "trend": null,
       "playstyle": "Reroll · Tristana carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.6133,
-        "games": 90575,
-        "level": 7.97
+        "avg": 4.69,
+        "games": 21792,
+        "level": null
       },
-      "statsSource": "datatft",
+      "statsSource": "tftcodex",
       "units": [
         {
           "name": "Kobuko",
@@ -2815,7 +3758,7 @@
       ],
       "slug": "fae-tristana-reroll",
       "gaps": [],
-      "score": 0.201,
+      "score": 0.245,
       "rescued": null,
       "overlay": {
         "slug": "tristana-sprykin-reroll",
@@ -2825,18 +3768,171 @@
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
     },
     {
+      "title": "Ravager Rengar Reroll",
+      "titleVi": "Aphelios & Nidalee Tiên Phong",
+      "tier": "X",
+      "situational": true,
+      "style": "Reroll",
+      "difficulty": 2,
+      "trend": null,
+      "playstyle": "Reroll · Rengar carry",
+      "playstyleVi": null,
+      "stats": {
+        "avg": 4.62,
+        "games": 3269,
+        "level": null
+      },
+      "statsSource": "tftcodex",
+      "units": [
+        {
+          "name": "Murkwolf",
+          "row": 2,
+          "col": 2,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Diana",
+          "row": 1,
+          "col": 3,
+          "items": [
+            "Jeweled Gauntlet",
+            "Hand Of Justice",
+            "Ionic Spark"
+          ],
+          "stars": 3
+        },
+        {
+          "name": "Hecarim",
+          "row": 0,
+          "col": 3,
+          "items": [
+            "Sunfire Cape",
+            "Gargoyle Stoneplate",
+            "Evenshroud"
+          ],
+          "stars": 3
+        },
+        {
+          "name": "Rengar",
+          "row": 2,
+          "col": 4,
+          "items": [
+            "Titan's Resolve",
+            "Guinsoo's Rageblade",
+            "Ravager Emblem"
+          ],
+          "stars": 3
+        },
+        {
+          "name": "Aphelios",
+          "row": 3,
+          "col": 6,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Brambleback",
+          "row": 2,
+          "col": 3,
+          "items": [],
+          "stars": null
+        },
+        {
+          "name": "Sentinel",
+          "row": 1,
+          "col": 2,
+          "items": [],
+          "stars": null
+        }
+      ],
+      "early": [
+        "Akali",
+        "Rakan",
+        "Diana",
+        "Rengar"
+      ],
+      "carry": "Rengar",
+      "items": [
+        "Titan's Resolve",
+        "Guinsoo's Rageblade",
+        "Ravager Emblem"
+      ],
+      "augments": [
+        "Spreading Roots",
+        "Legion of Threes",
+        "Group Hug I",
+        "Group Hug II",
+        "Champ Delivery++",
+        "Heroic Grab Bag+",
+        "Exclusive Customization",
+        "Branching Out+"
+      ],
+      "augmentTypes": [
+        "ITEMS",
+        "ECON",
+        "COMBAT"
+      ],
+      "alt": [
+        {
+          "name": "Rengar",
+          "stars": null,
+          "items": [
+            "Mittens",
+            "Red Buff",
+            "Hellfire Hatchet"
+          ]
+        }
+      ],
+      "tips": "Play with Ravager emblem. Riftbeast is not that important unless you're carrying a Riftbeast Ravager. 6 Ravager is best with multiple emblems. More emblems is always good so you can fit in 6 Ravager, 4 Vanguards, Lunar, etc. If you can't get Hecarim 3, look for a 2* 4 cost tank.",
+      "tipsVi": null,
+      "stages": [
+        {
+          "stage": "Stage 2",
+          "text": "Ideally play this comp with an early Rengar with items so you can snowball Rival. Play any upgraded frontline tank (ideally Rakan)."
+        },
+        {
+          "stage": "Stage 3",
+          "text": "If you have a few crucial pairs on level 6, you can consider rolling slightly on 6 to get charms / upgrade units. Econ up to 7 otherwise."
+        },
+        {
+          "stage": "Stage 4",
+          "text": "Slow roll on 7 for 3* upgrades on whatever 3 costs you're chasing. Aphelios slot is flexible. 6 Ravager is cheap stats you can play if you can't find Sentinel."
+        }
+      ],
+      "sources": [
+        "tftacademy"
+      ],
+      "sourceCount": 1,
+      "variants": [],
+      "links": [
+        {
+          "source": "tftacademy",
+          "name": "Ravager Rengar Reroll",
+          "url": null,
+          "tier": "X"
+        }
+      ],
+      "slug": "ravager-rengar-reroll",
+      "gaps": [],
+      "score": 0.263,
+      "rescued": null,
+      "overlay": null,
+      "reason": "1 nguồn guide, số liệu chưa đủ cứu"
+    },
+    {
       "title": "Sprykin Teemo Reroll",
       "titleVi": null,
       "tier": "C",
       "situational": false,
       "style": "Reroll",
       "difficulty": 1,
-      "trend": "down",
+      "trend": null,
       "playstyle": "Reroll · Teemo carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.02,
-        "games": 2896,
+        "avg": 4.83,
+        "games": 2296,
         "level": null
       },
       "statsSource": "tftcodex",
@@ -2960,7 +4056,7 @@
       ],
       "slug": "sprykin-teemo-reroll",
       "gaps": [],
-      "score": 0.13,
+      "score": 0.191,
       "rescued": null,
       "overlay": {
         "slug": "veigar-sprykin",
