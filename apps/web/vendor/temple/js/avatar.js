@@ -4892,8 +4892,9 @@ function buildHeroProps3D(upper, hands, arms, legR, hero, head, root) {
     // LatheGeometry(ROBE_PROFILE) cat dung o profile 0 = root-y 0,35 nen phia duoi
     // la HAI CAI CHAN + mot gấu bang — do la thu nguoi xem goi la "ao", khong phai
     // vay. Vay = chom xoè A-line moc SAU TRONG EO: dinh 0,26 tai root-y 0,93 nam
-    // an trong ao (ao rong 0,285 do cao ay) nen khe noi khong bao gio mo ra khi
-    // upper nayc len theo nhip di hoac khi ngoi (upper.position.y 0,40 -> 0,30).
+    // an trong ao (ao rong 0,285 do cao ay). Tu 2026-11-16 vay la con cua upper
+    // nen quan he vay↔nguoi CO DINH: khong con khe noi nao de mo ra du upper nayc
+    // len theo nhip di, khi ngoi hay khi lay (xem ly do o duoi, gan `dress`).
     // Be ngang 0,56 lay tu ti le anh: be ngang dau 292px thi day vay 470px = 1,6
     // lan, 0,285 x 1,6 = 0,46 o vung xoè; 0,56 o chan vay la 1,96 lan eo, van an
     // toan trong luoi canh thumbnail 1,148 vi no THAP chu khong so ra ngang vai.
@@ -4914,16 +4915,44 @@ function buildHeroProps3D(upper, hands, arms, legR, hero, head, root) {
     // trong rong nen bat buoc DoubleSide, va cung chinh vi vay mot vien den mong
     // duoc dat lech 0,012 vao trong de chan vay co do day VAI thay vi nhu giay.
     const dressM = mat(hero.robeColor, { roughness: 0.74, side: THREE.DoubleSide });
-    const dress = m(new THREE.LatheGeometry(dressPts, 40), dressM, 0, 0, 0,
+    // VAY LA CON CUA upper, KHONG phai root (chi thi 2026-11-16: "animation cau may
+    // cua morgana dang loi hinh anh, khi cui nguoi trong nhu dau roi khoi than").
+    // BON kieu gan da do bang scripts/bow-ab.mjs <hero> <port> morgDress tai DINH
+    // lay (upper.rotation.x = -1,15 = -65,9 do), so voi anh /tmp/ab-*:
+    //   root (ban cu)     : vay dung thang nhu mot cai chong, ben trong toi, con
+    //                       dau + nguoi + canh NGHIENG ra NGOAI mieng vay 0,26 ->
+    //                       nguoi xem doc thanh "dau roi khoi than".
+    //   split (eo 0,55)   : mieng cat 0,46 RONG hon that lung, khi nghieng loi ra
+    //                       thanh mot vung den giua lung — van con, chi it hon.
+    //   short (cat bo 0,55): G.torso thay cho tan ao, cung mot loi tren.
+    //   upper (toan bo)   : ca luong thu di cung mot khoi, giong het cach
+    //                       ahri_chibi lay va da duoc duyet.
+    // PHEP QUYET la `neckOff` cua bow-shot (khoang cach tu TRUC vay den tam dau, do
+    // trong he toa do RIENG cua vay; vay quay cung nguoi thi no khong doi):
+    //   node .qoder/skills/temple-hero/scripts/bow-shot.mjs morgana_chibi 8899 \
+    //        0,0.3,0.45,0.52,0.58 --garment morgDress            # ban nay
+    //   ... --root-baseline                                       # ban cu, cung scene
+    // upper: 0,018 / 0,026 / 0,019 / 0,019 / 0,019 (upper -1,4 do -> -65,9 do).
+    // root : 0,047 khi dang -> 1,139 o dinh lay. 1,14 m chinh la cai "dau roi".
+    // So -0,40 duoc tru ra vi phuong trinh vay nam trong HE ROOT (0,03..0,93) con
+    // goc quay cua upper o root-y 0,40; dung khi dang thi 0,03 - 0,40 + 0,40 =
+    // 0,03 = vay yen dung cho, do bang sitcheck.mjs morgana_chibi 8899 morgDress:
+    // stand [0,03 .. 0,93] (GIONG HET ban cu), sit [0,10 .. 1,00] cung chieu cao
+    // dau 1,471 -> vay khong noi khoi san khi thien va khong xuyen san.
+    // Khi lay, guoc vay xuong -0,217 duoi mat san; do KHONG phai loi moi: than ao
+    // (Lathe cua upper) ban cu da dat -0,207 o cung phase, va mesh am nhat thuc te
+    // la `ultSphere` -0,264 (hop nien phat sang, only during ult, trong suot).
+    const dress = m(new THREE.LatheGeometry(dressPts, 40), dressM, 0, -UPPER_Y, 0,
       { scale: [1, 1, 0.92] });
-    root.add(dress);
+    upper.add(dress);
     // Lop lot: mot lathe cung dinh duong o ba moc duoi, lech vao trong 0,012 va
-    // cung scale z 0,92 (dat o root, KHONG gan vao dress: no da co scale cua
-    // chinh no, con la con cua mot mesh da bi z-nen 0,92 thi chan vay bi bẹp
-    // 0,8464 — lech 0,04 sau, nhin ra cai day bi ep).
+    // cung scale z 0,92 (KHONG gan vao dress: no da co scale cua chinh no, con la
+    // con cua mot mesh da bi z-nen 0,92 thi chan vay bi bẹp 0,8464 — lech 0,04
+    // sau, nhin ra cai day bi ep). Cung upper nhu vay: gan root thi khi lay lop
+    // lot dung lai mot minh, thanh mot vien den noi tren mat trong cua chong.
     const hemPts = dressPts.slice(0, 3).map(([r, y]) => new THREE.Vector2(r - 0.012, y));
-    root.add(m(new THREE.LatheGeometry(hemPts, 40),
-      mat(hero.pantsColor, { roughness: 0.82, side: THREE.DoubleSide }), 0, 0, 0,
+    upper.add(m(new THREE.LatheGeometry(hemPts, 40),
+      mat(hero.pantsColor, { roughness: 0.82, side: THREE.DoubleSide }), 0, -UPPER_Y, 0,
       { scale: [1, 1, 0.92] }));
     vfxGroup.userData.morgDress = dress;
 
