@@ -4,7 +4,7 @@ import { Panel } from '@/components/ui';
 import { PatchBar } from '@/components/patch-bar';
 import type { Lang } from '@/lib/i18n';
 import { lootLocalCards } from '@/lib/loot';
-import { incomeBase, interest, streakBonus } from '@tftiq/shared/mechanics';
+import { incomeBase, interest, mechanicsPatch, streakBonus } from '@tftiq/shared/mechanics';
 import { messages } from '@/lib/messages';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
@@ -77,7 +77,7 @@ export default async function GoldIncomePage({ params }: { params: Promise<{ lan
           </div>
         </div>
       </Panel>
-      <p className="text-xs leading-relaxed text-mist">{t.source}</p>
+      <p className="text-xs leading-relaxed text-mist">{t.source(mechanicsPatch)}</p>
     </div>
   );
 }

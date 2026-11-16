@@ -4,6 +4,7 @@ import { CompMap } from '@/components/comp-map';
 import { CtaLink } from '@/components/ui';
 import { getCompMap } from '@/lib/comp-map';
 import type { Lang } from '@/lib/i18n';
+import season from '@tftiq/shared/data/set.json';
 import { messages } from '@/lib/messages';
 
 // Every card is a card with a render: the brand wash at the top, panel below, and
@@ -28,7 +29,7 @@ export default async function Home({ params }: { params: Promise<{ lang: Lang }>
       <section
         data-section="hero"
         className="relative flex min-h-[390px] flex-col items-start justify-center gap-5 overflow-hidden rounded-2xl border border-line px-6 py-10 text-left md:px-12"
-        style={{ backgroundImage: 'url("/images/tft/enchanted-wilds-banner.webp")', backgroundSize: 'cover', backgroundPosition: '72% 50%' }}
+        style={{ backgroundImage: `url("${season.banner}")`, backgroundSize: 'cover', backgroundPosition: '72% 50%' }}
       >
         {/* Two washes, because one cannot follow the copy. From xl up the
             headline is 760px inside a wider board, so it stays left of the 62%

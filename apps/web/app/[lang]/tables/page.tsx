@@ -3,6 +3,7 @@ import { Panel } from '@/components/ui';
 import { LootHub } from '@/components/loot';
 import { PatchBar } from '@/components/patch-bar';
 import type { Lang } from '@/lib/i18n';
+import { mechanicsPatch } from '@tftiq/shared/mechanics';
 import { messages } from '@/lib/messages';
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Lang }> }): Promise<Metadata> {
@@ -28,7 +29,7 @@ export default async function TablesPage({ params }: { params: Promise<{ lang: L
         </div>
         <LootHub lang={lang} />
       </Panel>
-      <p className="text-xs leading-relaxed text-mist">{t.source}</p>
+      <p className="text-xs leading-relaxed text-mist">{t.source(mechanicsPatch)}</p>
     </div>
   );
 }

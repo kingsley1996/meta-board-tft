@@ -1,4 +1,5 @@
 import { expect, test } from 'playwright/test';
+import { traitPath } from './season';
 
 // The two boards the Set menu got this round: the trait catalog and the encounter pool.
 test('the trait list shows every trait with its ladder and its carrier count', async ({ page }) => {
@@ -14,7 +15,7 @@ test('the trait list shows every trait with its ladder and its carrier count', a
   const elderwood = page.getByRole('link', { name: /Elderwood/ });
   await expect(elderwood.getByText('7 champions')).toBeVisible();
   await expect(elderwood.getByText('11')).toBeVisible();
-  await expect(elderwood).toHaveAttribute('href', '/en/traits/da-18-elderwood');
+  await expect(elderwood).toHaveAttribute('href', traitPath('Elderwood'));
 
   await page.goto('/vi/traits');
   await expect(page.getByRole('heading', { name: 'Tộc hệ', level: 1 })).toBeVisible();

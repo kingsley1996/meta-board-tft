@@ -7,9 +7,10 @@ import { Chip, DisplayTitle } from '@/components/ui';
 import { PatchStrip } from '@/components/patch-rows';
 import type { GuidesResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
+import { upcomingSeason } from '@/lib/data';
 import type { Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
-import { rowsOf, slugToPatch } from '@/lib/patches';
+import { rowsOf, slugToPatch, textOf } from '@/lib/patches';
 
 // One article per Riot patch, listed newest first. A row is one patch read at a glance: the
 // number Riot prints, the day it landed, and the faces that moved under each direction. The
@@ -54,6 +55,10 @@ export default async function PatchesPage({ params }: { params: Promise<{ lang: 
             <span className="flex flex-wrap items-center gap-x-2 gap-y-1.5 md:w-[132px] md:shrink-0 md:flex-col md:items-start">
               <span className="font-display text-2xl leading-none font-bold tracking-tight text-fog">{preview}</span>
               <span className="text-xs text-mist">{t.notFinal}</span>
+              {/* Only the preview feed knows a new season exists, so this names the one it measures. */}
+              {upcomingSeason ? (
+                <Chip tone="brand">{t.previewSet(upcomingSeason.number, textOf(upcomingSeason.name, lang))}</Chip>
+              ) : null}
               <Chip tone="conditional">{`${t.pbe} · ${pbe.baseline.patch}`}</Chip>
             </span>
             <span className="flex min-w-0 flex-1 flex-wrap gap-x-4 gap-y-2">

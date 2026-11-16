@@ -8,9 +8,10 @@ import { PatchChangeTable, PatchHighlights } from '@/components/patch-rows';
 import { PatchKindTabs } from '@/components/patch-kind-tabs';
 import type { ApiGuide, ApiGuideSection, GuidesResponse } from '@/lib/api';
 import { backendJson } from '@/lib/backend';
+import { upcomingSeason } from '@/lib/data';
 import { locales, type Lang } from '@/lib/i18n';
 import { messages } from '@/lib/messages';
-import { patchToSlug, rowsOf, slugToPatch } from '@/lib/patches';
+import { patchToSlug, rowsOf, slugToPatch, textOf } from '@/lib/patches';
 
 // The article is a machine-made copy of Riot's notes: `seed:patch-notes` writes it, and an
 // admin can edit the prose around the rows. A day of edge cache is what makes a re-seed cheap.
@@ -130,6 +131,9 @@ export default async function PatchArticlePage({ params }: { params: Promise<{ l
         ) : (
           <>
             <p className="flex flex-wrap items-center gap-2">
+              {upcomingSeason ? (
+                <Chip tone="brand">{t.previewSet(upcomingSeason.number, textOf(upcomingSeason.name, lang))}</Chip>
+              ) : null}
               <Chip tone="conditional">{`${t.pbe} · ${pbe.baseline.patch}`}</Chip>
               <span className="text-xs font-semibold uppercase tracking-wide text-mist">{t.notFinal}</span>
             </p>

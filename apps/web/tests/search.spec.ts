@@ -1,4 +1,5 @@
 import { expect, test } from 'playwright/test';
+import { championPath, setLabel, traitPath } from './season';
 
 const searchBox = (page: import('playwright/test').Page) => page.getByRole('combobox', { name: /Search champions|Tìm tướng/ });
 
@@ -10,7 +11,7 @@ test('header search opens a champion page', async ({ page }) => {
   await expect(result).toBeVisible();
   await result.click();
 
-  await expect(page).toHaveURL(/\/en\/champions\/da-18-ahri$/);
+  await expect(page).toHaveURL(new RegExp(`${championPath('Ahri')}$`));
   await expect(page.getByRole('heading', { name: 'Ahri' })).toBeVisible();
 });
 
@@ -33,7 +34,7 @@ test('header search opens augment and trait pages', async ({ page }) => {
 
   await searchBox(page).fill('Elderwood');
   await page.getByRole('option', { name: 'Elderwood', exact: true }).click();
-  await expect(page).toHaveURL(/\/en\/traits\/da-18-elderwood$/);
+  await expect(page).toHaveURL(new RegExp(`${traitPath('Elderwood')}$`));
   await expect(page.getByRole('heading', { name: 'Elderwood' })).toBeVisible();
 });
 
@@ -55,7 +56,7 @@ test('desktop navigation dropdown closes after selecting an item', async ({ page
   await page.goto('/en');
 
   const menu = page.locator('[data-section="menu"]');
-  const setMenu = menu.getByRole('button', { name: 'Set 18' });
+  const setMenu = menu.getByRole('button', { name: setLabel('en') });
   await setMenu.hover();
 
   const champions = menu.getByRole('link', { name: 'Champions', exact: true });

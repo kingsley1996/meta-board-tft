@@ -1,7 +1,28 @@
 import tft from '@tftiq/shared/data/tft.json';
 import meta from '@tftiq/shared/data/meta.json';
 import patchNotes from '@tftiq/shared/data/patch-notes.json';
+import pbe from '@tftiq/shared/data/pbe.json';
+import season from '@tftiq/shared/data/set.json';
+import { previewSeason, type UpcomingSeason } from './season-window';
 import type { Lang } from './i18n';
+
+// `set.json` is the only place a season's name is written by a person, so its number has to be the
+// number the fetched data carries. A label left behind after a rotation reads like a live season
+// whose numbers came from the previous one, which is why this fails the build instead of the page.
+if (season.number !== tft.set.number || season.number !== meta.source.setNumber) {
+  throw new Error(
+    `set.json ghi mùa ${season.number} trong khi dữ liệu đã fetch là tft ${tft.set.number} / meta ${meta.source.setNumber} — sửa set.json khi sang mùa`,
+  );
+}
+
+// A new season's PBE is the one window in which the two numbers differ: the preview board is
+// already describing season N+1 while every live page still measures season N. The number comes
+// from the feed; only the name is typed, in `set.json.upcoming`, and an unnamed or stale label
+// fails the build rather than printing a preview that cannot say which season it promises.
+export const upcomingSeason = previewSeason(
+  season as { number: number; upcoming?: UpcomingSeason | null },
+  pbe.set,
+);
 
 export type { Tier } from './tiers';
 export { tierRank } from './tiers';

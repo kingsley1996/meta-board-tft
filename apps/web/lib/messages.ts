@@ -1,6 +1,12 @@
 import type { Lang } from './i18n';
 import { translateText } from './translate';
 import { freePlan, plusPlan } from '@tftiq/shared/membership-plans';
+import setInfo from '@tftiq/shared/data/set.json';
+
+// The set number is data (Riot's catalog carries it); the season name is not, so `set.json` is
+// the one place it is written. `lib/data.ts` fails the build when the two stop agreeing.
+const setNumber = setInfo.number;
+const setName = setInfo.name;
 
 // UI copy for every locale. `vi` is typed against `en` so a missing key fails
 // the build. Authored article bodies (guides, legal) stay English for now.
@@ -14,13 +20,13 @@ const en = {
     champions: { title: 'Champions', description: 'Every champion in the set: cost, traits and the comps they belong to.' },
     itemsDb: { title: 'Items', description: 'Every item in the set: what it builds from and what it does, searchable by name.' },
     augmentsDb: { title: 'Augments', description: 'Every augment in the set, filterable by rarity, with full descriptions.' },
-    wisps: { title: 'Wisps', description: 'Every Wisp in the Set 18 pool, with tier, base, upgraded and prismatic effects.' },
-    traitsDb: { title: 'Traits', description: 'Every Set 18 trait: the activation ladder, what each breakpoint gives and how many champions carry it.' },
-    encounters: { title: 'Encounters', description: 'The Set 18 encounter pool: every encounter, what it hands you and the odds of it landing in your game.' },
-    tables: { title: 'Tables & odds', description: 'Every Set 18 table: shop odds, pool sizes, gold income, and the full list of loot tables, cashouts and drop rates.' },
-    economy: { title: 'Economy strategies', description: 'The eight ways to spend gold in Set 18, with the round-by-round plan and the comps that play each one.' },
+    wisps: { title: 'Wisps', description: `Every Wisp in the Set ${setNumber} pool, with tier, base, upgraded and prismatic effects.` },
+    traitsDb: { title: 'Traits', description: `Every Set ${setNumber} trait: the activation ladder, what each breakpoint gives and how many champions carry it.` },
+    encounters: { title: 'Encounters', description: `The Set ${setNumber} encounter pool: every encounter, what it hands you and the odds of it landing in your game.` },
+    tables: { title: 'Tables & odds', description: `Every Set ${setNumber} table: shop odds, pool sizes, gold income, and the full list of loot tables, cashouts and drop rates.` },
+    economy: { title: 'Economy strategies', description: `The eight ways to spend gold in Set ${setNumber}, with the round-by-round plan and the comps that play each one.` },
     guides: { title: 'Guides', description: 'Fundamentals, economy, positioning and meta reads from TFTIQ coaches.' },
-    patches: { title: 'TFT patch notes', description: 'Every stat and rule Riot changed in each Set 18 patch, grouped the way they published it: buffs, nerfs and adjustments per champion, item, trait and augment.' },
+    patches: { title: 'TFT patch notes', description: `Every stat and rule Riot changed in each Set ${setNumber} patch, grouped the way they published it: buffs, nerfs and adjustments per champion, item, trait and augment.` },
     media: { title: 'Media', description: 'TFTIQ media: video and podcast are not published yet; read the written guides in the meantime.' },
     assistant: { title: 'Coach AI for TFT', description: 'Ask Coach AI about TFT champions, items, augments and comps. Answers use TFTIQ data and show their sources.' },
     assistantGuide: { title: 'How to use Coach AI', description: 'What Coach AI answers, what it deliberately leaves out, and how a message, voice turn and quota are counted.' },
@@ -224,13 +230,17 @@ const en = {
   patches: {
     small: 'Patch',
     big: 'Notes',
-    sub: 'Every number and rule Riot changed in Set 18, in the order their notes list it.',
+    sub: `Every number and rule Riot changed in Set ${setNumber}, in the order their notes list it.`,
     latest: 'Latest',
     // The list splits into the patch still being balanced and the ones the game runs.
     upcoming: 'Upcoming',
     released: 'Released',
     micro: 'Micro patch',
     pbe: 'PBE',
+    // Only shown while a new season's PBE runs against the season still live. The name is the one
+    // Riot announced, read from `set.json.upcoming`; the vi fallback keeps English rather than
+    // inventing a translation Riot has not published.
+    previewSet: (number: number, name: string) => `Set ${number} · ${name}`,
     notFinal: 'Not final',
     // Reads as "Mid-patch update of 18.5" — Riot numbers a hotfix after the patch it lands on.
     mid: 'Mid-patch update of',
@@ -272,7 +282,7 @@ const en = {
     attribution: 'Riot Games publishes the numbers and the group names; their article carries the commentary.',
   },
   home: {
-    badge: 'Set 18 · Enchanted Wilds',
+    badge: `Set ${setNumber} · ${setName.en}`,
     headline: 'Every board that wins,',
     headlineAccent: 'one comp away.',
     sub: 'TFTIQ ranks the comps, items and augments that actually climb this patch — curated from thousands of matches and refreshed with each patch and match-data snapshot.',
@@ -281,7 +291,7 @@ const en = {
     prayLuck: 'Pray for luck',
     assistantKicker: 'YOUR TFT COACH',
     assistantTitle: 'Get your next move right.',
-    assistantBody: 'Ask about your board, items, augments or economy. Get recommendations backed by current Set 18 data.',
+    assistantBody: `Ask about your board, items, augments or economy. Get recommendations backed by current Set ${setNumber} data.`,
     assistantCta: 'Ask Coach AI',
     openBoard: 'Open board →',
     features: {
@@ -317,12 +327,12 @@ const en = {
   },
   economy: {
     title: 'Economy strategies',
-    sub: 'Every comp spends gold differently. These are the eight lines we track for Set 18, with the round-by-round plan and the comps that play each one.',
+    sub: `Every comp spends gold differently. These are the eight lines we track for Set ${setNumber}, with the round-by-round plan and the comps that play each one.`,
     rounds: 'Round by round',
     compsCount: (count: number) => `${count} ${count === 1 ? 'comp' : 'comps'}`,
     strategy: 'Economy strategy',
     plan: 'Economy plan',
-    source: 'Economy strategies and level curves for Set 18; the game stays the source of truth.',
+    source: `Economy strategies and level curves for Set ${setNumber}; the game stays the source of truth.`,
   },
   compPanel: {
     vote: 'Mark this comp helpful',
@@ -457,7 +467,7 @@ const en = {
     cost: (cost: number) => `${cost}g`,
     round: (span: string) => `Stage ${span}`,
     missing: 'The TFTIQ lookup has no effect text for this wisp.',
-    source: 'TFTIQ · Wisp tier list + Set 18 charm lookup',
+    source: `TFTIQ · Wisp tier list + Set ${setNumber} charm lookup`,
   },
   traitsDb: {
     search: 'Search traits',
@@ -472,7 +482,7 @@ const en = {
     lootTable: 'Loot table',
     count: (shown: number, total: number) => `${shown} of ${total} encounters`,
     empty: 'No encounter matches that search.',
-    source: 'TFTIQ · Set 18 encounter pool and odds',
+    source: `TFTIQ · Set ${setNumber} encounter pool and odds`,
   },
   tables: {
     sub: 'Every number behind a roll, a level-up and a gold decision this set — plus the full list of loot tables and drop rates.',
@@ -487,7 +497,7 @@ const en = {
     hold: 'Gold held',
     streak: 'Win / loss streak',
     streakLabel: 'In a row',
-    source: 'Reference values for Set 18 (patch 18.4). When a patch moves a number, the game wins — these tables are updated by hand.',
+    source: (patch: string) => `Reference values for Set ${setNumber} (patch ${patch}). When a patch moves a number, the game wins — these tables are updated by hand.`,
     loot: {
       title: 'Loot & drop tables',
       hint: 'Every loot table of the set — cashouts, orbs, augments and system drops. Open a table to see every weighted outcome.',
@@ -508,7 +518,7 @@ const en = {
       tier: 'Tier',
       conditional: 'Conditional odds',
       weight: 'Weight',
-      source: 'Loot tables and drop rates for Set 18; the game stays the source of truth.',
+      source: `Loot tables and drop rates for Set ${setNumber}; the game stays the source of truth.`,
     },
   },
   builder: {
@@ -624,7 +634,7 @@ const en = {
     emptyTitle: 'What do you want to check?',
     emptyBody: 'Try a champion, a comp you are considering, or the items you already have.',
     samples: ['Which comp uses Ahri?', 'Compare Ahri & Morgana Blossom with Ahri & Zyra Blossom', 'What does Blue Buff do?', 'I have Ahri and Guinsoo\u2019s Rageblade — what comp fits?'],
-    disclaimer: 'Set 18 data only. Patch notes are not available yet.',
+    disclaimer: `Set ${setNumber} data only. Patch notes are not available yet.`,
     quota: {
       chipDaily: (left: number, allowance: number) => `${left} / ${allowance} left today`,
       chipMonthly: (left: number, allowance: number) => `Free · ${left} / ${allowance} this month`,
@@ -691,7 +701,7 @@ const en = {
     mascotName: 'Tomo',
     mascotBoop: 'Boop Tomo',
     introName: "I'm Tomo — TFTIQ's AI assistant",
-    intro: 'I read current Set 18 data to suggest comps, builds and augments for your board.',
+    intro: `I read current Set ${setNumber} data to suggest comps, builds and augments for your board.`,
     dataMode: 'Data summary',
     llmMode: 'Coach AI',
     guideLink: 'How to use Coach',
@@ -1044,13 +1054,13 @@ const vi: typeof en = {
     champions: { title: 'Tướng', description: 'Toàn bộ tướng trong mùa: giá, tộc hệ và những đội hình phù hợp.' },
     itemsDb: { title: 'Trang bị', description: 'Toàn bộ trang bị trong mùa: ghép từ gì, công dụng ra sao, kèm tìm kiếm theo tên.' },
     augmentsDb: { title: 'Nâng cấp', description: 'Toàn bộ nâng cấp trong mùa, lọc theo độ hiếm, kèm mô tả đầy đủ.' },
-    wisps: { title: 'Tinh linh', description: 'Toàn bộ Wisp trong bể mùa 18: xếp hạng, hiệu ứng cơ bản, nâng cấp và kim cương.' },
-    traitsDb: { title: 'Tộc hệ', description: 'Toàn bộ tộc hệ mùa 18: các mốc kích hoạt, phần thưởng từng mốc và số tướng mang tộc hệ đó.' },
-    encounters: { title: 'Kỳ ngộ', description: 'Bể Kỳ ngộ mùa 18: mỗi Kỳ ngộ đem lại gì và tỉ lệ xuất hiện trong một ván đấu.' },
-    tables: { title: 'Bảng cơ chế', description: 'Toàn bộ bảng của mùa 18: tỉ lệ cửa hàng, bể tướng, thu nhập vàng, cùng danh sách bảng loot, cashout và tỉ lệ rơi.' },
-    economy: { title: 'Chiến lược kinh tế', description: 'Tám cách tiêu vàng trong mùa 18, kèm kế hoạch theo từng vòng và các đội hình dùng chiến lược đó.' },
+    wisps: { title: 'Tinh linh', description: `Toàn bộ Wisp trong bể mùa ${setNumber}: xếp hạng, hiệu ứng cơ bản, nâng cấp và kim cương.` },
+    traitsDb: { title: 'Tộc hệ', description: `Toàn bộ tộc hệ mùa ${setNumber}: các mốc kích hoạt, phần thưởng từng mốc và số tướng mang tộc hệ đó.` },
+    encounters: { title: 'Kỳ ngộ', description: `Bể Kỳ ngộ mùa ${setNumber}: mỗi Kỳ ngộ đem lại gì và tỉ lệ xuất hiện trong một ván đấu.` },
+    tables: { title: 'Bảng cơ chế', description: `Toàn bộ bảng của mùa ${setNumber}: tỉ lệ cửa hàng, bể tướng, thu nhập vàng, cùng danh sách bảng loot, cashout và tỉ lệ rơi.` },
+    economy: { title: 'Chiến lược kinh tế', description: `Tám cách tiêu vàng trong mùa ${setNumber}, kèm kế hoạch theo từng vòng và các đội hình dùng chiến lược đó.` },
     guides: { title: 'Hướng dẫn', description: 'Kiến thức nền tảng, kinh tế, xếp đội hình và đọc meta từ đội ngũ TFTIQ.' },
-    patches: { title: 'Ghi chú bản vá TFT', description: 'Toàn bộ chỉ số và cơ chế Riot đã đổi trong từng bản vá mùa 18, sắp đúng thứ tự bài gốc: tăng, giảm và điều chỉnh theo tướng, trang bị, tộc hệ và nâng cấp.' },
+    patches: { title: 'Ghi chú bản vá TFT', description: `Toàn bộ chỉ số và cơ chế Riot đã đổi trong từng bản vá mùa ${setNumber}, sắp đúng thứ tự bài gốc: tăng, giảm và điều chỉnh theo tướng, trang bị, tộc hệ và nâng cấp.` },
     media: { title: 'Media', description: 'Media TFTIQ: video và podcast chưa ra mắt; trong lúc chờ, đọc hướng dẫn dạng văn bản.' },
     assistant: { title: 'Coach AI TFT', description: 'Hỏi Coach AI về tướng, trang bị, nâng cấp và đội hình TFT. Câu trả lời dùng dữ liệu TFTIQ và hiển thị nguồn.' },
     assistantGuide: { title: 'Cách dùng Coach AI', description: 'Coach AI trả lời gì, chủ động bỏ qua gì, và một tin nhắn, lượt giọng nói hay quota được tính ra sao.' },
@@ -1254,12 +1264,13 @@ const vi: typeof en = {
   patches: {
     small: 'Bản vá',
     big: 'Thay đổi',
-    sub: 'Mọi chỉ số và cơ chế Riot đã đổi trong mùa 18, đúng thứ tự bài ghi chú của họ.',
+    sub: `Mọi chỉ số và cơ chế Riot đã đổi trong mùa ${setNumber}, đúng thứ tự bài ghi chú của họ.`,
     latest: 'Mới nhất',
     upcoming: 'Sắp ra mắt',
     released: 'Đã phát hành',
     micro: 'Vá nhỏ',
     pbe: 'PBE',
+    previewSet: (number: number, name: string) => `Mùa ${number} · ${name}`,
     notFinal: 'Chưa chốt',
     mid: 'Giữa bản vá',
     all: 'Toàn bộ bản vá',
@@ -1278,7 +1289,7 @@ const vi: typeof en = {
     attribution: 'Số liệu và tên nhóm do Riot Games công bố; bài gốc của họ phần nhận xét.',
   },
   home: {
-    badge: 'Mùa 18 · Đại Ngàn Kỳ Bí',
+    badge: `Mùa ${setNumber} · ${setName.vi}`,
     headline: 'Mọi chiến thắng đều bắt đầu',
     headlineAccent: 'từ một đội hình.',
     sub: 'TFTIQ xếp hạng đội hình, trang bị và nâng cấp thực sự leo rank trong patch này — chọn lọc từ hàng nghìn trận đấu và làm mới theo từng patch cùng bản dữ liệu trận.',
@@ -1287,7 +1298,7 @@ const vi: typeof en = {
     prayLuck: 'Cầu may trước trận',
     assistantKicker: 'HUẤN LUYỆN VIÊN TFT CỦA BẠN',
     assistantTitle: 'Tự tin chọn nước đi tiếp theo.',
-    assistantBody: 'Hỏi về đội hình, trang bị, nâng cấp hoặc kinh tế. Nhận gợi ý dựa trên dữ liệu Mùa 18 mới nhất.',
+    assistantBody: `Hỏi về đội hình, trang bị, nâng cấp hoặc kinh tế. Nhận gợi ý dựa trên dữ liệu Mùa ${setNumber} mới nhất.`,
     assistantCta: 'Hỏi Coach AI',
     openBoard: 'Mở bảng →',
     features: {
@@ -1323,12 +1334,12 @@ const vi: typeof en = {
   },
   economy: {
     title: 'Chiến lược kinh tế',
-    sub: 'Mỗi đội hình tiêu vàng theo một cách khác nhau. Đây là tám cách chúng tôi theo dõi cho mùa 18, kèm kế hoạch theo từng vòng và các đội hình dùng chiến lược đó.',
+    sub: `Mỗi đội hình tiêu vàng theo một cách khác nhau. Đây là tám cách chúng tôi theo dõi cho mùa ${setNumber}, kèm kế hoạch theo từng vòng và các đội hình dùng chiến lược đó.`,
     rounds: 'Theo từng vòng',
     compsCount: (count: number) => `${count} đội hình`,
     strategy: 'Chiến lược kinh tế',
     plan: 'Kế hoạch kinh tế',
-    source: 'Chiến lược kinh tế và lộ trình lên cấp cho mùa 18; game vẫn là chuẩn.',
+    source: `Chiến lược kinh tế và lộ trình lên cấp cho mùa ${setNumber}; game vẫn là chuẩn.`,
   },
   compPanel: {
     vote: 'Đánh dấu đội hình hữu ích',
@@ -1463,7 +1474,7 @@ const vi: typeof en = {
     cost: (cost: number) => `${cost} vàng`,
     round: (span: string) => `Vòng ${span}`,
     missing: 'Lookup TFTIQ chưa có mô tả cho wisp này.',
-    source: 'TFTIQ · bảng xếp hạng Wisp + lookup charm mùa 18',
+    source: `TFTIQ · bảng xếp hạng Wisp + lookup charm mùa ${setNumber}`,
   },
   traitsDb: {
     search: 'Tìm tộc hệ',
@@ -1478,7 +1489,7 @@ const vi: typeof en = {
     lootTable: 'Bảng loot',
     count: (shown: number, total: number) => `${shown}/${total} Kỳ ngộ`,
     empty: 'Không có Kỳ ngộ nào khớp tìm kiếm.',
-    source: 'TFTIQ · bể Kỳ ngộ và tỉ lệ mùa 18',
+    source: `TFTIQ · bể Kỳ ngộ và tỉ lệ mùa ${setNumber}`,
   },
   tables: {
     sub: 'Toàn bộ con số đằng sau mỗi lần roll, lên cấp và quyết định vàng trong mùa này — cùng danh sách bảng loot và tỉ lệ rơi.',
@@ -1493,7 +1504,7 @@ const vi: typeof en = {
     hold: 'Vàng đang giữ',
     streak: 'Chuỗi thắng / thua',
     streakLabel: 'Liên tiếp',
-    source: 'Số liệu tham khảo mùa 18 (patch 18.4). Khi patch đổi số, game là chuẩn — bảng này được cập nhật thủ công.',
+    source: (patch: string) => `Số liệu tham khảo mùa ${setNumber} (patch ${patch}). Khi patch đổi số, game là chuẩn — bảng này được cập nhật thủ công.`,
     loot: {
       title: 'Bảng loot & rơi đồ',
       hint: 'Toàn bộ bảng loot của mùa — cashout, orb, augment và lượt rơi hệ thống. Mở một bảng để xem mọi tỉ lệ rơi.',
@@ -1630,7 +1641,7 @@ const vi: typeof en = {
     emptyTitle: 'Bạn muốn kiểm tra gì?',
     emptyBody: 'Thử một tướng, một đội hình đang cân nhắc, hoặc trang bị bạn đang có.',
     samples: ['Đội hình nào dùng Ahri?', 'So sánh Ahri & Morgana Blossom với Ahri & Zyra Blossom', 'Blue Buff có tác dụng gì?', 'Tôi có Ahri và Guinsoo\u2019s Rageblade — nên chơi đội nào?'],
-    disclaimer: 'Chỉ dữ liệu Mùa 18. Chưa có patch notes.',
+    disclaimer: `Chỉ dữ liệu Mùa ${setNumber}. Chưa có patch notes.`,
     quota: {
       chipDaily: (left: number, allowance: number) => `Hôm nay còn ${left} / ${allowance}`,
       chipMonthly: (left: number, allowance: number) => `Miễn phí · ${left} / ${allowance} lượt tháng này`,
@@ -1697,7 +1708,7 @@ const vi: typeof en = {
     mascotName: 'Tomo',
     mascotBoop: 'Chạm vào Tomo',
     introName: 'Mình là Tomo — trợ lý AI của TFTIQ',
-    intro: 'Mình đọc dữ liệu Mùa 18 hiện hành để gợi ý đội hình, cách lên đồ và nâng cấp hợp với bàn cờ của bạn.',
+    intro: `Mình đọc dữ liệu Mùa ${setNumber} hiện hành để gợi ý đội hình, cách lên đồ và nâng cấp hợp với bàn cờ của bạn.`,
     dataMode: 'Tóm tắt dữ liệu',
     llmMode: 'Coach AI',
     guideLink: 'Cách dùng Coach',

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import type { Lang } from '@/lib/i18n';
+import season from '@tftiq/shared/data/set.json';
 import { messages } from '@/lib/messages';
 import { AuthNav } from './auth/auth-nav';
 import { LangSwitch } from './lang-switch';
@@ -83,8 +84,8 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
           { label: t.items, href: `/${lang}/items`, icon: 'item' },
           { label: t.traits, href: `/${lang}/traits`, icon: 'trait' },
           { label: t.augments, href: `/${lang}/augments`, icon: 'augment' },
-          { label: t.wisps, href: `/${lang}/wisps`, icon: 'wisp' },
-          { label: t.encounters, href: `/${lang}/encounters`, icon: 'encounter' },
+          ...(season.features.wisps ? [{ label: t.wisps, href: `/${lang}/wisps`, icon: 'wisp' } satisfies NavEntry] : []),
+          ...(season.features.encounters ? [{ label: t.encounters, href: `/${lang}/encounters`, icon: 'encounter' } satisfies NavEntry] : []),
         ],
         [
           { label: t.patches, href: `/${lang}/patches`, icon: 'patch' },

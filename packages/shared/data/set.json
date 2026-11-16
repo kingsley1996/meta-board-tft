@@ -1,0 +1,12 @@
+{
+  "number": 18,
+  "name": {
+    "en": "Enchanted Wilds",
+    "vi": "Đại Ngàn Kỳ Bí"
+  },
+  "banner": "/images/tft/enchanted-wilds-banner.webp",
+  "features": {
+    "wisps": true,
+    "encounters": true
+  }
+}

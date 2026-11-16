@@ -1,4 +1,5 @@
 import { expect, test } from 'playwright/test';
+import { championPath } from './season';
 import { readFileSync } from 'node:fs';
 
 // A patch article is generated from Riot's own rows, so the browser check is about the
@@ -134,8 +135,8 @@ test('the highlight card names entities instead of counting kinds', async ({ pag
   }
   // 11 buffed (clipped to 8) + 4 nerfed + 6 adjusted champions, each drawn once per bucket.
   expect(await page.locator(`${CARD} [data-tip^="champion:"]`).count()).toBe(18);
-  await expect(page.locator(`${CARD} a[href="/en/champions/da-18-caitlyn"]`).first()).toBeVisible();
-  await expect(page.locator(`${CARD} a[href="/en/champions/da-18-azir"]`).first()).toBeVisible();
+  await expect(page.locator(`${CARD} a[href="${championPath('Caitlyn')}"]`).first()).toBeVisible();
+  await expect(page.locator(`${CARD} a[href="${championPath('Azir')}"]`).first()).toBeVisible();
   await expect(page.locator(CARD).getByText('+3', { exact: true })).toBeVisible();
   await expect(page.locator(CARD).getByText('+6', { exact: true })).toBeVisible();
   // The kinds that used to fold are drawn like any other: three buffed augments and the one wisp

@@ -1,5 +1,8 @@
 # Set rotation: chuẩn bị cho ngày TFT sang mùa mới
 
+> Set 19 "Prismatic Tour" (PBE 17/11/2026, live 2/12/2026): dữ kiện và checklist riêng ở
+> [`SET19-PREP.md`](SET19-PREP.md). Tài liệu dưới đây là kế hoạch chung, không lặp lại số của set 19.
+
 Phạm vi: trả lời hai câu của chỉ thị — (1) các chức năng trên trang có sống được qua một set mới không, (2) kiến trúc có chịu được nhịp đổi phiên bản 3–4 tháng một lần của game không.
 
 Kết luận ngắn: **kiến trúc không cần trở thành multi-set** — nhưng phải chịu được **hai set cùng tồn tại**: PBE của mùa mới mở trước ngày launch 4–6 tuần, và trong suốt cửa sổ đó server live vẫn ở 18.x. Ba thứ còn thiếu:
@@ -122,8 +125,12 @@ Ba bất biến phải được kiểm bằng code, không bằng kỷ luật:
 
 ```json
 { "number": 18, "…": "…",
-  "upcoming": { "number": 19, "name": { "en": "…", "vi": "…" }, "features": { "wisps": false } } }
+  "upcoming": { "number": 19, "name": { "en": "…" } } }
 ```
+
+`name.vi` chỉ được viết khi Riot công bố bản dịch; thiếu nó thì trang vi hiển thị tên en (`textOf`), không ai tự dịch. `features` không nằm trong `upcoming`: nav đọc `set.json.features` của mùa **đang live**, còn bảng preview không vẽ gate tính năng nào, nên thêm field không có người đọc chỉ để sau này quên xoá.
+
+`apps/web/lib/season-window.ts` là nơi khai ba bất biến bằng code, và nó chạy ở module scope của `lib/data.ts` nên cả ba là **build fail**, không phải trang lỗi: feed về mùa hiện tại mà `upcoming` còn đó → bảo xoá; feed ở mùa N+1 mà chưa gõ tên → bảo gõ, kèm "không tự dịch"; `upcoming.number` lệch `pbe.set` → feed đúng, `set.json` sai.
 
 ## 5. Lịch theo mốc — mốc là tín hiệu đo được, không phải ngày đoán
 
@@ -150,7 +157,7 @@ Không ai biết Riot sang set ngày nào, nhưng pipeline **tự phát hiện**
 5. Bỏ danh sách patch dự phòng và `?? 18` → throw (D6). *(crawler)*
 6. `set.json` (kèm `upcoming`) + nối `messages.ts` (badge/mô tả/disclaimer), banner, `features` cho nav (D2, D8). 
 7. Bỏ literal set/patch khỏi `header.spec.ts:95`, `search.spec.ts:13`, `champion-stats.spec.ts:7,22,29` (D7).
-8. Test bất biến cửa sổ: với fixture `liveSet=18 / previewSet=19`, asserting (a) artifact live không đổi, (b) `pbe.json` có row, (c) không route nào của 19 lọt vào `generateStaticParams` của trang live (D8-3).
+8. Test bất biến cửa sổ: với fixture `liveSet=18 / previewSet=19`, asserting (a) artifact live không đổi, (b) `pbe.json` có row, (c) không route nào của 19 lọt vào `generateStaticParams` của trang live (D8-3). *(crawler: `test/preview-window.test.mjs` chạy thật `build-pbe-diff.mjs` trên fixture qua `METABOARD_CACHE`; app: `lib/season-window.test.ts` — slug nào lọt vào `pbe.json` cũng phải có trang trong catalog live, vì `dynamicParams = false` biến một link mùa 19 thành 404 ngay trên bảng đang quảng bá mùa 19.)*
 
 **P1 — 1–2 tuần, biến rotation thành một thao tác**
 9. Cột `comps.set_number` + vị từ lọc board + `verify` in "db is on set X" (D4).

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from 'playwright/test';
+import { banner, bannerFile, setLabel } from './season';
 
 test('desktop header keeps the menu sticky and hides the search row on scroll down', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -59,7 +60,7 @@ test('the set menu splits the season into entities and the pages that read them'
   await page.goto('/en');
 
   const menu = page.locator('[data-section="menu"]');
-  await menu.getByRole('button', { name: 'Set 18' }).hover();
+  await menu.getByRole('button', { name: setLabel('en') }).hover();
 
   const panel = menu.locator('div.grid');
   await expect(panel).toBeVisible();
@@ -81,9 +82,9 @@ test('the set menu splits the season into entities and the pages that read them'
 
   // Being inside the season lights both the row and the group it hangs off.
   await page.goto('/en/augments');
-  await menu.getByRole('button', { name: 'Set 18' }).hover();
+  await menu.getByRole('button', { name: setLabel('en') }).hover();
   await expect(panel.getByRole('link', { name: 'Augments', exact: true })).toHaveAttribute('aria-current', 'page');
-  await expect(menu.getByRole('button', { name: 'Set 18' })).toHaveClass(/bg-util/);
+  await expect(menu.getByRole('button', { name: setLabel('en') })).toHaveClass(/bg-util/);
 });
 
 test('the mobile menu lists the season, its boards and the tools', async ({ page }) => {
@@ -92,7 +93,7 @@ test('the mobile menu lists the season, its boards and the tools', async ({ page
   await page.getByRole('button', { name: 'Menu điều hướng' }).click();
 
   const menu = page.locator('#mobile-menu');
-  await expect(menu.getByText('Mùa 18', { exact: true })).toBeVisible();
+  await expect(menu.getByText(setLabel('vi'), { exact: true })).toBeVisible();
   await expect(menu.getByRole('link', { name: 'Tộc/Hệ', exact: true })).toHaveCount(1);
   await expect(menu.getByRole('link', { name: 'Kỳ ngộ', exact: true })).toHaveCount(1);
   await expect(menu.getByRole('link', { name: 'Lõi nâng cấp', exact: true })).toHaveCount(1);
@@ -145,9 +146,9 @@ test('assistant is promoted on the home page and directly linked from desktop na
   await page.goto('/vi');
 
   const hero = page.locator('[data-section="hero"]');
-  const bannerResponse = await page.request.get('/images/tft/enchanted-wilds-banner.webp');
+  const bannerResponse = await page.request.get(banner);
   expect(bannerResponse.ok()).toBeTruthy();
-  await expect.poll(() => hero.evaluate((element) => getComputedStyle(element).backgroundImage)).toContain('enchanted-wilds-banner.webp');
+  await expect.poll(() => hero.evaluate((element) => getComputedStyle(element).backgroundImage)).toContain(bannerFile);
   const coachMascot = page.locator('img[src*="coach-penguin"]');
   await expect(coachMascot).toBeVisible();
   await expect.poll(() => coachMascot.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
