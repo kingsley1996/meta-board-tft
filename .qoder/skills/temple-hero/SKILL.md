@@ -386,6 +386,16 @@ node scripts/hall-shot.mjs /tmp/hall.png  # ~90s: CHỈ khi user bấm
     vì `side.x = scale ±1`), lấy MAX rồi mới ghi số thắng vào `avatar.js`. Sweep là đường dẫn tới
     ngưỡng, **không phải bằng chứng** — chốt lại bằng `silhouette.mjs` thật.
 
+29. **Quần áo gắn `root` chỉ lộ lỗi ở tư thế LẤY.** Váy Morgana đứng yên suốt hai tư thế đã
+    kiểm (đứng/ngồi, `sitcheck.mjs`) nên cả hai cổng đều xanh; `upper.rotation.x = -1,15` lúc
+    cúi cầu may mới là lúc thân nghiêng ra khỏi miệng váy, và người xem gọi là "dầu roi khoi
+    than". Học: mọi mesh mặc lên `upper` phải đo ở **cả ba** pose, và số quyết định là
+    `neckOff` của `scripts/bow-shot.mjs <hero> <port> 0,0.3,0.45,0.52,0.58 --garment <key>` —
+    khoảng cách từ TRỤC của quần áo tới tâm đầu, tính trong he toa do RIENG cua no, nên nó
+    bất biến đúng khi vải quay cùng người (0,018→0,019) và phát sóng khi không (0,047→1,139).
+    `--root-baseline` đo lại số của bản cũ trên cùng scene, khỏi sửa tệp rồi `git checkout`.
+    `--view az,el,dist,ty` để thấy điểm váy chạm sàn.
+
 ## Gate và git
 
 - Mỗi lần user cho phép là **một phạm vi**: commit + push ≠ deploy. Prod web/Render phải xin riêng.
@@ -425,3 +435,9 @@ node scripts/hall-shot.mjs /tmp/hall.png  # ~90s: CHỈ khi user bấm
   hai trục của một prop trong MỘT phiên browser (z = `group.position.z`, d = `position.x` của
   từng mesh con trong `side`), lấy MAX qua `--ns` pha. Đây là đường dẫn tới ngưỡng, chưa phải
   bằng chứng; số thắng phải chạy lại `silhouette.mjs` (lỗi 28).
+- `scripts/bow-ab.mjs <hero> <port> <dressKey>` — so ba cách sửa một chiếc váy (nguyên `root` /
+  cắt eo 0,55 / cắt bỏ phần trên eo) bằng cách dựng lại mesh **ngay trong scene**, không sửa
+  `avatar.js`; mỗi phương án chụp một frame ĐỨNG + một frame LẤY (`upper` -65,9°) ra `/tmp/ab-*`.
+- `scripts/bow-shot.mjs <hero> <port> [t0,t1,…] [--garment <key>] [--root-baseline] [--view …]`
+  — số của tư thế LẤY: góc `upper`, tâm+đáy đầu, `neckOff`, guốc váy, `floorMin` và `lowest`
+  (3 mesh chìm sàn nhất kèm đường dẫn cha, để biết thủ phạm là váy hay `ultSphere`).
