@@ -204,6 +204,72 @@ test('geminiContents falls back to raw text for unparsable tool results', () => 
   ]);
 });
 
+test('gemini tool round-trip preserves thoughtSignature on replayed functionCall parts', async () => {
+  process.env.ASSISTANT_PROVIDER = 'google';
+  process.env.GOOGLE_API_KEY = 'test-key';
+  const bodies: Record<string, unknown>[] = [];
+  globalThis.fetch = async (_url, init) => {
+    bodies.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
+    if (bodies.length === 1) {
+      return reply({
+        candidates: [{ content: { parts: [{ functionCall: { name: 'get_patch_notes', args: {} }, thoughtSignature: 'sig-abc' }] } }],
+        usageMetadata: { promptTokenCount: 10, candidatesTokenCount: 2 },
+      });
+    }
+    return reply({
+      candidates: [{ content: { parts: [{ text: '{"answer":"ok"}' }] } }],
+      usageMetadata: { promptTokenCount: 20, candidatesTokenCount: 3 },
+    });
+  };
+  try {
+    const tools = [{ type: 'function' as const, function: { name: 'get_patch_notes', description: 'notes', parameters: TOOL_SCHEMA } }];
+    const first = await generateAssistantAnswer(mappedRequest({ tools }));
+    assert.equal(first.toolCalls[0]?.thoughtSignature, 'sig-abc');
+    // Rebuild the history exactly like the tool loop does, then plan again.
+    const second = await generateAssistantAnswer(mappedRequest({
+      tools,
+      messages: [
+        { role: 'user', content: 'hello' },
+        {
+          role: 'assistant',
+          content: first.text,
+          tool_calls: first.toolCalls.map((call) => ({ function: { name: call.name, arguments: call.arguments }, ...(call.thoughtSignature ? { thoughtSignature: call.thoughtSignature } : {}) })),
+        },
+        { role: 'tool', tool_name: 'get_patch_notes', content: '{"status":"ok"}' },
+      ],
+    }));
+    assert.equal(second.text, '{"answer":"ok"}');
+    const contents = bodies[1].contents as { role: string; parts: Record<string, unknown>[] }[];
+    const modelTurn = contents.find((entry) => entry.role === 'model');
+    assert.deepEqual(modelTurn?.parts, [{ functionCall: { name: 'get_patch_notes', args: {} }, thoughtSignature: 'sig-abc' }]);
+  } finally {
+    delete process.env.ASSISTANT_PROVIDER;
+    delete process.env.GOOGLE_API_KEY;
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('gemini stream keeps per-call thoughtSignature', async () => {
+  process.env.ASSISTANT_PROVIDER = 'google';
+  process.env.GOOGLE_API_KEY = 'test-key';
+  const chunk = (parts: Record<string, unknown>[]) => `data: ${JSON.stringify({ candidates: [{ content: { parts } }] })}\n\n`;
+  globalThis.fetch = async () =>
+    new Response(
+      chunk([{ functionCall: { name: 'get_patch_notes', args: { patch: '18.6' } }, thoughtSignature: 'sig-stream' }]) +
+      chunk([{ text: '' }]) +
+      'data: [DONE]\n\n',
+      { status: 200, headers: { 'content-type': 'text/event-stream' } }
+    );
+  try {
+    const result = await generateAssistantAnswer(mappedRequest({ onDelta: () => {} }));
+    assert.deepEqual(result.toolCalls, [{ name: 'get_patch_notes', arguments: { patch: '18.6' }, thoughtSignature: 'sig-stream' }]);
+  } finally {
+    delete process.env.ASSISTANT_PROVIDER;
+    delete process.env.GOOGLE_API_KEY;
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test('sanitizeGeminiSchema keeps supported keys and strips the rest', () => {
   const clean = sanitizeGeminiSchema({
     type: 'object',

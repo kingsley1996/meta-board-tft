@@ -16,6 +16,10 @@ export type ProviderToolCall = {
   name: string;
   arguments: unknown;
   argumentError?: string;
+  // Gemini thinking models attach a per-part thought signature that must be
+  // echoed back with the functionCall in later turns, or the API rejects the
+  // history with a 400. Other providers leave it unset.
+  thoughtSignature?: string;
 };
 
 export type ProviderToolMessage = {
@@ -32,6 +36,7 @@ export type ProviderChatMessage =
       tool_calls?: {
         id?: string;
         function: { name: string; arguments: unknown };
+        thoughtSignature?: string;
       }[];
     }
   | ProviderToolMessage;
@@ -491,7 +496,7 @@ export function repairJsonText(text: string): string {
 // Google Gemini (generativelanguage.googleapis.com)
 // ---------------------------------------------------------------------------
 
-type GeminiPart = { text?: string; functionCall?: { name?: string; args?: unknown } };
+type GeminiPart = { text?: string; functionCall?: { name?: string; args?: unknown }; thoughtSignature?: string };
 type GeminiContent = { role: 'user' | 'model'; parts: Record<string, unknown>[] };
 type GeminiChunk = {
   candidates?: { content?: { parts?: GeminiPart[] } }[];
@@ -587,6 +592,7 @@ export function geminiContents(messages: ProviderChatMessage[]): GeminiContent[]
           name: call.function.name,
           args: args && typeof args === 'object' && !Array.isArray(args) ? args : {},
         },
+        ...(call.thoughtSignature ? { thoughtSignature: call.thoughtSignature } : {}),
       });
     }
     contents.push({ role: 'model', parts: parts.length ? parts : [{ text: '' }] });
@@ -746,7 +752,13 @@ function parseGeminiResponse(data: GeminiChunk | null, onDelta: ((chunk: string)
       text += part.text;
       onDelta?.(part.text);
     }
-    if (part.functionCall?.name) calls.push({ name: part.functionCall.name, arguments: part.functionCall.args ?? {} });
+    if (part.functionCall?.name) {
+      calls.push({
+        name: part.functionCall.name,
+        arguments: part.functionCall.args ?? {},
+        ...(typeof part.thoughtSignature === 'string' && part.thoughtSignature ? { thoughtSignature: part.thoughtSignature } : {}),
+      });
+    }
   }
   if (!text.trim() && !calls.length) throw new ProviderError('error', 'Google API returned an empty answer');
   return {
@@ -773,7 +785,7 @@ async function readGeminiStream(
   let text = '';
   let modelVersion = '';
   let usage = { inputTokens: 0, outputTokens: 0 };
-  const rawCalls: { name: string; args: unknown }[] = [];
+  const rawCalls: { name: string; args: unknown; thoughtSignature?: string }[] = [];
   const handlePayload = (payload: GeminiChunk) => {
     // Gemini can deliver an error object as an SSE payload (quota, overload,
     // safety) instead of closing the stream with a status code.
@@ -787,7 +799,13 @@ async function readGeminiStream(
         text += part.text;
         onDelta(part.text);
       }
-      if (part.functionCall?.name) rawCalls.push({ name: part.functionCall.name, args: part.functionCall.args ?? {} });
+      if (part.functionCall?.name) {
+        rawCalls.push({
+          name: part.functionCall.name,
+          args: part.functionCall.args ?? {},
+          ...(typeof part.thoughtSignature === 'string' && part.thoughtSignature ? { thoughtSignature: part.thoughtSignature } : {}),
+        });
+      }
     }
     if (payload.usageMetadata) {
       usage = {
@@ -830,7 +848,11 @@ async function readGeminiStream(
     text: repairJsonText(text),
     model: modelVersion || googleModelName(),
     usage,
-    toolCalls: rawCalls.map((call) => ({ name: call.name, arguments: call.args })),
+    toolCalls: rawCalls.map((call) => ({
+      name: call.name,
+      arguments: call.args,
+      ...(call.thoughtSignature ? { thoughtSignature: call.thoughtSignature } : {}),
+    })),
   };
 }
 

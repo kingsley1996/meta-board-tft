@@ -165,6 +165,7 @@ export async function runToolLoop(input: {
     const assistantCalls = accepted.map((call: ProviderToolCall) => ({
       ...(call.id ? { id: call.id } : {}),
       function: { name: call.name, arguments: call.arguments },
+      ...(call.thoughtSignature ? { thoughtSignature: call.thoughtSignature } : {}),
     }));
     messages.push({ role: 'assistant', content: planned.text, tool_calls: assistantCalls });
 

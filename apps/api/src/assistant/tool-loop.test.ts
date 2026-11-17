@@ -81,6 +81,23 @@ test('returns tool results to the next model turn and stops after the answer', a
   assert.ok(loop.steps[0].durationMs >= 0);
 });
 
+test('carries provider thought signatures into the replayed assistant history', async () => {
+  const seen: ProviderRequest[] = [];
+  const responses = [result([{ name: 'find_comps', arguments: {}, thoughtSignature: 'sig-1' }]), result([], 'done')];
+  const loop = await runToolLoop({
+    system: 'planner', answerSystem: 'answer', messages: [{ role: 'user', content: 'hi' }], tools, lang: 'en',
+    signal: new AbortController().signal,
+    generate: async (request) => {
+      seen.push(request);
+      return responses.shift()!;
+    },
+    execute, config,
+  });
+  const assistant = loop.messages.find((message) => message.role === 'assistant');
+  assert.deepEqual(assistant?.tool_calls, [{ function: { name: 'find_comps', arguments: {} }, thoughtSignature: 'sig-1' }]);
+  assert.deepEqual(seen[1].messages.find((message) => message.role === 'assistant')?.tool_calls, assistant?.tool_calls);
+});
+
 test('retains verified tool data if a later planning round fails', async () => {
   let rounds = 0;
   const loop = await runToolLoop({
