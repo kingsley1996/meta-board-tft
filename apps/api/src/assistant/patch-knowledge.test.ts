@@ -61,6 +61,7 @@ test('default is released livePatch, never latestPatch or the first backfill', (
   assert.equal(result.livePatch, '18.6');
   assert.equal(result.baseline, null);
   assert.equal(result.status, 'found');
+  assert.deepEqual(result.availablePatches, data.patches.map((entry) => entry.patch));
   assert.doesNotMatch(result.summary, /PBE/);
 
   for (const livePatch of ['18.6', null]) {
@@ -70,6 +71,7 @@ test('default is released livePatch, never latestPatch or the first backfill', (
     assert.equal(missing.source, null);
     assert.deepEqual(missing.rows, []);
     assert.equal(missing.livePatch, livePatch);
+    assert.deepEqual(missing.availablePatches, ['18.5']);
     assert.match(missing.summary, /Cannot confirm changes/);
     assert.match(missing.summary, /Available released patches: 18\.5/);
   }

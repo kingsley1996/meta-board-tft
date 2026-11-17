@@ -862,9 +862,12 @@ export function tomoPersonaReply(text: string, lang: Lang): string | null {
 export function isPatchNotesQuestion(message: string): boolean {
   const text = normalizeSpaced(message);
   if (/\b(pbe|patch notes?|ghi chu (?:ban va|phien ban)|ban cap nhat|nerfs?|nerfed|buffed|what changed)\b/.test(text)) return true;
-  if (/\b(patch|phien ban|ban va)\b/.test(text) &&
-      /\b(change|changed|thay doi|buff|nerf|notes?|moi|new|anh huong|impact|sau|after|so sanh|compare|tom tat|summary|summarize|noi dung|co gi|chi tiet|thong tin|details|what is in)\b/.test(text)) return true;
-  return /\b(?:bi|duoc|vua)\s+buff\b|\b(?:got|was|just|heard|did)\b.*\bbuff\b/.test(text);
+  if (/\b(patch|phien ban|ban va|ban truoc)\b/.test(text) &&
+      /\b(change|changed|thay doi|buff|nerf|notes?|moi|new|anh huong|impact|sau|after|so sanh|compare|tom tat|summary|summarize|noi dung|co gi|chi tiet|thong tin|details|what is in|tang suc manh|giam suc manh)\b/.test(text)) return true;
+  // Passive "bị/được tăng/giảm sức mạnh" is balance-change wording; the active
+  // form ("trang bị tăng sức mạnh phép thuật") describes an item stat, so it
+  // only counts as a patch question when a patch word is present above.
+  return /\b(?:bi|duoc|vua)\s+(?:buff|(?:tang|giam)\s+suc\s+manh)\b|\b(?:got|was|just|heard|did)\b.*\bbuff\b/.test(text);
 }
 
 export function detectIntent(text: string, entities: CatalogEntity[], comps: CompData[], setId?: string): AssistantIntent {

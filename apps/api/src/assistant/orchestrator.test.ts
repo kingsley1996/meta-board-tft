@@ -129,11 +129,20 @@ test('patch requests take precedence over strategy or stats without capturing it
     'Sau patch 18.6 nên roll hay lên 8 với Ahri?',
     'Patch buff Ahri ảnh hưởng win rate thế nào?',
     'Ahri Morgana comp bị ảnh hưởng gì sau bản vá?',
+    'Patch này lõi nâng cấp nào được tăng sức mạnh?',
+    'Tướng nào bị giảm sức mạnh?',
+    'Lõi nào được tăng sức mạnh?',
+    'Patch này tướng nào giảm sức mạnh?',
+    'So với bản trước có gì thay đổi?',
+    'Bản trước có gì thay đổi?',
   ]) {
     assert.equal(isPatchNotesQuestion(question), true, question);
     assert.equal(detectIntent(normalizeSpaced(question), [ahri], [comp]), 'patch_change', question);
   }
-  for (const question of ['What is Blue Buff?', 'Blue Buff ghép từ gì?', 'How does Lunar buff champions?', 'Set hiện tại', 'Comp nào mạnh nhất patch này?']) {
+  for (const question of [
+    'What is Blue Buff?', 'Blue Buff ghép từ gì?', 'How does Lunar buff champions?', 'Set hiện tại', 'Comp nào mạnh nhất patch này?',
+    'Trang bị nào tăng sức mạnh phép thuật?', 'Blue Buff tăng sức mạnh phép thuật bao nhiêu?',
+  ]) {
     assert.equal(isPatchNotesQuestion(question), false, question);
   }
   assert.equal(detectIntent('what is blue buff', [blueBuff], []), 'entity_lookup');

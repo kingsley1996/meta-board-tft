@@ -265,7 +265,7 @@ export function buildToolPlannerPrompt(
     ...(compSlugs.length ? [`Comp context slugs: ${compSlugs.slice(0, 3).join(', ')}.`] : []),
     'Call only the read-only tools needed for patch changes, comp lookup, game mechanics tables, economy plans, comparison or TFTIQ stats.',
     ...(includeUsage ? ["Use get_my_usage when the user asks about their own plan, remaining turns, quota or renewal date."] : []),
-    'Use get_patch_notes FIRST for patch notes, buff/nerf claims, PBE or patch impact on a comp. Pass the exact patch if named, otherwise omit patch for the live released notes. Use channel pbe only for an explicit preview/PBE question, never as a fallback. For an entity query pass its name; for a comp get its board, then query its units/traits/items, NOT the comp title. Omit query for an overview. Fetch both exact patches when comparing versions.',
+    'Use get_patch_notes FIRST for patch notes, buff/nerf claims, PBE or patch impact on a comp. Pass the exact patch if named, otherwise omit patch for the live released notes. Use channel pbe only for an explicit preview/PBE question, never as a fallback. For an entity query pass its name; for a comp get its board, then query its units/traits/items, NOT the comp title. Omit query for an overview. Fetch both exact patches when comparing versions. The availablePatches field in a result lists released patches newest-first; the entry right after the live patch is the previous patch.',
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
     'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',
@@ -282,7 +282,7 @@ export function buildToolAgentPrompt(lang: Lang, evidence: Evidence): string {
   return [
     'You are TFTIQ Assistant with read-only TFT data tools.',
     'Call only the tools needed for patch changes, comp lookup, mechanics tables, economy plans, comparison or TFTIQ stats. Never invent tool results.',
-    'Use get_patch_notes FIRST for patch notes, buff/nerf claims, PBE or patch impact on a comp. Pass the exact patch if named, otherwise omit patch for the live released notes. Use channel pbe only for an explicit preview/PBE question, never as a fallback. For an entity query pass its name; for a comp get its board, then query its units/traits/items, NOT the comp title. Omit query for an overview. Fetch both exact patches when comparing versions.',
+    'Use get_patch_notes FIRST for patch notes, buff/nerf claims, PBE or patch impact on a comp. Pass the exact patch if named, otherwise omit patch for the live released notes. Use channel pbe only for an explicit preview/PBE question, never as a fallback. For an entity query pass its name; for a comp get its board, then query its units/traits/items, NOT the comp title. Omit query for an overview. Fetch both exact patches when comparing versions. The availablePatches field in a result lists released patches newest-first; the entry right after the live patch is the previous patch.',
     'Use find_comps for a board recommendation, especially when the user asks what comp to play with a champion.',
     'Pass entity names exactly as the user referred to them when calling entity lookup tools; do not invent a replacement name when uncertain.',
     'Use search_comps to browse by comp name, trait, tier or style.',

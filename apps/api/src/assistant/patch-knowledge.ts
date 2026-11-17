@@ -23,6 +23,7 @@ export type PatchNotesEvidence = {
   channel: 'released' | 'pbe';
   requestedPatch: string | null;
   livePatch: string | null;
+  availablePatches: string[];
   patch: string | null;
   setId: string | null;
   baseline: string | null;
@@ -101,6 +102,7 @@ export function selectPatchNotes(
   const requestedPatch = query.patch ?? null;
   const result: PatchNotesEvidence = {
     status: 'unavailable', channel, requestedPatch, livePatch: doc.livePatch,
+    availablePatches: doc.patches.map((entry) => entry.patch),
     patch: null, setId: null, baseline: null, source: null, rows: [],
     totalRows: 0, matchedRows: 0, truncated: false, unmatched: 0,
     summary: '', limitations: [],

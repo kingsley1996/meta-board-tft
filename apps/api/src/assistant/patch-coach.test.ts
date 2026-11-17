@@ -218,6 +218,33 @@ test('current patch overview uses the real live notes, then regenerates with ful
   assertSource(answer.sources, notes);
 });
 
+test('previous-patch comparison fetches both patches across tool rounds', async (t) => {
+  const liveIndex = snapshot.patches.findIndex((entry) => entry.patch === snapshot.livePatch);
+  const previous = snapshot.patches[liveIndex + 1];
+  assert.ok(previous?.rows.length, 'The snapshot must contain a previous released patch with rows');
+  const overview = await getPatchNotes({}, 'vi');
+  const prevNotes = await getPatchNotes({ patch: previous.patch }, 'vi');
+  assert.deepEqual(overview.availablePatches, snapshot.patches.map((entry) => entry.patch));
+  assert.ok(overview.availablePatches.includes(previous.patch));
+  const generate = scripted(t, [
+    plan(call('get_patch_notes', {})),
+    (req) => {
+      assert.ok(req.tools?.length, 'A patch comparison must keep planning after the overview');
+      assert.deepEqual(toolData<PatchNotesEvidence>(req, 'get_patch_notes')[0].data, overview);
+      return result('', [call('get_patch_notes', { patch: previous.patch })]);
+    },
+    stopWith([overview, prevNotes]),
+    (req) => { finalEvidence(req, [overview, prevNotes]); return jsonAnswer(); },
+  ]);
+  const answer = await answerAssistant(request('So với bản trước có gì thay đổi?', 'vi'), new AbortController().signal, { generate });
+  assert.equal(answer.intent, 'patch_change');
+  assert.equal(answer.mode, 'llm');
+  assert.equal(answer.status, 'answered');
+  assert.equal(answer.answer, FINAL_ANSWER);
+  assertSource(answer.sources, overview);
+  assertSource(answer.sources, prevNotes);
+});
+
 for (const [label, patch, lang] of [
   ['historical base', historical, 'en'], ['exact micro', micro, 'vi'],
 ] as const) {
