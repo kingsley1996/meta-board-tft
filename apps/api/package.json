@@ -21,7 +21,8 @@
     "eval": "node --env-file-if-exists=.env src/assistant/eval/run.ts",
     "build:knowledge": "node src/assistant/eval/build-knowledge.ts",
     "test:rag": "node src/assistant/eval/rag.ts",
-    "test:accuracy": "node --env-file-if-exists=.env src/assistant/eval/accuracy.ts"
+    "test:accuracy": "node --env-file-if-exists=.env src/assistant/eval/accuracy.ts",
+    "test:routing": "node --env-file-if-exists=.env src/assistant/eval/accuracy.ts --file=./routing-cases.jsonl"
   },
   "dependencies": {
     "@payos/node": "2.0.5",

@@ -809,8 +809,8 @@ function deterministicAnswer(
   return {
     status: 'unsupported',
     answer: isVi(lang)
-      ? 'Mình hỗ trợ tra cứu tướng, trang bị, tộc hệ, nâng cấp, tìm comp, so sánh comp và số liệu TFTIQ trong Set 18. Mình chưa có patch notes.'
-      : 'I support champion, item, trait, augment lookup, comp search, comp comparison and TFTIQ stats for Set 18. I do not have patch notes yet.',
+      ? 'Mình hỗ trợ tra cứu tướng, trang bị, tộc hệ, nâng cấp, tìm comp, so sánh comp, số liệu TFTIQ và patch notes trong Set 18.'
+      : 'I support champion, item, trait, augment lookup, comp search, comp comparison, TFTIQ stats and patch notes for Set 18.',
   };
 }
 

@@ -19,6 +19,7 @@ type AccuracyCase = {
     matches?: string[];
     forbidden?: string[];
     sources?: string[];
+    sourceMatches?: string[];
   };
 };
 
@@ -84,6 +85,9 @@ for (const entry of cases) {
     }
     for (const source of entry.expect.sources ?? []) {
       if (!answer.sources.some((item) => item.id === source)) problems.push(`missing source ${source}`);
+    }
+    for (const pattern of entry.expect.sourceMatches ?? []) {
+      if (!answer.sources.some((item) => new RegExp(pattern).test(item.id))) problems.push(`missing source /${pattern}/`);
     }
     const fallback = answer.limitations.some((item) =>
       /temporarily unavailable|tạm thời không khả dụng|generated answer was invalid|câu trả lời tự động không hợp lệ|contained numbers not in the data|chứa số liệu không có trong dữ liệu/i.test(item)

@@ -441,6 +441,24 @@ export function pickEntityMatch(matches: EntityMatch[]): { entity: CatalogEntity
   return { entity: null, ambiguous: matches.slice(0, 5) };
 }
 
+// Category and function words ("nâng cấp", "tướng", "ở vòng", "should"…) name
+// a kind of thing or glue a question together, never a specific entity. A
+// window made only of them must not fuzzy-match: "lõi nâng cấp nào được tăng
+// sức mạnh?" otherwise resolves the augment "Thăng Cấp!", and "ở vòng 2-1"
+// resolves Kingslayer ("Ông Vua"), dragging unrelated entities into the
+// evidence of a patch or strategy question.
+const CATEGORY_TOKENS = new Set([
+  'tuong', 'trang', 'bi', 'toc', 'he', 'nang', 'cap', 'loi', 'doi', 'hinh', 'ky', 'chi', 'so', 'lieu',
+  'o', 'vong', 'nao', 'nen', 'chon', 'the', 'gi', 'la', 'va', 'voi', 'cua', 'cho', 'duoc', 'vua', 'dang',
+  'tang', 'giam', 'suc', 'manh', 'phep', 'thuat', 'co', 'moi', 'thay', 'sao', 'nay', 'muon', 'can', 'hoi',
+  'len', 'do', 'vang', 'hp', 'mau',
+  'champion', 'champions', 'item', 'items', 'trait', 'traits', 'augment', 'augments',
+  'unit', 'units', 'comp', 'comps', 'team', 'hero', 'ability', 'spell', 'stats', 'equipment', 'build', 'core',
+  'which', 'what', 'when', 'where', 'how', 'should', 'would', 'does', 'is', 'are', 'the', 'and', 'or', 'for',
+  'with', 'this', 'that', 'got', 'get', 'best', 'good', 'strongest', 'buff', 'buffed', 'nerf', 'nerfed',
+  'change', 'changed', 'patch', 'notes', 'round', 'stage', 'level', 'roll', 'gold', 'lv',
+]);
+
 // Typo/STT fallback: when no alias matches exactly, slide 1–3 token windows
 // over the normalized text and match them against the alias index with a
 // bounded edit distance (Vietnamese STT errors are typically 1–2 chars).
@@ -455,8 +473,10 @@ export function findFuzzyEntityMentions(catalog: Catalog, text: string, limit = 
 
   for (let size = 1; size <= 3; size += 1) {
     for (let start = 0; start + size <= tokens.length; start += 1) {
-      const window = tokens.slice(start, start + size).join(' ');
+      const windowTokens = tokens.slice(start, start + size);
+      const window = windowTokens.join(' ');
       if (window.length < 4) continue;
+      if (windowTokens.every((token) => CATEGORY_TOKENS.has(token))) continue;
       for (const [alias, ids] of catalog.aliasesSpaced) {
         if (Math.abs(alias.length - window.length) > 2) continue;
         const distance = editDistance(window, alias);

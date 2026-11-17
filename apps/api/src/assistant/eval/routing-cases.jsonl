@@ -1,0 +1,17 @@
+{"id": "r-patch-buff-augment-vi", "question": "Patch này lõi nâng cấp nào được tăng sức mạnh?", "lang": "vi", "expect": {"status": "answered", "intent": "patch_change", "forbidden": ["thăng cấp", "chưa có patch notes"]}}
+{"id": "r-patch-nerf-champion-vi", "question": "Tướng nào bị giảm sức mạnh ở bản này?", "lang": "vi", "expect": {"status": "answered", "intent": "patch_change"}}
+{"id": "r-patch-prev-vi", "question": "So với bản trước có gì thay đổi?", "lang": "vi", "expect": {"status": "answered", "intent": "patch_change", "sourceMatches": [":18\\.6$", ":18\\.5c$"]}}
+{"id": "r-patch-prev-en", "question": "How does this patch compare to the previous one?", "lang": "en", "expect": {"status": "answered", "intent": "patch_change", "sourceMatches": [":18\\.6$", ":18\\.5c$"]}}
+{"id": "r-patch-overview-en", "question": "What changed in this patch?", "lang": "en", "expect": {"status": "answered", "intent": "patch_change", "sourceMatches": [":18\\.6$"]}}
+{"id": "r-patch-passive-malphite-vi", "question": "Malphite vừa được tăng sức mạnh đúng không?", "lang": "vi", "expect": {"status": "answered", "intent": "patch_change", "matches": ["malphite"]}}
+{"id": "r-patch-named-vi", "question": "Bản 18.5c có gì mới?", "lang": "vi", "expect": {"status": "answered", "intent": "patch_change", "sourceMatches": [":18\\.5c$"]}}
+{"id": "r-neg-item-ap-vi", "question": "Trang bị nào tăng sức mạnh phép thuật?", "lang": "vi", "expect": {"status": ["answered", "needs_clarification"], "intent": "gameplay_knowledge"}}
+{"id": "r-neg-bluebuff-ap-vi", "question": "Blue Buff tăng sức mạnh phép thuật bao nhiêu?", "lang": "vi", "expect": {"status": "answered", "intent": "gameplay_knowledge", "matches": ["bùa xanh|blue buff"]}}
+{"id": "r-neg-category-augment-vi", "question": "Nâng cấp nào nên chọn ở vòng 2-1?", "lang": "vi", "expect": {"status": ["answered", "needs_clarification"], "intent": "gameplay_knowledge", "forbidden": ["thăng cấp"]}}
+{"id": "r-rec-strongest-vi", "question": "Đội hình nào mạnh nhất để leo rank lúc này?", "lang": "vi", "expect": {"status": "answered", "intent": "comp_recommendation"}}
+{"id": "r-rec-carry-vi", "question": "Có comp nào chơi Ahri làm carry không?", "lang": "vi", "expect": {"status": "answered", "intent": "comp_recommendation", "matches": ["ahri"]}}
+{"id": "r-rec-reroll-vi", "question": "Đội hình reroll nào dễ chơi nhất?", "lang": "vi", "expect": {"status": "answered", "intent": "comp_recommendation"}}
+{"id": "r-compare-vi", "question": "So sánh Riftbeast Brambleback với Azir Rammus Reroll.", "lang": "vi", "expect": {"status": "answered", "intent": "comp_comparison", "matches": ["azir"]}}
+{"id": "r-meta-winrate-vi", "question": "Ahri có tỷ lệ thắng bao nhiêu?", "lang": "vi", "expect": {"status": "answered", "intent": "meta_query", "matches": ["%"]}}
+{"id": "r-setpatch-overtrigger-vi", "question": "Set này tên gì, đang ở bản cập nhật nào?", "lang": "vi", "expect": {"status": "answered", "intent": "set_patch"}}
+{"id": "r-neg-weather-vi", "question": "Thời tiết Hà Nội hôm nay thế nào?", "lang": "vi", "expect": {"status": "unsupported", "intent": "unsupported_or_unknown"}}

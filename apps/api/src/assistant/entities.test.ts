@@ -247,3 +247,33 @@ test('findFuzzyEntityMentions resolves typos and STT errors within edit distance
   const ambiguous = findFuzzyEntityMentions(catalog, 'garen darius abcd efgh ijkl');
   assert.deepEqual(ambiguous, []);
 });
+
+test('category words never fuzzy-match an entity', () => {
+  const entities = [
+    { id: 'augment:TFT_Augment_LevelUp', type: 'augment', name: 'Level Up!', nameVi: 'Thăng Cấp!' },
+    { id: 'augment:DA_Kingslayer', type: 'augment', name: 'Kingslayer', nameVi: 'Ông Vua' },
+    { id: 'champion:DA_18_Akali', type: 'champion', name: 'Akali', nameVi: 'Akali' },
+  ];
+  const catalog = {
+    byId: new Map(entities.map((entity) => [entity.id, entity])),
+    byName: new Map(entities.map((entity) => [entity.name, entity])),
+    aliasesSpaced: new Map(
+      entities.flatMap((entity) =>
+        [entity.name, entity.nameVi].map((alias) => [normalizeSpaced(alias), new Set([entity.id])])
+      )
+    ),
+  } as unknown as Catalog;
+
+  // "nâng cấp" names the augment category, not a typo of "Thăng Cấp!" — the
+  // prod Q1 bug where a patch question resolved an unrelated augment.
+  assert.deepEqual(findFuzzyEntityMentions(catalog, 'Patch này lõi nâng cấp nào được tăng sức mạnh?'), []);
+  assert.deepEqual(findFuzzyEntityMentions(catalog, 'Which augments got buffed?'), []);
+  assert.deepEqual(findFuzzyEntityMentions(catalog, 'Tướng nào bị giảm sức mạnh?'), []);
+  // Function-word windows ("ở vòng") are not a typo of "Ông Vua" either.
+  assert.deepEqual(findFuzzyEntityMentions(catalog, 'Nâng cấp nào nên chọn ở vòng 2-1?'), []);
+
+  // A real name next to category words still resolves.
+  const mixed = findFuzzyEntityMentions(catalog, 'Akli nên lên đồ gì');
+  assert.equal(mixed.length, 1);
+  assert.equal(mixed[0].entity.id, 'champion:DA_18_Akali');
+});

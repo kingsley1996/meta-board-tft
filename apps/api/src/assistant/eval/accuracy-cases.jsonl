@@ -43,7 +43,7 @@
 {"id": "comp-compare-en", "question": "Compare Brambleback & Pebbles Riftbeast and Azir Blackthorn.", "lang": "en", "expect": {"status": "answered", "contains": ["Pebbles", "Azir", "Blackthorn"]}}
 {"id": "comp-sentinel-units-en", "question": "Which units are in the Sentinel Vanguard comp?", "lang": "en", "expect": {"status": "answered", "contains": ["Sentinel", "Taric", "Elder Dragon"]}}
 {"id": "comp-compare-vi", "question": "So sánh Brambleback & Pebbles Riftbeast và Azir Blackthorn.", "lang": "vi", "expect": {"status": "answered", "contains": ["Azir"], "matches": ["Sỏi|Pebbles"]}}
-{"id": "negative-patch-en", "question": "What did patch 18.5 buff?", "lang": "en", "expect": {"status": "unsupported", "contains": ["patch notes"]}}
+{"id": "negative-patch-en", "question": "What did patch 18.5 buff?", "lang": "en", "expect": {"status": "answered", "intent": "patch_change", "sourceMatches": [":18\\.5$"]}}
 {"id": "negative-outofscope-en", "question": "Who is the CEO of Riot Games?", "lang": "en", "expect": {"status": "unsupported"}}
 {"id": "negative-unknown-en", "question": "What is the ability of champion Zzznotreal?", "lang": "en", "expect": {"status": "unsupported"}}
 {"id": "negative-weather-vi", "question": "Thời tiết ở Paris hôm nay thế nào?", "lang": "vi", "expect": {"status": ["answered", "unsupported"], "matches": ["không thể|cannot"]}}
