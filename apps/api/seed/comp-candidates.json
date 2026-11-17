@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-16T13:40:36.023Z",
+  "generatedAt": "2026-11-17T09:43:14.962Z",
   "set": 18,
   "patch": "18.6",
   "sources": [
@@ -39,8 +39,8 @@
       "playstyle": "Reroll · Kha'Zix carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.17,
-        "games": 1433,
+        "avg": 5.16,
+        "games": 1345,
         "level": 8.7
       },
       "statsSource": "tftcodex",
@@ -180,7 +180,7 @@
       "gaps": [
         "augments"
       ],
-      "score": 0.197,
+      "score": 0.204,
       "rescued": null,
       "overlay": null,
       "reason": "thiếu: augments"
@@ -344,8 +344,8 @@
       "playstyle": "Fast 8 · Ezreal carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.82,
-        "games": 602,
+        "avg": 4.66,
+        "games": 546,
         "level": 9.1
       },
       "statsSource": "tftcodex",
@@ -475,7 +475,7 @@
       "gaps": [
         "augments"
       ],
-      "score": 0.248,
+      "score": 0.311,
       "rescued": null,
       "overlay": {
         "slug": "ezreal-elderwood",
@@ -495,8 +495,8 @@
       "playstyle": "Fast 8 · Ezreal carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.12,
-        "games": 1876,
+        "avg": 5.11,
+        "games": 1662,
         "level": 9.1
       },
       "statsSource": "tftcodex",
@@ -642,7 +642,7 @@
       ],
       "slug": "fae-ezreal",
       "gaps": [],
-      "score": 0.155,
+      "score": 0.162,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -783,8 +783,8 @@
       "playstyle": "Fast 8 · Lux carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.42,
-        "games": 7214,
+        "avg": 4.41,
+        "games": 6687,
         "level": 9.1
       },
       "statsSource": "tftcodex",
@@ -931,7 +931,7 @@
       ],
       "slug": "inferno-lux-ashe",
       "gaps": [],
-      "score": 0.335,
+      "score": 0.327,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -947,8 +947,8 @@
       "playstyle": "Fast 8 · Ahri carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.76,
-        "games": 50635,
+        "avg": 4.77,
+        "games": 48475,
         "level": 8.8
       },
       "statsSource": "tftcodex",
@@ -1079,7 +1079,7 @@
       "gaps": [
         "augments"
       ],
-      "score": 0.258,
+      "score": 0.248,
       "rescued": null,
       "overlay": null,
       "reason": "thiếu: augments"
@@ -1095,9 +1095,9 @@
       "playstyle": "Fast 8 · Aphelios carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.62,
-        "games": 3269,
-        "level": null
+        "avg": 4.69,
+        "games": 3522,
+        "level": 8.6
       },
       "statsSource": "tftcodex",
       "units": [
@@ -1214,16 +1214,16 @@
           "tier": "B"
         }
       ],
-      "slug": "vanguard-rengar-reroll",
+      "slug": "vanguard-aphelios",
       "gaps": [
         "augments"
       ],
-      "score": 0.325,
+      "score": 0.291,
       "rescued": null,
       "overlay": {
         "slug": "aphelios-nidalee-vanguard",
         "jaccard": 0.89,
-        "tier": "B"
+        "tier": "C"
       },
       "reason": "thiếu: augments"
     },
@@ -1546,8 +1546,8 @@
       "playstyle": "Fast 8 · Ahri carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.17,
-        "games": 1433,
+        "avg": 5.16,
+        "games": 1345,
         "level": 8.7
       },
       "statsSource": "tftcodex",
@@ -1650,7 +1650,7 @@
         "early",
         "augments"
       ],
-      "score": 0.143,
+      "score": 0.15,
       "rescued": null,
       "overlay": null,
       "reason": "thiếu: early, augments"
@@ -1790,7 +1790,7 @@
       "playstyleVi": null,
       "stats": {
         "avg": 5.32,
-        "games": 1587,
+        "games": 1502,
         "level": null
       },
       "statsSource": "tftcodex",
@@ -1914,8 +1914,8 @@
       "playstyle": "Reroll · Kayle carry",
       "playstyleVi": "Reroll · chủ lực Kayle",
       "stats": {
-        "avg": 4.89,
-        "games": 27140,
+        "avg": 4.87,
+        "games": 25866,
         "level": null
       },
       "statsSource": "tftcodex",
@@ -2048,12 +2048,12 @@
       ],
       "slug": "cursed-crown-kayle-reroll",
       "gaps": [],
-      "score": 0.123,
+      "score": 0.143,
       "rescued": null,
       "overlay": {
         "slug": "kayle-solar",
         "jaccard": 0.67,
-        "tier": "C"
+        "tier": "B"
       },
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
     },
@@ -2068,8 +2068,8 @@
       "playstyle": "Reroll · Xayah carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.96,
-        "games": 512,
+        "avg": 4.95,
+        "games": 481,
         "level": 8.7
       },
       "statsSource": "tftcodex",
@@ -2221,7 +2221,7 @@
       ],
       "slug": "elderwood-xayah",
       "gaps": [],
-      "score": 0.142,
+      "score": 0.155,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -2229,7 +2229,7 @@
     {
       "title": "Fae Aphelios",
       "titleVi": null,
-      "tier": "C",
+      "tier": "B",
       "situational": false,
       "style": "Fast 8",
       "difficulty": 2,
@@ -2238,7 +2238,7 @@
       "playstyleVi": null,
       "stats": {
         "avg": 5.14,
-        "games": 2053,
+        "games": 1997,
         "level": 9
       },
       "statsSource": "tftcodex",
@@ -2379,7 +2379,7 @@
       ],
       "slug": "fae-aphelios",
       "gaps": [],
-      "score": 0.155,
+      "score": 0.162,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -2395,8 +2395,8 @@
       "playstyle": "Reroll · Xayah carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.96,
-        "games": 512,
+        "avg": 4.95,
+        "games": 481,
         "level": 8.7
       },
       "statsSource": "tftcodex",
@@ -2547,7 +2547,7 @@
       ],
       "slug": "fae-xayah-reroll",
       "gaps": [],
-      "score": 0.142,
+      "score": 0.155,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -2559,12 +2559,12 @@
       "situational": false,
       "style": "Fast 8",
       "difficulty": 3,
-      "trend": "down",
+      "trend": null,
       "playstyle": "Fast 8 · Ashe carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.57,
-        "games": 18858,
+        "avg": 4.6,
+        "games": 17093,
         "level": 9.1
       },
       "statsSource": "tftcodex",
@@ -2697,7 +2697,7 @@
       ],
       "slug": "juggernaut-ashe",
       "gaps": [],
-      "score": 0.301,
+      "score": 0.291,
       "rescued": null,
       "overlay": {
         "slug": "ashe-blossom",
@@ -2717,8 +2717,8 @@
       "playstyle": "Fast 8 · Sivir carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.54,
-        "games": 11194,
+        "avg": 4.57,
+        "games": 10601,
         "level": 8.9
       },
       "statsSource": "tftcodex",
@@ -2861,7 +2861,7 @@
       ],
       "slug": "sivir-flex",
       "gaps": [],
-      "score": 0.325,
+      "score": 0.34,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -2877,8 +2877,8 @@
       "playstyle": "Fast 8 · Ahri carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.51,
-        "games": 2920,
+        "avg": 4.62,
+        "games": 3278,
         "level": 8.9
       },
       "statsSource": "tftcodex",
@@ -3013,7 +3013,7 @@
       ],
       "slug": "spellweaver-ahri",
       "gaps": [],
-      "score": 0.325,
+      "score": 0.291,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -3189,9 +3189,9 @@
       "playstyle": "Fast 9 · Fiddlesticks carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 5.59,
-        "games": 511,
-        "level": null
+        "avg": 6.1,
+        "games": 530,
+        "level": 9.1
       },
       "statsSource": "tftcodex",
       "units": [
@@ -3468,8 +3468,8 @@
       "playstyle": "Reroll · Elise carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.8,
-        "games": 24067,
+        "avg": 4.99,
+        "games": 39377,
         "level": null
       },
       "statsSource": "tftcodex",
@@ -3605,7 +3605,7 @@
       ],
       "slug": "dark-ritual-elise-reroll",
       "gaps": [],
-      "score": 0.159,
+      "score": 0.112,
       "rescued": null,
       "overlay": {
         "slug": "elise-ravager-emblem",
@@ -3625,8 +3625,8 @@
       "playstyle": "Reroll · Tristana carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.69,
-        "games": 21792,
+        "avg": 4.68,
+        "games": 20110,
         "level": null
       },
       "statsSource": "tftcodex",
@@ -3758,7 +3758,7 @@
       ],
       "slug": "fae-tristana-reroll",
       "gaps": [],
-      "score": 0.245,
+      "score": 0.248,
       "rescued": null,
       "overlay": {
         "slug": "tristana-sprykin-reroll",
@@ -3778,9 +3778,9 @@
       "playstyle": "Reroll · Rengar carry",
       "playstyleVi": null,
       "stats": {
-        "avg": 4.62,
-        "games": 3269,
-        "level": null
+        "avg": 4.69,
+        "games": 3522,
+        "level": 8.6
       },
       "statsSource": "tftcodex",
       "units": [
@@ -3915,7 +3915,7 @@
       ],
       "slug": "ravager-rengar-reroll",
       "gaps": [],
-      "score": 0.263,
+      "score": 0.229,
       "rescued": null,
       "overlay": null,
       "reason": "1 nguồn guide, số liệu chưa đủ cứu"
@@ -3932,7 +3932,7 @@
       "playstyleVi": null,
       "stats": {
         "avg": 4.83,
-        "games": 2296,
+        "games": 2197,
         "level": null
       },
       "statsSource": "tftcodex",
@@ -4056,7 +4056,7 @@
       ],
       "slug": "sprykin-teemo-reroll",
       "gaps": [],
-      "score": 0.191,
+      "score": 0.174,
       "rescued": null,
       "overlay": {
         "slug": "veigar-sprykin",
