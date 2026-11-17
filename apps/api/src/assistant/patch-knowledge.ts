@@ -199,17 +199,18 @@ export function selectPatchNotes(
     : `${vi ? 'Bản đã phát hành' : 'Released patch'} ${result.patch} — ${result.source.provider}`;
   const changes = result.rows.slice(0, SUMMARY_LIMIT).map((row) => {
     const values = row.from || row.to ? `${row.from} → ${row.to} ` : '';
-    return `${row.name}${row.field ? ` — ${row.field}` : ''}: ${values}(${localize(DIRECTION_LABELS[row.direction], lang)})`;
+    return `- ${row.name}${row.field ? ` — ${row.field}` : ''}: ${values}(${localize(DIRECTION_LABELS[row.direction], lang)})`;
   });
   const scope = matched.length > SUMMARY_LIMIT
     ? (vi ? `Tóm tắt ${SUMMARY_LIMIT} trong ${matched.length} thay đổi phù hợp đầu tiên.` : `Summary shows the first ${SUMMARY_LIMIT} of ${matched.length} matching changes.`)
     : (vi ? `${matched.length} thay đổi phù hợp.` : `${matched.length} matching changes.`);
+  // Line-per-change layout: the chat renders answers with whitespace-pre-wrap,
+  // so a semicolon wall of text is the only unreadable option.
   result.summary = [
-    `${label}.`,
-    matched.length ? scope : (vi ? 'Không có dòng phù hợp; chưa thể xác nhận thay đổi từ dữ liệu này.' : 'No matching rows; cannot confirm changes from this snapshot.'),
-    changes.length ? `${changes.join('; ')}.` : '',
+    `${label}. ${matched.length ? scope : (vi ? 'Không có dòng phù hợp; chưa thể xác nhận thay đổi từ dữ liệu này.' : 'No matching rows; cannot confirm changes from this snapshot.')}`,
+    ...changes,
     ...result.limitations,
-  ].filter(Boolean).join(' ');
+  ].filter(Boolean).join('\n');
   return result;
 }
 

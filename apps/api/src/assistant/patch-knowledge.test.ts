@@ -215,6 +215,8 @@ test('coverage counts, 24-row truncation and six-change summary subsets are expl
   assert.match(result.summary, /first 6 of 30/);
   assert.match(result.summary, /Entity 5/);
   assert.doesNotMatch(result.summary, /Entity 6/);
+  assert.equal(result.summary.split('\n').filter((line) => line.startsWith('- ')).length, 6, 'each summarized change is its own line');
+  assert.doesNotMatch(result.summary, /; - /, 'changes are not joined into a semicolon wall');
   assert.equal(JSON.stringify(data), before);
   assert.deepEqual(selectPatchNotes(data, null, {}, 'en'), result);
   const empty = selectPatchNotes(data, null, { kind: 'encounter' }, 'vi');

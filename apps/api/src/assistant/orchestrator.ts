@@ -1701,7 +1701,7 @@ async function answerAssistantImpl(
   const patchTurn = wantsPatchNotes || patchNotes.length > 0;
   const hasPatchEvidence = patchNotes.some((entry) => entry.status === 'found');
   if (patchTurn) {
-    deterministic.answer = patchNotes.map((entry) => entry.summary).join(' ') || deterministic.answer;
+    deterministic.answer = patchNotes.map((entry) => entry.summary).join('\n\n') || deterministic.answer;
     deterministic.status = hasPatchEvidence && patchNotes.every((entry) => entry.status === 'found') ? 'answered' : 'insufficient_data';
   }
   const referenceAnswer = patchTurn ? '' : toolResults
