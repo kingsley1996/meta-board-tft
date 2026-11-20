@@ -9,6 +9,12 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      sync_comps:
+        description: Đồng bộ snapshot comps hiện tại vào production sau khi CI xanh
+        type: boolean
+        default: false
 
 jobs:
   checks:
@@ -45,9 +51,10 @@ jobs:
       - name: Typecheck both workspaces
         run: npm run typecheck
 
-      # Test nào chạm database sẽ tự skip khi DATABASE_URL không tồn tại. Giữ
-      # bước này không có DATABASE_URL để test DB không chạy song song trên một
-      # Postgres duy nhất (deadlock giữa file) — đó là việc của local.
+      - name: Expose PostgreSQL tools for isolated seed tests
+        run: echo "$(pg_config --bindir)" >> "$GITHUB_PATH"
+
+      # Shared-database tests stay disabled; seed tests create their own socket-only cluster.
       - name: Unit tests
         run: |
           npm run test:web
@@ -100,3 +107,178 @@ jobs:
             exit 1
           fi
           echo "health ok on $(node --version)"
+
+  comps-changes:
+    needs: checks
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.snapshot.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: snapshot
+        name: Detect comp snapshot changes
+        env:
+          BEFORE: ${{ github.event.before }}
+          MANUAL_SYNC: ${{ inputs.sync_comps }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            echo "changed=$MANUAL_SYNC" >> "$GITHUB_OUTPUT"
+          elif [ -z "${BEFORE//0/}" ]; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          else
+            files=$(git diff --name-only "$BEFORE" "$GITHUB_SHA" -- apps/api/seed/comps.json packages/shared/data/comp-extras.json packages/shared/data/tft.json)
+            if [ -n "$files" ]; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+            else
+              echo 'changed=false' >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+  seed-production-comps:
+    needs: comps-changes
+    if: needs.comps-changes.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    defaults:
+      run:
+        shell: bash
+    concurrency:
+      group: production-comps
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      NODE_ENV: production
+      PG_POOL_MAX: '2'
+      PGOPTIONS: '-c statement_timeout=60000 -c lock_timeout=10000'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Validate production configuration
+        env:
+          PROD_DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+          PROD_DATABASE_HOST: ${{ vars.PROD_DATABASE_HOST }}
+          PROD_WEB_URL: ${{ vars.PROD_WEB_URL }}
+          PROD_COMPS_BACKUP_KEY: ${{ secrets.PROD_COMPS_BACKUP_KEY }}
+          WEB_REVALIDATE_TOKEN: ${{ secrets.WEB_REVALIDATE_TOKEN }}
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          node --input-type=module <<'NODE'
+          const names = ['PROD_DATABASE_URL', 'PROD_DATABASE_HOST', 'PROD_WEB_URL', 'PROD_COMPS_BACKUP_KEY', 'WEB_REVALIDATE_TOKEN', 'VERCEL_DEPLOY_HOOK'];
+          for (const name of names) if (!process.env[name]?.trim()) throw new Error(`Missing production setting: ${name}`);
+          const parse = name => {
+            try { return new URL(process.env[name]); }
+            catch { throw new Error(`Invalid URL in ${name}`); }
+          };
+          const db = parse('PROD_DATABASE_URL');
+          if (!['postgres:', 'postgresql:'].includes(db.protocol) || db.hostname !== process.env.PROD_DATABASE_HOST || ['localhost', '127.0.0.1', '[::1]'].includes(db.hostname)) throw new Error('Unexpected production database target');
+          if (!['require', 'verify-ca', 'verify-full', 'no-verify'].includes(db.searchParams.get('sslmode'))) throw new Error('Production database URL must explicitly require TLS');
+          const web = parse('PROD_WEB_URL');
+          if (web.protocol !== 'https:' || web.username || web.password || web.search || web.hash || web.pathname !== '/') throw new Error('PROD_WEB_URL must be an HTTPS origin');
+          const hook = parse('VERCEL_DEPLOY_HOOK');
+          if (hook.protocol !== 'https:' || hook.hostname !== 'api.vercel.com' || !hook.pathname.startsWith('/v1/integrations/deploy/')) throw new Error('Invalid Vercel deploy hook');
+          if (process.env.PROD_COMPS_BACKUP_KEY.length < 32) throw new Error('Backup encryption key must contain at least 32 characters');
+          console.log(`Production target: ${db.hostname}; web: ${web.origin}`);
+          NODE
+      - name: Install seed dependencies
+        run: npm ci --ignore-scripts
+      - name: Back up only comp tables and encrypt the dump
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+          PROD_COMPS_BACKUP_KEY: ${{ secrets.PROD_COMPS_BACKUP_KEY }}
+        run: |
+          umask 077
+          mkdir -p "$RUNNER_TEMP/comps-backup"
+          export PGDATABASE
+          PGDATABASE=$(node --input-type=module -e "const url = new URL(process.env.DATABASE_URL); url.searchParams.set('sslmode', 'require'); process.stdout.write(url.href)")
+          docker run --rm --env PGDATABASE --env PGCONNECT_TIMEOUT=15 postgres:18 \
+            pg_dump --no-password --format=custom --data-only --no-owner --no-acl \
+            --table=public.comps --table=public.comp_units --table=public.comp_items \
+            --table=public.comp_augments --table=public.comp_stages \
+            | openssl enc -aes-256-cbc -salt -pbkdf2 -iter 200000 -pass env:PROD_COMPS_BACKUP_KEY \
+                -out "$RUNNER_TEMP/comps-backup/comps.dump.enc"
+          test -s "$RUNNER_TEMP/comps-backup/comps.dump.enc"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:PROD_COMPS_BACKUP_KEY \
+            -in "$RUNNER_TEMP/comps-backup/comps.dump.enc" \
+            | docker run --rm -i postgres:18 pg_restore --file=/dev/null
+      - name: Persist encrypted backup before writing
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-comps-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/comps-backup/comps.dump.enc
+          retention-days: 7
+          if-no-files-found: error
+      - name: Validate and preview every comp without writing
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+        run: npm run seed:comps --workspace @tftiq/api -- --dry-run
+      - name: Reject a superseded snapshot before writing
+        run: |
+          git fetch origin main
+          for path in apps/api/seed/comps.json packages/shared/data/comp-extras.json packages/shared/data/tft.json; do
+            if [ "$(git rev-parse "HEAD:$path")" != "$(git rev-parse "FETCH_HEAD:$path")" ]; then
+              echo "Refusing to seed: main has a newer $path"
+              exit 1
+            fi
+          done
+      - name: Upsert snapshot without deleting old comps
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+        run: npm run seed:comps --workspace @tftiq/api
+      - name: Verify every snapshot comp matches production
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+        run: npm run seed:comps --workspace @tftiq/api -- --check
+      - name: Invalidate web cache and request a fresh production build
+        env:
+          PROD_WEB_URL: ${{ vars.PROD_WEB_URL }}
+          WEB_REVALIDATE_TOKEN: ${{ secrets.WEB_REVALIDATE_TOKEN }}
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          # The API caches comps for 15 seconds in a process the seed cannot invalidate.
+          sleep 16
+          git fetch origin main
+          for path in apps/api/seed/comps.json packages/shared/data/comp-extras.json packages/shared/data/tft.json; do
+            if [ "$(git rev-parse "HEAD:$path")" != "$(git rev-parse "FETCH_HEAD:$path")" ]; then
+              echo "Refusing to rebuild: main has a newer $path"
+              exit 1
+            fi
+          done
+          node --input-type=module <<'NODE'
+          import { appendFileSync } from 'node:fs';
+          const res = await fetch(new URL('/api/revalidate', process.env.PROD_WEB_URL), {
+            method: 'POST', redirect: 'error', signal: AbortSignal.timeout(30000),
+            headers: { 'content-type': 'application/json', 'x-revalidate-token': process.env.WEB_REVALIDATE_TOKEN },
+            body: JSON.stringify({ kind: 'comps' }),
+          }).catch(() => { throw new Error('Web revalidation request failed'); });
+          if (!res.ok) throw new Error(`Web revalidation HTTP ${res.status}`);
+          const purge = await res.json();
+          if (purge.ok !== true || !(purge.invalidated > 0)) throw new Error('Web did not confirm cache invalidation');
+          const hook = new URL(process.env.VERCEL_DEPLOY_HOOK);
+          hook.searchParams.set('buildCache', 'false');
+          const build = await fetch(hook, { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(30000) })
+            .catch(() => { throw new Error('Vercel deploy hook request failed'); });
+          if (!build.ok) throw new Error(`Vercel deploy hook HTTP ${build.status}`);
+          const result = await build.json();
+          if (!result.job?.id) throw new Error('Vercel did not confirm a build job');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Production comps\n- Snapshot: ${process.env.GITHUB_SHA}\n- Database verified; encrypted backup saved for 7 days.\n- Web cache invalidated.\n- Vercel rebuild requested (completion is reported by Vercel).\n`);
+          NODE
+      - name: Report an incomplete sync
+        if: failure()
+        run: |
+          echo '## Production comp sync failed' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Inspect the failed step before retrying. Writes are per comp, not one transaction for the whole snapshot; use the encrypted backup if recovery is needed. No automatic rollback or deletion was attempted.' >> "$GITHUB_STEP_SUMMARY"
