@@ -1,0 +1,6789 @@
+{
+  "cluster": 427,
+  "updated": "2026-11-18T09:43:16.074Z",
+  "queue": "pbe",
+  "comps": [
+    {
+      "id": "427004",
+      "level": 9,
+      "count": 41745,
+      "avg": 3.8231,
+      "traits": [
+        {
+          "name": "Ionic Spark",
+          "nameVi": null,
+          "tier": 3,
+          "count": 7
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Hitmaker",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Annie19",
+          "name": "Annie",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-annie.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Aurora19",
+          "name": "Aurora",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-aurora.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Elise19",
+          "name": "Elise",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-elise.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Gwen19",
+          "name": "Gwen",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-gwen.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Jinx19",
+          "name": "Jinx",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-jinx.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": []
+        },
+        {
+          "api": "DA_MissFortune19",
+          "name": "Miss Fortune",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-missfortune.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Shyvana19",
+          "name": "Shyvana",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-shyvana.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Tibbers19",
+          "name": "Tibbers",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-tibbers.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427007",
+      "level": 9,
+      "count": 41204,
+      "avg": 3.8419,
+      "traits": [
+        {
+          "name": "K/DA",
+          "nameVi": null,
+          "tier": 6,
+          "count": 8
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Choreographer",
+          "nameVi": "Biên Đạo",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_19_Ahri",
+          "name": "Ahri",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-ahri.webp",
+          "items": [
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            },
+            {
+              "name": "Void Staff",
+              "nameVi": "Trượng Hư Vô",
+              "icon": "/tft/set19/items/t_voidstaff.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_AkaliKDA19",
+          "name": "Akali",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-akali-truedamage.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Evelynn19",
+          "name": "Evelynn",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-evelynn.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Garen19",
+          "name": "Garen",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-garen.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Gragas19",
+          "name": "Gragas",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-gragas.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kaisa19",
+          "name": "Kai'Sa",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-kaisa.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Lillia19",
+          "name": "Lillia",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-lillia.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Neeko19",
+          "name": "Neeko",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-neeko.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427022",
+      "level": 9,
+      "count": 39278,
+      "avg": 4.6234,
+      "traits": [
+        {
+          "name": "Heartsteel",
+          "nameVi": null,
+          "tier": 4,
+          "count": 7
+        },
+        {
+          "name": "Manager",
+          "nameVi": "Quản Lý",
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Slayer",
+          "nameVi": "Đồ Tể",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Alune19",
+          "name": "Alune",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-alune.webp",
+          "items": [
+            {
+              "name": "Morellonomicon",
+              "nameVi": "Quỷ Thư Morello",
+              "icon": "/tft/set19/items/t_morellonomicon.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            },
+            {
+              "name": "Void Staff",
+              "nameVi": "Trượng Hư Vô",
+              "icon": "/tft/set19/items/t_voidstaff.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Aphelios19",
+          "name": "Aphelios",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-aphelios.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_DrMundo19",
+          "name": "Dr. Mundo",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-drmundo.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Ezreal19",
+          "name": "Ezreal",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-ezreal.webp",
+          "items": []
+        },
+        {
+          "api": "DA_KSante19",
+          "name": "K'Sante",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ksante.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kayn19",
+          "name": "Kayn",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kayn.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Sett19",
+          "name": "Sett",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-sett.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yone19",
+          "name": "Yone",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yone.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427011",
+      "level": 9,
+      "count": 34213,
+      "avg": 4.361,
+      "traits": [
+        {
+          "name": "Pentakill",
+          "nameVi": null,
+          "tier": 3,
+          "count": 7
+        },
+        {
+          "name": "Rock",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Swiftstriker",
+          "nameVi": "Tốc Kích",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Gnar19",
+          "name": "Gnar",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-gnar.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Karthus19",
+          "name": "Karthus",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-karthus.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kayle19",
+          "name": "Kayle",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-kayle.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Striker's Flail",
+              "nameVi": "Chùy Đoản Côn",
+              "icon": "/tft/set19/items/t_strikersflail.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Locke19",
+          "name": "Locke",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-locke.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Mordekaiser19",
+          "name": "Mordekaiser",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-mordekaiser.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Olaf19",
+          "name": "Olaf",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-olaf.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Viego19",
+          "name": "Viego",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-viego.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yorick19",
+          "name": "Yorick",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yorick.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427000",
+      "level": 9,
+      "count": 32082,
+      "avg": 2.818,
+      "traits": [
+        {
+          "name": "Hyperpop",
+          "nameVi": null,
+          "tier": 4,
+          "count": 5
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Choreographer",
+          "nameVi": "Biên Đạo",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Alistar19",
+          "name": "Alistar",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-alistar.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Garen19",
+          "name": "Garen",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-garen.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kobuko19",
+          "name": "Kobuko",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kobuko.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Lulu19",
+          "name": "Lulu",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-lulu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Seraphine19_Indie",
+          "name": "Seraphine",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-seraphine.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Teemo19",
+          "name": "Teemo",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-teemo.webp",
+          "items": [
+            {
+              "name": "Morellonomicon",
+              "nameVi": "Quỷ Thư Morello",
+              "icon": "/tft/set19/items/t_morellonomicon.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            },
+            {
+              "name": "Void Staff",
+              "nameVi": "Trượng Hư Vô",
+              "icon": "/tft/set19/items/t_voidstaff.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Tristana19",
+          "name": "Tristana",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-tristana.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Ziggs19",
+          "name": "Ziggs",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-ziggs.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Hextech Gunblade",
+              "nameVi": "Kiếm Súng Hextech",
+              "icon": "/tft/set19/items/t_hextechgunblade.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427043",
+      "level": 8,
+      "count": 23523,
+      "avg": 5.6329,
+      "traits": [
+        {
+          "name": "True Damage",
+          "nameVi": null,
+          "tier": 2,
+          "count": 5
+        },
+        {
+          "name": "Rock",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Slayer",
+          "nameVi": "Đồ Tể",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Renegade",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Camille19",
+          "name": "Camille",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-camille.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Ekko19",
+          "name": "Ekko",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ekko.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Kennen19",
+          "name": "Kennen",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kennen.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Olaf19",
+          "name": "Olaf",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-olaf.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Pyke19",
+          "name": "Pyke",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-pyke.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Qiyana19",
+          "name": "Qiyana",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-qiyana.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Senna19",
+          "name": "Senna",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-senna.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yasuo19",
+          "name": "Yasuo",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yasuo.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427028",
+      "level": 8,
+      "count": 23369,
+      "avg": 4.8395,
+      "traits": [
+        {
+          "name": "Beach Pop",
+          "nameVi": null,
+          "tier": 3,
+          "count": 7
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Ashe19",
+          "name": "Ashe",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-ashe.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Graves19",
+          "name": "Graves",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-graves.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Renekton19",
+          "name": "Renekton",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-renekton.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Syndra19",
+          "name": "Syndra",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-syndra.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Taric19",
+          "name": "Taric",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-taric.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Zac19",
+          "name": "Zac",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-zac.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Zoe19",
+          "name": "Zoe",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-zoe.webp",
+          "items": []
+        },
+        {
+          "api": "TFT19_Bongos",
+          "name": "Bongos",
+          "nameVi": null,
+          "cost": 0,
+          "icon": "/tft/set19/champions/tft19_bongos.png",
+          "items": []
+        },
+        {
+          "api": "TFT19_Ukelele",
+          "name": "Ukelele",
+          "nameVi": "Đàn Ukulele",
+          "cost": 0,
+          "icon": "/tft/set19/champions/tft19_ukelele.png",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427014",
+      "level": 9,
+      "count": 22040,
+      "avg": 4.6373,
+      "traits": [
+        {
+          "name": "Rock",
+          "nameVi": null,
+          "tier": 4,
+          "count": 7
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Trickshot",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Camille19",
+          "name": "Camille",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-camille.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Locke19",
+          "name": "Locke",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-locke.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Nunu19",
+          "name": "Nunu & Willump",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nunu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Olaf19",
+          "name": "Olaf",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-olaf.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Pyke19",
+          "name": "Pyke",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-pyke.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_TwistedFate19",
+          "name": "Twisted Fate",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-twistedfate.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Varus19",
+          "name": "Varus",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-varus.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vayne19",
+          "name": "Vayne",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-vayne.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427005",
+      "level": 8,
+      "count": 19267,
+      "avg": 3.6469,
+      "traits": [
+        {
+          "name": "K/DA",
+          "nameVi": null,
+          "tier": 6,
+          "count": 8
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_19_Ahri",
+          "name": "Ahri",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-ahri.webp",
+          "items": []
+        },
+        {
+          "api": "DA_AkaliKDA19",
+          "name": "Akali",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-akali-truedamage.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Evelynn19",
+          "name": "Evelynn",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-evelynn.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Gragas19",
+          "name": "Gragas",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-gragas.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Steadfast Heart",
+              "nameVi": "Trái Tim Kiên Định",
+              "icon": "/tft/set19/items/t_steadfastheart.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Kaisa19",
+          "name": "Kai'Sa",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-kaisa.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Lillia19",
+          "name": "Lillia",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-lillia.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Neeko19",
+          "name": "Neeko",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-neeko.webp",
+          "items": [
+            {
+              "name": "Blue Buff",
+              "nameVi": "Bùa Xanh",
+              "icon": "/tft/set19/items/t_bluebuff.png"
+            },
+            {
+              "name": "Hextech Gunblade",
+              "nameVi": "Kiếm Súng Hextech",
+              "icon": "/tft/set19/items/t_hextechgunblade.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427016",
+      "level": 9,
+      "count": 19124,
+      "avg": 4.5592,
+      "traits": [
+        {
+          "name": "Gu Feng",
+          "nameVi": null,
+          "tier": 3,
+          "count": 4
+        },
+        {
+          "name": "Hitmaker",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Manager",
+          "nameVi": "Quản Lý",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_DrMundo19",
+          "name": "Dr. Mundo",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-drmundo.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Janna19",
+          "name": "Janna",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-janna.webp",
+          "items": []
+        },
+        {
+          "api": "DA_LeeSin19",
+          "name": "Lee Sin",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-leesin.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": []
+        },
+        {
+          "api": "DA_MissFortune19",
+          "name": "Miss Fortune",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-missfortune.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Nidalee19",
+          "name": "Nidalee",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nidalee.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Rell19",
+          "name": "Rell",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-rell.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Wukong19",
+          "name": "Wukong",
+          "nameVi": "Ngộ Không",
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-wukong.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Xayah19",
+          "name": "Xayah",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-xayah.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427021",
+      "level": 9,
+      "count": 18776,
+      "avg": 4.8142,
+      "traits": [
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 2,
+          "count": 4
+        },
+        {
+          "name": "Classical",
+          "nameVi": "Cổ Điển",
+          "tier": 2,
+          "count": 4
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Encore",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Hitmaker",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Jazz",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Galio19",
+          "name": "Galio",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-galio.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jhin19",
+          "name": "Jhin",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-jhin.webp",
+          "items": [
+            {
+              "name": "Deathblade",
+              "nameVi": "Kiếm Tử Thần",
+              "icon": "/tft/set19/items/t_deathblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Lucian19",
+          "name": "Lucian",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-lucian.webp",
+          "items": []
+        },
+        {
+          "api": "DA_MissFortune19",
+          "name": "Miss Fortune",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-missfortune.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Nasus19",
+          "name": "Nasus",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-nasus.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Nunu19",
+          "name": "Nunu & Willump",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nunu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Thresh19",
+          "name": "Thresh",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-thresh.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Vladimir19",
+          "name": "Vladimir",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vladimir.webp",
+          "items": [
+            {
+              "name": "Archangel's Staff",
+              "nameVi": "Quyền Trượng Thiên Thần",
+              "icon": "/tft/set19/items/t_archangelsstaff.png"
+            },
+            {
+              "name": "Morellonomicon",
+              "nameVi": "Quỷ Thư Morello",
+              "icon": "/tft/set19/items/t_morellonomicon.png"
+            },
+            {
+              "name": "Void Staff",
+              "nameVi": "Trượng Hư Vô",
+              "icon": "/tft/set19/items/t_voidstaff.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427040",
+      "level": 9,
+      "count": 18258,
+      "avg": 5.9501,
+      "traits": [
+        {
+          "name": "Record Mogul",
+          "nameVi": "Hãng Đĩa",
+          "tier": 1,
+          "count": 1
+        },
+        {
+          "name": "8-Bit",
+          "nameVi": null,
+          "tier": 1,
+          "count": 1
+        },
+        {
+          "name": "Mariachi",
+          "nameVi": null,
+          "tier": 1,
+          "count": 1
+        },
+        {
+          "name": "Disco",
+          "nameVi": null,
+          "tier": 1,
+          "count": 1
+        },
+        {
+          "name": "Beat Master",
+          "nameVi": "Phối Nhịp",
+          "tier": 1,
+          "count": 1
+        },
+        {
+          "name": "R&B",
+          "nameVi": null,
+          "tier": 1,
+          "count": 1
+        },
+        {
+          "name": "Tango",
+          "nameVi": null,
+          "tier": 1,
+          "count": 1
+        },
+        {
+          "name": "Goth",
+          "nameVi": null,
+          "tier": 1,
+          "count": 1
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_DrMundo19",
+          "name": "Dr. Mundo",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-drmundo.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_MissFortune19",
+          "name": "Miss Fortune",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-missfortune.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Nidalee19",
+          "name": "Nidalee",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nidalee.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Nunu19",
+          "name": "Nunu & Willump",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nunu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Pyke19",
+          "name": "Pyke",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-pyke.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Rell19",
+          "name": "Rell",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-rell.webp",
+          "items": []
+        },
+        {
+          "api": "DA_TwistedFate19",
+          "name": "Twisted Fate",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-twistedfate.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vi19",
+          "name": "Vi",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vi.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Zeri19",
+          "name": "Zeri",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-zeri.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427033",
+      "level": 9,
+      "count": 14036,
+      "avg": 5.1708,
+      "traits": [
+        {
+          "name": "R&B",
+          "nameVi": null,
+          "tier": 2,
+          "count": 2
+        },
+        {
+          "name": "Encore",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Heartsteel",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Hitmaker",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Jazz",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Classical",
+          "nameVi": "Cổ Điển",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Ezreal19",
+          "name": "Ezreal",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-ezreal.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Galio19",
+          "name": "Galio",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-galio.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Lucian19",
+          "name": "Lucian",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-lucian.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Mel19",
+          "name": "Mel",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-mel.webp",
+          "items": []
+        },
+        {
+          "api": "DA_MissFortune19",
+          "name": "Miss Fortune",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-missfortune.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Nasus19",
+          "name": "Nasus",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-nasus.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Rell19",
+          "name": "Rell",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-rell.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Thresh19",
+          "name": "Thresh",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-thresh.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yone19",
+          "name": "Yone",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yone.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427010",
+      "level": 9,
+      "count": 13063,
+      "avg": 3.3756,
+      "traits": [
+        {
+          "name": "Prodigy",
+          "nameVi": null,
+          "tier": 4,
+          "count": 5
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Manager",
+          "nameVi": "Quản Lý",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Alune19",
+          "name": "Alune",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-alune.webp",
+          "items": []
+        },
+        {
+          "api": "DA_BaronNashor19",
+          "name": "Baron Nashor",
+          "nameVi": null,
+          "cost": 7,
+          "icon": "/tft/set19/champions/da-19-baronnashor.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Braum19",
+          "name": "Braum",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-braum.webp",
+          "items": []
+        },
+        {
+          "api": "DA_DrMundo19",
+          "name": "Dr. Mundo",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-drmundo.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Ekko19",
+          "name": "Ekko",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ekko.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Lux19",
+          "name": "Lux",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-lux.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Malzahar19",
+          "name": "Malzahar",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-malzahar.webp",
+          "items": [
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Rabadon's Deathcap",
+              "nameVi": "Mũ Phù Thủy Rabadon",
+              "icon": "/tft/set19/items/t_rabadonsdeathcap.png"
+            },
+            {
+              "name": "Striker's Flail",
+              "nameVi": "Chùy Đoản Côn",
+              "icon": "/tft/set19/items/t_strikersflail.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Neeko19",
+          "name": "Neeko",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-neeko.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427032",
+      "level": 9,
+      "count": 11994,
+      "avg": 4.8408,
+      "traits": [
+        {
+          "name": "Rock",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Encore",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Hitmaker",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Jazz",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Renegade",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Trickshot",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Classical",
+          "nameVi": "Cổ Điển",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Galio19",
+          "name": "Galio",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-galio.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jhin19",
+          "name": "Jhin",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-jhin.webp",
+          "items": [
+            {
+              "name": "Deathblade",
+              "nameVi": "Kiếm Tử Thần",
+              "icon": "/tft/set19/items/t_deathblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Lucian19",
+          "name": "Lucian",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-lucian.webp",
+          "items": []
+        },
+        {
+          "api": "DA_MissFortune19",
+          "name": "Miss Fortune",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-missfortune.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Pyke19",
+          "name": "Pyke",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-pyke.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Striker's Flail",
+              "nameVi": "Chùy Đoản Côn",
+              "icon": "/tft/set19/items/t_strikersflail.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Rell19",
+          "name": "Rell",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-rell.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Samira19",
+          "name": "Samira",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-samira.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vayne19",
+          "name": "Vayne",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-vayne.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427008",
+      "level": 9,
+      "count": 11884,
+      "avg": 3.6511,
+      "traits": [
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 3,
+          "count": 6
+        },
+        {
+          "name": "Prodigy",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Annie19",
+          "name": "Annie",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-annie.webp",
+          "items": []
+        },
+        {
+          "api": "DA_BaronNashor19",
+          "name": "Baron Nashor",
+          "nameVi": null,
+          "cost": 7,
+          "icon": "/tft/set19/champions/da-19-baronnashor.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Braum19",
+          "name": "Braum",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-braum.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Ekko19",
+          "name": "Ekko",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ekko.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Gragas19",
+          "name": "Gragas",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-gragas.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Malzahar19",
+          "name": "Malzahar",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-malzahar.webp",
+          "items": [
+            {
+              "name": "Archangel's Staff",
+              "nameVi": "Quyền Trượng Thiên Thần",
+              "icon": "/tft/set19/items/t_archangelsstaff.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Taric19",
+          "name": "Taric",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-taric.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vi19",
+          "name": "Vi",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vi.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427037",
+      "level": 7,
+      "count": 10767,
+      "avg": 5.1396,
+      "traits": [
+        {
+          "name": "Illbeats",
+          "nameVi": null,
+          "tier": 3,
+          "count": 4
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Trickshot",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Braum19",
+          "name": "Braum",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-braum.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Draven19",
+          "name": "Draven",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-draven.webp",
+          "items": [
+            {
+              "name": "Deathblade",
+              "nameVi": "Kiếm Tử Thần",
+              "icon": "/tft/set19/items/t_deathblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Illaoi19",
+          "name": "Illaoi",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-illaoi.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kaisa19",
+          "name": "Kai'Sa",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-kaisa.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Red Buff",
+              "nameVi": "Bùa Đỏ",
+              "icon": "/tft/set19/items/t_redbuff.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Olaf19",
+          "name": "Olaf",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-olaf.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yuumi19",
+          "name": "Yuumi",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yuumi.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427017",
+      "level": 7,
+      "count": 9381,
+      "avg": 4.7004,
+      "traits": [
+        {
+          "name": "Ionic Spark",
+          "nameVi": null,
+          "tier": 3,
+          "count": 7
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Annie19",
+          "name": "Annie",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-annie.webp",
+          "items": [
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Nashor's Tooth",
+              "nameVi": "Nanh Nashor",
+              "icon": "/tft/set19/items/t_nashorstooth.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Aurora19",
+          "name": "Aurora",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-aurora.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Elise19",
+          "name": "Elise",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-elise.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Gwen19",
+          "name": "Gwen",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-gwen.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jinx19",
+          "name": "Jinx",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-jinx.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Shyvana19",
+          "name": "Shyvana",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-shyvana.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Tibbers19",
+          "name": "Tibbers",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-tibbers.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427020",
+      "level": 9,
+      "count": 8892,
+      "avg": 4.7539,
+      "traits": [
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 3,
+          "count": 6
+        },
+        {
+          "name": "R&B",
+          "nameVi": null,
+          "tier": 2,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Annie19",
+          "name": "Annie",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-annie.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Karthus19",
+          "name": "Karthus",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-karthus.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Mel19",
+          "name": "Mel",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-mel.webp",
+          "items": [
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            },
+            {
+              "name": "Striker's Flail",
+              "nameVi": "Chùy Đoản Côn",
+              "icon": "/tft/set19/items/t_strikersflail.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Nunu19",
+          "name": "Nunu & Willump",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nunu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Rell19",
+          "name": "Rell",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-rell.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Vi19",
+          "name": "Vi",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vi.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vladimir19",
+          "name": "Vladimir",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vladimir.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Zoe19",
+          "name": "Zoe",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-zoe.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427042",
+      "level": 7,
+      "count": 6949,
+      "avg": 5.8279,
+      "traits": [
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 3,
+          "count": 6
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Ashe19",
+          "name": "Ashe",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-ashe.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Elise19",
+          "name": "Elise",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-elise.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Galio19",
+          "name": "Galio",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-galio.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Illaoi19",
+          "name": "Illaoi",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-illaoi.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Renekton19",
+          "name": "Renekton",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-renekton.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Sett19",
+          "name": "Sett",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-sett.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427036",
+      "level": 8,
+      "count": 6703,
+      "avg": 6.3091,
+      "traits": [
+        {
+          "name": "Heartsteel",
+          "nameVi": null,
+          "tier": 4,
+          "count": 7
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Slayer",
+          "nameVi": "Đồ Tể",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Alune19",
+          "name": "Alune",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-alune.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Aphelios19",
+          "name": "Aphelios",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-aphelios.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Ezreal19",
+          "name": "Ezreal",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-ezreal.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_KSante19",
+          "name": "K'Sante",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ksante.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kayn19",
+          "name": "Kayn",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kayn.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Sett19",
+          "name": "Sett",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-sett.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Shyvana19",
+          "name": "Shyvana",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-shyvana.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yone19",
+          "name": "Yone",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yone.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427003",
+      "level": 9,
+      "count": 6678,
+      "avg": 4.4133,
+      "traits": [
+        {
+          "name": "Jazz",
+          "nameVi": null,
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Rock",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Pentakill",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Slayer",
+          "nameVi": "Đồ Tể",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Swiftstriker",
+          "nameVi": "Tốc Kích",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Bard19",
+          "name": "Bard",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-bard.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Camille19",
+          "name": "Camille",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-camille.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Galio19",
+          "name": "Galio",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-galio.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kayle19",
+          "name": "Kayle",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-kayle.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Striker's Flail",
+              "nameVi": "Chùy Đoản Côn",
+              "icon": "/tft/set19/items/t_strikersflail.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Mel19",
+          "name": "Mel",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-mel.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Olaf19",
+          "name": "Olaf",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-olaf.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Smeech19",
+          "name": "Smeech",
+          "nameVi": null,
+          "cost": 7,
+          "icon": "/tft/set19/champions/da-19-smeech.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yorick19",
+          "name": "Yorick",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yorick.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427029",
+      "level": 8,
+      "count": 6303,
+      "avg": 4.7584,
+      "traits": [
+        {
+          "name": "Slayer",
+          "nameVi": "Đồ Tể",
+          "tier": 3,
+          "count": 6
+        },
+        {
+          "name": "Heartsteel",
+          "nameVi": null,
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Briar19",
+          "name": "Briar",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-briar.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Camille19",
+          "name": "Camille",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-camille.webp",
+          "items": []
+        },
+        {
+          "api": "DA_KSante19",
+          "name": "K'Sante",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ksante.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kayn19",
+          "name": "Kayn",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kayn.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Viego19",
+          "name": "Viego",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-viego.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yasuo19",
+          "name": "Yasuo",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yasuo.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Yone19",
+          "name": "Yone",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yone.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427009",
+      "level": 9,
+      "count": 6048,
+      "avg": 4.3986,
+      "traits": [
+        {
+          "name": "Gu Feng",
+          "nameVi": null,
+          "tier": 3,
+          "count": 4
+        },
+        {
+          "name": "Ionic Spark",
+          "nameVi": null,
+          "tier": 2,
+          "count": 5
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Hitmaker",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Prodigy",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Elise19",
+          "name": "Elise",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-elise.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Gwen19",
+          "name": "Gwen",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-gwen.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Janna19",
+          "name": "Janna",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-janna.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jinx19",
+          "name": "Jinx",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-jinx.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_LeeSin19",
+          "name": "Lee Sin",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-leesin.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Lux19",
+          "name": "Lux",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-lux.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Shyvana19",
+          "name": "Shyvana",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-shyvana.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Wukong19",
+          "name": "Wukong",
+          "nameVi": "Ngộ Không",
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-wukong.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Xayah19",
+          "name": "Xayah",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-xayah.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427035",
+      "level": 9,
+      "count": 5945,
+      "avg": 5.2461,
+      "traits": [
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 2,
+          "count": 4
+        },
+        {
+          "name": "Gu Feng",
+          "nameVi": null,
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Encore",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Hitmaker",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Jazz",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Classical",
+          "nameVi": "Cổ Điển",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Galio19",
+          "name": "Galio",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-galio.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Jhin19",
+          "name": "Jhin",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-jhin.webp",
+          "items": []
+        },
+        {
+          "api": "DA_LeeSin19",
+          "name": "Lee Sin",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-leesin.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Lucian19",
+          "name": "Lucian",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-lucian.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Nunu19",
+          "name": "Nunu & Willump",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nunu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Sett19",
+          "name": "Sett",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-sett.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Thresh19",
+          "name": "Thresh",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-thresh.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Wukong19",
+          "name": "Wukong",
+          "nameVi": "Ngộ Không",
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-wukong.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Xayah19",
+          "name": "Xayah",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-xayah.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427041",
+      "level": 9,
+      "count": 5907,
+      "avg": 4.9367,
+      "traits": [
+        {
+          "name": "K/DA",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "EDM",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Renegade",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Swiftstriker",
+          "nameVi": "Tốc Kích",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Evelynn19",
+          "name": "Evelynn",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-evelynn.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Gragas19",
+          "name": "Gragas",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-gragas.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jax19",
+          "name": "Jax",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-jax.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Nunu19",
+          "name": "Nunu & Willump",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nunu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Pyke19",
+          "name": "Pyke",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-pyke.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Rell19",
+          "name": "Rell",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-rell.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vi19",
+          "name": "Vi",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vi.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Zeri19",
+          "name": "Zeri",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-zeri.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427002",
+      "level": 9,
+      "count": 5689,
+      "avg": 4.1085,
+      "traits": [
+        {
+          "name": "Gu Feng",
+          "nameVi": null,
+          "tier": 3,
+          "count": 4
+        },
+        {
+          "name": "Manager",
+          "nameVi": "Quản Lý",
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Heartsteel",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Hitmaker",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Prodigy",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Alune19",
+          "name": "Alune",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-alune.webp",
+          "items": []
+        },
+        {
+          "api": "DA_DrMundo19",
+          "name": "Dr. Mundo",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-drmundo.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Janna19",
+          "name": "Janna",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-janna.webp",
+          "items": []
+        },
+        {
+          "api": "DA_KSante19",
+          "name": "K'Sante",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ksante.webp",
+          "items": []
+        },
+        {
+          "api": "DA_LeeSin19",
+          "name": "Lee Sin",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-leesin.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": []
+        },
+        {
+          "api": "DA_MissFortune19",
+          "name": "Miss Fortune",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-missfortune.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Wukong19",
+          "name": "Wukong",
+          "nameVi": "Ngộ Không",
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-wukong.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Xayah19",
+          "name": "Xayah",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-xayah.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427001",
+      "level": 8,
+      "count": 5596,
+      "avg": 3.8783,
+      "traits": [
+        {
+          "name": "Hyperpop",
+          "nameVi": null,
+          "tier": 4,
+          "count": 5
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Illbeats",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Annie19",
+          "name": "Annie",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-annie.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Braum19",
+          "name": "Braum",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-braum.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Illaoi19",
+          "name": "Illaoi",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-illaoi.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kobuko19",
+          "name": "Kobuko",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kobuko.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Lulu19",
+          "name": "Lulu",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-lulu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Teemo19",
+          "name": "Teemo",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-teemo.webp",
+          "items": [
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            },
+            {
+              "name": "Striker's Flail",
+              "nameVi": "Chùy Đoản Côn",
+              "icon": "/tft/set19/items/t_strikersflail.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Tristana19",
+          "name": "Tristana",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-tristana.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Ziggs19",
+          "name": "Ziggs",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-ziggs.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427038",
+      "level": 9,
+      "count": 5430,
+      "avg": 5.1448,
+      "traits": [
+        {
+          "name": "K/DA",
+          "nameVi": null,
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "EDM",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Renegade",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Swiftstriker",
+          "nameVi": "Tốc Kích",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Evelynn19",
+          "name": "Evelynn",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-evelynn.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Gragas19",
+          "name": "Gragas",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-gragas.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jax19",
+          "name": "Jax",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-jax.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Nunu19",
+          "name": "Nunu & Willump",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nunu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Pyke19",
+          "name": "Pyke",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-pyke.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Rell19",
+          "name": "Rell",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-rell.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vi19",
+          "name": "Vi",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vi.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Zeri19",
+          "name": "Zeri",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-zeri.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427006",
+      "level": 9,
+      "count": 5352,
+      "avg": 4.3442,
+      "traits": [
+        {
+          "name": "Rock",
+          "nameVi": null,
+          "tier": 4,
+          "count": 7
+        },
+        {
+          "name": "Pentakill",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Trickshot",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Camille19",
+          "name": "Camille",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-camille.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Gnar19",
+          "name": "Gnar",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-gnar.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Locke19",
+          "name": "Locke",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-locke.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Olaf19",
+          "name": "Olaf",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-olaf.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Pyke19",
+          "name": "Pyke",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-pyke.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Varus19",
+          "name": "Varus",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-varus.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vayne19",
+          "name": "Vayne",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-vayne.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Yorick19",
+          "name": "Yorick",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yorick.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427012",
+      "level": 9,
+      "count": 5351,
+      "avg": 4.7156,
+      "traits": [
+        {
+          "name": "Beach Pop",
+          "nameVi": null,
+          "tier": 2,
+          "count": 5
+        },
+        {
+          "name": "Ionic Spark",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Encore",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Renegade",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Annie19",
+          "name": "Annie",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-annie.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Aurora19",
+          "name": "Aurora",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-aurora.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Ezreal19",
+          "name": "Ezreal",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-ezreal.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Graves19",
+          "name": "Graves",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-graves.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Renekton19",
+          "name": "Renekton",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-renekton.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Shyvana19",
+          "name": "Shyvana",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-shyvana.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Taliyah19",
+          "name": "Taliyah",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-taliyah.webp",
+          "items": [
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Nashor's Tooth",
+              "nameVi": "Nanh Nashor",
+              "icon": "/tft/set19/items/t_nashorstooth.png"
+            },
+            {
+              "name": "Striker's Flail",
+              "nameVi": "Chùy Đoản Côn",
+              "icon": "/tft/set19/items/t_strikersflail.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Zac19",
+          "name": "Zac",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-zac.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Zoe19",
+          "name": "Zoe",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-zoe.webp",
+          "items": []
+        },
+        {
+          "api": "TFT19_Maracas",
+          "name": "Maracas",
+          "nameVi": "Lục Lạc",
+          "cost": 0,
+          "icon": "/tft/set19/champions/tft19_maracas.png",
+          "items": []
+        },
+        {
+          "api": "TFT19_Steeldrum",
+          "name": "Steel Drums",
+          "nameVi": "Trống Thép",
+          "cost": 0,
+          "icon": "/tft/set19/champions/tft19_steeldrum.png",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427015",
+      "level": 8,
+      "count": 4972,
+      "avg": 5.3707,
+      "traits": [
+        {
+          "name": "Ionic Spark",
+          "nameVi": null,
+          "tier": 3,
+          "count": 8
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Annie19",
+          "name": "Annie",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-annie.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Briar19",
+          "name": "Briar",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-briar.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Elise19",
+          "name": "Elise",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-elise.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Gwen19",
+          "name": "Gwen",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-gwen.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jinx19",
+          "name": "Jinx",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-jinx.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Lux19",
+          "name": "Lux",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-lux.webp",
+          "items": [
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Rabadon's Deathcap",
+              "nameVi": "Mũ Phù Thủy Rabadon",
+              "icon": "/tft/set19/items/t_rabadonsdeathcap.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Tibbers19",
+          "name": "Tibbers",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-tibbers.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yunara19",
+          "name": "Yunara",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-yunara.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427026",
+      "level": 8,
+      "count": 4971,
+      "avg": 5.03,
+      "traits": [
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 3,
+          "count": 6
+        },
+        {
+          "name": "K/DA",
+          "nameVi": null,
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Choreographer",
+          "nameVi": "Biên Đạo",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Classical",
+          "nameVi": "Cổ Điển",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_19_Ahri",
+          "name": "Ahri",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-ahri.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jax19",
+          "name": "Jax",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-jax.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_KSante19",
+          "name": "K'Sante",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ksante.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kennen19",
+          "name": "Kennen",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kennen.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Lillia19",
+          "name": "Lillia",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-lillia.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Nasus19",
+          "name": "Nasus",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-nasus.webp",
+          "items": []
+        },
+        {
+          "api": "DA_RenataGlasc19",
+          "name": "Renata Glasc",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-renataglasc.webp",
+          "items": [
+            {
+              "name": "Archangel's Staff",
+              "nameVi": "Quyền Trượng Thiên Thần",
+              "icon": "/tft/set19/items/t_archangelsstaff.png"
+            },
+            {
+              "name": "Hextech Gunblade",
+              "nameVi": "Kiếm Súng Hextech",
+              "icon": "/tft/set19/items/t_hextechgunblade.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427034",
+      "level": 8,
+      "count": 4466,
+      "avg": 5.043,
+      "traits": [
+        {
+          "name": "Illbeats",
+          "nameVi": null,
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Encore",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Braum19",
+          "name": "Braum",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-braum.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Briar19",
+          "name": "Briar",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-briar.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Gragas19",
+          "name": "Gragas",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-gragas.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Illaoi19",
+          "name": "Illaoi",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-illaoi.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jhin19",
+          "name": "Jhin",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-jhin.webp",
+          "items": [
+            {
+              "name": "Deathblade",
+              "nameVi": "Kiếm Tử Thần",
+              "icon": "/tft/set19/items/t_deathblade.png"
+            },
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Karthus19",
+          "name": "Karthus",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-karthus.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Sett19",
+          "name": "Sett",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-sett.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yuumi19",
+          "name": "Yuumi",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yuumi.webp",
+          "items": [
+            {
+              "name": "Blue Buff",
+              "nameVi": "Bùa Xanh",
+              "icon": "/tft/set19/items/t_bluebuff.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Rabadon's Deathcap",
+              "nameVi": "Mũ Phù Thủy Rabadon",
+              "icon": "/tft/set19/items/t_rabadonsdeathcap.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427039",
+      "level": 8,
+      "count": 4445,
+      "avg": 5.5624,
+      "traits": [
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 3,
+          "count": 6
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Hyperpop",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Jazz",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Swiftstriker",
+          "nameVi": "Tốc Kích",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Bard19",
+          "name": "Bard",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-bard.webp",
+          "items": [
+            {
+              "name": "Bard's Horn of the Traveler",
+              "nameVi": "Tù Và Lữ Khách Của Bard",
+              "icon": "/tft/set19/items/t_bard19_uniqueitemicon.png"
+            },
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Galio19",
+          "name": "Galio",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-galio.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Kobuko19",
+          "name": "Kobuko",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kobuko.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Nunu19",
+          "name": "Nunu & Willump",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nunu.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Sett19",
+          "name": "Sett",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-sett.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Shyvana19",
+          "name": "Shyvana",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-shyvana.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Swain19",
+          "name": "Swain",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-swain.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Ziggs19",
+          "name": "Ziggs",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-ziggs.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427023",
+      "level": 9,
+      "count": 3965,
+      "avg": 4.5627,
+      "traits": [
+        {
+          "name": "Manager",
+          "nameVi": "Quản Lý",
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Choreographer",
+          "nameVi": "Biên Đạo",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "EDM",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Prodigy",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Swiftstriker",
+          "nameVi": "Tốc Kích",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Alune19",
+          "name": "Alune",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-alune.webp",
+          "items": []
+        },
+        {
+          "api": "DA_DrMundo19",
+          "name": "Dr. Mundo",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-drmundo.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Ekko19",
+          "name": "Ekko",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ekko.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Garen19",
+          "name": "Garen",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-garen.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Jax19",
+          "name": "Jax",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-jax.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Leona19",
+          "name": "Leona",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-leona.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Nidalee19",
+          "name": "Nidalee",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nidalee.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Vi19",
+          "name": "Vi",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vi.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Zeri19",
+          "name": "Zeri",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-zeri.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427019",
+      "level": 9,
+      "count": 3717,
+      "avg": 4.8095,
+      "traits": [
+        {
+          "name": "Beach Pop",
+          "nameVi": null,
+          "tier": 3,
+          "count": 7
+        },
+        {
+          "name": "R&B",
+          "nameVi": null,
+          "tier": 2,
+          "count": 2
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Graves19",
+          "name": "Graves",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-graves.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Mel19",
+          "name": "Mel",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-mel.webp",
+          "items": [
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            },
+            {
+              "name": "Void Staff",
+              "nameVi": "Trượng Hư Vô",
+              "icon": "/tft/set19/items/t_voidstaff.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Rell19",
+          "name": "Rell",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-rell.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Renekton19",
+          "name": "Renekton",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-renekton.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Syndra19",
+          "name": "Syndra",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-syndra.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Taliyah19",
+          "name": "Taliyah",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-taliyah.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Taric19",
+          "name": "Taric",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-taric.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Zac19",
+          "name": "Zac",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-zac.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Zoe19",
+          "name": "Zoe",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-zoe.webp",
+          "items": []
+        },
+        {
+          "api": "TFT19_Bongos",
+          "name": "Bongos",
+          "nameVi": null,
+          "cost": 0,
+          "icon": "/tft/set19/champions/tft19_bongos.png",
+          "items": []
+        },
+        {
+          "api": "TFT19_Ukelele",
+          "name": "Ukelele",
+          "nameVi": "Đàn Ukulele",
+          "cost": 0,
+          "icon": "/tft/set19/champions/tft19_ukelele.png",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427027",
+      "level": 8,
+      "count": 3556,
+      "avg": 4.9019,
+      "traits": [
+        {
+          "name": "Slayer",
+          "nameVi": "Đồ Tể",
+          "tier": 3,
+          "count": 6
+        },
+        {
+          "name": "Pentakill",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Heartsteel",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Briar19",
+          "name": "Briar",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-briar.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Camille19",
+          "name": "Camille",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-camille.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kayn19",
+          "name": "Kayn",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kayn.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Olaf19",
+          "name": "Olaf",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-olaf.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Viego19",
+          "name": "Viego",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-viego.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Yasuo19",
+          "name": "Yasuo",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yasuo.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yone19",
+          "name": "Yone",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yone.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yorick19",
+          "name": "Yorick",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yorick.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427031",
+      "level": 8,
+      "count": 3380,
+      "avg": 5.5296,
+      "traits": [
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 2,
+          "count": 4
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 2,
+          "count": 4
+        },
+        {
+          "name": "Pentakill",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Annie19",
+          "name": "Annie",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-annie.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Gragas19",
+          "name": "Gragas",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-gragas.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Karthus19",
+          "name": "Karthus",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-karthus.webp",
+          "items": [
+            {
+              "name": "Blue Buff",
+              "nameVi": "Bùa Xanh",
+              "icon": "/tft/set19/items/t_bluebuff.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Rabadon's Deathcap",
+              "nameVi": "Mũ Phù Thủy Rabadon",
+              "icon": "/tft/set19/items/t_rabadonsdeathcap.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Mel19",
+          "name": "Mel",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-mel.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Olaf19",
+          "name": "Olaf",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-olaf.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Sett19",
+          "name": "Sett",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-sett.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vladimir19",
+          "name": "Vladimir",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vladimir.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yorick19",
+          "name": "Yorick",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yorick.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "427030",
+      "level": 7,
+      "count": 3238,
+      "avg": 5.063,
+      "traits": [
+        {
+          "name": "Swiftstriker",
+          "nameVi": "Tốc Kích",
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Beach Pop",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Frontman",
+          "nameVi": "Hát Chính",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Jazz",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Ashe19",
+          "name": "Ashe",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-ashe.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Bard19",
+          "name": "Bard",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-bard.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Galio19",
+          "name": "Galio",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-galio.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Jax19",
+          "name": "Jax",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-jax.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Quicksilver",
+              "nameVi": "Áo Choàng Thủy Ngân",
+              "icon": "/tft/set19/items/t_quicksilver.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_KSante19",
+          "name": "K'Sante",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ksante.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Renekton19",
+          "name": "Renekton",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-renekton.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Sunfire Cape",
+              "nameVi": "Áo Choàng Lửa",
+              "icon": "/tft/set19/items/t_sunfirecape.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Zac19",
+          "name": "Zac",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-zac.webp",
+          "items": []
+        },
+        {
+          "api": "TFT19_Maracas",
+          "name": "Maracas",
+          "nameVi": "Lục Lạc",
+          "cost": 0,
+          "icon": "/tft/set19/champions/tft19_maracas.png",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427013",
+      "level": 9,
+      "count": 3090,
+      "avg": 4.5819,
+      "traits": [
+        {
+          "name": "Swiftstriker",
+          "nameVi": "Tốc Kích",
+          "tier": 3,
+          "count": 4
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 2,
+          "count": 4
+        },
+        {
+          "name": "Rock",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Beach Pop",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Pentakill",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Ashe19",
+          "name": "Ashe",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-ashe.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kayle19",
+          "name": "Kayle",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-kayle.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Hextech Gunblade",
+              "nameVi": "Kiếm Súng Hextech",
+              "icon": "/tft/set19/items/t_hextechgunblade.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Locke19",
+          "name": "Locke",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-locke.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            },
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Olaf19",
+          "name": "Olaf",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-olaf.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Pyke19",
+          "name": "Pyke",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-pyke.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Taric19",
+          "name": "Taric",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-taric.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yorick19",
+          "name": "Yorick",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yorick.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Zac19",
+          "name": "Zac",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-zac.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Zeri19",
+          "name": "Zeri",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-zeri.webp",
+          "items": []
+        },
+        {
+          "api": "TFT19_Maracas",
+          "name": "Maracas",
+          "nameVi": "Lục Lạc",
+          "cost": 0,
+          "icon": "/tft/set19/champions/tft19_maracas.png",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427025",
+      "level": 9,
+      "count": 2746,
+      "avg": 5.1256,
+      "traits": [
+        {
+          "name": "Gu Feng",
+          "nameVi": null,
+          "tier": 3,
+          "count": 4
+        },
+        {
+          "name": "True Damage",
+          "nameVi": null,
+          "tier": 2,
+          "count": 5
+        },
+        {
+          "name": "Hitmaker",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Prodigy",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Ekko19",
+          "name": "Ekko",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-ekko.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Janna19",
+          "name": "Janna",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-janna.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Kennen19",
+          "name": "Kennen",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-kennen.webp",
+          "items": []
+        },
+        {
+          "api": "DA_LeeSin19",
+          "name": "Lee Sin",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-leesin.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Qiyana19",
+          "name": "Qiyana",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-qiyana.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Senna19",
+          "name": "Senna",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-senna.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Wukong19",
+          "name": "Wukong",
+          "nameVi": "Ngộ Không",
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-wukong.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Xayah19",
+          "name": "Xayah",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-xayah.webp",
+          "items": [
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Last Whisper",
+              "nameVi": "Cung Xanh",
+              "icon": "/tft/set19/items/t_lastwhisper.png"
+            },
+            {
+              "name": "Spear of Shojin",
+              "nameVi": "Ngọn Giáo Shojin",
+              "icon": "/tft/set19/items/t_spearofshojin.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Yasuo19",
+          "name": "Yasuo",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yasuo.webp",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427024",
+      "level": 8,
+      "count": 2039,
+      "avg": 4.9676,
+      "traits": [
+        {
+          "name": "Choreographer",
+          "nameVi": "Biên Đạo",
+          "tier": 4,
+          "count": 5
+        },
+        {
+          "name": "Beach Pop",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Slayer",
+          "nameVi": "Đồ Tể",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_19_Ahri",
+          "name": "Ahri",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-ahri.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Garen19",
+          "name": "Garen",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-garen.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Nidalee19",
+          "name": "Nidalee",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-nidalee.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Syndra19",
+          "name": "Syndra",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-syndra.webp",
+          "items": [
+            {
+              "name": "Jeweled Gauntlet",
+              "nameVi": "Găng Bảo Thạch",
+              "icon": "/tft/set19/items/t_jeweledgauntlet.png"
+            },
+            {
+              "name": "Nashor's Tooth",
+              "nameVi": "Nanh Nashor",
+              "icon": "/tft/set19/items/t_nashorstooth.png"
+            },
+            {
+              "name": "Nashor's Tooth",
+              "nameVi": "Nanh Nashor",
+              "icon": "/tft/set19/items/t_nashorstooth.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Taric19",
+          "name": "Taric",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-taric.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Viego19",
+          "name": "Viego",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-viego.webp",
+          "items": [
+            {
+              "name": "Bloodthirster",
+              "nameVi": "Huyết Kiếm",
+              "icon": "/tft/set19/items/t_bloodthirster.png"
+            },
+            {
+              "name": "Sterak's Gage",
+              "nameVi": "Móng Vuốt Sterak",
+              "icon": "/tft/set19/items/t_steraksgage.png"
+            },
+            {
+              "name": "Titan's Resolve",
+              "nameVi": "Quyền Năng Khổng Lồ",
+              "icon": "/tft/set19/items/t_titansresolve.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Yone19",
+          "name": "Yone",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-yone.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Zac19",
+          "name": "Zac",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-zac.webp",
+          "items": []
+        },
+        {
+          "api": "TFT19_Maracas",
+          "name": "Maracas",
+          "nameVi": "Lục Lạc",
+          "cost": 0,
+          "icon": "/tft/set19/champions/tft19_maracas.png",
+          "items": []
+        }
+      ]
+    },
+    {
+      "id": "427018",
+      "level": 8,
+      "count": 1693,
+      "avg": 5.3207,
+      "traits": [
+        {
+          "name": "Swiftstriker",
+          "nameVi": "Tốc Kích",
+          "tier": 2,
+          "count": 3
+        },
+        {
+          "name": "Ionic Spark",
+          "nameVi": null,
+          "tier": 1,
+          "count": 3
+        },
+        {
+          "name": "Arcanist",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Bodyguard",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "EDM",
+          "nameVi": null,
+          "tier": 1,
+          "count": 2
+        },
+        {
+          "name": "Juggernaut",
+          "nameVi": "Dũng Sĩ",
+          "tier": 1,
+          "count": 2
+        }
+      ],
+      "units": [
+        {
+          "api": "DA_Alistar19",
+          "name": "Alistar",
+          "nameVi": null,
+          "cost": 4,
+          "icon": "/tft/set19/champions/da-19-alistar.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Annie19",
+          "name": "Annie",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-annie.webp",
+          "items": [
+            {
+              "name": "Gargoyle Stoneplate",
+              "nameVi": "Thú Tượng Thạch Giáp",
+              "icon": "/tft/set19/items/t_gargoylestoneplate.png"
+            },
+            {
+              "name": "Spirit Visage",
+              "nameVi": "Giáp Tâm Linh",
+              "icon": "/tft/set19/items/t_spiritvisage.png"
+            },
+            {
+              "name": "Warmog's Armor",
+              "nameVi": "Giáp Máu Warmog",
+              "icon": "/tft/set19/items/t_warmogsarmor.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Jax19",
+          "name": "Jax",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-jax.webp",
+          "items": [
+            {
+              "name": "Edge of Night",
+              "nameVi": "Áo Choàng Bóng Tối",
+              "icon": "/tft/set19/items/t_edgeofnight.png"
+            },
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Hand Of Justice",
+              "nameVi": "Bàn Tay Công Lý",
+              "icon": "/tft/set19/items/t_handofjustice.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Seraphine19_Indie",
+          "name": "Seraphine",
+          "nameVi": null,
+          "cost": 2,
+          "icon": "/tft/set19/champions/da-19-seraphine.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Tibbers19",
+          "name": "Tibbers",
+          "nameVi": null,
+          "cost": 3,
+          "icon": "/tft/set19/champions/da-19-tibbers.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Vi19",
+          "name": "Vi",
+          "nameVi": null,
+          "cost": 5,
+          "icon": "/tft/set19/champions/da-19-vi.webp",
+          "items": []
+        },
+        {
+          "api": "DA_Yunara19",
+          "name": "Yunara",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-yunara.webp",
+          "items": [
+            {
+              "name": "Guinsoo's Rageblade",
+              "nameVi": "Cuồng Đao Guinsoo",
+              "icon": "/tft/set19/items/t_guinsoosrageblade.png"
+            },
+            {
+              "name": "Infinity Edge",
+              "nameVi": "Vô Cực Kiếm",
+              "icon": "/tft/set19/items/t_infinityedge.png"
+            },
+            {
+              "name": "Kraken's Fury",
+              "nameVi": "Thịnh Nộ Thủy Quái",
+              "icon": "/tft/set19/items/t_krakensfury.png"
+            }
+          ]
+        },
+        {
+          "api": "DA_Ziggs19",
+          "name": "Ziggs",
+          "nameVi": null,
+          "cost": 1,
+          "icon": "/tft/set19/champions/da-19-ziggs.webp",
+          "items": []
+        }
+      ]
+    }
+  ]
+}

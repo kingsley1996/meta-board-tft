@@ -8,5 +8,11 @@
   "features": {
     "wisps": true,
     "encounters": true
+  },
+  "upcoming": {
+    "number": 19,
+    "name": {
+      "en": "Prismatic Tour"
+    }
   }
 }

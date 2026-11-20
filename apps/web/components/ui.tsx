@@ -163,12 +163,14 @@ export function LevelBars({ level, max = 3 }: { level: number; max?: number }) {
   );
 }
 
-export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = false, frame, className = '' }: { name: string; cost: number; size?: number; stars?: number; icon?: string | null; fill?: boolean; frame?: string; className?: string }) {
+// `tip` is off for units the hover-card database does not know: it matches champions by name, so
+// a set-19 unit would otherwise pop the same-named live champion's stats.
+export function UnitHex({ name, cost, size = 56, stars, icon = null, fill = false, frame, tip = true, className = '' }: { name: string; cost: number; size?: number; stars?: number; icon?: string | null; fill?: boolean; frame?: string; tip?: boolean; className?: string }) {
   // Regular pointy-top hexagons are taller than wide: height = width * 2/√3.
   const height = fill ? undefined : Math.round(size * 1.1547);
   const focus = icon ? focusPosition(icon) : undefined;
   return (
-    <div data-tip={`champion:${name}`} className={`group/hex relative shrink-0 ${fill ? 'h-full w-full' : ''} ${className}`} style={fill ? undefined : { width: size, height }}>
+    <div data-tip={tip ? `champion:${name}` : undefined} className={`group/hex relative shrink-0 ${fill ? 'h-full w-full' : ''} ${className}`} style={fill ? undefined : { width: size, height }}>
       <div className="hex smooth relative h-full w-full group-hover/hex:scale-110" style={{ background: frame ?? costOf(cost) }}>
         <div className="hex absolute inset-0 flex scale-[0.87] items-center justify-center overflow-hidden bg-[linear-gradient(180deg,var(--color-line)_0%,var(--color-panel)_100%)] font-display text-xs font-bold text-fog">
           {icon ? (

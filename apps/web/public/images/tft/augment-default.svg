@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Stand-in art for a card whose source image is missing: the site mark's T, dark enough to
+       sit on the silver, gold and prismatic plates alike. -->
+  <path fill="#12161d" d="M6 7h20v5h-7v14h-6V12H6z"/>
+</svg>

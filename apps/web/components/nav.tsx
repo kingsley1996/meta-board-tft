@@ -110,7 +110,10 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
   ];
   // Media is reachable but not advertised: the page is videos, which is not a
   // reason to spend a top-level slot on it.
+  // The next set's reveal page is top-level news while PBE runs; it moves into the season menu
+  // (or goes) once the set ships and the live pages measure it.
   const links = [
+    { label: t.set19, href: `/${lang}/set-19`, accent: true, badge: t.newTag },
     { label: t.guides, href: `/${lang}/guides` },
     { label: t.membership, href: `/${lang}/membership` },
   ];
@@ -254,9 +257,12 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                     aria-current={isCurrent(link.href) ? 'page' : undefined}
                     className={`smooth rounded-md bg-util px-3 py-2 text-sm font-semibold hover:text-brand ${
                       isActive(link.href) ? 'text-brand' : 'text-fog'
-                    }`}
+                    } ${link.accent ? `inline-flex items-center gap-1.5 text-brand ${isActive(link.href) ? 'border border-brand/50' : ''}` : ''}`}
                   >
                     {link.label}
+                    {link.badge ? (
+                      <span className="rounded-full bg-brand px-1.5 text-[10px] font-bold leading-[1.6] text-on-brand">{link.badge}</span>
+                    ) : null}
                   </Link>
                 ))}
               </div>
@@ -325,9 +331,12 @@ export function Nav({ lang, patch }: { lang: Lang; patch: string }) {
                 aria-current={isCurrent(link.href) ? 'page' : undefined}
                 className={`smooth rounded-md px-3 py-2 text-sm font-semibold hover:text-brand ${
                   isActive(link.href) ? 'bg-util text-brand' : 'text-fog'
-                }`}
+                } ${link.accent ? `inline-flex items-center gap-1.5 text-brand ${isActive(link.href) ? 'border border-brand/50 bg-brand/10' : ''}` : ''}`}
               >
                 {link.label}
+                {link.badge ? (
+                  <span className="rounded-full bg-brand px-1.5 text-[10px] font-bold leading-[1.6] text-on-brand">{link.badge}</span>
+                ) : null}
               </Link>
             ))}
             <Link

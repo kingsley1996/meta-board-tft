@@ -40,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: 'tables', meta: page },
     { path: 'tables/gold-income', meta: page },
     { path: 'economy', meta: page },
+    { path: 'set-19', meta: page },
     ...lootPages.map((loot) => ({ path: `tables/${loot.slug}`, meta: page })),
     { path: 'builder', meta: page },
     { path: 'tier-maker', meta: page },
