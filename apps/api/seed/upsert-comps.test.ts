@@ -283,4 +283,34 @@ test('syncComps with disposable PostgreSQL', { skip: !hasPostgres && !process.en
     assert.deepEqual(await syncComps(source, { check: true }), { inserted: 0, rewritten: 0, unchanged: 3 });
     assert.deepEqual(await snapshot(), after);
   });
+
+  await t.test('set_number tags inserts, survives edits, and hides old-set rows from the board', async () => {
+    const { listComps } = await import('../src/comps.ts');
+    const setLive = (number: number) => database.query(
+      `INSERT INTO meta (key, value) VALUES ('set_number', $1) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+      [String(number)]
+    );
+    const setOf = async (slug: string) => (await database.query('SELECT set_number FROM comps WHERE slug = $1', [slug])).rows[0].set_number;
+    const old = fixture('sync-test-set-old');
+    const current = fixture('sync-test-set-current');
+
+    await setLive(18);
+    await writeComp(old);
+    assert.equal(await setOf(old.slug), 18);
+    await setLive(19);
+    await writeComp(current);
+    assert.equal(await setOf(current.slug), 19);
+
+    // Editing an old comp must not migrate it into the new set.
+    await writeComp({ ...old, title: 'Edited old' });
+    assert.equal(await setOf(old.slug), 18);
+
+    // The board lists only the live set; the old row is hidden, not deleted.
+    const board = await listComps(undefined, 'en');
+    assert.deepEqual(board.map((comp) => comp.slug), [current.slug]);
+    assert.equal((await database.query('SELECT count(*)::int AS n FROM comps')).rows[0].n, 2);
+    // Single-slug reads still resolve the hidden row for admin / deep links.
+    const [single] = await listComps(old.slug, 'en');
+    assert.equal(single.slug, old.slug);
+  });
 });

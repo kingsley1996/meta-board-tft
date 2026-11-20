@@ -170,6 +170,13 @@ ALTER TABLE comps ADD COLUMN IF NOT EXISTS augment_types text[] NOT NULL DEFAULT
 -- or augment that defines the build. Editor-owned; comp-extras.json only seeds it.
 ALTER TABLE comps ADD COLUMN IF NOT EXISTS cover jsonb;
 
+-- Set rotation (D4): tag each comp with the set it was written for so the board can
+-- hide last season's rows without deleting them (votes/covers survive). Nullable so
+-- pre-rotation databases keep working; backfill from meta, never a hardcoded number.
+ALTER TABLE comps ADD COLUMN IF NOT EXISTS set_number int;
+UPDATE comps SET set_number = (SELECT value::int FROM meta WHERE key = 'set_number')
+WHERE set_number IS NULL AND (SELECT value FROM meta WHERE key = 'set_number') IS NOT NULL;
+
 -- Assistant conversation persistence (Conversation Persistence).
 -- Stores chat sessions and messages so users can resume conversations
 -- across devices and page reloads instead of relying on sessionStorage only.

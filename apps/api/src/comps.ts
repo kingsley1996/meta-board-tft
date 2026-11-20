@@ -292,15 +292,17 @@ export async function writeComp(comp: CompInput): Promise<void> {
   try {
     await client.query('BEGIN');
     await client.query(
-      `INSERT INTO comps (slug, title, title_vi, tier, situational, style, difficulty, trend, playstyle, playstyle_vi, carry, cover, tips, tips_vi, augment_types, matchups)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      `INSERT INTO comps (slug, title, title_vi, tier, situational, style, difficulty, trend, playstyle, playstyle_vi, carry, cover, tips, tips_vi, augment_types, matchups, set_number)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
+         (SELECT value::int FROM meta WHERE key = 'set_number'))
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, title_vi = EXCLUDED.title_vi, tier = EXCLUDED.tier,
          situational = EXCLUDED.situational,
          style = EXCLUDED.style, difficulty = EXCLUDED.difficulty, trend = EXCLUDED.trend,
          playstyle = EXCLUDED.playstyle, playstyle_vi = EXCLUDED.playstyle_vi,
          carry = EXCLUDED.carry, cover = EXCLUDED.cover, tips = EXCLUDED.tips, tips_vi = EXCLUDED.tips_vi,
-         augment_types = EXCLUDED.augment_types, matchups = EXCLUDED.matchups, updated_at = now()`,
+         augment_types = EXCLUDED.augment_types, matchups = EXCLUDED.matchups,
+         set_number = COALESCE(comps.set_number, EXCLUDED.set_number), updated_at = now()`,
       [comp.slug, comp.title, comp.titleVi, comp.tier, comp.situational, comp.style, comp.difficulty, comp.trend, comp.playstyle, comp.playstyleVi, comp.carry, comp.cover ? JSON.stringify(comp.cover) : null, comp.tips, comp.tipsVi, comp.augmentTypes, JSON.stringify(comp.matchups)]
     );
     for (const table of ['comp_units', 'comp_items', 'comp_augments']) {
@@ -387,8 +389,13 @@ export function listComps(slug?: string, lang: 'en' | 'vi' = 'en', sort?: string
 async function listCompsUncached(slug?: string, lang: 'en' | 'vi' = 'en', sort?: string): Promise<any[]> {
   const vi = lang === 'vi';
   const order = !slug && sort === 'popular' ? 'ORDER BY votes DESC, created_at, slug' : 'ORDER BY created_at, slug';
+  // D4: the board only shows rows tagged for the live set; last season's comps stay in
+  // the table (votes/covers survive) but drop off the list. IS NOT DISTINCT keeps rows
+  // visible on databases whose meta has no set yet. Single-slug reads stay unfiltered so
+  // admin and deep links can still open an old row.
+  const liveSet = "set_number IS NOT DISTINCT FROM (SELECT value::int FROM meta WHERE key = 'set_number')";
   const comps = await pool.query(
-    slug ? 'SELECT * FROM comps WHERE slug = $1' : `SELECT * FROM comps ${order}`,
+    slug ? 'SELECT * FROM comps WHERE slug = $1' : `SELECT * FROM comps WHERE ${liveSet} ${order}`,
     slug ? [slug] : []
   );
   if (!comps.rows.length) return [];

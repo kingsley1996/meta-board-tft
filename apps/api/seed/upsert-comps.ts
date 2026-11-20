@@ -1,5 +1,5 @@
 import { pathToFileURL } from 'node:url';
-import { pool } from '../src/db.ts';
+import { getMeta, pool } from '../src/db.ts';
 import { validateCompPayload, writeComp, type CompInput } from '../src/comps.ts';
 import { flushRevalidate, notifyRevalidate } from '../src/revalidate.ts';
 import { changedSections, desiredSections, loadStoredComps, readCompExtras, readSnapshot, storedSections } from '../src/comp-provenance.ts';
@@ -53,6 +53,9 @@ export async function syncComps(source: Record<string, unknown>[], options: { dr
   console.log(`${dryRun ? 'dry run:' : 'synced'} ${inserted} inserted, ${rewritten} rewritten, ${unchanged} already matching`);
   const onlyInDb = [...storedComps.keys()].filter((slug) => !seen.has(slug));
   if (onlyInDb.length) console.log(`${onlyInDb.length} comps outside the snapshot, left untouched: ${onlyInDb.join(', ')}`);
+  const meta = await getMeta();
+  const bySet = (await pool.query('SELECT set_number, count(*)::int AS n FROM comps GROUP BY set_number ORDER BY set_number')).rows;
+  console.log(`db is on set ${meta.set_number ?? '?'}; comps by set: ${bySet.map((row) => `${row.set_number ?? 'null'}=${row.n}`).join(', ') || 'none'}`);
   if (options.check && pending.length) throw new Error(`${pending.length} comps do not match the snapshot`);
 
   if (!dryRun && pending.length) {
