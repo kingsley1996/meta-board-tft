@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T09:18:31.261Z",
+  "generatedAt": "2026-11-21T08:41:01.114Z",
   "latestPatch": "18.7",
   "livePatch": "18.7",
   "patches": [
@@ -1142,7 +1142,7 @@
             "en": "Embiggen",
             "vi": "Hóa Lớn"
           },
-          "icon": "/tft/augments/da-18-faetraitaugment.png",
+          "icon": null,
           "cost": null,
           "day": null,
           "dayDate": null,
@@ -1208,7 +1208,7 @@
             "en": "Unrivaled",
             "vi": "Không Đối Thủ"
           },
-          "icon": "/tft/augments/da-18-rivalsaugment.png",
+          "icon": null,
           "cost": null,
           "day": null,
           "dayDate": null,
@@ -1230,7 +1230,7 @@
             "en": "Unrivaled",
             "vi": "Không Đối Thủ"
           },
-          "icon": "/tft/augments/da-18-rivalsaugment.png",
+          "icon": null,
           "cost": null,
           "day": null,
           "dayDate": null,
@@ -2814,7 +2814,7 @@
             "en": "Consuming Flora",
             "vi": "Thực Vật Hấp Thụ"
           },
-          "icon": "/tft/augments/da-18-florafatalisaugment.png",
+          "icon": null,
           "cost": null,
           "day": null,
           "dayDate": null,
@@ -2858,7 +2858,7 @@
             "en": "Dark Ritual",
             "vi": "Tà Thuật"
           },
-          "icon": "/tft/augments/da-18-coventraitaugment-loottoap.png",
+          "icon": null,
           "cost": null,
           "day": null,
           "dayDate": null,
@@ -2880,7 +2880,7 @@
             "en": "Embiggen",
             "vi": "Hóa Lớn"
           },
-          "icon": "/tft/augments/da-18-faetraitaugment.png",
+          "icon": null,
           "cost": null,
           "day": null,
           "dayDate": null,
@@ -3066,7 +3066,7 @@
             "en": "Nesting Anvils",
             "vi": "Gói Trang Bị Bất Ngờ"
           },
-          "icon": "/tft/augments/da-nestinganvils.png",
+          "icon": null,
           "cost": null,
           "day": null,
           "dayDate": null,
@@ -3088,7 +3088,7 @@
             "en": "Omega Riftbeast",
             "vi": "Quái Rừng Omega"
           },
-          "icon": "/tft/augments/da-18-riftbeasttraitaugment.png",
+          "icon": null,
           "cost": null,
           "day": null,
           "dayDate": null,
@@ -3110,7 +3110,7 @@
             "en": "Omega Riftbeast",
             "vi": "Quái Rừng Omega"
           },
-          "icon": "/tft/augments/da-18-riftbeasttraitaugment.png",
+          "icon": null,
           "cost": null,
           "day": null,
           "dayDate": null,
