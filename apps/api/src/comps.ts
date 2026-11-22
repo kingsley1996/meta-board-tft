@@ -287,7 +287,24 @@ export async function validateCompPayload(input: unknown, originalSlug?: string)
   };
 }
 
+let compsColumnsReady: Promise<void> | undefined;
+
+export function ensureCompsColumns(): Promise<void> {
+  compsColumnsReady ??= (async () => {
+    await pool.query('ALTER TABLE comps ADD COLUMN IF NOT EXISTS set_number int');
+    await pool.query(`
+      UPDATE comps SET set_number = (SELECT value::int FROM meta WHERE key = 'set_number')
+      WHERE set_number IS NULL AND (SELECT value FROM meta WHERE key = 'set_number') IS NOT NULL
+    `);
+  })().catch((error: unknown) => {
+    compsColumnsReady = undefined;
+    throw error;
+  });
+  return compsColumnsReady;
+}
+
 export async function writeComp(comp: CompInput): Promise<void> {
+  await ensureCompsColumns();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -387,6 +404,7 @@ export function listComps(slug?: string, lang: 'en' | 'vi' = 'en', sort?: string
 }
 
 async function listCompsUncached(slug?: string, lang: 'en' | 'vi' = 'en', sort?: string): Promise<any[]> {
+  await ensureCompsColumns();
   const vi = lang === 'vi';
   const order = !slug && sort === 'popular' ? 'ORDER BY votes DESC, created_at, slug' : 'ORDER BY created_at, slug';
   // D4: the board only shows rows tagged for the live set; last season's comps stay in

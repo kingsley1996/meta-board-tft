@@ -356,7 +356,8 @@ test('nerf plus strategy/stats wording keeps patch intent across three tool roun
 });
 
 test('explicit PBE retains its own provider, baseline, timestamp and experimental rules', async (t) => {
-  const query = { channel: 'pbe' as const, ...(pbe.patch ? { patch: pbe.patch } : {}), ...(pbe.rows[0] ? { query: pbe.rows[0].name.en } : {}) };
+  const target = pbe.rows[0]?.name.en ?? pbe.added?.[0]?.name.en;
+  const query = { channel: 'pbe' as const, ...(pbe.patch ? { patch: pbe.patch } : {}), ...(target ? { query: target } : {}) };
   const notes = await getPatchNotes(query, 'en');
   if (!pbe.patch || pbe.patch === snapshot.livePatch || snapshot.patches.some((entry) => entry.patch === pbe.patch)) {
     assert.equal(notes.status, 'unavailable');
@@ -380,7 +381,7 @@ test('explicit PBE retains its own provider, baseline, timestamp and experimenta
     assert.match(req.system, /explicitly label PBE, provider and baseline/);
     return jsonAnswer();
   }]);
-  const answer = await answerAssistant(request(`What are the PBE changes for ${pbe.rows[0].name.en}?`), new AbortController().signal, { generate });
+  const answer = await answerAssistant(request(`What are the PBE changes for ${target}?`), new AbortController().signal, { generate });
   assert.equal(answer.intent, 'patch_change');
   assert.equal(answer.status, 'answered');
   assert.equal(answer.mode, 'llm');

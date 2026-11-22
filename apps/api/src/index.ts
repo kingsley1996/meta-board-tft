@@ -1,7 +1,7 @@
 import express from 'express';
 import { pool, getMeta } from './db.ts';
 import { ensureCatalogCurrent } from './tft.ts';
-import { bumpComp, compExists, deleteComp, listComps, validateCompPayload, writeComp } from './comps.ts';
+import { bumpComp, compExists, deleteComp, ensureCompsColumns, listComps, validateCompPayload, writeComp } from './comps.ts';
 import { candidatePayload, listCompCandidates } from './comp-candidates.ts';
 import { compProvenance } from './comp-provenance.ts';
 import { deleteGuide, guideExists, isGuideKind, listGuides, validateGuidePayload, writeGuide, type GuideKind } from './guides.ts';
@@ -471,6 +471,7 @@ const port = Number(process.env.PORT ?? 4000);
 const server = app.listen(port, () => {
   console.log(`metaboard server on http://localhost:${port}`);
   void applyCatalog();
+  void ensureCompsColumns().catch((err) => console.error('comps columns ensure failed', err instanceof Error ? err.message : err));
   void bootstrapAdmin();
   void applyStoredSettings();
 });

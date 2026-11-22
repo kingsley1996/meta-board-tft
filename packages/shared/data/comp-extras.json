@@ -9,10 +9,6 @@
       },
       "flex": [
         {
-          "name": "LeBlanc",
-          "replaces": "Gnar"
-        },
-        {
           "name": "Lux",
           "replaces": "Lillia"
         }
@@ -48,10 +44,6 @@
     },
     "alune-vanguard": {
       "flex": [
-        {
-          "name": "Hecarim",
-          "replaces": "Taric"
-        },
         {
           "name": "Lux",
           "replaces": "Morgana"
@@ -346,12 +338,6 @@
         "kind": "augment",
         "name": "Bronze For Life II"
       },
-      "flex": [
-        {
-          "name": "Amumu",
-          "replaces": "Lillia"
-        }
-      ],
       "alt": [
         {
           "name": "Ahri",
@@ -450,30 +436,6 @@
         }
       ]
     },
-    "kayle-solar": {
-      "cover": {
-        "kind": "augment",
-        "name": "Portable Forge"
-      },
-      "alt": [
-        {
-          "name": "Kayle",
-          "items": [
-            "Wit's End",
-            "Statikk Shiv",
-            "Mittens"
-          ]
-        },
-        {
-          "name": "Kayle",
-          "items": [
-            "Rapid Firecannon",
-            "Talisman of Ascension",
-            "Zhonya's Paradox"
-          ]
-        }
-      ]
-    },
     "kha-zix-elderwood": {
       "alt": [
         {
@@ -562,6 +524,30 @@
           "name": "Sejuani",
           "items": [
             "Forbidden Idol"
+          ]
+        }
+      ]
+    },
+    "solar-kayle-reroll": {
+      "cover": {
+        "kind": "augment",
+        "name": "Portable Forge"
+      },
+      "alt": [
+        {
+          "name": "Kayle",
+          "items": [
+            "Wit's End",
+            "Statikk Shiv",
+            "Mittens"
+          ]
+        },
+        {
+          "name": "Kayle",
+          "items": [
+            "Rapid Firecannon",
+            "Talisman of Ascension",
+            "Zhonya's Paradox"
           ]
         }
       ]
