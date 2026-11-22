@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-18T16:47:34.473Z",
+  "generatedAt": "2026-11-22T06:50:02.926Z",
   "source": {
     "url": "https://tactics.tools/info/set-update",
-    "fetchedAt": "2026-11-18T16:47:34.474Z"
+    "fetchedAt": "2026-11-22T06:50:02.933Z"
   },
   "set": {
     "number": 19,
@@ -1112,7 +1112,7 @@
       ],
       "icon": "/tft/set19/traits/da_19_trickshot.svg",
       "nameVi": null,
-      "descVi": null
+      "descVi": "Đòn Đánh và Kỹ Năng của tướng Xạ Thuật Sư có thể nảy bật. Mỗi lần nảy sẽ gây một phần sát thương của lần nảy bật trước đó."
     },
     {
       "name": "Windblessed",
@@ -1802,7 +1802,8 @@
       "ability": {
         "name": "Hostile Measures",
         "mana": "0/45",
-        "desc": "Fire a musical bar at the target, applying 2 stacks of Toxin. Toxin stacks deal 160/240/580 AP magic damage over 15 seconds. Additionally, apply 1 stack of Toxin to 2 nearby enemies, prioritizing unpoisoned enemies.Enemies are Captivated for 3 seconds upon Toxin application, increased to 6 seconds if their star level is less than or equal to Renata's.Captivated enemies grant bonuses to Classical champions."
+        "desc": "Fire a musical bar at the target, applying 2 stacks of Toxin. Toxin stacks deal 160/240/580 AP magic damage over 15 seconds. Additionally, apply 1 stack of Toxin to 2 nearby enemies, prioritizing unpoisoned enemies.Enemies are Captivated for 3 seconds upon Toxin application, increased to 6 seconds if their star level is less than or equal to Renata's.Captivated enemies grant bonuses to Classical champions.",
+        "nameVi": "Biện Pháp Thù Địch"
       },
       "icon": "/tft/set19/champions/da-19-renataglasc.webp",
       "splash": "/tft/set19/splash/da-19-renataglasc.webp",
@@ -2797,7 +2798,8 @@
       "ability": {
         "name": "Sk8er Gurl",
         "mana": "0/45",
-        "desc": "Skateboard through the longest line of unpainted enemies, dealing 70/105/5000 AD + 10/15/999 AP physical damage to enemies hit and spray-painting them and any hexes along the path. Enemies covered in paint or standing in painted hexes are 10% Vulnerable.After every 3rd cast, ignite the paint, dealing 227.5/341.25/16250 AD + 32.5/48.75/3246.75 AP physical damage to all enemies who are painted or are standing in a painted hex.Vulnerable: Increase Damage Taken"
+        "desc": "Skateboard through the longest line of unpainted enemies, dealing 70/105/5000 AD + 10/15/999 AP physical damage to enemies hit and spray-painting them and any hexes along the path. Enemies covered in paint or standing in painted hexes are 10% Vulnerable.After every 3rd cast, ignite the paint, dealing 227.5/341.25/16250 AD + 32.5/48.75/3246.75 AP physical damage to all enemies who are painted or are standing in a painted hex.Vulnerable: Increase Damage Taken",
+        "nameVi": "Killin' like Domino"
       },
       "icon": "/tft/set19/champions/da-19-akali-kda.webp",
       "splash": "/tft/set19/splash/da-19-akali-kda.webp",
@@ -2817,7 +2819,8 @@
       "ability": {
         "name": "Killin' like Domino",
         "mana": "0/50",
-        "desc": "B-Side Passive: After every 4 takedowns, gain 1/1/10 Player Health.Active: Rapidly slash through the current target, dealing 550/825/9999 AP magic damage, increased by 50% against Tanks. While casting, gain 25% Durability and become untargetable by attacks.Afterwards, blink over the target and throw a bomb that deals 620/930/9999 AP magic damage split amongst all enemies within 2/2/8 hexes."
+        "desc": "B-Side Passive: After every 4 takedowns, gain 1/1/10 Player Health.Active: Rapidly slash through the current target, dealing 550/825/9999 AP magic damage, increased by 50% against Tanks. While casting, gain 25% Durability and become untargetable by attacks.Afterwards, blink over the target and throw a bomb that deals 620/930/9999 AP magic damage split amongst all enemies within 2/2/8 hexes.",
+        "nameVi": "Killin' like Domino"
       },
       "icon": "/tft/set19/champions/da-19-akali-truedamage.webp",
       "splash": "/tft/set19/splash/da-19-akali-truedamage.webp",
@@ -2880,7 +2883,8 @@
       "ability": {
         "name": "Glimmer in the Night",
         "mana": "0/100",
-        "desc": "Passive: Attacks deal 60/90/1000 AP bonus magic damage to the target and 22/35/500 AP to other enemies in a cone. Dash to new targets.Active: Summon a massive pair of scissors over the battlefield. After a short delay, snip a horizontal line on the target, dealing 90/135/4000 AP magic damage to all enemies hit + 830/1300/8000 AP split between them. If 1 or fewer enemies are hit, refund 50/50/200 Mana."
+        "desc": "Passive: Attacks deal 60/90/1000 AP bonus magic damage to the target and 22/35/500 AP to other enemies in a cone. Dash to new targets.Active: Summon a massive pair of scissors over the battlefield. After a short delay, snip a horizontal line on the target, dealing 90/135/4000 AP magic damage to all enemies hit + 830/1300/8000 AP split between them. If 1 or fewer enemies are hit, refund 50/50/200 Mana.",
+        "nameVi": "Lấp Lánh Trong Đêm"
       },
       "icon": "/tft/set19/champions/da-19-gwen.webp",
       "splash": "/tft/set19/splash/da-19-gwen.webp",
@@ -2992,7 +2996,8 @@
       "ability": {
         "name": "Pounce Party/Dance of Life",
         "mana": "20/45",
-        "desc": "Pounce Party: Pounce 4/4/99 times on enemies, dealing 135/200/1500 AP magic damage, increased by 40% each pounce.Dance of Life: Heal 325/500/2000 AP. Hurl a javelin at the target, dealing 380/570/3000 AP magic damage and scattering 3 flowers around them. Flowers deal 80/120/500 AP magic damage to enemies in a 1 Hex radius after a brief delay.Casts Pounce Party in Cougar Form and Dance of Life in Human form."
+        "desc": "Pounce Party: Pounce 4/4/99 times on enemies, dealing 135/200/1500 AP magic damage, increased by 40% each pounce.Dance of Life: Heal 325/500/2000 AP. Hurl a javelin at the target, dealing 380/570/3000 AP magic damage and scattering 3 flowers around them. Flowers deal 80/120/500 AP magic damage to enemies in a 1 Hex radius after a brief delay.Casts Pounce Party in Cougar Form and Dance of Life in Human form.",
+        "nameVi": "Tiệc Vồ Mồi/Vũ Điệu Đời Thường"
       },
       "icon": "/tft/set19/champions/da-19-nidalee.webp",
       "splash": "/tft/set19/splash/da-19-nidalee.webp",
@@ -3370,7 +3375,7 @@
       "desc": "Gain a random Gold Augment, but lose 11 gold.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Hộp Mù",
       "descVi": "Nhận 1 Nâng Cấp Vàng ngẫu nhiên, nhưng mất 11 vàng."
     },
     {
@@ -3378,7 +3383,7 @@
       "desc": "Gain a random Gold Augment, but lose 5 gold.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Hộp Mù",
       "descVi": "Nhận 1 Nâng Cấp Vàng ngẫu nhiên, nhưng mất 11 vàng."
     },
     {
@@ -3386,7 +3391,7 @@
       "desc": "Gain a random Gold Augment, but lose 8 gold.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Hộp Mù",
       "descVi": "Nhận 1 Nâng Cấp Vàng ngẫu nhiên, nhưng mất 11 vàng."
     },
     {
@@ -3418,7 +3423,7 @@
       "desc": "Gain 6 mushrooms, which each grant either 1 reroll, 2 XP, or 3 Tactician Health.Mushrooms have a small chance to be HUGE and grant double loot",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Bó Nấm",
       "descVi": null
     },
     {
@@ -3473,7 +3478,7 @@
       "name": "Champ Delivery",
       "desc": "Gain 3 2-cost champions. After 6 rounds, gain 3 more.",
       "rarity": 1,
-      "icon": "/tft/augments/da-champdelivery.png",
+      "icon": null,
       "nameVi": "Phân Phối Tướng",
       "descVi": "Nhận 3 tướng 2 vàng. Sau 6 vòng, nhận thêm 3 tướng cùng bậc."
     },
@@ -3481,7 +3486,7 @@
       "name": "Champ Delivery+",
       "desc": "Gain 3 3-cost champions. After 6 rounds, gain 3 more.",
       "rarity": 1,
-      "icon": "/tft/augments/da-champdeliveryplus.png",
+      "icon": null,
       "nameVi": "Phân Phối Tướng+",
       "descVi": "Nhận 3 tướng 3 vàng. Sau 6 vòng, nhận thêm 3 tướng cùng bậc."
     },
@@ -3489,7 +3494,7 @@
       "name": "Champ Delivery++",
       "desc": "Gain 3 4-cost champions. After 6 rounds, gain 3 more.",
       "rarity": 1,
-      "icon": "/tft/augments/da-champdeliveryplusplus.png",
+      "icon": null,
       "nameVi": "Phân Phối Tướng++",
       "descVi": "Nhận 3 tướng 4 vàng. Sau 6 vòng, nhận thêm 3 tướng cùng bậc."
     },
@@ -3498,7 +3503,7 @@
       "desc": "Now and at the start of each stage, get a new cheat code. The first time you perform that exact sequence of actions, gain a reward.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Mã Gian Lận",
       "descVi": "Ngay bây giờ và khi bắt đầu mỗi vòng đấu, nhận được một mã gian lận mới. Lần đầu tiên bạn thực hiện chính xác chuỗi hành động đó, nhận một phần thưởng."
     },
     {
@@ -3594,7 +3599,7 @@
       "desc": "Gain 18 gold, then flip a coin. If heads, gain 6 more gold.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Cảm Thấy May Mắn+",
       "descVi": "Nhận 12 vàng, sau đó tung đồng xu. Nếu ra mặt ngửa, nhận thêm 4 vàng."
     },
     {
@@ -3610,7 +3615,7 @@
       "desc": "Your Fighters and Assassins move faster and gain 10% Attack Speed. These bonuses are doubled while below 50% Health.",
       "rarity": 1,
       "icon": null,
-      "nameVi": "Chiến hoặc Chạy",
+      "nameVi": "Phi Đội Đấu Sĩ",
       "descVi": "Tướng Đấu Sĩ và Sát Thủ của bạn di chuyển nhanh hơn và nhận 10% Tốc Độ Đánh. Các hiệu ứng thưởng này được nhân đôi khi còn dưới 50% Máu."
     },
     {
@@ -3649,7 +3654,7 @@
       "name": "Future Focused",
       "desc": "Your Tactician loses 20 Health, but after 5 player combats, gain 3 4-cost champions and 5 gold.",
       "rarity": 1,
-      "icon": "/tft/augments/da-futurefocused.png",
+      "icon": null,
       "nameVi": "Định Hướng Tương Lai",
       "descVi": "Linh Thú của bạn mất 20 Máu, nhưng sau 5 giao tranh người chơi, nhận 3 tướng 4 vàng và 5 vàng."
     },
@@ -3834,7 +3839,7 @@
       "desc": "Gain a Sett. Your strongest Sett becomes an Attack Fighter with a punch that can execute enemies, making them fly away.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Cú Chốt",
       "descVi": "Nhận 1 Sett. Sett mạnh nhất của bạn trở thành Đấu Sĩ Vật Lý với một cú đấm có thể hành quyết kẻ địch, hất bay chúng đi."
     },
     {
@@ -3851,7 +3856,7 @@
       "rarity": 1,
       "icon": null,
       "nameVi": null,
-      "descVi": null
+      "descVi": "Bắt đầu giao tranh: Nếu đối thủ của bạn chưa nằm trong Mô Hình Đa Cấp, đánh cắp 2 vàng từ họ và cho họ một bản sao yếu hơn của nâng cấp này."
     },
     {
       "name": "Pyramid Scheme, Level 4",
@@ -3897,7 +3902,7 @@
       "name": "Quick Streaks",
       "desc": "You gain twice as much progress towards win and loss streaks. Gain 2 gold.",
       "rarity": 1,
-      "icon": "/tft/augments/da-quickstreaks.png",
+      "icon": null,
       "nameVi": "Tích Chuỗi Nhanh",
       "descVi": "Bạn nhận được gấp đôi tiến trình chuỗi thắng và chuỗi thua. Nhận 2 vàng."
     },
@@ -4163,7 +4168,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": null,
-      "descVi": null
+      "descVi": "Nếu bạn có 2 Ban Nhạc đang kích hoạt trở lên, đội của bạn nhận 18% Sức Mạnh Công Kích và Sức Mạnh Phép Thuật."
     },
     {
       "name": "Beltsmith II",
@@ -4179,7 +4184,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Màn Solo Đỉnh Cao",
-      "descVi": "Các Bias Heartsteel của bạn nhận thêm 150% mọi hiệu ứng thưởng Heartsteel đang kích hoạt. Nhận 3 tướng Heartsteel."
+      "descVi": null
     },
     {
       "name": "Birthday Reunion",
@@ -4217,7 +4222,7 @@
       "name": "Bonus Gifts",
       "desc": "Whenever you open a loot orb, you have a 25% chance to gain a gray loot orb. Gain 1 gray loot orbs.",
       "rarity": 2,
-      "icon": "/tft/augments/da-bonusgift.png",
+      "icon": null,
       "nameVi": "Quà Tặng Thêm",
       "descVi": "Bất cứ khi nào bạn mở hộp vật phẩm, bạn có 25% cơ hội nhận được 1 hộp vật phẩm xám. Nhận 1 hộp vật phẩm xám."
     },
@@ -4225,7 +4230,7 @@
       "name": "Bonus Gifts+",
       "desc": "Whenever you open a loot orb, you have a 25% chance to gain a gray loot orb. Gain 2 gray loot orbs.",
       "rarity": 2,
-      "icon": "/tft/augments/da-bonusgiftplus.png",
+      "icon": null,
       "nameVi": "Quà Tặng Thêm+",
       "descVi": "Bất cứ khi nào bạn mở hộp vật phẩm, bạn có 25% cơ hội nhận được 1 hộp vật phẩm xám. Nhận 2 hộp vật phẩm xám."
     },
@@ -4258,7 +4263,7 @@
       "desc": "Gain 9 mushrooms, which each grant either 1 reroll, 2 XP, or 3 Tactician Health.Mushrooms have a small chance to be HUGE and grant double loot",
       "rarity": 2,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Bó Nấm",
       "descVi": null
     },
     {
@@ -4273,7 +4278,7 @@
       "name": "Capital Gains II",
       "desc": "Store gold equal to the interest you earn. On 3-3, gain gold equal to 125% of the stored gold. Gain 3 gold now.",
       "rarity": 2,
-      "icon": "/tft/augments/da-capitalgainsii.png",
+      "icon": null,
       "nameVi": "Tăng Vốn II",
       "descVi": "Tích trữ vàng bằng với lượng lợi tức bạn kiếm được. Ở vòng 3-3, nhận lượng vàng bằng 125% số vàng đã tích trữ. Nhận ngay 3 vàng."
     },
@@ -4355,15 +4360,15 @@
       "rarity": 2,
       "icon": "/tft/augments/tft-augment-cookingpot.png",
       "nameVi": "Nồi Nấu Ăn",
-      "descVi": "Khi bắt đầu mỗi vòng đấu, tất cả đồng minh đang mang trang bị Xẻng Vàng hoặc Chảo Vàng sẽ vĩnh viễn tăng cho tướng gần nhất 70 Máu. Nhận 1 Chảo Vàng."
+      "descVi": "Khi bắt đầu mỗi vòng đấu, tất cả các đồng minh đang mang trang bị Xẻng Vàng hoặc Chảo Vàng sẽ vĩnh viễn tăng cho tướng gần nhất 70 Máu. Nhận 1 Chảo Vàng."
     },
     {
       "name": "Counting Stars",
       "desc": "Gain 5 gold. Each time you 3-star a champion, gain 5 gold for each 3-star you have.",
       "rarity": 2,
       "icon": null,
-      "nameVi": "Đếm Những Vì Sao",
-      "descVi": "Nhận 5 vàng. Mỗi khi nâng một tướng lên 3 sao, nhận 5 vàng với mỗi tướng 3 sao đang sở hữu."
+      "nameVi": null,
+      "descVi": null
     },
     {
       "name": "Cry Me A River",
@@ -4395,7 +4400,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Đại Tiệc Khiêu Vũ",
-      "descVi": null
+      "descVi": "Khi bạn thắng giao tranh, mỗi tướng sống sót có 5% tỉ lệ rơi ra 1 vàng. Tỉ lệ này tăng thêm 15% với mỗi tướng Biên Đạo bạn đang triển khai. Nhận 2 tướng Biên Đạo."
     },
     {
       "name": "Death by a Thousand Cuts",
@@ -4419,7 +4424,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Tận Hưởng Nào",
-      "descVi": "Các tướng Jazz của bạn nhận thêm 150% Máu và Khuếch Đại Sát Thương từ tộc/hệ Jazz. Nhận 1 Lucian và 1 Galio."
+      "descVi": "Các tướng Jazz của bạn nhận thêm 100% Máu và Khuếch Đại Sát Thương từ tộc/hệ Jazz. Nhận 1 Lucian và 1 Galio."
     },
     {
       "name": "Double Trouble",
@@ -4497,7 +4502,7 @@
       "name": "FOURcing",
       "desc": "Gain a random 4-cost champion. For each item equipped to that champion, your team gains 100 health.",
       "rarity": 2,
-      "icon": "/tft/augments/da-18-fourcing.png",
+      "icon": null,
       "nameVi": "Ép Bốn",
       "descVi": "Nhận 1 tướng 4 vàng ngẫu nhiên. Với mỗi trang bị được gắn trên tướng đó, đội của bạn nhận 100 máu."
     },
@@ -4507,7 +4512,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Phi Đội Đấu Sĩ II",
-      "descVi": "Các Đấu Sĩ và Sát Thủ của bạn di chuyển nhanh hơn và nhận thêm 18% Morgana Thần Sứ. Những chỉ số cộng thêm này được nhân đôi khi dưới 50% 1907 Fenerbahçe Esports MSI 2021."
+      "descVi": "Các Đấu Sĩ và Sát Thủ của bạn di chuyển nhanh hơn và nhận thêm 18% Tốc Độ Đánh. Những chỉ số cộng thêm này được nhân đôi khi dưới 50% Máu."
     },
     {
       "name": "Forever Burning Brighter",
@@ -4538,8 +4543,8 @@
       "desc": "Gain 32 gold.",
       "rarity": 2,
       "icon": null,
-      "nameVi": "Nhận 21 Vàng+",
-      "descVi": "Nhận 21 vàng."
+      "nameVi": null,
+      "descVi": null
     },
     {
       "name": "Gathering Storm",
@@ -4651,7 +4656,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Đặt Cược Rủi Ro",
-      "descVi": null
+      "descVi": "Khi tướng Ngoại Đạo tiêu diệt kẻ địch, có cơ hội rớt ra báu vật, xác suất tăng theo Tỉ Lệ Chí Mạng. Giá trị của báu vật cũng có thể chí mạng, cho ra báu vật còn giá trị hơn. Nhận 1 Qiyana."
     },
     {
       "name": "Hustler",
@@ -4689,7 +4694,7 @@
       "name": "It's Me, Baby",
       "desc": "Gain a championship hex in the bottom right corner. The champion in it gains 15% Damage Amp and 15% Attack Speed, and drops 1 gold every 5 takedowns.Lore & Legends Tactician's Crown, 2026",
       "rarity": 2,
-      "icon": "/tft/augments/da-itsmebaby.png",
+      "icon": null,
       "nameVi": "Là Ta Đây",
       "descVi": null
     },
@@ -4787,13 +4792,13 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Trái Tim Hòa Nhịp",
-      "descVi": null
+      "descVi": "Mỗi khi các tướng Ionic Spark tiêu hao tổng cộng 600 Năng Lượng, họ nhận được Lá Chắn bằng 10% Máu tối đa trong 6 giây. Nhận 3 tướng Ionic Spark."
     },
     {
       "name": "Pandora's Items II+",
       "desc": "Round start: items on your bench are randomized.Gain 2 random components and 4 gold.",
       "rarity": 2,
-      "icon": "/tft/augments/da-pandorasitemsiiplus.png",
+      "icon": null,
       "nameVi": "Trang Bị Pandora II+",
       "descVi": "Bắt đầu vòng đấu: Các trang bị trên hàng chờ được đánh tráo ngẫu nhiên. \r\n\r\nNhận 2 trang bị thành phần ngẫu nhiên và 4 vàng."
     },
@@ -4947,7 +4952,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Biệt Đội Nhỏ",
-      "descVi": "Khi triển khai ít hơn 3 tướng Heartsteel, tăng các chỉ số cộng thêm của họ thêm 100%. Nhận 2 tướng Heartsteel."
+      "descVi": null
     },
     {
       "name": "Solo Leveling",
@@ -5123,13 +5128,13 @@
       "rarity": 2,
       "icon": "/tft/augments/tft16-augment-ultrarapidfire.png",
       "nameVi": "U.R.F.",
-      "descVi": "Nhận 1 Xẻng Vàng. Các tướng mang Xẻng Vàng hoặc Chảo Vàng nhận thêm 20% Tốc Độ Đánh và 3 Hồi Năng Lượng."
+      "descVi": "Nhận 1 Xẻng Vàng. Xẻng Vàng và Chảo Vàng nhận thêm 20% Tốc Độ Đánh và 3 Hồi Năng Lượng."
     },
     {
       "name": "Verticality II",
       "desc": "Champions gain 2.5% Attack Damage, 2.5% Ability Power, 2 Armor, and 2 Magic Resist for each ally that shares a trait with them.",
       "rarity": 2,
-      "icon": "/tft/augments/da-verticalityii.png",
+      "icon": null,
       "nameVi": "Chỉ Một Con Đường II",
       "descVi": "Các Tướng nhận được 3% Sức Mạnh Công Kích, 3% Sức Mạnh Phép Thuật, 2 Giáp và 2 Kháng Phép cho mỗi đồng minh có cùng tộc/hệ với họ."
     },
@@ -5145,7 +5150,7 @@
       "name": "Weight The Worth",
       "desc": "The first time you 3-star a champion, gain a copy of them each round for the rest of the game. 3-starring the same champion again grants additional copies. Gain a Lesser Champion Duplicator.",
       "rarity": 2,
-      "icon": "/tft/augments/da-18-weighttheworth.png",
+      "icon": null,
       "nameVi": "Xứng Đáng Chờ Đợi",
       "descVi": "Lần đầu tiên bạn nâng một tướng lên 3 sao, nhận 1 bản sao của tướng đó mỗi vòng đấu cho đến hết trận. Nâng tướng đó lên 3 sao lần nữa sẽ nhận thêm bản sao. Nhận 1 Máy Sao Chép Tướng Cỡ Nhỏ."
     },
@@ -5377,7 +5382,7 @@
       "name": "Component Quest",
       "desc": "Gain a random component and 1 gold. The next 7 times you win a player combat, gain a different random component. Afterwards, gain 1 gold.",
       "rarity": 3,
-      "icon": "/tft/augments/da-componentquest.png",
+      "icon": null,
       "nameVi": "Nhiệm Vụ Trang Bị",
       "descVi": "Nhận 1 trang bị thành phần ngẫu nhiên và 1 vàng. Trong 7 lần tiếp theo bạn thắng giao tranh người chơi, nhận 1 trang bị thành phần ngẫu nhiên khác nhau. Sau đó, nhận 1 vàng."
     },
@@ -5506,7 +5511,7 @@
       "desc": "Gain the Heartsteel Prismatic Quest, 3 Heartsteel champions, 3 components, and 2 gold.Have Heartsteel allies deal damage, block damage, and heal health with 7 Heartsteel active!",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Heartsteel Nhạc Hội Muôn Màu+",
       "descVi": null
     },
     {
@@ -5619,7 +5624,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Vòng Tròn Hiền Giả",
-      "descVi": null
+      "descVi": "Nhận 1 Ấn Jazz, 1 Cung Gỗ và 1 Bard."
     },
     {
       "name": "Jazz Crown",
@@ -5706,7 +5711,7 @@
       "desc": "Each ally randomly becomes huge or tiny.Huge units gain 12% max Health and 20% Attack Damage and Ability Power. Tiny units gain 11% Durability and 20% Attack Speed",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Khoa Học Điên Rồ",
       "descVi": "Mỗi đồng minh ngẫu nhiên trở thành khổng lồ hoặc tí hon.\r\n\r\nĐơn vị khổng lồ nhận 12% Máu tối đa cũng như 20% Sức Mạnh Công Kích và Sức Mạnh Phép Thuật. Đơn vị tí hon nhận 11% Chống Chịu và 20% Tốc Độ Đánh"
     },
     {
@@ -5715,15 +5720,15 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Tiến Trình Quản Lý",
-      "descVi": null
+      "descVi": "Nhận 1 Ấn Quản Lý và 1 Leona. Khi tướng nhận hiệu ứng thưởng từ Quản Lý, có 40% tỉ lệ nhận 1 vàng.\r\n\r\nSau khi thu được 40 vàng từ tộc/hệ Quản Lý, nhận 1 Dr. Mundo và 1 Giáp Máu Warmog."
     },
     {
       "name": "Manager Circlet",
       "desc": "Gain a Manager Emblem, a Chain Vest, and a Leona.",
       "rarity": 3,
       "icon": null,
-      "nameVi": "Vòng Tròn Hiền Giả",
-      "descVi": "Nhận 1 Ấn Quản Lý, 1 Giáp Lưới và 1 Leona."
+      "nameVi": null,
+      "descVi": null
     },
     {
       "name": "Min-Max",
@@ -5745,7 +5750,7 @@
       "name": "Nesting Anvils",
       "desc": "Gain an Artifact Anvil. After you open it, gain a Component Anvil. After you open that, gain 6 gold.",
       "rarity": 3,
-      "icon": "/tft/augments/da-nestinganvils.png",
+      "icon": null,
       "nameVi": "Gói Trang Bị Bất Ngờ",
       "descVi": "Nhận 1 Gói Trang Bị Tạo Tác. Sau khi bạn mở nó, nhận 1 Gói Trang Bị Thành Phần. Sau khi bạn mở thứ đó, nhận 6 vàng."
     },
@@ -5753,7 +5758,7 @@
       "name": "Nesting Anvils+",
       "desc": "Gain an Artifact Anvil. After you open it, gain a Component Anvil. After you open that, gain 8 gold.",
       "rarity": 3,
-      "icon": "/tft/augments/da-nestinganvilsplus.png",
+      "icon": null,
       "nameVi": "Gói Trang Bị Bất Ngờ+",
       "descVi": "Nhận 1 Gói Trang Bị Tạo Tác. Sau khi bạn mở nó, nhận 1 Gói Trang Bị Thành Phần. Sau khi bạn mở thứ đó, nhận 8 vàng."
     },
@@ -5883,7 +5888,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Vương Miện Ngoại Đạo",
-      "descVi": null
+      "descVi": "Nhận 1 Ấn Ngoại Đạo, 1 Bàn Tay Công Lý và 1 Qiyana."
     },
     {
       "name": "Rock Circlet",
@@ -6027,7 +6032,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Hành Trình Bất Tử",
-      "descVi": null
+      "descVi": "Nhận 1 Xayah, 1 Ngọn Giáo Shojin và 3 vàng."
     },
     {
       "name": "The Trait Tree",
@@ -6057,7 +6062,7 @@
       "name": "Trait Ladder",
       "desc": "Gain a random emblem. After fielding 2 non-unique traits in a player combat, gain a reward. Then increase the number of traits needed and the size of the reward.",
       "rarity": 3,
-      "icon": "/tft/augments/da-traitladder.png",
+      "icon": null,
       "nameVi": "Thứ Hạng Tộc Hệ",
       "descVi": "Nhận 1 ấn ngẫu nhiên. Sau khi triển khai 2 tộc/hệ không độc nhất trong giao tranh người chơi, nhận 1 phần thưởng. Sau đó tăng số tộc/hệ cần thiết và giá trị của phần thưởng."
     },
@@ -6067,7 +6072,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Vòng Tròn True Damage",
-      "descVi": null
+      "descVi": "Nhận 1 Ấn True Damage, 1 Đai Khổng Lồ và 1 Ekko."
     },
     {
       "name": "True Damage Crown",
@@ -6113,7 +6118,7 @@
       "name": "Verticality III",
       "desc": "Champions gain 4% Attack Damage, 4% Ability Power, 3.5 Armor, and 3.5 Magic Resist for each ally that shares a trait with them.",
       "rarity": 3,
-      "icon": "/tft/augments/da-verticalityiii.png",
+      "icon": null,
       "nameVi": "Chỉ Một Con Đường III",
       "descVi": "Các Tướng nhận được 4% Sức Mạnh Công Kích, 4% Sức Mạnh Phép Thuật, 3.5 Giáp và 3.5 Kháng Phép cho mỗi đồng minh có cùng tộc/hệ với họ."
     },
