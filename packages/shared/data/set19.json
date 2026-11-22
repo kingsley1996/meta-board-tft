@@ -245,7 +245,7 @@
         "Lee Sin"
       ],
       "icon": "/tft/set19/traits/da_19_heavenscale.svg",
-      "nameVi": null,
+      "nameVi": "Cổ Phong",
       "descVi": "Các tướng Cổ Phong nhận thêm chỉ số, tăng theo cấp độ người chơi của bạn."
     },
     {
@@ -358,7 +358,7 @@
       ],
       "icon": "/tft/set19/traits/da_19_indie.svg",
       "nameVi": "Ca Sĩ Độc Lập",
-      "descVi": null
+      "descVi": "Sau giao tranh, Seraphine thu hút người theo dõi mới, cho bạn 1 tướng ngẫu nhiên.\r\n \r\nKhi bạn nâng 1 tướng lên 3 sao, cô ấy trở thành Tân Binh, nâng cấp Kỹ Năng của mình và cho bạn 1 phần thưởng đặc biệt dành cho người đăng ký.\r\n\r\nSau khi nâng 4 tướng lên 3 sao, cô ấy trở thành Siêu Sao!"
     },
     {
       "name": "Ionic Spark",
@@ -455,7 +455,7 @@
       ],
       "icon": "/tft/set19/traits/da_19_mariachi.svg",
       "nameVi": null,
-      "descVi": null
+      "descVi": "Khi Nidalee có trên 75% Máu và thi triển Kỹ Năng, cô sẽ biến thành Dạng Báo và thi triển Tiệc Vồ Mồi. Nếu không, cô sẽ thi triển Vũ Điệu Đời Thường.\r\n\r\nBất cứ khi nào tụt xuống dưới 50% Máu, cô sẽ nhảy lùi ra xa và biến trở lại dạng Người."
     },
     {
       "name": "Melodic Heart",
@@ -659,7 +659,7 @@
         "Vladimir"
       ],
       "icon": "/tft/set19/traits/da_19_arcanist.svg",
-      "nameVi": null,
+      "nameVi": "Pháp Sư",
       "descVi": "Đội của bạn nhận Sức Mạnh Phép Thuật, tướng Pháp Sư nhận nhiều hơn."
     },
     {
@@ -690,8 +690,8 @@
         "Leona"
       ],
       "icon": "/tft/set19/traits/da_19_bodyguard.svg",
-      "nameVi": null,
-      "descVi": null
+      "nameVi": "Vệ Sĩ",
+      "descVi": "Khi còn ít nhất 1 tướng Vệ Sĩ sống sót, đội của bạn nhận 15 Giáp và Kháng Phép. Các tướng Vệ Sĩ nhận nhiều hơn."
     },
     {
       "name": "Choreographer",
@@ -726,7 +726,7 @@
       ],
       "icon": "/tft/set19/traits/da_19_choreographer.svg",
       "nameVi": "Biên Đạo",
-      "descVi": null
+      "descVi": "Đồng minh bắt đầu ở 2 hàng trước sẽ nhận Lá Chắn. Tất cả các đồng minh khác sẽ nhận Khuếch Đại Sát Thương. Biên Đạo nhận gấp đôi."
     },
     {
       "name": "Collab",
@@ -774,7 +774,7 @@
       ],
       "icon": "/tft/set19/traits/da_19_encore.svg",
       "nameVi": null,
-      "descVi": null
+      "descVi": "Khi các tướng Encore bắn ra đường đạn bằng kỹ năng của mình, họ bắn thêm một đường đạn với hiệu quả giảm đi."
     },
     {
       "name": "Frontman",
@@ -935,7 +935,7 @@
         "Janna"
       ],
       "icon": "/tft/set19/traits/da_19_prodigy.svg",
-      "nameVi": null,
+      "nameVi": "Phi Thường",
       "descVi": "Đội của bạn nhận 1 Hồi Năng Lượng. Tướng Phi Thường nhận nhiều hơn."
     },
     {
@@ -993,7 +993,7 @@
         "Pyke"
       ],
       "icon": "/tft/set19/traits/da_19_renegade.svg",
-      "nameVi": null,
+      "nameVi": "Ngoại Đạo",
       "descVi": null
     },
     {
@@ -1004,7 +1004,7 @@
       "units": [],
       "icon": "/tft/set19/traits/da_19_risingstar.svg",
       "nameVi": "Tân Binh",
-      "descVi": null
+      "descVi": "Sau giao tranh, Seraphine thu hút người theo dõi mới, cho bạn 1 tướng ngẫu nhiên.\r\n \r\nKhi bạn nâng 1 tướng lên 3 sao, cô ấy trở thành Tân Binh, nâng cấp Kỹ Năng của mình và cho bạn 1 phần thưởng đặc biệt dành cho người đăng ký.\r\n\r\nSau khi nâng 4 tướng lên 3 sao, cô ấy trở thành Siêu Sao!"
     },
     {
       "name": "Slayer",
@@ -1184,7 +1184,8 @@
       "ability": {
         "name": "Blade Sonata",
         "mana": "0/40",
-        "desc": "Twirl, slashing adjacent enemies for 120/180/285/485 AP magic damage. Then, eviscerate the current target, dealing 240/360/575/975 AP magic damage to them. Enemies hit are Captivated for 5 seconds.Captivated enemies grant bonuses to Classical champions."
+        "desc": "Twirl, slashing adjacent enemies for 120/180/285/485 AP magic damage. Then, eviscerate the current target, dealing 240/360/575/975 AP magic damage to them. Enemies hit are Captivated for 5 seconds.Captivated enemies grant bonuses to Classical champions.",
+        "nameVi": "Bản Sonata Lưỡi Kiếm"
       },
       "icon": "/tft/set19/champions/da-19-katarina.webp",
       "splash": "/tft/set19/splash/da-19-katarina.webp",
@@ -1238,7 +1239,10 @@
       "splash": "/tft/set19/splash/da-19-kennen.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-kennen.webp",
       "nameVi": "Kennen",
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Vệ Sĩ"
+      ]
     },
     {
       "name": "Kobuko",
@@ -1282,7 +1286,10 @@
       "splash": "/tft/set19/splash/da-19-lillia.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-lillia.webp",
       "nameVi": "Lillia",
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Vệ Sĩ"
+      ]
     },
     {
       "name": "Neeko",
@@ -1303,7 +1310,11 @@
       "splash": "/tft/set19/splash/da-19-neeko.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-neeko.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        null,
+        "Phi Thường"
+      ]
     },
     {
       "name": "Olaf",
@@ -1443,7 +1454,7 @@
       "nameVi": null,
       "traitsVi": [
         null,
-        null,
+        "Pháp Sư",
         "Tốc Kích"
       ]
     },
@@ -1466,7 +1477,10 @@
       "splash": "/tft/set19/splash/da-19-zoe.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-zoe.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Pháp Sư"
+      ]
     },
     {
       "name": "Annie",
@@ -1489,7 +1503,7 @@
       "nameVi": null,
       "traitsVi": [
         null,
-        null,
+        "Pháp Sư",
         "Dũng Sĩ"
       ]
     },
@@ -1596,7 +1610,8 @@
       "ability": {
         "name": "Smash-Hit Royalties",
         "mana": "30/90",
-        "desc": "Active: Heal 275/325/475 AP and deal 120/180/270 AP magic damage in a 2 hex line.Quest: On cast during player combat, Illaoi gains 2 Fame + 1 more for every 10g you have, up to 70g. At 200 Fame, Illaoi goes Platinum, gaining 15% Durability and dropping 1 gold on cast instead.Illaoi has gone Platinum!"
+        "desc": "Active: Heal 275/325/475 AP and deal 120/180/270 AP magic damage in a 2 hex line.Quest: On cast during player combat, Illaoi gains 2 Fame + 1 more for every 10g you have, up to 70g. At 200 Fame, Illaoi goes Platinum, gaining 15% Durability and dropping 1 gold on cast instead.Illaoi has gone Platinum!",
+        "nameVi": "Tiền Bản Quyền Bom Tấn"
       },
       "icon": "/tft/set19/champions/da-19-illaoi.webp",
       "splash": "/tft/set19/splash/da-19-illaoi.webp",
@@ -1629,7 +1644,7 @@
       "nameVi": null,
       "traitsVi": [
         null,
-        null,
+        "Vệ Sĩ",
         "Tốc Kích"
       ]
     },
@@ -1652,7 +1667,10 @@
       "splash": "/tft/set19/splash/da-19-karthus.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-karthus.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Pháp Sư"
+      ]
     },
     {
       "name": "Lucian",
@@ -1688,7 +1706,8 @@
       "ability": {
         "name": "Hype Girl",
         "mana": "0/40",
-        "desc": "Rotate between 2 effects:Whimsy!: Grant an ally 45%/55%/65% AP + 35% decaying Attack Speed and 20/30/45 AP magic damage on hit for 5 seconds.Wild Growth: Increase an ally's Health by 175/260/395 AP for 5 seconds. While active, adjacent enemies take 20/30/45 AP magic damage each second."
+        "desc": "Rotate between 2 effects:Whimsy!: Grant an ally 45%/55%/65% AP + 35% decaying Attack Speed and 20/30/45 AP magic damage on hit for 5 seconds.Wild Growth: Increase an ally's Health by 175/260/395 AP for 5 seconds. While active, adjacent enemies take 20/30/45 AP magic damage each second.",
+        "nameVi": "Cô Nàng Phấn Khích"
       },
       "icon": "/tft/set19/champions/da-19-lulu.webp",
       "splash": "/tft/set19/splash/da-19-lulu.webp",
@@ -1718,7 +1737,10 @@
       "splash": "/tft/set19/splash/da-19-lux.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-lux.webp",
       "nameVi": "Lux",
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Phi Thường"
+      ]
     },
     {
       "name": "Nasus",
@@ -1741,7 +1763,7 @@
       "nameVi": null,
       "traitsVi": [
         "Cổ Điển",
-        null
+        "Vệ Sĩ"
       ]
     },
     {
@@ -1763,7 +1785,10 @@
       "splash": "/tft/set19/splash/da-19-qiyana.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-qiyana.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Ngoại Đạo"
+      ]
     },
     {
       "name": "Renata Glasc",
@@ -1832,7 +1857,7 @@
       "nameVi": null,
       "traitsVi": [
         "Cổ Điển",
-        null,
+        "Ngoại Đạo",
         null
       ]
     },
@@ -1847,7 +1872,8 @@
       "ability": {
         "name": "Livestream of Note",
         "mana": "0/50",
-        "desc": "Indie: Release a stream of notes at the target while posing for the fans, dealing 600/900/1350 AP magic damage over 2.5 seconds.Rising Star: Release bonus notes at nearby enemies.Superstar: Toss high notes at every enemy."
+        "desc": "Indie: Release a stream of notes at the target while posing for the fans, dealing 600/900/1350 AP magic damage over 2.5 seconds.Rising Star: Release bonus notes at nearby enemies.Superstar: Toss high notes at every enemy.",
+        "nameVi": "Livestream Nổi Bật"
       },
       "icon": "/tft/set19/champions/da-19-seraphine.webp",
       "splash": "/tft/set19/splash/da-19-seraphine.webp",
@@ -1890,7 +1916,7 @@
         "name": "So Sad and Lorn",
         "mana": "60/120",
         "desc": "Heal 475/625/750 AP. Toss bandages at the 4 nearest enemies, dealing 100/150/240 AP magic damage and Stunning them for 1.25/1.5/1.75 seconds.",
-        "nameVi": "Yasuo Mặc Ảnh Du Hiệp và Lorn"
+        "nameVi": "Buồn Bã Cô Đơn"
       },
       "icon": "/tft/set19/champions/da-19-amumu.webp",
       "splash": "/tft/set19/splash/da-19-amumu.webp",
@@ -2012,7 +2038,7 @@
       "traitsVi": [
         null,
         "Dũng Sĩ",
-        null
+        "Phi Thường"
       ]
     },
     {
@@ -2034,7 +2060,10 @@
       "splash": "/tft/set19/splash/da-19-evelynn.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-evelynn.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Ngoại Đạo"
+      ]
     },
     {
       "name": "Galio",
@@ -2078,7 +2107,10 @@
       "splash": "/tft/set19/splash/da-19-ksante.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-ksante.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Vệ Sĩ"
+      ]
     },
     {
       "name": "Kai'Sa",
@@ -2119,7 +2151,10 @@
       "splash": "/tft/set19/splash/da-19-malzahar.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-malzahar.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Phi Thường"
+      ]
     },
     {
       "name": "Senna",
@@ -2163,7 +2198,7 @@
       "nameVi": null,
       "traitsVi": [
         null,
-        null,
+        "Pháp Sư",
         "Hát Chính"
       ]
     },
@@ -2208,7 +2243,10 @@
       "splash": "/tft/set19/splash/da-19-tibbers.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-tibbers.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Vệ Sĩ"
+      ]
     },
     {
       "name": "Viego",
@@ -2303,7 +2341,7 @@
       "traitsVi": [
         null,
         "Quản Lý",
-        null
+        "Phi Thường"
       ]
     },
     {
@@ -2325,7 +2363,10 @@
       "splash": "/tft/set19/splash/da-19-aurora.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-aurora.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Ngoại Đạo"
+      ]
     },
     {
       "name": "Garen",
@@ -2369,7 +2410,10 @@
       "splash": "/tft/set19/splash/da-19-graves.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-graves.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Ngoại Đạo"
+      ]
     },
     {
       "name": "Jhin",
@@ -2460,7 +2504,7 @@
       "nameVi": "Leona",
       "traitsVi": [
         null,
-        null,
+        "Vệ Sĩ",
         "Quản Lý"
       ]
     },
@@ -2507,7 +2551,10 @@
       "splash": "/tft/set19/splash/da-19-mel.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-mel.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Pháp Sư"
+      ]
     },
     {
       "name": "Shyvana",
@@ -2595,7 +2642,9 @@
       "splash": "/tft/set19/splash/da-19-wukong.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-wukong.webp",
       "nameVi": "Ngộ Không",
-      "traitsVi": null
+      "traitsVi": [
+        "Cổ Phong"
+      ]
     },
     {
       "name": "Xayah",
@@ -2616,7 +2665,10 @@
       "splash": "/tft/set19/splash/da-19-xayah.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-xayah.webp",
       "nameVi": "Xayah",
-      "traitsVi": null
+      "traitsVi": [
+        "Cổ Phong",
+        null
+      ]
     },
     {
       "name": "Yasuo",
@@ -2804,7 +2856,8 @@
       "ability": {
         "name": "Big Business",
         "mana": "20/80",
-        "desc": "Passive: While Dr. Mundo has 3000 max Health or more, he becomes Pumped Up, gaining 20%/20%/300% max Health and causing attacks to deal an additional 39/70/4212 Health + 50/75/1000 magic damage.Active: Restore 130/234/4212 Health + 350/400/3000 Health over 5/5/3.5 seconds and deal 13/23/168 Health + 12/16/50 AP magic damage each second to all enemies within 2/2/5 hexes."
+        "desc": "Passive: While Dr. Mundo has 3000 max Health or more, he becomes Pumped Up, gaining 20%/20%/300% max Health and causing attacks to deal an additional 39/70/4212 Health + 50/75/1000 magic damage.Active: Restore 130/234/4212 Health + 350/400/3000 Health over 5/5/3.5 seconds and deal 13/23/168 Health + 12/16/50 AP magic damage each second to all enemies within 2/2/5 hexes.",
+        "nameVi": "Làm Ăn Lớn"
       },
       "icon": "/tft/set19/champions/da-19-drmundo.webp",
       "splash": "/tft/set19/splash/da-19-drmundo.webp",
@@ -2859,9 +2912,9 @@
       "abilityIcon": "/tft/set19/abilities/da-19-janna.webp",
       "nameVi": null,
       "traitsVi": [
-        null,
+        "Cổ Phong",
         "Ân Phong",
-        null
+        "Phi Thường"
       ]
     },
     {
@@ -2882,7 +2935,9 @@
       "splash": "/tft/set19/splash/da-19-leesin.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-leesin.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        "Cổ Phong"
+      ]
     },
     {
       "name": "Miss Fortune",
@@ -2960,7 +3015,8 @@
       "ability": {
         "name": "It's the Time to Disco!",
         "mana": "20/75",
-        "desc": "Passive: Gain 10/10/40 Mana Regen. Slowly roll around a Disco Ball, dealing (120/180/1500 AP) × (0.3/0.3/2 Stack + 1) magic damage to all enemies it passes through.Active: For the rest of combat, move faster and increase the size and damage of the Disco Ball by 30%/30%/200%."
+        "desc": "Passive: Gain 10/10/40 Mana Regen. Slowly roll around a Disco Ball, dealing (120/180/1500 AP) × (0.3/0.3/2 Stack + 1) magic damage to all enemies it passes through.Active: For the rest of combat, move faster and increase the size and damage of the Disco Ball by 30%/30%/200%.",
+        "nameVi": "Đã đến giờ nhảy Disco!"
       },
       "icon": "/tft/set19/champions/da-19-nunu.webp",
       "splash": "/tft/set19/splash/da-19-nunu.webp",
@@ -2990,7 +3046,10 @@
       "splash": "/tft/set19/splash/da-19-pyke.webp",
       "abilityIcon": "/tft/set19/abilities/da-19-pyke.webp",
       "nameVi": null,
-      "traitsVi": null
+      "traitsVi": [
+        null,
+        "Ngoại Đạo"
+      ]
     },
     {
       "name": "Rell",
@@ -3127,7 +3186,7 @@
       "nameVi": null,
       "traitsVi": [
         "Cổ Điển",
-        null
+        "Pháp Sư"
       ]
     },
     {
@@ -3205,7 +3264,8 @@
       "ability": {
         "name": "Upswing",
         "mana": "0/4",
-        "desc": "Passive: Gain between 1/1/4 and 4/4/10 Beats per attack. Every 4 seconds, cast.Active: Gain 250/375/40000 AP Shield for 3/3/10 seconds and deal 100/150/4000 AD physical damage to all enemies within 2 hexes. Then strike the current target 4 times, each dealing 240/360/2600 AD physical damage + 12/18/350 AD per Beat.After unleashing 15 Beats, gain an emblem of a trait you don't have active and increase the number of Beats required."
+        "desc": "Passive: Gain between 1/1/4 and 4/4/10 Beats per attack. Every 4 seconds, cast.Active: Gain 250/375/40000 AP Shield for 3/3/10 seconds and deal 100/150/4000 AD physical damage to all enemies within 2 hexes. Then strike the current target 4 times, each dealing 240/360/2600 AD physical damage + 12/18/350 AD per Beat.After unleashing 15 Beats, gain an emblem of a trait you don't have active and increase the number of Beats required.",
+        "nameVi": "Nổi Lên"
       },
       "icon": "/tft/set19/champions/da-19-smeech.webp",
       "splash": "/tft/set19/splash/da-19-smeech.webp",
@@ -3246,7 +3306,7 @@
       "desc": "Gain 3 gold, 3 player Health, and 3 rerolls now, and a random 3-cost champion in 4 rounds.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Nhịp 3/4",
       "descVi": null
     },
     {
@@ -3270,7 +3330,7 @@
       "desc": "Gain an Olaf. Your strongest Olaf becomes a ranged Attack Marksman with a single target Ability that gets stronger with each cast.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Rìu Khúc Tột Đỉnh",
       "descVi": "Nhận 1 Olaf. Olaf mạnh nhất của bạn trở thành Xạ Thủ Vật Lý đánh xa với Kỹ Năng đơn mục tiêu và mạnh dần lên sau mỗi lần tung chiêu."
     },
     {
@@ -3654,7 +3714,7 @@
       "desc": "After winning player combat, gain a free Shop reroll.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Giữ Nhịp",
       "descVi": "Sau khi thắng giao tranh người chơi, nhận một lượt đổi Cửa Hàng miễn phí."
     },
     {
@@ -3679,7 +3739,7 @@
       "rarity": 1,
       "icon": null,
       "nameVi": null,
-      "descVi": null
+      "descVi": "Nhận 20 XP."
     },
     {
       "name": "Late Game Specialist",
@@ -3974,8 +4034,8 @@
       "desc": "After 12 seconds of combat, your team heals 20% max Health and enemies take 8% max Health true damage.",
       "rarity": 1,
       "icon": null,
-      "nameVi": null,
-      "descVi": "Sau 12 giây giao tranh, đội của bạn hồi máu bằng 20% Máu tối đa và kẻ địch chịu sát thương chuẩn bằng 8% Máu tối đa."
+      "nameVi": "Cực Bốc",
+      "descVi": "Sau 12 giây giao tranh, đội của bạn hồi máu bằng 18% Máu tối đa và kẻ địch chịu sát thương chuẩn bằng 8% Máu tối đa."
     },
     {
       "name": "The Tower",
@@ -4007,7 +4067,7 @@
       "rarity": 1,
       "icon": null,
       "nameVi": null,
-      "descVi": "Sau mỗi 6 giao tranh người chơi, nhận 1 gói trang bị hoàn chỉnh."
+      "descVi": "Sau mỗi 7 giao tranh người chơi, nhận 1 gói trang bị hoàn chỉnh."
     },
     {
       "name": "Young and Wild and Free",
@@ -4070,7 +4130,7 @@
       "desc": "Gain a Hextech Gunblade. Your Gunblades' ally heal is now granted to a second target at 75% effectiveness.",
       "rarity": 2,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Vũ Trang Và Hào Phóng",
       "descVi": "Nhận 1 Kiếm Súng Hextech. Hiệu ứng hồi máu cho đồng minh của các Kiếm Súng giờ cũng áp dụng lên mục tiêu thứ hai với 75% hiệu quả."
     },
     {
@@ -4134,7 +4194,7 @@
       "desc": "Gain a random Prismatic Augment, but lose 12 gold.",
       "rarity": 2,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Hộp Mù II",
       "descVi": "Nhận 1 Nâng Cấp Kim Cương ngẫu nhiên, nhưng mất 12 vàng."
     },
     {
@@ -4142,7 +4202,7 @@
       "desc": "Gain a random Prismatic Augment, but lose 8 gold.",
       "rarity": 2,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Hộp Mù II",
       "descVi": "Nhận 1 Nâng Cấp Kim Cương ngẫu nhiên, nhưng mất 12 vàng."
     },
     {
@@ -4238,15 +4298,15 @@
       "desc": "Gain a Chalice of Power, an item which grants 25% Ability Power and 1 Mana Regen to the holder and allies within 2 hexes in the same row.",
       "rarity": 2,
       "icon": null,
-      "nameVi": null,
-      "descVi": null
+      "nameVi": "Cốc Sức Mạnh",
+      "descVi": "Nhận 1 Cốc Sức Mạnh, trang bị này cho chủ sở hữu và đồng minh trong phạm vi 2 ô cùng hàng 25% Sức Mạnh Phép Thuật và 1 Hồi Năng Lượng."
     },
     {
       "name": "Champion Airdrop",
       "desc": "Gain 3 2-cost champions now and 3 more after 5 rounds. After each airdrop, increase the round delay and the number of champions by 1.",
       "rarity": 2,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Tiếp Tế Tướng",
       "descVi": null
     },
     {
@@ -4295,7 +4355,7 @@
       "rarity": 2,
       "icon": "/tft/augments/tft-augment-cookingpot.png",
       "nameVi": "Nồi Nấu Ăn",
-      "descVi": "Khi bắt đầu mỗi lượt, tất cả các đồng minh đang mang trang bị Xẻng Vàng hoặc Chảo Vàng sẽ vĩnh viễn tăng cho tướng gần nhất 70 Máu. Nhận 1 Chảo Vàng."
+      "descVi": "Khi bắt đầu mỗi vòng đấu, tất cả đồng minh đang mang trang bị Xẻng Vàng hoặc Chảo Vàng sẽ vĩnh viễn tăng cho tướng gần nhất 70 Máu. Nhận 1 Chảo Vàng."
     },
     {
       "name": "Counting Stars",
@@ -4334,7 +4394,7 @@
       "desc": "When you win combat, each surviving champion has a 5% chance to drop 1 gold. The chance increases by 15% for each Choreographer you're fielding. Gain 2 Choreographers.",
       "rarity": 2,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Đại Tiệc Khiêu Vũ",
       "descVi": null
     },
     {
@@ -4359,7 +4419,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Tận Hưởng Nào",
-      "descVi": null
+      "descVi": "Các tướng Jazz của bạn nhận thêm 150% Máu và Khuếch Đại Sát Thương từ tộc/hệ Jazz. Nhận 1 Lucian và 1 Galio."
     },
     {
       "name": "Double Trouble",
@@ -4487,7 +4547,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Cuồng Phong Tích Tụ",
-      "descVi": "Các tướng Pentakill của bạn nhận vĩnh viễn 10 Máu mỗi khi tộc/hệ Pentakill hành quyết một kẻ địch. Nhận 3 tướng Pentakill."
+      "descVi": "Các tướng Pentakill của bạn nhận vĩnh viễn 8 Máu mỗi khi tộc/hệ Pentakill hành quyết một kẻ địch. Nhận 3 tướng Pentakill."
     },
     {
       "name": "Gilded Steel",
@@ -4671,7 +4731,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Thắp Sáng Bầu Trời",
-      "descVi": null
+      "descVi": "Sau mỗi 3 giây, 3 kẻ địch có Máu cao nhất chịu sát thương phép bằng 5% Máu tối đa + 1% với mỗi tướng Ionic Spark bạn đang triển khai. Nhận 3 tướng Ionic Spark."
     },
     {
       "name": "Magic Roll",
@@ -4759,7 +4819,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": null,
-      "descVi": null
+      "descVi": "Nhận 1 Hình Nhân mang 3 Đai Khổng Lồ. Các hình nhân của bạn sẽ rơi ra 1 vàng với mỗi 700 sát thương gánh chịu."
     },
     {
       "name": "Plot Armor",
@@ -4791,7 +4851,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Khiên Băng Randuin",
-      "descVi": "Nhận 1 Khiên Băng Randuin, trang bị trao 30 Giáp & Kháng Phép cho chủ sở hữu và đồng minh trong phạm vi 1 ô."
+      "descVi": "Nhận 1 Khiên Băng Randuin, trang bị trao 33 Giáp & Kháng Phép cho chủ sở hữu và đồng minh trong phạm vi 1 ô."
     },
     {
       "name": "Rare Collection",
@@ -4886,7 +4946,7 @@
       "desc": "When you field 3 or fewer Heartsteel champions, increase their bonuses by 100%. Gain 2 Heartsteel champions.",
       "rarity": 2,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Biệt Đội Nhỏ",
       "descVi": "Khi triển khai ít hơn 3 tướng Heartsteel, tăng các chỉ số cộng thêm của họ thêm 100%. Nhận 2 tướng Heartsteel."
     },
     {
@@ -4975,7 +5035,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Bội Thu Chỉ Số II",
-      "descVi": null
+      "descVi": "Ngay lập tức và sau mỗi 5 vòng, nhận 4 vật phẩm tiêu thụ tăng chỉ số."
     },
     {
       "name": "Strange Duet II",
@@ -5111,7 +5171,7 @@
       "rarity": 2,
       "icon": null,
       "nameVi": "Tụ Bão Zeke",
-      "descVi": "Nhận 1 Tụ Bão Zeke, trang bị cho chủ sở hữu và các đồng minh trong phạm vi 2 ô cùng hàng 30% Tốc Độ Đánh."
+      "descVi": "Nhận 1 Tụ Bão Zeke, trang bị cho chủ sở hữu và các đồng minh trong phạm vi 2 ô cùng hàng 33% Tốc Độ Đánh."
     },
     {
       "name": "Zz'Rot Portal",
@@ -5143,7 +5203,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Vương Miện Pháp Sư",
-      "descVi": null
+      "descVi": "Nhận 1 Ấn Pháp Sư, 1 Găng Bảo Thạch và 1 Swain."
     },
     {
       "name": "Band of Thieves II",
@@ -5190,7 +5250,7 @@
       "desc": "Gain a Beach Pop Emblem, a Blue Buff, and a Syndra.",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Vương Miện Beach Pop",
       "descVi": "Nhận một Quái Đá Krug Bãi Biển Pop, một Lee Sin và một Syndra."
     },
     {
@@ -5262,8 +5322,8 @@
       "desc": "Gain a Choreographer Emblem, a Giant's Belt, and a Garen.",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
-      "descVi": null
+      "nameVi": "Vòng Tròn Biên Đạo",
+      "descVi": "Nhận 1 Ấn Biên Đạo, 1 Đai Khổng Lồ và 1 Garen"
     },
     {
       "name": "Choreographer Crown",
@@ -5271,7 +5331,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Vương Miện Biên Đạo",
-      "descVi": null
+      "descVi": "Nhận 1 Ấn Biên Đạo, 1 Mũ Thích Nghi và 1 Syndra."
     },
     {
       "name": "Classical Circlet",
@@ -5462,7 +5522,7 @@
       "desc": "Gain a Hitmaker Emblem, a B.F. Sword, and a Senna.",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Vòng Tròn Hitmaker",
       "descVi": null
     },
     {
@@ -5487,7 +5547,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Vòng Tròn Illbeats",
-      "descVi": null
+      "descVi": "Nhận 1 Ấn Illbeats, 1 Nước Mắt Nữ Thần và 1 Draven."
     },
     {
       "name": "Illbeats Crown",
@@ -5542,7 +5602,7 @@
       "desc": "Gain the Ionic Spark Prismatic Quest, 3 Ionic Spark champions, a Lucky Item Chest, and 7 gold.With 7 Ionic Spark active, collect album signatures over 10 rounds, then field 10 Ionic Spark!",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Nhạc Hội Muôn Màu Ionic Spark",
       "descVi": null
     },
     {
@@ -5566,7 +5626,7 @@
       "desc": "Gain a Jazz Emblem, a Spear of Shojin, and a Lucian.",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Vương Miện Jazz",
       "descVi": "Nhận 1 Ấn Jazz, 1 Ngọn Giáo Shojin và 1 Lucian."
     },
     {
@@ -5654,7 +5714,7 @@
       "desc": "Gain a Manager Emblem and a Leona. When champions gain bonuses from Manager there is a 60% chance to gain 1 gold.After collecting 20 gold from the Manager trait, gain a Dr. Mundo and a Warmog's Armor.",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Tiến Trình Quản Lý",
       "descVi": null
     },
     {
@@ -5711,7 +5771,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Đau Thương Hóa Đam Mê",
-      "descVi": "Ở Mặt A, tướng True Damage nhận 1% Tốc Độ Đánh và 10 Máu cho mỗi 20 Hào Nhoáng thu thập được. Ở Mặt B, nhận 3 Vàng sau khi thua giao tranh.\r\n\r\nNhận 3 tướng True Damage."
+      "descVi": "Ở Mặt A, tướng True Damage nhận 1% Tốc Độ Đánh và 10 Máu cho mỗi 30 Hào Nhoáng thu thập được. Ở Mặt B, nhận 3 Vàng sau khi thua giao tranh.\r\n\r\nNhận 3 tướng True Damage."
     },
     {
       "name": "Pandora's Box",
@@ -5734,7 +5794,7 @@
       "desc": "Gain a Pentakill Emblem, a Negatron Cloak, and a Viego.",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Vòng Tròn Pentakill",
       "descVi": null
     },
     {
@@ -5878,7 +5938,7 @@
       "desc": "Gain a Slayer Emblem, a Titan's Resolve, and a Briar.",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Vương Miện Đồ Tể",
       "descVi": null
     },
     {
@@ -5887,7 +5947,7 @@
       "rarity": 3,
       "icon": "/tft/augments/tft-augment-awakenedsoul.png",
       "nameVi": "Thức Tỉnh Linh Hồn",
-      "descVi": "Bắt đầu giao tranh: Đội của bạn nhận 2% Sức Mạnh Công Kích và Sức Mạnh Phép Thuật mỗi giây trong 10 giây. Khi đạt cộng dồn tối đa, gây thêm 12% sát thương chuẩn."
+      "descVi": "Bắt đầu giao tranh: Đội của bạn nhận 2% Sức Mạnh Công Kích và Sức Mạnh Phép Thuật mỗi giây trong 10 giây. Khi đạt cộng dồn tối đa, gây thêm 10% sát thương chuẩn."
     },
     {
       "name": "Star of the Show",
@@ -5895,7 +5955,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": null,
-      "descVi": null
+      "descVi": "Nhận 1 tướng không phải Đỡ Đòn 1 vàng 2 sao và 1 Ấn của một trong các tộc/hệ của tướng đó. Tại Vòng 3-1, nhận thêm 6 bản sao của tướng đó."
     },
     {
       "name": "Strange Duet III",
@@ -5927,7 +5987,7 @@
       "rarity": 3,
       "icon": null,
       "nameVi": "Vương Miện Tốc Kích",
-      "descVi": null
+      "descVi": "Nhận 1 Ấn Tốc Kích, 1 Kiếm Súng Hextech và 1 Bard."
     },
     {
       "name": "Sword Overflow",
@@ -5959,7 +6019,7 @@
       "rarity": 3,
       "icon": "/tft/augments/tft6-augment-thegoldenegg.png",
       "nameVi": "Rồng Đẻ Trứng Vàng",
-      "descVi": "Nhận một trứng vàng nở ra sau 11 vòng đấu, cho lượng lớn báu vật. Chiến thắng vòng giao tranh người chơi sẽ đẩy nhanh thời gian nở trứng thêm một vòng."
+      "descVi": "Nhận 1 trứng vàng nở ra sau 11 vòng đấu, cho lượng lớn báu vật. Chiến thắng vòng giao tranh người chơi sẽ đẩy nhanh thời gian nở trứng thêm 1 vòng đấu."
     },
     {
       "name": "The Immortal Journey",
@@ -6006,7 +6066,7 @@
       "desc": "Gain a True Damage Emblem, a Giant's Belt, and an Ekko.",
       "rarity": 3,
       "icon": null,
-      "nameVi": null,
+      "nameVi": "Vòng Tròn True Damage",
       "descVi": null
     },
     {

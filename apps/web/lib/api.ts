@@ -45,6 +45,9 @@ export type ApiComp = {
   stages: { stage: string; text: string }[];
   alt: ApiUnit[];
   augmentTypes: string[];
+  // PBE-only: the measured level-by-stage curve. Live comps carry an editorial
+  // economy plan instead and omit this.
+  pbeCurve?: { stage: string; level: number }[];
 };
 
 export type CompsResponse = {

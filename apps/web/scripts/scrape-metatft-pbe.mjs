@@ -188,14 +188,89 @@ const comps = details.map(({ results: comp }) => {
     const current = buildsByUnit.get(build.unit);
     if (!current || build.count > current.count) buildsByUnit.set(build.unit, build);
   }
-  const carriers = new Set(
-    units
-      .map((unit) => buildsByUnit.get(unit.apiName))
-      .filter(Boolean)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3)
-      .map((build) => build.unit),
-  );
+  const carrierList = units
+    .map((unit) => buildsByUnit.get(unit.apiName))
+    .filter(Boolean)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3)
+    .map((build) => build.unit);
+
+  // Positioning keys reuse the set-18 api name for a champion whose model carried over
+  // (DA_Kobuko19 on the board, DA_18_Kobuko in `positioning`), so try the direct key then the
+  // two alias shapes. cell_1..28 is row-major over the 4x7 board; row 0 is the back line.
+  const posUnits = comp.positioning?.units ?? {};
+  const positionsOf = (api) => {
+    const base = api.replace(/^DA_/, '').replace(/19$/, '');
+    return (posUnits[api] ?? posUnits[`DA_18_${base}`] ?? posUnits[`DA_${base}18`])?.positions ?? [];
+  };
+  // Every unit's single most-played cell clusters tanks on the same front hex, so claim cells in
+  // order of how strongly each unit owns its top cell and fall back to that unit's next real
+  // position when the cell is taken. The board then spreads the way players actually place it.
+  const taken = new Set();
+  const placement = new Map();
+  const byPreference = [...units].sort((a, b) => (positionsOf(b.apiName)[0]?.count ?? 0) - (positionsOf(a.apiName)[0]?.count ?? 0));
+  for (const unit of byPreference) {
+    for (const pos of positionsOf(unit.apiName)) {
+      const index = Number(pos.cell.replace('cell_', '')) - 1;
+      if (taken.has(index)) continue;
+      taken.add(index);
+      placement.set(unit.apiName, { row: Math.floor(index / 7), col: index % 7 });
+      break;
+    }
+    if (!placement.has(unit.apiName)) placement.set(unit.apiName, { row: null, col: null });
+  }
+  const cellOf = (api) => placement.get(api) ?? { row: null, col: null };
+
+  // The star level a unit is most often played at, from the tier distribution MetaTFT keeps per
+  // unit. A unit with no stats (never built) gets no star plate rather than a guessed one.
+  const statsByUnit = new Map((comp.unit_stats ?? []).map((entry) => [entry.unit, entry]));
+  const starsOf = (api) => {
+    const tiers = statsByUnit.get(api)?.tiers ?? [];
+    if (!tiers.length) return null;
+    return tiers.reduce((best, tier) => (tier.pcnt > best.pcnt ? tier : best)).tier;
+  };
+
+  // Early board: the level with the most games, then its most played unit list. Early lists name
+  // carried-over champions by their set-18 api, so resolve through the same alias the board uses.
+  const lookupUnit = (api) => {
+    const direct = vi.units.find((unit) => unit.apiName === api);
+    if (direct) return direct;
+    const base = api.replace(/^DA_18_/, '').replace(/^DA_/, '').replace(/1[89]$/, '').replace(/_.*$/, '');
+    return vi.units.find((unit) => unit.apiName === `DA_${base}19`);
+  };
+  const earlyLevels = Object.keys(comp.early_options ?? {}).map(Number).filter((level) => comp.early_options[level]?.length);
+  let early = [];
+  let earlyLevel = null;
+  if (earlyLevels.length) {
+    const gamesAtEarly = (level) => comp.early_options[level].reduce((sum, entry) => sum + entry.count, 0);
+    earlyLevel = earlyLevels.reduce((best, entry) => (gamesAtEarly(entry) > gamesAtEarly(best) ? entry : best));
+    const best = comp.early_options[earlyLevel].reduce((best, entry) => (entry.count > best.count ? entry : best));
+    early = best.unit_list.split('&').map(lookupUnit).filter(Boolean).map((unit) => ({
+      api: unit.apiName,
+      name: unit.en_name,
+      nameVi: unit.name !== unit.en_name ? unit.name : null,
+      cost: unit.cost,
+      icon: championByName.get(unit.en_name)?.icon ?? null,
+    }));
+  }
+
+  // Level by stage: the level most games are at when that stage begins, which is the curve a
+  // player reads as "hit 6 at 3-2, 8 at 4-2". Pre-game rows (empty stage) are dropped.
+  const byStage = new Map();
+  for (const entry of comp.levels ?? []) {
+    if (!entry.stage) continue;
+    const current = byStage.get(entry.stage);
+    if (!current || entry.count > current.count) byStage.set(entry.stage, entry);
+  }
+  const curve = [...byStage.entries()].sort((a, b) => Number(a[0]) - Number(b[0])).map(([stage, entry]) => ({ stage, level: entry.level }));
+
+  // Matchups: the comps this one places best / worst against. `against` is a cluster id the page
+  // resolves back to a comp title; self and identical boards (similarity 1) are not matchups.
+  const counters = (comp.counters ?? [])
+    .filter((entry) => entry.against !== Number(comp.cluster) && entry.similarity < 1)
+    .sort((a, b) => Math.abs(b.place_change) - Math.abs(a.place_change))
+    .slice(0, 6)
+    .map((entry) => ({ against: entry.against, placeChange: entry.place_change }));
 
   // `traits_list` names each trait with its breakpoint tier ("..._3"), not its unit count, so the
   // count players recognise ("K/DA 8") is counted off the board instead.
@@ -224,20 +299,26 @@ const comps = details.map(({ results: comp }) => {
   const active = traits.filter((trait) => trait.count >= 2);
 
   return {
-    id: comp.cluster,
+    id: Number(comp.cluster),
     level,
     count: comp.overall.count,
     avg: comp.overall.avg,
     traits: active.length ? active : traits,
+    carry: carrierList[0] ?? null,
+    carriers: carrierList,
+    earlyLevel,
+    early,
+    curve,
+    counters,
     units: units.map((unit) => ({
       api: unit.apiName,
       name: unit.en_name,
       nameVi: unit.name !== unit.en_name ? unit.name : null,
       cost: unit.cost,
       icon: championByName.get(unit.en_name)?.icon ?? null,
-      items: (carriers.has(unit.apiName) ? (buildsByUnit.get(unit.apiName)?.buildName ?? []) : [])
-        .map(itemEntry)
-        .filter(Boolean),
+      ...cellOf(unit.apiName),
+      stars: starsOf(unit.apiName),
+      items: (buildsByUnit.get(unit.apiName)?.buildName ?? []).map(itemEntry).filter(Boolean),
     })),
   };
 });

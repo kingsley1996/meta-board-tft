@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Chip, Panel, UnitHex, costOf } from '@/components/ui';
+import { PbeComps } from '@/components/pbe-comps';
 import set19 from '@tftiq/shared/data/set19.json';
 import set19Comps from '@tftiq/shared/data/set19-comps.json';
 import type { Lang } from '@/lib/i18n';
@@ -96,10 +97,10 @@ export default async function SetUpdatePage({
   searchParams,
 }: {
   params: Promise<{ lang: Lang }>;
-  searchParams: Promise<{ tab?: string; rarity?: string; cost?: string }>;
+  searchParams: Promise<{ tab?: string; rarity?: string; cost?: string; comp?: string }>;
 }) {
   const { lang } = await params;
-  const { tab, rarity, cost: costParam } = await searchParams;
+  const { tab, rarity, cost: costParam, comp: compParam } = await searchParams;
   const active: Tab = TABS.includes(tab as Tab) ? (tab as Tab) : 'gameplay';
   const tier = RARITIES.find((entry) => String(entry) === rarity) ?? null;
   const pool = tier ? set19.augments.filter((augment) => augment.rarity === tier) : set19.augments;
@@ -414,62 +415,10 @@ export default async function SetUpdatePage({
 
       {active === 'comps' ? (
         <section data-section="set-comps" className="flex flex-col gap-4">
-          <p className="max-w-3xl text-sm leading-relaxed text-mist">{t.compsIntro}</p>
-          <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(320px,1fr))]">
-            {set19Comps.comps.map((comp) => (
-              <Panel key={comp.id} className="flex flex-col gap-3 p-4 transition hover:border-brand/40">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <h2 className="font-display text-lg font-semibold leading-tight text-fog">
-                      {localized(lang, comp.traits[0].name, comp.traits[0].nameVi)}
-                      <span className="ml-2 text-sm font-bold text-brand">{comp.traits[0].count}</span>
-                    </h2>
-                    <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-mist">
-                      {t.level} {comp.level} · {comp.count.toLocaleString(lang === 'vi' ? 'vi-VN' : 'en-US')} {t.games}
-                    </p>
-                  </div>
-                  <span className="shrink-0 rounded-lg border border-line bg-util px-2.5 py-1 text-center">
-                    <span className="block font-display text-lg font-bold leading-none text-fog">{comp.avg.toFixed(2)}</span>
-                    <span className="mt-0.5 block text-[9px] font-semibold uppercase tracking-wide text-mist">{t.avgPlace}</span>
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {comp.traits.slice(1).map((trait) => (
-                    <Chip key={trait.name}>
-                      {localized(lang, trait.name, trait.nameVi)} <b className="text-fog">{trait.count}</b>
-                    </Chip>
-                  ))}
-                </div>
-                <div className="mt-auto flex flex-wrap gap-x-1 gap-y-2 border-t border-line pt-3">
-                  {comp.units.map((unit) => (
-                    <div key={unit.name} className="flex w-9 flex-col items-center gap-1">
-                      <UnitHex
-                        name={localized(lang, unit.name, unit.nameVi)}
-                        cost={unit.cost}
-                        size={36}
-                        icon={unit.icon}
-                        tip={false}
-                      />
-                      <span className="flex h-3.5 items-center">
-                        {unit.items.map((item, index) => (
-                          <img
-                            key={`${item.name}-${index}`}
-                            src={item.icon}
-                            alt=""
-                            title={localized(lang, item.name, item.nameVi)}
-                            width={14}
-                            height={14}
-                            loading="lazy"
-                            className={`h-3.5 w-3.5 rounded-[3px] ${index ? '-ml-1' : ''}`}
-                          />
-                        ))}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </Panel>
-            ))}
-          </div>
+          {/* The PBE queue renders through the exact same explorer + panel as the
+              live tier list; only the source (static scrape) and the comp links
+              differ, so the list and the detail read as one product. */}
+          <PbeComps lang={lang} openSlug={compParam || undefined} />
         </section>
       ) : null}
     </div>

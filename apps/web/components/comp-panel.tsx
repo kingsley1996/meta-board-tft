@@ -44,15 +44,15 @@ function altTipContext(comp: ApiComp, unit: ApiUnit) {
 // vertex, and the whole cluster rides inside the hex. Board rows overlap the
 // lower quarter of the row above, so plates out there would be hidden under an
 // adjacent unit; drop shadow keeps them legible over the art.
-function UnitTile({ unit, context }: { unit: ApiUnit; context?: { traits: string; items: string } }) {
+function UnitTile({ unit, context, interactive = true }: { unit: ApiUnit; context?: { traits: string; items: string }; interactive?: boolean }) {
   const items = unit.items.slice(0, 3);
   return (
     <div
-      data-tip-traits={context?.traits || undefined}
-      data-tip-items={context?.items || undefined}
+      data-tip-traits={interactive ? context?.traits || undefined : undefined}
+      data-tip-items={interactive ? context?.items || undefined : undefined}
       className="absolute inset-[2px]"
     >
-      <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} fill stars={unit.stars ?? undefined} />
+      <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} fill stars={unit.stars ?? undefined} tip={interactive} />
       {items.length ? (
         <span className="absolute inset-x-0 bottom-[8%] z-20 flex justify-center gap-[1.5%] [filter:drop-shadow(0_2px_3px_rgba(0,0,0,0.75))]">
           {items.map((item, index) => (
@@ -61,7 +61,7 @@ function UnitTile({ unit, context }: { unit: ApiUnit; context?: { traits: string
               name={item.name}
               icon={item.icon}
               frame={costOf(unit.cost)}
-              tip={`item:${item.name}`}
+              tip={interactive ? `item:${item.name}` : undefined}
               fill
               className={`w-[30%] shrink-0 ${items.length === 3 && index === 1 ? 'translate-y-[40%]' : ''}`}
             />
@@ -72,7 +72,7 @@ function UnitTile({ unit, context }: { unit: ApiUnit; context?: { traits: string
   );
 }
 
-function PositioningBoard({ comp }: { comp: ApiComp }) {
+function PositioningBoard({ comp, pbe = false }: { comp: ApiComp; pbe?: boolean }) {
   const cells = new Map<string, ApiUnit>();
   comp.units.forEach((unit, index) => {
     let row = unit.row;
@@ -89,7 +89,7 @@ function PositioningBoard({ comp }: { comp: ApiComp }) {
     <HexBoard
       renderCell={(row, col) => {
         const unit = cells.get(`${row}:${col}`);
-        return unit ? <UnitTile unit={unit} context={unitTipContext(comp, unit)} /> : null;
+        return unit ? <UnitTile unit={unit} context={pbe ? undefined : unitTipContext(comp, unit)} interactive={!pbe} /> : null;
       }}
     />
   );
@@ -97,13 +97,13 @@ function PositioningBoard({ comp }: { comp: ApiComp }) {
 
 // Trait badge like the in-game tracker: icon + count on the active tier's
 // colour. Only traits that reached at least one threshold are shown.
-function TraitChip({ trait }: { trait: ApiComp['traits'][number] }) {
+function TraitChip({ trait, pbe = false }: { trait: ApiComp['traits'][number]; pbe?: boolean }) {
   const level = trait.thresholds.reduce((best, threshold, index) => (trait.count >= threshold ? index : best), -1);
   if (level < 0) return null;
   const style = traitStyleForNumber(trait.styles[level]);
   return (
     <span
-      data-tip={`trait:${trait.name}`}
+      data-tip={pbe ? undefined : `trait:${trait.name}`}
       className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5"
       style={{ background: style.fill, boxShadow: `inset 0 0 0 1px ${style.edge}` }}
     >
@@ -115,8 +115,36 @@ function TraitChip({ trait }: { trait: ApiComp['traits'][number] }) {
   );
 }
 
-export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; toolbar?: ReactNode }) {
+// A unit slot links to the champion page on the live set; on PBE there is no
+// champion route for a set-19 name, so the same box renders without a link.
+function UnitSlot({ href, label, className, children }: { href?: string; label?: string; className: string; children: ReactNode }) {
+  return href ? (
+    <Link href={href} aria-label={label} className={className}>
+      {children}
+    </Link>
+  ) : (
+    <div className={className}>{children}</div>
+  );
+}
+
+export function CompPanel({
+  comp,
+  lang,
+  toolbar,
+  pbe = false,
+  compHref,
+}: {
+  comp: ApiComp;
+  lang: Lang;
+  toolbar?: ReactNode;
+  // PBE renders the same panel from the static scrape: hover tips, champion /
+  // item links, votes and the editorial economy / augment blocks are live-only.
+  pbe?: boolean;
+  compHref?: (slug: string) => string;
+}) {
   const t = messages[lang].compPanel;
+  const hrefComp = compHref ?? ((slug: string) => `/${lang}/tierlist/comps/${slug}`);
+  const championHref = (name: string) => (pbe ? undefined : `/${lang}/champions/${championNameToSlug[name]}`);
   const difficultyLabels = [t.difficultyEasy, t.difficultyAverage, t.difficultyHard];
   const difficultyTones = ['easy', 'average', 'hard'] as const;
   // Prerender runs against whichever API is live, and Render boots on its own
@@ -124,12 +152,17 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
   const flex = comp.flex ?? [];
   const economy = economyForComp({ style: comp.style, carry: comp.carry, units: comp.units });
   const tier = tierColor[comp.tier];
+  // PBE has no editorial round plan; its curve is the modal level per stage
+  // straight from the scrape. Live keeps the translated round-plan text.
+  const curve = pbe
+    ? (comp.pbeCurve ?? []).map((entry) => ({ stage: entry.stage, text: `${t.level} ${entry.level}` }))
+    : economy.levelCurve.map((entry) => ({ stage: entry.stage, text: translateText(lang, 'economy', 'round-plan', entry.text) }));
   // Built once because the plan splits across two lists: four rounds visible,
   // the remainder inside the disclosure.
-  const rounds = economy.levelCurve.map((entry) => (
+  const rounds = curve.map((entry) => (
     <li key={entry.stage} className="flex flex-col gap-1 border-b border-line/50 pb-2 last:border-b-0 last:pb-0 sm:flex-row sm:gap-4">
       <span className="w-16 shrink-0 font-display text-sm font-bold text-brand">{entry.stage}</span>
-      <span className="text-sm leading-relaxed text-mist">{translateText(lang, 'economy', 'round-plan', entry.text)}</span>
+      <span className="text-sm leading-relaxed text-mist">{entry.text}</span>
     </li>
   ));
   return (
@@ -169,7 +202,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           />
         </span>
         <div data-pv="carry" className="absolute -top-[52px] left-4" style={{ filter: `drop-shadow(0 10px 22px rgba(0,0,0,.55))` }}>
-          <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} frame={tier} />
+          <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={104} stars={comp.carry.stars ?? undefined} frame={tier} tip={!pbe} />
           {comp.cover ? (
             <span data-section="comp-cover" data-pv="cover" className="absolute -left-1 bottom-3 z-20">
               <CoverBadge cover={comp.cover} size={36} frame={tier} />
@@ -186,21 +219,27 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
         </span>
         <div className="flex flex-col items-start gap-2">
           <h3 data-pv="title" className="font-display text-2xl font-bold uppercase leading-tight tracking-tight text-fog">{comp.title}</h3>
-          <p data-pv="playstyle" className="text-xs font-semibold uppercase tracking-wide text-brand">
-            {t.playstyleLabel}: {comp.playstyle}
-          </p>
-          <Link
-            href={`/${lang}/assistant?comp=${comp.slug}`}
-            className="smooth mt-1 inline-flex rounded-full border border-line bg-util px-3 py-1.5 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
-          >
-            {t.askAssistant}
-          </Link>
+          {pbe ? null : (
+            <>
+              <p data-pv="playstyle" className="text-xs font-semibold uppercase tracking-wide text-brand">
+                {t.playstyleLabel}: {comp.playstyle}
+              </p>
+              <Link
+                href={`/${lang}/assistant?comp=${comp.slug}`}
+                className="smooth mt-1 inline-flex rounded-full border border-line bg-util px-3 py-1.5 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
+              >
+                {t.askAssistant}
+              </Link>
+            </>
+          )}
         </div>
         <div data-pv="chips" className="flex flex-wrap items-center justify-center gap-1.5">
           <Chip>{comp.style}</Chip>
-          <Link href={`/${lang}/economy#${economyStrategyByName[economy.strategy]?.id ?? ''}`} className="smooth">
-            <Chip tone="brand">{translateText(lang, 'economy', 'strategy-name', economy.strategy)}</Chip>
-          </Link>
+          {pbe ? null : (
+            <Link href={`/${lang}/economy#${economyStrategyByName[economy.strategy]?.id ?? ''}`} className="smooth">
+              <Chip tone="brand">{translateText(lang, 'economy', 'strategy-name', economy.strategy)}</Chip>
+            </Link>
+          )}
           {/* Filled, unlike the two outline chips beside it, in the colour of its
               level: how hard a comp is to run is the one chip here the reader has
               to act on. */}
@@ -209,40 +248,44 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
           </Chip>
         </div>
         <div data-pv="counters" className="flex flex-wrap items-center justify-center gap-1.5">
-          <VoteButton slug={comp.slug} votes={comp.votes} lang={lang} />
-          <Chip>{comp.views} {t.views}</Chip>
+          {pbe ? null : <VoteButton slug={comp.slug} votes={comp.votes} lang={lang} />}
+          <Chip>{comp.views} {pbe ? t.games : t.views}</Chip>
         </div>
         {comp.traits?.length ? (
           <div data-pv="traits" className="flex flex-col gap-2 border-t border-line/60 pt-4">
             <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.activeTraits}</p>
             <div className="flex flex-wrap justify-center gap-1.5">
-              {comp.traits.map((trait) => <TraitChip key={trait.name} trait={trait} />)}
+              {comp.traits.map((trait) => <TraitChip key={trait.name} trait={trait} pbe={pbe} />)}
             </div>
           </div>
         ) : null}
-        <div data-pv="augments" className="flex flex-col gap-2 border-t border-line/60 pt-4">
-          <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.augments}</p>
-          <div className="grid grid-cols-4 justify-items-center gap-2">
-            {comp.augments.slice(0, 8).map((augment, index) => (
-              <AugmentTile key={`${augment.name}-${index}`} name={augment.name} icon={augment.icon} size={52} />
-            ))}
+        {pbe ? null : (
+          <div data-pv="augments" className="flex flex-col gap-2 border-t border-line/60 pt-4">
+            <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.augments}</p>
+            <div className="grid grid-cols-4 justify-items-center gap-2">
+              {comp.augments.slice(0, 8).map((augment, index) => (
+                <AugmentTile key={`${augment.name}-${index}`} name={augment.name} icon={augment.icon} size={52} />
+              ))}
+            </div>
           </div>
-        </div>
-        <div data-pv="augment-types" className="flex flex-col gap-2 border-t border-line/60 pt-4">
-          <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.augmentPriority}</p>
-          <div className="flex flex-wrap items-center justify-center gap-1 text-xs font-semibold">
-            {(comp.augmentTypes.length ? comp.augmentTypes : ['ECON', 'ITEMS', 'COMBAT']).map((type, index) => {
-              const labels: Record<string, string> = { ITEMS: t.items, ECON: t.economy, COMBAT: t.combat, EMBLEM: t.emblem };
-              const label = labels[type] ?? type;
-              return (
-                <span key={type} className="flex items-center gap-1">
-                  {index > 0 ? <span className="text-mist">{'\u25B8'}</span> : null}
-                  <span className="rounded-full border border-brand/60 bg-util px-3 py-1 text-brand">{label}</span>
-                </span>
-              );
-            })}
+        )}
+        {pbe ? null : (
+          <div data-pv="augment-types" className="flex flex-col gap-2 border-t border-line/60 pt-4">
+            <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.augmentPriority}</p>
+            <div className="flex flex-wrap items-center justify-center gap-1 text-xs font-semibold">
+              {(comp.augmentTypes.length ? comp.augmentTypes : ['ECON', 'ITEMS', 'COMBAT']).map((type, index) => {
+                const labels: Record<string, string> = { ITEMS: t.items, ECON: t.economy, COMBAT: t.combat, EMBLEM: t.emblem };
+                const label = labels[type] ?? type;
+                return (
+                  <span key={type} className="flex items-center gap-1">
+                    {index > 0 ? <span className="text-mist">{'\u25B8'}</span> : null}
+                    <span className="rounded-full border border-brand/60 bg-util px-3 py-1 text-brand">{label}</span>
+                  </span>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
         {comp.matchups?.length ? (
           <div data-pv="matchups" className="flex flex-col gap-2 border-t border-line/60 pt-4">
             <p className="text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.matchups}</p>
@@ -258,7 +301,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
                     {entries.map((entry) => (
                       <Link
                         key={entry.slug}
-                        href={`/${lang}/tierlist/comps/${entry.slug}`}
+                        href={hrefComp(entry.slug)}
                         className="smooth rounded-md border border-line bg-util px-2 py-0.5 text-xs font-semibold text-mist hover:border-brand hover:text-fog"
                       >
                         {entry.title}
@@ -283,9 +326,9 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
         <Panel section="team-strip" pv="board" className="px-4 py-3 lg:py-4">
           <div className="flex flex-wrap items-center justify-center gap-3 [--hex-w:54px] lg:gap-4 lg:[--hex-w:62.25px]">
             {comp.units.map((unit) => (
-              <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth relative block aspect-[1/1.1547] w-[var(--hex-w)] shrink-0">
-                <UnitTile unit={unit} context={unitTipContext(comp, unit)} />
-              </Link>
+              <UnitSlot key={unit.name} href={championHref(unit.name)} label={unit.name} className="smooth relative block aspect-[1/1.1547] w-[var(--hex-w)] shrink-0">
+                <UnitTile unit={unit} context={pbe ? undefined : unitTipContext(comp, unit)} interactive={!pbe} />
+              </UnitSlot>
             ))}
           </div>
         </Panel>
@@ -294,9 +337,9 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.earlyUnits}</p>
             <div className="flex flex-wrap items-center justify-center gap-2 [--hex-w:48px] lg:gap-3 lg:[--hex-w:62.25px]">
               {comp.early.map((unit) => (
-                <Link key={unit.name} href={`/${lang}/champions/${championNameToSlug[unit.name]}`} aria-label={unit.name} className="smooth relative block aspect-[1/1.1547] w-[var(--hex-w)] shrink-0">
-                  <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} fill />
-                </Link>
+                <UnitSlot key={unit.name} href={championHref(unit.name)} label={unit.name} className="smooth relative block aspect-[1/1.1547] w-[var(--hex-w)] shrink-0">
+                  <UnitHex name={unit.name} cost={unit.cost} icon={unit.icon} fill tip={!pbe} />
+                </UnitSlot>
               ))}
             </div>
           </Panel>
@@ -308,7 +351,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
               {comp.items.map(({ name, icon }, index) => (
                 <Fragment key={`${name}-${index}`}>
                   {index > 0 ? <span className="text-xs text-mist">{'\u25B8'}</span> : null}
-                  <ItemTile name={name} icon={icon} tier={itemTierByName[name]} size={38} href={itemHref(name, lang)} />
+                  <ItemTile name={name} icon={icon} tier={itemTierByName[name]} size={38} href={pbe ? undefined : itemHref(name, lang)} />
                 </Fragment>
               ))}
             </div>
@@ -317,7 +360,7 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
         <div className={flex.length || comp.alt.length ? 'grid gap-4 md:grid-cols-[1fr_200px]' : ''}>
           <Panel pv="positioning" className="p-4">
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-mist">{t.positioning}</p>
-            <PositioningBoard comp={comp} />
+            <PositioningBoard comp={comp} pbe={pbe} />
           </Panel>
           {flex.length || comp.alt.length ? (
             <div className="flex flex-col gap-4">
@@ -384,11 +427,11 @@ export function CompPanel({ comp, lang, toolbar }: { comp: ApiComp; lang: Lang; 
             ))}
           </div>
         ) : null}
-        {economy.levelCurve.length ? (
+        {curve.length ? (
           <Panel pv="economy" className="flex flex-col gap-3 p-4">
             <p className="flex items-center justify-center gap-2">
               <span className="rounded-full border border-brand/60 bg-util px-3 py-0.5 text-xs font-semibold text-brand">
-                {messages[lang].economy.plan} · {translateText(lang, 'economy', 'strategy-name', economy.strategy)}
+                {pbe ? t.levelCurve : <>{messages[lang].economy.plan} · {translateText(lang, 'economy', 'strategy-name', economy.strategy)}</>}
               </span>
             </p>
             {/* Nine to twelve rounds is the longest thing on the page, so the

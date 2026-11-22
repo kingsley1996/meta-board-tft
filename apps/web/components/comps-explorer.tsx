@@ -71,8 +71,26 @@ function isFullComp(comp: ApiComp | CompSummary): comp is ApiComp {
   return 'units' in comp;
 }
 
-export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; lang: Lang; initial?: CompsInitial }) {
+export function CompsExplorer({
+  openSlug,
+  lang,
+  initial,
+  pbe = false,
+  hrefFor: hrefForProp,
+  closeHref: closeHrefProp,
+}: {
+  openSlug?: string;
+  lang: Lang;
+  initial?: CompsInitial;
+  // PBE reuses this explorer against the static scrape: no live refetch, no view
+  // counting, no variant grouping, and comp links point back at the PBE route.
+  pbe?: boolean;
+  hrefFor?: (slug: string) => string;
+  closeHref?: string;
+}) {
   const t = messages[lang].explorer;
+  const hrefFor = hrefForProp ?? ((slug: string) => `/${lang}/tierlist/comps/${slug}`);
+  const closeHref = closeHrefProp ?? `/${lang}/tierlist/comps`;
   const [sort, setSort] = useState<'default' | 'popular'>(openSlug ? 'default' : savedSort);
   const [query, setQuery] = useState(openSlug ? '' : savedQuery);
   const [style, setStyle] = useState(openSlug ? 'All' : savedStyle);
@@ -81,7 +99,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   // list paints out of the document instead of waiting on a second round-trip.
   // The mount effect still refetches; this only removes the loading state in
   // front of it.
-  const [data, setData] = useState<CompsInitial | null>(() => cache[cacheKey] ?? initial ?? null);
+  const [data, setData] = useState<CompsInitial | null>(() => (pbe ? (initial ?? null) : (cache[cacheKey] ?? initial ?? null)));
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   // Names are the default view, so a server render paints with them. The saved
@@ -111,6 +129,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
     });
 
   useEffect(() => {
+    if (pbe) return;
     let live = true;
     setError('');
     fetchComps(lang, sort === 'popular' ? 'popular' : undefined)
@@ -124,7 +143,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
     return () => {
       live = false;
     };
-  }, [attempt, lang, sort, cacheKey]);
+  }, [attempt, lang, sort, cacheKey, pbe]);
 
   // One eased glide per selection, like TFT Academy's comp list, animated
   // frame-by-frame with instant scrolls. Native behavior:'smooth' is
@@ -294,10 +313,10 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   }, [openSlug, data]);
 
   useEffect(() => {
-    if (!openSlug || !data || viewed.has(openSlug)) return;
+    if (pbe || !openSlug || !data || viewed.has(openSlug)) return;
     viewed.add(openSlug);
     fetch(`/api/comps/${openSlug}/view`, { method: 'POST' }).catch(() => {});
-  }, [openSlug, data]);
+  }, [openSlug, data, pbe]);
 
   const comps = data?.comps ?? [];
   const styles = ['All', ...new Set(comps.map((comp) => comp.style))];
@@ -307,21 +326,19 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
   const filtered = comps.filter(
     (comp) => comp.title.toLowerCase().includes(query.toLowerCase()) && (styleOn === 'All' || comp.style === styleOn)
   );
-  // A variant group takes one slot on the board and the siblings never get
-  // another: the comp that leads the group's tab strip holds the slot, and the
-  // open comp's detail always hangs under that row — even when the open comp is
-  // a sibling, so switching tabs does not jump to a different tier. Grouping
-  // runs on what the board is showing, so a filter that drops the lead promotes
-  // the best comp left in the group.
-  const rows = variantRows(filtered);
+  // PBE has no server to sort by popularity, so "most games" (views) is applied
+  // here; and every cluster is its own comp, not a variant shell of a carry, so
+  // the live carry-grouping is skipped and each keeps its own rail slot.
+  const ordered = pbe && sort === 'popular' ? [...filtered].sort((a, b) => ('views' in b ? b.views : 0) - ('views' in a ? a.views : 0)) : filtered;
+  const rows = pbe ? ordered.map((comp) => ({ comp, lead: true, siblings: 0 })) : variantRows(ordered);
   const shown = new Set(rows.filter((row) => row.lead).map((row) => row.comp.slug));
   const siblings = new Map(rows.map((row) => [row.comp.slug, row.siblings]));
-  const slot = openSlug ? compVariants(filtered, openSlug)[0]?.slug ?? openSlug : '';
+  const slot = openSlug ? (pbe ? openSlug : (compVariants(ordered, openSlug)[0]?.slug ?? openSlug)) : '';
 
   return (
     <div className="flex flex-col gap-5">
       <div data-section="page-head" className="flex flex-wrap items-center justify-between gap-3">
-        <TierTabs current="comps" lang={lang} />
+        {pbe ? null : <TierTabs current="comps" lang={lang} />}
         <div className="flex flex-wrap items-center gap-2">
           <input
             type="search"
@@ -392,7 +409,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
           {tierRank.map((tier) => {
             // Situational comps live in the X row no matter which band their
             // tier carries; the strong rows only hold comps that can be run.
-            const tierComps = filtered.filter(
+            const tierComps = ordered.filter(
               (comp) =>
                 shown.has(comp.slug) &&
                 (tier === 'X' ? comp.situational || comp.tier === 'X' : comp.tier === tier && !comp.situational)
@@ -428,6 +445,8 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
                           lang={lang}
                           showNames={showNames}
                           siblings={siblings.get(comp.slug) ?? 0}
+                          hrefFor={hrefFor}
+                          pbe={pbe}
                         />
                       ))}
                     </div>
@@ -440,13 +459,17 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
                     <CompPanel
                       comp={openComp}
                       lang={lang}
+                      pbe={pbe}
+                      compHref={hrefFor}
                       toolbar={
                         <DetailToolbar
                           comps={comps}
                           comp={openComp}
                           lang={lang}
+                          hrefFor={hrefFor}
+                          pbe={pbe}
                           onSelect={(slug) => (heldSlug = slug)}
-                          onClose={() => router.push(`/${lang}/tierlist/comps`, { scroll: false })}
+                          onClose={() => router.push(closeHref, { scroll: false })}
                         />
                       }
                     />
@@ -455,7 +478,7 @@ export function CompsExplorer({ openSlug, lang, initial }: { openSlug?: string; 
               </div>
             );
           })}
-          {!filtered.length ? (
+          {!ordered.length ? (
             <p className="rounded-xl border border-line bg-panel p-8 text-center text-sm text-mist">{t.noMatch}</p>
           ) : null}
         </div>
@@ -473,18 +496,22 @@ function DetailToolbar({
   comps,
   comp,
   lang,
+  hrefFor,
+  pbe = false,
   onSelect,
   onClose,
 }: {
   comps: (ApiComp | CompSummary)[];
   comp: ApiComp;
   lang: Lang;
+  hrefFor: (slug: string) => string;
+  pbe?: boolean;
   onSelect: (slug: string) => void;
   onClose: () => void;
 }) {
   const t = messages[lang].compPanel;
   const closeLabel = messages[lang].explorer.close;
-  const tabs = compVariants(comps, comp.slug);
+  const tabs = pbe ? [] : compVariants(comps, comp.slug);
   const [copied, setCopied] = useState(false);
   const copy = () => {
     void navigator.clipboard?.writeText(window.location.href).then(() => {
@@ -500,7 +527,7 @@ function DetailToolbar({
           return (
             <Link
               key={variant.slug}
-              href={`/${lang}/tierlist/comps/${variant.slug}`}
+              href={hrefFor(variant.slug)}
               scroll={false}
               onClick={() => onSelect(variant.slug)}
               aria-current={active ? 'page' : undefined}
@@ -512,7 +539,7 @@ function DetailToolbar({
               >
                 {variant.tier}
               </span>
-              <UnitHex name={variant.carry.name} cost={variant.carry.cost} icon={variant.carry.icon} size={22} />
+              <UnitHex name={variant.carry.name} cost={variant.carry.cost} icon={variant.carry.icon} size={22} tip={!pbe} />
               <span className="whitespace-nowrap text-xs font-semibold text-fog">{variant.title}</span>
             </Link>
           );
@@ -604,12 +631,16 @@ function CompCluster({
   lang,
   showNames,
   siblings,
+  hrefFor,
+  pbe = false,
 }: {
   comp: ApiComp | CompSummary;
   active: boolean;
   lang: Lang;
   showNames: boolean;
   siblings: number;
+  hrefFor: (slug: string) => string;
+  pbe?: boolean;
 }) {
   const t = messages[lang].explorer;
   const trend = comp.trend === 'up'
@@ -629,7 +660,7 @@ function CompCluster({
   if (!showNames) {
     return (
       <Link
-        href={`/${lang}/tierlist/comps/${comp.slug}`}
+        href={hrefFor(comp.slug)}
         scroll={false}
         aria-label={aria}
         title={comp.title}
@@ -638,7 +669,7 @@ function CompCluster({
         {/* Smaller on phones so a tier still fits four carries per row under
             the now-larger tier bar; 64px from sm up. */}
         <span className="relative block w-12 sm:w-16" style={{ aspectRatio: '1 / 1.1547' }}>
-          <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} fill />
+          <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} fill tip={!pbe} />
           {comp.cover ? (
             <span className="absolute inset-x-0 -bottom-1 z-20 mx-auto w-fit">
               <CoverBadge cover={comp.cover} size={24} frame={costOf(comp.carry.cost)} />
@@ -662,13 +693,13 @@ function CompCluster({
   }
   return (
     <Link
-      href={`/${lang}/tierlist/comps/${comp.slug}`}
+      href={hrefFor(comp.slug)}
       scroll={false}
       aria-label={aria}
       className={`flex items-center gap-3 rounded-lg p-2 ${active ? 'bg-util ring-1 ring-brand' : 'smooth hover:bg-util'}`}
     >
       <span className="relative shrink-0">
-        <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={52} />
+        <UnitHex name={comp.carry.name} cost={comp.carry.cost} icon={comp.carry.icon} size={52} tip={!pbe} />
         {band || trend ? (
           <span title={cornerLabel} className="absolute -left-1.5 -top-1.5 z-20">
             <span className="sr-only">{cornerLabel}</span>
