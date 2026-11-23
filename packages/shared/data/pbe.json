@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T08:11:28.681Z",
+  "generatedAt": "2026-11-23T12:43:49.599Z",
   "patch": "19.1",
   "set": 19,
   "isPbe": true,
@@ -92,7 +92,7 @@
         "en": "Alistar",
         "vi": "Alistar"
       },
-      "icon": "/tft/set19/champions/da-19-alistar.webp",
+      "icon": "/tft/set19/champions/da-alistar19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -106,7 +106,7 @@
         "en": "Alune",
         "vi": "Alune"
       },
-      "icon": "/tft/set19/champions/da-19-alune.webp",
+      "icon": "/tft/set19/champions/da-alune19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -120,7 +120,7 @@
         "en": "Amumu",
         "vi": "Amumu"
       },
-      "icon": "/tft/set19/champions/da-19-amumu.webp",
+      "icon": "/tft/set19/champions/da-amumu19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -134,7 +134,7 @@
         "en": "Annie",
         "vi": "Annie"
       },
-      "icon": "/tft/set19/champions/da-19-annie.webp",
+      "icon": "/tft/set19/champions/da-annie19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -148,7 +148,7 @@
         "en": "Aphelios",
         "vi": "Aphelios"
       },
-      "icon": "/tft/set19/champions/da-19-aphelios.webp",
+      "icon": "/tft/set19/champions/da-aphelios19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -162,7 +162,7 @@
         "en": "Ashe",
         "vi": "Ashe"
       },
-      "icon": "/tft/set19/champions/da-19-ashe.webp",
+      "icon": "/tft/set19/champions/da-ashe19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -176,7 +176,7 @@
         "en": "Aurora",
         "vi": "Aurora"
       },
-      "icon": "/tft/set19/champions/da-19-aurora.webp",
+      "icon": "/tft/set19/champions/da-aurora19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -190,7 +190,7 @@
         "en": "Bard",
         "vi": "Bard"
       },
-      "icon": "/tft/set19/champions/da-19-bard.webp",
+      "icon": "/tft/set19/champions/da-bard19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -204,7 +204,7 @@
         "en": "Baron Nashor",
         "vi": "Baron Nashor"
       },
-      "icon": "/tft/set19/champions/da-19-baronnashor.webp",
+      "icon": "/tft/set19/champions/da-baronnashor19.webp",
       "cost": 7,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -232,7 +232,7 @@
         "en": "Braum",
         "vi": "Braum"
       },
-      "icon": "/tft/set19/champions/da-19-braum.webp",
+      "icon": "/tft/set19/champions/da-braum19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -246,7 +246,7 @@
         "en": "Briar",
         "vi": "Briar"
       },
-      "icon": "/tft/set19/champions/da-19-briar.webp",
+      "icon": "/tft/set19/champions/da-briar19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -260,7 +260,7 @@
         "en": "Camille",
         "vi": "Camille"
       },
-      "icon": "/tft/set19/champions/da-19-camille.webp",
+      "icon": "/tft/set19/champions/da-camille19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -274,7 +274,7 @@
         "en": "Dr. Mundo",
         "vi": "Dr. Mundo"
       },
-      "icon": "/tft/set19/champions/da-19-drmundo.webp",
+      "icon": "/tft/set19/champions/da-drmundo19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -288,7 +288,7 @@
         "en": "Draven",
         "vi": "Draven"
       },
-      "icon": "/tft/set19/champions/da-19-draven.webp",
+      "icon": "/tft/set19/champions/da-draven19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -302,7 +302,7 @@
         "en": "Ekko",
         "vi": "Ekko"
       },
-      "icon": "/tft/set19/champions/da-19-ekko.webp",
+      "icon": "/tft/set19/champions/da-ekko19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -316,7 +316,7 @@
         "en": "Elise",
         "vi": "Elise"
       },
-      "icon": "/tft/set19/champions/da-19-elise.webp",
+      "icon": "/tft/set19/champions/da-elise19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -330,7 +330,7 @@
         "en": "Evelynn",
         "vi": "Evelynn"
       },
-      "icon": "/tft/set19/champions/da-19-evelynn.webp",
+      "icon": "/tft/set19/champions/da-evelynn19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -344,7 +344,7 @@
         "en": "Ezreal",
         "vi": "Ezreal"
       },
-      "icon": "/tft/set19/champions/da-19-ezreal.webp",
+      "icon": "/tft/set19/champions/da-ezreal19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -358,7 +358,7 @@
         "en": "Galio",
         "vi": "Galio"
       },
-      "icon": "/tft/set19/champions/da-19-galio.webp",
+      "icon": "/tft/set19/champions/da-galio19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -372,7 +372,7 @@
         "en": "Garen",
         "vi": "Garen"
       },
-      "icon": "/tft/set19/champions/da-19-garen.webp",
+      "icon": "/tft/set19/champions/da-garen19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -386,7 +386,7 @@
         "en": "Gnar",
         "vi": "Gnar"
       },
-      "icon": "/tft/set19/champions/da-19-gnar.webp",
+      "icon": "/tft/set19/champions/da-gnar19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -400,7 +400,7 @@
         "en": "Gragas",
         "vi": "Gragas"
       },
-      "icon": "/tft/set19/champions/da-19-gragas.webp",
+      "icon": "/tft/set19/champions/da-gragas19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -414,7 +414,7 @@
         "en": "Graves",
         "vi": "Graves"
       },
-      "icon": "/tft/set19/champions/da-19-graves.webp",
+      "icon": "/tft/set19/champions/da-graves19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -428,7 +428,7 @@
         "en": "Gwen",
         "vi": "Gwen"
       },
-      "icon": "/tft/set19/champions/da-19-gwen.webp",
+      "icon": "/tft/set19/champions/da-gwen19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -442,7 +442,7 @@
         "en": "Illaoi",
         "vi": "Illaoi"
       },
-      "icon": "/tft/set19/champions/da-19-illaoi.webp",
+      "icon": "/tft/set19/champions/da-illaoi19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -470,7 +470,7 @@
         "en": "Janna",
         "vi": "Janna"
       },
-      "icon": "/tft/set19/champions/da-19-janna.webp",
+      "icon": "/tft/set19/champions/da-janna19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -484,7 +484,7 @@
         "en": "Jax",
         "vi": "Jax"
       },
-      "icon": "/tft/set19/champions/da-19-jax.webp",
+      "icon": "/tft/set19/champions/da-jax19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -498,7 +498,7 @@
         "en": "Jhin",
         "vi": "Jhin"
       },
-      "icon": "/tft/set19/champions/da-19-jhin.webp",
+      "icon": "/tft/set19/champions/da-jhin19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -512,7 +512,7 @@
         "en": "Jinx",
         "vi": "Jinx"
       },
-      "icon": "/tft/set19/champions/da-19-jinx.webp",
+      "icon": "/tft/set19/champions/da-jinx19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -526,7 +526,7 @@
         "en": "K'Sante",
         "vi": "K'Sante"
       },
-      "icon": "/tft/set19/champions/da-19-ksante.webp",
+      "icon": "/tft/set19/champions/da-ksante19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -540,7 +540,7 @@
         "en": "Kai'Sa",
         "vi": "Kai'Sa"
       },
-      "icon": "/tft/set19/champions/da-19-kaisa.webp",
+      "icon": "/tft/set19/champions/da-kaisa19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -554,7 +554,7 @@
         "en": "Karthus",
         "vi": "Karthus"
       },
-      "icon": "/tft/set19/champions/da-19-karthus.webp",
+      "icon": "/tft/set19/champions/da-karthus19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -568,7 +568,7 @@
         "en": "Katarina",
         "vi": "Katarina"
       },
-      "icon": "/tft/set19/champions/da-19-katarina.webp",
+      "icon": "/tft/set19/champions/da-katarina19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -582,7 +582,7 @@
         "en": "Kayle",
         "vi": "Kayle"
       },
-      "icon": "/tft/set19/champions/da-19-kayle.webp",
+      "icon": "/tft/set19/champions/da-kayle19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -596,7 +596,7 @@
         "en": "Kayn",
         "vi": "Kayn"
       },
-      "icon": "/tft/set19/champions/da-19-kayn.webp",
+      "icon": "/tft/set19/champions/da-kayn19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -610,7 +610,7 @@
         "en": "Kennen",
         "vi": "Kennen"
       },
-      "icon": "/tft/set19/champions/da-19-kennen.webp",
+      "icon": "/tft/set19/champions/da-kennen19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -624,7 +624,7 @@
         "en": "Kobuko",
         "vi": "Kobuko"
       },
-      "icon": "/tft/set19/champions/da-19-kobuko.webp",
+      "icon": "/tft/set19/champions/da-kobuko19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -638,7 +638,7 @@
         "en": "Lee Sin",
         "vi": "Lee Sin"
       },
-      "icon": "/tft/set19/champions/da-19-leesin.webp",
+      "icon": "/tft/set19/champions/da-leesin19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -652,7 +652,7 @@
         "en": "Leona",
         "vi": "Leona"
       },
-      "icon": "/tft/set19/champions/da-19-leona.webp",
+      "icon": "/tft/set19/champions/da-leona19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -666,7 +666,7 @@
         "en": "Lillia",
         "vi": "Lillia"
       },
-      "icon": "/tft/set19/champions/da-19-lillia.webp",
+      "icon": "/tft/set19/champions/da-lillia19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -680,7 +680,7 @@
         "en": "Locke",
         "vi": "Locke"
       },
-      "icon": "/tft/set19/champions/da-19-locke.webp",
+      "icon": "/tft/set19/champions/da-locke19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -694,7 +694,7 @@
         "en": "Lucian",
         "vi": "Lucian"
       },
-      "icon": "/tft/set19/champions/da-19-lucian.webp",
+      "icon": "/tft/set19/champions/da-lucian19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -708,7 +708,7 @@
         "en": "Lulu",
         "vi": "Lulu"
       },
-      "icon": "/tft/set19/champions/da-19-lulu.webp",
+      "icon": "/tft/set19/champions/da-lulu19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -722,7 +722,7 @@
         "en": "Lux",
         "vi": "Lux"
       },
-      "icon": "/tft/set19/champions/da-19-lux.webp",
+      "icon": "/tft/set19/champions/da-lux19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -736,7 +736,7 @@
         "en": "Malzahar",
         "vi": "Malzahar"
       },
-      "icon": "/tft/set19/champions/da-19-malzahar.webp",
+      "icon": "/tft/set19/champions/da-malzahar19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -764,7 +764,7 @@
         "en": "Mel",
         "vi": "Mel"
       },
-      "icon": "/tft/set19/champions/da-19-mel.webp",
+      "icon": "/tft/set19/champions/da-mel19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -778,7 +778,7 @@
         "en": "Miss Fortune",
         "vi": "Miss Fortune"
       },
-      "icon": "/tft/set19/champions/da-19-missfortune.webp",
+      "icon": "/tft/set19/champions/da-missfortune19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -792,7 +792,7 @@
         "en": "Mordekaiser",
         "vi": "Mordekaiser"
       },
-      "icon": "/tft/set19/champions/da-19-mordekaiser.webp",
+      "icon": "/tft/set19/champions/da-mordekaiser19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -806,7 +806,7 @@
         "en": "Nasus",
         "vi": "Nasus"
       },
-      "icon": "/tft/set19/champions/da-19-nasus.webp",
+      "icon": "/tft/set19/champions/da-nasus19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -820,7 +820,7 @@
         "en": "Neeko",
         "vi": "Neeko"
       },
-      "icon": "/tft/set19/champions/da-19-neeko.webp",
+      "icon": "/tft/set19/champions/da-neeko19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -834,7 +834,7 @@
         "en": "Nidalee",
         "vi": "Nidalee"
       },
-      "icon": "/tft/set19/champions/da-19-nidalee.webp",
+      "icon": null,
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -848,7 +848,7 @@
         "en": "Nunu & Willump",
         "vi": "Nunu & Willump"
       },
-      "icon": "/tft/set19/champions/da-19-nunu.webp",
+      "icon": "/tft/set19/champions/da-nunu19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -862,7 +862,7 @@
         "en": "Olaf",
         "vi": "Olaf"
       },
-      "icon": "/tft/set19/champions/da-19-olaf.webp",
+      "icon": "/tft/set19/champions/da-olaf19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -890,7 +890,7 @@
         "en": "Pyke",
         "vi": "Pyke"
       },
-      "icon": "/tft/set19/champions/da-19-pyke.webp",
+      "icon": "/tft/set19/champions/da-pyke19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -904,7 +904,7 @@
         "en": "Qiyana",
         "vi": "Qiyana"
       },
-      "icon": "/tft/set19/champions/da-19-qiyana.webp",
+      "icon": "/tft/set19/champions/da-qiyana19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -932,7 +932,7 @@
         "en": "Rakan",
         "vi": "Rakan"
       },
-      "icon": "/tft/set19/champions/da-19-rakan.webp",
+      "icon": "/tft/set19/champions/da-rakan19.webp",
       "cost": 7,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -946,7 +946,7 @@
         "en": "Rell",
         "vi": "Rell"
       },
-      "icon": "/tft/set19/champions/da-19-rell.webp",
+      "icon": null,
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -960,7 +960,7 @@
         "en": "Renata Glasc",
         "vi": "Renata Glasc"
       },
-      "icon": "/tft/set19/champions/da-19-renataglasc.webp",
+      "icon": "/tft/set19/champions/da-renataglasc19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -974,7 +974,7 @@
         "en": "Renekton",
         "vi": "Renekton"
       },
-      "icon": "/tft/set19/champions/da-19-renekton.webp",
+      "icon": "/tft/set19/champions/da-renekton19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -988,7 +988,7 @@
         "en": "Samira",
         "vi": "Samira"
       },
-      "icon": "/tft/set19/champions/da-19-samira.webp",
+      "icon": "/tft/set19/champions/da-samira19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1002,7 +1002,7 @@
         "en": "Senna",
         "vi": "Senna"
       },
-      "icon": "/tft/set19/champions/da-19-senna.webp",
+      "icon": "/tft/set19/champions/da-senna19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1016,7 +1016,7 @@
         "en": "Seraphine",
         "vi": "Seraphine"
       },
-      "icon": "/tft/set19/champions/da-19-seraphine.webp",
+      "icon": "/tft/set19/champions/da-seraphine19-indie.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1030,7 +1030,7 @@
         "en": "Sett",
         "vi": "Sett"
       },
-      "icon": "/tft/set19/champions/da-19-sett.webp",
+      "icon": "/tft/set19/champions/da-sett19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1044,7 +1044,7 @@
         "en": "Shyvana",
         "vi": "Shyvana"
       },
-      "icon": "/tft/set19/champions/da-19-shyvana.webp",
+      "icon": "/tft/set19/champions/da-shyvana19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1058,7 +1058,7 @@
         "en": "Smeech",
         "vi": "Smeech"
       },
-      "icon": "/tft/set19/champions/da-19-smeech.webp",
+      "icon": "/tft/set19/champions/da-smeech19.webp",
       "cost": 7,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1072,7 +1072,7 @@
         "en": "Sona",
         "vi": "Sona"
       },
-      "icon": "/tft/set19/champions/da-19-sona.webp",
+      "icon": null,
       "cost": 7,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1100,7 +1100,7 @@
         "en": "Swain",
         "vi": "Swain"
       },
-      "icon": "/tft/set19/champions/da-19-swain.webp",
+      "icon": "/tft/set19/champions/da-swain19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1114,7 +1114,7 @@
         "en": "Syndra",
         "vi": "Syndra"
       },
-      "icon": "/tft/set19/champions/da-19-syndra.webp",
+      "icon": "/tft/set19/champions/da-syndra19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1128,7 +1128,7 @@
         "en": "Taliyah",
         "vi": "Taliyah"
       },
-      "icon": "/tft/set19/champions/da-19-taliyah.webp",
+      "icon": "/tft/set19/champions/da-taliyah19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1142,7 +1142,7 @@
         "en": "Taric",
         "vi": "Taric"
       },
-      "icon": "/tft/set19/champions/da-19-taric.webp",
+      "icon": "/tft/set19/champions/da-taric19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1156,7 +1156,7 @@
         "en": "Teemo",
         "vi": "Teemo"
       },
-      "icon": "/tft/set19/champions/da-19-teemo.webp",
+      "icon": "/tft/set19/champions/da-teemo19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1170,7 +1170,7 @@
         "en": "Thresh",
         "vi": "Thresh"
       },
-      "icon": "/tft/set19/champions/da-19-thresh.webp",
+      "icon": "/tft/set19/champions/da-thresh19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1184,7 +1184,7 @@
         "en": "Tibbers",
         "vi": "Tibbers"
       },
-      "icon": "/tft/set19/champions/da-19-tibbers.webp",
+      "icon": "/tft/set19/champions/da-tibbers19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1198,7 +1198,7 @@
         "en": "Tristana",
         "vi": "Tristana"
       },
-      "icon": "/tft/set19/champions/da-19-tristana.webp",
+      "icon": "/tft/set19/champions/da-tristana19.webp",
       "cost": 2,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1212,7 +1212,7 @@
         "en": "Twisted Fate",
         "vi": "Twisted Fate"
       },
-      "icon": "/tft/set19/champions/da-19-twistedfate.webp",
+      "icon": "/tft/set19/champions/da-twistedfate19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1240,7 +1240,7 @@
         "en": "Varus",
         "vi": "Varus"
       },
-      "icon": "/tft/set19/champions/da-19-varus.webp",
+      "icon": "/tft/set19/champions/da-varus19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1254,7 +1254,7 @@
         "en": "Vayne",
         "vi": "Vayne"
       },
-      "icon": "/tft/set19/champions/da-19-vayne.webp",
+      "icon": "/tft/set19/champions/da-vayne19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1268,7 +1268,7 @@
         "en": "Vi",
         "vi": "Vi"
       },
-      "icon": "/tft/set19/champions/da-19-vi.webp",
+      "icon": "/tft/set19/champions/da-vi19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1282,7 +1282,7 @@
         "en": "Viego",
         "vi": "Viego"
       },
-      "icon": "/tft/set19/champions/da-19-viego.webp",
+      "icon": "/tft/set19/champions/da-viego19.webp",
       "cost": 3,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1296,7 +1296,7 @@
         "en": "Vladimir",
         "vi": "Vladimir"
       },
-      "icon": "/tft/set19/champions/da-19-vladimir.webp",
+      "icon": "/tft/set19/champions/da-vladimir19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1310,7 +1310,7 @@
         "en": "Wukong",
         "vi": "Ngộ Không"
       },
-      "icon": "/tft/set19/champions/da-19-wukong.webp",
+      "icon": "/tft/set19/champions/da-wukong19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1324,7 +1324,7 @@
         "en": "Xayah",
         "vi": "Xayah"
       },
-      "icon": "/tft/set19/champions/da-19-xayah.webp",
+      "icon": "/tft/set19/champions/da-xayah19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1338,7 +1338,7 @@
         "en": "Yasuo",
         "vi": "Yasuo"
       },
-      "icon": "/tft/set19/champions/da-19-yasuo.webp",
+      "icon": "/tft/set19/champions/da-yasuo19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1352,7 +1352,7 @@
         "en": "Yone",
         "vi": "Yone"
       },
-      "icon": "/tft/set19/champions/da-19-yone.webp",
+      "icon": "/tft/set19/champions/da-yone19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1366,7 +1366,7 @@
         "en": "Yorick",
         "vi": "Yorick"
       },
-      "icon": "/tft/set19/champions/da-19-yorick.webp",
+      "icon": "/tft/set19/champions/da-yorick19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1380,7 +1380,7 @@
         "en": "Yunara",
         "vi": "Yunara"
       },
-      "icon": "/tft/set19/champions/da-19-yunara.webp",
+      "icon": "/tft/set19/champions/da-yunara19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1394,7 +1394,7 @@
         "en": "Yuumi",
         "vi": "Yuumi"
       },
-      "icon": "/tft/set19/champions/da-19-yuumi.webp",
+      "icon": "/tft/set19/champions/da-yuumi19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1408,7 +1408,7 @@
         "en": "Zac",
         "vi": "Zac"
       },
-      "icon": "/tft/set19/champions/da-19-zac.webp",
+      "icon": "/tft/set19/champions/da-zac19.webp",
       "cost": 4,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1422,7 +1422,7 @@
         "en": "Zeri",
         "vi": "Zeri"
       },
-      "icon": "/tft/set19/champions/da-19-zeri.webp",
+      "icon": "/tft/set19/champions/da-zeri19.webp",
       "cost": 5,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1436,7 +1436,7 @@
         "en": "Ziggs",
         "vi": "Ziggs"
       },
-      "icon": "/tft/set19/champions/da-19-ziggs.webp",
+      "icon": "/tft/set19/champions/da-ziggs19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1450,7 +1450,7 @@
         "en": "Zoe",
         "vi": "Zoe"
       },
-      "icon": "/tft/set19/champions/da-19-zoe.webp",
+      "icon": "/tft/set19/champions/da-zoe19.webp",
       "cost": 1,
       "change": "added",
       "heading": "CHAMPIONS"
@@ -1464,7 +1464,7 @@
         "en": "8-Bit",
         "vi": "8-Bit"
       },
-      "icon": "/tft/set19/traits/da_19_8bit.svg",
+      "icon": "/tft/set19/traits/da_missfortune19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1478,7 +1478,7 @@
         "en": "Arcanist",
         "vi": "Pháp Sư"
       },
-      "icon": "/tft/set19/traits/da_19_arcanist.svg",
+      "icon": "/tft/set19/traits/da_arcanist19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1492,7 +1492,7 @@
         "en": "Beach Pop",
         "vi": "Beach Pop"
       },
-      "icon": "/tft/set19/traits/da_19_oceansong.svg",
+      "icon": "/tft/set19/traits/da_oceansong19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1506,7 +1506,7 @@
         "en": "Beat Master",
         "vi": "Phối Nhịp"
       },
-      "icon": "/tft/set19/traits/da_19_beatmaster.svg",
+      "icon": "/tft/set19/traits/da_rell19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1520,7 +1520,7 @@
         "en": "Bodyguard",
         "vi": "Vệ Sĩ"
       },
-      "icon": "/tft/set19/traits/da_19_bodyguard.svg",
+      "icon": "/tft/set19/traits/da_bodyguard19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1534,7 +1534,7 @@
         "en": "Boy Band",
         "vi": "Boy Band"
       },
-      "icon": "/tft/set19/traits/da_19_boyband.svg",
+      "icon": "/tft/set19/traits/da_rakan19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1548,7 +1548,7 @@
         "en": "Choreographer",
         "vi": "Biên Đạo"
       },
-      "icon": "/tft/set19/traits/da_19_choreographer.svg",
+      "icon": "/tft/set19/traits/da_choreographer19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1562,7 +1562,7 @@
         "en": "Classical",
         "vi": "Cổ Điển"
       },
-      "icon": "/tft/set19/traits/da_19_virtuoso.svg",
+      "icon": "/tft/set19/traits/da_virtuosos19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1576,7 +1576,7 @@
         "en": "Collab",
         "vi": "Collab"
       },
-      "icon": "/tft/set19/traits/da_19_collab.svg",
+      "icon": "/tft/set19/traits/da_collab19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1590,7 +1590,7 @@
         "en": "Composer",
         "vi": "Composer"
       },
-      "icon": "/tft/set19/traits/da_19_composer.svg",
+      "icon": "/tft/set19/traits/da_malzahar19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1604,7 +1604,7 @@
         "en": "Country",
         "vi": "Country"
       },
-      "icon": "/tft/set19/traits/da_19_country.svg",
+      "icon": "/tft/set19/traits/da_alistar19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1618,7 +1618,7 @@
         "en": "Disco",
         "vi": "Disco"
       },
-      "icon": "/tft/set19/traits/da_19_disco.svg",
+      "icon": "/tft/set19/traits/da_nunu19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1632,7 +1632,7 @@
         "en": "EDM",
         "vi": "EDM"
       },
-      "icon": "/tft/set19/traits/da_19_edm.svg",
+      "icon": "/tft/set19/traits/da_edm19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1646,7 +1646,7 @@
         "en": "Emo",
         "vi": "Emo"
       },
-      "icon": "/tft/set19/traits/da_19_emo.svg",
+      "icon": "/tft/set19/traits/da_amumu19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1660,7 +1660,7 @@
         "en": "Encore",
         "vi": "Encore"
       },
-      "icon": "/tft/set19/traits/da_19_encore.svg",
+      "icon": "/tft/set19/traits/da_encore19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1674,7 +1674,7 @@
         "en": "Freestyle",
         "vi": "Freestyle"
       },
-      "icon": "/tft/set19/traits/da_19_freestyle.svg",
+      "icon": "/tft/set19/traits/da_akali_truedamage19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1688,7 +1688,7 @@
         "en": "Frontman",
         "vi": "Hát Chính"
       },
-      "icon": "/tft/set19/traits/da_19_frontman.svg",
+      "icon": "/tft/set19/traits/da_frontman19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1702,7 +1702,7 @@
         "en": "Goth",
         "vi": "Goth"
       },
-      "icon": "/tft/set19/traits/da_19_goth.svg",
+      "icon": "/tft/set19/traits/da_zeri19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1716,7 +1716,7 @@
         "en": "Gu Feng",
         "vi": "Cổ Phong"
       },
-      "icon": "/tft/set19/traits/da_19_heavenscale.svg",
+      "icon": "/tft/set19/traits/da_heavenscale19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1730,7 +1730,7 @@
         "en": "Heartsteel",
         "vi": "Heartsteel"
       },
-      "icon": "/tft/set19/traits/da_19_heartsteel.svg",
+      "icon": "/tft/set19/traits/da_heartsteel19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1744,7 +1744,7 @@
         "en": "Hitmaker",
         "vi": "Hitmaker"
       },
-      "icon": "/tft/set19/traits/da_19_hitmaker.svg",
+      "icon": "/tft/set19/traits/da_hitmaker19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1758,7 +1758,7 @@
         "en": "Hype Man",
         "vi": "Khuấy Động"
       },
-      "icon": "/tft/set19/traits/da_19_hypeman.svg",
+      "icon": "/tft/set19/traits/da_teemo19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1772,7 +1772,7 @@
         "en": "Hyperpop",
         "vi": "Hyperpop"
       },
-      "icon": "/tft/set19/traits/da_19_glitterbomb.svg",
+      "icon": "/tft/set19/traits/da_glitterbomb19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1786,7 +1786,7 @@
         "en": "Illbeats",
         "vi": "Illbeats"
       },
-      "icon": "/tft/set19/traits/da_19_illbeats.svg",
+      "icon": "/tft/set19/traits/da_illbeats19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1800,7 +1800,7 @@
         "en": "Indie",
         "vi": "Ca Sĩ Độc Lập"
       },
-      "icon": "/tft/set19/traits/da_19_indie.svg",
+      "icon": "/tft/set19/traits/da_seraphine19_indietrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1814,7 +1814,7 @@
         "en": "Ionic Spark",
         "vi": "Ionic Spark"
       },
-      "icon": "/tft/set19/traits/da_19_ionicspark.svg",
+      "icon": "/tft/set19/traits/da_ionicspark19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1828,7 +1828,7 @@
         "en": "Jazz",
         "vi": "Jazz"
       },
-      "icon": "/tft/set19/traits/da_19_jazz.svg",
+      "icon": "/tft/set19/traits/da_jazz19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1842,7 +1842,7 @@
         "en": "Juggernaut",
         "vi": "Dũng Sĩ"
       },
-      "icon": "/tft/set19/traits/da_19_juggernaut.svg",
+      "icon": "/tft/set19/traits/da_juggernaut19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1856,7 +1856,7 @@
         "en": "K/DA",
         "vi": "K/DA"
       },
-      "icon": "/tft/set19/traits/da_19_kda.svg",
+      "icon": "/tft/set19/traits/da_kda19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1870,7 +1870,7 @@
         "en": "Manager",
         "vi": "Quản Lý"
       },
-      "icon": "/tft/set19/traits/da_19_manager.svg",
+      "icon": "/tft/set19/traits/da_manager19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1884,7 +1884,7 @@
         "en": "Mariachi",
         "vi": "Mariachi"
       },
-      "icon": "/tft/set19/traits/da_19_mariachi.svg",
+      "icon": "/tft/set19/traits/da_nidalee19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1898,7 +1898,7 @@
         "en": "Melodic Heart",
         "vi": "Du Dương"
       },
-      "icon": "/tft/set19/traits/da_19_melodicheart.svg",
+      "icon": "/tft/set19/traits/da_gwen19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1926,7 +1926,7 @@
         "en": "One Monster Band",
         "vi": "One Monster Band"
       },
-      "icon": "/tft/set19/traits/da_19_onemonsterband.svg",
+      "icon": "/tft/set19/traits/da_baronnashor19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1940,7 +1940,7 @@
         "en": "Pentakill",
         "vi": "Pentakill"
       },
-      "icon": "/tft/set19/traits/da_19_pentakill.svg",
+      "icon": "/tft/set19/traits/da_pentakill19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1954,7 +1954,7 @@
         "en": "Prodigy",
         "vi": "Phi Thường"
       },
-      "icon": "/tft/set19/traits/da_19_prodigy.svg",
+      "icon": "/tft/set19/traits/da_prodigy19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1968,7 +1968,7 @@
         "en": "Producer",
         "vi": "Nhà Sản Xuất"
       },
-      "icon": "/tft/set19/traits/da_19_producer.svg",
+      "icon": "/tft/set19/traits/da_sona19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1982,7 +1982,7 @@
         "en": "R&B",
         "vi": "R&B"
       },
-      "icon": "/tft/set19/traits/da_19_rnb.svg",
+      "icon": "/tft/set19/traits/da_rnb19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -1996,7 +1996,7 @@
         "en": "Record Mogul",
         "vi": "Hãng Đĩa"
       },
-      "icon": "/tft/set19/traits/da_19_recordmogul.svg",
+      "icon": "/tft/set19/traits/da_drmundo19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2010,7 +2010,7 @@
         "en": "Renegade",
         "vi": "Ngoại Đạo"
       },
-      "icon": "/tft/set19/traits/da_19_renegade.svg",
+      "icon": "/tft/set19/traits/da_renegade19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2024,7 +2024,7 @@
         "en": "Rising Star",
         "vi": "Tân Binh"
       },
-      "icon": "/tft/set19/traits/da_19_risingstar.svg",
+      "icon": "/tft/set19/traits/da_seraphine19_risingstartrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2038,7 +2038,7 @@
         "en": "Rock",
         "vi": "Rock"
       },
-      "icon": "/tft/set19/traits/da_19_demonvision.svg",
+      "icon": "/tft/set19/traits/da_demonvision19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2052,7 +2052,7 @@
         "en": "Slayer",
         "vi": "Đồ Tể"
       },
-      "icon": "/tft/set19/traits/da_19_slayer.svg",
+      "icon": "/tft/set19/traits/da_mosher19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2066,7 +2066,7 @@
         "en": "Superstar",
         "vi": "Siêu Sao"
       },
-      "icon": "/tft/set19/traits/da_19_superstar.svg",
+      "icon": "/tft/set19/traits/da_seraphine19_superstartrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2080,7 +2080,7 @@
         "en": "Swiftstriker",
         "vi": "Tốc Kích"
       },
-      "icon": "/tft/set19/traits/da_19_swiftstriker.svg",
+      "icon": "/tft/set19/traits/da_swiftstriker19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2094,7 +2094,7 @@
         "en": "Synthwave",
         "vi": "Synthwave"
       },
-      "icon": "/tft/set19/traits/da_19_synthwave.svg",
+      "icon": "/tft/set19/traits/da_garen19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2108,7 +2108,7 @@
         "en": "Tango",
         "vi": "Tango"
       },
-      "icon": "/tft/set19/traits/da_19_tango.svg",
+      "icon": "/tft/set19/traits/da_twistedfate19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2122,7 +2122,7 @@
         "en": "Trickshot",
         "vi": "Trickshot"
       },
-      "icon": "/tft/set19/traits/da_19_trickshot.svg",
+      "icon": "/tft/set19/traits/da_trickshot19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2136,7 +2136,7 @@
         "en": "True Damage",
         "vi": "True Damage"
       },
-      "icon": "/tft/set19/traits/da_19_truedamage.svg",
+      "icon": "/tft/set19/traits/da_truedamage19.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2150,7 +2150,7 @@
         "en": "Windblessed",
         "vi": "Ân Phong"
       },
-      "icon": "/tft/set19/traits/da_19_windblessed.svg",
+      "icon": "/tft/set19/traits/da_janna19_uniquetrait.svg",
       "cost": null,
       "change": "added",
       "heading": "TRAITS"
@@ -2192,7 +2192,7 @@
         "en": "Advanced Loan",
         "vi": "Vay Tạm Ứng"
       },
-      "icon": "/tft/augments/tft-augment-advancedloan.png",
+      "icon": "/tft/set19/augments/da-advancedloan2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2234,7 +2234,7 @@
         "en": "Arcane Viktor-y",
         "vi": "Arcane Viktor-y"
       },
-      "icon": "/tft/augments/tft-augment-arcaneviktory.png",
+      "icon": "/tft/set19/augments/da-arcaneviktory2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2304,7 +2304,7 @@
         "en": "Ascension",
         "vi": "Thăng Hoa"
       },
-      "icon": "/tft/augments/tft9-augment-commander-ascension.png",
+      "icon": "/tft/set19/augments/da-ascension2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2318,7 +2318,7 @@
         "en": "Augmented Power",
         "vi": "Nâng Tầm Uy Lực"
       },
-      "icon": "/tft/augments/tft-augment-powerup.png",
+      "icon": "/tft/set19/augments/da-augmentedpower1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2346,7 +2346,7 @@
         "en": "Backline Blueprint",
         "vi": "Sơ Đồ Tuyến Sau"
       },
-      "icon": "/tft/augments/tft-augment-backlineblueprint.png",
+      "icon": "/tft/set19/augments/da-backlineblueprint2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2360,7 +2360,7 @@
         "en": "Backup Bows",
         "vi": "Cung Dự Phòng"
       },
-      "icon": "/tft/augments/tft-augment-componentquestbow.png",
+      "icon": "/tft/set19/augments/da-backupbows1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2374,7 +2374,7 @@
         "en": "Band of Thieves",
         "vi": "Băng Trộm"
       },
-      "icon": "/tft/augments/tft7-augment-bandofthieves1.png",
+      "icon": "/tft/set19/augments/da-bandofthieves1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2388,7 +2388,7 @@
         "en": "Band of Thieves II",
         "vi": "Băng Trộm II"
       },
-      "icon": "/tft/augments/tft6-augment-bandofthieves2.png",
+      "icon": "/tft/set19/augments/da-bandofthievesii3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2402,7 +2402,7 @@
         "en": "Baron's Lair",
         "vi": "Hang Ổ Baron"
       },
-      "icon": "/tft/augments/tft-augment-thebaronslair.png",
+      "icon": "/tft/set19/augments/da-baronslair3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2458,7 +2458,7 @@
         "en": "Belt Overflow",
         "vi": "Đam Mê Đai Lưng"
       },
-      "icon": "/tft/augments/tft-augment-beltoverflow.png",
+      "icon": "/tft/set19/augments/da-beltoverflow3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2514,7 +2514,7 @@
         "en": "Birthday Present",
         "vi": "Quà Sinh Nhật"
       },
-      "icon": "/tft/augments/tft7-augment-birthdaypresents.png",
+      "icon": "/tft/set19/augments/da-birthdaypresent3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2528,7 +2528,7 @@
         "en": "Birthday Reunion",
         "vi": "Sinh Nhật Đoàn Tụ"
       },
-      "icon": "/tft/augments/tft-augment-birthdayreunion.png",
+      "icon": "/tft/set19/augments/da-birthdayreunion2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2584,7 +2584,7 @@
         "en": "Bodyguard Training",
         "vi": "Huấn Luyện Cận Vệ"
       },
-      "icon": "/tft/augments/tft-augment-bodyguardtraining.png",
+      "icon": "/tft/set19/augments/da-bodyguardtraining2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2598,7 +2598,7 @@
         "en": "Bonus Gifts",
         "vi": "Quà Tặng Thêm"
       },
-      "icon": "/tft/augments/da-bonusgift.png",
+      "icon": "/tft/set19/augments/da-bonusgift2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2626,7 +2626,7 @@
         "en": "Booster Pack",
         "vi": "Gói Tăng Cường"
       },
-      "icon": "/tft/augments/tft-augment-boosterpack.png",
+      "icon": "/tft/set19/augments/da-boosterpack2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2640,7 +2640,7 @@
         "en": "Boxing Lessons",
         "vi": "Tập Chịu Đòn"
       },
-      "icon": "/tft/augments/tft-augment-boxinglessons.png",
+      "icon": "/tft/set19/augments/da-boxinglessons1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2710,7 +2710,7 @@
         "en": "Buried Treasures III",
         "vi": "Kho Báu Chôn Giấu III"
       },
-      "icon": "/tft/augments/da-buriedtreasuresiii.png",
+      "icon": "/tft/set19/augments/da-buriedtreasuresiii3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2724,7 +2724,7 @@
         "en": "Calculated Loss",
         "vi": "Thua Có Tính Toán"
       },
-      "icon": "/tft/augments/tft6-augment-calculatedloss.png",
+      "icon": "/tft/set19/augments/da-calculatedloss2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2738,7 +2738,7 @@
         "en": "Call To Chaos",
         "vi": "Triệu Gọi Hỗn Mang"
       },
-      "icon": "/tft/augments/da-calltochaos.png",
+      "icon": "/tft/set19/augments/da-calltochaos3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2752,7 +2752,7 @@
         "en": "Called Shot",
         "vi": "Đòn Quyết Định"
       },
-      "icon": "/tft/augments/tft-augment-calledshot.png",
+      "icon": "/tft/set19/augments/da-calledshot1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2766,7 +2766,7 @@
         "en": "Capital Gains",
         "vi": "Tăng Vốn I"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-capitalgainsi1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2780,7 +2780,7 @@
         "en": "Capital Gains II",
         "vi": "Tăng Vốn II"
       },
-      "icon": "/tft/augments/da-capitalgainsii.png",
+      "icon": "/tft/set19/augments/da-capitalgainsii2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2808,7 +2808,7 @@
         "en": "Caretaker's Favor",
         "vi": "Chúc Phúc Của Bụt"
       },
-      "icon": "/tft/augments/tft9-augment-bardplaybook2.png",
+      "icon": "/tft/set19/augments/da-caretakersfavor2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2822,7 +2822,7 @@
         "en": "Carve a Path",
         "vi": "Mở Lối"
       },
-      "icon": "/tft/augments/tft-augment-componentquestsword.png",
+      "icon": "/tft/set19/augments/da-carveapath1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2850,7 +2850,7 @@
         "en": "Celestial Blessing",
         "vi": "Phước Lành Vũ Trụ I"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-celestialblessingi1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2864,7 +2864,7 @@
         "en": "Celestial Blessing II",
         "vi": "Phước Lành Vũ Trụ II"
       },
-      "icon": "/tft/augments/da-celestialblessingii.png",
+      "icon": "/tft/set19/augments/da-celestialblessingii2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2878,7 +2878,7 @@
         "en": "Celestial Blessing III",
         "vi": "Phước Lành Vũ Trụ III"
       },
-      "icon": "/tft/augments/da-celestialblessingiii.png",
+      "icon": "/tft/set19/augments/da-celestialblessingiii3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -2906,7 +2906,7 @@
         "en": "Champ Delivery",
         "vi": "Phân Phối Tướng"
       },
-      "icon": "/tft/augments/da-champdelivery.png",
+      "icon": "/tft/set19/augments/da-champdelivery1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3032,7 +3032,7 @@
         "en": "Clear Mind",
         "vi": "Thông Thoáng"
       },
-      "icon": "/tft/augments/tft6-augment-clearmind.png",
+      "icon": "/tft/set19/augments/da-clearmind2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3060,7 +3060,7 @@
         "en": "Cluttered Mind",
         "vi": "Bừa Bộn"
       },
-      "icon": "/tft/augments/tft7-augment-clutteredmind.png",
+      "icon": "/tft/set19/augments/da-clutteredmind2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3074,7 +3074,7 @@
         "en": "Cognitive Overload",
         "vi": "Quá Tải Tư Duy"
       },
-      "icon": "/tft/augments/tft-augment-cognitiveoverload.png",
+      "icon": "/tft/set19/augments/da-cognitiveoverload2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3088,7 +3088,7 @@
         "en": "Comeback Story",
         "vi": "Cố Gắng Lật Kèo"
       },
-      "icon": "/tft/augments/tft-augment-comebackstory.png",
+      "icon": "/tft/set19/augments/da-comebackstory3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3102,7 +3102,7 @@
         "en": "Commerce Core",
         "vi": "Trung Tâm Thương Mại"
       },
-      "icon": "/tft/augments/tft6-augment-tradesector2.png",
+      "icon": "/tft/set19/augments/da-commercecore3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3116,7 +3116,7 @@
         "en": "Component Quest",
         "vi": "Nhiệm Vụ Trang Bị"
       },
-      "icon": "/tft/augments/da-componentquest.png",
+      "icon": "/tft/set19/augments/da-componentquest3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3130,7 +3130,7 @@
         "en": "Construct a Companion",
         "vi": "Người Bạn Vàng"
       },
-      "icon": "/tft/augments/tft-augment-constructacompanion.png",
+      "icon": "/tft/set19/augments/da-constructacompanion2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3144,7 +3144,7 @@
         "en": "Cooking Pot",
         "vi": "Nồi Nấu Ăn"
       },
-      "icon": "/tft/augments/tft-augment-cookingpot.png",
+      "icon": "/tft/set19/augments/da-cookingpot2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3158,7 +3158,7 @@
         "en": "Corrosion",
         "vi": "Ăn Mòn"
       },
-      "icon": "/tft/set19/augments/corrosion.webp",
+      "icon": "/tft/set19/augments/da-corrosion1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3186,7 +3186,7 @@
         "en": "Crafted Crafting",
         "vi": "Khéo Tay Hay Làm"
       },
-      "icon": "/tft/augments/tft-augment-craftedcrafting.png",
+      "icon": "/tft/set19/augments/da-craftedcrafting1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3214,7 +3214,7 @@
         "en": "Cry Me A River",
         "vi": "Giọt Lệ Bi Ai"
       },
-      "icon": "/tft/augments/tft-augment-crymeariver.png",
+      "icon": "/tft/set19/augments/da-crymeariver2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3228,7 +3228,7 @@
         "en": "Cursed Crown",
         "vi": "Vương Miện Hắc Hóa"
       },
-      "icon": "/tft/augments/tft7-augment-cursedcrown.png",
+      "icon": "/tft/set19/augments/da-cursedcrown3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3242,7 +3242,7 @@
         "en": "Cybernetic Implants",
         "vi": "Cấy Ghép Siêu Công Nghệ"
       },
-      "icon": "/tft/augments/tft6-augment-cyberneticimplants2.png",
+      "icon": "/tft/set19/augments/da-cyberneticimplants-gold2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3256,7 +3256,7 @@
         "en": "Cybernetic Uplink",
         "vi": "Trí Tuệ Siêu Công Nghệ"
       },
-      "icon": "/tft/augments/tft6-augment-cyberneticuplink2.png",
+      "icon": "/tft/set19/augments/da-cyberneticuplink-gold2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3298,7 +3298,7 @@
         "en": "Deadlier Blades",
         "vi": "Kiếm Tử Thần"
       },
-      "icon": "/tft/augments/tft-augment-tragicalblade.png",
+      "icon": "/tft/set19/augments/da-deadlierblades3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3312,7 +3312,7 @@
         "en": "Deadlier Caps",
         "vi": "Mũ Tử Thần"
       },
-      "icon": "/tft/augments/tft-augment-deadliercaps.png",
+      "icon": "/tft/set19/augments/da-deadliercaps3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3368,7 +3368,7 @@
         "en": "Double Trouble",
         "vi": "Cặp Đôi Hoàn Cảnh"
       },
-      "icon": "/tft/augments/tft6-augment-twins2.png",
+      "icon": "/tft/set19/augments/da-doubletrouble2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3382,7 +3382,7 @@
         "en": "Dummify",
         "vi": "Hình Nhân Hóa"
       },
-      "icon": "/tft/set19/augments/dummify.webp",
+      "icon": "/tft/set19/augments/da-dummify1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3424,7 +3424,7 @@
         "en": "Early Learnings",
         "vi": "Bài Học Sơ Khai"
       },
-      "icon": "/tft/augments/tft-augment-earlylearning.png",
+      "icon": "/tft/set19/augments/da-earlylearnings2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3438,7 +3438,7 @@
         "en": "Electrocharge",
         "vi": "Tụ Điện I"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-electrochargei1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3452,7 +3452,7 @@
         "en": "Electrocharge II",
         "vi": "Tụ Điện II"
       },
-      "icon": "/tft/augments/tft6-augment-electrocharge2.png",
+      "icon": "/tft/set19/augments/da-electrochargeii2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3466,7 +3466,7 @@
         "en": "Epic Rolldown",
         "vi": "Xúc Xắc Hoành Tráng"
       },
-      "icon": "/tft/augments/tft-augment-epicrolldown.png",
+      "icon": "/tft/set19/augments/da-epicrolldown2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3480,7 +3480,7 @@
         "en": "Epoch",
         "vi": "Kỷ Nguyên"
       },
-      "icon": "/tft/augments/tft11-augment-epoch.png",
+      "icon": "/tft/set19/augments/da-epoch2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3508,7 +3508,7 @@
         "en": "Exclusive Customization",
         "vi": "Lựa Chọn Độc Quyền"
       },
-      "icon": "/tft/augments/tft-augment-exclusivecustomization.png",
+      "icon": "/tft/set19/augments/da-exclusivecustomization2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3536,7 +3536,7 @@
         "en": "Expedition",
         "vi": "Cuộc Viễn Chinh"
       },
-      "icon": "/tft/set19/augments/expedition.webp",
+      "icon": "/tft/set19/augments/da-expedition1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3550,7 +3550,7 @@
         "en": "Extra Buckles",
         "vi": "Khóa Dự Phòng"
       },
-      "icon": "/tft/augments/da-extrabuckles.png",
+      "icon": "/tft/set19/augments/da-extrabuckles1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3564,7 +3564,7 @@
         "en": "Feeling Lucky",
         "vi": "Cảm Thấy May Mắn"
       },
-      "icon": "/tft/augments/tft-augment-feelinglucky.png",
+      "icon": "/tft/set19/augments/da-feelinglucky1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3620,7 +3620,7 @@
         "en": "Find Your Center",
         "vi": "Tiền Vệ Trung Tâm"
       },
-      "icon": "/tft/augments/tft-augment-findyourcenter.png",
+      "icon": "/tft/set19/augments/da-findyourcenter1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3634,7 +3634,7 @@
         "en": "Flexible",
         "vi": "Linh Hoạt"
       },
-      "icon": "/tft/set19/augments/flexible.webp",
+      "icon": "/tft/set19/augments/da-flexible3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3648,7 +3648,7 @@
         "en": "Flowing Tears",
         "vi": "Lệ Lưu Ly"
       },
-      "icon": "/tft/augments/tft-augment-componentquesttear.png",
+      "icon": "/tft/set19/augments/da-flowingtears1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3662,7 +3662,7 @@
         "en": "Focused Fire",
         "vi": "Tập Trung Hỏa Lực"
       },
-      "icon": "/tft/augments/tft-augment-marksman.png",
+      "icon": "/tft/set19/augments/da-focusedfire1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3690,7 +3690,7 @@
         "en": "Forge A Friend",
         "vi": "Chế Tạo Bằng Hữu"
       },
-      "icon": "/tft/augments/da-forgeafriend.png",
+      "icon": "/tft/set19/augments/da-forgeafriend1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3704,7 +3704,7 @@
         "en": "Forged In Strength",
         "vi": "Tôi Luyện Sức Mạnh"
       },
-      "icon": "/tft/augments/da-forgedinstrength.png",
+      "icon": "/tft/set19/augments/da-forgedinstrength3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3718,7 +3718,7 @@
         "en": "FOURcing",
         "vi": "Ép Bốn"
       },
-      "icon": "/tft/augments/da-18-fourcing.png",
+      "icon": "/tft/set19/augments/da-18-fourcing2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3732,7 +3732,7 @@
         "en": "Frontline Foundation",
         "vi": "Củng Cố Tuyến Trước"
       },
-      "icon": "/tft/augments/tft-augment-frontlinefoundation.png",
+      "icon": "/tft/set19/augments/da-frontlinefoundation2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3746,7 +3746,7 @@
         "en": "Future Focused",
         "vi": "Định Hướng Tương Lai"
       },
-      "icon": "/tft/augments/da-futurefocused.png",
+      "icon": "/tft/set19/augments/da-futurefocused1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3760,7 +3760,7 @@
         "en": "Gain 21 Gold",
         "vi": "Nhận 21 Vàng"
       },
-      "icon": "/tft/augments/da-gaingold.png",
+      "icon": "/tft/set19/augments/da-gaingold2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3788,7 +3788,7 @@
         "en": "Giant and Mighty",
         "vi": "To Lớn & Mạnh Mẽ"
       },
-      "icon": "/tft/augments/tft-augment-giantandmighty.png",
+      "icon": "/tft/set19/augments/da-giantandmighty3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3802,7 +3802,7 @@
         "en": "Gilded Steel",
         "vi": "Thép Mạ Vàng"
       },
-      "icon": "/tft/augments/tft-augment-gildedsteel.png",
+      "icon": "/tft/set19/augments/da-gildedsteel2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3816,7 +3816,7 @@
         "en": "Glass Cannon",
         "vi": "Lấy Công Bù Thủ I"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-glasscannon-silver1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3830,7 +3830,7 @@
         "en": "Glass Cannon II",
         "vi": "Lấy Công Bù Thủ II"
       },
-      "icon": "/tft/augments/tft-augment-glasscannonii.png",
+      "icon": "/tft/set19/augments/da-glasscannon-gold2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3844,7 +3844,7 @@
         "en": "Gold Destiny",
         "vi": "Vận Mệnh Vàng"
       },
-      "icon": "/tft/augments/tft-augment-golddestiny.png",
+      "icon": "/tft/set19/augments/da-golddestiny2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3858,7 +3858,7 @@
         "en": "Golden Gamble",
         "vi": "Ván Cược Hoàng Kim"
       },
-      "icon": "/tft/augments/tft-augment-goldengamble.png",
+      "icon": "/tft/set19/augments/da-goldengamble3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3900,7 +3900,7 @@
         "en": "Group Hug",
         "vi": "Ôm Tập Thể I"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-grouphugi1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3914,7 +3914,7 @@
         "en": "Group Hug II",
         "vi": "Ôm Tập Thể II"
       },
-      "icon": "/tft/augments/tft-augment-grouphug2.png",
+      "icon": "/tft/set19/augments/da-grouphugii2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3928,7 +3928,7 @@
         "en": "Hard Bargain",
         "vi": "Thương Vụ Khó Xơi"
       },
-      "icon": "/tft/augments/tft-augment-hardbargain.png",
+      "icon": "/tft/set19/augments/da-hardbargain2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3942,7 +3942,7 @@
         "en": "Hard Commit",
         "vi": "Chỉ Một Con Đường"
       },
-      "icon": "/tft/augments/tft-augment-hardcommit.png",
+      "icon": "/tft/set19/augments/da-hardcommit3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3970,7 +3970,7 @@
         "en": "Healing Orbs",
         "vi": "Cầu Hồi Phục I"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-healingorbsi1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3984,7 +3984,7 @@
         "en": "Healing Orbs II",
         "vi": "Cầu Hồi Phục II"
       },
-      "icon": "/tft/augments/tft9-augment-healingorbsii.png",
+      "icon": "/tft/set19/augments/da-healingorbsii2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3998,7 +3998,7 @@
         "en": "Heart of Steel",
         "vi": "Trái Tim Sắt Đá"
       },
-      "icon": "/tft/augments/tft-augment-warmogsbuckle.png",
+      "icon": "/tft/set19/augments/da-heartofsteel2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4054,7 +4054,7 @@
         "en": "Hedge Fund",
         "vi": "Quỹ Phòng Hộ"
       },
-      "icon": "/tft/augments/tft9-augment-hedgefund.png",
+      "icon": "/tft/set19/augments/da-hedgefund3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4068,7 +4068,7 @@
         "en": "Heroic Grab Bag",
         "vi": "Túi Đồ Siêu Hùng"
       },
-      "icon": "/tft/augments/tft10-augment-heroicgrabbag.png",
+      "icon": "/tft/set19/augments/da-heroicgrabbag2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4124,7 +4124,7 @@
         "en": "Hold the Line",
         "vi": "Giữ Vững Hàng Ngũ"
       },
-      "icon": "/tft/augments/tft-augment-holdtheline.png",
+      "icon": "/tft/set19/augments/da-holdtheline3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4138,7 +4138,7 @@
         "en": "Hustler",
         "vi": "Sống Vội"
       },
-      "icon": "/tft/augments/tft6-augment-hyperroll.png",
+      "icon": "/tft/set19/augments/da-hustler2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4194,7 +4194,7 @@
         "en": "Invested+",
         "vi": "Đầu Tư+"
       },
-      "icon": "/tft/augments/tft-augment-investedplus.png",
+      "icon": "/tft/set19/augments/da-investedplus3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4208,7 +4208,7 @@
         "en": "Investment Strategy",
         "vi": "Chiến Thuật Đầu Tư I"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-investmentstrategyi2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4222,7 +4222,7 @@
         "en": "Investment Strategy II",
         "vi": "Chiến Thuật Đầu Tư II"
       },
-      "icon": "/tft/augments/tft-augment-investmentstrategy2.png",
+      "icon": "/tft/set19/augments/da-investmentstrategy3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4278,7 +4278,7 @@
         "en": "Iron Assets",
         "vi": "Kho Báu Sắt"
       },
-      "icon": "/tft/augments/tft9-augment-ironassets.png",
+      "icon": "/tft/set19/augments/da-ironassets1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4292,7 +4292,7 @@
         "en": "It's Me, Baby",
         "vi": "Là Ta Đây"
       },
-      "icon": "/tft/augments/da-itsmebaby.png",
+      "icon": "/tft/set19/augments/da-itsmebaby2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4306,7 +4306,7 @@
         "en": "Item Grab Bag",
         "vi": "Tiếp Tế Trang Bị I"
       },
-      "icon": "/tft/augments/tft6-augment-itemgrabbag1.png",
+      "icon": "/tft/set19/augments/da-itemgrabbag1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4404,7 +4404,7 @@
         "en": "Kick Start",
         "vi": "Khởi Động Nhanh"
       },
-      "icon": "/tft/augments/tft-augment-kickstart.png",
+      "icon": "/tft/set19/augments/da-kickstart1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4418,7 +4418,7 @@
         "en": "Kingslayer",
         "vi": "Đồ Vương"
       },
-      "icon": "/tft/set19/augments/kingslayer.webp",
+      "icon": "/tft/set19/augments/da-kingslayer1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4460,7 +4460,7 @@
         "en": "Late Game Scaling",
         "vi": "Thăng Tiến Cuối Trận"
       },
-      "icon": "/tft/augments/tft-augment-lategamescaling.png",
+      "icon": "/tft/set19/augments/da-lategamescaling2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4474,7 +4474,7 @@
         "en": "Late Game Specialist",
         "vi": "Hướng Đến Hồi Kết"
       },
-      "icon": "/tft/augments/tft7-augment-lategamespecialist.png",
+      "icon": "/tft/set19/augments/da-lategamespecialist1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4488,7 +4488,7 @@
         "en": "Latent Forge",
         "vi": "Lò Rèn Tiềm Ẩn"
       },
-      "icon": "/tft/augments/tft9-augment-longtimecrafting.png",
+      "icon": "/tft/set19/augments/da-latentforge1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4502,7 +4502,7 @@
         "en": "Legion Of Threes",
         "vi": "Quân Đoàn 3 Sao"
       },
-      "icon": "/tft/augments/da-legionofthrees.png",
+      "icon": "/tft/set19/augments/da-legionofthrees2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4516,7 +4516,7 @@
         "en": "Level Up!",
         "vi": "Thăng Cấp!"
       },
-      "icon": "/tft/augments/tft6-augment-maxlevel10.png",
+      "icon": "/tft/set19/augments/da-levelup3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4558,7 +4558,7 @@
         "en": "Living Forge",
         "vi": "Chế Tạo Tại Chỗ"
       },
-      "icon": "/tft/augments/tft7-augment-livingforge.png",
+      "icon": "/tft/set19/augments/da-livingforge3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4572,7 +4572,7 @@
         "en": "Lucky Gloves",
         "vi": "Đo Ni Đóng Giày"
       },
-      "icon": "/tft/augments/tft7-augment-luckygloves.png",
+      "icon": "/tft/set19/augments/da-luckygloves3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4586,7 +4586,7 @@
         "en": "Luxury Subscription",
         "vi": "Gói Đăng Ký Hạng Sang"
       },
-      "icon": "/tft/augments/tft-augment-luxurysubscription.png",
+      "icon": "/tft/set19/augments/da-luxurysubscription3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4614,7 +4614,7 @@
         "en": "Magic Roll",
         "vi": "Xúc Xắc Ma Pháp"
       },
-      "icon": "/tft/augments/da-magicroll.png",
+      "icon": "/tft/set19/augments/da-magicroll2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4628,7 +4628,7 @@
         "en": "Makeshift Armor",
         "vi": "Giáp Tự Chế I"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-makeshiftarmori1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4642,7 +4642,7 @@
         "en": "Makeshift Armor II",
         "vi": "Giáp Tự Chế II"
       },
-      "icon": "/tft/augments/tft6-augment-makeshiftarmor2.png",
+      "icon": "/tft/set19/augments/da-makeshiftarmorii2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4684,7 +4684,7 @@
         "en": "Max Build",
         "vi": "Đội Hình Tối Ưu"
       },
-      "icon": "/tft/augments/tft-augment-maxbuild.png",
+      "icon": "/tft/set19/augments/da-maxbuild2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4698,7 +4698,7 @@
         "en": "Min-Max",
         "vi": "Tối Đa Hóa"
       },
-      "icon": "/tft/augments/tft-augment-minmaxer.png",
+      "icon": "/tft/set19/augments/da-min-max3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4712,7 +4712,7 @@
         "en": "Missed Connections",
         "vi": "Kết Nối Gián Đoạn"
       },
-      "icon": "/tft/augments/tft9-augment-missedconnections.png",
+      "icon": "/tft/set19/augments/da-missedconnections1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4726,7 +4726,7 @@
         "en": "Money Hungry",
         "vi": "Cơn Khát Vàng"
       },
-      "icon": "/tft/augments/tft-augment-moneyhungry.png",
+      "icon": "/tft/set19/augments/da-moneyhungry-notbroken2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4740,7 +4740,7 @@
         "en": "Money Monsoon",
         "vi": "Bão Vàng"
       },
-      "icon": "/tft/augments/tft-augment-moneymonsoon.png",
+      "icon": "/tft/set19/augments/da-moneymonsoon3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4754,7 +4754,7 @@
         "en": "Nesting Anvils",
         "vi": "Gói Trang Bị Bất Ngờ"
       },
-      "icon": "/tft/augments/da-nestinganvils.png",
+      "icon": "/tft/set19/augments/da-nestinganvils3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4768,7 +4768,7 @@
         "en": "NO SCOUT NO PIVOT",
         "vi": "NHẮM MẮT CHƠI BỪA"
       },
-      "icon": "/tft/augments/tft-augment-noscoutnopivot.png",
+      "icon": "/tft/set19/augments/da-noscoutnopivot2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4782,7 +4782,7 @@
         "en": "One Buff Two Buff",
         "vi": "Một Bùa, Hai Bùa"
       },
-      "icon": "/tft/augments/da-onebufftwobuff.png",
+      "icon": "/tft/set19/augments/da-onebufftwobuff3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4852,7 +4852,7 @@
         "en": "Pandora's Bench",
         "vi": "Hàng Chờ Pandora"
       },
-      "icon": "/tft/augments/tft7-augment-pandorasbench.png",
+      "icon": "/tft/set19/augments/da-pandorasbench1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4880,7 +4880,7 @@
         "en": "Pandora's Items",
         "vi": "Hộp Pandora I"
       },
-      "icon": "/tft/augments/tft6-augment-pandorasitems.png",
+      "icon": "/tft/set19/augments/da-pandorasitemsi1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4894,7 +4894,7 @@
         "en": "Pandora's Items II+",
         "vi": "Trang Bị Pandora II+"
       },
-      "icon": "/tft/augments/da-pandorasitemsiiplus.png",
+      "icon": null,
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4908,7 +4908,7 @@
         "en": "Pandora's Items III",
         "vi": "Hộp Pandora III"
       },
-      "icon": "/tft/augments/tft9-augment-pandorasradiantbox.png",
+      "icon": "/tft/set19/augments/da-pandorasitemsiii3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4922,7 +4922,7 @@
         "en": "Partial Ascension",
         "vi": "Bán Thăng Hoa"
       },
-      "icon": "/tft/augments/tft9-augment-commander-partialascension.png",
+      "icon": "/tft/set19/augments/da-partialascension1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4936,7 +4936,7 @@
         "en": "Patience Is A Virtue",
         "vi": "Kiên Nhẫn Là Một Đức Tính"
       },
-      "icon": "/tft/augments/da-patienceisavirtue.png",
+      "icon": "/tft/set19/augments/da-patienceisavirtue1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4950,7 +4950,7 @@
         "en": "Patient Study",
         "vi": "Kiên Nhẫn Học Tập"
       },
-      "icon": "/tft/augments/tft9-augment-learningfromexperience2.png",
+      "icon": "/tft/set19/augments/da-patientstudy2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5006,7 +5006,7 @@
         "en": "Pilfer",
         "vi": "Ăn Trộm"
       },
-      "icon": "/tft/set19/augments/pilfer.webp",
+      "icon": "/tft/set19/augments/da-pilfer2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5034,7 +5034,7 @@
         "en": "Plot Armor",
         "vi": "Hào Quang Nhân Vật Chính"
       },
-      "icon": "/tft/augments/tft-augment-plotarmor.png",
+      "icon": "/tft/set19/augments/da-plotarmor2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5048,7 +5048,7 @@
         "en": "Portable Forge",
         "vi": "Lò Rèn Thần Thoại"
       },
-      "icon": "/tft/augments/tft6-augment-portableforge.png",
+      "icon": "/tft/set19/augments/da-portableforge2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5062,7 +5062,7 @@
         "en": "Prismatic Destiny",
         "vi": "Vận Mệnh Kim Cương"
       },
-      "icon": "/tft/augments/tft-augment-prismaticdestiny.png",
+      "icon": "/tft/set19/augments/da-prismaticdestiny3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5076,7 +5076,7 @@
         "en": "Prismatic Ticket",
         "vi": "Vé Kim Cương"
       },
-      "icon": "/tft/augments/tft6-augment-gachaaddict.png",
+      "icon": "/tft/set19/augments/da-prismaticticket3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5090,7 +5090,7 @@
         "en": "Promised Protection",
         "vi": "Thệ Ước Bảo Hộ"
       },
-      "icon": "/tft/augments/da-promisedprotection.png",
+      "icon": "/tft/set19/augments/da-promisedprotection2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5132,7 +5132,7 @@
         "en": "Quick Streaks",
         "vi": "Tích Chuỗi Nhanh"
       },
-      "icon": "/tft/augments/da-quickstreaks.png",
+      "icon": "/tft/set19/augments/da-quickstreaks1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5146,7 +5146,7 @@
         "en": "Radiant Rascal",
         "vi": "Quang Lân Tiểu Yêu"
       },
-      "icon": "/tft/augments/tft9-augment-rollthedice.png",
+      "icon": "/tft/set19/augments/da-radiantrascal3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5160,7 +5160,7 @@
         "en": "Radiant Relics",
         "vi": "Kho Thần Tích"
       },
-      "icon": "/tft/augments/tft6-augment-radiantrelics.png",
+      "icon": "/tft/set19/augments/da-radiantrelic3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5202,7 +5202,7 @@
         "en": "Recombobulator",
         "vi": "Xoay Bài Tự Động"
       },
-      "icon": "/tft/augments/tft6-augment-recombobulator.png",
+      "icon": "/tft/set19/augments/da-recombobulator1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5244,7 +5244,7 @@
         "en": "Replication",
         "vi": "Nhân Bản"
       },
-      "icon": "/tft/set19/augments/replication.webp",
+      "icon": "/tft/set19/augments/da-replication2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5342,7 +5342,7 @@
         "en": "Rolling For Days",
         "vi": "Xúc Xắc Vô Tận"
       },
-      "icon": "/tft/augments/da-rollingfordays.png",
+      "icon": "/tft/set19/augments/da-rollingfordays1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5398,7 +5398,7 @@
         "en": "Salvage Bin",
         "vi": "Nhà Máy Tái Chế"
       },
-      "icon": "/tft/augments/tft6-augment-salvagebinhr.png",
+      "icon": "/tft/set19/augments/da-salvagebin2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5412,7 +5412,7 @@
         "en": "Seraphim's Staff",
         "vi": "Trượng Đại Thiên Sứ"
       },
-      "icon": "/tft/augments/tft-augment-seraphimsstaff.png",
+      "icon": "/tft/set19/augments/da-seraphimsstaff2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5426,7 +5426,7 @@
         "en": "Shimmerscale Essence",
         "vi": "Tinh Túy Kim Long"
       },
-      "icon": "/tft/augments/tft-augment-shimmerscaleessence.png",
+      "icon": "/tft/set19/augments/da-shimmerscaleessence3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5440,7 +5440,7 @@
         "en": "Shopping Spree",
         "vi": "Tín Đồ Mua Sắm"
       },
-      "icon": "/tft/augments/tft9-augment-highendsector.png",
+      "icon": "/tft/set19/augments/da-shoppingspree3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5454,7 +5454,7 @@
         "en": "Silver Destiny",
         "vi": "Vận Mệnh Bạc"
       },
-      "icon": "/tft/augments/tft-augment-silverdestiny.png",
+      "icon": "/tft/set19/augments/da-silverdestiny1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5468,7 +5468,7 @@
         "en": "Silver Spoon",
         "vi": "Đặc Quyền Phú Gia"
       },
-      "icon": "/tft/augments/tft9-augment-silverspoon.png",
+      "icon": "/tft/set19/augments/da-silverspoon1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5482,7 +5482,7 @@
         "en": "Slammin'",
         "vi": "Hạ Đo Ván"
       },
-      "icon": "/tft/augments/tft11-augment-slammin.png",
+      "icon": "/tft/set19/augments/da-slammin2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5524,7 +5524,7 @@
         "en": "Slice of Life",
         "vi": "Chuyện Đời Thường"
       },
-      "icon": "/tft/augments/tft-augment-sliceoflife.png",
+      "icon": "/tft/set19/augments/da-sliceoflife1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5538,7 +5538,7 @@
         "en": "Slightly Magic Roll",
         "vi": "Quay Trúng Thưởng"
       },
-      "icon": "/tft/augments/tft-augment-magicrollminus.png",
+      "icon": "/tft/set19/augments/da-slightlymagicroll1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5552,7 +5552,7 @@
         "en": "Small Grab Bag",
         "vi": "Túi Đồ Cỡ Nhỏ"
       },
-      "icon": "/tft/augments/tft-augment-smallgrabbag.png",
+      "icon": "/tft/set19/augments/da-smallgrabbag1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5580,7 +5580,7 @@
         "en": "Solo Leveling",
         "vi": "Tôi Thăng Cấp Một Mình"
       },
-      "icon": "/tft/augments/tft-augment-sololeveling.png",
+      "icon": "/tft/set19/augments/da-sololeveling2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5594,7 +5594,7 @@
         "en": "Solo Plate",
         "vi": "Khiên Đơn Đấu"
       },
-      "icon": "/tft/augments/tft-augment-itemgargoylestoneplate.png",
+      "icon": "/tft/set19/augments/da-soloplate2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5608,7 +5608,7 @@
         "en": "Soul Awakening",
         "vi": "Thức Tỉnh Linh Hồn"
       },
-      "icon": "/tft/augments/tft-augment-awakenedsoul.png",
+      "icon": "/tft/set19/augments/da-soulawakening3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5622,7 +5622,7 @@
         "en": "Speedy Double Kill",
         "vi": "Song Sát Tốc Hành"
       },
-      "icon": "/tft/augments/tft-augment-speedydoublekill.png",
+      "icon": "/tft/set19/augments/da-speedydoublekill2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5636,7 +5636,7 @@
         "en": "Spirit Of Redemption",
         "vi": "Linh Hồn Chuộc Tội"
       },
-      "icon": "/tft/augments/da-spiritofredemption.png",
+      "icon": "/tft/set19/augments/da-spiritofredemption2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5650,7 +5650,7 @@
         "en": "Spreading Roots",
         "vi": "Cắm Rễ Phân Tán"
       },
-      "icon": "/tft/augments/tft-augment-spreadingroots.png",
+      "icon": "/tft/set19/augments/da-spreadingroots2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5678,7 +5678,7 @@
         "en": "Staffsmith II",
         "vi": "Staffsmith II"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-staffsmith2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5818,7 +5818,7 @@
         "en": "Sweet Treats",
         "vi": "Món Quà Ngọt Ngào"
       },
-      "icon": "/tft/augments/tft-augment-sweettreats.png",
+      "icon": "/tft/set19/augments/da-sweettreats3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5860,7 +5860,7 @@
         "en": "Sword Overflow",
         "vi": "Đam Mê Kiếm"
       },
-      "icon": "/tft/augments/tft-augment-swordoverflow.png",
+      "icon": "/tft/set19/augments/da-swordoverflow3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5888,7 +5888,7 @@
         "en": "Swordsmith II",
         "vi": "Swordsmith II"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-swordsmith2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5902,7 +5902,7 @@
         "en": "Tactician's Kitchen",
         "vi": "Linh Thú Vào Bếp"
       },
-      "icon": "/tft/augments/tft-augment-tacticianskitchen.png",
+      "icon": "/tft/set19/augments/da-tacticianskitchen3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5930,7 +5930,7 @@
         "en": "Team Building",
         "vi": "Xây Dựng Đội Hình"
       },
-      "icon": "/tft/augments/tft9-augment-armybuilding.png",
+      "icon": "/tft/set19/augments/da-teambuilding1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5972,7 +5972,7 @@
         "en": "The Golden Dragon",
         "vi": "Kim Long"
       },
-      "icon": "/tft/augments/tft-augment-thegoldendragon.png",
+      "icon": "/tft/set19/augments/da-thegoldendragon2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -5986,7 +5986,7 @@
         "en": "The Golden Egg",
         "vi": "Rồng Đẻ Trứng Vàng"
       },
-      "icon": "/tft/augments/tft6-augment-thegoldenegg.png",
+      "icon": "/tft/set19/augments/da-goldenegg3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6014,7 +6014,7 @@
         "en": "The Tower",
         "vi": "Tòa Tháp"
       },
-      "icon": "/tft/augments/tft-augment-thetower.png",
+      "icon": "/tft/set19/augments/da-thetower1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6028,7 +6028,7 @@
         "en": "The Trait Tree",
         "vi": "Cây Tộc/Hệ"
       },
-      "icon": "/tft/augments/tft-augment-traittree.png",
+      "icon": "/tft/set19/augments/da-thetraittree3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6070,7 +6070,7 @@
         "en": "Time Skip",
         "vi": "Vượt Thời Gian"
       },
-      "icon": "/tft/augments/tft-augment-timeskip.png",
+      "icon": "/tft/set19/augments/da-timeskip2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6084,7 +6084,7 @@
         "en": "Tons of Stats!",
         "vi": "Cộng Mệt Nghỉ!"
       },
-      "icon": "/tft/augments/tft9-augment-tonsofstats.png",
+      "icon": "/tft/set19/augments/da-tonsofstatsi2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6098,7 +6098,7 @@
         "en": "Trade Sector",
         "vi": "Khu Giao Dịch"
       },
-      "icon": "/tft/augments/tft6-augment-tradesector.png",
+      "icon": "/tft/set19/augments/da-tradesector2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6112,7 +6112,7 @@
         "en": "Trait Ladder",
         "vi": "Thứ Hạng Tộc Hệ"
       },
-      "icon": "/tft/augments/da-traitladder.png",
+      "icon": "/tft/set19/augments/da-traitladder3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6168,7 +6168,7 @@
         "en": "Twin Guardians",
         "vi": "Song Vệ"
       },
-      "icon": "/tft/augments/tft-augment-twinguardians.png",
+      "icon": "/tft/set19/augments/da-twinguardians1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6182,7 +6182,7 @@
         "en": "U.R.F",
         "vi": "U.R.F"
       },
-      "icon": "/tft/augments/tft16-augment-ultrarapidfire.png",
+      "icon": "/tft/set19/augments/da-urf2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6210,7 +6210,7 @@
         "en": "Upward Mobility",
         "vi": "Đẩy Nhanh Tiến Độ"
       },
-      "icon": "/tft/augments/tft-augment-upwardmobility.png",
+      "icon": "/tft/set19/augments/da-upwardmobility3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6224,7 +6224,7 @@
         "en": "Urf's Grab Bag",
         "vi": "Túi Đồ Urf"
       },
-      "icon": "/tft/augments/tft7-augment-urfsgrabbag2.png",
+      "icon": "/tft/set19/augments/da-urfsgrabbag3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6238,7 +6238,7 @@
         "en": "Verticality",
         "vi": "Chỉ Một Con Đường I"
       },
-      "icon": null,
+      "icon": "/tft/set19/augments/da-verticalityi1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6252,7 +6252,7 @@
         "en": "Verticality II",
         "vi": "Chỉ Một Con Đường II"
       },
-      "icon": "/tft/augments/da-verticalityii.png",
+      "icon": "/tft/set19/augments/da-verticalityii2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6266,7 +6266,7 @@
         "en": "Verticality III",
         "vi": "Chỉ Một Con Đường III"
       },
-      "icon": "/tft/augments/da-verticalityiii.png",
+      "icon": "/tft/set19/augments/da-verticalityiii3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6280,7 +6280,7 @@
         "en": "Wand Overflow",
         "vi": "Đam Mê Gậy"
       },
-      "icon": "/tft/augments/tft-augment-wandoverflow.png",
+      "icon": "/tft/set19/augments/da-wandoverflow3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6294,7 +6294,7 @@
         "en": "Warpath",
         "vi": "Đường Ra Trận"
       },
-      "icon": "/tft/set19/augments/warpath.webp",
+      "icon": "/tft/set19/augments/da-warpath2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6308,7 +6308,7 @@
         "en": "We Stick Together",
         "vi": "Kề Vai Sát Cánh"
       },
-      "icon": "/tft/augments/tft-augment-westicktogether.png",
+      "icon": "/tft/set19/augments/da-westicktogether3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6322,7 +6322,7 @@
         "en": "Weight The Worth",
         "vi": "Xứng Đáng Chờ Đợi"
       },
-      "icon": "/tft/augments/da-18-weighttheworth.png",
+      "icon": "/tft/set19/augments/da-18-weighttheworth2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6350,7 +6350,7 @@
         "en": "Worth the Wait",
         "vi": "Chờ Đợi Xứng Đáng"
       },
-      "icon": "/tft/augments/tft-augment-worththewaitgold.png",
+      "icon": "/tft/set19/augments/da-worththewait2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6364,7 +6364,7 @@
         "en": "Worth the Wait II",
         "vi": "Chờ Đợi Xứng Đáng II"
       },
-      "icon": "/tft/augments/tft-augment-worththewaitprismatic.png",
+      "icon": "/tft/set19/augments/da-worththewaitii3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6378,7 +6378,7 @@
         "en": "Woven Magic",
         "vi": "Ma Thuật Đan Kết"
       },
-      "icon": "/tft/augments/tft-augment-thevidalion.png",
+      "icon": "/tft/set19/augments/da-wovenmagic2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -6392,7 +6392,7 @@
         "en": "Young and Wild and Free",
         "vi": "Trẻ, Khỏe & Tự Do"
       },
-      "icon": "/tft/augments/tft9-augment-youngandwildandfree.png",
+      "icon": "/tft/set19/augments/da-youngandwildandfree1.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"

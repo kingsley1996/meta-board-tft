@@ -136,6 +136,14 @@ function champions(units) {
   return cards;
 }
 
+const STAT_LABEL = {
+  'Attack speed': 'AS',
+  'Attack Damage': 'AD',
+  'Ability Power': 'AP',
+  'Magic Resist': 'MR',
+  'Damage Amplification': 'Damage Amp',
+};
+
 function traits(html) {
   const marker = '<div class="p-4 rounded text-white1  bg-bg">';
   return html.split(marker).slice(1).map((card) => {
@@ -144,20 +152,22 @@ function traits(html) {
     const blockStart = card.indexOf('<div class="py-3 text-sm leading-tight">');
     const blockEnd = card.indexOf('<div class="flex pt-2 gap-[10px] flex-wrap">', blockStart);
     if (blockStart < 0) throw new Error(`description of ${name} not found`);
-    const lines = card
-      .slice(blockStart, blockEnd < 0 ? undefined : blockEnd)
-      // The ladder marker is its own span, so turn it and the spacer divs into line breaks
-      // before stripping tags; otherwise "(3) … (5) …" arrives as one paragraph. The reveal page
-      // moved from "(3)" to "3)" once PBE opened, so both spellings normalise to the same marker.
-      .replace(/<span class="font-medium">\(?(\d+)\)?<\/span>/g, '\n($1)\n')
-      .replace(/<div class="h-\[6px\]"><\/div>/g, '\n')
+    const lines = decode(card.slice(blockStart, blockEnd < 0 ? undefined : blockEnd))
+      // A rung is one <div> that mixes text spans with stat icons, and a spacer div separates the
+      // paragraphs above the ladder. Turning every div into a line break keeps a rung on one line
+      // instead of gluing "(3) … (5) …" into a paragraph. The page marks a rung either "(3)" or
+      // "3)", and a star-level rung escapes its star as markup, hence the decode above.
+      .replace(/<img[^>]*id="icon\.Star"[^>]*>/g, '★')
+      .replace(/<img[^>]*alt="([^"]*)"[^>]*>/g, (_, alt) => ` ${STAT_LABEL[alt] ?? alt} `)
+      .replace(/<div[^>]*>/g, '\n')
+      .replace(/<[^>]+>/g, '')
       .split('\n')
-      .map(clean)
+      .map((line) => line.replace(/\s+/g, ' ').replace(/\s+([,.;%])/g, '$1').trim())
       .filter(Boolean);
     const desc = [];
     const breakpoints = [];
     for (const line of lines) {
-      const mark = line.match(/^\((\d+)\)\s*(.*)$/);
+      const mark = line.match(/^\(?(\d+)★?\)\s*(.*)$/);
       if (mark) breakpoints.push({ count: Number(mark[1]), text: mark[2].trim() });
       else if (breakpoints.length) breakpoints[breakpoints.length - 1].text = `${breakpoints[breakpoints.length - 1].text} ${line}`.trim();
       else desc.push(line);
@@ -177,19 +187,23 @@ function traits(html) {
 }
 
 function augments(html) {
-  const marker = '<div class="p-4 rounded text-white1 pt-3 pb-2 bg-bg">';
+  const marker = '<div class="p-4 rounded text-white1  bg-bg">';
   return html.split(marker).slice(1).map((card) => {
-    const name = one(card, /font-montserrat font-medium py-1">([^<]+)</, 'augment name')[1];
-    const rest = card.slice(card.indexOf('font-montserrat font-medium py-1'));
+    const name = clean(one(card, /<h4[^>]*>([^<]+)<\/h4>/, 'augment name')[1]);
+    const desc = one(card, /<div class="text-sm leading-snug">([\s\S]*?)<\/div><\/div>/, `description of ${name}`)[1];
     const icon = one(card, /<img[^>]*src="(https:\/\/ap\.tft\.tools\/img\/augments\/[^"]+)"/, `icon of ${name}`)[1];
+    // Same rule as champion art: the file is keyed on the asset, not the display name. The page
+    // ships several variants under one name ("Invested+", "Invested++", "TONS of Stats!"), and a
+    // name slug would let them overwrite each other.
+    const asset = one(icon, /img\/augments\/([^.?]+)/, `asset of ${name}`)[1];
     // The icon filename ends in the tier digit (1 silver, 2 gold, 3 prismatic); the card itself
     // carries no rarity, and 187 of the 189 augments that also exist in the live set agree with it.
     const rarity = Number(one(icon, /(\d)\.png(?:\?|$)/, `tier of ${name}`)[1]);
     return {
-      name: clean(name),
-      desc: clean(rest.slice(rest.indexOf('</div>') + 6)),
+      name,
+      desc: clean(desc),
       rarity,
-      icon: { url: decode(icon), file: `${slugify(clean(name))}.webp` },
+      icon: { url: decode(icon), file: `${slugify(asset)}.webp` },
     };
   });
 }

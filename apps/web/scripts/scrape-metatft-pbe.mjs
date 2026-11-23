@@ -124,9 +124,13 @@ for (const champion of scraped.champions) {
 }
 
 const enAugments = new Map(en.augments.map((augment) => [augment.en_name, augment]));
+// The reveal page ships tier variants under one display name ("Blind Box" at 5, 8 and 11 gold), and
+// both lookups do the same, so a name join would hand the 11-gold card the 5-gold card's Vietnamese
+// sentence. A name that spells more than one card gets no translation at all.
+const sharedNames = new Set(scraped.augments.map((augment) => augment.name).filter((name, index, names) => names.indexOf(name) !== index));
 for (const augment of scraped.augments) {
   const meta = viAugmentByName.get(augment.name);
-  if (!meta) {
+  if (!meta || sharedNames.has(augment.name)) {
     stats.fallbacks.push(augment.name);
     continue;
   }
