@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-11-23T12:43:49.599Z",
+  "generatedAt": "2026-11-24T11:30:56.978Z",
   "patch": "19.1",
   "set": 19,
   "isPbe": true,
   "source": {
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-20T08:10:12.916Z"
+    "fetchedAt": "2026-11-24T11:29:53.707Z"
   },
   "baseline": {
     "patch": "18.7",
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-20T08:10:15.723Z"
+    "fetchedAt": "2026-11-24T11:29:57.812Z"
   },
   "coverage": {
     "champs": {
@@ -23,7 +23,7 @@
     },
     "augments": {
       "released": 248,
-      "pbe": 345
+      "pbe": 344
     },
     "items": {
       "released": 158,
@@ -916,7 +916,7 @@
       "table": "champions",
       "name": {
         "en": "Rainstick",
-        "vi": "Rainstick"
+        "vi": "Gậy Mưa"
       },
       "icon": null,
       "cost": 0,
@@ -2680,7 +2680,7 @@
       "table": "augments",
       "name": {
         "en": "Bundle o' Shrooms",
-        "vi": "Bundle o' Shrooms"
+        "vi": "Bó Nấm"
       },
       "icon": null,
       "cost": null,
@@ -2694,7 +2694,7 @@
       "table": "augments",
       "name": {
         "en": "Bundle o' Shrooms II",
-        "vi": "Bó Nấm"
+        "vi": "Bó Nấm II"
       },
       "icon": null,
       "cost": null,
@@ -2932,7 +2932,7 @@
       "table": "augments",
       "name": {
         "en": "Cheat Code",
-        "vi": "Cheat Code"
+        "vi": "Mã Gian Lận"
       },
       "icon": null,
       "cost": null,
@@ -3159,20 +3159,6 @@
         "vi": "Ăn Mòn"
       },
       "icon": "/tft/set19/augments/da-corrosion1.webp",
-      "cost": null,
-      "change": "added",
-      "heading": "AUGMENTS"
-    },
-    {
-      "ref": "19_countingstars",
-      "slug": null,
-      "kind": "augment",
-      "table": "augments",
-      "name": {
-        "en": "Counting Stars",
-        "vi": "Đếm Những Vì Sao"
-      },
-      "icon": null,
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -3590,7 +3576,7 @@
       "table": "augments",
       "name": {
         "en": "Fighter Flight",
-        "vi": "Chiến hoặc Chạy"
+        "vi": "Phi Đội Đấu Sĩ"
       },
       "icon": null,
       "cost": null,
@@ -3766,6 +3752,20 @@
       "heading": "AUGMENTS"
     },
     {
+      "ref": "19_gaingoldplus",
+      "slug": null,
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Gain 28 Gold+",
+        "vi": "Nhận 21 Vàng+"
+      },
+      "icon": null,
+      "cost": null,
+      "change": "added",
+      "heading": "AUGMENTS"
+    },
+    {
       "ref": "19_pentakill19_gatheringstorm",
       "slug": null,
       "kind": "augment",
@@ -3929,20 +3929,6 @@
         "vi": "Thương Vụ Khó Xơi"
       },
       "icon": "/tft/set19/augments/da-hardbargain2.webp",
-      "cost": null,
-      "change": "added",
-      "heading": "AUGMENTS"
-    },
-    {
-      "ref": "19_hardcommit",
-      "slug": null,
-      "kind": "augment",
-      "table": "augments",
-      "name": {
-        "en": "Hard Commit",
-        "vi": "Chỉ Một Con Đường"
-      },
-      "icon": "/tft/set19/augments/da-hardcommit3.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4181,6 +4167,20 @@
         "vi": "Lưu Danh Nhà Hát"
       },
       "icon": null,
+      "cost": null,
+      "change": "added",
+      "heading": "AUGMENTS"
+    },
+    {
+      "ref": "19_infinityprotection",
+      "slug": null,
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Infinity Protection",
+        "vi": "Bảo Hộ Vô Tận"
+      },
+      "icon": "/tft/set19/augments/da-infinityprotection2.webp",
       "cost": null,
       "change": "added",
       "heading": "AUGMENTS"
@@ -4598,7 +4598,7 @@
       "table": "augments",
       "name": {
         "en": "Mad Science",
-        "vi": "Mad Science"
+        "vi": "Khoa Học Điên Rồ"
       },
       "icon": null,
       "cost": null,
@@ -5102,7 +5102,7 @@
       "table": "augments",
       "name": {
         "en": "Punch Line",
-        "vi": "Punch Line"
+        "vi": "Cú Chốt"
       },
       "icon": null,
       "cost": null,
@@ -6698,7 +6698,7 @@
       "table": "items",
       "name": {
         "en": "Choreographer Emblem",
-        "vi": "Choreographer Emblem"
+        "vi": "Ấn Biên Đạo"
       },
       "icon": null,
       "cost": null,
@@ -7692,7 +7692,7 @@
       "table": "items",
       "name": {
         "en": "Pentakill Prismatic Quest",
-        "vi": "Pentakill Prismatic Quest"
+        "vi": "Nhiệm Vụ Kim Cương Pentakill"
       },
       "icon": null,
       "cost": null,
@@ -8616,7 +8616,7 @@
       "table": "items",
       "name": {
         "en": "Swiftstriker Emblem",
-        "vi": "Swiftstriker Emblem"
+        "vi": "Ấn Tốc Kích"
       },
       "icon": null,
       "cost": null,
@@ -8644,7 +8644,7 @@
       "table": "items",
       "name": {
         "en": "Tacticians Crown",
-        "vi": "Tacticians Crown"
+        "vi": "Vương Miện Chiến Thuật"
       },
       "icon": null,
       "cost": null,
