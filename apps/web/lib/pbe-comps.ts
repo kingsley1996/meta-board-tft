@@ -2,7 +2,7 @@ import set19 from '@tftiq/shared/data/set19.json';
 import set19Comps from '@tftiq/shared/data/set19-comps.json';
 import type { ApiComp, ApiUnit, CompsResponse } from './api';
 import type { Lang } from './i18n';
-import type { Tier } from './tiers';
+import { tierBands } from './pbe-tiers';
 
 // Adapts the MetaTFT PBE scrape into the same ApiComp shape the live tier list
 // renders, so /set-19's comps tab can reuse CompsExplorer + CompPanel verbatim.
@@ -12,10 +12,10 @@ import type { Tier } from './tiers';
 
 const localized = (lang: Lang, en: string, vi: string | null | undefined) => (lang === 'vi' && vi ? vi : en);
 
-// Average placement is the only quality signal PBE has, so it doubles as the
-// tier band. The cut-offs spread the current pool across S..D the way the live
-// editorial tiers read.
-const tierOf = (avg: number): Tier => (avg <= 3.4 ? 'S' : avg <= 3.9 ? 'A' : avg <= 4.4 ? 'B' : avg <= 4.9 ? 'C' : 'D');
+// Average placement is the only quality signal PBE has, so it doubles as the tier band; the bands
+// are taken from the pool's own spread (lib/pbe-tiers.ts) rather than fixed cut-offs that drift
+// with the patch.
+const tierOf = tierBands(set19Comps.comps.map((comp) => comp.avg));
 const styleOf = (level: number) => (level >= 9 ? 'Fast 9' : level >= 8 ? 'Fast 8' : 'Reroll');
 
 const RUNG_STYLE = [1, 3, 5, 6];
