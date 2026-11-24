@@ -56,6 +56,17 @@ const pipOf = (cost: number) => (cost === 7 ? traitStyleForNumber(6).ink : costO
 // Rungs run bronze → silver → gold → prismatic as the breakpoint count climbs.
 const RUNG_STYLE = [1, 3, 5, 6];
 
+// One badge per system card, in the reveal page's order: the scrape keeps that order and the VI
+// write-up follows it, so an index is enough and no translated title has to be matched.
+const SYSTEM_ART = [
+  '/tft/set19/traits/da_kda19.svg',
+  '/tft/set19/champions/da-baronnashor19.webp',
+  '/tft/set19/augments/da-prismaticticket3.webp',
+  '/tft/set19/traits/da_ionicspark19.svg',
+];
+
+const sevenCostChampions = set19.champions.filter((champion) => champion.cost === 7);
+
 // Official Riot Vietnamese strings are merged in by the scraper where they exist (names always on
 // an exact name match, descriptions only on identical English text); everything else stays English
 // rather than being machine-translated.
@@ -185,13 +196,45 @@ export default async function SetUpdatePage({
       </nav>
 
       {active === 'gameplay' ? (
-        <section data-section="set-systems" className="flex flex-col gap-4">
-          <p className="max-w-4xl text-base leading-relaxed text-fog">{systems.intro}</p>
-          <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(280px,1fr))]">
-            {systems.systems.map((system) => (
-              <Panel key={system.title} className="relative flex flex-col gap-2 overflow-hidden p-5 transition hover:border-brand/40">
+        <section data-section="set-systems" className="flex flex-col gap-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { tab: 'units' as Tab, value: set19.champions.length, label: t.units },
+              { tab: 'traits' as Tab, value: set19.traits.length, label: t.traits },
+              { tab: 'augments' as Tab, value: set19.augments.length, label: t.augments },
+              { tab: 'comps' as Tab, value: set19Comps.comps.length, label: t.comps },
+            ].map((entry) => (
+              <Link
+                key={entry.tab}
+                href={href(entry.tab)}
+                scroll={false}
+                className="group relative overflow-hidden rounded-xl border border-line bg-panel p-4 transition hover:border-brand/50"
+              >
                 <span className="absolute inset-x-0 top-0 h-0.5 bg-[linear-gradient(90deg,var(--color-brand),transparent)]" />
-                <h2 className="font-display text-lg font-semibold text-fog">{system.title}</h2>
+                <span className="block font-display text-3xl font-bold leading-none text-fog group-hover:text-brand">
+                  {entry.value}
+                </span>
+                <span className="mt-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-mist">
+                  {entry.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          <Panel className="p-5 sm:p-6">
+            <p className="max-w-4xl text-base leading-relaxed text-fog">{systems.intro}</p>
+          </Panel>
+
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(280px,1fr))]">
+            {systems.systems.map((system, index) => (
+              <Panel key={system.title} className="relative flex flex-col gap-3 overflow-hidden p-5 transition hover:border-brand/40">
+                <span className="absolute inset-x-0 top-0 h-0.5 bg-[linear-gradient(90deg,var(--color-brand),transparent)]" />
+                <div className="flex items-center gap-3">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-line bg-util">
+                    <img src={SYSTEM_ART[index]} alt="" width={28} height={28} loading="lazy" className="h-7 w-7 object-contain" />
+                  </span>
+                  <h2 className="font-display text-lg font-semibold text-fog">{system.title}</h2>
+                </div>
                 {system.desc.split('\n\n').map((paragraph) => (
                   <p key={paragraph.slice(0, 24)} className="text-sm leading-relaxed text-mist">
                     {paragraph}
@@ -200,6 +243,75 @@ export default async function SetUpdatePage({
               </Panel>
             ))}
           </div>
+
+          <Panel className="flex flex-col gap-4 p-4 sm:p-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <h2 className="font-display text-lg font-semibold text-fog">{t.sevenTitle}</h2>
+              <span className="text-xs text-mist">{t.sevenNote}</span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {sevenCostChampions.map((champion) => (
+                <div key={champion.name} className="relative overflow-hidden rounded-xl border border-line bg-util/40">
+                  {champion.splash ? (
+                    <img src={champion.splash} alt="" loading="lazy" className="h-28 w-full object-cover" />
+                  ) : null}
+                  <div className="absolute inset-x-0 top-0 h-28 bg-[linear-gradient(180deg,transparent_0%,rgba(21,29,34,0.35)_55%,var(--color-panel)_100%)]" />
+                  <span
+                    className="absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-bold text-[#12161d] backdrop-blur"
+                    style={{ background: PRISMATIC_FRAME }}
+                  >
+                    {t.cost(7)}
+                  </span>
+                  <div className="absolute top-[68px] left-3">
+                    <UnitHex
+                      name={champion.name}
+                      cost={champion.cost}
+                      size={50}
+                      icon={champion.icon}
+                      frame={PRISMATIC_FRAME}
+                      tip={false}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5 px-3 pt-7 pb-3">
+                    <p className="font-display text-base font-semibold leading-tight text-fog">
+                      {localized(lang, champion.name, champion.nameVi)}
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {champion.traits.map((trait, traitIndex) => (
+                        <Chip key={trait}>{localized(lang, trait, champion.traitsVi?.[traitIndex] ?? null)}</Chip>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Panel>
+
+          <Panel className="flex flex-col gap-3 p-4 sm:p-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <h2 className="font-display text-lg font-semibold text-fog">{t.traits}</h2>
+              <span className="text-xs text-mist">{t.traitsNote}</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {traitsByName.map((trait) => (
+                <Link
+                  key={trait.slug}
+                  href={`/${lang}/set-19?tab=traits`}
+                  scroll={false}
+                  title={trait.desc ? localized(lang, trait.desc, trait.descVi) : trait.name}
+                  className="smooth inline-flex items-center gap-1.5 rounded-full border border-line bg-util/50 py-1 pr-2.5 pl-1 text-xs font-semibold text-mist hover:border-brand/50 hover:text-fog"
+                >
+                  {trait.icon ? (
+                    <img src={trait.icon} alt="" width={18} height={18} loading="lazy" className="h-[18px] w-[18px]" />
+                  ) : null}
+                  {localized(lang, trait.name, trait.nameVi)}
+                  {trait.units.length ? (
+                    <span className="text-[10px] font-normal text-mist/70">{trait.units.length}</span>
+                  ) : null}
+                </Link>
+              ))}
+            </div>
+          </Panel>
         </section>
       ) : null}
 

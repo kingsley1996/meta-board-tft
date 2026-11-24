@@ -61,6 +61,9 @@ const en = {
     gold: 'Gold',
     prismatic: 'Prismatic',
     comps: 'Comps',
+    sevenTitle: 'The 7-cost headliners',
+    sevenNote: 'Set 19 adds a rung above gold: four units cost 7.',
+    traitsNote: 'Every trait in the set — open the traits tab for its ladder.',
   },
   nav: {
     comps: 'Comps',
@@ -1125,6 +1128,9 @@ const vi: typeof en = {
     gold: 'Vàng',
     prismatic: 'Kim cương',
     comps: 'Đội hình',
+    sevenTitle: 'Dàn sao 7 vàng',
+    sevenNote: 'Mùa 19 nâng giá tướng lên một bậc: bốn unit 7 vàng.',
+    traitsNote: 'Toàn bộ tộc/hệ của mùa — mở tab tộc/hệ để xem mốc và tướng.',
   },
   nav: {
     comps: 'Đội hình',
