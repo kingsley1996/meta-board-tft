@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-11-23T12:43:49.599Z",
+  "generatedAt": "2026-11-25T10:18:42.372Z",
   "patch": "19.1",
   "set": 19,
   "isPbe": true,
   "source": {
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-20T08:10:12.916Z"
+    "fetchedAt": "2026-11-25T10:17:20.585Z"
   },
   "baseline": {
     "patch": "18.7",
     "provider": "tftips-catalog",
-    "fetchedAt": "2026-11-20T08:10:15.723Z"
+    "fetchedAt": "2026-11-25T10:17:26.598Z"
   },
   "coverage": {
     "champs": {
@@ -23,7 +23,7 @@
     },
     "augments": {
       "released": 248,
-      "pbe": 345
+      "pbe": 344
     },
     "items": {
       "released": 158,
@@ -916,7 +916,7 @@
       "table": "champions",
       "name": {
         "en": "Rainstick",
-        "vi": "Rainstick"
+        "vi": "Gậy Mưa"
       },
       "icon": null,
       "cost": 0,
@@ -1588,7 +1588,7 @@
       "table": "traits",
       "name": {
         "en": "Composer",
-        "vi": "Composer"
+        "vi": "Nhạc Sĩ"
       },
       "icon": "/tft/set19/traits/da_malzahar19_uniquetrait.svg",
       "cost": null,
@@ -1602,7 +1602,7 @@
       "table": "traits",
       "name": {
         "en": "Country",
-        "vi": "Country"
+        "vi": "Đồng Quê"
       },
       "icon": "/tft/set19/traits/da_alistar19_uniquetrait.svg",
       "cost": null,
@@ -1924,7 +1924,7 @@
       "table": "traits",
       "name": {
         "en": "One Monster Band",
-        "vi": "One Monster Band"
+        "vi": "Quái Vật Solo"
       },
       "icon": "/tft/set19/traits/da_baronnashor19_uniquetrait.svg",
       "cost": null,
@@ -2120,7 +2120,7 @@
       "table": "traits",
       "name": {
         "en": "Trickshot",
-        "vi": "Trickshot"
+        "vi": "Xạ Thuật Sư"
       },
       "icon": "/tft/set19/traits/da_trickshot19.svg",
       "cost": null,
@@ -2414,7 +2414,7 @@
       "table": "augments",
       "name": {
         "en": "Battle of the Bands",
-        "vi": "Battle of the Bands"
+        "vi": "Ban Nhạc Đại Chiến"
       },
       "icon": null,
       "cost": null,
@@ -2428,7 +2428,7 @@
       "table": "augments",
       "name": {
         "en": "Beach Pop Circlet",
-        "vi": "Beach Pop Circlet"
+        "vi": "Vòng Tròn Beach Pop"
       },
       "icon": null,
       "cost": null,
@@ -2470,7 +2470,7 @@
       "table": "augments",
       "name": {
         "en": "Beltsmith",
-        "vi": "Thợ Rèn Đai I"
+        "vi": "Thợ Rèn Đai"
       },
       "icon": null,
       "cost": null,
@@ -2554,7 +2554,7 @@
       "table": "augments",
       "name": {
         "en": "Blind Box",
-        "vi": "Blind Box"
+        "vi": "Hộp Mù"
       },
       "icon": null,
       "cost": null,
@@ -2680,7 +2680,7 @@
       "table": "augments",
       "name": {
         "en": "Bundle o' Shrooms",
-        "vi": "Bundle o' Shrooms"
+        "vi": "Bó Nấm"
       },
       "icon": null,
       "cost": null,
@@ -2694,7 +2694,7 @@
       "table": "augments",
       "name": {
         "en": "Bundle o' Shrooms II",
-        "vi": "Bó Nấm"
+        "vi": "Bó Nấm II"
       },
       "icon": null,
       "cost": null,
@@ -2764,7 +2764,7 @@
       "table": "augments",
       "name": {
         "en": "Capital Gains",
-        "vi": "Tăng Vốn I"
+        "vi": "Tăng Vốn"
       },
       "icon": "/tft/set19/augments/da-capitalgainsi1.webp",
       "cost": null,
@@ -2848,7 +2848,7 @@
       "table": "augments",
       "name": {
         "en": "Celestial Blessing",
-        "vi": "Phước Lành Vũ Trụ I"
+        "vi": "Thiên Giới Ban Phước"
       },
       "icon": "/tft/set19/augments/da-celestialblessingi1.webp",
       "cost": null,
@@ -2932,7 +2932,7 @@
       "table": "augments",
       "name": {
         "en": "Cheat Code",
-        "vi": "Cheat Code"
+        "vi": "Mã Gian Lận"
       },
       "icon": null,
       "cost": null,
@@ -2946,7 +2946,7 @@
       "table": "augments",
       "name": {
         "en": "Cheat Code II",
-        "vi": "Cheat Code II"
+        "vi": "Mã Gian Lận II"
       },
       "icon": null,
       "cost": null,
@@ -3016,7 +3016,7 @@
       "table": "augments",
       "name": {
         "en": "Classical Crown",
-        "vi": "Classical Crown"
+        "vi": "Vương Miện Cổ Điển"
       },
       "icon": null,
       "cost": null,
@@ -3164,20 +3164,6 @@
       "heading": "AUGMENTS"
     },
     {
-      "ref": "19_countingstars",
-      "slug": null,
-      "kind": "augment",
-      "table": "augments",
-      "name": {
-        "en": "Counting Stars",
-        "vi": "Đếm Những Vì Sao"
-      },
-      "icon": null,
-      "cost": null,
-      "change": "added",
-      "heading": "AUGMENTS"
-    },
-    {
       "ref": "19_craftedcrafting",
       "slug": null,
       "kind": "augment",
@@ -3198,7 +3184,7 @@
       "table": "augments",
       "name": {
         "en": "Crit Rune",
-        "vi": "Crit Rune"
+        "vi": "Ngọc Chí Mạng"
       },
       "icon": null,
       "cost": null,
@@ -3408,7 +3394,7 @@
       "table": "augments",
       "name": {
         "en": "Duplicator Deal",
-        "vi": "Duplicator Deal"
+        "vi": "Ưu Đãi Nhân Bản"
       },
       "icon": null,
       "cost": null,
@@ -3436,7 +3422,7 @@
       "table": "augments",
       "name": {
         "en": "Electrocharge",
-        "vi": "Tụ Điện I"
+        "vi": "Tụ Điện"
       },
       "icon": "/tft/set19/augments/da-electrochargei1.webp",
       "cost": null,
@@ -3590,7 +3576,7 @@
       "table": "augments",
       "name": {
         "en": "Fighter Flight",
-        "vi": "Chiến hoặc Chạy"
+        "vi": "Phi Đội Đấu Sĩ"
       },
       "icon": null,
       "cost": null,
@@ -3766,6 +3752,20 @@
       "heading": "AUGMENTS"
     },
     {
+      "ref": "19_gaingoldplus",
+      "slug": null,
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Gain 28 Gold+",
+        "vi": "Nhận 28 Vàng+"
+      },
+      "icon": null,
+      "cost": null,
+      "change": "added",
+      "heading": "AUGMENTS"
+    },
+    {
       "ref": "19_pentakill19_gatheringstorm",
       "slug": null,
       "kind": "augment",
@@ -3814,7 +3814,7 @@
       "table": "augments",
       "name": {
         "en": "Glass Cannon",
-        "vi": "Lấy Công Bù Thủ I"
+        "vi": "Lấy Công Bù Thủ"
       },
       "icon": "/tft/set19/augments/da-glasscannon-silver1.webp",
       "cost": null,
@@ -3870,7 +3870,7 @@
       "table": "augments",
       "name": {
         "en": "Good For Something",
-        "vi": "Được Cái Này Mất Cái Kia I"
+        "vi": "Được Cái Này Mất Cái Kia"
       },
       "icon": null,
       "cost": null,
@@ -3898,7 +3898,7 @@
       "table": "augments",
       "name": {
         "en": "Group Hug",
-        "vi": "Ôm Tập Thể I"
+        "vi": "Ôm Tập Thể"
       },
       "icon": "/tft/set19/augments/da-grouphugi1.webp",
       "cost": null,
@@ -3934,20 +3934,6 @@
       "heading": "AUGMENTS"
     },
     {
-      "ref": "19_hardcommit",
-      "slug": null,
-      "kind": "augment",
-      "table": "augments",
-      "name": {
-        "en": "Hard Commit",
-        "vi": "Chỉ Một Con Đường"
-      },
-      "icon": "/tft/set19/augments/da-hardcommit3.webp",
-      "cost": null,
-      "change": "added",
-      "heading": "AUGMENTS"
-    },
-    {
       "ref": "19_kennen19_heroaugment",
       "slug": null,
       "kind": "augment",
@@ -3968,7 +3954,7 @@
       "table": "augments",
       "name": {
         "en": "Healing Orbs",
-        "vi": "Cầu Hồi Phục I"
+        "vi": "Cầu Hồi Phục"
       },
       "icon": "/tft/set19/augments/da-healingorbsi1.webp",
       "cost": null,
@@ -4186,6 +4172,20 @@
       "heading": "AUGMENTS"
     },
     {
+      "ref": "19_infinityprotection",
+      "slug": null,
+      "kind": "augment",
+      "table": "augments",
+      "name": {
+        "en": "Infinity Protection",
+        "vi": "Bảo Hộ Vô Tận"
+      },
+      "icon": "/tft/set19/augments/da-infinityprotection2.webp",
+      "cost": null,
+      "change": "added",
+      "heading": "AUGMENTS"
+    },
+    {
       "ref": "19_investedplus",
       "slug": null,
       "kind": "augment",
@@ -4206,7 +4206,7 @@
       "table": "augments",
       "name": {
         "en": "Investment Strategy",
-        "vi": "Chiến Thuật Đầu Tư I"
+        "vi": "Chiến Thuật Đầu Tư"
       },
       "icon": "/tft/set19/augments/da-investmentstrategyi2.webp",
       "cost": null,
@@ -4234,7 +4234,7 @@
       "table": "augments",
       "name": {
         "en": "Ionic Spark Circlet",
-        "vi": "Mordekaiser Poro Cổ Vũ"
+        "vi": "Vòng Tròn Ionic Spark"
       },
       "icon": null,
       "cost": null,
@@ -4304,7 +4304,7 @@
       "table": "augments",
       "name": {
         "en": "Item Grab Bag",
-        "vi": "Tiếp Tế Trang Bị I"
+        "vi": "Tiếp Tế Trang Bị"
       },
       "icon": "/tft/set19/augments/da-itemgrabbag1.webp",
       "cost": null,
@@ -4318,7 +4318,7 @@
       "table": "augments",
       "name": {
         "en": "Jazz Circlet",
-        "vi": "Vòng Tròn Hiền Giả"
+        "vi": "Vòng Tròn Jazz"
       },
       "icon": null,
       "cost": null,
@@ -4430,7 +4430,7 @@
       "table": "augments",
       "name": {
         "en": "Knowledge Download",
-        "vi": "Knowledge Download"
+        "vi": "Tải Xuống Tri Thức"
       },
       "icon": null,
       "cost": null,
@@ -4598,7 +4598,7 @@
       "table": "augments",
       "name": {
         "en": "Mad Science",
-        "vi": "Mad Science"
+        "vi": "Khoa Học Điên Rồ"
       },
       "icon": null,
       "cost": null,
@@ -4626,7 +4626,7 @@
       "table": "augments",
       "name": {
         "en": "Makeshift Armor",
-        "vi": "Giáp Tự Chế I"
+        "vi": "Giáp Tự Chế"
       },
       "icon": "/tft/set19/augments/da-makeshiftarmori1.webp",
       "cost": null,
@@ -4878,7 +4878,7 @@
       "table": "augments",
       "name": {
         "en": "Pandora's Items",
-        "vi": "Hộp Pandora I"
+        "vi": "Hộp Pandora"
       },
       "icon": "/tft/set19/augments/da-pandorasitemsi1.webp",
       "cost": null,
@@ -5102,7 +5102,7 @@
       "table": "augments",
       "name": {
         "en": "Punch Line",
-        "vi": "Punch Line"
+        "vi": "Cú Chốt"
       },
       "icon": null,
       "cost": null,
@@ -5116,7 +5116,7 @@
       "table": "augments",
       "name": {
         "en": "Pyramid Scheme",
-        "vi": "Mô Hình Đa Cấp"
+        "vi": "Mô Hình Đa Cấp Độ"
       },
       "icon": null,
       "cost": null,
@@ -5284,7 +5284,7 @@
       "table": "augments",
       "name": {
         "en": "Reunion Show II",
-        "vi": "Reunion Show II"
+        "vi": "Chương Trình Đoàn Tụ II"
       },
       "icon": null,
       "cost": null,
@@ -5662,7 +5662,7 @@
       "table": "augments",
       "name": {
         "en": "Staffsmith",
-        "vi": "Thợ Rèn Gậy I"
+        "vi": "Thợ Rèn Gậy"
       },
       "icon": "/tft/augments/tft-augment-forgerod.png",
       "cost": null,
@@ -5676,7 +5676,7 @@
       "table": "augments",
       "name": {
         "en": "Staffsmith II",
-        "vi": "Staffsmith II"
+        "vi": "Thợ Rèn Gậy II"
       },
       "icon": "/tft/set19/augments/da-staffsmith2.webp",
       "cost": null,
@@ -5704,7 +5704,7 @@
       "table": "augments",
       "name": {
         "en": "Star of the Show",
-        "vi": "Star of the Show"
+        "vi": "Ngôi Sao Tâm Điểm"
       },
       "icon": null,
       "cost": null,
@@ -5830,7 +5830,7 @@
       "table": "augments",
       "name": {
         "en": "Swiftstriker Circlet",
-        "vi": "Swiftstriker Circlet"
+        "vi": "Vòng Tròn Tốc Kích"
       },
       "icon": null,
       "cost": null,
@@ -5872,7 +5872,7 @@
       "table": "augments",
       "name": {
         "en": "Swordsmith",
-        "vi": "Thợ Rèn Kiếm I"
+        "vi": "Thợ Rèn Kiếm"
       },
       "icon": "/tft/augments/tft-augment-forgesword.png",
       "cost": null,
@@ -5886,7 +5886,7 @@
       "table": "augments",
       "name": {
         "en": "Swordsmith II",
-        "vi": "Swordsmith II"
+        "vi": "Thợ Rèn Kiếm II"
       },
       "icon": "/tft/set19/augments/da-swordsmith2.webp",
       "cost": null,
@@ -6054,7 +6054,7 @@
       "table": "augments",
       "name": {
         "en": "Tibbers! I Can't See the Stage",
-        "vi": "Tibbers! I Can't See the Stage"
+        "vi": "Tibbers! Tôi Không Thể Nhìn Thấy Sân Khấu"
       },
       "icon": null,
       "cost": null,
@@ -6152,7 +6152,7 @@
       "table": "augments",
       "name": {
         "en": "True Damage Prismatic Tour",
-        "vi": "True Damage Prismatic Tour"
+        "vi": "True Damage Nhạc Hội Muôn Màu"
       },
       "icon": null,
       "cost": null,
@@ -6236,7 +6236,7 @@
       "table": "augments",
       "name": {
         "en": "Verticality",
-        "vi": "Chỉ Một Con Đường I"
+        "vi": "Chỉ Một Con Đường"
       },
       "icon": "/tft/set19/augments/da-verticalityi1.webp",
       "cost": null,
@@ -6418,7 +6418,7 @@
       "table": "augments",
       "name": {
         "en": "Zz'Rot Portal",
-        "vi": "Zz'Rot Portal"
+        "vi": "Thông Đạo Zz'rot"
       },
       "icon": null,
       "cost": null,
@@ -6698,7 +6698,7 @@
       "table": "items",
       "name": {
         "en": "Choreographer Emblem",
-        "vi": "Choreographer Emblem"
+        "vi": "Ấn Biên Đạo"
       },
       "icon": null,
       "cost": null,
@@ -7090,7 +7090,7 @@
       "table": "items",
       "name": {
         "en": "Heartsteel Prismatic Quest",
-        "vi": "Heartsteel Prismatic Quest"
+        "vi": "Nhiệm Vụ Kim Cương Heartsteel"
       },
       "icon": null,
       "cost": null,
@@ -7188,7 +7188,7 @@
       "table": "items",
       "name": {
         "en": "IllBeats Emblem",
-        "vi": "IllBeats Emblem"
+        "vi": "Ấn IllBeats"
       },
       "icon": null,
       "cost": null,
@@ -7678,7 +7678,7 @@
       "table": "items",
       "name": {
         "en": "Pentakill Emblem",
-        "vi": "Pentakill Emblem"
+        "vi": "Ấn Pentakill"
       },
       "icon": null,
       "cost": null,
@@ -7692,7 +7692,7 @@
       "table": "items",
       "name": {
         "en": "Pentakill Prismatic Quest",
-        "vi": "Pentakill Prismatic Quest"
+        "vi": "Nhiệm Vụ Kim Cương Pentakill"
       },
       "icon": null,
       "cost": null,
@@ -7706,7 +7706,7 @@
       "table": "items",
       "name": {
         "en": "Prismatic Crownguard",
-        "vi": "Prismatic Crownguard"
+        "vi": "Vương Miện Hoàng Gia Kim Cương"
       },
       "icon": null,
       "cost": null,
@@ -8364,7 +8364,7 @@
       "table": "items",
       "name": {
         "en": "Rock Emblem",
-        "vi": "Rock Emblem"
+        "vi": "Ấn Rock"
       },
       "icon": null,
       "cost": null,
@@ -8476,7 +8476,7 @@
       "table": "items",
       "name": {
         "en": "Sona's Homemade Cookies",
-        "vi": "Sona's Homemade Cookies"
+        "vi": "Bánh Quy Tự Làm Của Sona"
       },
       "icon": null,
       "cost": null,
@@ -8616,7 +8616,7 @@
       "table": "items",
       "name": {
         "en": "Swiftstriker Emblem",
-        "vi": "Swiftstriker Emblem"
+        "vi": "Ấn Tốc Kích"
       },
       "icon": null,
       "cost": null,
@@ -8644,7 +8644,7 @@
       "table": "items",
       "name": {
         "en": "Tacticians Crown",
-        "vi": "Tacticians Crown"
+        "vi": "Vương Miện Chiến Thuật"
       },
       "icon": null,
       "cost": null,
